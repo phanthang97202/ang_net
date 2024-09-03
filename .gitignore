@@ -1,13 +1,13 @@
 
 
-/API/appsetting.json
+/API/appsettings.json
 
 
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
 /client/dist
-/client/src/environments
+/client/src/environments/environment.ts
 /client/tmp
 /client/out-tsc
 /client/bazel-out
