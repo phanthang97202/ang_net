@@ -1,0 +1,12 @@
+<nz-layout class="layout">
+    <div *ngIf="isLoading$ | async" class="app__loading">
+        <nz-spin nzSimple nzSize="large"></nz-spin>
+    </div>
+    <nz-header>
+        <app-navbar />
+    </nz-header>
+    <nz-content>
+        <router-outlet />
+    </nz-content>
+    <nz-footer>Ant Design ©2020 Implement By Angular</nz-footer>
+</nz-layout>

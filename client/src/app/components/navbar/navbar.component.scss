@@ -1,0 +1,17 @@
+.navbar_item-login {
+    float: right;
+    .ant-menu-title-content {
+
+        .ant-btn {
+            .anticon { 
+                    display: inline-flex !important;
+            }
+        }
+    }
+}
+
+.navbar_item-info{
+    float: right;
+    padding-right: 20px;
+    cursor: pointer;
+}
