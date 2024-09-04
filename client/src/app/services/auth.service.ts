@@ -79,7 +79,7 @@ export class AuthService {
     return isTokenExpried;
   }
 
-  private getToken() {
+  getToken() {
     return localStorage.getItem(this.tokenKey) ?? '';
   }
 }
