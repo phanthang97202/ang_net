@@ -5,7 +5,7 @@ import {
   NzOverlayModule,
   POSITION_MAP,
   getPlacementName
-} from "./chunk-GHAQL724.js";
+} from "./chunk-DR54R3JD.js";
 import {
   CdkConnectedOverlay,
   OverlayModule
@@ -787,4 +787,4 @@ export {
   NzTooltipDirective,
   NzToolTipComponent
 };
-//# sourceMappingURL=chunk-4YYWY7A5.js.map
+//# sourceMappingURL=chunk-X6WCXHV5.js.map

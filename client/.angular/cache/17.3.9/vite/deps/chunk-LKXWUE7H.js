@@ -578,9 +578,10 @@ export {
   reqAnimFrame,
   NzResizeService,
   NzSingletonService,
+  NzBreakpointEnum,
   gridResponsiveMap,
   siderResponsiveMap,
   NzBreakpointService,
   NzDestroyService
 };
-//# sourceMappingURL=chunk-2FMHXPVR.js.map
+//# sourceMappingURL=chunk-LKXWUE7H.js.map

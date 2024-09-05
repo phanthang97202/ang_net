@@ -36,10 +36,7 @@ export class NavbarComponent implements OnInit {
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
 
-  listRoute = [
-    { path: '/', title: 'Home', icon: 'home', isActive: false },
-    { path: '/about', title: 'About', icon: 'user', isActive: false },
-  ];
+  listRoute = [{ path: '/', title: 'Home', icon: 'home', isActive: false }];
 
   ngOnInit() {
     this.listRoute.map((item) => {

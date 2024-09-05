@@ -2,6 +2,11 @@ import {
   ComponentPortal,
   Overlay
 } from "./chunk-ISHPN2GX.js";
+import "./chunk-GO6HNLYD.js";
+import {
+  NzSingletonService
+} from "./chunk-LKXWUE7H.js";
+import "./chunk-URET762Z.js";
 import {
   moveUpMotion
 } from "./chunk-2FJ73CTG.js";
@@ -9,26 +14,21 @@ import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-7N6KPSRX.js";
-import "./chunk-GO6HNLYD.js";
-import {
-  NzSingletonService
-} from "./chunk-2FMHXPVR.js";
-import "./chunk-URET762Z.js";
+import "./chunk-RR2LUTDB.js";
+import "./chunk-X2MXUJWV.js";
 import {
   NzIconDirective,
   NzIconModule
-} from "./chunk-WDXT4KKT.js";
-import "./chunk-RR2LUTDB.js";
-import "./chunk-X2MXUJWV.js";
+} from "./chunk-LKT7Q5LL.js";
 import {
   NzConfigService
 } from "./chunk-GQMQZBHU.js";
 import "./chunk-HHLWLUKF.js";
 import "./chunk-LLN4J7CV.js";
+import "./chunk-2H4K2YJN.js";
 import {
   toCssPixel
 } from "./chunk-DFWSJMJK.js";
-import "./chunk-2H4K2YJN.js";
 import {
   NgClass,
   NgForOf,

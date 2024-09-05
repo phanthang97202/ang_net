@@ -1,7 +1,7 @@
 import {
   NzIconDirective,
   NzIconModule
-} from "./chunk-WDXT4KKT.js";
+} from "./chunk-LKT7Q5LL.js";
 import {
   NzConfigService,
   WithConfig
@@ -10,10 +10,10 @@ import {
   PlatformModule
 } from "./chunk-HHLWLUKF.js";
 import "./chunk-LLN4J7CV.js";
+import "./chunk-2H4K2YJN.js";
 import {
   InputNumber
 } from "./chunk-DFWSJMJK.js";
-import "./chunk-2H4K2YJN.js";
 import "./chunk-UKOICS42.js";
 import {
   ChangeDetectionStrategy,

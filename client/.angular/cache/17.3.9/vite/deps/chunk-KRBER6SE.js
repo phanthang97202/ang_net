@@ -7,7 +7,7 @@ import {
   NzNoAnimationDirective,
   POSITION_MAP,
   getPlacementName
-} from "./chunk-GHAQL724.js";
+} from "./chunk-DR54R3JD.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -23,12 +23,12 @@ import {
   NzStringTemplateOutletDirective
 } from "./chunk-7N6KPSRX.js";
 import {
-  NzIconDirective,
-  NzIconModule
-} from "./chunk-WDXT4KKT.js";
-import {
   Directionality
 } from "./chunk-X2MXUJWV.js";
+import {
+  NzIconDirective,
+  NzIconModule
+} from "./chunk-LKT7Q5LL.js";
 import {
   Platform
 } from "./chunk-HHLWLUKF.js";
@@ -1932,4 +1932,4 @@ export {
   NzMenuDividerDirective,
   NzMenuModule
 };
-//# sourceMappingURL=chunk-FVRHS6OE.js.map
+//# sourceMappingURL=chunk-KRBER6SE.js.map

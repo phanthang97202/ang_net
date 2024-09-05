@@ -23,12 +23,14 @@
             <ng-template #contentTemplate>
                 <div class="">
                     <div>
-                        <p>
+                        <a routerLink='/userinfor'>
                             username:
                             <b>
-                                {{authService.getAccountInfo().email}}
+                                <u>
+                                    {{authService.getAccountInfo().email}}
+                                </u>
                             </b>
-                        </p>
+                        </a>
                     </div>
                     <div>
                         <p>

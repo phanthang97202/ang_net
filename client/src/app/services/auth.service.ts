@@ -6,6 +6,7 @@ import { delay, map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
 import { isAfter, isBefore } from 'date-fns';
+import { IUser } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class AuthService {
       .post<AuthResponse>(`${this.apiUrl}account/login`, data)
 
       .pipe(
-        delay(2000),
+        // delay(2000),
         map((response) => {
           if (response.isSuccess) {
             localStorage.setItem(this.tokenKey, response.token);
@@ -28,6 +29,17 @@ export class AuthService {
           return response;
         })
       );
+  }
+
+  getUserDetail(): Observable<IUser> {
+    return this.http.get<IUser>(
+      `${this.apiUrl}account/detail`
+      //    {
+      //   headers: {
+      //     Authorization: `Bearer ${this.getToken()}`,
+      //   },
+      // }
+    );
   }
 
   getAccountInfo() {
