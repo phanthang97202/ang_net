@@ -7,6 +7,7 @@ import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { CommonModule } from '@angular/common';
 import { delay } from 'rxjs';
+import { ShowNullishValue } from '../../pipes/showNullishValue.pipe';
 
 @Component({
   selector: 'app-detail-user',
@@ -17,6 +18,7 @@ import { delay } from 'rxjs';
     NzCardModule,
     NzDescriptionsModule,
     CommonModule,
+    ShowNullishValue,
   ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
