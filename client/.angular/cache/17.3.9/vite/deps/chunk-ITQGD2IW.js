@@ -58,6 +58,9 @@ function coerceElement(elementOrRef) {
 function isNotNil(value) {
   return typeof value !== "undefined" && value !== null;
 }
+function isNil(value) {
+  return typeof value === "undefined" || value === null;
+}
 function toBoolean(value) {
   return coerceBooleanProperty(value);
 }
@@ -97,11 +100,34 @@ function InputBoolean() {
 function InputNumber(fallbackValue) {
   return propDecoratorFactory("InputNumber", (value) => toNumber(value, fallbackValue));
 }
+function getElementOffset(elem) {
+  if (!elem.getClientRects().length) {
+    return { top: 0, left: 0 };
+  }
+  const rect = elem.getBoundingClientRect();
+  const win = elem.ownerDocument.defaultView;
+  return {
+    top: rect.top + win.pageYOffset,
+    left: rect.left + win.pageXOffset
+  };
+}
 function isTouchEvent(event) {
   return event.type.startsWith("touch");
 }
 function getEventPosition(event) {
   return isTouchEvent(event) ? event.touches[0] || event.changedTouches[0] : event;
+}
+function isPromise(obj) {
+  return !!obj && typeof obj.then === "function" && typeof obj.catch === "function";
+}
+function isNumberFinite(value) {
+  return typeof value === "number" && isFinite(value);
+}
+function toDecimal(value, decimal) {
+  return Math.round(value * Math.pow(10, decimal)) / Math.pow(10, decimal);
+}
+function sum(input, initial = 0) {
+  return input.reduce((previous, current) => previous + current, initial);
 }
 var isBrowser = typeof window !== "undefined";
 var isFirefox = isBrowser && window.mozInnerScreenX != null;
@@ -185,23 +211,29 @@ function getStatusClassNames(prefixCls, status, hasFeedback) {
 }
 
 export {
+  environment,
+  PREFIX,
+  warn,
   coerceNumberProperty,
   coerceArray,
   coerceCssPixelValue,
   coerceElement,
-  environment,
-  PREFIX,
-  warn,
   isNotNil,
+  isNil,
   toBoolean,
   toCssPixel,
   InputBoolean,
   InputNumber,
+  getElementOffset,
   isTouchEvent,
   getEventPosition,
+  isPromise,
+  isNumberFinite,
+  toDecimal,
+  sum,
   inNextTick,
   canUseDom,
   updateCSS,
   getStatusClassNames
 };
-//# sourceMappingURL=chunk-DFWSJMJK.js.map
+//# sourceMappingURL=chunk-ITQGD2IW.js.map

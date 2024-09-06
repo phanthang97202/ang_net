@@ -1,4 +1,5 @@
 <nz-layout class="layout">
+    <error-popup [errorInfo]="errorInfo" />
     <div *ngIf="isLoading$ | async" class="app__loading">
         <nz-spin nzSimple nzSize="large"></nz-spin>
     </div>

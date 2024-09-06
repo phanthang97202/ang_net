@@ -17,6 +17,10 @@ import { NzAlertComponent } from 'ng-zorro-antd/alert';
 import { LoadingService } from './services/loading-service.service';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
+import { NzButtonComponent } from 'ng-zorro-antd/button';
+import { IErrorInfo } from './interfaces/error-info';
+import { ShowErrorService } from './services/show-error.service';
 
 @Component({
   selector: 'app-root',
@@ -34,17 +38,33 @@ import { CommonModule } from '@angular/common';
     RouterOutlet,
     NavbarComponent,
     FooterComponent,
+    ErrorPopupComponent,
+    NzButtonComponent,
   ],
+  providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'client';
+
   isLoading$: Observable<boolean>;
+  errorInfo: IErrorInfo = {
+    title: '',
+    icon: '',
+    message: '',
+  };
+
   loadingService = inject(LoadingService);
+  errorInfoService = inject(ShowErrorService);
 
   constructor() {
     // Subscribe to the loading state from the LoadingService
     this.isLoading$ = this.loadingService.getLoading();
+    this.errorInfoService.getErrorInfo().subscribe({
+      next: (value) => {
+        this.errorInfo = value;
+      },
+    });
   }
 }

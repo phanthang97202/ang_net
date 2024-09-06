@@ -16,6 +16,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { AuthService } from '../../services/auth.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { LoadingService } from '../../services/loading-service.service';
+import { ShowErrorService } from '../../services/show-error.service';
 
 @Component({
   selector: 'app-login',
@@ -36,6 +37,7 @@ import { LoadingService } from '../../services/loading-service.service';
 export class LoginComponent {
   authService = inject(AuthService);
   loadingService = inject(LoadingService);
+  showErrorService = inject(ShowErrorService);
 
   constructor(
     private fb: NonNullableFormBuilder,
@@ -73,10 +75,13 @@ export class LoginComponent {
           this.loadingService.setLoading(false);
         },
         error: (err) => {
-          console.log('🚀 ~ LoginComponent ~ submitForm ~ err:', err);
           this.loadingService.setLoading(false);
-          const { message } = err.error;
-          this.message.create('error', message);
+          this.showErrorService.setShowError({
+            title: err.message,
+            message: JSON.stringify(err, null, 2),
+          });
+          // const { message } = err.error;
+          // this.message.create('error', JSON.stringify(err));
         },
       });
     }

@@ -4,10 +4,10 @@ import {
   MAC_META,
   META,
   SHIFT
-} from "./chunk-GO6HNLYD.js";
+} from "./chunk-PSAR3ULL.js";
 import {
   BreakpointObserver
-} from "./chunk-URET762Z.js";
+} from "./chunk-I2VQEMK5.js";
 import {
   Platform,
   _getEventTarget,
@@ -18,7 +18,7 @@ import {
 import {
   coerceElement,
   coerceNumberProperty
-} from "./chunk-DFWSJMJK.js";
+} from "./chunk-ITQGD2IW.js";
 import {
   DOCUMENT
 } from "./chunk-UKOICS42.js";
@@ -2058,6 +2058,9 @@ var A11yModule = _A11yModule;
 })();
 
 export {
+  FocusTrapFactory,
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader,
   FocusMonitor
 };
-//# sourceMappingURL=chunk-YO64DN7C.js.map
+//# sourceMappingURL=chunk-5FK3WK3M.js.map

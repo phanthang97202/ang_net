@@ -8,6 +8,7 @@ import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { CommonModule } from '@angular/common';
 import { delay } from 'rxjs';
 import { ShowNullishValue } from '../../pipes/showNullishValue.pipe';
+import { ShowErrorService } from '../../services/show-error.service';
 
 @Component({
   selector: 'app-detail-user',
@@ -25,6 +26,7 @@ import { ShowNullishValue } from '../../pipes/showNullishValue.pipe';
 })
 export class DetailUserComponent implements OnInit {
   authService = inject(AuthService);
+  showErrorService = inject(ShowErrorService);
 
   userInfo: IUser | null = null;
 
@@ -36,7 +38,12 @@ export class DetailUserComponent implements OnInit {
         next: (res) => {
           this.userInfo = res;
         },
-        error(err) {
+        error: (err) => {
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
           throw new Error(err);
         },
       });

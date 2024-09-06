@@ -1,20 +1,20 @@
 import {
-  Directionality
-} from "./chunk-X2MXUJWV.js";
-import {
   NzIconDirective,
   NzIconModule
-} from "./chunk-LKT7Q5LL.js";
+} from "./chunk-RSJKC5JJ.js";
 import {
-  NzConfigService,
-  WithConfig
-} from "./chunk-GQMQZBHU.js";
+  Directionality
+} from "./chunk-X2MXUJWV.js";
 import {
   Platform
 } from "./chunk-HHLWLUKF.js";
 import {
+  NzConfigService,
+  WithConfig
+} from "./chunk-YHLYEO5J.js";
+import {
   InputBoolean
-} from "./chunk-DFWSJMJK.js";
+} from "./chunk-ITQGD2IW.js";
 import {
   ANIMATION_MODULE_TYPE,
   CSP_NONCE,
@@ -754,8 +754,10 @@ var NzButtonModule = _NzButtonModule;
 })();
 
 export {
+  NzTransitionPatchDirective,
+  NzWaveDirective,
   NzButtonComponent,
   NzButtonGroupComponent,
   NzButtonModule
 };
-//# sourceMappingURL=chunk-SWBJVXIO.js.map
+//# sourceMappingURL=chunk-UGNKMPV2.js.map
