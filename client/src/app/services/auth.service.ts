@@ -6,7 +6,7 @@ import { delay, map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
 import { isAfter, isBefore } from 'date-fns';
-import { IUser } from '../interfaces/user';
+import { IUser, IUserInfo } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +40,11 @@ export class AuthService {
       //   },
       // }
     );
+  }
+
+  // get thông tin users cho dashboard
+  getAllUsers(): Observable<IUserInfo[]> {
+    return this.http.get<IUserInfo[]>(`${this.apiUrl}account/users`);
   }
 
   getAccountInfo() {
@@ -89,6 +94,18 @@ export class AuthService {
     }
 
     return isTokenExpried;
+  }
+
+  isAdminPermission(): boolean {
+    const token = this.getToken();
+
+    if (!token) return false;
+
+    const decodedToken: any = jwtDecode(token);
+
+    const bool = decodedToken.role.includes('Admin');
+
+    return bool;
   }
 
   getToken() {

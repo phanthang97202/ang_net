@@ -1,0 +1,23 @@
+<nz-breadcrumb>
+    <nz-breadcrumb-item>User</nz-breadcrumb-item>
+    <nz-breadcrumb-item>All</nz-breadcrumb-item>
+</nz-breadcrumb>
+<nz-table nzShowSizeChanger [nzData]="[]" [nzFrontPagination]="false" [nzLoading]="false" [nzTotal]="100"
+    [nzPageSize]="10" [nzPageIndex]="0">
+    <thead>
+        <tr>
+            <th nzColumnKey="email" [nzSortFn]="true">Email</th>
+            <th nzColumnKey="fullName" [nzFilterFn]="true">Name</th>
+            <th nzColumnKey="roles" [nzSortFn]="true">Role(s)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (data of lstUsers; track data) {
+        <tr>
+            <td>{{ data.email }}</td>
+            <td>{{ data.fullName }} </td>
+            <td>{{ data.roles.join(', ') }}</td>
+        </tr>
+        }
+    </tbody>
+</nz-table>

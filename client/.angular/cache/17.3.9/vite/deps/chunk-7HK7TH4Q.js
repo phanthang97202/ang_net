@@ -1,6 +1,6 @@
 import {
   MediaMatcher
-} from "./chunk-I2VQEMK5.js";
+} from "./chunk-KNAS3RX7.js";
 import {
   Platform
 } from "./chunk-HHLWLUKF.js";
@@ -8,7 +8,7 @@ import {
   environment,
   getEventPosition,
   isTouchEvent
-} from "./chunk-ITQGD2IW.js";
+} from "./chunk-O5YL6SPW.js";
 import {
   DOCUMENT
 } from "./chunk-UKOICS42.js";
@@ -56,6 +56,16 @@ function getRequestAnimationFrame() {
   }
   const prefix = availablePrefixes.filter((key) => `${key}RequestAnimationFrame` in window)[0];
   return prefix ? window[`${prefix}RequestAnimationFrame`] : requestAnimationFramePolyfill();
+}
+function cancelRequestAnimationFrame(id) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  if (window.cancelAnimationFrame) {
+    return window.cancelAnimationFrame(id);
+  }
+  const prefix = availablePrefixes.filter((key) => `${key}CancelAnimationFrame` in window || `${key}CancelRequestAnimationFrame` in window)[0];
+  return prefix ? (window[`${prefix}CancelAnimationFrame`] || window[`${prefix}CancelRequestAnimationFrame`]).call(this, id) : clearTimeout(id);
 }
 var reqAnimFrame = getRequestAnimationFrame();
 
@@ -564,6 +574,7 @@ var ImagePreloadService = _ImagePreloadService;
 })();
 
 export {
+  cancelRequestAnimationFrame,
   reqAnimFrame,
   NzResizeService,
   NzSingletonService,
@@ -573,4 +584,4 @@ export {
   NzBreakpointService,
   NzDestroyService
 };
-//# sourceMappingURL=chunk-QJ2M2TXZ.js.map
+//# sourceMappingURL=chunk-7HK7TH4Q.js.map

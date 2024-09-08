@@ -202,7 +202,7 @@ namespace API.Controllers
         // get all users
         [Authorize]
         [HttpGet("users")]
-        public async Task<ActionResult> GetAllUser()
+        public async Task<ActionResult<UserDetailDto>> GetAllUser()
         {
 
             // có thể thay thế bằng [Authorize(Roles = "Admin")]
@@ -219,7 +219,13 @@ namespace API.Controllers
             {
 
                 //List<UserDetailDto>
-                var result = await _userManager.Users.ToListAsync();
+                var result = await _userManager.Users.Select(u => new UserDetailDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    Roles = _userManager.GetRolesAsync(u).Result.ToArray()
+                }).ToListAsync();
                 if (result.Count == 0)
                 {
                     return NotFound(

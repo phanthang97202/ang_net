@@ -1,8 +1,9 @@
-<nz-layout class="layout">
-    <error-popup [errorInfo]="errorInfo" />
-    <div *ngIf="isLoading$ | async" class="app__loading">
-        <nz-spin nzSimple nzSize="large"></nz-spin>
-    </div>
+<error-popup [errorInfo]="errorInfo" />
+<div *ngIf="isLoading$ | async" class="app__loading">
+    <nz-spin nzSimple nzSize="large"></nz-spin>
+</div>
+
+<nz-layout *ngIf="layoutType === 'user'" class="layout">
     <nz-header>
         <app-navbar />
     </nz-header>
@@ -10,4 +11,32 @@
         <router-outlet />
     </nz-content>
     <nz-footer>Ant Design ©2020 Implement By Angular</nz-footer>
+</nz-layout>
+
+<nz-layout *ngIf="layoutType === 'admin'" class="layout">
+    <nz-sider nzCollapsible nzWidth="200px">
+        <div class="logo">
+            <a routerLink="/dashboard">
+                <img class="" src="https://i.pinimg.com/736x/c2/7b/75/c27b75c2e09d75c2e09adc9b6e856ac5.jpg" alt="">
+            </a>
+        </div>
+        <ul nz-menu nzTheme="dark" nzMode="inline">
+            <li nz-submenu nzTitle="Users" nzIcon="user">
+                <ul>
+                    <li nz-menu-item>
+                        <a routerLink="/dashboard/users">
+                            All Users
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nz-sider>
+    <nz-layout>
+        <nz-header> </nz-header>
+        <nz-content class="h-full">
+            <router-outlet />
+        </nz-content>
+        <nz-footer>Ant Design ©2020 Implement By Angular</nz-footer>
+    </nz-layout>
 </nz-layout>

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\Java + Angular\\FullstackAppToturial\\api\\API.csproj": {}
+    "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj": {}
   },
   "projects": {
-    "F:\\Java + Angular\\FullstackAppToturial\\api\\API.csproj": {
+    "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\api\\API.csproj",
+        "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\api\\API.csproj",
+        "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
         "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
-        "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\api\\obj\\",
+        "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\phant\\AppData\\Roaming\\NuGet\\NuGet.Config",

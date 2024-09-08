@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cI8q941k0FY=",
+  "dgSpecHash": "kGStDBQfNrg=",
   "success": true,
-  "projectFilePath": "F:\\Java + Angular\\FullstackAppToturial\\api\\API.csproj",
+  "projectFilePath": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\phant\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\phant\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.1\\microsoft.aspnetcore.authentication.jwtbearer.8.0.1.nupkg.sha512",

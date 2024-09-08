@@ -13,3 +13,15 @@ export const canActive = () => {
     return false;
   }
 };
+
+export const canActiveForAdmin = () => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+  const bool = authService.isAdminPermission();
+  if (bool) {
+    return true;
+  } else {
+    router.navigate(['/login']);
+    return false;
+  }
+};

@@ -55,6 +55,18 @@ function coerceElement(elementOrRef) {
 }
 
 // node_modules/ng-zorro-antd/fesm2022/ng-zorro-antd-core-util.mjs
+function arraysEqual(array1, array2) {
+  if (!array1 || !array2 || array1.length !== array2.length) {
+    return false;
+  }
+  const len = array1.length;
+  for (let i = 0; i < len; i++) {
+    if (array1[i] !== array2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
 function isNotNil(value) {
   return typeof value !== "undefined" && value !== null;
 }
@@ -131,6 +143,46 @@ function sum(input, initial = 0) {
 }
 var isBrowser = typeof window !== "undefined";
 var isFirefox = isBrowser && window.mozInnerScreenX != null;
+var scrollbarVerticalSize;
+var scrollbarHorizontalSize;
+var scrollbarMeasure = {
+  position: "absolute",
+  top: "-9999px",
+  width: "50px",
+  height: "50px"
+};
+function measureScrollbar(direction = "vertical", prefix = "ant") {
+  if (typeof document === "undefined" || typeof window === "undefined") {
+    return 0;
+  }
+  const isVertical = direction === "vertical";
+  if (isVertical && scrollbarVerticalSize) {
+    return scrollbarVerticalSize;
+  } else if (!isVertical && scrollbarHorizontalSize) {
+    return scrollbarHorizontalSize;
+  }
+  const scrollDiv = document.createElement("div");
+  Object.keys(scrollbarMeasure).forEach((scrollProp) => {
+    scrollDiv.style[scrollProp] = scrollbarMeasure[scrollProp];
+  });
+  scrollDiv.className = `${prefix}-hide-scrollbar scroll-div-append-to-body`;
+  if (isVertical) {
+    scrollDiv.style.overflowY = "scroll";
+  } else {
+    scrollDiv.style.overflowX = "scroll";
+  }
+  document.body.appendChild(scrollDiv);
+  let size = 0;
+  if (isVertical) {
+    size = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+    scrollbarVerticalSize = size;
+  } else {
+    size = scrollDiv.offsetHeight - scrollDiv.clientHeight;
+    scrollbarHorizontalSize = size;
+  }
+  document.body.removeChild(scrollDiv);
+  return size;
+}
 function inNextTick() {
   const timer = new Subject();
   Promise.resolve().then(() => timer.next());
@@ -218,9 +270,11 @@ export {
   coerceArray,
   coerceCssPixelValue,
   coerceElement,
+  arraysEqual,
   isNotNil,
   isNil,
   toBoolean,
+  toNumber,
   toCssPixel,
   InputBoolean,
   InputNumber,
@@ -231,9 +285,10 @@ export {
   isNumberFinite,
   toDecimal,
   sum,
+  measureScrollbar,
   inNextTick,
   canUseDom,
   updateCSS,
   getStatusClassNames
 };
-//# sourceMappingURL=chunk-ITQGD2IW.js.map
+//# sourceMappingURL=chunk-O5YL6SPW.js.map

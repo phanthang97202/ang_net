@@ -1,7 +1,7 @@
 import {
   ESCAPE,
   hasModifierKey
-} from "./chunk-PSAR3ULL.js";
+} from "./chunk-GO6HNLYD.js";
 import {
   BidiModule,
   Directionality
@@ -19,7 +19,7 @@ import {
   coerceCssPixelValue,
   coerceElement,
   coerceNumberProperty
-} from "./chunk-ITQGD2IW.js";
+} from "./chunk-O5YL6SPW.js";
 import {
   DOCUMENT,
   Location
@@ -5032,9 +5032,13 @@ export {
   BasePortalOutlet,
   CdkPortalOutlet,
   PortalModule,
+  CdkFixedSizeVirtualScroll,
   ScrollDispatcher,
   ViewportRuler,
+  CdkVirtualScrollViewport,
+  CdkVirtualForOf,
   CdkScrollableModule,
+  ScrollingModule,
   OverlayConfig,
   ConnectionPositionPair,
   OverlayRef,
@@ -5043,4 +5047,4 @@ export {
   CdkConnectedOverlay,
   OverlayModule
 };
-//# sourceMappingURL=chunk-SALCKB7V.js.map
+//# sourceMappingURL=chunk-S4C7RTXN.js.map
