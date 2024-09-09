@@ -14,7 +14,17 @@
     <tbody>
         @for (data of lstUsers; track data) {
         <tr>
-            <td>{{ data.email }}</td>
+            <td>
+                <ng-template #normal__text>
+                    {{ data.email }}
+                </ng-template>
+                <p *ngIf="data.email === me; else normal__text">
+                    <b>{{ data.email }} </b>
+                    <i>
+                        ( me )
+                    </i>
+                </p>
+            </td>
             <td>{{ data.fullName }} </td>
             <td>{{ data.roles.join(', ') }}</td>
         </tr>

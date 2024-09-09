@@ -9,11 +9,12 @@ import {
   NzBreadCrumbComponent,
   NzBreadCrumbModule,
 } from 'ng-zorro-antd/breadcrumb';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [NzTableModule, NzBreadCrumbModule],
+  imports: [NzTableModule, NzBreadCrumbModule, CommonModule],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
@@ -21,6 +22,7 @@ export class UserListComponent implements OnInit {
   authService = inject(AuthService);
   showErrorService = inject(ShowErrorService);
   loadingService = inject(LoadingService);
+  me: string = '';
   lstUsers: IUserInfo[] = [
     {
       fullName: '',
@@ -45,6 +47,7 @@ export class UserListComponent implements OnInit {
 
   ngOnInit() {
     this.loadingService.setLoading(true);
+    this.me = this.authService.getAccountInfo().email;
     this.authService
       .getAllUsers()
       .pipe(delay(2000))

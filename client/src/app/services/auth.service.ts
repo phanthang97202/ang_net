@@ -7,6 +7,7 @@ import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
 import { isAfter, isBefore } from 'date-fns';
 import { IUser, IUserInfo } from '../interfaces/user';
+import { ICreateRoleRequest } from '../interfaces/role';
 
 @Injectable({
   providedIn: 'root',
@@ -110,5 +111,10 @@ export class AuthService {
 
   getToken() {
     return localStorage.getItem(this.tokenKey) ?? '';
+  }
+
+  // tạo mới role
+  createRole(request: ICreateRoleRequest) {
+    return this.http.post(`${this.apiUrl}roles/create`, request);
   }
 }

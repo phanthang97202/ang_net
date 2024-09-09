@@ -17,7 +17,7 @@ namespace API.Controllers
 
         public RolesController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> appUser)
         {
-            _roleManager = roleManager; 
+            _roleManager = roleManager;
             _appUser = appUser;
         }
 
@@ -25,7 +25,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleDto createRoleDto)
         {
             // 
-            if(string.IsNullOrEmpty(createRoleDto.RoleName))
+            if (string.IsNullOrEmpty(createRoleDto.RoleName))
             {
                 return BadRequest(new
                 {
@@ -36,7 +36,8 @@ namespace API.Controllers
 
             // 
             var isRoleExist = await _roleManager.RoleExistsAsync(createRoleDto.RoleName);
-            if (isRoleExist) {
+            if (isRoleExist)
+            {
                 return BadRequest(new
                 {
                     IsSuccess = false,
@@ -46,7 +47,7 @@ namespace API.Controllers
 
             //
             var createRole = await _roleManager.CreateAsync(new IdentityRole(createRoleDto.RoleName));
-            if(createRole.Succeeded)
+            if (createRole.Succeeded)
             {
                 return Ok(new
                 {
@@ -62,12 +63,17 @@ namespace API.Controllers
                 Message = "Role creation failed!"
             });
         }
-        
+
         [HttpGet("roles")]
-        public async Task<IActionResult> GetAllRole ()
+        public async Task<IActionResult> GetAllRole()
         {
-            var allRoles  = await _roleManager.Roles.ToListAsync();
-            
+            var allRoles = await _roleManager.Roles.Select(r => new RoleResponseDto
+            {
+                Id = r.Id,
+                Name = r.Name,
+                TotalUsers = _appUser.GetUsersInRoleAsync(r.Name!).Result.Count
+            }).ToListAsync();
+
             return Ok(new
             {
                 IsSuccess = true,
@@ -83,7 +89,7 @@ namespace API.Controllers
             {
                 var role = await _roleManager.FindByIdAsync(idRole);
                 if (role != null)
-                { 
+                {
                     return Ok(new
                     {
                         IsSuccess = true,
@@ -100,12 +106,13 @@ namespace API.Controllers
         }
 
         [HttpDelete("{idRole}")]
-        public async Task<IActionResult> DeleteRole( string idRole)
+        public async Task<IActionResult> DeleteRole(string idRole)
         {
-            if(!string.IsNullOrEmpty(idRole))
+            if (!string.IsNullOrEmpty(idRole))
             {
                 var role = await _roleManager.FindByIdAsync(idRole);
-                if (role != null) { 
+                if (role != null)
+                {
                     await _roleManager.DeleteAsync(role);
                     return Ok(new
                     {
@@ -113,13 +120,13 @@ namespace API.Controllers
                         Message = "Delete role successfully!"
                     });
                 }
-            } 
+            }
 
             return BadRequest(new
             {
                 IsSuccess = false,
                 Message = "Delete role faild!"
-            }); 
+            });
         }
 
         [HttpPost("assign")]
@@ -129,7 +136,8 @@ namespace API.Controllers
             string idUser = assignRole.UserId;
             string idRole = assignRole.RoleId;
 
-            if (string.IsNullOrEmpty(idRole) || string.IsNullOrEmpty(idUser ) ) {
+            if (string.IsNullOrEmpty(idRole) || string.IsNullOrEmpty(idUser))
+            {
                 return BadRequest(new
                 {
                     IsSuccess = false,
@@ -141,7 +149,8 @@ namespace API.Controllers
             var user = await _appUser.FindByIdAsync(idUser);
             var role = await _roleManager.FindByIdAsync(idRole);
 
-            if (user == null || role == null) {
+            if (user == null || role == null)
+            {
                 return BadRequest(new
                 {
                     IsSuccess = false,
@@ -152,7 +161,7 @@ namespace API.Controllers
             //
             var result = await _appUser.AddToRoleAsync(user, role.Name!);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 return Ok(new
                 {

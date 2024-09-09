@@ -7,6 +7,7 @@ import { DetailUserComponent } from './pages/detail-user/detail-user.component';
 import { DashboardComponent } from './pages/dashboard/dashboard/dashboard.component';
 import { UserListComponent } from './pages/dashboard/user-list/user-list.component';
 import { RoleListComponent } from './pages/dashboard/role-list/role-list.component';
+import { CreateRoleComponent } from './components/create-role/create-role.component';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '/home' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -47,7 +48,7 @@ export const routes: Routes = [
     canActivate: [canActiveForAdmin],
   },
   {
-    path: 'dashboard/roles',
+    path: 'dashboard/role',
     component: RoleListComponent,
     canActivate: [canActiveForAdmin],
   },
