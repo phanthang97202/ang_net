@@ -4,8 +4,8 @@ export interface IUser {
   email: string;
   roles: string[];
   phoneNumber: string;
-  twoFacotrEnabled: true;
-  phoneNumberConfirmed: true;
+  twoFacotrEnabled: boolean;
+  phoneNumberConfirmed: boolean;
   accessFailedCount: number;
 }
 // dashboard

@@ -1,0 +1,27 @@
+<form nz-form nzSpan="24" [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item nz-form nzSpan="12">
+        <nz-form-control nzErrorTip="Please select user!">
+            <nz-select id="UserId" formControlName="UserId" nzPlaceHolder="Select user"
+                (ngModelChange)="genderChange($event)">
+                @for (user of lstUsers; track user) {
+                <nz-option [nzValue]="user.id" [nzLabel]="user.email" />
+                }
+            </nz-select>
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nzSpan="12">
+        <nz-form-control nzErrorTip="Please select role!">
+            <nz-select id="RoleId" formControlName="RoleId" nzPlaceHolder="Select role"
+                (ngModelChange)="genderChange($event)">
+                @for (role of lstRoles; track role) {
+                <nz-option [nzValue]="role.id" [nzLabel]="role.name" />
+                }
+            </nz-select>
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <nz-form-control>
+            <button nz-button nzType="primary">Assign</button>
+        </nz-form-control>
+    </nz-form-item>
+</form>

@@ -3,28 +3,12 @@
   "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\dtos\\createroledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\dtos\\createroledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\dtos\\roleassigndto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CFF82983-ED2A-4C28-B3F6-58347A6F7ACA}|API\\API.csproj|solutionrelative:api\\dtos\\roleassigndto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,96 +18,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:136468519:0:{bf84ea66-d821-4dba-b1b1-2777d8574775}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:2028676212:0:{bf84ea66-d821-4dba-b1b1-2777d8574775}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:1:0:{fabf9319-47eb-497e-b8f6-d9f73fba5f55}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "RegisterDto.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\RegisterDto.cs",
-              "RelativeDocumentMoniker": "API\\Dtos\\RegisterDto.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\RegisterDto.cs",
-              "RelativeToolTip": "API\\Dtos\\RegisterDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T14:43:07.163Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LoginDto.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\LoginDto.cs",
-              "RelativeDocumentMoniker": "API\\Dtos\\LoginDto.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\LoginDto.cs",
-              "RelativeToolTip": "API\\Dtos\\LoginDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T14:43:01.836Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "RoleAssignDto.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\RoleAssignDto.cs",
-              "RelativeDocumentMoniker": "API\\Dtos\\RoleAssignDto.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\RoleAssignDto.cs",
-              "RelativeToolTip": "API\\Dtos\\RoleAssignDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAzAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T14:20:04.634Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "CreateRoleDto.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\CreateRoleDto.cs",
-              "RelativeDocumentMoniker": "API\\Dtos\\CreateRoleDto.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\CreateRoleDto.cs",
-              "RelativeToolTip": "API\\Dtos\\CreateRoleDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T13:08:29.633Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "RolesController.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\RolesController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\RolesController.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\RolesController.cs",
               "RelativeToolTip": "API\\Controllers\\RolesController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEEAAAAaAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAxAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T13:02:26.714Z",
+              "WhenOpened": "2024-09-11T16:26:23.888Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "AccountController.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\AccountController.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
               "RelativeToolTip": "API\\Controllers\\AccountController.cs",
-              "ViewState": "AQIAAMkAAAAAAAAAAAAowMwAAAA0AAAA",
+              "ViewState": "AQIAACgAAAAAAAAAAAAYwEEAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-01T09:07:39.442Z",
+              "WhenOpened": "2024-09-11T16:18:07.334Z",
               "EditorCaption": ""
             }
           ]

@@ -1,7 +1,7 @@
 import {
   NzSkeletonComponent,
   NzSkeletonModule
-} from "./chunk-IQLWDL3V.js";
+} from "./chunk-B3PFPELP.js";
 import {
   NzOutletModule,
   NzStringTemplateOutletDirective
@@ -13,10 +13,10 @@ import {
 import {
   NzConfigService,
   WithConfig
-} from "./chunk-5CF7OFBG.js";
+} from "./chunk-ISJI27HE.js";
 import {
   InputBoolean
-} from "./chunk-O5YL6SPW.js";
+} from "./chunk-UUNNYJKS.js";
 import {
   NgIf,
   NgStyle,

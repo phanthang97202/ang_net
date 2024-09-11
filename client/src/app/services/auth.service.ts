@@ -7,7 +7,14 @@ import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
 import { isAfter, isBefore } from 'date-fns';
 import { IUser, IUserInfo } from '../interfaces/user';
-import { ICreateRoleRequest } from '../interfaces/role';
+import {
+  IAssignRoleRequest,
+  IAssignRoleResponse,
+  ICreateRoleRequest,
+  IDeleteRoleResponse,
+  IRole,
+  IRoleResponse,
+} from '../interfaces/role';
 
 @Injectable({
   providedIn: 'root',
@@ -44,8 +51,8 @@ export class AuthService {
   }
 
   // get thông tin users cho dashboard
-  getAllUsers(): Observable<IUserInfo[]> {
-    return this.http.get<IUserInfo[]>(`${this.apiUrl}account/users`);
+  getAllUsers(): Observable<IUser[]> {
+    return this.http.get<IUser[]>(`${this.apiUrl}account/users`);
   }
 
   getAccountInfo() {
@@ -116,5 +123,20 @@ export class AuthService {
   // tạo mới role
   createRole(request: ICreateRoleRequest) {
     return this.http.post(`${this.apiUrl}roles/create`, request);
+  }
+
+  getAllRoles(): Observable<IRoleResponse> {
+    return this.http.get<IRoleResponse>(`${this.apiUrl}roles/roles`);
+  }
+
+  deleteRole(key: string): Observable<IDeleteRoleResponse> {
+    return this.http.delete<IDeleteRoleResponse>(`${this.apiUrl}roles/${key}`);
+  }
+
+  assignRole(param: IAssignRoleRequest): Observable<IAssignRoleResponse> {
+    return this.http.post<IAssignRoleResponse>(
+      `${this.apiUrl}roles/assign`,
+      param
+    );
   }
 }

@@ -1,13 +1,12 @@
 <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
     <nz-form-item>
-        <nz-form-label [nzSpan]="5" nzRequired nzFor="roleName">Role Name</nz-form-label>
-        <nz-form-control [nzSpan]="5" nzErrorTip="RoleName is required!">
-            <input id="roleName" type="text" nz-input formControlName="roleName" />
+        <nz-form-control [nzSpan]="24" nzErrorTip="RoleName is required!">
+            <input id="roleName" type="text" placeholder="Enter role name" nz-input formControlName="roleName" />
         </nz-form-control>
     </nz-form-item>
     <nz-form-item>
-        <nz-form-control [nzSpan]="12" [nzOffset]="5">
-            <button nz-button nzType="primary">Submit</button>
+        <nz-form-control>
+            <button nz-button nzType="primary">Create</button>
         </nz-form-control>
     </nz-form-item>
 </form>

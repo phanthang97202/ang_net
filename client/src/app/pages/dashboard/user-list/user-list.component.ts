@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { AuthService } from '../../../services/auth.service';
-import { IUserInfo } from '../../../interfaces/user';
+import { IUser, IUserInfo } from '../../../interfaces/user';
 import { ShowErrorService } from '../../../services/show-error.service';
 import { LoadingService } from '../../../services/loading-service.service';
 import { delay, pipe } from 'rxjs';
@@ -23,25 +23,16 @@ export class UserListComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   loadingService = inject(LoadingService);
   me: string = '';
-  lstUsers: IUserInfo[] = [
+  lstUsers: IUser[] = [
     {
       fullName: '',
       id: '',
-      userName: '',
-      normalizedUserName: '',
       email: '',
-      normalizedEmail: '',
-      emailConfirmed: false,
-      passwordHash: '',
-      securityStamp: '',
-      concurrencyStamp: '',
       phoneNumber: '',
-      phoneNumberConfirmed: false,
-      twoFactorEnabled: false,
-      lockoutEnd: '',
       roles: [''],
-      lockoutEnabled: false,
       accessFailedCount: 0,
+      twoFacotrEnabled: false,
+      phoneNumberConfirmed: true,
     },
   ];
 
