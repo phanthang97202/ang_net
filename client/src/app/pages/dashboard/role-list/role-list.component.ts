@@ -153,4 +153,24 @@ export class RoleListComponent implements OnInit {
       },
     });
   }
+
+  handleUnassignRole(data: IAssignRoleRequest) {
+    this.authService.unassignRole(data).subscribe({
+      next: (value) => {
+        this.loadingService.setLoading(false);
+        this.message.create('success', 'Unassign role successfully');
+        this.fetchRolesData();
+      },
+      complete: () => {
+        this.loadingService.setLoading(false);
+      },
+      error: (err) => {
+        this.loadingService.setLoading(false);
+        this.showErrorService.setShowError({
+          title: err.message,
+          message: JSON.stringify(err, null, 2),
+        });
+      },
+    });
+  }
 }

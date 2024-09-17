@@ -1,15 +1,20 @@
 using System.Text;
+using System.Text.Json;
 using API.Data;
+using API.Interfaces;
 using API.Models;
+using API.Respositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var JWTSetting = builder.Configuration.GetSection("JWTSetting");
 // Add services to the container.
+builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
 
 // config jwt 
@@ -67,6 +72,16 @@ builder.Services.AddSwaggerGen(c =>
             new List<string>()
         }
     });
+});
+
+//builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+//{ 
+//    options.SerializerOptions.PropertyNamingPolicy = null;
+//});
+
+builder.Services.AddControllers().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
 var app = builder.Build();

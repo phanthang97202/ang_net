@@ -32,6 +32,8 @@ export class AssignRoleComponent {
   @Input() lstRoles!: IRole[];
   @Output() onAssignRole: EventEmitter<IAssignRoleRequest> =
     new EventEmitter<IAssignRoleRequest>();
+  @Output() onUnassignRole: EventEmitter<IAssignRoleRequest> =
+    new EventEmitter<IAssignRoleRequest>();
 
   validateForm: FormGroup<{
     UserId: FormControl<string>;
@@ -41,11 +43,25 @@ export class AssignRoleComponent {
     RoleId: ['', [Validators.required]],
   });
 
-  genderChange(data: any) {}
-
-  submitForm(): void {
+  handleAssign(): void {
     if (this.validateForm.valid) {
       this.onAssignRole.emit({
+        UserId: this.validateForm.value.UserId!,
+        RoleId: this.validateForm.value.RoleId!,
+      });
+    } else {
+      Object.values(this.validateForm.controls).forEach((control) => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+    }
+  }
+
+  handleUnassign() {
+    if (this.validateForm.valid) {
+      this.onUnassignRole.emit({
         UserId: this.validateForm.value.UserId!,
         RoleId: this.validateForm.value.RoleId!,
       });

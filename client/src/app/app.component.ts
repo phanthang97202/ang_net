@@ -31,6 +31,7 @@ import { IErrorInfo } from './interfaces/error-info';
 import { ShowErrorService } from './services/show-error.service';
 import { LayoutType } from './types';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -70,8 +71,10 @@ export class AppComponent implements OnInit {
   layoutType: LayoutType = 'user';
 
   loadingService = inject(LoadingService);
+  authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
   router = inject(Router);
+
   constructor() {
     // Subscribe to the loading state from the LoadingService
     this.isLoading$ = this.loadingService.getLoading();
@@ -91,6 +94,7 @@ export class AppComponent implements OnInit {
         console.log({ url });
       });
   }
+
   // dùng cách này không thể lấy được router chính xác
   // router = inject(Router);
   // ngOnInit() {
@@ -99,4 +103,8 @@ export class AppComponent implements OnInit {
   //     url,
   //   });
   // }
+
+  handleLogout() {
+    this.authService.logout();
+  }
 }

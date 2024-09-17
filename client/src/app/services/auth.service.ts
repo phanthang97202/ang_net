@@ -14,7 +14,10 @@ import {
   IDeleteRoleResponse,
   IRole,
   IRoleResponse,
+  IUnasignRoleResponse,
+  IUnassignRoleRequest,
 } from '../interfaces/role';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +25,7 @@ import {
 export class AuthService {
   apiUrl: string = environment.apiUrl;
   private tokenKey = 'token';
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http
@@ -83,6 +86,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
+    this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
@@ -136,6 +140,13 @@ export class AuthService {
   assignRole(param: IAssignRoleRequest): Observable<IAssignRoleResponse> {
     return this.http.post<IAssignRoleResponse>(
       `${this.apiUrl}roles/assign`,
+      param
+    );
+  }
+
+  unassignRole(param: IUnassignRoleRequest): Observable<IUnasignRoleResponse> {
+    return this.http.post<IUnasignRoleResponse>(
+      `${this.apiUrl}roles/unassign`,
       param
     );
   }

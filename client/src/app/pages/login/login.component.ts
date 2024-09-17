@@ -69,7 +69,12 @@ export class LoginComponent {
         next: (value) => {
           this.loadingService.setLoading(false);
           this.message.create('success', 'Login successfully');
-          this.router.navigate(['/']);
+          const isAdmin = this.authService.isAdminPermission();
+          if (isAdmin) {
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         complete: () => {
           this.loadingService.setLoading(false);

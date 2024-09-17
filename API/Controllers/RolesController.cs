@@ -1,4 +1,4 @@
-﻿using API.Dtos;
+using API.Dtos;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -177,5 +177,55 @@ namespace API.Controllers
                 Message = "Assign role failed!"
             });
         }
+
+        [HttpPost("unassign")]
+        public async Task<IActionResult> UnassignRole([FromBody] UnRoleAssignDto unassignRole)
+        {
+            // 
+            string idUser = unassignRole.UserId;
+            string idRole = unassignRole.RoleId;
+
+            if (string.IsNullOrEmpty(idRole) || string.IsNullOrEmpty(idUser))
+            {
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Faild unassign! idRole || idUser is not valid!"
+                });
+            }
+
+            //
+            var user = await _appUser.FindByIdAsync(idUser);
+            var role = await _roleManager.FindByIdAsync(idRole);
+
+            if (user == null || role == null)
+            {
+                return BadRequest(new
+                {
+                    IsSuccess = false,
+                    Message = "Faild unassign! user || role is not found!"
+                });
+            }
+
+            //
+            var result = await _appUser.RemoveFromRoleAsync(user, role.Name!);
+
+            if (result.Succeeded)
+            {
+                return Ok(new
+                {
+                    IsSuccess = true,
+                    Message = "Unassign successfully!"
+                });
+            }
+
+            //
+            return BadRequest(new
+            {
+                IsSuccess = false,
+                Message = "Unassign role failed!"
+            });
+        }
+
     }
 }

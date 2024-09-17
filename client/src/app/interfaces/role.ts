@@ -24,4 +24,7 @@ export interface IAssignRoleRequest {
   RoleId: string;
 }
 
+export interface IUnassignRoleRequest extends IAssignRoleRequest {}
+
 export interface IAssignRoleResponse extends IRoleResponseBase {}
+export interface IUnasignRoleResponse extends IRoleResponseBase {}

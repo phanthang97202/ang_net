@@ -1,9 +1,8 @@
 <nz-breadcrumb>
-    <nz-breadcrumb-item>User</nz-breadcrumb-item>
-    <nz-breadcrumb-item>All</nz-breadcrumb-item>
+    <nz-breadcrumb-item>Users</nz-breadcrumb-item>
+    <nz-breadcrumb-item>All Users</nz-breadcrumb-item>
 </nz-breadcrumb>
-<nz-table nzShowSizeChanger [nzData]="[]" [nzFrontPagination]="false" [nzLoading]="false" [nzTotal]="100"
-    [nzPageSize]="10" [nzPageIndex]="0">
+<nz-table nzShowSizeChanger [nzData]="lstUsers" [nzFrontPagination]="false" [nzLoading]="false">
     <thead>
         <tr>
             <th nzColumnKey="email" [nzSortFn]="true">Email</th>

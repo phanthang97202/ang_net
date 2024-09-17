@@ -41,9 +41,15 @@
                 </ul>
             </li>
         </ul>
+        <div class="logo absolute bottom-[50px] w-full ">
+            <button class="w-full bg-transparent border-none" (click)="handleLogout()" nz-button
+                [nzType]="'primary'">Logout</button>
+        </div>
     </nz-sider>
     <nz-layout>
-        <nz-header> </nz-header>
+        <nz-header>
+            <!-- <app-navbar /> -->
+        </nz-header>
         <nz-content class="h-full">
             <router-outlet />
         </nz-content>
