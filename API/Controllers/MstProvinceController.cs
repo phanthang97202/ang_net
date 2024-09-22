@@ -37,8 +37,6 @@ namespace API.Controllers
                 throw;
             }
         }
-
-
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] MstProvinceModel province)
         {
@@ -84,6 +82,24 @@ namespace API.Controllers
                 {
                     Data = "",
                     Message = "Success"
+                });
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost("ImportExcel")]
+        public async Task<IActionResult> ImportExcel([FromForm] IFormFile file)
+        {
+            try
+            {
+                await _mstProvinceRespository.ImportExcel(file);
+                return Ok(new
+                {
+                    Data = "",
+                    Message = "Import Excel Successfully!"
                 });
             }
             catch (System.Exception)

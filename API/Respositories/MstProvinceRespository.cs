@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using API.Data;
 using API.Interfaces;
 using API.Models;
+using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -69,6 +70,57 @@ namespace API.Respositories
                 }).ToListAsync();
 
             return data;
+        }
+
+        public async Task<bool> ImportExcel(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0) {
+                    return false;
+                }
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                string folderUpload = $"{Directory.GetCurrentDirectory()}\\Uploads";
+                if(!Directory.Exists( folderUpload))
+                {
+                    Directory.CreateDirectory(folderUpload);
+                }
+                string filePath = Path.Combine(folderUpload, file.FileName);
+                using(var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);  
+                }
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+                { 
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        bool isSkipHeader = false;
+                        do
+                        {
+                            while (reader.Read())
+                            {
+                                if(!isSkipHeader)
+                                {
+                                    isSkipHeader = true;
+                                    continue;
+                                }
+                                MstProvinceModel province = new MstProvinceModel();
+                                province.ProvinceCode = reader.GetValue(0).ToString()!;
+                                province.ProvinceName = reader.GetValue(1).ToString()!;
+                                province.FlagActive = true;
+
+                                await this.Create(province); 
+                            }
+                        } while (reader.NextResult());
+                    }
+                }
+                File.Delete(filePath);
+                return true;
+            }
+            catch (Exception ex) {
+                new Exception("Error:::", ex);
+                return false;
+            }
         }
 
         public async  Task<bool> Update(MstProvinceModel data)

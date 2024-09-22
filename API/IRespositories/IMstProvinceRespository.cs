@@ -8,5 +8,6 @@ namespace API.Interfaces
         public Task<bool> Create(MstProvinceModel data);
         public Task<bool> Delete(string id);
         public Task<bool> Update(MstProvinceModel data);
+        public Task<bool> ImportExcel(IFormFile file);
     }
 }

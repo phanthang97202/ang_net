@@ -4,8 +4,10 @@ using API.Data;
 using API.Interfaces;
 using API.Models;
 using API.Respositories;
+using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -50,7 +52,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"JWT Authorization Example: 'Bearer jfjfjfjfjjf",
+        Description = @"JWT Authorization Example: 'Bearer your_token_here",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -84,6 +86,9 @@ builder.Services.AddControllers().AddJsonOptions(o =>
     o.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
+// config signalR
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -94,6 +99,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
+app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
+{
+    await context.Clients.All.ReceiveMessage(message);
+    return Results.NoContent();
+});
+
+
 
 app.UseCors(option =>
 {
@@ -107,5 +121,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("notification-hub");
 
 app.Run();
