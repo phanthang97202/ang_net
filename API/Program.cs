@@ -7,6 +7,7 @@ using API.Respositories;
 using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -80,6 +81,11 @@ builder.Services.AddSwaggerGen(c =>
 //{ 
 //    options.SerializerOptions.PropertyNamingPolicy = null;
 //});
+
+builder.Services.Configure<ApiBehaviorOptions>(o =>
+{
+    o.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddControllers().AddJsonOptions(o =>
 {

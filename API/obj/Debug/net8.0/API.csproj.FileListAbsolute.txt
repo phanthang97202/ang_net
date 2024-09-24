@@ -151,3 +151,10 @@ F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Microsoft.Extensions
 F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Microsoft.Extensions.Features.dll
 F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\ExcelDataReader.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\ClosedXML.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\ExcelNumberFormat.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Irony.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\SixLabors.Fonts.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\System.IO.Packaging.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\XLParser.dll

@@ -42,11 +42,8 @@ namespace API.Controllers
         {
             try
             {
-                await _mstProvinceRespository.Create(province);
-                return Ok(new {
-                    Data = "",
-                    Message = "Success"
-                });
+                var response = await _mstProvinceRespository.Create(province);
+                return Ok(response);
             }
             catch (System.Exception)
             {
@@ -59,12 +56,8 @@ namespace API.Controllers
         {
             try
             {
-                await _mstProvinceRespository.Update(province);
-                return Ok(new
-                {
-                    Data = "",
-                    Message = "Success"
-                });
+                var response = await _mstProvinceRespository.Update(province);
+                return Ok(response);
             }
             catch (System.Exception)
             {
@@ -107,5 +100,21 @@ namespace API.Controllers
                 throw;
             }
         }
+
+        [HttpGet("ExportExcel")]
+        public async Task<IActionResult> ExportExcel()
+        {
+            try
+            {
+                byte[] file = await _mstProvinceRespository.ExportExcel();
+
+                return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mst_Province_Data.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while exporting the Excel file.");
+            }
+        }
+
     }
 }
