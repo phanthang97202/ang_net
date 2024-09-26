@@ -3,13 +3,13 @@
     <nz-card *ngIf="userInfo" nzTitle="User Account Details" [nzBordered]="true" class="user-details-card h-full ">
         <nz-descriptions [nzColumn]="1">
             <nz-descriptions-item nzTitle="Full Name">
-                <p><b>{{ userInfo.fullName }}</b></p>
+                <p><b>{{ userInfo.FullName }}</b></p>
             </nz-descriptions-item>
             <nz-descriptions-item nzTitle="Email">
                 <p>
                     <b>
 
-                        {{ userInfo.email | showNullishValue }}
+                        {{ userInfo.Email | showNullishValue }}
                     </b>
                 </p>
 
@@ -18,7 +18,7 @@
 
                 <p>
                     <b>
-                        {{ userInfo.roles.join(', ') | showNullishValue }}
+                        {{ userInfo.Roles.join(', ') | showNullishValue }}
                     </b>
                 </p>
             </nz-descriptions-item>
@@ -26,7 +26,7 @@
                 <p>
                     <b>
 
-                        {{ userInfo.phoneNumber | showNullishValue }}
+                        {{ userInfo.PhoneNumber | showNullishValue }}
                     </b>
                 </p>
 
@@ -35,7 +35,7 @@
                 <p>
                     <b>
 
-                        {{ userInfo.accessFailedCount | showNullishValue}}
+                        {{ userInfo.AccessFailedCount | showNullishValue}}
                     </b>
                 </p>
 

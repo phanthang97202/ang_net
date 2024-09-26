@@ -70,6 +70,7 @@ export class LoginComponent {
           this.loadingService.setLoading(false);
           this.message.create('success', 'Login successfully');
           const isAdmin = this.authService.isAdminPermission();
+          console.log('🚀 ~ LoginComponent ~ submitForm ~ isAdmin:', isAdmin);
           if (isAdmin) {
             this.router.navigate(['/dashboard']);
           } else {

@@ -34,8 +34,8 @@ export class AuthService {
       .pipe(
         // delay(2000),
         map((response) => {
-          if (response.isSuccess) {
-            localStorage.setItem(this.tokenKey, response.token);
+          if (response.IsSuccess) {
+            localStorage.setItem(this.tokenKey, response.Token);
           }
           return response;
         })
@@ -91,14 +91,20 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     const token = this.getToken();
+    console.log('🚀 ~ AuthService ~ isLoggedIn ~ token:', token);
 
     if (!token) return false;
 
     const decodedToken = jwtDecode(token);
+    console.log('🚀 ~ AuthService ~ isLoggedIn ~ decodedToken:', decodedToken);
 
     const isTokenExpried = isBefore(
       new Date(Date.now()),
       new Date((decodedToken['exp'] as number) * 1000)
+    );
+    console.log(
+      '🚀 ~ AuthService ~ isLoggedIn ~ isTokenExpried:',
+      isTokenExpried
     );
 
     if (!isTokenExpried) {
@@ -114,6 +120,10 @@ export class AuthService {
     if (!token) return false;
 
     const decodedToken: any = jwtDecode(token);
+    console.log(
+      '🚀 ~ AuthService ~ isAdminPermission ~ decodedToken:',
+      decodedToken
+    );
 
     const bool = decodedToken.role.includes('Admin');
 

@@ -49,7 +49,7 @@ export class RoleListComponent implements OnInit {
     this.authService.getAllRoles().subscribe({
       next: (data) => {
         this.loadingService.setLoading(false);
-        this.lstRoles = data.data;
+        this.lstRoles = data.Data;
       },
       complete: () => {
         this.loadingService.setLoading(false);

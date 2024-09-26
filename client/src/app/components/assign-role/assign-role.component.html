@@ -3,7 +3,7 @@
         <nz-form-control nzErrorTip="Please select user!">
             <nz-select id="UserId" formControlName="UserId" nzPlaceHolder="Select user">
                 @for (user of lstUsers; track user) {
-                <nz-option [nzValue]="user.id" [nzLabel]="user.email" />
+                <nz-option [nzValue]="user.Id" [nzLabel]="user.Email" />
                 }
             </nz-select>
         </nz-form-control>
@@ -12,7 +12,7 @@
         <nz-form-control nzErrorTip="Please select role!">
             <nz-select id="RoleId" formControlName="RoleId" nzPlaceHolder="Select role">
                 @for (role of lstRoles; track role) {
-                <nz-option [nzValue]="role.id" [nzLabel]="role.name" />
+                <nz-option [nzValue]="role.Id" [nzLabel]="role.Name" />
                 }
             </nz-select>
         </nz-form-control>

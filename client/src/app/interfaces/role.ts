@@ -3,19 +3,19 @@ export interface ICreateRoleRequest {
 }
 
 export interface IRole {
-  id: string;
-  name: string;
-  totalUsers: number;
+  Id: string;
+  Name: string;
+  TotalUsers: number;
 }
 
 export interface IRoleResponse {
-  isSuccess: boolean;
-  data: IRole[];
+  IsSuccess: boolean;
+  Data: IRole[];
 }
 
 export interface IRoleResponseBase {
-  isSuccess: boolean;
-  message: string;
+  IsSuccess: boolean;
+  Message: string;
 }
 export interface IDeleteRoleResponse extends IRoleResponseBase {}
 

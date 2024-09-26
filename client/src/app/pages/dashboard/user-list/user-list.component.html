@@ -15,17 +15,17 @@
         <tr>
             <td>
                 <ng-template #normal__text>
-                    {{ data.email }}
+                    {{ data.Email }}
                 </ng-template>
-                <p *ngIf="data.email === me; else normal__text">
-                    <b>{{ data.email }} </b>
+                <p *ngIf="data.Email === me; else normal__text">
+                    <b>{{ data.Email }} </b>
                     <i>
                         ( me )
                     </i>
                 </p>
             </td>
-            <td>{{ data.fullName }} </td>
-            <td>{{ data.roles.join(', ') }}</td>
+            <td>{{ data.FullName }} </td>
+            <td>{{ data.Roles.join(', ') }}</td>
         </tr>
         }
     </tbody>

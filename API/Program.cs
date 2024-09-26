@@ -45,6 +45,18 @@ builder.Services.AddAuthentication(opt =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSetting.GetSection("securityKey").Value!)) // Đây là khóa bí mật được dùng để ký token và đảm bảo tính toàn vẹn của nó. Khóa này được tạo bằng cách sử dụng SymmetricSecurityKey với giá trị chuỗi bảo mật (securityKey) được mã hóa dưới dạng UTF-8
     };
 });
+// builder.Services.AddCors(o =>
+// {
+//     o.AddPolicy("angularapp", builder =>
+//     {
+//         builder.WithOrigins("http://localhost:4200")
+//         .AllowAnyHeader()
+//         .AllowAnyMethod()
+//         .AllowCredentials();
+//     });
+// });
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -95,6 +107,8 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 // config signalR
 builder.Services.AddSignalR();
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -104,16 +118,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-
-app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
-{
-    await context.Clients.All.ReceiveMessage(message);
-    return Results.NoContent();
-});
-
-
 
 app.UseCors(option =>
 {
@@ -122,11 +126,24 @@ app.UseCors(option =>
     option.AllowAnyOrigin();
 });
 
+app.UseHttpsRedirection();
+// app.UseCors("angularapp");
+
+
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+
+app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
+{
+    await context.Clients.All.ReceiveMessage(message);
+    return Results.NoContent();
+});
+
 
 app.MapHub<NotificationHub>("notification-hub");
 

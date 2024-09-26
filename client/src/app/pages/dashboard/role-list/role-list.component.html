@@ -30,12 +30,12 @@
                 @for (data of lstRoles; track data) {
                 <tr>
                     <td>
-                        {{ data.name }}
+                        {{ data.Name }}
                     </td>
-                    <td>{{ data.totalUsers }} </td>
+                    <td>{{ data.TotalUsers }} </td>
                     <td>
                         <button nz-popconfirm [nzOkText]='"Yes"' [nzCancelText]='"No"'
-                            nzPopconfirmTitle="Are you sure ?" (nzOnConfirm)="handleDelete(data.id)"
+                            nzPopconfirmTitle="Are you sure ?" (nzOnConfirm)="handleDelete(data.Id)"
                             (nzOnCancel)="cancel()" nz-button nzType="default" nzShape="circle">
                             <span nz-icon nzType="delete"></span>
                         </button>

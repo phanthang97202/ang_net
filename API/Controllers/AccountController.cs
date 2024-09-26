@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using API.Dtos;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
+    // [EnableCors("angularapp")]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase

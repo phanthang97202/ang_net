@@ -25,14 +25,14 @@ export class UserListComponent implements OnInit {
   me: string = '';
   lstUsers: IUser[] = [
     {
-      fullName: '',
-      id: '',
-      email: '',
-      phoneNumber: '',
-      roles: [''],
-      accessFailedCount: 0,
-      twoFacotrEnabled: false,
-      phoneNumberConfirmed: true,
+      FullName: '',
+      Id: '',
+      Email: '',
+      PhoneNumber: '',
+      Roles: [''],
+      AccessFailedCount: 0,
+      TwoFacotrEnabled: false,
+      PhoneNumberConfirmed: true,
     },
   ];
 

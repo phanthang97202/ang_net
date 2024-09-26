@@ -1,30 +1,30 @@
 export interface IUser {
-  id: string;
-  fullName: string;
-  email: string;
-  roles: string[];
-  phoneNumber: string;
-  twoFacotrEnabled: boolean;
-  phoneNumberConfirmed: boolean;
-  accessFailedCount: number;
+  Id: string;
+  FullName: string;
+  Email: string;
+  Roles: string[];
+  PhoneNumber: string;
+  TwoFacotrEnabled: boolean;
+  PhoneNumberConfirmed: boolean;
+  AccessFailedCount: number;
 }
 // dashboard
 export interface IUserInfo {
-  fullName: string;
-  id: string;
-  roles: string[];
-  userName: string;
-  normalizedUserName: string;
-  email: string;
-  normalizedEmail: string;
-  emailConfirmed: boolean;
-  passwordHash: string;
-  securityStamp: string;
-  concurrencyStamp: string;
-  phoneNumber: string | null;
+  FullName: string;
+  Id: string;
+  Roles: string[];
+  UserName: string;
+  NormalizedUserName: string;
+  Email: string;
+  NormalizedEmail: string;
+  EmailConfirmed: boolean;
+  PasswordHash: string;
+  SecurityStamp: string;
+  ConcurrencyStamp: string;
+  PhoneNumber: string | null;
   phoneNumberConfirmed: boolean;
-  twoFactorEnabled: boolean;
-  lockoutEnd: string | null;
-  lockoutEnabled: boolean;
-  accessFailedCount: number;
+  TwoFactorEnabled: boolean;
+  LockoutEnd: string | null;
+  LockoutEnabled: boolean;
+  AccessFailedCount: number;
 }
