@@ -50,6 +50,7 @@ export class RoleListComponent implements OnInit {
       next: (data) => {
         this.loadingService.setLoading(false);
         this.lstRoles = data.Data;
+        console.log('this.lstRoles', this.lstRoles);
       },
       complete: () => {
         this.loadingService.setLoading(false);
@@ -69,6 +70,10 @@ export class RoleListComponent implements OnInit {
       next: (data) => {
         this.loadingService.setLoading(false);
         this.lstUsers = data;
+        console.log(
+          '🚀 ~ RoleListComponent ~ this.authService.getAllUsers ~  this.lstUsers:',
+          this.lstUsers
+        );
       },
       complete: () => {
         this.loadingService.setLoading(false);

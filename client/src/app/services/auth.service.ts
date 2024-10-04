@@ -55,7 +55,11 @@ export class AuthService {
 
   // get thông tin users cho dashboard
   getAllUsers(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(`${this.apiUrl}account/users`);
+    return this.http.get<IUser[]>(`${this.apiUrl}account/users`, {
+      headers: {
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsIm5hbWUiOiJBZG1pbmlzdHJhdG9yIiwibmFtZWlkIjoiOWQ0MzBjYTUtNTIxNC00YmU1LWI2OGYtZmYxMjE0YzE4OWNhIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo0MjAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwicm9sZSI6IkFkbWluIiwibmJmIjoxNzI4MDU1Mzc3LCJleHAiOjE3MjgwNTg5NzcsImlhdCI6MTcyODA1NTM3N30.m4lU5pliWxQ2AaJkyCUF5b43__iUMa7Mg2SkUfTo8Ao`,
+      },
+    });
   }
 
   getAccountInfo() {

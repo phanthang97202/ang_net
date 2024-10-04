@@ -18,7 +18,6 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    // debugger;
     const token = this.authService.getToken();
 
     let clonedRequest = req;
@@ -26,14 +25,18 @@ export class AuthInterceptor implements HttpInterceptor {
       clonedRequest = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`),
       });
+      console.log(
+        'Authorization Header:',
+        clonedRequest.headers.get('Authorization')
+      );
     }
 
     return next.handle(clonedRequest).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
+        // if (error.status === 401) {
+        //   this.authService.logout();
+        //   this.router.navigate(['/login']);
+        // }
         return throwError(() => error);
       })
     );

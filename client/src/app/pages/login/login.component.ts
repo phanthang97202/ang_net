@@ -61,8 +61,10 @@ export class LoginComponent {
     if (userName && password) {
       this.loadingService.setLoading(true);
       const observer = this.authService.login({
-        email: userName,
-        password: password,
+        // email: userName,
+        // password: password,
+        email: 'admin@gmail.com',
+        password: 'Pt02!?',
       });
 
       observer.subscribe({
@@ -70,7 +72,6 @@ export class LoginComponent {
           this.loadingService.setLoading(false);
           this.message.create('success', 'Login successfully');
           const isAdmin = this.authService.isAdminPermission();
-          console.log('🚀 ~ LoginComponent ~ submitForm ~ isAdmin:', isAdmin);
           if (isAdmin) {
             this.router.navigate(['/dashboard']);
           } else {

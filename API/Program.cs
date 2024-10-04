@@ -15,7 +15,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var JWTSetting = builder.Configuration.GetSection("JWTSetting");
+var clientConfig = builder.Configuration.GetSection("ClientConfig");
 // Add services to the container.
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
@@ -45,19 +47,20 @@ builder.Services.AddAuthentication(opt =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSetting.GetSection("securityKey").Value!)) // Đây là khóa bí mật được dùng để ký token và đảm bảo tính toàn vẹn của nó. Khóa này được tạo bằng cách sử dụng SymmetricSecurityKey với giá trị chuỗi bảo mật (securityKey) được mã hóa dưới dạng UTF-8
     };
 });
-// builder.Services.AddCors(o =>
-// {
-//     o.AddPolicy("angularapp", builder =>
-//     {
-//         builder.WithOrigins("http://localhost:4200")
-//         .AllowAnyHeader()
-//         .AllowAnyMethod()
-//         .AllowCredentials();
-//     });
-// });
+ 
 
-
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+                   //.AllowCredentials();
+        });
+});
+ 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -111,23 +114,20 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
+ 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+} 
 
 
-app.UseCors(option =>
-{
-    option.AllowAnyHeader();
-    option.AllowAnyMethod();
-    option.AllowAnyOrigin();
-});
+// Note: Nếu như không dùng SSL thì disable feature này đi, nếu không nó sẽ tự động chuyển sang https nếu client đang call api dạng http
+//Bật SSL: dotnet dev-certs https --trust
+//app.UseHttpsRedirection();
 
-app.UseHttpsRedirection();
-// app.UseCors("angularapp");
+app.UseCors("AllowAllOrigins");
 
 
 app.UseAuthentication();
@@ -138,11 +138,11 @@ app.MapControllers();
 
 
 
-app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
-{
-    await context.Clients.All.ReceiveMessage(message);
-    return Results.NoContent();
-});
+//app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
+//{
+//    await context.Clients.All.ReceiveMessage(message);
+//    return Results.NoContent();
+//});
 
 
 app.MapHub<NotificationHub>("notification-hub");

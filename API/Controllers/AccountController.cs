@@ -202,7 +202,7 @@ namespace API.Controllers
         }
 
         // get all users
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet("users")]
         public async Task<ActionResult<UserDetailDto>> GetAllUser()
         {
