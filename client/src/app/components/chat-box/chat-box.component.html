@@ -1,0 +1,28 @@
+<div class="chat__container w-[300px] h-[200px] ">
+    <div #chatContainer (scroll)="onScroll()" [scrollTop]="chatContainer.scrollHeight"
+        class="overflow-y-auto flex flex-col h-[84%] ">
+        <div *ngFor="let msg of messages">
+            <nz-comment class="comment__container" [class.float-right]="msg.UserId === userId"
+                [class.float-left]="msg.UserId !== userId" [nzAuthor]='msg.UserId !== userId ? msg.UserId : ""'
+                [nzDatetime]="">
+
+                <nz-avatar *ngIf="msg.UserId !== userId" nz-comment-avatar
+                    nzSrc="https://en.anmosugoi.com/wp-content/uploads/2024/05/Date-a-Live-Kurumi-Tokisaki-min-4.webp"></nz-avatar>
+
+                <nz-comment-content [class.myMessage]="msg.UserId === userId">
+                    <p>{{msg.Message}}</p>
+                </nz-comment-content>
+            </nz-comment>
+        </div>
+    </div>
+
+    <div class="form__send flex-1">
+        <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
+            <input [(ngModel)]="newMessage" type="text" nz-input placeholder="text...." (keyup.enter)="sendMessage()" />
+        </nz-input-group>
+        <ng-template #suffixIconButton>
+            <button nz-button nzType="primary" (click)="sendMessage()" nzSearch><span nz-icon nzType="send"
+                    nzTheme="outline"></span></button>
+        </ng-template>
+    </div>
+</div>

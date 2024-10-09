@@ -17,6 +17,7 @@
         public bool Success { get; set; }
         public string ErrorMessage { get; set; } = string.Empty;
         public T Data { get; set; } = default!;
+        public List<T> DataList { get; set; } = new List<T>();
         public DateTime RequestDTimeAt { get; } = DateTime.UtcNow; // Changed to UtcNow
         public List<RequestClient> RequestClients { get; set; } = new List<RequestClient>(); // Initialize to an empty list
 

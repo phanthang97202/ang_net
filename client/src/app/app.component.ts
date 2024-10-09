@@ -91,7 +91,6 @@ export class AppComponent implements OnInit {
         const url = event.urlAfterRedirects;
         const layoutType = url.startsWith('/dashboard') ? 'admin' : 'user';
         this.layoutType = layoutType;
-        console.log({ url });
       });
   }
 

@@ -84,6 +84,27 @@ namespace API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("API.Models.ChatModel", b =>
+                {
+                    b.Property<string>("MessageId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MessageId");
+
+                    b.ToTable("Chat", (string)null);
+                });
+
             modelBuilder.Entity("API.Models.MstDistrictModel", b =>
                 {
                     b.Property<string>("ProvinceCode")

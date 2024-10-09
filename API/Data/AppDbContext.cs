@@ -23,10 +23,14 @@ namespace API.Data
         public DbSet<MstStadiumModel> MstStadiums { get; set; }
         public DbSet<MstPaymentTypeModel> MstPaymentTypes { get; set; }
         public DbSet<OrderStadiumModel> OrderStadiums { get; set; }
+        public DbSet<ChatModel> Chat { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ChatModel>().ToTable("Chat");
+            
 
             modelBuilder.Entity<MstStadiumModel>()
             .HasOne<MstStadiumStatusModel>()

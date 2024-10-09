@@ -1,10 +1,10 @@
 import {
   NzTransitionPatchDirective,
   NzTransitionPatchModule
-} from "./chunk-HY6EHMPM.js";
-import "./chunk-HC6PARWB.js";
+} from "./chunk-WPAFF6MP.js";
+import "./chunk-NRLS6MDD.js";
 import "./chunk-PCSJ3H3U.js";
-import "./chunk-J4B6MK7R.js";
+import "./chunk-7G5TR5RR.js";
 export {
   NzTransitionPatchDirective as ɵNzTransitionPatchDirective,
   NzTransitionPatchModule as ɵNzTransitionPatchModule

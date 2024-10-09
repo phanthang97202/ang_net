@@ -3,20 +3,32 @@
   "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\chatrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\chatrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\irespositories\\imstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\irespositories\\imstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\irespositories\\ichatrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\irespositories\\ichatrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\dtos\\apiresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\dtos\\apiresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,54 +46,93 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeDocumentMoniker": "API\\appsettings.json",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeToolTip": "API\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAqAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-10-04T15:37:32.392Z",
+              "DocumentIndex": 2,
+              "Title": "ChatController.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\ChatController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\ChatController.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\ChatController.cs",
+              "RelativeToolTip": "API\\Controllers\\ChatController.cs",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAAwBkAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T15:01:54.854Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AccountController.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\AccountController.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
-              "RelativeToolTip": "API\\Controllers\\AccountController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAANgAAAANAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-04T15:16:18.065Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "MstProvinceController.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\MstProvinceController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\MstProvinceController.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\MstProvinceController.cs",
               "RelativeToolTip": "API\\Controllers\\MstProvinceController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACUAAAANAAAA",
+              "ViewState": "AQIAAB4AAAAAAAAAAAAYwFUAAAAhAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-02T15:09:32.009Z",
+              "WhenOpened": "2024-10-09T15:00:22.14Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MstProvinceRespository.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\MstProvinceRespository.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\MstProvinceRespository.cs",
+              "ViewState": "AQIAABQAAAAAAAAAAAAAwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T14:59:53.365Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ApiResponse.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\ApiResponse.cs",
+              "RelativeDocumentMoniker": "API\\Dtos\\ApiResponse.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Dtos\\ApiResponse.cs",
+              "RelativeToolTip": "API\\Dtos\\ApiResponse.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAQwBMAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T14:56:59.499Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IMstProvinceRespository.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\IRespositories\\IMstProvinceRespository.cs",
+              "RelativeDocumentMoniker": "API\\IRespositories\\IMstProvinceRespository.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\IRespositories\\IMstProvinceRespository.cs",
+              "RelativeToolTip": "API\\IRespositories\\IMstProvinceRespository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAA2AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T14:53:38.897Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Program.cs",
-              "RelativeDocumentMoniker": "API\\Program.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Program.cs",
-              "RelativeToolTip": "API\\Program.cs",
-              "ViewState": "AQIAAIYAAAAAAAAAAAAAABoAAAAcAAAA",
+              "Title": "ChatRespository.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\ChatRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\ChatRespository.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\ChatRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\ChatRespository.cs",
+              "ViewState": "AQIAAB4AAAAAAAAAAAAYwCwAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-26T15:48:24.292Z",
+              "WhenOpened": "2024-10-09T14:50:10.285Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IChatRepository.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\IRespositories\\IChatRepository.cs",
+              "RelativeDocumentMoniker": "API\\IRespositories\\IChatRepository.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\IRespositories\\IChatRepository.cs",
+              "RelativeToolTip": "API\\IRespositories\\IChatRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAuwAgAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-08T16:22:58.933Z",
               "EditorCaption": ""
             }
           ]

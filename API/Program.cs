@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using API.Data;
 using API.Interfaces;
+using API.IRespositories;
 using API.Models;
 using API.Respositories;
 using API.SignalR;
@@ -20,6 +21,7 @@ var JWTSetting = builder.Configuration.GetSection("JWTSetting");
 var clientConfig = builder.Configuration.GetSection("ClientConfig");
 // Add services to the container.
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
+builder.Services.AddScoped<IChatRepository, ChatRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
 
 // config jwt 
@@ -145,6 +147,6 @@ app.MapControllers();
 //});
 
 
-app.MapHub<NotificationHub>("notification-hub");
+app.MapHub<ChatHub>("chat-hub");
 
 app.Run();
