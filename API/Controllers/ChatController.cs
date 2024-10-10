@@ -17,11 +17,11 @@ namespace API.Controllers
         }
 
         [HttpGet("GetMessage")]
-        public async Task<ActionResult<ChatModel>> GetMessage(int quantity)
+        public async Task<ActionResult<ChatModel>> GetMessage(int PageIndex = 0, int PageSize = 10)
         {
             try
             {
-                ApiResponse<ChatModel> response = await _chatRepository.GetMessage(quantity);
+                ApiResponse<ChatModel> response = await _chatRepository.GetMessage(PageIndex, PageSize);
                 return Ok(response);
             }
             catch (System.Exception)

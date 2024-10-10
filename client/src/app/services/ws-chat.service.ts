@@ -46,9 +46,9 @@ export class ChatService {
   }
 
   // get all chat message
-  getMessage(quantity: number): Observable<IChatResponse> {
+  getMessage(pageIndex: number, pageSize: number): Observable<IChatResponse> {
     return this.http.get<IChatResponse>(
-      `${this.apiUrl}chat/getmessage?quantity=${quantity}`
+      `${this.apiUrl}chat/getmessage?PageIndex=${pageIndex}&PageSize=${pageSize}`
     );
   }
 }

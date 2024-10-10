@@ -5,11 +5,20 @@ export interface IChat {
   CreatedDTime: Date;
 }
 
+export interface IPageInfo {
+  PageIndex: number;
+  PageSize: number;
+  PageCount: number;
+  ItemCount: number;
+  DataList: IChat[];
+}
+
 export interface IChatResponse {
   Success: boolean;
   ErrorMessage: string;
   Data: any;
-  DataList: IChat[];
+  DataList: any[];
+  objResult: IPageInfo;
   RequestDTimeAt: Date;
-  RequestClients: any[];
+  RequestClients: any;
 }

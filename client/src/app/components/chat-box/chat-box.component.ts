@@ -36,24 +36,31 @@ import { ShowErrorService } from '../../services/show-error.service';
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.scss',
 })
-export class ChatBoxComponent implements OnInit, AfterViewChecked, DoCheck {
+export class ChatBoxComponent implements OnInit, AfterViewChecked {
   chatService = inject(ChatService);
   detailUser = inject(AuthService);
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   constructor(private cdref: ChangeDetectorRef) {}
   showErrorService = inject(ShowErrorService);
 
-  quantity: number = 5;
+  pageIndex: number = 0;
+  pageSize: number = 5;
+  maxScrollQuantity: number = 0;
+  countScroll: number = 0;
+  itemCount: number = 0;
+  public loadingMessages: boolean = false;
 
   public messages: IChat[] = [];
   public newMessage: string = '';
   public userId: string = this.detailUser.getAccountInfo().email!;
 
   ngOnInit(): void {
-    this.chatService.getMessage(this.quantity).subscribe({
+    this.chatService.getMessage(this.pageIndex, this.pageSize).subscribe({
       next: (res) => {
-        this.messages = [...this.messages, ...res.DataList];
-        return res.DataList;
+        this.messages = [...this.messages, ...res.objResult.DataList];
+        this.maxScrollQuantity = res.objResult.PageCount;
+        this.itemCount = res.objResult.ItemCount;
+        return res.objResult.DataList;
       },
       error: (err) => {
         this.showErrorService.setShowError({
@@ -84,34 +91,42 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, DoCheck {
   // fix delay dom
   ngAfterViewChecked() {
     this.cdref.detectChanges();
-  }
-
-  ngDoCheck() {
-    console.log('re render');
+    // const element = this.chatContainer.nativeElement;
+    // element.scrollTop = element.scrollHeight;
   }
 
   onScroll() {
     const element = this.chatContainer.nativeElement;
-
-    if (element.scrollTop === 0) {
-      // this.quantity = this.quantity + 5;
-
-      // this.chatService.getMessage(this.quantity).subscribe({
-      //   next: (res) => {
-      //     this.messages = [...this.messages, ...res.DataList];
-      //     return res.DataList;
-      //   },
-      //   error: (err) => {
-      //     this.showErrorService.setShowError({
-      //       icon: 'warning',
-      //       message: JSON.stringify(err, null, 2),
-      //       title: err.message,
-      //     });
-      //     throw new Error(err);
-      //   },
-      // });
-      console.log('Cannot scroll up further!', this.quantity);
-      // You can handle what to do when scroll is at the top
+    if (
+      element.scrollTop === 0 &&
+      !this.loadingMessages &&
+      this.pageIndex < this.itemCount / this.pageSize
+    ) {
+      this.loadMessages();
     }
+  }
+
+  loadMessages() {
+    this.loadingMessages = true;
+    const oldScrollHeight = this.chatContainer.nativeElement.scrollHeight;
+
+    this.chatService.getMessage(this.pageIndex + 1, this.pageSize).subscribe({
+      next: (res) => {
+        this.messages = [...res.objResult.DataList, ...this.messages];
+        this.pageIndex += 1;
+        this.loadingMessages = false;
+
+        // Adjust the scroll position to maintain the user's view
+        setTimeout(() => {
+          const newScrollHeight = this.chatContainer.nativeElement.scrollHeight;
+          this.chatContainer.nativeElement.scrollTop =
+            newScrollHeight - oldScrollHeight;
+        }, 0); // Delay to allow DOM to update
+      },
+      error: (err) => {
+        console.error('Error loading messages:', err);
+        this.loadingMessages = false;
+      },
+    });
   }
 }

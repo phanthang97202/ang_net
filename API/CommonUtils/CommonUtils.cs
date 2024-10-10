@@ -13,5 +13,17 @@
                 return false;
             }
         }
+
+        public static int CeilingValue (int value)
+        {
+            if(value % 10 > 0)
+            {
+                return value + 1;
+            }
+            else
+            {
+                return value;
+            }
+        }
     }
 }
