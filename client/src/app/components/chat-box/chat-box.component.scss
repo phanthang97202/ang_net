@@ -17,10 +17,18 @@
     }
 
     .form__send {
+        height: max-content;
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
+    }
+}
+::ng-deep .uploadfile__container {
+    .ant-upload.ant-upload-select-picture-card {
+        margin: 0 !important;
+        width: fit-content !important;
+        height: fit-content !important;
     }
 }
  

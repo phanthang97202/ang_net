@@ -12,6 +12,7 @@ export class ShowErrorService {
     message: '',
   });
 
+  // Thực hiện bắn dữ liệu
   setShowError(obj: IErrorInfo) {
     this.errorInfo.next({
       title: obj.title,
@@ -20,6 +21,7 @@ export class ShowErrorService {
     });
   }
 
+  // Export subject để đọc
   getErrorInfo(): Observable<IErrorInfo> {
     return this.errorInfo.asObservable();
   }

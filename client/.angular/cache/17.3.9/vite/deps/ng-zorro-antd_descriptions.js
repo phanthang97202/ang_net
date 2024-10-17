@@ -3,15 +3,15 @@ import {
   NzBreakpointService,
   gridResponsiveMap
 } from "./chunk-Z4QHCYGE.js";
-import "./chunk-MCBC5P5Z.js";
 import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-YKWDCTEZ.js";
+import "./chunk-MCBC5P5Z.js";
+import "./chunk-COKB227H.js";
 import {
   Directionality
 } from "./chunk-4ZTIIIV2.js";
-import "./chunk-COKB227H.js";
 import {
   NzConfigService,
   WithConfig

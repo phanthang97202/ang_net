@@ -21,14 +21,16 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.authService.getToken();
 
     let clonedRequest = req;
+
+    if (req.url.includes('cloudinary.com')) {
+      // Don't attach Authorization header for Cloudinary requests
+      return next.handle(req);
+    }
+
     if (token && this.authService.isLoggedIn()) {
       clonedRequest = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`),
       });
-      console.log(
-        'Authorization Header:',
-        clonedRequest.headers.get('Authorization')
-      );
     }
 
     return next.handle(clonedRequest).pipe(

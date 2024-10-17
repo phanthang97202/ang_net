@@ -5,7 +5,7 @@ namespace API.IRespositories
 {
     public interface IChatRepository
     {
-        public Task<ApiResponse<ChatModel>> SendMessage(string userId, string message);
+        public Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type);
         public Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize);
          
     }

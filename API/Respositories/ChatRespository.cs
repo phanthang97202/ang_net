@@ -14,7 +14,7 @@ namespace API.Respositories
         public ChatRespository(AppDbContext dbContext) {
             _dbContext = dbContext;
         }
-        public async Task<ApiResponse<ChatModel>> SendMessage(string userId, string message)
+        public async Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type)
         {
             // throw new NotImplementedException();
             ApiResponse<ChatModel> apiResponse = new ApiResponse<ChatModel>();
@@ -24,6 +24,7 @@ namespace API.Respositories
             {
                 UserId = userId,
                 Message = message,
+                Type = type,
                 CreatedDTime = DateTime.Now
             };
 

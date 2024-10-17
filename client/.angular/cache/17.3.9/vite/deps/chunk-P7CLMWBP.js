@@ -5,18 +5,18 @@ import {
   NzFormStatusService
 } from "./chunk-U4XBOTP2.js";
 import {
+  Directionality
+} from "./chunk-4ZTIIIV2.js";
+import {
+  InputBoolean
+} from "./chunk-GKOQRHDK.js";
+import {
   CheckboxControlValueAccessor,
   FormsModule,
   NG_VALUE_ACCESSOR,
   NgControlStatus,
   NgModel
 } from "./chunk-ZN6VVTT7.js";
-import {
-  Directionality
-} from "./chunk-4ZTIIIV2.js";
-import {
-  InputBoolean
-} from "./chunk-GKOQRHDK.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -601,4 +601,4 @@ export {
   NzCheckboxGroupComponent,
   NzCheckboxModule
 };
-//# sourceMappingURL=chunk-OGBIFRUW.js.map
+//# sourceMappingURL=chunk-P7CLMWBP.js.map

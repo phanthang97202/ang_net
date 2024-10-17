@@ -21,10 +21,10 @@ namespace API.SignalR
             await Clients.All.SendAsync("Connected successfully");
             await base.OnConnectedAsync();
         }
-        public async Task SendMessage(string userId, string message)
+        public async Task SendMessage(string userId, string message, string type)
         {
-            await _chatRespository.SendMessage(userId, message);
-            await Clients.All.SendAsync("ReceiveMessage", userId, message);
+            await _chatRespository.SendMessage(userId, message, type);
+            await Clients.All.SendAsync("ReceiveMessage", userId, message, type);
         }
 
     }

@@ -1,14 +1,12 @@
 import {
   Overlay
-} from "./chunk-3V6XMKQS.js";
-import "./chunk-GO6HNLYD.js";
-import {
-  NzSingletonService
-} from "./chunk-Z4QHCYGE.js";
-import "./chunk-MCBC5P5Z.js";
+} from "./chunk-LD762XYW.js";
 import {
   ComponentPortal
 } from "./chunk-7UHE5R7A.js";
+import {
+  NzSingletonService
+} from "./chunk-Z4QHCYGE.js";
 import {
   moveUpMotion
 } from "./chunk-3EZVZPWA.js";
@@ -17,12 +15,14 @@ import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-YKWDCTEZ.js";
-import "./chunk-4ZTIIIV2.js";
+import "./chunk-GO6HNLYD.js";
+import "./chunk-MCBC5P5Z.js";
 import {
   NzIconDirective,
   NzIconModule
 } from "./chunk-3NPRN6Q4.js";
 import "./chunk-COKB227H.js";
+import "./chunk-4ZTIIIV2.js";
 import {
   NzConfigService
 } from "./chunk-JXTKBI7X.js";

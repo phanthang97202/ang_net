@@ -11,6 +11,8 @@ namespace API.Models
         [Required]
         public string UserId {  get; set; } = string.Empty;
         [Required]
+        public string Type {  get; set; } = string.Empty; // string, txt, png, jpg, mp4, mp3
+        [Required]
         public string Message { get; set; } = string.Empty;
         [Required]
         public DateTime CreatedDTime { get; set; }

@@ -14,13 +14,13 @@
 
     public class ApiResponse<T>
     {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; } = string.Empty;
-        public T Data { get; set; } = default!;
-        public List<T> DataList { get; set; } = new List<T>();
-        public object objResult { get; set; } = null!;
+        public bool Success { get; set; } // false | true
+        public string ErrorMessage { get; set; } = default!; // default is null
         public DateTime RequestDTimeAt { get; } = DateTime.UtcNow; // Changed to UtcNow
-        public List<RequestClient> RequestClients { get; set; } = new List<RequestClient>(); // Initialize to an empty list
+        public List<RequestClient> RequestClients { get; set; } = default!; // Initialize to an empty list
+        public T Data { get; set; } = default!; // Used for get detail data, data was created
+        public List<T> DataList { get; set; } = default!; // used for array list, such as: mapping
+        public object objResult { get; set; } = null!; // used for pagination
 
         public ApiResponse() => Success = true;
 

@@ -14,6 +14,19 @@
             }
         }
 
+        public static string ConvertObjectToString(object value)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return "";
+            }
+            else
+            {
+                return value.ToString()!;
+            }
+        }
+
+
         public static int CeilingValue (int value)
         {
             if(value % 10 > 0)

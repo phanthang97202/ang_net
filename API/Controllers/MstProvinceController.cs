@@ -25,12 +25,8 @@ namespace API.Controllers
         {
             try
             {
-                List<MstProvinceModel> data = await _mstProvinceRespository.GetAllActive();
-                return Ok(new
-                {
-                    Data = data,
-                    Message = "Success"
-                });
+                var response = await _mstProvinceRespository.GetAllActive();
+                return Ok(response);
             }
             catch (System.Exception)
             {
@@ -70,12 +66,8 @@ namespace API.Controllers
         {
             try
             {
-                await _mstProvinceRespository.Delete(ProvinceCode);
-                return Ok(new
-                {
-                    Data = "",
-                    Message = "Success"
-                });
+                var response = await _mstProvinceRespository.Delete(ProvinceCode);
+                return Ok(response);
             }
             catch (System.Exception)
             {
@@ -88,12 +80,8 @@ namespace API.Controllers
         {
             try
             {
-                await _mstProvinceRespository.ImportExcel(file);
-                return Ok(new
-                {
-                    Data = "",
-                    Message = "Import Excel Successfully!"
-                });
+                var response = await _mstProvinceRespository.ImportExcel(file);
+                return Ok(response);
             }
             catch (System.Exception)
             {

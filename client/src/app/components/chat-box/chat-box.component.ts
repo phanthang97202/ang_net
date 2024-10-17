@@ -2,15 +2,12 @@ import {
   AfterViewChecked,
   ChangeDetectorRef,
   Component,
-  DoCheck,
   ElementRef,
   inject,
-  NgModule,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { ChatService } from '../../services/ws-chat.service';
-import { sendMessage } from '@microsoft/signalr/dist/esm/Utils';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -19,8 +16,12 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzCommentModule } from 'ng-zorro-antd/comment';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { IChat } from '../../interfaces/chat';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { IChat, TypeMessage } from '../../interfaces/chat';
 import { ShowErrorService } from '../../services/show-error.service';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { HttpClient } from '@angular/common/http';
+import { CloudinaryService } from '../../services/cloudinary.service';
 @Component({
   selector: 'chat-box',
   standalone: true,
@@ -32,6 +33,8 @@ import { ShowErrorService } from '../../services/show-error.service';
     NzCommentModule,
     NzAvatarModule,
     NzButtonModule,
+    NzUploadModule,
+    NzModalModule,
   ],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.scss',
@@ -39,26 +42,26 @@ import { ShowErrorService } from '../../services/show-error.service';
 export class ChatBoxComponent implements OnInit, AfterViewChecked {
   chatService = inject(ChatService);
   detailUser = inject(AuthService);
+  cloudinary = inject(CloudinaryService);
   @ViewChild('chatContainer') chatContainer!: ElementRef;
+
   constructor(private cdref: ChangeDetectorRef) {}
   showErrorService = inject(ShowErrorService);
 
   pageIndex: number = 0;
   pageSize: number = 5;
-  maxScrollQuantity: number = 0;
-  countScroll: number = 0;
   itemCount: number = 0;
   public loadingMessages: boolean = false;
 
   public messages: IChat[] = [];
   public newMessage: string = '';
+  public typeMessage: TypeMessage = 'string';
   public userId: string = this.detailUser.getAccountInfo().email!;
 
   ngOnInit(): void {
     this.chatService.getMessage(this.pageIndex, this.pageSize).subscribe({
       next: (res) => {
         this.messages = [...this.messages, ...res.objResult.DataList];
-        this.maxScrollQuantity = res.objResult.PageCount;
         this.itemCount = res.objResult.ItemCount;
         return res.objResult.DataList;
       },
@@ -73,26 +76,49 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     });
 
     this.chatService.startConnection();
-    this.chatService.onMessageReceived((userId, message) => {
+    this.chatService.onMessageReceived((userId, message, type) => {
       this.messages.push({
         UserId: userId,
         Message: message,
         MessageId: '',
+        Type: type,
         CreatedDTime: new Date(),
       });
     });
+
+    console.log('msg', this.messages);
   }
 
   sendMessage() {
-    this.chatService.sendMessage(this.userId, this.newMessage);
+    if (!this.newMessage) {
+      return;
+    }
+    this.chatService.sendMessage(
+      this.userId,
+      this.newMessage,
+      this.newMessage.toString().includes('jpg') ? 'jpg' : 'string'
+    );
     this.newMessage = '';
+    this.typeMessage = 'string';
   }
+
+  handleUploadFile = (file: any) => {
+    // debugger;
+    // Upload to Cloudinary
+
+    this.cloudinary.uploadImage(file).subscribe({
+      next: (res: any) => {
+        console.log('Uploaded successfully!', res);
+        this.newMessage = res.url;
+      },
+      error: (err) => {},
+    });
+    return false; // Prevent default behavior
+  };
 
   // fix delay dom
   ngAfterViewChecked() {
     this.cdref.detectChanges();
-    // const element = this.chatContainer.nativeElement;
-    // element.scrollTop = element.scrollHeight;
   }
 
   onScroll() {
@@ -116,7 +142,6 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         this.pageIndex += 1;
         this.loadingMessages = false;
 
-        // Adjust the scroll position to maintain the user's view
         setTimeout(() => {
           const newScrollHeight = this.chatContainer.nativeElement.scrollHeight;
           this.chatContainer.nativeElement.scrollTop =
@@ -129,4 +154,18 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
       },
     });
   }
+
+  ///
+
+  fileList: any[] = [];
+  previewImage: string | undefined = '';
+  previewVisible = false;
+
+  handlePreview = async (file: any): Promise<void> => {
+    if (!file.url && !file.preview) {
+      // file.preview = await getBase64(file.originFileObj!);
+    }
+    this.previewImage = file.url || file.preview;
+    this.previewVisible = true;
+  };
 }

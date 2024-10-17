@@ -1,7 +1,9 @@
+export type TypeMessage = 'string' | 'txt' | 'png' | 'jpg' | 'mp4' | 'mp3';
 export interface IChat {
   MessageId: string;
   UserId: string;
   Message: string;
+  Type: TypeMessage; //
   CreatedDTime: Date;
 }
 
