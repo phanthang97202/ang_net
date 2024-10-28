@@ -1,0 +1,30 @@
+<nz-breadcrumb>
+    <nz-breadcrumb-item>Province</nz-breadcrumb-item>
+    <nz-breadcrumb-item>All Provinces</nz-breadcrumb-item>
+</nz-breadcrumb>
+<button nz-button></button>
+<nz-table nzShowSizeChanger [nzData]="dataSource" [nzFrontPagination]="false" [nzLoading]="false">
+    <thead>
+        <tr>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
+            <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (data of dataSource; track data) {
+        <tr>
+            <td>
+                {{ ++1 }}
+            </td>
+            <td>
+                {{ data.ProvinceCode }}
+            </td>
+            <td>{{ data.ProvinceName }} </td>
+            <td>{{ data.FlagActive }}</td>
+        </tr>
+        }
+    </tbody>
+</nz-table>
+<save-province-popup [isOpenPopup]="true" [titlePopup]="titlePopup" [formDataSource]="formDataSource" />

@@ -8,6 +8,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard/dashboard.compon
 import { UserListComponent } from './pages/dashboard/user-list/user-list.component';
 import { RoleListComponent } from './pages/dashboard/role-list/role-list.component';
 import { CreateRoleComponent } from './components/create-role/create-role.component';
+import { MstProvinceComponent } from './pages/dashboard/mst-province/mst-province-list/mst-province-list.component';
+import { BlogsComponent } from './pages/dashboard/blogs/blogs.component';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '/home' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -50,6 +52,16 @@ export const routes: Routes = [
   {
     path: 'dashboard/role',
     component: RoleListComponent,
+    canActivate: [canActiveForAdmin],
+  },
+  {
+    path: 'dashboard/mstprovince',
+    component: MstProvinceComponent,
+    canActivate: [canActiveForAdmin],
+  },
+  {
+    path: 'dashboard/blog',
+    component: BlogsComponent,
     canActivate: [canActiveForAdmin],
   },
 ];

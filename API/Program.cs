@@ -22,6 +22,7 @@ var clientConfig = builder.Configuration.GetSection("ClientConfig");
 // Add services to the container.
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IChatRepository, ChatRespository>();
+builder.Services.AddScoped<INewsRespository, NewsRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
 
 // config jwt 

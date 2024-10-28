@@ -6,6 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks; 
 using API.Data;
 using TCommonUtils = API.CommonUtils.CommonUtils;
+using GuardAuth = API.Middlewares.CheckAuthorized;
 using API.Dtos;
 using API.Interfaces; 
 using API.Models;
@@ -15,15 +16,19 @@ using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace API.Respositories
 {
     public class MstProvinceRespository : IMstProvinceRespository
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext; 
-        public MstProvinceRespository(AppDbContext appDbContext)
+        public MstProvinceRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = appDbContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public bool CheckRecordExist(string key, ref MstProvinceModel? data)
@@ -38,10 +43,103 @@ namespace API.Respositories
             return false;
         }
         
+        public async Task<ApiResponse<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
+        { 
+            ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
+            // 
+            int _pageIndex = 0;
+            int _pageSize = 10;
+
+            if(pageIndex > 0)
+            {
+                _pageIndex = pageIndex;
+            }
+
+            if (pageSize > 0)
+            {
+                _pageSize = pageSize;
+            }
+
+            //
+            List<MstProvinceModel> dataResult = new List<MstProvinceModel>();
+
+            IQueryable<MstProvinceModel> query = _dbContext.MstProvinces
+                                    .Where(p => !TCommonUtils.IsNullOrEmpty(keyword) ? p.ProvinceName.Contains(keyword) || p.ProvinceCode == keyword : true);
+
+            int itemCount = query.ToList().Count;
+
+            dataResult = query.Skip(_pageIndex * _pageSize)
+                             .Take(_pageSize)
+                             .ToList();
+
+            PageInfo<MstProvinceModel> pageInfo = new PageInfo<MstProvinceModel>();
+            pageInfo.PageIndex = pageIndex;
+            pageInfo.PageSize = pageSize;
+            pageInfo.PageCount = itemCount % pageSize == 0 ? itemCount / pageSize : itemCount / pageSize + 1;
+            pageInfo.ItemCount = itemCount;
+            pageInfo.DataList = dataResult.Count == 0 ? new List<MstProvinceModel>() : dataResult;
+
+            apiResponse.objResult = pageInfo; 
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<MstProvinceModel>> Detail(string key)
+        {
+            ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
+            //
+            MstProvinceModel dataResult = new MstProvinceModel();
+            dataResult = await _dbContext.MstProvinces.SingleOrDefaultAsync(p => p.ProvinceCode == key);
+
+            List<int> x = new List<int>() {  };
+            x.FirstOrDefault(p => p == 1);
+
+            if (dataResult == null) {
+                apiResponse.Data = default!;
+                return apiResponse;
+            }
+
+            apiResponse.Data = dataResult;
+
+            return apiResponse;
+        }
+
         public async Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data)
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
             if (TCommonUtils.IsNullOrEmpty( (data.ProvinceCode) )) {
                 apiResponse.CatchException(false, "MstProvince_Create.ProvinceCodeIsNotValid", requestClient);
                 return apiResponse;
@@ -83,6 +181,15 @@ namespace API.Respositories
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
             if (TCommonUtils.IsNullOrEmpty(data.ProvinceCode))
             {
                 apiResponse.CatchException(false, "MstProvince_Update.ProvinceCodeIsNotValid", requestClient);
@@ -120,6 +227,15 @@ namespace API.Respositories
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
             if (TCommonUtils.IsNullOrEmpty(ProvinceCode))
             {
                 apiResponse.CatchException(false, "MstProvince_Delete.ProvinceCodeIsNotEmpty", requestClient);
@@ -151,6 +267,15 @@ namespace API.Respositories
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
             List<MstProvinceModel> data = await _dbContext.MstProvinces.Select(i =>
                 new MstProvinceModel
                 {
@@ -170,6 +295,16 @@ namespace API.Respositories
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
             try
             {
                 List<MstProvinceModel> lstDataPreparing = new List<MstProvinceModel>();
@@ -322,6 +457,18 @@ namespace API.Respositories
 
         public async Task<byte[]> ExportExcel()
         {
+            //ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
+            //List<RequestClient> requestClient = new List<RequestClient>();
+            
+            //// Check Permission
+            //string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
+
             DataTable tbData = await this.TableProvince();
             byte[] file;
             //string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Exports");

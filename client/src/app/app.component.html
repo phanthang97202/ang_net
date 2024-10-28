@@ -17,7 +17,7 @@
     <nz-sider nzCollapsible nzWidth="200px">
         <div class="logo">
             <a routerLink="/dashboard">
-                <img class="" src="https://i.pinimg.com/736x/c2/7b/75/c27b75c2e09d75c2e09adc9b6e856ac5.jpg" alt="">
+                <img class="" src="https://i1.sndcdn.com/artworks-000465852042-1ymfcy-t500x500.jpg" alt="">
             </a>
         </div>
         <ul nz-menu nzTheme="dark" nzMode="inline">
@@ -40,6 +40,24 @@
                     </li>
                 </ul>
             </li>
+            <li nz-submenu nzTitle="Masters" nzIcon="key">
+                <ul>
+                    <li nz-menu-item>
+                        <a routerLink="/dashboard/mstprovince">
+                            Provinces
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li nz-submenu nzTitle="Blogs" nzIcon="key">
+                <ul>
+                    <li nz-menu-item>
+                        <a routerLink="/dashboard/blog">
+                            Blogs
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
         <div class="logo absolute bottom-[50px] w-full ">
             <button class="w-full bg-transparent border-none" (click)="handleLogout()" nz-button
@@ -50,7 +68,7 @@
         <nz-header>
             <!-- <app-navbar /> -->
         </nz-header>
-        <nz-content class="h-full">
+        <nz-content class="h-full overflow-y-auto">
             <router-outlet />
         </nz-content>
         <nz-footer>Ant Design ©2020 Implement By Angular</nz-footer>

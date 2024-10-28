@@ -5,12 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Interfaces;
 using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MstProvinceController : ControllerBase
@@ -20,7 +22,33 @@ namespace API.Controllers
         {
             _mstProvinceRespository = mstProvinceRespository;
         }
-        [HttpGet]
+        [HttpGet("Search")]
+        public async Task<ActionResult<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
+        {
+            try
+            {
+                var response = await _mstProvinceRespository.Search(pageIndex, pageSize, keyword);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+        [HttpGet("Detail")]
+        public async Task<ActionResult<MstProvinceModel>> Detail(string key)
+        {
+            try
+            {
+                var response = await _mstProvinceRespository.Detail(key);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+        [HttpGet("GetAllActive")]
         public async Task<ActionResult<MstProvinceModel>> GetAllActive()
         {
             try

@@ -109,6 +109,36 @@ namespace API.Migrations
                     b.ToTable("Chat", (string)null);
                 });
 
+            modelBuilder.Entity("API.Models.HashTagNewsModel", b =>
+                {
+                    b.Property<string>("HashTagNewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("FlagActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("HashTagNewsName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewsId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("HashTagNewsId");
+
+                    b.HasIndex("NewsId");
+
+                    b.ToTable("HashTagNews");
+                });
+
             modelBuilder.Entity("API.Models.MstDistrictModel", b =>
                 {
                     b.Property<string>("ProvinceCode")
@@ -308,6 +338,107 @@ namespace API.Migrations
                     b.ToTable("MstStadiumTypes");
                 });
 
+            modelBuilder.Entity("API.Models.NewsCategoryModel", b =>
+                {
+                    b.Property<string>("NewsCategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("FlagActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NewsCategoryIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("NewsCategoryName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewsCategoryParentId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NewsCategoryId");
+
+                    b.ToTable("NewsCategory");
+                });
+
+            modelBuilder.Entity("API.Models.NewsModel", b =>
+                {
+                    b.Property<string>("NewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("AvgPoint")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("CategoryNewsId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentBody")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("FlagActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("HashTag")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RefFile")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ShareCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShortTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Thumbnail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("NewsId");
+
+                    b.HasIndex("CategoryNewsId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("News");
+                });
+
             modelBuilder.Entity("API.Models.OrderStadiumModel", b =>
                 {
                     b.Property<string>("OrderCode")
@@ -365,6 +496,62 @@ namespace API.Migrations
                     b.HasIndex("UserName");
 
                     b.ToTable("OrderStadiums");
+                });
+
+            modelBuilder.Entity("API.Models.PointNewsModel", b =>
+                {
+                    b.Property<string>("NewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("FlagActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("Point")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTime>("UpdatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NewsId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PointNews");
+                });
+
+            modelBuilder.Entity("API.Models.RefFileNewsModel", b =>
+                {
+                    b.Property<string>("RefFileNewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("FlagActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("NewsId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RefFileNewsId");
+
+                    b.HasIndex("NewsId");
+
+                    b.ToTable("RefFileNews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -495,6 +682,15 @@ namespace API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("API.Models.HashTagNewsModel", b =>
+                {
+                    b.HasOne("API.Models.NewsModel", null)
+                        .WithMany()
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("API.Models.MstDistrictModel", b =>
                 {
                     b.HasOne("API.Models.MstProvinceModel", null)
@@ -525,6 +721,21 @@ namespace API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("API.Models.NewsModel", b =>
+                {
+                    b.HasOne("API.Models.NewsCategoryModel", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryNewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("API.Models.OrderStadiumModel", b =>
                 {
                     b.HasOne("API.Models.MstPaymentTypeModel", null)
@@ -543,6 +754,30 @@ namespace API.Migrations
                         .WithMany()
                         .HasForeignKey("UserName")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("API.Models.PointNewsModel", b =>
+                {
+                    b.HasOne("API.Models.NewsModel", null)
+                        .WithMany()
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("API.Models.RefFileNewsModel", b =>
+                {
+                    b.HasOne("API.Models.NewsModel", null)
+                        .WithMany()
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
