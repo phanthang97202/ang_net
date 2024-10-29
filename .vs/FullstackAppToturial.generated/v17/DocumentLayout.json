@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\MyHomeWork\\ang_net\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\models\\hashtagnewsmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\models\\hashtagnewsmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\dtos\\newsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\dtos\\newsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,28 +42,67 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Program.cs",
-              "RelativeDocumentMoniker": "API\\Program.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Program.cs",
-              "RelativeToolTip": "API\\Program.cs",
-              "ViewState": "AQIAAGwAAAAAAAAAAAAAACkAAAAjAAAA",
+              "DocumentIndex": 2,
+              "Title": "HashTagNewsModel.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Models\\HashTagNewsModel.cs",
+              "RelativeDocumentMoniker": "API\\Models\\HashTagNewsModel.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Models\\HashTagNewsModel.cs",
+              "RelativeToolTip": "API\\Models\\HashTagNewsModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T03:32:11.094Z",
+              "WhenOpened": "2024-10-29T09:22:02.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MstProvinceRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\MstProvinceRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\MstProvinceRespository.cs",
+              "ViewState": "AQIAAIsBAAAAAAAAAAAIwKYBAABLAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-29T09:09:37.901Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "RolesController.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\RolesController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\RolesController.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\RolesController.cs",
-              "RelativeToolTip": "API\\Controllers\\RolesController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAFIAAAAJAAAA",
+              "Title": "NewsController.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\NewsController.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
+              "RelativeToolTip": "API\\Controllers\\NewsController.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAgwB8AAAAcAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T03:29:57.88Z",
+              "WhenOpened": "2024-10-29T08:04:50.724Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NewsDto.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Dtos\\NewsDto.cs",
+              "RelativeDocumentMoniker": "API\\Dtos\\NewsDto.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Dtos\\NewsDto.cs",
+              "RelativeToolTip": "API\\Dtos\\NewsDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAABAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-29T04:03:06.552Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NewsRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\NewsRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\NewsRespository.cs",
+              "ViewState": "AQIAAIIAAAAAAAAAAIAwwJoAAABUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-29T03:45:56.058Z",
               "EditorCaption": ""
             }
           ]

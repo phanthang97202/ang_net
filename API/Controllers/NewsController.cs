@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using API.Interfaces;
+﻿using API.Dtos;
 using API.IRespositories;
 using API.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Controllers
 {
@@ -22,7 +14,7 @@ namespace API.Controllers
         public NewsController(INewsRespository newsRespository)
         {
             _newsRespository = newsRespository;
-        } 
+        }
         [HttpGet("Detail")]
         public async Task<ActionResult<MstProvinceModel>> Detail(string key)
         {
@@ -35,7 +27,21 @@ namespace API.Controllers
             {
                 throw;
             }
-        } 
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] NewsDto news)
+        {
+            try
+            {
+                ApiResponse<NewsModel> response = await _newsRespository.Create(User, news);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
 
     }
 }
