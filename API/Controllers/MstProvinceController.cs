@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using API.Dtos;
 using API.Interfaces;
 using API.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace API.Controllers
 {
@@ -27,7 +20,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.Search(pageIndex, pageSize, keyword);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.Search(pageIndex, pageSize, keyword);
                 return Ok(response);
             }
             catch (System.Exception)
@@ -40,7 +33,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.Detail(key);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.Detail(key);
                 return Ok(response);
             }
             catch (System.Exception)
@@ -53,7 +46,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.GetAllActive();
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.GetAllActive();
                 return Ok(response);
             }
             catch (System.Exception)
@@ -66,7 +59,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.Create(province);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.Create(province);
                 return Ok(response);
             }
             catch (System.Exception)
@@ -80,7 +73,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.Update(province);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.Update(province);
                 return Ok(response);
             }
             catch (System.Exception)
@@ -90,11 +83,11 @@ namespace API.Controllers
         }
 
         [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete( string ProvinceCode)
+        public async Task<IActionResult> Delete(string ProvinceCode)
         {
             try
             {
-                var response = await _mstProvinceRespository.Delete(ProvinceCode);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.Delete(ProvinceCode);
                 return Ok(response);
             }
             catch (System.Exception)
@@ -108,7 +101,7 @@ namespace API.Controllers
         {
             try
             {
-                var response = await _mstProvinceRespository.ImportExcel(file);
+                ApiResponse<MstProvinceModel> response = await _mstProvinceRespository.ImportExcel(file);
                 return Ok(response);
             }
             catch (System.Exception)

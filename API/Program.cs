@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using API.Data;
 using API.Interfaces;
 using API.IRespositories;
@@ -9,11 +7,10 @@ using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +20,7 @@ var clientConfig = builder.Configuration.GetSection("ClientConfig");
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IChatRepository, ChatRespository>();
 builder.Services.AddScoped<INewsRespository, NewsRespository>();
+builder.Services.AddScoped<IAccountRespository, AccountRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
 
 // config jwt 
@@ -50,7 +48,7 @@ builder.Services.AddAuthentication(opt =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSetting.GetSection("securityKey").Value!)) // Đây là khóa bí mật được dùng để ký token và đảm bảo tính toàn vẹn của nó. Khóa này được tạo bằng cách sử dụng SymmetricSecurityKey với giá trị chuỗi bảo mật (securityKey) được mã hóa dưới dạng UTF-8
     };
 });
- 
+
 
 builder.Services.AddCors(options =>
 {
@@ -60,10 +58,10 @@ builder.Services.AddCors(options =>
             builder.AllowAnyOrigin()
                    .AllowAnyHeader()
                    .AllowAnyMethod();
-                   //.AllowCredentials();
+            //.AllowCredentials();
         });
 });
- 
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -117,13 +115,13 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
- 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-} 
+}
 
 
 // Note: Nếu như không dùng SSL thì disable feature này đi, nếu không nó sẽ tự động chuyển sang https nếu client đang call api dạng http
