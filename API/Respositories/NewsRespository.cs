@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using GuardAuth = API.Middlewares.CheckAuthorized;
 using TCommonUtils = API.CommonUtils.CommonUtils;
+using TConstValue = API.CommonUtils.ConstValue;
 
 namespace API.Respositories
 {
@@ -22,9 +23,9 @@ namespace API.Respositories
             _userManager = userManager;
         }
 
-        public bool CheckNewsCategoryExist(string key, ref NewsCategoryModel data)
+        public bool CheckNewsCategoryExist(string newsId, ref NewsCategoryModel data)
         {
-            NewsCategoryModel record = _dbContext.NewsCategory.Find(key);
+            NewsCategoryModel record = _dbContext.NewsCategory.Find(newsId);
             if (record is not null)
             {
                 data = record;
@@ -34,9 +35,9 @@ namespace API.Respositories
             return false;
         }
 
-        public bool CheckNewsExist(string key, ref NewsModel data)
+        public bool CheckNewsExist(string newsId, ref NewsModel data)
         {
-            NewsModel record = _dbContext.News.Find(key);
+            NewsModel record = _dbContext.News.Find(newsId);
             if (record is not null)
             {
                 data = record;
@@ -46,7 +47,83 @@ namespace API.Respositories
             return false;
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Detail(string key)
+        public bool CheckLikeNewsExist(string newsId, string userId, ref LikeNewsModel data)
+        {
+            LikeNewsModel record = _dbContext.LikeNews.FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
+            if (record is not null)
+            {
+                data = record;
+                return true;
+            }
+            data = null;
+            return false;
+        }
+
+        public bool CheckPointNewsExist(string newsId, string userId, ref PointNewsModel data)
+        {
+            PointNewsModel record = _dbContext.PointNews.FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
+            if (record is not null)
+            {
+                data = record;
+                return true;
+            }
+            data = null;
+            return false;
+        }
+
+        public async Task<ApiResponse<NewsModel>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        {
+            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
+            // 
+            int _pageIndex = 0;
+            int _pageSize = 10;
+
+            if (pageIndex > 0)
+            {
+                _pageIndex = pageIndex;
+            }
+
+            if (pageSize > 0)
+            {
+                _pageSize = pageSize;
+            }
+
+            //
+            List<NewsModel> dataResult = new List<NewsModel>();
+
+            IQueryable<NewsModel> query = _dbContext.News
+                                    .Where(i => !TCommonUtils.IsNullOrEmpty(keyword) ? i.ShortTitle.Contains(keyword) || i.ShortDescription.Contains(keyword) : true);
+
+            int itemCount = query.ToList().Count;
+
+            dataResult = query.Skip(_pageIndex * _pageSize)
+                             .Take(_pageSize)
+                             .ToList();
+
+            PageInfo<NewsModel> pageInfo = new PageInfo<NewsModel>();
+            pageInfo.PageIndex = pageIndex;
+            pageInfo.PageSize = pageSize;
+            pageInfo.PageCount = itemCount % pageSize == 0 ? itemCount / pageSize : itemCount / pageSize + 1;
+            pageInfo.ItemCount = itemCount;
+            pageInfo.DataList = dataResult.Count == 0 ? new List<NewsModel>() : dataResult;
+
+            apiResponse.objResult = pageInfo;
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<RPNewsDto>> Detail(string newsId)
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -61,14 +138,14 @@ namespace API.Respositories
             }
 
             // Validate input
-            if (TCommonUtils.IsNullOrEmpty(key))
+            if (TCommonUtils.IsNullOrEmpty(newsId))
             {
                 apiResponse.CatchException(false, "News_Detail.NewsIdIsNotValid", requestClient);
                 return apiResponse;
             }
 
             NewsModel objNews = new NewsModel();
-            bool isExistRecordNews = CheckNewsExist(key, ref objNews);
+            bool isExistRecordNews = CheckNewsExist(newsId, ref objNews);
 
             if (!isExistRecordNews)
             {
@@ -86,7 +163,7 @@ namespace API.Respositories
 
             // Get HashTag of News
             List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
-            dtHashTagNews = _dbContext.HashTagNews.Where(item => item.NewsId == key).ToList();
+            dtHashTagNews = _dbContext.HashTagNews.Where(item => item.NewsId == newsId).ToList();
 
             List<HashTagNewsDto> lstHashTagNews = dtHashTagNews.Select(i => new HashTagNewsDto
             {
@@ -95,7 +172,7 @@ namespace API.Respositories
 
             // Get File of News
             List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
-            dtRefFileNews = _dbContext.RefFileNews.Where(item => item.NewsId == key).ToList();
+            dtRefFileNews = _dbContext.RefFileNews.Where(item => item.NewsId == newsId).ToList();
 
             List<RefFileNewsDto> lstRefFileNews = dtRefFileNews.Select(i => new RefFileNewsDto
             {
@@ -103,7 +180,7 @@ namespace API.Respositories
             }).ToList();
 
             // Get AvgPoint of News
-            List<PointNewsModel> dtPointNews = _dbContext.PointNews.Where(i => i.NewsId == key).ToList();
+            List<PointNewsModel> dtPointNews = _dbContext.PointNews.Where(i => i.NewsId == newsId).ToList();
             double avgPoint;
             if (dtPointNews.Count > 0)
             {
@@ -115,11 +192,26 @@ namespace API.Respositories
             }
 
             // Get LikeCount of News
+            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.Where(i => i.NewsId == newsId).ToList();
+            int countLike;
+            if (dtLikeNews.Count > 0)
+            {
+                countLike = dtLikeNews.Count();
+            }
+            else
+            {
+                countLike = 0;
+            }
 
             // Get ShareCount of News
 
-            // Get ViewCount of News
-
+            // Increase ViewCount of News
+            int viewCount = ++objNews.ViewCount;
+            await _dbContext.News.Where(i => i.NewsId == newsId)
+                .ExecuteUpdateAsync(setter =>
+                    setter.SetProperty(p => p.ViewCount, viewCount)
+                );
+            await _dbContext.SaveChangesAsync();
 
             //
             rsNews.NewsId = objNews.NewsId;
@@ -135,9 +227,9 @@ namespace API.Respositories
             rsNews.CreatedDTime = objNews.CreatedDTime;
             rsNews.UpdatedDTime = objNews.UpdatedDTime;
             rsNews.FlagActive = objNews.FlagActive;
-            rsNews.ViewCount = 0;
+            rsNews.ViewCount = objNews.ViewCount; // Luôn luôn trễ hơn 1 lượt xem
             rsNews.ShareCount = 0;
-            rsNews.LikeCount = 0;
+            rsNews.LikeCount = countLike;
             rsNews.AvgPoint = avgPoint;
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstRefFileNews = lstRefFileNews;
@@ -314,6 +406,148 @@ namespace API.Respositories
             }
 
             await _dbContext.SaveChangesAsync();
+            #endregion
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<NewsModel>> Like(ClaimsPrincipal User, string newsId)
+        {
+            #region // Preparing 
+            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            //
+            string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (TCommonUtils.IsNullOrEmpty(currentUserId))
+            {
+                apiResponse.CatchException(false, "News_Create.UserNotFound", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Validate input 
+            NewsModel objNews = new NewsModel();
+            bool isExistRecordNews = CheckNewsExist(newsId, ref objNews);
+
+            if (!isExistRecordNews)
+            {
+                apiResponse.CatchException(false, "LikeNews.NewsIsNotExist", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Save into Database
+            LikeNewsModel objLikeNews = new LikeNewsModel();
+            bool isExistRecordLikeNews = CheckLikeNewsExist(newsId, currentUserId, ref objLikeNews);
+
+            if (!isExistRecordLikeNews)
+            {
+                await _dbContext.LikeNews.AddAsync(new LikeNewsModel
+                {
+                    NewsId = objNews.NewsId,
+                    UserId = currentUserId,
+                    CreatedDTime = DateTime.Now,
+                    UpdatedDTime = DateTime.Now
+                });
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                await _dbContext.LikeNews.Where(i => i.LikeNewsId == objLikeNews.LikeNewsId).ExecuteDeleteAsync();
+                await _dbContext.SaveChangesAsync();
+            }
+            #endregion
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<NewsModel>> Point(ClaimsPrincipal User, string newsId, double point)
+        {
+            #region // Preparing 
+            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            //
+            string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (TCommonUtils.IsNullOrEmpty(currentUserId))
+            {
+                apiResponse.CatchException(false, "News_Create.UserNotFound", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Validate input 
+            double pointVal;
+
+            if (!TCommonUtils.IsDoubleType(point))
+            {
+                apiResponse.CatchException(false, "PointNews.PointValueIsNotValid", requestClient);
+                return apiResponse;
+            }else
+            {
+                double _point = TCommonUtils.ConvertToDouble(point);
+                if (_point > TConstValue.MAX_POINT_NEWS)
+                {
+                    pointVal = TConstValue.MAX_POINT_NEWS;
+                }
+                else if(_point <= TConstValue.MIN_POINT_NEWS)
+                {
+                    pointVal = TConstValue.MIN_POINT_NEWS;
+                }
+                else
+                {
+                    pointVal = _point;
+                }
+            }
+
+            NewsModel objNews = new NewsModel();
+            bool isExistRecordNews = CheckNewsExist(newsId, ref objNews);
+
+            if (!isExistRecordNews)
+            {
+                apiResponse.CatchException(false, "PointNews.NewsIsNotExist", requestClient);
+                return apiResponse;
+            } 
+            #endregion
+
+            #region // Save into Database
+            PointNewsModel objPointNews = new PointNewsModel();
+            bool isExistRecordPointNews = CheckPointNewsExist(newsId, currentUserId, ref objPointNews);
+
+            if (!isExistRecordPointNews)
+            {
+                await _dbContext.PointNews.AddAsync(new PointNewsModel
+                {
+                    NewsId = objNews.NewsId,
+                    UserId = currentUserId,
+                    Point = pointVal,
+                    FlagActive = true,
+                    CreatedDTime = DateTime.Now,
+                    UpdatedDTime = DateTime.Now
+                });
+                await _dbContext.SaveChangesAsync();
+            }
             #endregion
 
             return apiResponse;

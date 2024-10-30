@@ -45,6 +45,9 @@ left join PointNews p on n.NewsId = p.NewsId
 group by n.NewsId, r.FileUrl, h.HashTagNewsName, p.Point
 having n.NewsId = 'stain-hero-killer'
 
+delete from LikeNews where NewsId = 'stain-hero-killer'
+delete from PointNews where NewsId = 'stain-hero-killer' and UserId = '9d430ca5-5214-4be5-b68f-ff1214c189ca'
+
 
 
 

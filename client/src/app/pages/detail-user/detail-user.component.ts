@@ -36,7 +36,7 @@ export class DetailUserComponent implements OnInit {
       .pipe(delay(2000))
       .subscribe({
         next: (res) => {
-          this.userInfo = res;
+          this.userInfo = res.Data;
         },
         error: (err) => {
           this.showErrorService.setShowError({

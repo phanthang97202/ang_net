@@ -1,3 +1,13 @@
+export interface IUserResponse {
+  Success: boolean;
+  ErrorMessage: any;
+  RequestDTimeAt: Date;
+  RequestClients: any;
+  Data: IUser;
+  DataList: IUser[];
+  objResult: any;
+}
+
 export interface IUser {
   Id: string;
   FullName: string;

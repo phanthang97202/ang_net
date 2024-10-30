@@ -91,5 +91,34 @@ namespace API.CommonUtils
                 return value;
             }
         }
+
+        public static bool IsDoubleType (object value)
+        {
+            if (value is double)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static double ConvertToDouble(object value)
+        {
+            if (value == null || value.ToString().Trim() == "")
+            {
+                return 0.00;
+            }
+
+            if (double.TryParse(value.ToString(), out double result))
+            {
+                return Math.Round(result, 2); // Round to 2 decimal places
+            }
+
+            // If parsing fails, return 0
+            return 0.00;
+        }
+
     }
 }

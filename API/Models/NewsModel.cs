@@ -24,10 +24,5 @@ namespace API.Models
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích
         public double AvgPoint { get; set; } // Trung bình lượt đánh giá * (thang điểm 10)
-        /* 
-            Tách ra làm quan hệ 1 - nhiều 
-        */
-        public string HashTag { get; set; } = string.Empty; // Từ khóa bài viết
-        public string RefFile { get; set; } = string.Empty; // File đính kèm 
     }
 }

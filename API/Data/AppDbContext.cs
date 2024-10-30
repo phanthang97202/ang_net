@@ -30,6 +30,7 @@ namespace API.Data
         public DbSet<NewsCategoryModel> NewsCategory { get; set; }
         public DbSet<HashTagNewsModel> HashTagNews { get; set; }
         public DbSet<RefFileNewsModel> RefFileNews { get; set; }
+        public DbSet<LikeNewsModel> LikeNews { get; set; }
         public DbSet<NewsModel> News { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -103,12 +104,26 @@ namespace API.Data
                         .WithMany()
                         .HasForeignKey(p => p.NewsId)
                         .OnDelete(DeleteBehavior.Cascade);
+
             // RefFileNewsModel
             modelBuilder.Entity<RefFileNewsModel>()
                         .HasOne<NewsModel>()
                         .WithMany()
                         .HasForeignKey(p => p.NewsId)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // LikeNews
+            modelBuilder.Entity<LikeNewsModel>()
+                        .HasOne<NewsModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.NewsId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<LikeNewsModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
             // NewsModel
             modelBuilder.Entity<NewsModel>()
                         .HasOne<AppUser>()
@@ -120,7 +135,8 @@ namespace API.Data
                         .HasOne<NewsCategoryModel>()
                         .WithMany()
                         .HasForeignKey(p => p.CategoryNewsId)
-                        .OnDelete(DeleteBehavior.Cascade); 
+                        .OnDelete(DeleteBehavior.Cascade);
+            
         }
     }
 }

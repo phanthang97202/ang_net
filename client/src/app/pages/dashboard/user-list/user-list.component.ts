@@ -43,8 +43,8 @@ export class UserListComponent implements OnInit {
       .getAllUsers()
       .pipe(delay(2000))
       .subscribe({
-        next: (value) => {
-          this.lstUsers = value;
+        next: (data) => {
+          this.lstUsers = data.DataList;
           this.loadingService.setLoading(false);
         },
         error: (err) => {

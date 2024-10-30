@@ -6,7 +6,7 @@ import { delay, map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
 import { isAfter, isBefore } from 'date-fns';
-import { IUser, IUserInfo } from '../interfaces/user';
+import { IUser, IUserInfo, IUserResponse } from '../interfaces/user';
 import {
   IAssignRoleRequest,
   IAssignRoleResponse,
@@ -34,16 +34,16 @@ export class AuthService {
       .pipe(
         // delay(2000),
         map((response) => {
-          if (response.IsSuccess) {
-            localStorage.setItem(this.tokenKey, response.Token);
+          if (response.Success) {
+            localStorage.setItem(this.tokenKey, response.Data.Token);
           }
           return response;
         })
       );
   }
 
-  getUserDetail(): Observable<IUser> {
-    return this.http.get<IUser>(
+  getUserDetail(): Observable<IUserResponse> {
+    return this.http.get<IUserResponse>(
       `${this.apiUrl}account/detail`
       //    {
       //   headers: {
@@ -54,8 +54,8 @@ export class AuthService {
   }
 
   // get thông tin users cho dashboard
-  getAllUsers(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(`${this.apiUrl}account/users`);
+  getAllUsers(): Observable<IUserResponse> {
+    return this.http.get<IUserResponse>(`${this.apiUrl}account/users`);
   }
 
   getAccountInfo() {

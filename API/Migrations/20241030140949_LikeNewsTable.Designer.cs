@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241030140949_LikeNewsTable")]
+    partial class LikeNewsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -140,26 +143,19 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.LikeNewsModel", b =>
                 {
-                    b.Property<string>("LikeNewsId")
+                    b.Property<string>("NewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("NewsId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedDTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("LikeNewsId");
-
-                    b.HasIndex("NewsId");
+                    b.HasKey("NewsId", "UserId");
 
                     b.HasIndex("UserId");
 
