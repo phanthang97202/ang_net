@@ -6,6 +6,12 @@ namespace API.CommonUtils
 {
     public static class CommonUtils
     {
+        public static string GenUniqueId()
+        {
+            string uniqueId = Guid.NewGuid().ToString();
+            return uniqueId;
+        }
+
         public static bool IsNullOrEmpty(string value)
         {
             if (string.IsNullOrEmpty(value))

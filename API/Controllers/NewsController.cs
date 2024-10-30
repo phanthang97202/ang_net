@@ -16,11 +16,11 @@ namespace API.Controllers
             _newsRespository = newsRespository;
         }
         [HttpGet("Detail")]
-        public async Task<ActionResult<MstProvinceModel>> Detail(string key)
+        public async Task<ActionResult<RPNewsDto>> Detail(string key)
         {
             try
             {
-                var response = await _newsRespository.Detail(key);
+                ApiResponse<RPNewsDto> response = await _newsRespository.Detail(key);
                 return Ok(response);
             }
             catch (System.Exception)
