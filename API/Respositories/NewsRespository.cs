@@ -88,6 +88,9 @@ namespace API.Respositories
             // 
             int _pageIndex = 0;
             int _pageSize = 10;
+            string _keyword = TCommonUtils.ConvertLowerCase(keyword);
+            string _userId = TCommonUtils.ConvertLowerCase(userId);
+            string _categoryId = TCommonUtils.ConvertLowerCase(categoryId);
 
             if (pageIndex > 0)
             {
@@ -102,8 +105,40 @@ namespace API.Respositories
             //
             List<NewsModel> dataResult = new List<NewsModel>();
 
-            IQueryable<NewsModel> query = _dbContext.News
-                                    .Where(i => !TCommonUtils.IsNullOrEmpty(keyword) ? i.ShortTitle.Contains(keyword) || i.ShortDescription.Contains(keyword) : true);
+            IQueryable<NewsModel> query;
+
+            if (!TCommonUtils.IsNullOrEmpty(_keyword))
+            {
+                query = _dbContext.News
+                                     .Where(i =>
+                                             TCommonUtils.ConvertLowerCase(i.ShortTitle).Contains(_keyword)
+                                             || TCommonUtils.ConvertLowerCase(i.ShortDescription).Contains(_keyword)
+                                     );
+            }
+            else if (!TCommonUtils.IsNullOrEmpty(_userId))
+            {
+                query = _dbContext.News
+                                     .Where(i =>
+                                             TCommonUtils.ConvertLowerCase(i.UserId).Contains(_userId)
+                                             &&
+                                             (
+                                                TCommonUtils.ConvertLowerCase(i.ShortTitle).Contains(_keyword)
+                                                || TCommonUtils.ConvertLowerCase(i.ShortDescription).Contains(_keyword)
+                                             )
+                                     );
+            }
+            else if (!TCommonUtils.IsNullOrEmpty(_categoryId))
+            {
+                query = _dbContext.News
+                                     .Where(i =>
+                                             TCommonUtils.ConvertLowerCase(i.CategoryNewsId).Contains(_categoryId)
+                                     );
+            }
+            else
+            {
+                query = _dbContext.News
+                                     .Where(i => true);
+            }
 
             int itemCount = query.ToList().Count;
 
@@ -504,14 +539,15 @@ namespace API.Respositories
             {
                 apiResponse.CatchException(false, "PointNews.PointValueIsNotValid", requestClient);
                 return apiResponse;
-            }else
+            }
+            else
             {
                 double _point = TCommonUtils.ConvertToDouble(point);
                 if (_point > TConstValue.MAX_POINT_NEWS)
                 {
                     pointVal = TConstValue.MAX_POINT_NEWS;
                 }
-                else if(_point <= TConstValue.MIN_POINT_NEWS)
+                else if (_point <= TConstValue.MIN_POINT_NEWS)
                 {
                     pointVal = TConstValue.MIN_POINT_NEWS;
                 }
@@ -528,7 +564,7 @@ namespace API.Respositories
             {
                 apiResponse.CatchException(false, "PointNews.NewsIsNotExist", requestClient);
                 return apiResponse;
-            } 
+            }
             #endregion
 
             #region // Save into Database

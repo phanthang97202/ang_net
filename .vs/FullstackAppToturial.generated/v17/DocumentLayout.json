@@ -1,18 +1,18 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
+  "WorkspaceRootPath": "D:\\MyHomeWork\\ang_net\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\commonutils\\commonutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\commonutils\\commonutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,35 +25,35 @@
           "SelectedChildIndex": 4,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:2028676212:0:{bf84ea66-d821-4dba-b1b1-2777d8574775}"
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CommonUtils.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\CommonUtils\\CommonUtils.cs",
+              "RelativeDocumentMoniker": "API\\CommonUtils\\CommonUtils.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\CommonUtils\\CommonUtils.cs",
+              "RelativeToolTip": "API\\CommonUtils\\CommonUtils.cs",
+              "ViewState": "AQIAABwAAAAAAAAAAAAQwCcAAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-31T01:37:35.224Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MstProvinceController.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\MstProvinceController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\MstProvinceController.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\MstProvinceController.cs",
-              "RelativeToolTip": "API\\Controllers\\MstProvinceController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-30T15:30:02.503Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:2028676212:0:{bf84ea66-d821-4dba-b1b1-2777d8574775}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "NewsController.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\NewsController.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\NewsController.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\NewsController.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
               "RelativeToolTip": "API\\Controllers\\NewsController.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAAABsAAAAkAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAAkAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-30T15:29:53.843Z",
               "EditorCaption": ""
@@ -62,11 +62,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "NewsRespository.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\NewsRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
               "RelativeDocumentMoniker": "API\\Respositories\\NewsRespository.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\NewsRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
               "RelativeToolTip": "API\\Respositories\\NewsRespository.cs",
-              "ViewState": "AQIAAFYAAAAAAAAAAAAAAGwAAAAAAAAA",
+              "ViewState": "AQIAAGQAAAAAAAAAAAAmwHUAAAA5AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-29T03:45:56.058Z",
               "EditorCaption": ""

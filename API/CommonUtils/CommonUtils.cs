@@ -37,6 +37,19 @@ namespace API.CommonUtils
             }
         }
 
+        public static string ConvertLowerCase(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return "";
+            }
+            else
+            {
+                string lowerStr = value.Trim().ToLower();
+                return lowerStr;
+            }
+        }
+
         public static string RemoveAccent(string txt)
         {
             var normalizedString = txt.Normalize(NormalizationForm.FormD);
@@ -92,7 +105,7 @@ namespace API.CommonUtils
             }
         }
 
-        public static bool IsDoubleType (object value)
+        public static bool IsDoubleType(object value)
         {
             if (value is double)
             {
