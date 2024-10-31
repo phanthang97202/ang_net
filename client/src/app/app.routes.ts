@@ -10,6 +10,8 @@ import { RoleListComponent } from './pages/dashboard/role-list/role-list.compone
 import { CreateRoleComponent } from './components/create-role/create-role.component';
 import { MstProvinceComponent } from './pages/dashboard/mst-province/mst-province-list/mst-province-list.component';
 import { BlogsComponent } from './pages/dashboard/blogs/blogs.component';
+import { NewsComponent } from './pages/news/news/news.component';
+import { DetailNewsComponent } from './pages/news/detail-news/detail-news.component';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '/home' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -18,6 +20,18 @@ export const routes: Routes = [
     title: 'Home',
     path: '',
     component: HomeComponent,
+    canActivate: [canActive],
+  },
+  {
+    title: 'News',
+    path: 'news',
+    component: NewsComponent,
+    canActivate: [canActive],
+  },
+  {
+    title: 'Detail news',
+    path: 'news/:newsId',
+    component: DetailNewsComponent,
     canActivate: [canActive],
   },
   {

@@ -7,6 +7,7 @@ import {
   ISearchProvinceRequest,
 } from '../interfaces/province';
 import { Observable } from 'rxjs';
+import { IDetailNewsResponse, INewsResponse } from '../interfaces/news';
 
 @Injectable({
   providedIn: 'root',
@@ -27,10 +28,23 @@ export class ApiService {
   }
 
   // News
-  GetNewsByKey(key: string): Observable<any> {
+
+  SearchNews(
+    pageIndex: number,
+    pageSize: number,
+    keyword: string,
+    userId: string,
+    categoryId: string
+  ): Observable<INewsResponse> {
+    return this.http.get<INewsResponse>(
+      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}`
+    );
+  }
+
+  GetNewsByKey(newsId: string): Observable<IDetailNewsResponse> {
     // api/News/Detail?key=
-    return this.http.get<IResponseProvinceSearch<IProvince>>(
-      `${this.apiUrl}News/Detail?key=${key}`
+    return this.http.get<IDetailNewsResponse>(
+      `${this.apiUrl}news/detail?newsid=${newsId}`
     );
   }
 }

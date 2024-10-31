@@ -1,23 +1,18 @@
 import {
   Overlay
-} from "./chunk-7XSG2YRL.js";
-import {
-  NzSingletonService
-} from "./chunk-CMKNBCK7.js";
+} from "./chunk-BYC52EU7.js";
 import "./chunk-T4JA2NQD.js";
-import "./chunk-YEKVGLX4.js";
-import {
-  ComponentPortal
-} from "./chunk-7AXRTXGX.js";
 import {
   moveUpMotion
 } from "./chunk-P6HW37UY.js";
 import "./chunk-UZUTYCO5.js";
 import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
-import "./chunk-7TY5RICP.js";
+  NzSingletonService
+} from "./chunk-CMKNBCK7.js";
+import "./chunk-YEKVGLX4.js";
+import {
+  ComponentPortal
+} from "./chunk-7AXRTXGX.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -29,6 +24,11 @@ import {
 import {
   toCssPixel
 } from "./chunk-U63QTHGC.js";
+import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import "./chunk-7TY5RICP.js";
 import "./chunk-TNHTN227.js";
 import "./chunk-7ADHWMJE.js";
 import {

@@ -1,9 +1,6 @@
 import {
-  NzI18nService
-} from "./chunk-3AZE2QEZ.js";
-import {
   overlayZIndexSetter
-} from "./chunk-T7XA7DYH.js";
+} from "./chunk-7ZUHVJQO.js";
 import {
   CdkScrollableModule,
   Overlay,
@@ -11,14 +8,14 @@ import {
   OverlayRef,
   ScrollDispatcher,
   ViewportRuler
-} from "./chunk-7XSG2YRL.js";
-import {
-  reqAnimFrame
-} from "./chunk-CMKNBCK7.js";
+} from "./chunk-BYC52EU7.js";
 import {
   NzButtonComponent,
   NzButtonModule
-} from "./chunk-3DCK66VX.js";
+} from "./chunk-CJV3FXSQ.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
 import {
   NzWaveDirective
 } from "./chunk-JHNU6GPU.js";
@@ -33,17 +30,6 @@ import {
   ESCAPE,
   hasModifierKey
 } from "./chunk-T4JA2NQD.js";
-import "./chunk-YEKVGLX4.js";
-import {
-  BasePortalOutlet,
-  CdkPortalOutlet,
-  ComponentPortal,
-  PortalModule,
-  TemplatePortal
-} from "./chunk-7AXRTXGX.js";
-import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
 import {
   animate,
   state,
@@ -52,12 +38,19 @@ import {
   trigger
 } from "./chunk-UZUTYCO5.js";
 import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
+  NzI18nService
+} from "./chunk-3AZE2QEZ.js";
 import {
-  Directionality
-} from "./chunk-7TY5RICP.js";
+  reqAnimFrame
+} from "./chunk-CMKNBCK7.js";
+import "./chunk-YEKVGLX4.js";
+import {
+  BasePortalOutlet,
+  CdkPortalOutlet,
+  ComponentPortal,
+  PortalModule,
+  TemplatePortal
+} from "./chunk-7AXRTXGX.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -84,6 +77,13 @@ import {
   toDecimal,
   warn
 } from "./chunk-U63QTHGC.js";
+import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import {
+  Directionality
+} from "./chunk-7TY5RICP.js";
 import {
   DomSanitizer
 } from "./chunk-TNHTN227.js";

@@ -1,3 +1,5 @@
+import { IPageInfo } from './common';
+
 export type TypeMessage = 'string' | 'txt' | 'png' | 'jpg' | 'mp4' | 'mp3';
 export interface IChat {
   MessageId: string;
@@ -7,20 +9,12 @@ export interface IChat {
   CreatedDTime: Date;
 }
 
-export interface IPageInfo {
-  PageIndex: number;
-  PageSize: number;
-  PageCount: number;
-  ItemCount: number;
-  DataList: IChat[];
-}
-
 export interface IChatResponse {
   Success: boolean;
   ErrorMessage: string;
   Data: any;
   DataList: any[];
-  objResult: IPageInfo;
+  objResult: IPageInfo<IChat>;
   RequestDTimeAt: Date;
   RequestClients: any;
 }

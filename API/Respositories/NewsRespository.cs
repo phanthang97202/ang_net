@@ -111,27 +111,22 @@ namespace API.Respositories
             {
                 query = _dbContext.News
                                      .Where(i =>
-                                             TCommonUtils.ConvertLowerCase(i.ShortTitle).Contains(_keyword)
-                                             || TCommonUtils.ConvertLowerCase(i.ShortDescription).Contains(_keyword)
+                                             (i.ShortTitle.Trim().ToLower()).Contains(_keyword)
+                                             || (i.ShortDescription.Trim().ToLower()).Contains(_keyword)
                                      );
             }
             else if (!TCommonUtils.IsNullOrEmpty(_userId))
             {
                 query = _dbContext.News
                                      .Where(i =>
-                                             TCommonUtils.ConvertLowerCase(i.UserId).Contains(_userId)
-                                             &&
-                                             (
-                                                TCommonUtils.ConvertLowerCase(i.ShortTitle).Contains(_keyword)
-                                                || TCommonUtils.ConvertLowerCase(i.ShortDescription).Contains(_keyword)
-                                             )
+                                             (i.UserId.Trim().ToLower()) == (_userId)
                                      );
             }
             else if (!TCommonUtils.IsNullOrEmpty(_categoryId))
             {
                 query = _dbContext.News
                                      .Where(i =>
-                                             TCommonUtils.ConvertLowerCase(i.CategoryNewsId).Contains(_categoryId)
+                                             (i.CategoryNewsId.Trim().ToLower()) == (_categoryId)
                                      );
             }
             else

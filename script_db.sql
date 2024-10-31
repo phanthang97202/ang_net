@@ -29,7 +29,7 @@ select * from HashTagNews
 select * from RefFileNews
 select * from PointNews
 
-delete from News
+delete from News where newsid = 'stain-hero-killer' or newsid = 'stain-hero-killer-3'
 delete from HashTagNews
 
 insert into PointNews values 

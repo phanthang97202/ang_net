@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "E3QyFMnB650=",
+  "dgSpecHash": "7TxeL5BFUTE=",
   "success": true,
-  "projectFilePath": "D:\\MyHomeWork\\ang_net\\API\\API.csproj",
+  "projectFilePath": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\phant\\.nuget\\packages\\closedxml\\0.102.3\\closedxml.0.102.3.nupkg.sha512",
     "C:\\Users\\phant\\.nuget\\packages\\documentformat.openxml\\2.16.0\\documentformat.openxml.2.16.0.nupkg.sha512",

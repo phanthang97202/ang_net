@@ -3,6 +3,13 @@ import {
   NzSkeletonModule
 } from "./chunk-3T3KLIV6.js";
 import {
+  NzConfigService,
+  WithConfig
+} from "./chunk-5676ACEB.js";
+import {
+  InputBoolean
+} from "./chunk-U63QTHGC.js";
+import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-UE57DXRH.js";
@@ -10,13 +17,6 @@ import {
   BidiModule,
   Directionality
 } from "./chunk-7TY5RICP.js";
-import {
-  NzConfigService,
-  WithConfig
-} from "./chunk-5676ACEB.js";
-import {
-  InputBoolean
-} from "./chunk-U63QTHGC.js";
 import {
   NgIf,
   NgStyle,

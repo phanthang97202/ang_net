@@ -1,0 +1,29 @@
+<div class="h-full mx-2">
+    <nz-list nzItemLayout="vertical">
+        @for (item of lstNews; track item) {
+        <nz-list-item>
+            <nz-list-item-meta>
+                <nz-list-item-meta-avatar
+                    [nzSrc]="'https://i.pinimg.com/236x/2b/25/46/2b2546c4d96d1462da2dfd8088bd062e.jpg'"></nz-list-item-meta-avatar>
+                <nz-list-item-meta-title>
+                    <a [routerLink]="['/news' , item.NewsId]">{{ item.ShortTitle }}</a>
+                </nz-list-item-meta-title>
+                <!-- <nz-list-item-meta-description>
+                    {{ item.ShortDescription | subString }}
+                </nz-list-item-meta-description> -->
+            </nz-list-item-meta>
+            {{ item.ShortDescription }}
+            <ul nz-list-item-actions>
+                <nz-list-item-action>
+                    <span nz-icon nzType="eye" style="margin-right: 8px;"></span>
+                    {{item.ViewCount}}
+                </nz-list-item-action>
+
+            </ul>
+            <nz-list-item-extra>
+                <img width="272" alt="logo" [src]="item.Thumbnail" />
+            </nz-list-item-extra>
+        </nz-list-item>
+        }
+    </nz-list>
+</div>
