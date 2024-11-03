@@ -1,0 +1,85 @@
+<div class="p-[50px] relative shadow-[rgba(0,0,0,0.1)_0px_4px_12px]">
+    <div class="flex gap-8">
+
+        <div class="w-[200px] h-[132px]">
+            <img class="h-full w-full object-cover" [src]="item.Thumbnail" [alt]="item.ShortTitle">
+        </div>
+
+        <div class="flex-1">
+            <div>
+                <a [routerLink]="['/news/', item.NewsId]">
+                    <h2 class="hover:underline text-[38px] text-[#454360] font-josefin leading-[1.2] font-bold">
+                        {{item.ShortTitle}}
+                    </h2>
+                </a>
+            </div>
+
+            <div class="flex gap-4 text-[15px] text-[#596172] ">
+                <div>
+                    <p class="font-sourceSerif">
+                        {{item.CreatedDTime | localeDTime}}
+                    </p>
+                </div>
+                <div>
+                    <span nz-icon nzType="line" nzTheme="outline"></span>
+                </div>
+                <div>
+                    <p>
+                        <span class="pr-[4px] font-sourceSerif">
+                            2
+                        </span>
+                        <span class="font-sourceSerif">
+                            mins read
+                        </span>
+                    </p>
+                </div>
+
+                <div>
+                    <p>
+                        <span class="pr-[6px] font-sourceSerif" nz-icon nzType="eye" nzTheme="outline"></span>
+                        <span class="font-sourceSerif">{{item.ViewCount}}</span>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-[35px] mb-[60px]">
+        <p class="news__items-shortdesc text-[17px] text-[#596172] font-sourceSerif leading-[1.8] tracking-[.5px]">
+            {{item.ShortDescription | subString:242}}
+        </p>
+    </div>
+
+    <div class="flex justify-between items-center">
+        <ul class="news_tag flex justify-between items-center gap-3">
+            @for (ht of item.LstHashTagNews; track ht) {
+            <li>
+                <hash-tag [title]="ht.HashTagNewsName" />
+            </li>
+            }
+        </ul>
+
+        <a href="">
+            <div class="flex justify-between items-center gap-3">
+                <div>
+                    <nz-avatar [nzText]="item.FullName.substring(0,1)" [nzSrc]="item.Avatar"></nz-avatar>
+                </div>
+                <p class="text-[#596172] text-[15px] font-medium font-josefin">
+                    {{item.FullName}}
+                </p>
+            </div>
+        </a>
+    </div>
+
+    <div
+        class="border-[3px] border-[#4b4870] border-solid absolute bottom-[-6%] left-1/2 transform -translate-x-1/2 -translate-y-2">
+        <a [routerLink]="['/news/', item.NewsId]"
+            class="hover:translate-x-[-4px] hover:translate-y-[-4px] transition-transform block" href="">
+            <button
+                class="hover:bg-[#4b4870] hover:text-[#fff] rounded-none bg-[#4b4870] px-[25px] py-[8px] font-josefin text-[15px] text-[#fff] border-none"
+                nz-button nzSize="large">Continue
+                read</button>
+        </a>
+    </div>
+</div>

@@ -100,10 +100,12 @@ namespace API.Data
 
             // HashTagNewsModel
             modelBuilder.Entity<HashTagNewsModel>()
+                        .HasKey(p => new { p.HashTagNewsId, p.NewsId }); 
+            modelBuilder.Entity<HashTagNewsModel>()
                         .HasOne<NewsModel>()
                         .WithMany()
                         .HasForeignKey(p => p.NewsId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade); 
 
             // RefFileNewsModel
             modelBuilder.Entity<RefFileNewsModel>()

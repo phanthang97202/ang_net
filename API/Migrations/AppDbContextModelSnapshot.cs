@@ -25,6 +25,12 @@ namespace API.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
@@ -34,6 +40,9 @@ namespace API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("FlagActive")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FullName")
@@ -114,6 +123,12 @@ namespace API.Migrations
                     b.Property<string>("HashTagNewsId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("NewsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedDTime")
                         .HasColumnType("TEXT");
 
@@ -125,13 +140,10 @@ namespace API.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("NewsId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedDTime")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("HashTagNewsId");
+                    b.HasKey("HashTagNewsId", "NewsId");
 
                     b.HasIndex("NewsId");
 
@@ -691,7 +703,8 @@ namespace API.Migrations
                     b.HasOne("API.Models.NewsModel", null)
                         .WithMany()
                         .HasForeignKey("NewsId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("API.Models.LikeNewsModel", b =>

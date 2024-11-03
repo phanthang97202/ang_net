@@ -18,11 +18,11 @@ namespace API.Controllers
         }
 
         [HttpGet("Search")]
-        public async Task<ActionResult<NewsModel>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
         {
             try
             {
-                ApiResponse<NewsModel> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId);
+                ApiResponse<RPNewsDto> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId);
                 return Ok(response);
             }
             catch (System.Exception)

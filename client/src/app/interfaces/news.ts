@@ -29,6 +29,8 @@ export interface IDetailNews {
   NewsId: string;
   UserId: string;
   UserName: string;
+  FullName: string;
+  Avatar: string;
   CategoryNewsId: string;
   CategoryNewsName: string;
   Slug: string;
@@ -52,7 +54,7 @@ export interface INewsResponse {
   ErrorMessage: string;
   Data: any;
   DataList: any[];
-  objResult: IPageInfo<INews>;
+  objResult: IPageInfo<IDetailNews>;
   RequestDTimeAt: Date;
   RequestClients: any;
 }

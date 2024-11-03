@@ -19,6 +19,8 @@
         public string NewsId { get; set; } // Mã bài viết
         public string UserId { get; set; } // Mã người tạo
         public string UserName { get; set; } // Tác giả
+        public string FullName { get; set; } // Tác giả
+        public string Avatar { get; set; } // Tác giả
         public string CategoryNewsId { get; set; } // Mã danh mục
         public string CategoryNewsName { get; set; } // Tên danh mục
         public string Slug { get; set; }  // Slug bài viết

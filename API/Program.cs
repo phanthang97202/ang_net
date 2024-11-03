@@ -21,6 +21,7 @@ builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IChatRepository, ChatRespository>();
 builder.Services.AddScoped<INewsRespository, NewsRespository>();
 builder.Services.AddScoped<IAccountRespository, AccountRespository>();
+builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
 
 // config jwt 

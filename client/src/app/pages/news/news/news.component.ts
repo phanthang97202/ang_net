@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { delay } from 'rxjs';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { ApiService } from '../../../services/api.service';
-import { INews } from '../../../interfaces/news';
+import { IDetailNews, INews } from '../../../interfaces/news';
 import { ShowErrorService } from '../../../services/show-error.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { SubString } from '../../../pipes/subString.pipe';
@@ -21,7 +21,7 @@ export class NewsComponent implements OnInit {
   apiService = inject(ApiService);
   loadingService = inject(LoadingService);
 
-  lstNews: INews[] = [];
+  lstNews: IDetailNews[] = [];
   ngOnInit() {
     this.loadData(4);
   }

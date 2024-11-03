@@ -8,6 +8,10 @@ import {
 } from '../interfaces/province';
 import { Observable } from 'rxjs';
 import { IDetailNewsResponse, INewsResponse } from '../interfaces/news';
+import {
+  IHashTagNews,
+  IHashTagNewsResponse,
+} from '../interfaces/hash-tag-news';
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +49,13 @@ export class ApiService {
     // api/News/Detail?key=
     return this.http.get<IDetailNewsResponse>(
       `${this.apiUrl}news/detail?newsid=${newsId}`
+    );
+  }
+
+  // HashTagNews
+  GetTopHashTag(): Observable<IHashTagNewsResponse> {
+    return this.http.get<IHashTagNewsResponse>(
+      `${this.apiUrl}hashtagnews/gettophashtag`
     );
   }
 }

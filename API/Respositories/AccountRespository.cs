@@ -37,6 +37,7 @@ namespace API.Respositories
                 new (JwtRegisteredClaimNames.Email, user.Email ?? "") ,
                 new (JwtRegisteredClaimNames.Name, user.FullName ?? "") ,
                 new (JwtRegisteredClaimNames.NameId, user.Id ?? "") ,
+                //new (JwtRegisteredClaimNames., user.Avatar ?? "") ,
                 new (
                     JwtRegisteredClaimNames.Aud,
                     _configuration.GetSection("JWTSetting").GetSection("validAudience").Value!
@@ -90,6 +91,8 @@ namespace API.Respositories
                     Id = u.Id,
                     Email = u.Email,
                     FullName = u.FullName,
+                    Avatar = u.Avatar,
+                    FlagActive = u.FlagActive,
                     Roles = _userManager.GetRolesAsync(u).Result.ToArray()
                 }).ToListAsync();
 
@@ -124,6 +127,9 @@ namespace API.Respositories
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
+                Avatar = user.Avatar,
+                Address = user.Address,
+                FlagActive = user.FlagActive,
                 Roles = [.. await _userManager.GetRolesAsync(user)],
                 PhoneNumber = user.PhoneNumber,
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,

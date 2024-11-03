@@ -89,8 +89,13 @@ export class AppComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
-        const layoutType = url.startsWith('/dashboard') ? 'admin' : 'user';
-        this.layoutType = layoutType;
+        if (url.startsWith('/dashboard')) {
+          this.layoutType = 'admin';
+        } else if (url.startsWith('/login')) {
+          this.layoutType = 'none';
+        } else {
+          this.layoutType = 'user';
+        }
       });
   }
 

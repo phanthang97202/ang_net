@@ -9,7 +9,7 @@ export class SubString implements PipeTransform {
     if (value === null || value === undefined) {
       return '';
     } else {
-      return value.substring(0, 30);
+      return value.substring(0, args[0] ?? 30);
     }
   }
 }

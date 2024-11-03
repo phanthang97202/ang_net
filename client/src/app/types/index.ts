@@ -1,1 +1,1 @@
-export type LayoutType = 'user' | 'admin';
+export type LayoutType = 'user' | 'admin' | 'none';

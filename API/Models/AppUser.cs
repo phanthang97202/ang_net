@@ -9,5 +9,8 @@ namespace API.Models
     public class AppUser : IdentityUser
     {
         public string? FullName { get; set; }
+        public string Avatar {  get; set; }
+        public string Address { get; set; }
+        public bool FlagActive { get; set; }
     }
 }

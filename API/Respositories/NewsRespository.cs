@@ -71,9 +71,89 @@ namespace API.Respositories
             return false;
         }
 
-        public async Task<ApiResponse<NewsModel>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        public async Task<RPNewsDto> FactoryNewsRecord(NewsModel objNews, List<string> excludeFields)
         {
-            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            // 
+            RPNewsDto rsNews = new RPNewsDto();
+
+            // Get detail News  
+            AppUser userDetail = await _userManager.FindByIdAsync(objNews.UserId);
+
+            NewsCategoryModel categoryDetail = await _dbContext.NewsCategory.FirstOrDefaultAsync(item => item.NewsCategoryId == objNews.CategoryNewsId);
+
+            // Get HashTag of News
+            List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
+            dtHashTagNews = _dbContext.HashTagNews.Where(item => item.NewsId == objNews.NewsId).ToList();
+
+            List<HashTagNewsDto> lstHashTagNews = dtHashTagNews.Select(i => new HashTagNewsDto
+            {
+                HashTagNewsName = i.HashTagNewsName
+            }).ToList();
+
+            // Get File of News
+            List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
+            dtRefFileNews = _dbContext.RefFileNews.Where(item => item.NewsId == objNews.NewsId).ToList();
+
+            List<RefFileNewsDto> lstRefFileNews = dtRefFileNews.Select(i => new RefFileNewsDto
+            {
+                FileUrl = i.FileUrl
+            }).ToList();
+
+            // Get AvgPoint of News
+            List<PointNewsModel> dtPointNews = _dbContext.PointNews.Where(i => i.NewsId == objNews.NewsId).ToList();
+            double avgPoint;
+            if (dtPointNews.Count > 0)
+            {
+                avgPoint = dtPointNews.Average(i => i.Point);
+            }
+            else
+            {
+                avgPoint = 0;
+            }
+
+            // Get LikeCount of News
+            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.Where(i => i.NewsId == objNews.NewsId).ToList();
+            int countLike;
+            if (dtLikeNews.Count > 0)
+            {
+                countLike = dtLikeNews.Count();
+            }
+            else
+            {
+                countLike = 0;
+            }
+
+            //
+            rsNews.NewsId = objNews.NewsId;
+            rsNews.UserId = objNews.UserId;
+            rsNews.UserName = userDetail.UserName;
+            rsNews.FullName = userDetail.FullName;
+            rsNews.Avatar = userDetail.Avatar;
+            rsNews.CategoryNewsId = objNews.CategoryNewsId;
+            rsNews.CategoryNewsName = categoryDetail.NewsCategoryName;
+            rsNews.Slug = objNews.Slug;
+            rsNews.Thumbnail = objNews.Thumbnail;
+            rsNews.ShortTitle = objNews.ShortTitle;
+            rsNews.ShortDescription = objNews.ShortDescription;
+            rsNews.ContentBody = excludeFields.Contains("ContentBody") ? null : objNews.ContentBody;
+            rsNews.CreatedDTime = objNews.CreatedDTime;
+            rsNews.UpdatedDTime = objNews.UpdatedDTime;
+            rsNews.FlagActive = objNews.FlagActive;
+            rsNews.ViewCount = objNews.ViewCount; // Luôn luôn trễ hơn 1 lượt xem
+            rsNews.ShareCount = 0;
+            rsNews.LikeCount = countLike;
+            rsNews.AvgPoint = avgPoint;
+            rsNews.LstHashTagNews = lstHashTagNews;
+            rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
+
+            // 
+            return rsNews;
+
+        }
+
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        {
+            ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
             // Check Permission
@@ -139,14 +219,25 @@ namespace API.Respositories
 
             dataResult = query.Skip(_pageIndex * _pageSize)
                              .Take(_pageSize)
+                             .OrderByDescending(i => i.CreatedDTime)
                              .ToList();
 
-            PageInfo<NewsModel> pageInfo = new PageInfo<NewsModel>();
+            //
+            List<RPNewsDto> dataResponse = new List<RPNewsDto>();
+            List<string> excludeFields = new List<string>() { "ContentBody" };
+            foreach (var item in dataResult)
+            {
+                RPNewsDto obj = await FactoryNewsRecord(item, excludeFields);
+                dataResponse.Add(obj);
+            }
+            
+            PageInfo<RPNewsDto> pageInfo = new PageInfo<RPNewsDto>();
             pageInfo.PageIndex = pageIndex;
             pageInfo.PageSize = pageSize;
             pageInfo.PageCount = itemCount % pageSize == 0 ? itemCount / pageSize : itemCount / pageSize + 1;
             pageInfo.ItemCount = itemCount;
-            pageInfo.DataList = dataResult.Count == 0 ? new List<NewsModel>() : dataResult;
+            pageInfo.DataList = dataResult.Count == 0 ? new List<RPNewsDto>() : dataResponse;
+
 
             apiResponse.objResult = pageInfo;
 
@@ -183,58 +274,7 @@ namespace API.Respositories
                 return apiResponse;
             }
 
-            // 
-            RPNewsDto rsNews = new RPNewsDto();
-
-            // Get detail News  
-            AppUser userDetail = await _userManager.FindByIdAsync(objNews.UserId);
-
-            NewsCategoryModel categoryDetail = await _dbContext.NewsCategory.FirstOrDefaultAsync(item => item.NewsCategoryId == objNews.CategoryNewsId);
-
-            // Get HashTag of News
-            List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
-            dtHashTagNews = _dbContext.HashTagNews.Where(item => item.NewsId == newsId).ToList();
-
-            List<HashTagNewsDto> lstHashTagNews = dtHashTagNews.Select(i => new HashTagNewsDto
-            {
-                HashTagNewsName = i.HashTagNewsName
-            }).ToList();
-
-            // Get File of News
-            List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
-            dtRefFileNews = _dbContext.RefFileNews.Where(item => item.NewsId == newsId).ToList();
-
-            List<RefFileNewsDto> lstRefFileNews = dtRefFileNews.Select(i => new RefFileNewsDto
-            {
-                FileUrl = i.FileUrl
-            }).ToList();
-
-            // Get AvgPoint of News
-            List<PointNewsModel> dtPointNews = _dbContext.PointNews.Where(i => i.NewsId == newsId).ToList();
-            double avgPoint;
-            if (dtPointNews.Count > 0)
-            {
-                avgPoint = dtPointNews.Average(i => i.Point);
-            }
-            else
-            {
-                avgPoint = 0;
-            }
-
-            // Get LikeCount of News
-            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.Where(i => i.NewsId == newsId).ToList();
-            int countLike;
-            if (dtLikeNews.Count > 0)
-            {
-                countLike = dtLikeNews.Count();
-            }
-            else
-            {
-                countLike = 0;
-            }
-
-            // Get ShareCount of News
-
+            //
             // Increase ViewCount of News
             int viewCount = ++objNews.ViewCount;
             await _dbContext.News.Where(i => i.NewsId == newsId)
@@ -243,26 +283,12 @@ namespace API.Respositories
                 );
             await _dbContext.SaveChangesAsync();
 
-            //
-            rsNews.NewsId = objNews.NewsId;
-            rsNews.UserId = objNews.UserId;
-            rsNews.UserName = userDetail.UserName;
-            rsNews.CategoryNewsId = objNews.CategoryNewsId;
-            rsNews.CategoryNewsName = categoryDetail.NewsCategoryName;
-            rsNews.Slug = objNews.Slug;
-            rsNews.Thumbnail = objNews.Thumbnail;
-            rsNews.ShortTitle = objNews.ShortTitle;
-            rsNews.ShortDescription = objNews.ShortDescription;
-            rsNews.ContentBody = objNews.ContentBody;
-            rsNews.CreatedDTime = objNews.CreatedDTime;
-            rsNews.UpdatedDTime = objNews.UpdatedDTime;
-            rsNews.FlagActive = objNews.FlagActive;
-            rsNews.ViewCount = objNews.ViewCount; // Luôn luôn trễ hơn 1 lượt xem
-            rsNews.ShareCount = 0;
-            rsNews.LikeCount = countLike;
-            rsNews.AvgPoint = avgPoint;
-            rsNews.LstHashTagNews = lstHashTagNews;
-            rsNews.LstRefFileNews = lstRefFileNews;
+            // 
+            RPNewsDto rsNews = new RPNewsDto();
+
+            // Get detail News  
+            List<string> excludeFields = new List<string>() {  };
+            rsNews =  await FactoryNewsRecord(objNews, excludeFields);
 
             apiResponse.Data = rsNews;
 
@@ -350,22 +376,30 @@ namespace API.Respositories
             #endregion
 
             #region // Save temp HashTagNews
-            List<HashTagNewsDto> lstHashTagNews = data.LstHashTagNews;
+
+            List<HashTagNewsDto> lstHashTagNews = data.LstHashTagNews.GroupBy(i => i.HashTagNewsName).Select(g => g.First()).ToList();
+            var x = data.LstHashTagNews.GroupBy(i => i.HashTagNewsName); 
+
             List<HashTagNewsModel> saveDtHashTagNews = new List<HashTagNewsModel>();
+            List<string> saveUpdateDtHashTagNews = new List<string>();
+            
             for (int i = 0; i < lstHashTagNews.Count; i++)
             {
                 string HashTagNewId = TCommonUtils.PureString(lstHashTagNews[i].HashTagNewsName);
-                HashTagNewsModel record = _dbContext.HashTagNews.Find(HashTagNewId);
+                HashTagNewsModel record = _dbContext.HashTagNews
+                                            .FirstOrDefault(i => i.HashTagNewsId == HashTagNewId && i.NewsId == NewsId);
 
-                if (!(record is null))
-                {
-                    lstHashTagNews.Remove(new HashTagNewsDto
-                    {
-                        HashTagNewsName = HashTagNewId
-                    });
-                }
-                else
-                {
+                //if (!(record is null))
+                //{ 
+
+                //    lstHashTagNews.Remove(new HashTagNewsDto
+                //    {
+                //        HashTagNewsName = HashTagNewId
+                //    });
+                //    saveUpdateDtHashTagNews.Add(HashTagNewId);
+                //}
+                //else
+                //{
                     HashTagNewsModel hashTagNews = new HashTagNewsModel()
                     {
                         HashTagNewsId = HashTagNewId,
@@ -373,12 +407,11 @@ namespace API.Respositories
                         NewsId = NewsId,
                         FlagActive = true,
                         CreatedDTime = DateTime.Now,
-                        UpdatedDTime = DateTime.Now,
-
+                        UpdatedDTime = DateTime.Now, 
                     };
 
                     saveDtHashTagNews.Add(hashTagNews);
-                }
+                //}
             }
             #endregion
 
@@ -428,6 +461,17 @@ namespace API.Respositories
             if (saveDtHashTagNews.Count > 0)
             {
                 await _dbContext.HashTagNews.AddRangeAsync(saveDtHashTagNews);
+            }
+
+            if (saveUpdateDtHashTagNews.Count > 0)
+            {
+                foreach (var item in saveUpdateDtHashTagNews) { 
+                
+                    await _dbContext.HashTagNews.Where(i => i.HashTagNewsId == item)
+                        .ExecuteUpdateAsync(setter =>
+                             setter.SetProperty(i => i.Count, i => i.Count + 1)
+                        );
+                }
             }
 
             if (saveDtRefFileNews.Count > 0)
