@@ -1,3 +1,16 @@
-<div>
-    <text-editor />
-</div>
+<form nz-form>
+    <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>Thumbnail</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzValidatingTip="Validating...">
+            <input nz-input formControlName="Thumbnail" placeholder="async validate try to write JasonWood" />
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <nz-form-label [nzSpan]="7" nzRequired>ContentBody</nz-form-label>
+        <nz-form-control [nzSpan]="12" nzValidatingTip="Validating...">
+            <text-editor (onContentChanged)="handleContentChangedEditor($event)" />
+        </nz-form-control>
+    </nz-form-item>
+</form>
+
+<button nz-button (click)="submitForm()" nzType="primary">Submit</button>

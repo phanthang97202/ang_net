@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -23,7 +23,7 @@ import {
 import { NzSpinComponent } from 'ng-zorro-antd/spin';
 import { NzAlertComponent } from 'ng-zorro-antd/alert';
 import { LoadingService } from './services/loading-service.service';
-import { filter, map, Observable } from 'rxjs';
+import { filter, map, Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
@@ -89,6 +89,8 @@ export class AppComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
+        console.log('🚀 ~ AppComponent ~ .subscribe ~ url:', url);
+
         if (url.startsWith('/dashboard')) {
           this.layoutType = 'admin';
         } else if (url.startsWith('/login')) {

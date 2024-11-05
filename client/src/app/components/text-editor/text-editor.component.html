@@ -3,10 +3,11 @@
     <p>Tạo blog</p>
 
     <div class="editor-container">
-        <quill-editor (onContentChanged)="handleContentChanged($event)"></quill-editor>
+        <quill-editor format="html" [(ngModel)]="content" (onEditorChanged)="handleonEditorChanged($event)"
+            (onContentChanged)="handleContentChanged($event)"></quill-editor>
     </div>
 
-    <div [innerHTML]="content">
+    <div class="ql-editor" [innerHTML]="byPassHTML(content)">
 
     </div>
 </div>

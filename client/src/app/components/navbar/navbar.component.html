@@ -1,4 +1,4 @@
-<ul class="navbar" nz-menu nzMode="horizontal">
+<ul class="navbar sticky top-0 z-[10] bg-[#fff]" nz-menu nzMode="horizontal">
     <li *ngFor="let route of listRoute" nz-menu-item [routerLink]="route.path" [nzSelected]="route.isActive">
         <span nz-icon [nzType]="route.icon"></span>
         {{ route.title }}

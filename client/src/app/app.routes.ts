@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { AboutComponent } from './pages/about/about.component';
-import { HomeComponent } from './pages/home/home.component';
+import { HomeComponent } from './pages/home/home/home.component';
 import { canActive, canActiveForAdmin } from './middlewares/guard-auth';
 import { DetailUserComponent } from './pages/detail-user/detail-user.component';
 import { DashboardComponent } from './pages/dashboard/dashboard/dashboard.component';
@@ -10,29 +10,27 @@ import { RoleListComponent } from './pages/dashboard/role-list/role-list.compone
 import { CreateRoleComponent } from './components/create-role/create-role.component';
 import { MstProvinceComponent } from './pages/dashboard/mst-province/mst-province-list/mst-province-list.component';
 import { BlogsComponent } from './pages/dashboard/blogs/blogs.component';
-import { NewsComponent } from './pages/news/news/news.component';
-import { DetailNewsComponent } from './pages/news/detail-news/detail-news.component';
+import { NewsComponent } from './pages/home/news/news.component';
+import { DetailNewsComponent } from './pages/home/detail-news/detail-news.component';
 
 export const routes: Routes = [
-  { path: '*', redirectTo: '/home' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
+  { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
 
   {
     title: 'Home',
     path: '',
     component: HomeComponent,
     canActivate: [canActive],
-  },
-  {
-    title: 'News',
-    path: 'news',
-    component: NewsComponent,
-    canActivate: [canActive],
-  },
-  {
-    title: 'Detail news',
-    path: 'news/:newsId',
-    component: DetailNewsComponent,
-    canActivate: [canActive],
+    children: [
+      {
+        path: '',
+        component: NewsComponent,
+      },
+      {
+        path: 'news/:categoryId/:newsId',
+        component: DetailNewsComponent,
+      },
+    ],
   },
   {
     title: 'Login',

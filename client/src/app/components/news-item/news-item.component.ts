@@ -27,7 +27,5 @@ export class NewsItemComponennt implements OnInit {
   @Input() item!: IDetailNews;
   constructor() {}
 
-  ngOnInit() {
-    console.log('🚀 ~ NewsItemComponennt ~ item:', this.item);
-  }
+  ngOnInit() {}
 }

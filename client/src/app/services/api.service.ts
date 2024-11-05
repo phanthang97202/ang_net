@@ -7,7 +7,11 @@ import {
   ISearchProvinceRequest,
 } from '../interfaces/province';
 import { Observable } from 'rxjs';
-import { IDetailNewsResponse, INewsResponse } from '../interfaces/news';
+import {
+  ICreateNews,
+  IDetailNewsResponse,
+  INewsResponse,
+} from '../interfaces/news';
 import {
   IHashTagNews,
   IHashTagNewsResponse,
@@ -50,6 +54,19 @@ export class ApiService {
     return this.http.get<IDetailNewsResponse>(
       `${this.apiUrl}news/detail?newsid=${newsId}`
     );
+  }
+
+  CreateNews(obj: ICreateNews): Observable<IDetailNewsResponse> {
+    return this.http.post<IDetailNewsResponse>(`${this.apiUrl}news/create`, {
+      Thumbnail: obj.Thumbnail,
+      CategoryNewsId: obj.CategoryNewsId,
+      ShortTitle: obj.ShortTitle,
+      ShortDescription: obj.ShortDescription,
+      ContentBody: obj.ContentBody,
+      FlagActive: obj.FlagActive,
+      LstHashTagNews: obj.LstHashTagNews,
+      LstRefFileNews: obj.LstRefFileNews,
+    });
   }
 
   // HashTagNews

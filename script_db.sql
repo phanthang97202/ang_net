@@ -38,7 +38,7 @@ select * from HashTagNews
 select * from RefFileNews
 select * from PointNews
 
-delete from News where NewsId  like '%white-queen-%'
+delete from News where NewsId  like '0%'
 delete from HashTagNews where NewsId  like '%white-queen-%'
 
 delete from News where newsid = 'stain-hero-killer' or newsid = 'stain-hero-killer-3'

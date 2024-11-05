@@ -1,5 +1,14 @@
 import { IPageInfo } from './common';
-
+export interface ICreateNews {
+  Thumbnail: string;
+  CategoryNewsId: string;
+  ShortTitle: string;
+  ShortDescription: string;
+  ContentBody: string;
+  FlagActive: boolean;
+  LstHashTagNews: IHashTagNews[];
+  LstRefFileNews: IRefFileNews[];
+}
 export interface INews {
   NewsId: string;
   UserId: string;
