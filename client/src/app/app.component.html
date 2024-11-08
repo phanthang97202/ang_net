@@ -15,14 +15,14 @@
 </div>
 
 <nz-layout *ngIf="layoutType === 'admin'" class="layout">
-    <nz-sider nzCollapsible nzWidth="200px">
+    <nz-sider [nzCollapsed]="true" nzCollapsible nzWidth="200px">
         <div class="logo">
             <a routerLink="/dashboard">
                 <img class="" src="https://i1.sndcdn.com/artworks-000465852042-1ymfcy-t500x500.jpg" alt="">
             </a>
         </div>
         <ul nz-menu nzTheme="dark" nzMode="inline">
-            <li nz-submenu nzTitle="Users" nzIcon="user">
+            <li nz-submenu nzTitle="Users" nzIcon="team">
                 <ul>
                     <li nz-menu-item>
                         <a routerLink="/dashboard/users">
@@ -32,7 +32,7 @@
                 </ul>
             </li>
 
-            <li nz-submenu nzTitle="Roles" nzIcon="key">
+            <li nz-submenu nzTitle="Roles" nzIcon="safety">
                 <ul>
                     <li nz-menu-item>
                         <a routerLink="/dashboard/role">
@@ -41,7 +41,7 @@
                     </li>
                 </ul>
             </li>
-            <li nz-submenu nzTitle="Masters" nzIcon="key">
+            <li nz-submenu nzTitle="Masters" nzIcon="table">
                 <ul>
                     <li nz-menu-item>
                         <a routerLink="/dashboard/mstprovince">
@@ -50,7 +50,7 @@
                     </li>
                 </ul>
             </li>
-            <li nz-submenu nzTitle="Blogs" nzIcon="key">
+            <li nz-submenu nzTitle="Blogs" nzIcon="read">
                 <ul>
                     <li nz-menu-item>
                         <a routerLink="/dashboard/blog">
@@ -65,13 +65,9 @@
                 [nzType]="'primary'">Logout</button>
         </div>
     </nz-sider>
-    <nz-layout>
-        <nz-header>
-            <!-- <app-navbar /> -->
-        </nz-header>
-        <nz-content class="h-full overflow-y-auto">
-            <router-outlet></router-outlet>
-        </nz-content>
-        <nz-footer>Ant Design ©2020 Implement By Angular</nz-footer>
-    </nz-layout>
+
+    <nz-content class="h-full overflow-y-auto">
+        <router-outlet></router-outlet>
+    </nz-content>
+
 </nz-layout>

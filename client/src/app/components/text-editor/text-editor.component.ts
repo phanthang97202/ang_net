@@ -34,12 +34,9 @@ export class TextEditorComponent {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  handleonEditorChanged(ev: EditorChangeContent | EditorChangeSelection) {
-    console.log('=====', ev);
-  }
+  handleonEditorChanged(ev: EditorChangeContent | EditorChangeSelection) {}
 
   handleContentChanged(ev: ContentChange) {
-    console.log('🚀 ~ TextEditorComponent ~ handleContentChanged ~ ev:', ev);
     this.onContentChanged.emit({ ev, content: this.content });
   }
 }
