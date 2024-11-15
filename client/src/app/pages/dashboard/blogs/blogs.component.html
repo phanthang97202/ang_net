@@ -31,14 +31,8 @@
             <nz-form-item>
                 <nz-form-label nzSpan="8" nzRequired>CategoryNewsId</nz-form-label>
                 <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <nz-select formControlName="CategoryNewsId" nzAllowClear nzPlaceHolder="Choose" nzShowSearch>
-                        <nz-option-group nzLabel="Manager">
-                            <nz-option nzValue="anime" nzLabel="Anime"></nz-option>
-                        </nz-option-group>
-                        <nz-option-group nzLabel="Engineer">
-                            <nz-option nzValue="tom" nzLabel="Tom"></nz-option>
-                        </nz-option-group>
-                    </nz-select>
+                    <nz-tree-select formControlName="CategoryNewsId" style="width: 250px" [nzNodes]="nodes" nzShowSearch
+                        nzPlaceHolder="Please select" (ngModelChange)="onSelectedCategoryNews($event)"></nz-tree-select>
                 </nz-form-control>
             </nz-form-item>
 

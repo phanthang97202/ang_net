@@ -18,12 +18,18 @@ insert into NewsCategory values
 ('anime', '', 'Anime', 1, 1, '2024-10-10 23:30:52.0811634', '2024-10-10 23:30:52.0811634')
 
 insert into NewsCategory values 
+('film', '', 'Film', 0, 3, '2024-10-10 23:30:52.0811634', '2024-10-10 23:30:52.0811634')
+
+insert into NewsCategory values 
+('sport', '', 'Sport', 1, 4, '2024-10-10 23:30:52.0811634', '2024-10-10 23:30:52.0811634')
+
+insert into NewsCategory values 
 ('girl-collection', '', 'Anime', 1, 1, '2024-10-10 23:30:52.0811634', '2024-10-10 23:30:52.0811634')
 
 insert into NewsCategory values 
-('girl-collection', '2024-10-10 23:30:52.0811634', 1, 2, 'Girl Collection', '', '2024-10-23 23:30:52.0811634')
+('comedy3', '2024-10-10 23:30:52.0811634', 1, 5, 'Comedy 3', 'comedy', '2024-10-23 23:30:52.0811634')
 
-delete from NewsCategory where NewsCategoryId = 'girl-collection'
+delete from NewsCategory where NewsCategoryId = 'sport'
 
 insert into News values 
 ('toga', '9d430ca5-5214-4be5-b68f-ff1214c189ca', 'anime', 'toga', '', '', '', '<p>Thang</p>', '2024-10-10 23:30:52.0811634', '2024-10-10 23:30:52.0811634', 1, 0, 0, 0, 0, '', '')

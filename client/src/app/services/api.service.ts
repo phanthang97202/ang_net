@@ -16,6 +16,7 @@ import {
   IHashTagNews,
   IHashTagNewsResponse,
 } from '../interfaces/hash-tag-news';
+import { INewsCategoryResponse } from '../interfaces/news-category';
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +74,13 @@ export class ApiService {
   GetTopHashTag(): Observable<IHashTagNewsResponse> {
     return this.http.get<IHashTagNewsResponse>(
       `${this.apiUrl}hashtagnews/gettophashtag`
+    );
+  }
+
+  // NewsCategory
+  GetAllActiveNewsCategory(): Observable<INewsCategoryResponse> {
+    return this.http.get<INewsCategoryResponse>(
+      `${this.apiUrl}newscategory/getallactive`
     );
   }
 }

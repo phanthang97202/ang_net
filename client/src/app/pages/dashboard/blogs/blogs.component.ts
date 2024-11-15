@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TextEditorComponent } from '../../../components/text-editor/text-editor.component';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -22,8 +22,10 @@ import { CloudinaryService } from '../../../services/cloudinary.service';
 import { ChatBoxComponent } from '../../../components/chat-box/chat-box.component';
 import { NzMentionModule } from 'ng-zorro-antd/mention';
 import { NzCascaderModule, NzCascaderOption } from 'ng-zorro-antd/cascader';
-import { Subscription } from 'rxjs';
+import { NzTreeSelectModule } from 'ng-zorro-antd/tree-select';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { LoadingService } from '../../../services/loading-service.service';
+import { delay } from 'rxjs';
 const options = [
   {
     value: 'zhejiang',
@@ -84,14 +86,16 @@ const options = [
     NzMentionModule,
     NzCascaderModule,
     NzSelectModule,
+    NzTreeSelectModule,
   ],
   templateUrl: './blogs.component.html',
   styleUrl: './blogs.component.scss',
 })
-export class BlogsComponent {
+export class BlogsComponent implements OnInit {
   apiService = inject(ApiService);
   showErrorService = inject(ShowErrorService);
   cloudinary = inject(CloudinaryService);
+  loadingService = inject(LoadingService);
 
   suggestions = [
     'afc163',
@@ -101,6 +105,9 @@ export class BlogsComponent {
     '中文',
     'にほんご',
   ];
+
+  nodes: any = [];
+
   nzOptions: NzCascaderOption[] = options;
 
   thumnail: any;
@@ -132,8 +139,69 @@ export class BlogsComponent {
     });
   }
 
+  ngOnInit() {
+    this.fetchDataInit();
+  }
+
+  fetchDataInit() {
+    this.loadingService.setLoading(true);
+    this.apiService
+      .GetAllActiveNewsCategory()
+      .pipe()
+      .subscribe({
+        next: (data) => {
+          this.nodes = data.DataList.reduce((prev: any[], cur: any) => {
+            const newNode = {
+              title: cur.NewsCategoryName,
+              NewsCategoryIndex: cur.NewsCategoryIndex,
+              key: cur.NewsCategoryId,
+              NewsCategoryParentId: cur.NewsCategoryParentId,
+              children: [],
+            };
+
+            if (!cur.NewsCategoryParentId) {
+              // Root-level node
+              prev.push(newNode);
+            } else {
+              // Find parent node recursively and add the current node as a child
+              const addNodeToParent = (nodes: any[]): boolean => {
+                for (const node of nodes) {
+                  if (node.key === cur.NewsCategoryParentId) {
+                    node.children.push(newNode);
+                    return true;
+                  }
+                  if (addNodeToParent(node.children)) {
+                    return true;
+                  }
+                }
+                return false;
+              };
+              addNodeToParent(prev);
+            }
+            return prev;
+          }, []);
+          this.loadingService.setLoading(false);
+        },
+        error: (err) => {
+          this.loadingService.setLoading(false);
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
+        },
+        complete() {},
+      });
+  }
+
   onChanges(values: string[] | null): void {
     console.log(values);
+  }
+
+  onSelectedCategoryNews(event: string): void {
+    this.validateForm.patchValue({
+      CategoryNewsId: event,
+    });
   }
 
   handlePreview = async (file: NzUploadFile | any): Promise<void> => {
@@ -147,6 +215,7 @@ export class BlogsComponent {
   submitForm() {
     if (this.validateForm.valid) {
       console.log('submit', this.thumnail, this.validateForm.value);
+      return;
       this.apiService
         .CreateNews({
           Thumbnail: this.validateForm.value.Thumbnail ?? '',
@@ -194,14 +263,11 @@ export class BlogsComponent {
   }
 
   handleUploadFile = (file: any) => {
-    console.log('🚀 ~ BlogsComponent ~ onFileChange ~ file:', file);
-
     this.cloudinary.uploadImage(file).subscribe({
       next: (res: any) => {
         this.validateForm.patchValue({
           Thumbnail: res.url,
         });
-        console.log('Uploaded successfully!', res);
       },
       error: (err) => {},
     });
