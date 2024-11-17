@@ -1,0 +1,14 @@
+{
+    "builds": [
+        {
+            "src": "dist/client/browser",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/client",
+            "dest": "/index.html"
+        }
+    ]
+}
