@@ -7,7 +7,7 @@
 
 # Compiled output
 /client/dist
-/client/src/environments/environment.ts
+!/src/environments/
 /client/tmp
 /client/out-tsc
 /client/bazel-out

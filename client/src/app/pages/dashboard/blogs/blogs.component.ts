@@ -26,6 +26,7 @@ import { NzTreeSelectModule } from 'ng-zorro-antd/tree-select';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { LoadingService } from '../../../services/loading-service.service';
 import { delay } from 'rxjs';
+import { NzMessageService } from 'ng-zorro-antd/message';
 const options = [
   {
     value: 'zhejiang',
@@ -96,6 +97,7 @@ export class BlogsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   cloudinary = inject(CloudinaryService);
   loadingService = inject(LoadingService);
+  private message = inject(NzMessageService);
 
   suggestions = [
     'afc163',
@@ -215,7 +217,7 @@ export class BlogsComponent implements OnInit {
   submitForm() {
     if (this.validateForm.valid) {
       console.log('submit', this.thumnail, this.validateForm.value);
-      return;
+      // return;
       this.apiService
         .CreateNews({
           Thumbnail: this.validateForm.value.Thumbnail ?? '',
@@ -241,6 +243,7 @@ export class BlogsComponent implements OnInit {
         .subscribe({
           next: (res) => {
             if (res.Success) {
+              this.message.create('success', 'Login successfully');
             }
           },
           error: (err) => {

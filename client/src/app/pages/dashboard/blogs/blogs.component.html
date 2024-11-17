@@ -31,7 +31,7 @@
             <nz-form-item>
                 <nz-form-label nzSpan="8" nzRequired>CategoryNewsId</nz-form-label>
                 <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <nz-tree-select formControlName="CategoryNewsId" style="width: 250px" [nzNodes]="nodes" nzShowSearch
+                    <nz-tree-select formControlName="CategoryNewsId" [nzNodes]="nodes" nzShowSearch
                         nzPlaceHolder="Please select" (ngModelChange)="onSelectedCategoryNews($event)"></nz-tree-select>
                 </nz-form-control>
             </nz-form-item>

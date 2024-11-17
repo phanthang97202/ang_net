@@ -13,11 +13,12 @@ import {
 } from '@angular/router';
 import { LoadingService } from '../../../services/loading-service.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { LocalDTime } from '../../../pipes/localeDTime.pipe';
 
 @Component({
   selector: 'detail-news-page',
   standalone: true,
-  imports: [NzListModule, NzIconModule, SubString, RouterModule],
+  imports: [NzListModule, NzIconModule, SubString, RouterModule, LocalDTime],
   templateUrl: './detail-news.component.html',
   styleUrl: './detail-news.component.scss',
 })
@@ -28,7 +29,7 @@ export class DetailNewsComponent implements OnInit {
   loadingService = inject(LoadingService);
 
   newsId = '';
-  detailNews: string = '';
+  detailNews!: IDetailNews;
 
   constructor(private sanitizer: DomSanitizer) {}
 
@@ -52,7 +53,7 @@ export class DetailNewsComponent implements OnInit {
     this.loadingService.setLoading(true);
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: (res) => {
-        this.detailNews = res.Data.ContentBody;
+        this.detailNews = res.Data;
       },
       error: (err) => {
         this.showErrorService.setShowError({
