@@ -1,14 +1,14 @@
 {
     "builds": [
         {
-            "src": "dist/client/browser/**",
+            "src": "dist/client/browser",
             "use": "@vercel/static"
         }
     ],
-    "rewrites": [
+    "routes": [
         {
-            "source": "/(.*)",
-            "destination": "/index.html"
+            "src": "/client",
+            "dest": "/index.html"
         }
     ]
 }
