@@ -1,8 +1,12 @@
 ﻿using API.Dtos;
 using API.IRespositories;
+using API.Middlewares;
 using API.Models;
+using API.Respositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Serilog;
+using System.Text.Json;
 
 namespace API.Controllers
 {
@@ -12,9 +16,11 @@ namespace API.Controllers
     public class NewsController : ControllerBase
     {
         private readonly INewsRespository _newsRespository;
-        public NewsController(INewsRespository newsRespository)
+        private readonly WriteLog<NewsModel> _logger;
+        public NewsController(INewsRespository newsRespository, WriteLog<NewsModel> logger)
         {
             _newsRespository = newsRespository;
+            _logger = logger;
         }
 
         [HttpGet("Search")]
@@ -49,12 +55,16 @@ namespace API.Controllers
         public async Task<IActionResult> Create([FromBody] NewsDto news)
         {
             try
-            {
-                ApiResponse<NewsModel> response = await _newsRespository.Create(User, news);
-                return Ok(response);
+            { 
+                ApiResponse<NewsModel> response = await _newsRespository.Create(User, news); 
+
+                _logger.LogInformation("NewsRespository.Create", JsonSerializer.Serialize(news), JsonSerializer.Serialize(response));
+
+                return Ok(response);  
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
+                _logger.LogError("NewsRespository.Create", JsonSerializer.Serialize(news), ex);
                 throw;
             }
         }

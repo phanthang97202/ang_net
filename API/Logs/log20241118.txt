@@ -1,0 +1,314 @@
+2024-11-18 23:36:58.390 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-11-18 23:36:58.673 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-11-18 23:36:58.674 +07:00 [INF] Hosting environment: Development
+2024-11-18 23:36:58.674 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2024-11-18 23:36:58.732 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2024-11-18 23:36:58.992 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 264.1095ms
+2024-11-18 23:36:59.056 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2024-11-18 23:36:59.065 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 3.8687ms
+2024-11-18 23:36:59.124 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2024-11-18 23:36:59.172 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 47.8559ms
+2024-11-18 23:36:59.470 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2024-11-18 23:36:59.728 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 258.1035ms
+2024-11-18 23:37:02.801 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:37:03.146 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:37:03'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:37:03.196 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:37:03'.
+2024-11-18 23:37:03.200 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:37:03.226 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:37:03.681 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 452.3599ms
+2024-11-18 23:37:03.682 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:37:03.684 +07:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Unable to resolve service for type 'API.Middlewares.WriteLog`1[API.Models.NewsModel]' while attempting to activate 'API.Controllers.NewsController'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ThrowHelperUnableToResolveService(Type type, Type requiredBy)
+   at lambda_method17(Closure, IServiceProvider, Object[])
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.<>c__DisplayClass6_0.<CreateControllerFactory>g__CreateController|0(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2024-11-18 23:37:03.692 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 500 null text/plain; charset=utf-8 891.2778ms
+2024-11-18 23:40:38.881 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-11-18 23:40:39.212 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-11-18 23:40:39.214 +07:00 [INF] Hosting environment: Development
+2024-11-18 23:40:39.214 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2024-11-18 23:40:39.301 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:40:39.301 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2024-11-18 23:40:39.661 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:40:39'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:40:39.916 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 621.4252ms
+2024-11-18 23:40:39.918 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:40:39'.
+2024-11-18 23:40:40.028 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2024-11-18 23:40:40.031 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 3.8233ms
+2024-11-18 23:40:40.091 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:40:40.234 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:40:40.309 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2024-11-18 23:40:40.375 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 65.1776ms
+2024-11-18 23:40:40.674 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2024-11-18 23:40:41.018 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 344.0047ms
+2024-11-18 23:40:41.184 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : "{\u0022Thumbnail\u0022:\u0022https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w\u0022,\u0022CategoryNewsId\u0022:\u0022anime\u0022,\u0022ShortTitle\u0022:\u0022White Queen 18\u0022,\u0022ShortDescription\u0022:\u0022Honjou Nia l\\u00E0 tinh linh th\\u1EE9 ch\\u00EDn xu\\u1EA5t hi\\u1EC7n trong Ch\\u00EDnh truy\\u1EC7n Date A Live.\u0022,\u0022ContentBody\u0022:\u0022\\u003Cb\\u003ETrong khi \\u0111i kh\\u00E1m ph\\u00E1 trong \\u0110\\u1EC7 C\\u1EEDu Th\\u1EBF gi\\u1EDBi v\\u1EDBi Hibiki.\\u003C/b\\u003E\u0022,\u0022FlagActive\u0022:true,\u0022LstHashTagNews\u0022:[{\u0022HashTagNewsName\u0022:\u0022Test\u0022}],\u0022LstRefFileNews\u0022:[{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg\u0022},{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg\u0022}]}"
+                        Response     : "{\u0022Success\u0022:false,\u0022ErrorMessage\u0022:\u0022News_Create.UserNotFound\u0022,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:40:41.144587Z\u0022,\u0022RequestClients\u0022:[],\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:40:41.190 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:40:41.198 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 959.6864ms
+2024-11-18 23:40:41.198 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:40:41.200 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 1908.1057ms
+2024-11-18 23:48:05.834 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-11-18 23:48:06.084 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-11-18 23:48:06.085 +07:00 [INF] Hosting environment: Development
+2024-11-18 23:48:06.085 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2024-11-18 23:48:06.138 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2024-11-18 23:48:06.389 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 255.5818ms
+2024-11-18 23:48:06.478 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2024-11-18 23:48:06.552 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 73.5476ms
+2024-11-18 23:48:06.683 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2024-11-18 23:48:06.720 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 37.4515ms
+2024-11-18 23:48:06.936 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2024-11-18 23:48:07.151 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 214.6288ms
+2024-11-18 23:48:31.011 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:48:31.280 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:48:31'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:48:31.353 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:48:31'.
+2024-11-18 23:48:31.359 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:48:31.422 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:48:31.916 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 488.5422ms
+2024-11-18 23:48:31.918 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:48:31.921 +07:00 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Unable to resolve service for type 'API.Middlewares.WriteLog`1[API.Models.NewsModel]' while attempting to activate 'API.Controllers.NewsController'.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ThrowHelperUnableToResolveService(Type type, Type requiredBy)
+   at lambda_method17(Closure, IServiceProvider, Object[])
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.<>c__DisplayClass6_0.<CreateControllerFactory>g__CreateController|0(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2024-11-18 23:48:31.933 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 500 null text/plain; charset=utf-8 922.0082ms
+2024-11-18 23:52:15.284 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-11-18 23:52:15.569 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-11-18 23:52:15.569 +07:00 [INF] Hosting environment: Development
+2024-11-18 23:52:15.569 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2024-11-18 23:52:15.621 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2024-11-18 23:52:15.934 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 317.3917ms
+2024-11-18 23:52:15.967 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2024-11-18 23:52:15.971 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 2.8175ms
+2024-11-18 23:52:16.056 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2024-11-18 23:52:16.108 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 52.2768ms
+2024-11-18 23:52:16.430 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2024-11-18 23:52:16.725 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 294.9281ms
+2024-11-18 23:52:18.421 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:52:18.745 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:18'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:52:18.988 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:18'.
+2024-11-18 23:52:18.993 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:19.019 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:52:19.531 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : "{\u0022Thumbnail\u0022:\u0022https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w\u0022,\u0022CategoryNewsId\u0022:\u0022anime\u0022,\u0022ShortTitle\u0022:\u0022White Queen 18\u0022,\u0022ShortDescription\u0022:\u0022Honjou Nia l\\u00E0 tinh linh th\\u1EE9 ch\\u00EDn xu\\u1EA5t hi\\u1EC7n trong Ch\\u00EDnh truy\\u1EC7n Date A Live.\u0022,\u0022ContentBody\u0022:\u0022\\u003Cb\\u003ETrong khi \\u0111i kh\\u00E1m ph\\u00E1 trong \\u0110\\u1EC7 C\\u1EEDu Th\\u1EBF gi\\u1EDBi v\\u1EDBi Hibiki.\\u003C/b\\u003E\u0022,\u0022FlagActive\u0022:true,\u0022LstHashTagNews\u0022:[{\u0022HashTagNewsName\u0022:\u0022Test\u0022}],\u0022LstRefFileNews\u0022:[{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg\u0022},{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg\u0022}]}"
+                        Response     : "{\u0022Success\u0022:false,\u0022ErrorMessage\u0022:\u0022News_Create.UserNotFound\u0022,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:52:19.5054116Z\u0022,\u0022RequestClients\u0022:[],\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:52:19.533 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:52:19.539 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 516.736ms
+2024-11-18 23:52:19.539 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:19.540 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 1119.5756ms
+2024-11-18 23:52:28.526 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:52:28.529 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:28'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:52:28.529 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:28'.
+2024-11-18 23:52:28.529 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:28.529 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:52:28.536 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : "{\u0022Thumbnail\u0022:\u0022https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w\u0022,\u0022CategoryNewsId\u0022:\u0022anime\u0022,\u0022ShortTitle\u0022:\u0022White Queen 18\u0022,\u0022ShortDescription\u0022:\u0022Honjou Nia l\\u00E0 tinh linh th\\u1EE9 ch\\u00EDn xu\\u1EA5t hi\\u1EC7n trong Ch\\u00EDnh truy\\u1EC7n Date A Live.\u0022,\u0022ContentBody\u0022:\u0022\\u003Cb\\u003ETrong khi \\u0111i kh\\u00E1m ph\\u00E1 trong \\u0110\\u1EC7 C\\u1EEDu Th\\u1EBF gi\\u1EDBi v\\u1EDBi Hibiki.\\u003C/b\\u003E\u0022,\u0022FlagActive\u0022:true,\u0022LstHashTagNews\u0022:[{\u0022HashTagNewsName\u0022:\u0022Test\u0022}],\u0022LstRefFileNews\u0022:[{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg\u0022},{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg\u0022}]}"
+                        Response     : "{\u0022Success\u0022:false,\u0022ErrorMessage\u0022:\u0022News_Create.UserNotFound\u0022,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:52:28.5368144Z\u0022,\u0022RequestClients\u0022:[],\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:52:28.537 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:52:28.538 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 8.2686ms
+2024-11-18 23:52:28.538 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:28.538 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 12.1364ms
+2024-11-18 23:52:41.388 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:52:41.391 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:41'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:52:41.391 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-11-18 16:07:02', Current time (UTC): '2024-11-18 16:52:41'.
+2024-11-18 23:52:41.391 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:41.392 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:52:41.404 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : "{\u0022Thumbnail\u0022:\u0022https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w\u0022,\u0022CategoryNewsId\u0022:\u0022anime\u0022,\u0022ShortTitle\u0022:\u0022White Queen 18\u0022,\u0022ShortDescription\u0022:\u0022Honjou Nia l\\u00E0 tinh linh th\\u1EE9 ch\\u00EDn xu\\u1EA5t hi\\u1EC7n trong Ch\\u00EDnh truy\\u1EC7n Date A Live.\u0022,\u0022ContentBody\u0022:\u0022\\u003Cb\\u003ETrong khi \\u0111i kh\\u00E1m ph\\u00E1 trong \\u0110\\u1EC7 C\\u1EEDu Th\\u1EBF gi\\u1EDBi v\\u1EDBi Hibiki.\\u003C/b\\u003E\u0022,\u0022FlagActive\u0022:true,\u0022LstHashTagNews\u0022:[{\u0022HashTagNewsName\u0022:\u0022Test\u0022}],\u0022LstRefFileNews\u0022:[{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg\u0022},{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg\u0022}]}"
+                        Response     : "{\u0022Success\u0022:false,\u0022ErrorMessage\u0022:\u0022News_Create.UserNotFound\u0022,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:52:41.4043928Z\u0022,\u0022RequestClients\u0022:[],\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:52:41.404 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:52:41.405 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 12.7197ms
+2024-11-18 23:52:41.405 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:52:41.405 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 16.9056ms
+2024-11-18 23:56:36.030 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2024-11-18 23:56:36.382 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2024-11-18 16:56:36'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2024-11-18 23:56:36.386 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2024-11-18 16:56:36'.
+2024-11-18 23:56:36.386 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2024-11-18 23:56:36.467 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2024-11-18 23:56:38.564 +07:00 [INF] Executed DbCommand (163ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2024-11-18 23:56:38.960 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2024-11-18 23:56:39.013 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:56:39.016 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2548.8973ms
+2024-11-18 23:56:39.017 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2024-11-18 23:56:39.022 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 2992.302ms
+2024-11-18 23:56:47.369 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:56:47.422 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:56:47.422 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:56:47.524 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__p_0
+LIMIT 1
+2024-11-18 23:56:47.558 +07:00 [INF] Executed DbCommand (11ms) [Parameters=[@__p_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+WHERE "n"."NewsId" = @__p_0
+LIMIT 1
+2024-11-18 23:56:47.569 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__HashTagNewId_0='?' (Size = 4), @__8__locals1_NewsId_1='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."HashTagNewsId" = @__HashTagNewId_0 AND "h"."NewsId" = @__8__locals1_NewsId_1
+LIMIT 1
+2024-11-18 23:56:47.581 +07:00 [INF] Executed DbCommand (7ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."RefFileNewsId" = @__p_0
+LIMIT 1
+2024-11-18 23:56:47.584 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."RefFileNewsId" = @__p_0
+LIMIT 1
+2024-11-18 23:56:47.759 +07:00 [INF] Executed DbCommand (23ms) [Parameters=[@p0='?' (Size = 14), @p1='?' (DbType = Double), @p2='?' (Size = 5), @p3='?' (Size = 62), @p4='?' (DbType = DateTime), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 74), @p9='?' (Size = 14), @p10='?' (Size = 14), @p11='?' (Size = 139), @p12='?' (DbType = DateTime), @p13='?' (Size = 36), @p14='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "News" ("NewsId", "AvgPoint", "CategoryNewsId", "ContentBody", "CreatedDTime", "FlagActive", "LikeCount", "ShareCount", "ShortDescription", "ShortTitle", "Slug", "Thumbnail", "UpdatedDTime", "UserId", "ViewCount")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
+2024-11-18 23:56:47.763 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 4), @p1='?' (Size = 14), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?' (DbType = Boolean), @p5='?' (Size = 4), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "HashTagNews" ("HashTagNewsId", "NewsId", "Count", "CreatedDTime", "FlagActive", "HashTagNewsName", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+2024-11-18 23:56:47.825 +07:00 [INF] Executed DbCommand (62ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (Size = 77), @p3='?' (DbType = Boolean), @p4='?' (Size = 14), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefFileNews" ("RefFileNewsId", "CreatedDTime", "FileUrl", "FlagActive", "NewsId", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2024-11-18 23:56:47.826 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (Size = 47), @p3='?' (DbType = Boolean), @p4='?' (Size = 14), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefFileNews" ("RefFileNewsId", "CreatedDTime", "FileUrl", "FlagActive", "NewsId", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2024-11-18 23:56:47.878 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : "{\u0022Thumbnail\u0022:\u0022https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w\u0022,\u0022CategoryNewsId\u0022:\u0022anime\u0022,\u0022ShortTitle\u0022:\u0022White Queen 19\u0022,\u0022ShortDescription\u0022:\u0022Honjou Nia l\\u00E0 tinh linh th\\u1EE9 ch\\u00EDn xu\\u1EA5t hi\\u1EC7n trong Ch\\u00EDnh truy\\u1EC7n Date A Live.\u0022,\u0022ContentBody\u0022:\u0022\\u003Cb\\u003ETrong khi \\u0111i kh\\u00E1m ph\\u00E1 trong \\u0110\\u1EC7 C\\u1EEDu Th\\u1EBF gi\\u1EDBi v\\u1EDBi Hibiki.\\u003C/b\\u003E\u0022,\u0022FlagActive\u0022:true,\u0022LstHashTagNews\u0022:[{\u0022HashTagNewsName\u0022:\u0022Test\u0022}],\u0022LstRefFileNews\u0022:[{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg\u0022},{\u0022FileUrl\u0022:\u0022https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg\u0022}]}"
+                        Response     : "{\u0022Success\u0022:true,\u0022ErrorMessage\u0022:null,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:56:47.4227546Z\u0022,\u0022RequestClients\u0022:null,\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:56:47.878 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:56:47.880 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 457.7177ms
+2024-11-18 23:56:47.880 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:56:47.880 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 511.5772ms
+2024-11-18 23:59:05.732 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-11-18 23:59:05.953 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-11-18 23:59:05.953 +07:00 [INF] Hosting environment: Development
+2024-11-18 23:59:05.953 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2024-11-18 23:59:06.034 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2024-11-18 23:59:06.321 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 304.8543ms
+2024-11-18 23:59:06.365 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2024-11-18 23:59:06.387 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 14.5997ms
+2024-11-18 23:59:06.445 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2024-11-18 23:59:06.484 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 39.1823ms
+2024-11-18 23:59:06.751 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2024-11-18 23:59:06.970 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 218.5441ms
+2024-11-18 23:59:21.598 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 822
+2024-11-18 23:59:21.935 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:59:21.964 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(API.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2024-11-18 23:59:24.166 +07:00 [INF] Executed DbCommand (192ms) [Parameters=[@__p_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__p_0
+LIMIT 1
+2024-11-18 23:59:24.271 +07:00 [INF] Executed DbCommand (32ms) [Parameters=[@__p_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+WHERE "n"."NewsId" = @__p_0
+LIMIT 1
+2024-11-18 23:59:24.334 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : {"Thumbnail":"https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w","CategoryNewsId":"anime","ShortTitle":"White Queen 19","ShortDescription":"Honjou Nia l\u00E0 tinh linh th\u1EE9 ch\u00EDn xu\u1EA5t hi\u1EC7n trong Ch\u00EDnh truy\u1EC7n Date A Live.","ContentBody":"\u003Cb\u003ETrong khi \u0111i kh\u00E1m ph\u00E1 trong \u0110\u1EC7 C\u1EEDu Th\u1EBF gi\u1EDBi v\u1EDBi Hibiki.\u003C/b\u003E","FlagActive":true,"LstHashTagNews":[{"HashTagNewsName":"Test"}],"LstRefFileNews":[{"FileUrl":"https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg"},{"FileUrl":"https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg"}]}
+                        Response     : "{\u0022Success\u0022:false,\u0022ErrorMessage\u0022:\u0022News_Create.ShortTitleIsExist\u0022,\u0022RequestDTimeAt\u0022:\u00222024-11-18T16:59:22.4297188Z\u0022,\u0022RequestClients\u0022:[],\u0022Data\u0022:null,\u0022DataList\u0022:null,\u0022objResult\u0022:null}"
+                        ------------------------------------------------
+                        
+2024-11-18 23:59:24.339 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.NewsModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2024-11-18 23:59:24.346 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 2379.6415ms
+2024-11-18 23:59:24.347 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2024-11-18 23:59:24.355 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 2756.9429ms

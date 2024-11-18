@@ -1,20 +1,27 @@
 using API.Data;
 using API.Interfaces;
 using API.IRespositories;
+using API.Middlewares;
 using API.Models;
 using API.Respositories;
 using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection")));
+
 var JWTSetting = builder.Configuration.GetSection("JWTSetting");
+var database = builder.Configuration.GetSection("ConnectionStrings");
 var clientConfig = builder.Configuration.GetSection("ClientConfig");
 // Add services to the container.
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
@@ -23,7 +30,10 @@ builder.Services.AddScoped<INewsRespository, NewsRespository>();
 builder.Services.AddScoped<IAccountRespository, AccountRespository>();
 builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=auth.db"));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
+// log service 
+builder.Services.AddSingleton(typeof(WriteLog<>));
+
 
 // config jwt 
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
@@ -65,6 +75,16 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+
+
+// Config Logs 
+Log.Logger = new LoggerConfiguration()
+    //.WriteTo.Console()
+    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

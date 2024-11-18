@@ -318,3 +318,17 @@ D:\MyHomeWork\ang_net\API\obj\Debug\net8.0\refint\API.dll
 D:\MyHomeWork\ang_net\API\obj\Debug\net8.0\API.pdb
 D:\MyHomeWork\ang_net\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 D:\MyHomeWork\ang_net\API\obj\Debug\net8.0\ref\API.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Publish\web.config
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Publish\API.deps.json
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Publish\API.runtimeconfig.json
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Publish\appsettings.Development.json
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Publish\appsettings.json
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.AspNetCore.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Extensions.Logging.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Formatting.Compact.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Settings.Configuration.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Sinks.Console.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Serilog.Sinks.File.dll

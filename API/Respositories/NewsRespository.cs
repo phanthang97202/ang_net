@@ -5,9 +5,11 @@ using API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text;
 using GuardAuth = API.Middlewares.CheckAuthorized;
 using TCommonUtils = API.CommonUtils.CommonUtils;
 using TConstValue = API.CommonUtils.ConstValue;
+using System.Text.Json;
 
 namespace API.Respositories
 {
@@ -16,6 +18,8 @@ namespace API.Respositories
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
+        
+
         public NewsRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
         {
             _dbContext = appDbContext;
@@ -480,8 +484,7 @@ namespace API.Respositories
             }
 
             await _dbContext.SaveChangesAsync();
-            #endregion
-
+            #endregion 
             return apiResponse;
         }
 
