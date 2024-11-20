@@ -4,12 +4,12 @@ using System.Text.Json;
 
 namespace API.Middlewares
 {
-    public class WriteLog<T>
+    public class WriteLog
     {
-        private readonly ILogger<T> _logger;
+        private readonly ILogger<WriteLog> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public WriteLog(ILogger<T> logger, IHttpContextAccessor httpContextAccessor) {
+        public WriteLog(ILogger<WriteLog> logger, IHttpContextAccessor httpContextAccessor) {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -31,8 +31,8 @@ namespace API.Middlewares
                                     title,
                                     httpContext.Request.Method,
                                     httpContext.Request.Path,
-                                    req,
-                                    res
+                                    JsonSerializer.Serialize(req),
+                                    JsonSerializer.Serialize(res)
                                     );
         }
 
@@ -53,7 +53,7 @@ namespace API.Middlewares
                                     title,
                                     httpContext.Request.Method,
                                     httpContext.Request.Path,
-                                    req,
+                                    JsonSerializer.Serialize(req),
                                     errMsg
                                     );
         }

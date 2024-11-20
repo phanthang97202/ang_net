@@ -32,7 +32,7 @@ builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
 // log service 
-builder.Services.AddSingleton(typeof(WriteLog<>));
+builder.Services.AddSingleton(typeof(WriteLog ));
 
 
 // config jwt 
@@ -77,13 +77,17 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 
-// Config Logs 
+// Config Logs    
 Log.Logger = new LoggerConfiguration()
-    //.WriteTo.Console()
+    .Enrich.FromLogContext()
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .Filter.ByExcluding(logEvent =>
+        logEvent.Properties.ContainsKey("SkipLogging") &&
+        logEvent.Properties["SkipLogging"].ToString() == "True")
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -136,6 +140,7 @@ builder.Services.AddSignalR();
 
 
 var app = builder.Build();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 
 // Configure the HTTP request pipeline.
@@ -144,6 +149,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<LoggingMiddleware>();
 
 
 // Note: Nếu như không dùng SSL thì disable feature này đi, nếu không nó sẽ tự động chuyển sang https nếu client đang call api dạng http

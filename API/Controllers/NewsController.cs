@@ -1,4 +1,5 @@
-﻿using API.Dtos;
+﻿using API.Attributes;
+using API.Dtos;
 using API.IRespositories;
 using API.Middlewares;
 using API.Models;
@@ -16,8 +17,8 @@ namespace API.Controllers
     public class NewsController : ControllerBase
     {
         private readonly INewsRespository _newsRespository;
-        private readonly WriteLog<NewsModel> _logger;
-        public NewsController(INewsRespository newsRespository, WriteLog<NewsModel> logger)
+        private readonly WriteLog _logger;
+        public NewsController(INewsRespository newsRespository, WriteLog logger)
         {
             _newsRespository = newsRespository;
             _logger = logger;
@@ -38,6 +39,7 @@ namespace API.Controllers
         }
 
         [HttpGet("Detail")]
+        [SkipLogging]
         public async Task<ActionResult<RPNewsDto>> Detail(string newsId)
         {
             try
@@ -58,27 +60,29 @@ namespace API.Controllers
             { 
                 ApiResponse<NewsModel> response = await _newsRespository.Create(User, news); 
 
-                _logger.LogInformation("NewsRespository.Create", JsonSerializer.Serialize(news), JsonSerializer.Serialize(response));
-
+                _logger.LogInformation("NewsRespository.Create", news, response);
                 return Ok(response);  
             }
             catch (System.Exception ex)
             {
-                _logger.LogError("NewsRespository.Create", JsonSerializer.Serialize(news), ex);
+                _logger.LogError("NewsRespository.Create", news, ex);
                 throw;
             }
         }
 
-        [HttpPost("Like")]
+        [HttpPost("Like")] 
         public async Task<IActionResult> Like(string newsId)
         {
             try
             {
                 ApiResponse<NewsModel> response = await _newsRespository.Like(User, newsId);
+
+                _logger.LogInformation("NewsRespository.Create", newsId, response); 
                 return Ok(response);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
+                _logger.LogError("NewsRespository.Like", newsId, ex);
                 throw;
             }
         }
