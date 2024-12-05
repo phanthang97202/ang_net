@@ -1,3 +1,5 @@
+import { IBaseResponse, IPageInfo } from './common';
+
 export interface ISearchProvinceRequest {
   pageIndex: number;
   pageSize: number;
@@ -12,18 +14,6 @@ export interface IProvince {
   UpdatedDTime: Date;
 }
 
-export interface IResponseProvinceSearch<T> {
-  Success: boolean;
-  ErrorMessage: string | null;
-  RequestDTimeAt: Date;
-  RequestClients: any | null;
-  Data: T;
-  DataList: T[];
-  objResult: {
-    PageIndex: number;
-    PageSize: number;
-    PageCount: number;
-    ItemCount: number;
-    DataList: T[];
-  };
+export interface IResponseProvinceSearch extends IBaseResponse<IProvince> {
+  objResult: IPageInfo<IProvince>;
 }

@@ -3,3 +3,8 @@
     <news-item [item]="item" />
     }
 </div>
+
+<div class="text-center my-[30px]">
+    <pagination [pageIndex]="currentPage + 1" [itemCount]='itemCount'
+        (onPageIndexChange)="handlePageIndexChange($event)" [size]="'small'" />
+</div>

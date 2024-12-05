@@ -1,4 +1,4 @@
-import { IPageInfo } from './common';
+import { IBaseResponse, IPageInfo } from './common';
 
 export interface INewsCategory {
   NewsCategoryId: string;
@@ -7,12 +7,6 @@ export interface INewsCategory {
   NewsCategoryIndex: number;
 }
 
-export interface INewsCategoryResponse {
-  Success: boolean;
-  ErrorMessage: string;
-  Data: any;
+export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
   DataList: INewsCategory[];
-  objResult: any;
-  RequestDTimeAt: Date;
-  RequestClients: any;
 }

@@ -1,15 +1,14 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { delay } from 'rxjs';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { ApiService } from '../../../services/api.service';
 import { IDetailNews, INews } from '../../../interfaces/news';
 import { ShowErrorService } from '../../../services/show-error.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { SubString } from '../../../pipes/subString.pipe';
 import { RouterModule } from '@angular/router';
 import { LoadingService } from '../../../services/loading-service.service';
 import { NewsItemComponennt } from '../../../components/news-item/news-item.component';
-import { IHashTagNews } from '../../../interfaces/hash-tag-news';
+import { PaginationComponent } from '../../../components/pagination/pagination.component';
+import { CONSTANTS_APP } from '../../../helpers/constants';
 
 @Component({
   selector: 'news-page',
@@ -18,8 +17,8 @@ import { IHashTagNews } from '../../../interfaces/hash-tag-news';
     NewsItemComponennt,
     NzListModule,
     NzIconModule,
-    SubString,
     RouterModule,
+    PaginationComponent,
   ],
   templateUrl: './news.component.html',
   styleUrl: './news.component.scss',
@@ -30,19 +29,31 @@ export class NewsComponent {
   loadingService = inject(LoadingService);
 
   lstNews: IDetailNews[] = [];
+  currentPage: number = 0;
+  pageSize: number = CONSTANTS_APP.PAGE_SIZE;
+  itemCount: number = 0;
 
   ngOnInit() {
-    this.loadData();
+    this.loadData({
+      pageIndex: this.currentPage,
+      pageSize: this.pageSize,
+    });
   }
 
-  loadData(): void {
+  loadData(searchCondition: any): void {
+    const { pageIndex, pageSize } = searchCondition;
     this.loadingService.setLoading(true);
     this.apiService
-      .SearchNews(0, 100, '', '', '')
+      .SearchNews(pageIndex, pageSize, '', '', '')
       .pipe()
       .subscribe({
         next: (res) => {
-          this.lstNews = res.objResult.DataList;
+          const { DataList, PageIndex, PageCount, ItemCount } = res.objResult;
+
+          this.lstNews = DataList;
+          this.currentPage = PageIndex;
+          this.itemCount = ItemCount;
+
           this.loadingService.setLoading(false);
         },
         error: (err) => {
@@ -55,5 +66,12 @@ export class NewsComponent {
           throw new Error(err);
         },
       });
+  }
+
+  handlePageIndexChange(pageIndex: number) {
+    this.loadData({
+      pageIndex: pageIndex,
+      pageSize: this.pageSize,
+    });
   }
 }

@@ -3,24 +3,12 @@
   "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\globalexceptionhandlermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\globalexceptionhandlermiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\writelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\writelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\loggingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\loggingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -29,6 +17,18 @@
     {
       "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\attributes\\skiploggingattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\attributes\\skiploggingattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\writelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\writelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,7 +54,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "CheckAuthorized.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\CheckAuthorized.cs",
               "RelativeDocumentMoniker": "API\\Middlewares\\CheckAuthorized.cs",
@@ -62,51 +62,48 @@
               "RelativeToolTip": "API\\Middlewares\\CheckAuthorized.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-20T16:24:32.856Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-20T16:24:32.856Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "GlobalExceptionHandlerMiddleware.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs",
               "RelativeDocumentMoniker": "API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs",
               "RelativeToolTip": "API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs",
-              "ViewState": "AQIAAB4AAAAAAAAAAAAYwBcAAAA0AAAA",
+              "ViewState": "AQIAABUAAAAAAAAAAAAYwCoAAAAzAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-20T16:24:03.012Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Program.cs",
               "RelativeDocumentMoniker": "API\\Program.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Program.cs",
               "RelativeToolTip": "API\\Program.cs",
-              "ViewState": "AQIAAB0AAAAAAAAAAAAAABkAAAAhAAAA",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAAABIAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-20T14:36:56.96Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-20T14:36:56.96Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "LoggingMiddleware.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\LoggingMiddleware.cs",
               "RelativeDocumentMoniker": "API\\Middlewares\\LoggingMiddleware.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\LoggingMiddleware.cs",
               "RelativeToolTip": "API\\Middlewares\\LoggingMiddleware.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAA6AAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-20T15:02:50.446Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-20T15:02:50.446Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
               "Title": "SkipLoggingAttribute.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Attributes\\SkipLoggingAttribute.cs",
               "RelativeDocumentMoniker": "API\\Attributes\\SkipLoggingAttribute.cs",
@@ -114,12 +111,11 @@
               "RelativeToolTip": "API\\Attributes\\SkipLoggingAttribute.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAxAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-20T14:58:12.061Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-20T14:58:12.061Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "WriteLog.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\WriteLog.cs",
               "RelativeDocumentMoniker": "API\\Middlewares\\WriteLog.cs",
@@ -127,21 +123,19 @@
               "RelativeToolTip": "API\\Middlewares\\WriteLog.cs",
               "ViewState": "AQIAAAYAAAAAAAAAAAAAACEAAAAyAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-19T14:27:30.604Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-19T14:27:30.604Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 2,
               "Title": "NewsController.cs",
               "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\NewsController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\NewsController.cs",
               "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\NewsController.cs",
               "RelativeToolTip": "API\\Controllers\\NewsController.cs",
-              "ViewState": "AQIAABgAAAAAAAAAAAAtwDAAAAANAAAA",
+              "ViewState": "AQIAAC4AAAAAAAAAAAAgwEAAAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T15:02:49.093Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-18T15:02:49.093Z"
             }
           ]
         }

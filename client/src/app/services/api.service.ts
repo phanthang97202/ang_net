@@ -29,9 +29,9 @@ export class ApiService {
   // MstProvince
   MstProvinceSearch(
     request: ISearchProvinceRequest
-  ): Observable<IResponseProvinceSearch<IProvince>> {
+  ): Observable<IResponseProvinceSearch> {
     // api/MstProvince/Search?pageIndex=0&pageSize=100&keyword
-    return this.http.get<IResponseProvinceSearch<IProvince>>(
+    return this.http.get<IResponseProvinceSearch>(
       `${this.apiUrl}MstProvince/Search?pageIndex=${request.pageIndex}&pageSize=${request.pageSize}&keyword=${request.keyword}`
     );
   }

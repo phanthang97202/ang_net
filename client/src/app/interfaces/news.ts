@@ -1,4 +1,4 @@
-import { IPageInfo } from './common';
+import { IBaseResponse, IPageInfo } from './common';
 export interface ICreateNews {
   Thumbnail: string;
   CategoryNewsId: string;
@@ -58,23 +58,11 @@ export interface IDetailNews {
   LstRefFileNews: IRefFileNews[];
 }
 
-export interface INewsResponse {
-  Success: boolean;
-  ErrorMessage: string;
-  Data: any;
-  DataList: any[];
+export interface INewsResponse extends IBaseResponse<IDetailNews> {
   objResult: IPageInfo<IDetailNews>;
-  RequestDTimeAt: Date;
-  RequestClients: any;
 }
 
 //
-export interface IDetailNewsResponse {
-  Success: boolean;
-  ErrorMessage: string;
+export interface IDetailNewsResponse extends IBaseResponse<IDetailNews> {
   Data: IDetailNews;
-  DataList: any;
-  objResult: any;
-  RequestDTimeAt: Date;
-  RequestClients: any;
 }

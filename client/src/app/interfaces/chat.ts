@@ -1,20 +1,14 @@
-import { IPageInfo } from './common';
+import { IBaseResponse, IPageInfo } from './common';
 
 export type TypeMessage = 'string' | 'txt' | 'png' | 'jpg' | 'mp4' | 'mp3';
 export interface IChat {
   MessageId: string;
   UserId: string;
   Message: string;
-  Type: TypeMessage; //
+  Type: TypeMessage;
   CreatedDTime: Date;
 }
 
-export interface IChatResponse {
-  Success: boolean;
-  ErrorMessage: string;
-  Data: any;
-  DataList: any[];
+export interface IChatResponse extends IBaseResponse<IChat> {
   objResult: IPageInfo<IChat>;
-  RequestDTimeAt: Date;
-  RequestClients: any;
 }

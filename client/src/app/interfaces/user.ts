@@ -1,12 +1,6 @@
-export interface IUserResponse {
-  Success: boolean;
-  ErrorMessage: any;
-  RequestDTimeAt: Date;
-  RequestClients: any;
-  Data: IUser;
-  DataList: IUser[];
-  objResult: any;
-}
+import { IBaseResponse } from './common';
+
+export interface IUserResponse extends IBaseResponse<IUser> {}
 
 export interface IUser {
   Id: string;

@@ -5,3 +5,13 @@ export interface IPageInfo<T> {
   ItemCount: number;
   DataList: T[];
 }
+
+export interface IBaseResponse<T> {
+  Success: boolean;
+  ErrorMessage: string;
+  Data: T;
+  DataList: T[];
+  objResult: IPageInfo<T>;
+  RequestDTimeAt: Date;
+  RequestClients: any;
+}

@@ -1,4 +1,4 @@
-import { IPageInfo } from './common';
+import { IBaseResponse, IPageInfo } from './common';
 
 export interface IHashTagNews {
   HashTagNewsId: string;
@@ -9,12 +9,6 @@ export interface IHashTagNews {
   UpdatedDTime: Date;
 }
 
-export interface IHashTagNewsResponse {
-  Success: boolean;
-  ErrorMessage: string;
-  Data: any;
+export interface IHashTagNewsResponse extends IBaseResponse<IHashTagNews> {
   DataList: IHashTagNews[];
-  objResult: any;
-  RequestDTimeAt: Date;
-  RequestClients: any;
 }
