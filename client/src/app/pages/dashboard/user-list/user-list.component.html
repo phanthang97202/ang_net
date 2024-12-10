@@ -14,19 +14,25 @@
         @for (data of lstUsers; track data) {
         <tr>
             <td>
-                <ng-template #normal__text>
-                    {{ data.Email }}
-                </ng-template>
-                <p *ngIf="data.Email === me; else normal__text">
-                    <b>{{ data.Email }} </b>
-                    <i>
-                        ( me )
-                    </i>
-                </p>
+                <div>
+                    <div class="flex items-center">
+                        <nz-avatar class="mr-[10px]" nzIcon="user" [nzSrc]="data.Avatar"></nz-avatar>
+                        <p *ngIf="data.Email === me; else normal__text">
+                            <b>{{ data.Email }} </b>
+                            <i>
+                                ( me )
+                            </i>
+                        </p>
+                    </div>
+                </div>
             </td>
             <td>{{ data.FullName }} </td>
             <td>{{ data.Roles.join(', ') }}</td>
         </tr>
+
+        <ng-template #normal__text>
+            {{ data.Email }}
+        </ng-template>
         }
     </tbody>
 </nz-table>

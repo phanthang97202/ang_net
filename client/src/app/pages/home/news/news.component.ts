@@ -4,7 +4,7 @@ import { ApiService } from '../../../services/api.service';
 import { IDetailNews, INews } from '../../../interfaces/news';
 import { ShowErrorService } from '../../../services/show-error.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LoadingService } from '../../../services/loading-service.service';
 import { NewsItemComponennt } from '../../../components/news-item/news-item.component';
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
@@ -27,6 +27,8 @@ export class NewsComponent {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
   loadingService = inject(LoadingService);
+  router = inject(Router);
+  activedRouter = inject(ActivatedRoute);
 
   lstNews: IDetailNews[] = [];
   currentPage: number = 0;
@@ -34,9 +36,12 @@ export class NewsComponent {
   itemCount: number = 0;
 
   ngOnInit() {
-    this.loadData({
-      pageIndex: this.currentPage,
-      pageSize: this.pageSize,
+    this.activedRouter.queryParams.subscribe((p) => {
+      const pageIndex = p['pageIndex'] || 0;
+      this.loadData({
+        pageIndex: pageIndex,
+        pageSize: this.pageSize,
+      });
     });
   }
 
@@ -48,7 +53,7 @@ export class NewsComponent {
       .pipe()
       .subscribe({
         next: (res) => {
-          const { DataList, PageIndex, PageCount, ItemCount } = res.objResult;
+          const { DataList, PageIndex, ItemCount } = res.objResult;
 
           this.lstNews = DataList;
           this.currentPage = PageIndex;
@@ -69,9 +74,9 @@ export class NewsComponent {
   }
 
   handlePageIndexChange(pageIndex: number) {
-    this.loadData({
+    const queryParams = {
       pageIndex: pageIndex,
-      pageSize: this.pageSize,
-    });
+    };
+    this.router.navigate(['news/'], { queryParams });
   }
 }

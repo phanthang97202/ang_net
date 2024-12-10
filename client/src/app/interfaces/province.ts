@@ -17,3 +17,7 @@ export interface IProvince {
 export interface IResponseProvinceSearch extends IBaseResponse<IProvince> {
   objResult: IPageInfo<IProvince>;
 }
+
+export interface IRequestProvinceCreate
+  extends Omit<IProvince, 'CreatedDTime' | 'UpdatedDTime'> {}
+export interface IResponseProvinceCreate extends IBaseResponse<IProvince> {}

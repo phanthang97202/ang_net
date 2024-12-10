@@ -1,24 +1,21 @@
-<nz-modal [nzVisible]="isOpenPopup" [nzTitle]="titlePopup" (nzOnOk)="handleSave()">
+<nz-modal [nzVisible]="isOpenPopup" [nzTitle]="titlePopup" (nzOnOk)="handleSave()" (nzOnCancel)="handleCancel()">
     <form *nzModalContent nz-form [formGroup]="validateForm">
         <nz-form-item>
-            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="ProvinceCode">ProvinceCode</nz-form-label>
-            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="ProvinceCodeIsRequired!">
-                <input [(ngModel)]="formDataSource.ProvinceCode" nz-input formControlName="ProvinceCode"
-                    id="ProvinceCode" />
-            </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="ProvinceName">ProvinceName</nz-form-label>
-            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="ProvinceNameIsRequired!">
-                <input [(ngModel)]="formDataSource.ProvinceName" nz-input formControlName="ProvinceName"
-                    id="ProvinceName" />
-            </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="FlagActive">FlagActive</nz-form-label>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>ProvinceCode</nz-form-label>
             <nz-form-control [nzSm]="14" [nzXs]="24">
-                <nz-switch [(ngModel)]="formDataSource.FlagActive" formControlName="FlagActive" id="FlagActive"
-                    ngModel="true" [nzCheckedChildren]="checkedTemplate"
+                <input nz-input formControlName="ProvinceCode" id="ProvinceCode" />
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>ProvinceName</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+                <input nz-input formControlName="ProvinceName" id="ProvinceName" />
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>FlagActive</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-switch formControlName="FlagActive" id="FlagActive" [nzCheckedChildren]="checkedTemplate"
                     [nzUnCheckedChildren]="unCheckedTemplate"></nz-switch>
                 <ng-template #checkedTemplate><span nz-icon nzType="check"></span></ng-template>
                 <ng-template #unCheckedTemplate><span nz-icon nzType="close"></span></ng-template>
@@ -26,3 +23,5 @@
         </nz-form-item>
     </form>
 </nz-modal>
+
+<!-- [nzErrorTip]="getError(validateForm.get('ProvinceCode'))" -->

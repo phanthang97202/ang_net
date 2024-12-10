@@ -221,9 +221,9 @@ namespace API.Respositories
 
             int itemCount = query.ToList().Count;
 
-            dataResult = query.Skip(_pageIndex * _pageSize)
+            dataResult = query.OrderByDescending(i => i.CreatedDTime)
+                             .Skip(_pageIndex * _pageSize)
                              .Take(_pageSize)
-                             .OrderByDescending(i => i.CreatedDTime)
                              .ToList();
 
             //

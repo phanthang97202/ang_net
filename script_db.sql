@@ -2,8 +2,8 @@ insert into MstProvinces values
 ('90HANAM2', 'Hà Nam', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 
 select count(*) from MstProvinces
-
-delete from MstProvinces where ProvinceCode  = 'HANOI'  or  ProvinceCode = 'DANANG'
+select * from MstProvinces where CreatedDTime > '2024-12-07'
+delete from MstProvinces where CreatedDTime > '2024-12-07'
 
 select * from AspNetUsers where UserId = "9d430ca5-5214-4be5-b68f-ff1214c189ca"
 select * from AspNetUserRoles
@@ -39,7 +39,7 @@ set ContentBody = '"<h3><strong style=\"background-color: rgb(255, 255, 255); co
 where NewsId = 'toga'
 
 select * from NewsCategory
-select * from News
+select * from News order by CreatedDTime desc
 select * from HashTagNews
 select * from RefFileNews
 select * from PointNews

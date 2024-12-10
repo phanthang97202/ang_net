@@ -3,6 +3,8 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import {
   IProvince,
+  IRequestProvinceCreate,
+  IResponseProvinceCreate,
   IResponseProvinceSearch,
   ISearchProvinceRequest,
 } from '../interfaces/province';
@@ -36,8 +38,36 @@ export class ApiService {
     );
   }
 
-  // News
+  MstProvinceCreate(
+    request: IRequestProvinceCreate
+  ): Observable<IResponseProvinceCreate> {
+    // api/MstProvince/Create
+    return this.http.post<IResponseProvinceCreate>(
+      `${this.apiUrl}MstProvince/Create`,
+      {
+        ...request,
+      }
+    );
+  }
 
+  MstProvinceUpdate(
+    request: IRequestProvinceCreate
+  ): Observable<IResponseProvinceCreate> {
+    return this.http.patch<IResponseProvinceCreate>(
+      `${this.apiUrl}MstProvince/Update`,
+      {
+        ...request,
+      }
+    );
+  }
+
+  MstProvinceDelete(key: string): Observable<IResponseProvinceCreate> {
+    return this.http.delete<IResponseProvinceCreate>(
+      `${this.apiUrl}MstProvince/Delete?ProvinceCode=${key}`
+    );
+  }
+
+  // News
   SearchNews(
     pageIndex: number,
     pageSize: number,

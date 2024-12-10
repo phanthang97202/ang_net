@@ -62,10 +62,6 @@ namespace API.Controllers
 
                 _logger.LogInformation("NewsRespository.Create", news, response);
 
-                string test = null;
-                var length = test.Length; // This will throw a NullReferenceException
-
-
                 return Ok(response);  
             }
             catch (System.Exception ex)

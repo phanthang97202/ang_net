@@ -6,6 +6,7 @@ export interface IUser {
   Id: string;
   FullName: string;
   Email: string;
+  Avatar: string;
   Roles: string[];
   PhoneNumber: string;
   TwoFacotrEnabled: boolean;

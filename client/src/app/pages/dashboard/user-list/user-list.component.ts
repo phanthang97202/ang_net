@@ -10,11 +10,12 @@ import {
   NzBreadCrumbModule,
 } from 'ng-zorro-antd/breadcrumb';
 import { CommonModule } from '@angular/common';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [NzTableModule, NzBreadCrumbModule, CommonModule],
+  imports: [NzTableModule, NzBreadCrumbModule, CommonModule, NzAvatarModule],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
@@ -23,18 +24,7 @@ export class UserListComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   loadingService = inject(LoadingService);
   me: string = '';
-  lstUsers: IUser[] = [
-    {
-      FullName: '',
-      Id: '',
-      Email: '',
-      PhoneNumber: '',
-      Roles: [''],
-      AccessFailedCount: 0,
-      TwoFacotrEnabled: false,
-      PhoneNumberConfirmed: true,
-    },
-  ];
+  lstUsers: IUser[] = [];
 
   ngOnInit() {
     this.loadingService.setLoading(true);

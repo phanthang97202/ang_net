@@ -1,18 +1,24 @@
-import { Component, Input } from '@angular/core';
 import {
-  FormControl,
-  FormGroup,
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+} from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { IProvince } from '../../../../interfaces/province';
+import { FormValidatorsCommon } from '../../../../helpers/validator/form/validator-form';
+import {
+  IRequestProvinceCreate,
+  IResponseProvinceCreate,
+} from '../../../../interfaces/province';
 
 @Component({
   selector: 'save-province-popup',
@@ -29,34 +35,43 @@ import { IProvince } from '../../../../interfaces/province';
   templateUrl: './save-province-popup.component.html',
   styleUrl: './save-province-popup.component.scss',
 })
-export class SaveProvincePopupComponent {
-  @Input() isOpenPopup: boolean = false;
+export class SaveProvincePopupComponent implements OnChanges {
+  constructor(private fb: NonNullableFormBuilder) {}
+  @Input() formDataSource!: IRequestProvinceCreate;
+  @Input() isOpenPopup!: boolean;
   @Input() titlePopup: string = '';
-  @Input() formDataSource: Partial<IProvince> = {
-    ProvinceCode: '',
-    ProvinceName: '',
-    FlagActive: true,
-  };
 
-  validateForm: FormGroup<{
-    ProvinceCode: FormControl<string>;
-    ProvinceName: FormControl<string>;
-    FlagActive: FormControl<boolean>;
-  }>;
+  @Output() isOpenPopupChange = new EventEmitter<boolean>();
+  @Output() onSave = new EventEmitter<IRequestProvinceCreate>();
 
-  constructor(private fb: NonNullableFormBuilder) {
-    // use `MyValidators`
-    const { required } = ProvinceValidators;
-    this.validateForm = this.fb.group({
-      ProvinceCode: ['', [required]],
-      ProvinceName: ['', [required]],
-      FlagActive: [false],
-    });
+  validateForm = this.fb.group({
+    ProvinceCode: this.fb.control('', [
+      FormValidatorsCommon.Required({
+        en: `ProvinceCodeIsRequired!`,
+      }),
+      FormValidatorsCommon.StringCode({
+        en: `ProvinceCodeIsNotValid!`,
+      }),
+    ]),
+    ProvinceName: this.fb.control('', [
+      FormValidatorsCommon.Required({
+        en: `ProvinceNameIsRequired!`,
+      }),
+    ]),
+    FlagActive: this.fb.control(true),
+  });
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['formDataSource'] && this.formDataSource) {
+      this.validateForm.patchValue(this.formDataSource);
+    }
   }
 
   handleSave() {
     if (this.validateForm.valid) {
-      console.log('submit', this.validateForm.value);
+      const formValue = this.validateForm.value as IRequestProvinceCreate;
+      this.onSave.emit(formValue);
+      this.handleCancel();
     } else {
       Object.values(this.validateForm.controls).forEach((control) => {
         if (control.invalid) {
@@ -66,6 +81,14 @@ export class SaveProvincePopupComponent {
       });
     }
   }
-}
 
-export class ProvinceValidators extends Validators {}
+  handleCancel() {
+    this.isOpenPopup = false;
+    this.isOpenPopupChange.emit(this.isOpenPopup);
+    this.validateForm.reset({
+      ProvinceCode: '',
+      ProvinceName: '',
+      FlagActive: true,
+    });
+  }
+}

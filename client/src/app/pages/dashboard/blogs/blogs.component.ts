@@ -221,7 +221,7 @@ export class BlogsComponent implements OnInit {
       this.apiService
         .CreateNews({
           Thumbnail: this.validateForm.value.Thumbnail ?? '',
-          CategoryNewsId: 'anime',
+          CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
           ShortTitle: this.validateForm.value.ShortTitle ?? '',
           ShortDescription: this.validateForm.value.ShortDescription ?? '',
           ContentBody: this.validateForm.value.ContentBody ?? '',
@@ -243,7 +243,7 @@ export class BlogsComponent implements OnInit {
         .subscribe({
           next: (res) => {
             if (res.Success) {
-              this.message.create('success', 'Login successfully');
+              this.message.create('success', 'Create successfully');
             }
           },
           error: (err) => {

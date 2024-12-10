@@ -2,10 +2,19 @@
     <nz-breadcrumb-item>Province</nz-breadcrumb-item>
     <nz-breadcrumb-item>All Provinces</nz-breadcrumb-item>
 </nz-breadcrumb>
-<button nz-button></button>
+<div class="right">
+    <button nz-button (click)="handleOpenCreate()" nzType="primary">
+        <p>
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Create
+        </p>
+    </button>
+</div>
+
 <nz-table nzShowSizeChanger [nzData]="dataSource" [nzFrontPagination]="false" [nzLoading]="false">
     <thead>
         <tr>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
             <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
             <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
             <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
@@ -13,18 +22,28 @@
         </tr>
     </thead>
     <tbody>
-        @for (data of dataSource; track data) {
-        <tr>
+        <tr *ngFor="let data of dataSource; let i = index">
             <td>
-                {{ ++1 }}
+                <button nz-button nzType="text" (click)="handleDetail(data)">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button nz-button nzType="text" (click)="handleDelete(data)">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+            </td>
+            <td>
+                {{ i + 1}}
             </td>
             <td>
                 {{ data.ProvinceCode }}
             </td>
             <td>{{ data.ProvinceName }} </td>
-            <td>{{ data.FlagActive }}</td>
+            <td>
+                <nz-tag [nzColor]="data.FlagActive ? 'green' : 'red'">{{ data.FlagActive ? "Active" : "Inactive"
+                    }}</nz-tag>
+            </td>
         </tr>
-        }
     </tbody>
 </nz-table>
-<save-province-popup [isOpenPopup]="true" [titlePopup]="titlePopup" [formDataSource]="formDataSource" />
+<save-province-popup [titlePopup]="titlePopup" [formDataSource]="formDataSource" [(isOpenPopup)]="_isOpenPopup"
+    [titlePopup]="titlePopup" (onSave)="handleSaveForm($event)" />
