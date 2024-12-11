@@ -17,7 +17,7 @@
 <nz-layout *ngIf="layoutType === 'admin'" class="layout">
     <nz-sider [nzCollapsed]="true" nzCollapsible nzWidth="200px">
         <div class="logo">
-            <a routerLink="/dashboard">
+            <a routerLink="/">
                 <img class="" src="https://i1.sndcdn.com/artworks-000465852042-1ymfcy-t500x500.jpg" alt="">
             </a>
         </div>
@@ -66,7 +66,7 @@
         </div>
     </nz-sider>
 
-    <nz-content class="h-full overflow-y-auto">
+    <nz-content class="admin__layout--content h-full overflow-y-auto">
         <router-outlet></router-outlet>
     </nz-content>
 
