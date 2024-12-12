@@ -18,6 +18,7 @@ using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using System.Reflection;
 
 namespace API.Respositories
 {
@@ -47,6 +48,12 @@ namespace API.Respositories
         { 
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(new
+            {
+                pageIndex = pageIndex,
+                pageSize = pageSize,
+                keyword = keyword
+            }, ref requestClient);
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -99,6 +106,7 @@ namespace API.Respositories
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(key, ref requestClient);
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -129,7 +137,18 @@ namespace API.Respositories
         public async Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data)
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
+            
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
+
+            PropertyInfo[] properties = data.GetType().GetProperties();
+            foreach(PropertyInfo p in properties)
+            {
+                string key = p.Name;
+                object value = p.GetValue(data);
+                RequestClient rc = new RequestClient(key, value);
+                requestClient.Add(rc);
+            } 
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -180,6 +199,7 @@ namespace API.Respositories
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -226,6 +246,7 @@ namespace API.Respositories
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(ProvinceCode, ref requestClient);
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -295,6 +316,7 @@ namespace API.Respositories
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(file, ref requestClient);
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");

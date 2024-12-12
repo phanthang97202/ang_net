@@ -2,12 +2,17 @@
 {
     public class RequestClient
     {
-        public string? Key { get; set; }
-        public string? Value { get; set; }
+        public string Key { get; set; }
+        public object Value { get; set; }
 
-        public RequestClient(string key, string value)
+        public RequestClient(string key, object value)
         {
             Key = key;
+            Value = value;
+        }
+
+        public RequestClient(object value)
+        {
             Value = value;
         }
     }
