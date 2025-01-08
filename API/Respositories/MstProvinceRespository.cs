@@ -32,9 +32,9 @@ namespace API.Respositories
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public bool CheckRecordExist(string key, ref MstProvinceModel? data)
+        public bool CheckRecordExist(string key, ref MstProvinceModel data)
         {  
-            MstProvinceModel? record =  _dbContext.MstProvinces.Find(key);
+            MstProvinceModel record =  _dbContext.MstProvinces.Find(key);
             if(record is not null)
             {
                 data = record;
@@ -118,18 +118,16 @@ namespace API.Respositories
             }
 
             //
-            MstProvinceModel dataResult = new MstProvinceModel();
-            dataResult = await _dbContext.MstProvinces.SingleOrDefaultAsync(p => p.ProvinceCode == key);
+            MstProvinceModel _data = new MstProvinceModel();
+            bool isExistRecord = CheckRecordExist(key, ref _data);
 
-            List<int> x = new List<int>() {  };
-            x.FirstOrDefault(p => p == 1);
-
-            if (dataResult == null) {
-                apiResponse.Data = default!;
+            if (isExistRecord == false)
+            {
+                apiResponse.CatchException(false, "MstProvince_Detail.ProvinceIsNotExists", requestClient);
                 return apiResponse;
-            }
-
-            apiResponse.Data = dataResult;
+            }  
+             
+            apiResponse.Data = _data;
 
             return apiResponse;
         }

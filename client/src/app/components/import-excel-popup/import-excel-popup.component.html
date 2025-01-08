@@ -1,0 +1,15 @@
+<nz-modal class="importexcel__container" [nzVisible]="isOpenPopup" nzTitle="Import excel" (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()" nzOkText="Upload">
+    <div *nzModalContent>
+        <div class="text-center">
+
+            <nz-upload nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76" nzListType="picture"
+                [(nzFileList)]="fileList">
+                <button nz-button>
+                    <span nz-icon nzType="upload" nzTheme="outline"></span>
+                    Upload
+                </button>
+            </nz-upload>
+        </div>
+    </div>
+</nz-modal>

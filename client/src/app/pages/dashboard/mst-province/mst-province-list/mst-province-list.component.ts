@@ -15,6 +15,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { TTitlePopup } from '../type';
+import { ImportExcelPopup } from '../../../../components/import-excel-popup/import-excel-popup.component';
 
 @Component({
   selector: 'app-mst-province',
@@ -27,6 +28,7 @@ import { TTitlePopup } from '../type';
     SaveProvincePopupComponent,
     NzButtonModule,
     NzTagModule,
+    ImportExcelPopup,
   ],
   templateUrl: './mst-province-list.component.html',
   styleUrls: ['./mst-province-list.component.scss'],
@@ -41,6 +43,7 @@ export class MstProvinceComponent {
   titlePopup: TTitlePopup = '';
   formDataSource: IRequestProvinceCreate = this.getDefaultFormData();
   _isOpenPopup = false;
+  _isOpenImportExcelPopup = false;
 
   ngOnInit(): void {
     this.fetchData();
@@ -89,6 +92,10 @@ export class MstProvinceComponent {
       error: (err) => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
+  }
+
+  handleOpenImportExcel(): void {
+    this._isOpenImportExcelPopup = true;
   }
 
   handleOpenCreate(): void {

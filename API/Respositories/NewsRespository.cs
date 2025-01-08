@@ -304,6 +304,7 @@ namespace API.Respositories
             #region // Preparing 
             ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
 
             //
             string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -615,16 +616,18 @@ namespace API.Respositories
 
             if (!isExistRecordPointNews)
             {
-                await _dbContext.PointNews.AddAsync(new PointNewsModel
-                {
-                    NewsId = objNews.NewsId,
-                    UserId = currentUserId,
-                    Point = pointVal,
-                    FlagActive = true,
-                    CreatedDTime = DateTime.Now,
-                    UpdatedDTime = DateTime.Now
-                });
-                await _dbContext.SaveChangesAsync();
+                FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {DateTime.Now}, {DateTime.Now})";
+                _dbContext.Database.ExecuteSql(sql);
+                //await _dbContext.PointNews.AddAsync(new PointNewsModel
+                //{
+                //    NewsId = objNews.NewsId,
+                //    UserId = currentUserId,
+                //    Point = pointVal,
+                //    FlagActive = true,
+                //    CreatedDTime = DateTime.Now,
+                //    UpdatedDTime = DateTime.Now
+                //});
+                //await _dbContext.SaveChangesAsync();
             }
             #endregion
 
