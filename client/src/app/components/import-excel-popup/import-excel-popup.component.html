@@ -1,15 +1,26 @@
-<nz-modal class="importexcel__container" [nzVisible]="isOpenPopup" nzTitle="Import excel" (nzOnCancel)="handleCancel()"
-    (nzOnOk)="handleOk()" nzOkText="Upload">
+<nz-modal class="importexcel__container" [nzVisible]="isOpenPopup" nzTitle="Import excel" (nzOnCancel)="handleCancel()">
     <div *nzModalContent>
         <div class="text-center">
 
-            <nz-upload nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76" nzListType="picture"
-                [(nzFileList)]="fileList">
-                <button nz-button>
-                    <span nz-icon nzType="upload" nzTheme="outline"></span>
-                    Upload
+            <nz-upload nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76" nzListType="picture" nzAccept=".xlsx"
+                nzMultiple="false" [(nzFileList)]="fileList">
+                <button nz-button *ngIf="fileList.length == 0">
+                    <p>
+                        <span nz-icon nzType="upload" nzTheme="outline"></span>
+                        Upload
+                    </p>
                 </button>
             </nz-upload>
         </div>
+    </div>
+
+    <div class="importexcel__footer" *nzModalFooter>
+        <button nz-button nzType="link">
+            <p class="underline">
+                <span nz-icon nzType="download" nzTheme="outline"></span>
+                Download template
+            </p>
+        </button>
+        <button nz-button nzType="primary">Save</button>
     </div>
 </nz-modal>

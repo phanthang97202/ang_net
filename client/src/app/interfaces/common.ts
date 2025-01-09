@@ -15,3 +15,14 @@ export interface IBaseResponse<T> {
   RequestDTimeAt: Date;
   RequestClients: any;
 }
+
+export interface IButtonBreadcrumb {
+  text: string;
+  nzType: 'primary' | 'default' | 'dashed' | 'text' | 'link';
+  nzShape: 'circle' | 'round' | 'default';
+  nzSize: 'large' | 'small' | 'default';
+  disabled: boolean;
+  iconType: string;
+  iconTheme: 'fill' | 'outline' | 'twotone';
+  onClick: () => void;
+}

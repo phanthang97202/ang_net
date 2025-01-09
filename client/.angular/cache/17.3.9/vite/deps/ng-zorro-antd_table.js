@@ -1,99 +1,101 @@
 import {
   NzPaginationComponent,
   NzPaginationModule
-} from "./chunk-24VONNFW.js";
-import "./chunk-N2ZTZ2OB.js";
+} from "./chunk-W6VHQI7T.js";
+import "./chunk-U6F74XNK.js";
 import {
   NzSpinComponent
-} from "./chunk-UBVMWGI6.js";
+} from "./chunk-2PEQQVLZ.js";
 import {
   NzEmbedEmptyComponent,
   NzEmptyModule
-} from "./chunk-7O7OOJRP.js";
+} from "./chunk-2ANRBG5E.js";
+import {
+  NzI18nService
+} from "./chunk-H5CIFMSQ.js";
 import {
   NzDropDownDirective,
   NzDropDownModule,
   NzDropdownMenuComponent
-} from "./chunk-3ES7GLWU.js";
+} from "./chunk-H6AQZCII.js";
 import {
   NzMenuDirective,
   NzMenuItemComponent
-} from "./chunk-4VPCNIC7.js";
-import {
-  NzButtonComponent,
-  NzButtonModule
-} from "./chunk-SPXVG2UO.js";
-import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
-import {
-  NzWaveDirective
-} from "./chunk-JHNU6GPU.js";
-import {
-  NzCheckboxComponent,
-  NzCheckboxModule
-} from "./chunk-WR3S2QCO.js";
-import {
-  FocusMonitor
-} from "./chunk-IYRZU67W.js";
-import {
-  NzI18nService
-} from "./chunk-CUTVUEUV.js";
+} from "./chunk-4EHSVRV5.js";
+import "./chunk-NSLMNCBQ.js";
 import "./chunk-CSDA6CPU.js";
-import "./chunk-NRJLU5W4.js";
+import "./chunk-U5LPET4F.js";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
   CdkVirtualScrollViewport,
   ScrollingModule
-} from "./chunk-33BWQAMV.js";
+} from "./chunk-T7TID2TT.js";
 import "./chunk-7AXRTXGX.js";
-import "./chunk-5LPTEFFD.js";
-import "./chunk-5R3VAUVA.js";
+import "./chunk-NVNECB4U.js";
+import {
+  NzButtonComponent,
+  NzButtonModule
+} from "./chunk-SYGW74E2.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
+import {
+  NzCheckboxComponent,
+  NzCheckboxModule
+} from "./chunk-6WWX5CUO.js";
+import {
+  FocusMonitor
+} from "./chunk-RF6ON4JH.js";
 import {
   NzFormStatusService
-} from "./chunk-MC7ZA7PK.js";
+} from "./chunk-LSBCUU7X.js";
 import "./chunk-T4JA2NQD.js";
+import {
+  NzWaveDirective
+} from "./chunk-JHNU6GPU.js";
+import "./chunk-5LPTEFFD.js";
+import "./chunk-5R3VAUVA.js";
+import "./chunk-UZUTYCO5.js";
 import {
   NzDestroyService,
   NzResizeService
-} from "./chunk-VSWCVZUN.js";
-import "./chunk-JDK27TGJ.js";
+} from "./chunk-QTPV4WNA.js";
+import "./chunk-UEKQJVVI.js";
 import {
   FormsModule,
   NG_VALUE_ACCESSOR,
   NgControlStatus,
   NgModel
 } from "./chunk-UAO2GPHP.js";
-import "./chunk-NSLMNCBQ.js";
-import "./chunk-NVNECB4U.js";
-import "./chunk-UZUTYCO5.js";
+import {
+  NzResizeObserver
+} from "./chunk-JOWQ6TMU.js";
+import {
+  NzIconDirective,
+  NzIconModule
+} from "./chunk-KECMNNAG.js";
+import "./chunk-TNHTN227.js";
 import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-UE57DXRH.js";
 import {
-  NzIconDirective,
-  NzIconModule
-} from "./chunk-M2EGF4TX.js";
+  Directionality
+} from "./chunk-3OAW3AH7.js";
 import {
   Platform
 } from "./chunk-DHSN6ZQW.js";
 import {
-  Directionality
-} from "./chunk-3OAW3AH7.js";
-import {
   NzConfigService,
   WithConfig
-} from "./chunk-5DPZH6PM.js";
+} from "./chunk-PDXXGUNF.js";
 import {
   InputBoolean,
   arraysEqual,
-  coerceElement,
   isNil,
   measureScrollbar
-} from "./chunk-3BDDHGQ3.js";
-import "./chunk-TNHTN227.js";
+} from "./chunk-SQLRFIFY.js";
 import "./chunk-7ADHWMJE.js";
 import {
   AsyncPipe,
@@ -148,7 +150,6 @@ import {
   ɵɵelementStart,
   ɵɵgetCurrentView,
   ɵɵhostProperty,
-  ɵɵinject,
   ɵɵlistener,
   ɵɵloadQuery,
   ɵɵnextContext,
@@ -173,7 +174,6 @@ import {
 import {
   BehaviorSubject,
   EMPTY,
-  Observable,
   ReplaySubject,
   Subject,
   __decorate,
@@ -688,211 +688,6 @@ var NzRadioModule = _NzRadioModule;
     args: [{
       imports: [NzRadioComponent, NzRadioGroupComponent],
       exports: [NzRadioComponent, NzRadioGroupComponent]
-    }]
-  }], null, null);
-})();
-
-// node_modules/ng-zorro-antd/fesm2022/ng-zorro-antd-cdk-resize-observer.mjs
-var _NzResizeObserverFactory = class _NzResizeObserverFactory {
-  create(callback) {
-    return typeof ResizeObserver === "undefined" ? null : new ResizeObserver(callback);
-  }
-};
-_NzResizeObserverFactory.ɵfac = function NzResizeObserverFactory_Factory(t) {
-  return new (t || _NzResizeObserverFactory)();
-};
-_NzResizeObserverFactory.ɵprov = ɵɵdefineInjectable({
-  token: _NzResizeObserverFactory,
-  factory: _NzResizeObserverFactory.ɵfac,
-  providedIn: "root"
-});
-var NzResizeObserverFactory = _NzResizeObserverFactory;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NzResizeObserverFactory, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], null, null);
-})();
-var _NzResizeObserver = class _NzResizeObserver {
-  constructor(nzResizeObserverFactory) {
-    this.nzResizeObserverFactory = nzResizeObserverFactory;
-    this.observedElements = /* @__PURE__ */ new Map();
-  }
-  ngOnDestroy() {
-    this.observedElements.forEach((_, element) => this.cleanupObserver(element));
-  }
-  observe(elementOrRef) {
-    const element = coerceElement(elementOrRef);
-    return new Observable((observer) => {
-      const stream = this.observeElement(element);
-      const subscription = stream.subscribe(observer);
-      return () => {
-        subscription.unsubscribe();
-        this.unobserveElement(element);
-      };
-    });
-  }
-  /**
-   * Observes the given element by using the existing ResizeObserver if available, or creating a
-   * new one if not.
-   */
-  observeElement(element) {
-    if (!this.observedElements.has(element)) {
-      const stream = new Subject();
-      const observer = this.nzResizeObserverFactory.create((mutations) => stream.next(mutations));
-      if (observer) {
-        observer.observe(element);
-      }
-      this.observedElements.set(element, {
-        observer,
-        stream,
-        count: 1
-      });
-    } else {
-      this.observedElements.get(element).count++;
-    }
-    return this.observedElements.get(element).stream;
-  }
-  /**
-   * Un-observes the given element and cleans up the underlying ResizeObserver if nobody else is
-   * observing this element.
-   */
-  unobserveElement(element) {
-    if (this.observedElements.has(element)) {
-      this.observedElements.get(element).count--;
-      if (!this.observedElements.get(element).count) {
-        this.cleanupObserver(element);
-      }
-    }
-  }
-  /** Clean up the underlying ResizeObserver for the specified element. */
-  cleanupObserver(element) {
-    if (this.observedElements.has(element)) {
-      const {
-        observer,
-        stream
-      } = this.observedElements.get(element);
-      if (observer) {
-        observer.disconnect();
-      }
-      stream.complete();
-      this.observedElements.delete(element);
-    }
-  }
-};
-_NzResizeObserver.ɵfac = function NzResizeObserver_Factory(t) {
-  return new (t || _NzResizeObserver)(ɵɵinject(NzResizeObserverFactory));
-};
-_NzResizeObserver.ɵprov = ɵɵdefineInjectable({
-  token: _NzResizeObserver,
-  factory: _NzResizeObserver.ɵfac,
-  providedIn: "root"
-});
-var NzResizeObserver = _NzResizeObserver;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NzResizeObserver, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [{
-    type: NzResizeObserverFactory
-  }], null);
-})();
-var _NzResizeObserverDirective = class _NzResizeObserverDirective {
-  subscribe() {
-    this.unsubscribe();
-    this.currentSubscription = this.nzResizeObserver.observe(this.elementRef).subscribe(this.nzResizeObserve);
-  }
-  unsubscribe() {
-    this.currentSubscription?.unsubscribe();
-  }
-  constructor(nzResizeObserver, elementRef) {
-    this.nzResizeObserver = nzResizeObserver;
-    this.elementRef = elementRef;
-    this.nzResizeObserve = new EventEmitter();
-    this.nzResizeObserverDisabled = false;
-    this.currentSubscription = null;
-  }
-  ngAfterContentInit() {
-    if (!this.currentSubscription && !this.nzResizeObserverDisabled) {
-      this.subscribe();
-    }
-  }
-  ngOnDestroy() {
-    this.unsubscribe();
-  }
-  ngOnChanges(changes) {
-    const {
-      nzResizeObserve
-    } = changes;
-    if (nzResizeObserve) {
-      if (this.nzResizeObserverDisabled) {
-        this.unsubscribe();
-      } else {
-        this.subscribe();
-      }
-    }
-  }
-};
-_NzResizeObserverDirective.ɵfac = function NzResizeObserverDirective_Factory(t) {
-  return new (t || _NzResizeObserverDirective)(ɵɵdirectiveInject(NzResizeObserver), ɵɵdirectiveInject(ElementRef));
-};
-_NzResizeObserverDirective.ɵdir = ɵɵdefineDirective({
-  type: _NzResizeObserverDirective,
-  selectors: [["", "nzResizeObserver", ""]],
-  inputs: {
-    nzResizeObserverDisabled: "nzResizeObserverDisabled"
-  },
-  outputs: {
-    nzResizeObserve: "nzResizeObserve"
-  },
-  standalone: true,
-  features: [ɵɵProvidersFeature([NzResizeObserverFactory]), ɵɵNgOnChangesFeature]
-});
-var NzResizeObserverDirective = _NzResizeObserverDirective;
-__decorate([InputBoolean()], NzResizeObserverDirective.prototype, "nzResizeObserverDisabled", void 0);
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NzResizeObserverDirective, [{
-    type: Directive,
-    args: [{
-      selector: "[nzResizeObserver]",
-      standalone: true,
-      providers: [NzResizeObserverFactory]
-    }]
-  }], () => [{
-    type: NzResizeObserver
-  }, {
-    type: ElementRef
-  }], {
-    nzResizeObserve: [{
-      type: Output
-    }],
-    nzResizeObserverDisabled: [{
-      type: Input
-    }]
-  });
-})();
-var _NzResizeObserverModule = class _NzResizeObserverModule {
-};
-_NzResizeObserverModule.ɵfac = function NzResizeObserverModule_Factory(t) {
-  return new (t || _NzResizeObserverModule)();
-};
-_NzResizeObserverModule.ɵmod = ɵɵdefineNgModule({
-  type: _NzResizeObserverModule,
-  imports: [NzResizeObserverDirective],
-  exports: [NzResizeObserverDirective]
-});
-_NzResizeObserverModule.ɵinj = ɵɵdefineInjector({});
-var NzResizeObserverModule = _NzResizeObserverModule;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NzResizeObserverModule, [{
-    type: NgModule,
-    args: [{
-      imports: [NzResizeObserverDirective],
-      exports: [NzResizeObserverDirective]
     }]
   }], null, null);
 })();

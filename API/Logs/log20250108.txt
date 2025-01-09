@@ -1,0 +1,46 @@
+2025-01-08 21:45:06.835 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-01-08 21:45:06.952 +07:00 [INF] Now listening on: http://localhost:5000
+2025-01-08 21:45:06.953 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-08 21:45:06.953 +07:00 [INF] Hosting environment: Development
+2025-01-08 21:45:06.953 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-01-08 21:50:38.833 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-01-08 21:50:38.945 +07:00 [INF] CORS policy execution successful.
+2025-01-08 21:50:38.979 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 148.819ms
+2025-01-08 21:50:38.985 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-01-08 21:50:38.996 +07:00 [INF] CORS policy execution successful.
+2025-01-08 21:50:40.335 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-08 21:50:40.373 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-01-08 21:50:42.366 +07:00 [INF] Executed DbCommand (53ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-01-08 21:50:42.584 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-01-08 21:50:42.647 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-08 21:50:42.664 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2288.2834ms
+2025-01-08 21:50:42.665 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-08 21:50:42.669 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 3684.2254ms
+2025-01-08 21:50:48.106 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-08 21:50:48.110 +07:00 [INF] CORS policy execution successful.
+2025-01-08 21:50:48.110 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 4.3273ms
+2025-01-08 21:50:48.115 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-08 21:50:48.121 +07:00 [INF] CORS policy execution successful.
+2025-01-08 21:50:48.198 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-08 21:50:48.204 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-08 21:50:48.344 +07:00 [INF] Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-08 21:50:48.365 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-08 21:50:48.366 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-08 21:50:48.369 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-08 21:50:48.371 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-08 21:50:48.382 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 177.628ms
+2025-01-08 21:50:48.382 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-08 21:50:48.383 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 267.3043ms

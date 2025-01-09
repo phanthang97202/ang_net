@@ -1,23 +1,4 @@
-<nz-breadcrumb>
-    <nz-breadcrumb-item>Province</nz-breadcrumb-item>
-    <nz-breadcrumb-item>All Provinces</nz-breadcrumb-item>
-</nz-breadcrumb>
-<div class="right">
-    <div class="flex gap-2">
-        <button nz-button (click)="handleOpenCreate()" nzType="primary">
-            <p>
-                <span nz-icon nzType="plus" nzTheme="outline"></span>
-                Create
-            </p>
-        </button>
-        <button nz-button (click)="handleOpenImportExcel()" nzType="primary">
-            <p>
-                <span nz-icon nzType="upload" nzTheme="outline"></span>
-                ImportExcel
-            </p>
-        </button>
-    </div>
-</div>
+<breadcrumb [buttons]="listButtonsHeader" />
 
 <nz-table nzShowSizeChanger [nzData]="dataSource" [nzFrontPagination]="false" [nzLoading]="false">
     <thead>

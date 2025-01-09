@@ -1,0 +1,17 @@
+<nz-page-header class="breadcrumb__container" nzBackIcon [nzGhost]="false">
+    <nz-page-header-title>Province</nz-page-header-title>
+    <nz-page-header-subtitle></nz-page-header-subtitle>
+    <nz-page-header-extra>
+        <div class="right">
+            <div class="flex gap-2">
+                <button *ngFor="let b of buttons" nz-button [nzType]="b.nzType" [disabled]="b.disabled ?? false"
+                    [nzSize]="b.nzSize ?? 'default'" (click)="b.onClick()">
+                    <p>
+                        <span nz-icon [nzType]="b.iconType" [nzTheme]="b.iconTheme ?? 'outline'"></span>
+                        {{ b.text }}
+                    </p>
+                </button>
+            </div>
+        </div>
+    </nz-page-header-extra>
+</nz-page-header>

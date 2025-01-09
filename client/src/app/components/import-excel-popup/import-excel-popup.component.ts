@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -14,7 +15,13 @@ import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 @Component({
   standalone: true,
   selector: 'import-excel-popup',
-  imports: [NzModalModule, NzUploadModule, NzButtonModule, NzIconModule],
+  imports: [
+    NzModalModule,
+    NzUploadModule,
+    NzButtonModule,
+    NzIconModule,
+    CommonModule,
+  ],
   templateUrl: './import-excel-popup.component.html',
   styleUrl: './import-excel-popup.component.scss',
 })
