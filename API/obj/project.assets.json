@@ -8989,11 +8989,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
+      "projectUniqueName": "D:\\MyHomework\\ang_net\\api\\API.csproj",
       "projectName": "API",
-      "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
+      "projectPath": "D:\\MyHomework\\ang_net\\api\\API.csproj",
       "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
-      "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\obj\\",
+      "outputPath": "D:\\MyHomework\\ang_net\\api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\phant\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -9098,7 +9098,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

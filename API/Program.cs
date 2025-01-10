@@ -8,7 +8,6 @@ using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -32,7 +31,7 @@ builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
 // log service 
-builder.Services.AddSingleton(typeof(WriteLog ));
+builder.Services.AddSingleton(typeof(WriteLog));
 
 
 // config jwt 

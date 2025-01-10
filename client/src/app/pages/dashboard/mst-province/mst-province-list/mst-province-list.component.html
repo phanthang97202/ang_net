@@ -1,40 +1,48 @@
 <breadcrumb [buttons]="listButtonsHeader" />
 
-<nz-table nzShowSizeChanger [nzData]="dataSource" [nzFrontPagination]="false" [nzLoading]="false">
-    <thead>
-        <tr>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
-            <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let data of dataSource; let i = index">
-            <td>
-                <button nz-button nzType="text" (click)="handleDetail(data)">
-                    <span nz-icon nzType="edit" nzTheme="outline"></span>
-                </button>
-                <button nz-button nzType="text" (click)="handleDelete(data)">
-                    <span nz-icon nzType="delete" nzTheme="outline"></span>
-                </button>
-            </td>
-            <td>
-                {{ i + 1}}
-            </td>
-            <td>
-                {{ data.ProvinceCode }}
-            </td>
-            <td>{{ data.ProvinceName }} </td>
-            <td>
-                <nz-tag [nzColor]="data.FlagActive ? 'green' : 'red'">{{ data.FlagActive ? "Active" : "Inactive"
-                    }}</nz-tag>
-            </td>
-        </tr>
-    </tbody>
-
+<nz-table
+  nzShowSizeChanger
+  [nzData]="dataSource"
+  [nzFrontPagination]="false"
+  [nzLoading]="false">
+  <thead>
+    <tr>
+      <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
+      <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
+      <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
+      <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
+      <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of dataSource; let i = index">
+      <td>
+        <button nz-button nzType="text" (click)="handleDetail(data)">
+          <span nz-icon nzType="edit" nzTheme="outline"></span>
+        </button>
+        <button nz-button nzType="text" (click)="handleDelete(data)">
+          <span nz-icon nzType="delete" nzTheme="outline"></span>
+        </button>
+      </td>
+      <td>
+        {{ i + 1 }}
+      </td>
+      <td>
+        {{ data.ProvinceCode }}
+      </td>
+      <td>{{ data.ProvinceName }}</td>
+      <td>
+        <nz-tag [nzColor]="data.FlagActive ? 'green' : 'red'">{{
+          data.FlagActive ? 'Active' : 'Inactive'
+        }}</nz-tag>
+      </td>
+    </tr>
+  </tbody>
 </nz-table>
-<save-province-popup [titlePopup]="titlePopup" [formDataSource]="formDataSource" [(isOpenPopup)]="_isOpenPopup"
-    [titlePopup]="titlePopup" (onSave)="handleSaveForm($event)" />
+<save-province-popup
+  [titlePopup]="titlePopup"
+  [formDataSource]="formDataSource"
+  [(isOpenPopup)]="_isOpenPopup"
+  [titlePopup]="titlePopup"
+  (onSave)="handleSaveForm($event)" />
 <import-excel-popup [(isOpenPopup)]="_isOpenImportExcelPopup" />

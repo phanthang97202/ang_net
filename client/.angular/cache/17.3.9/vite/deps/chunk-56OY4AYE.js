@@ -1,7 +1,7 @@
 import {
   NzIconDirective,
   NzIconModule
-} from "./chunk-KECMNNAG.js";
+} from "./chunk-PKTFLGWL.js";
 import {
   PlatformModule
 } from "./chunk-DHSN6ZQW.js";
@@ -374,4 +374,4 @@ export {
   NzAvatarGroupComponent,
   NzAvatarModule
 };
-//# sourceMappingURL=chunk-P7AJPK7T.js.map
+//# sourceMappingURL=chunk-56OY4AYE.js.map

@@ -83,10 +83,10 @@ export class MstProvinceComponent {
     this.api
       .MstProvinceSearch({ pageIndex: 0, pageSize: 100, keyword: '' })
       .subscribe({
-        next: (response) => {
+        next: response => {
           this.dataSource = response.objResult?.DataList || [];
         },
-        error: (err) => this.handleApiError(err),
+        error: err => this.handleApiError(err),
         complete: () => this.setLoading(false),
       });
   }
@@ -94,9 +94,8 @@ export class MstProvinceComponent {
   private createData(formValue: IRequestProvinceCreate): void {
     this.setLoading(true);
     this.api.MstProvinceCreate(formValue).subscribe({
-      next: (response) =>
-        this.handleApiResponse(response, 'Create successfully'),
-      error: (err) => this.handleApiError(err),
+      next: response => this.handleApiResponse(response, 'Create successfully'),
+      error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
   }
@@ -104,9 +103,8 @@ export class MstProvinceComponent {
   private updateData(formValue: IRequestProvinceCreate): void {
     this.setLoading(true);
     this.api.MstProvinceUpdate(formValue).subscribe({
-      next: (response) =>
-        this.handleApiResponse(response, 'Update successfully'),
-      error: (err) => this.handleApiError(err),
+      next: response => this.handleApiResponse(response, 'Update successfully'),
+      error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
   }
@@ -118,7 +116,7 @@ export class MstProvinceComponent {
         this.message.success('Delete successfully');
         this.fetchData();
       },
-      error: (err) => this.handleApiError(err),
+      error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
   }

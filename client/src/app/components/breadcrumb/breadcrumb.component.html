@@ -1,17 +1,37 @@
 <nz-page-header class="breadcrumb__container" nzBackIcon [nzGhost]="false">
-    <nz-page-header-title>Province</nz-page-header-title>
-    <nz-page-header-subtitle></nz-page-header-subtitle>
-    <nz-page-header-extra>
-        <div class="right">
-            <div class="flex gap-2">
-                <button *ngFor="let b of buttons" nz-button [nzType]="b.nzType" [disabled]="b.disabled ?? false"
-                    [nzSize]="b.nzSize ?? 'default'" (click)="b.onClick()">
-                    <p>
-                        <span nz-icon [nzType]="b.iconType" [nzTheme]="b.iconTheme ?? 'outline'"></span>
-                        {{ b.text }}
-                    </p>
-                </button>
-            </div>
-        </div>
-    </nz-page-header-extra>
+  <nz-page-header-title>Province</nz-page-header-title>
+  <nz-page-header-subtitle></nz-page-header-subtitle>
+  <nz-page-header-extra>
+    <div class="right">
+      <div class="flex gap-2">
+        <button
+          *ngFor="let b of buttons"
+          nz-button
+          [nzType]="b.nzType"
+          [disabled]="b.disabled ?? false"
+          [nzSize]="b.nzSize ?? 'default'"
+          (click)="b.onClick()"
+          [attr]="...b">
+          <p>
+            <span
+              nz-icon
+              [nzType]="b.iconType"
+              [nzTheme]="b.iconTheme ?? 'outline'"></span>
+            {{ b.text }}
+          </p>
+        </button>
+      </div>
+    </div>
+  </nz-page-header-extra>
 </nz-page-header>
+
+<!-- 
+[disabled]	prevents a user from interacting with the button	boolean	false	
+[nzGhost]	make background transparent and invert text and border colors	boolean	false	
+[nzLoading]	set the loading status of button	boolean	false	
+[nzShape]	can be set to circleround or omitted	'circle'|'round'	-	
+[nzSize]	can be set to smalllarge or omitted	'large'|'small'|'default'	'default'	✅
+[nzType]	can be set to primarydashedtextlink or omitted (meaning default)	'primary'|'dashed'|'link'|'text'	-	
+[nzBlock]	option to fit button width to its parent width	boolean	false	
+[nzDanger] 
+-->
