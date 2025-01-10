@@ -1,0 +1,20 @@
+<button
+  nz-button
+  [ngClass]="class"
+  [nzType]="nzType"
+  [disabled]="disabled"
+  [nzSize]="nzSize"
+  (click)="handleClick?.($event)"
+  [nzBlock]="nzBlock"
+  [nzDanger]="nzDanger"
+  [nzShape]="nzShape"
+  [nzLoading]="nzLoading"
+  [nzGhost]="nzGhost">
+  <p>
+    <app-icon-common
+      *ngIf="iconType"
+      [iconType]="iconType"
+      [iconTheme]="iconTheme"></app-icon-common>
+    {{ text }}
+  </p>
+</button>

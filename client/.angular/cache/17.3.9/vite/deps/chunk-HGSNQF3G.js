@@ -2,7 +2,7 @@ import {
   NzOptionComponent,
   NzSelectComponent,
   NzSelectModule
-} from "./chunk-BCCVOVK2.js";
+} from "./chunk-HTEPOLLJ.js";
 import {
   NzI18nService
 } from "./chunk-H5CIFMSQ.js";
@@ -16,6 +16,9 @@ import {
   NzIconModule
 } from "./chunk-PKTFLGWL.js";
 import {
+  Directionality
+} from "./chunk-3OAW3AH7.js";
+import {
   NzConfigService,
   WithConfig
 } from "./chunk-PDXXGUNF.js";
@@ -24,9 +27,6 @@ import {
   InputNumber,
   toNumber
 } from "./chunk-SQLRFIFY.js";
-import {
-  Directionality
-} from "./chunk-3OAW3AH7.js";
 import {
   FormsModule,
   NgControlStatus,
@@ -1620,4 +1620,4 @@ export {
   NzPaginationComponent,
   NzPaginationModule
 };
-//# sourceMappingURL=chunk-XWURKWJE.js.map
+//# sourceMappingURL=chunk-HGSNQF3G.js.map

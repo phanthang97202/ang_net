@@ -1,5 +1,4 @@
-<breadcrumb [buttons]="listButtonsHeader" />
-
+<app-breadcrumb [buttons]="listButtonsHeader" />
 <nz-table
   nzShowSizeChanger
   [nzData]="dataSource"
@@ -17,12 +16,17 @@
   <tbody>
     <tr *ngFor="let data of dataSource; let i = index">
       <td>
-        <button nz-button nzType="text" (click)="handleDetail(data)">
+        <app-button-common
+          [iconType]="'edit'"
+          [iconTheme]="'outline'"
+          [nzType]="'text'"
+          (_onClick)="handleDetail(data, $event)"></app-button-common>
+        <!-- <button nz-button nzType="text" (click)="handleDetail(data)">
           <span nz-icon nzType="edit" nzTheme="outline"></span>
         </button>
         <button nz-button nzType="text" (click)="handleDelete(data)">
           <span nz-icon nzType="delete" nzTheme="outline"></span>
-        </button>
+        </button> -->
       </td>
       <td>
         {{ i + 1 }}

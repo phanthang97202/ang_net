@@ -6,12 +6,10 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { IButtonBreadcrumb } from '../../interfaces/common';
-import { ButtonCommonComponent } from '../../component-ui-common/button-common/button-common.component';
 
 @Component({
   standalone: true,
-  selector: 'app-breadcrumb',
+  selector: 'app-icon-common',
   imports: [
     NzModalModule,
     NzUploadModule,
@@ -20,11 +18,18 @@ import { ButtonCommonComponent } from '../../component-ui-common/button-common/b
     CommonModule,
     NzPageHeaderModule,
     NzSpaceModule,
-    ButtonCommonComponent,
   ],
-  templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.scss'],
+  templateUrl: './icon-common.component.html',
+  styleUrls: ['./icon-common.component.scss'],
 })
-export class BreadcrumbComponent {
-  @Input() buttons: IButtonBreadcrumb[] = [];
+export class IconCommonComponent {
+  // @Input() props: IIconCommon = { iconType: 'plus' };
+
+  @Input() class = '';
+  @Input() iconType = '';
+  @Input() iconTheme: 'fill' | 'outline' | 'twotone' = 'outline';
+  @Input() iconSpin = false;
+  @Input() iconTwotoneColor = '';
+  @Input() iconIconfont = '';
+  @Input() iconRotate = 0;
 }

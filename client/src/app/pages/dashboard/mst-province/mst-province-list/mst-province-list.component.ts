@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { ShowErrorService } from '../../../../services/show-error.service';
@@ -8,6 +8,7 @@ import { ApiService } from '../../../../services/api.service';
 import {
   IProvince,
   IRequestProvinceCreate,
+  IResponseProvinceCreate,
 } from '../../../../interfaces/province';
 import { SaveProvincePopupComponent } from '../save-province-popup/save-province-popup.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -18,8 +19,9 @@ import { TTitlePopup } from '../type';
 import { ImportExcelPopup } from '../../../../components/import-excel-popup/import-excel-popup.component';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { IButtonBreadcrumb } from '../../../../interfaces/common';
 import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrumb.component';
+import { IBaseResponse } from '../../../../interfaces/common';
+import { ButtonCommonComponent } from '../../../../component-ui-common/button-common/button-common.component';
 @Component({
   selector: 'app-mst-province',
   standalone: true,
@@ -35,11 +37,12 @@ import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrum
     NzPageHeaderModule,
     NzSpaceModule,
     BreadcrumbComponent,
+    ButtonCommonComponent,
   ],
   templateUrl: './mst-province-list.component.html',
   styleUrls: ['./mst-province-list.component.scss'],
 })
-export class MstProvinceComponent {
+export class MstProvinceComponent implements OnInit {
   private api = inject(ApiService);
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
@@ -51,26 +54,16 @@ export class MstProvinceComponent {
   _isOpenPopup = false;
   _isOpenImportExcelPopup = false;
 
-  listButtonsHeader: IButtonBreadcrumb[] = [
+  listButtonsHeader = [
     {
       text: 'Create',
-      nzType: 'primary',
-      nzShape: 'default',
-      nzSize: 'default',
-      disabled: false,
       iconType: 'plus',
-      iconTheme: 'outline',
-      onClick: () => this.handleOpenCreate(),
+      onClick: (event: MouseEvent) => this.handleOpenCreate(),
     },
     {
       text: 'ImportExcel',
-      nzType: 'primary',
-      nzShape: 'default',
-      nzSize: 'default',
-      disabled: false,
       iconType: 'upload',
-      iconTheme: 'outline',
-      onClick: () => this.handleOpenImportExcel(),
+      onClick: (event: MouseEvent) => this.handleOpenImportExcel(),
     },
   ];
 
@@ -94,7 +87,11 @@ export class MstProvinceComponent {
   private createData(formValue: IRequestProvinceCreate): void {
     this.setLoading(true);
     this.api.MstProvinceCreate(formValue).subscribe({
-      next: response => this.handleApiResponse(response, 'Create successfully'),
+      next: response =>
+        this.handleApiResponse<IResponseProvinceCreate>(
+          response,
+          'Create successfully'
+        ),
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -103,7 +100,11 @@ export class MstProvinceComponent {
   private updateData(formValue: IRequestProvinceCreate): void {
     this.setLoading(true);
     this.api.MstProvinceUpdate(formValue).subscribe({
-      next: response => this.handleApiResponse(response, 'Update successfully'),
+      next: response =>
+        this.handleApiResponse<IResponseProvinceCreate>(
+          response,
+          'Update successfully'
+        ),
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -131,7 +132,10 @@ export class MstProvinceComponent {
     this.formDataSource = this.getDefaultFormData();
   }
 
-  handleDetail(data: IRequestProvinceCreate): void {
+  handleDetail(data: IRequestProvinceCreate, event: MouseEvent): void {
+    console.log('🚀 ~ MstProvinceComponent ~ handleDetail ~ data:', data);
+    console.log('🚀 ~ MstProvinceComponent ~ handleDetail ~ event:', event);
+
     this._isOpenPopup = true;
     this.titlePopup = 'Update';
     this.formDataSource = { ...data };
@@ -153,7 +157,10 @@ export class MstProvinceComponent {
     this.loadingService.setLoading(isLoading);
   }
 
-  private handleApiResponse(response: any, successMessage: string): void {
+  private handleApiResponse<T extends IBaseResponse<IProvince>>(
+    response: T,
+    successMessage: string
+  ) {
     if (response?.Success) {
       this.message.success(successMessage);
       this._isOpenPopup = false;

@@ -13,16 +13,35 @@ export interface IBaseResponse<T> {
   DataList: T[];
   objResult: IPageInfo<T>;
   RequestDTimeAt: Date;
+  /*ignore-ts*/
   RequestClients: any;
 }
 
-export interface IButtonBreadcrumb {
-  text: string;
-  nzType: 'primary' | 'default' | 'dashed' | 'text' | 'link';
-  nzShape: 'circle' | 'round' | 'default';
-  nzSize: 'large' | 'small' | 'default';
-  disabled: boolean;
+export interface IButtonCommon {
+  class?: string;
+  text?: string;
+  nzType?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
+  nzShape?: 'circle' | 'round';
+  nzSize?: 'large' | 'small' | 'default';
+  disabled?: boolean;
   iconType: string;
-  iconTheme: 'fill' | 'outline' | 'twotone';
-  onClick: () => void;
+  iconTheme?: 'fill' | 'outline' | 'twotone';
+  onClick: (event: MouseEvent) => void;
+  nzBlock?: boolean;
+  nzDanger?: boolean;
+  nzLoading?: boolean;
+  nzGhost?: boolean;
+}
+export interface IIconCommon {
+  class?: string;
+  iconType: string;
+  iconTheme?: 'fill' | 'outline' | 'twotone';
+  iconSpin?: boolean;
+  iconTwotoneColor?: string;
+  iconIconfont?: string;
+  iconRotate?: number;
+}
+
+export interface IButtonBreadcrumb extends IButtonCommon {
+  classContainer?: string;
 }

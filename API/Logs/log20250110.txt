@@ -677,3 +677,28 @@ WHERE "a"."UserId" = @__userId_0
 2025-01-10 10:58:05.572 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 6004.2536ms
 2025-01-10 10:58:05.572 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
 2025-01-10 10:58:05.601 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 6288.8881ms
+2025-01-10 10:58:45.360 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-01-10 10:58:45.546 +07:00 [INF] Now listening on: http://localhost:5000
+2025-01-10 10:58:45.548 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-10 10:58:45.549 +07:00 [INF] Hosting environment: Development
+2025-01-10 10:58:45.549 +07:00 [INF] Content root path: D:\MyHomework\ang_net\API
+2025-01-10 10:58:49.964 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-10 10:58:50.194 +07:00 [INF] CORS policy execution successful.
+2025-01-10 10:58:50.202 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 241.4823ms
+2025-01-10 10:58:50.242 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-10 10:58:50.258 +07:00 [INF] CORS policy execution successful.
+2025-01-10 10:58:50.480 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-10 10:58:50.518 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-10 10:58:51.550 +07:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-10 10:58:51.614 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-10 10:58:51.615 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-10 10:58:51.631 +07:00 [INF] Executed DbCommand (10ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-10 10:58:51.636 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-10 10:58:51.678 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 1154.3478ms
+2025-01-10 10:58:51.679 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-10 10:58:51.695 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 1452.7422ms
