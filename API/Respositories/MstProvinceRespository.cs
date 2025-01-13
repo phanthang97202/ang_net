@@ -1,31 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks; 
-using API.Data;
-using TCommonUtils = API.CommonUtils.CommonUtils;
-using GuardAuth = API.Middlewares.CheckAuthorized;
+﻿using API.Data;
 using API.Dtos;
-using API.Interfaces; 
+using API.Interfaces;
 using API.Models;
 using ClosedXML.Excel;
 using ExcelDataReader;
-using Microsoft.EntityFrameworkCore; 
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Reflection;
+using System.Text.Json;
+using GuardAuth = API.Middlewares.CheckAuthorized;
+using TCommonUtils = API.CommonUtils.CommonUtils;
 
 namespace API.Respositories
 {
     public class MstProvinceRespository : IMstProvinceRespository
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AppDbContext _dbContext; 
+        private readonly AppDbContext _dbContext;
         public MstProvinceRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = appDbContext;
@@ -33,9 +24,9 @@ namespace API.Respositories
         }
 
         public bool CheckRecordExist(string key, ref MstProvinceModel data)
-        {  
-            MstProvinceModel record =  _dbContext.MstProvinces.Find(key);
-            if(record is not null)
+        {
+            MstProvinceModel record = _dbContext.MstProvinces.Find(key);
+            if (record is not null)
             {
                 data = record;
                 return true;
@@ -43,9 +34,9 @@ namespace API.Respositories
             data = null;
             return false;
         }
-        
+
         public async Task<ApiResponse<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
-        { 
+        {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(new
@@ -68,7 +59,7 @@ namespace API.Respositories
             int _pageIndex = 0;
             int _pageSize = 10;
 
-            if(pageIndex > 0)
+            if (pageIndex > 0)
             {
                 _pageIndex = pageIndex;
             }
@@ -97,7 +88,7 @@ namespace API.Respositories
             pageInfo.ItemCount = itemCount;
             pageInfo.DataList = dataResult.Count == 0 ? new List<MstProvinceModel>() : dataResult;
 
-            apiResponse.objResult = pageInfo; 
+            apiResponse.objResult = pageInfo;
 
             return apiResponse;
         }
@@ -125,8 +116,8 @@ namespace API.Respositories
             {
                 apiResponse.CatchException(false, "MstProvince_Detail.ProvinceIsNotExists", requestClient);
                 return apiResponse;
-            }  
-             
+            }
+
             apiResponse.Data = _data;
 
             return apiResponse;
@@ -135,18 +126,18 @@ namespace API.Respositories
         public async Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data)
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
-            
+
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
 
             PropertyInfo[] properties = data.GetType().GetProperties();
-            foreach(PropertyInfo p in properties)
+            foreach (PropertyInfo p in properties)
             {
                 string key = p.Name;
                 object value = p.GetValue(data);
                 RequestClient rc = new RequestClient(key, value);
                 requestClient.Add(rc);
-            } 
+            }
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -157,7 +148,8 @@ namespace API.Respositories
                 return apiResponse;
             }
 
-            if (TCommonUtils.IsNullOrEmpty( (data.ProvinceCode) )) {
+            if (TCommonUtils.IsNullOrEmpty((data.ProvinceCode)))
+            {
                 apiResponse.CatchException(false, "MstProvince_Create.ProvinceCodeIsNotValid", requestClient);
                 return apiResponse;
             }
@@ -165,20 +157,20 @@ namespace API.Respositories
             MstProvinceModel? _data = new MstProvinceModel();
             bool isExistRecord = CheckRecordExist(data.ProvinceCode, ref _data);
 
-              
+
             if (isExistRecord == true)
-            { 
+            {
                 apiResponse.CatchException(false, "MstProvince_Create.ProvinceHasAlreadyExists", requestClient);
-                return apiResponse; 
+                return apiResponse;
             }
 
             if (string.IsNullOrEmpty(data.ProvinceName))
-            { 
+            {
                 apiResponse.CatchException(false, "MstProvince_Create.ProvinceNameIsNotValid", requestClient);
                 return apiResponse;
             }
 
-            if(data.FlagActive == false)
+            if (data.FlagActive == false)
             {
                 data.FlagActive = true;
             }
@@ -264,7 +256,7 @@ namespace API.Respositories
             MstProvinceModel? _data = new MstProvinceModel();
             bool isExistRecord = CheckRecordExist(ProvinceCode, ref _data);
 
-            if(isExistRecord == false)
+            if (isExistRecord == false)
             {
                 apiResponse.CatchException(false, "MstProvince_Delete.ProvinceNotExistInSystem", requestClient);
                 return apiResponse;
@@ -272,12 +264,12 @@ namespace API.Respositories
 
             int countRowEffected = await _dbContext.MstProvinces.Where(p => p.ProvinceCode == ProvinceCode).ExecuteDeleteAsync();
 
-            if(countRowEffected == 0)
+            if (countRowEffected == 0)
             {
                 apiResponse.CatchException(false, "MstProvince_Delete.SomethingWentWrongWithSystem", requestClient);
                 return apiResponse;
             }
-            
+
             return apiResponse;
         }
 
@@ -304,10 +296,29 @@ namespace API.Respositories
                     CreatedDTime = i.CreatedDTime,
                     UpdatedDTime = i.UpdatedDTime
                 }).ToListAsync();
-             
+
             apiResponse.DataList = data;
 
             return apiResponse;
+        }
+
+        public async Task<byte[]> ExportTemplate()
+        {
+            DataTable tbData = await this.TemplateTableProvince();
+            byte[] file;
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.AddWorksheet(tbData, "Mst_Province_Template");
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    wb.SaveAs(ms);
+                    file = ms.ToArray();
+                }
+            }
+
+            return file;
         }
 
         public async Task<ApiResponse<MstProvinceModel>> ImportExcel(IFormFile file)
@@ -328,9 +339,10 @@ namespace API.Respositories
             try
             {
                 List<MstProvinceModel> lstDataPreparing = new List<MstProvinceModel>();
-                
+
                 //
-                if (file == null || file.Length == 0) {
+                if (file == null || file.Length == 0)
+                {
                     apiResponse.CatchException(false, "MstProvince_ImportExcel.FileIsNotEmpty", requestClient);
                     return apiResponse;
                 }
@@ -338,7 +350,7 @@ namespace API.Respositories
                 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
                 // Định nghĩa địa chỉ folder để lưu trữ file
                 string folderUpload = $"{Directory.GetCurrentDirectory()}\\Uploads";
-                if(!Directory.Exists( folderUpload))
+                if (!Directory.Exists(folderUpload))
                 {
                     Directory.CreateDirectory(folderUpload);
                 }
@@ -347,14 +359,14 @@ namespace API.Respositories
                 string filePath = Path.Combine(folderUpload, file.FileName);
 
                 // Thực hiện lưu file lên server 
-                using(var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    file.CopyTo(stream);  
+                    file.CopyTo(stream);
                 }
 
                 // Thực hiện mở file để đọc nội dung file excel
                 using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
-                { 
+                {
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
                         bool isSkipHeader = false;
@@ -362,15 +374,15 @@ namespace API.Respositories
                         {
                             while (reader.Read())
                             {
-                                if(!isSkipHeader)
+                                if (!isSkipHeader)
                                 {
                                     isSkipHeader = true;
                                     continue;
-                                } 
+                                }
                                 // Dữ liệu nhập client
                                 string provinceCode = TCommonUtils.ConvertObjectToString(reader.GetValue(0));
                                 string provinceName = TCommonUtils.ConvertObjectToString(reader.GetValue(1));
-                                
+
                                 // Chỉ ra bản ghi có lỗi cho client
                                 MstProvinceModel currentRecord = new MstProvinceModel
                                 {
@@ -387,8 +399,8 @@ namespace API.Respositories
                                     ProvinceCode = provinceCode
                                 };
 
-                                RequestClient rqClient = new RequestClient(JsonSerializer.Serialize(primaryKeyRecord), JsonSerializer.Serialize(currentRecord)); 
-                                
+                                RequestClient rqClient = new RequestClient(JsonSerializer.Serialize(primaryKeyRecord), JsonSerializer.Serialize(currentRecord));
+
 
                                 if (TCommonUtils.IsNullOrEmpty(provinceCode))
                                 {
@@ -404,7 +416,7 @@ namespace API.Respositories
                                 if (isExistRecord == true)
                                 {
                                     requestClient.Add(rqClient);
-                                    apiResponse.CatchException(false, "MstProvince_ImportExcel.ProvinceHasAlreadyExists", requestClient); 
+                                    apiResponse.CatchException(false, "MstProvince_ImportExcel.ProvinceHasAlreadyExists", requestClient);
                                     break;
                                 }
 
@@ -416,10 +428,10 @@ namespace API.Respositories
                                 }
 
                                 // Check có bản ghi nào bị trùng với dữ liệu trước đó không
-                                if(lstDataPreparing.Count > 0)
-                                { 
+                                if (lstDataPreparing.Count > 0)
+                                {
                                     MstProvinceModel rowDuplicate = lstDataPreparing.SingleOrDefault(item => item.ProvinceCode == currentRecord.ProvinceCode);
-                                    if(rowDuplicate != null)
+                                    if (rowDuplicate != null)
                                     {
                                         requestClient.Add(rqClient);
                                         apiResponse.CatchException(false, "MstProvince_ImportExcel.DuplicateData", requestClient);
@@ -429,14 +441,15 @@ namespace API.Respositories
 
                                 // Thêm các bản ghi hợp lệ vào danh sách tạo mới
                                 lstDataPreparing.Add(currentRecord);
-                                 
+
                             }
                         } while (reader.NextResult());
                     }
                 }
 
                 // Thực hiện hủy bỏ toàn bộ dữ liệu nếu bất kì dữ liệu nào của bản ghi không hợp lệ
-                if (apiResponse.Success == false) {
+                if (apiResponse.Success == false)
+                {
                     return apiResponse;
                 }
 
@@ -445,41 +458,21 @@ namespace API.Respositories
                 await _dbContext.SaveChangesAsync();
 
                 // Xóa file khỏi thư mục lưu trữ trên server
-                File.Delete(filePath); 
+                File.Delete(filePath);
                 return apiResponse;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 apiResponse.CatchException(false, $"MstProvince_ImportExcel.OccurProgramException: \n {ex}", requestClient);
                 return apiResponse;
             }
-        }
-
-        public async Task<DataTable> TableProvince() { 
-            DataTable tb = new DataTable();
-            tb.TableName = "MstProvince";
-            tb.Columns.Add("ProvinceCode", typeof(string));
-            tb.Columns.Add("ProvinceName", typeof(string));
-            tb.Columns.Add("FlagActive", typeof(bool));
-
-            List<MstProvinceModel> provinces = await _dbContext.MstProvinces.Select(p => new MstProvinceModel
-            {
-                ProvinceCode = p.ProvinceCode,
-                ProvinceName = p.ProvinceName,
-                FlagActive = p.FlagActive,
-            }).ToListAsync();
-
-            foreach (MstProvinceModel province in provinces) {
-                tb.Rows.Add(province.ProvinceCode, province.ProvinceName, province.FlagActive);
-            } 
-
-            return tb;
         }
 
         public async Task<byte[]> ExportExcel()
         {
             //ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             //List<RequestClient> requestClient = new List<RequestClient>();
-            
+
             //// Check Permission
             //string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             //bool isAuthorized = GuardAuth.IsAuthorized(token);
@@ -489,7 +482,7 @@ namespace API.Respositories
             //    return apiResponse;
             //}
 
-            DataTable tbData = await this.TableProvince();
+            DataTable tbData = await this.DataTableProvince();
             byte[] file;
             //string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Exports");
             //string fileName = "Mst_Province_Data.xlsx";
@@ -515,5 +508,37 @@ namespace API.Respositories
             return file;
         }
 
+        public async Task<DataTable> TemplateTableProvince()
+        {
+            DataTable tb = new DataTable();
+            tb.TableName = "MstProvince";
+            tb.Columns.Add("ProvinceCode", typeof(string));
+            tb.Columns.Add("ProvinceName", typeof(string));
+
+            return tb;
+        }
+
+        public async Task<DataTable> DataTableProvince()
+        {
+            DataTable tb = new DataTable();
+            tb.TableName = "MstProvince";
+            tb.Columns.Add("ProvinceCode", typeof(string));
+            tb.Columns.Add("ProvinceName", typeof(string));
+            tb.Columns.Add("FlagActive", typeof(bool));
+
+            List<MstProvinceModel> provinces = await _dbContext.MstProvinces.Select(p => new MstProvinceModel
+            {
+                ProvinceCode = p.ProvinceCode,
+                ProvinceName = p.ProvinceName,
+                FlagActive = p.FlagActive,
+            }).ToListAsync();
+
+            foreach (MstProvinceModel province in provinces)
+            {
+                tb.Rows.Add(province.ProvinceCode, province.ProvinceName, province.FlagActive);
+            }
+
+            return tb;
+        }
     }
 }

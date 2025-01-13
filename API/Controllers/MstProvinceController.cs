@@ -125,5 +125,20 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("ExportTemplate")]
+        public async Task<IActionResult> ExportTemplate()
+        {
+            try
+            {
+                byte[] file = await _mstProvinceRespository.ExportTemplate();
+
+                return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mst_Province_Template.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while exporting the Excel file.");
+            }
+        }
+
     }
 }

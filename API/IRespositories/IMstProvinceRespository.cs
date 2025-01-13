@@ -11,6 +11,7 @@ namespace API.Interfaces
         public Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data);
         public Task<ApiResponse<MstProvinceModel>> Delete(string id);
         public Task<ApiResponse<MstProvinceModel>> Update(MstProvinceModel data);
+        public Task<byte[]> ExportTemplate();
         public Task<ApiResponse<MstProvinceModel>> ImportExcel(IFormFile file);
         public Task<byte[]> ExportExcel();
     }
