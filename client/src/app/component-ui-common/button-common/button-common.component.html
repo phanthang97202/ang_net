@@ -9,7 +9,12 @@
   [nzDanger]="nzDanger"
   [nzShape]="nzShape"
   [nzLoading]="nzLoading"
-  [nzGhost]="nzGhost">
+  [nzGhost]="nzGhost"
+  nz-popconfirm
+  [nzCondition]="!isShowConfirm"
+  nzPopconfirmTitle="Title"
+  (nzOnConfirm)="confirm()"
+  (nzOnCancel)="cancel()">
   <p>
     <app-icon-common
       *ngIf="iconType"

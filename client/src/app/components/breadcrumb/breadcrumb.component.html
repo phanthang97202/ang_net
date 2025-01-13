@@ -8,7 +8,7 @@
           *ngFor="let b of buttons"
           [text]="b.text"
           [iconType]="b.iconType"
-          (_onClick)="(b.onClick)">
+          (_onClick)="b.onClick($event)">
         </app-button-common>
       </div>
     </div>

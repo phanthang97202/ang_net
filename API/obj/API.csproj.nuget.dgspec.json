@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\MyHomework\\ang_net\\API\\API.csproj": {}
+    "D:\\MyHomeWork\\ang_net\\API\\API.csproj": {}
   },
   "projects": {
-    "D:\\MyHomework\\ang_net\\API\\API.csproj": {
+    "D:\\MyHomeWork\\ang_net\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\MyHomework\\ang_net\\API\\API.csproj",
+        "projectUniqueName": "D:\\MyHomeWork\\ang_net\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "D:\\MyHomework\\ang_net\\API\\API.csproj",
+        "projectPath": "D:\\MyHomeWork\\ang_net\\API\\API.csproj",
         "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
-        "outputPath": "D:\\MyHomework\\ang_net\\API\\obj\\",
+        "outputPath": "D:\\MyHomeWork\\ang_net\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\phant\\AppData\\Roaming\\NuGet\\NuGet.Config",

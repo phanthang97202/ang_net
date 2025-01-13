@@ -11,6 +11,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
+import { ButtonCommonComponent } from '../../component-ui-common/button-common/button-common.component';
 
 @Component({
   standalone: true,
@@ -21,6 +22,7 @@ import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
     NzButtonModule,
     NzIconModule,
     CommonModule,
+    ButtonCommonComponent,
   ],
   templateUrl: './import-excel-popup.component.html',
   styleUrl: './import-excel-popup.component.scss',
@@ -28,17 +30,7 @@ import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 export class ImportExcelPopup implements OnChanges {
   @Input() isOpenPopup!: boolean;
   @Output() isOpenPopupChange = new EventEmitter<boolean>();
-
-  // defaultFileList: NzUploadFile[] = [
-  //   {
-  //     uid: '-1',
-  //     name: 'xxx.png',
-  //     status: 'done',
-  //     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-  //     thumbUrl:
-  //       'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-  //   },
-  // ];
+  @Output() _onUploadFile = new EventEmitter<NzUploadFile[]>();
 
   fileList: NzUploadFile[] = [];
 
@@ -59,5 +51,9 @@ export class ImportExcelPopup implements OnChanges {
   handleCancel(): void {
     this.isOpenPopup = false;
     this.isOpenPopupChange.emit(this.isOpenPopup);
+  }
+
+  handleUploadFile(ev: MouseEvent) {
+    this._onUploadFile.emit(this.fileList);
   }
 }

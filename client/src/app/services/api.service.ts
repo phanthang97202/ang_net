@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import {
-  IProvince,
   IRequestProvinceCreate,
   IResponseProvinceCreate,
   IResponseProvinceSearch,
@@ -14,11 +13,9 @@ import {
   IDetailNewsResponse,
   INewsResponse,
 } from '../interfaces/news';
-import {
-  IHashTagNews,
-  IHashTagNewsResponse,
-} from '../interfaces/hash-tag-news';
+import { IHashTagNewsResponse } from '../interfaces/hash-tag-news';
 import { INewsCategoryResponse } from '../interfaces/news-category';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
 
 @Injectable({
   providedIn: 'root',
@@ -58,6 +55,23 @@ export class ApiService {
       {
         ...request,
       }
+    );
+  }
+
+  MstProvinceImportExcel(
+    file: NzUploadFile[]
+  ): Observable<IResponseProvinceCreate> {
+    return this.http.post<IResponseProvinceCreate>(
+      `${this.apiUrl}MstProvince/ImportExcel`,
+      {
+        file,
+      }
+    );
+  }
+
+  MstProvinceExportExcel(): Observable<IResponseProvinceSearch> {
+    return this.http.get<IResponseProvinceSearch>(
+      `${this.apiUrl}MstProvince/ExportExcel`
     );
   }
 

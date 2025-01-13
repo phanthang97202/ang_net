@@ -8,6 +8,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 // import { IButtonCommon } from '../../interfaces/common';
 import { IconCommonComponent } from '../icon-common/icon-common.component';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 
 @Component({
   standalone: true,
@@ -21,6 +22,7 @@ import { IconCommonComponent } from '../icon-common/icon-common.component';
     NzPageHeaderModule,
     NzSpaceModule,
     IconCommonComponent,
+    NzPopconfirmModule,
   ],
   templateUrl: './button-common.component.html',
   styleUrls: ['./button-common.component.scss'],
@@ -43,8 +45,18 @@ export class ButtonCommonComponent {
   @Input() nzDanger = false;
   @Input() nzLoading = false;
   @Input() nzGhost = false;
+  @Input() isShowConfirm = false;
 
   handleClick(event: MouseEvent) {
-    this._onClick.emit(event);
+    if (this.isShowConfirm === false) {
+      this._onClick.emit();
+    }
+  }
+
+  confirm() {
+    this._onClick.emit();
+  }
+  cancel() {
+    return;
   }
 }

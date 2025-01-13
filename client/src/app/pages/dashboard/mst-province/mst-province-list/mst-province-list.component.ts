@@ -22,6 +22,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrumb.component';
 import { IBaseResponse } from '../../../../interfaces/common';
 import { ButtonCommonComponent } from '../../../../component-ui-common/button-common/button-common.component';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
 @Component({
   selector: 'app-mst-province',
   standalone: true,
@@ -58,12 +59,12 @@ export class MstProvinceComponent implements OnInit {
     {
       text: 'Create',
       iconType: 'plus',
-      onClick: (event: MouseEvent) => this.handleOpenCreate(),
+      onClick: () => this.handleOpenCreate(),
     },
     {
       text: 'ImportExcel',
       iconType: 'upload',
-      onClick: (event: MouseEvent) => this.handleOpenImportExcel(),
+      onClick: () => this.handleOpenImportExcel(),
     },
   ];
 
@@ -110,6 +111,19 @@ export class MstProvinceComponent implements OnInit {
     });
   }
 
+  private uploadFile(file: NzUploadFile[]) {
+    this.setLoading(true);
+    this.api.MstProvinceImportExcel(file).subscribe({
+      next: response =>
+        this.handleApiResponse<IResponseProvinceCreate>(
+          response,
+          'Import successfully'
+        ),
+      error: err => this.handleApiError(err),
+      complete: () => this.setLoading(false),
+    });
+  }
+
   private deleteData(key: string): void {
     this.setLoading(true);
     this.api.MstProvinceDelete(key).subscribe({
@@ -132,10 +146,7 @@ export class MstProvinceComponent implements OnInit {
     this.formDataSource = this.getDefaultFormData();
   }
 
-  handleDetail(data: IRequestProvinceCreate, event: MouseEvent): void {
-    console.log('🚀 ~ MstProvinceComponent ~ handleDetail ~ data:', data);
-    console.log('🚀 ~ MstProvinceComponent ~ handleDetail ~ event:', event);
-
+  handleDetail(data: IRequestProvinceCreate): void {
     this._isOpenPopup = true;
     this.titlePopup = 'Update';
     this.formDataSource = { ...data };
@@ -151,6 +162,11 @@ export class MstProvinceComponent implements OnInit {
     } else {
       this.updateData(formValue);
     }
+  }
+
+  handleUploadFile(file: NzUploadFile[]) {
+    console.log('🚀 ~ MstProvinceComponent ~ handleUploadFile ~ file:', file);
+    this.uploadFile(file);
   }
 
   private setLoading(isLoading: boolean): void {
