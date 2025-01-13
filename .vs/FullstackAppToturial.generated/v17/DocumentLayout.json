@@ -7,28 +7,8 @@
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,89 +30,29 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MstProvinceRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\MstProvinceRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\MstProvinceRespository.cs",
+              "ViewState": "AQIAAJgBAAAAAAAAAAAkwFcBAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-13T09:30:09.592Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "MstProvinceController.cs",
               "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\MstProvinceController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\MstProvinceController.cs",
               "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\MstProvinceController.cs",
               "RelativeToolTip": "API\\Controllers\\MstProvinceController.cs",
-              "ViewState": "AQIAAF8AAAAAAAAAAAAuwHUAAAA7AAAA",
+              "ViewState": "AQIAAHEAAAAAAAAAAAA4wH0AAAAJAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-11T04:44:54.056Z",
+              "WhenOpened": "2025-01-13T07:58:09.17Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\appsettings.json",
-              "RelativeDocumentMoniker": "API\\appsettings.json",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\appsettings.json",
-              "RelativeToolTip": "API\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAEAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-01-10T03:42:18.981Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Program.cs",
-              "RelativeDocumentMoniker": "API\\Program.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Program.cs",
-              "RelativeToolTip": "API\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB8AAABaAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-10T03:37:54.256Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AccountRespository.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\AccountRespository.cs",
-              "RelativeDocumentMoniker": "API\\Respositories\\AccountRespository.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\AccountRespository.cs",
-              "RelativeToolTip": "API\\Respositories\\AccountRespository.cs",
-              "ViewState": "AQIAAIkAAAAAAAAAAAAAAJQAAAAMAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-16T15:17:14.193Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AccountController.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\AccountController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\AccountController.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\AccountController.cs",
-              "RelativeToolTip": "API\\Controllers\\AccountController.cs",
-              "ViewState": "AQIAACsAAAAAAAAAAAAowC8AAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-16T15:17:07.032Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "NewsRespository.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
-              "RelativeDocumentMoniker": "API\\Respositories\\NewsRespository.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\NewsRespository.cs",
-              "RelativeToolTip": "API\\Respositories\\NewsRespository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAGQCAAAMAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-13T07:23:03.942Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "NewsController.cs",
-              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
-              "RelativeDocumentMoniker": "API\\Controllers\\NewsController.cs",
-              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
-              "RelativeToolTip": "API\\Controllers\\NewsController.cs",
-              "ViewState": "AQIAABkAAAAAAAAAAAAQwGAAAAAkAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-13T03:05:58.103Z"
             }
           ]
         }
