@@ -10,4 +10,17 @@ export class Checker {
     }
     return false;
   }
+
+  static DownloadFile(hexdump: Blob, fileType: string) {
+    const blob = new Blob([hexdump], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const _fileType = fileType + '_' + Date.now();
+    a.download = _fileType;
+    a.click();
+    window.URL.revokeObjectURL(url); // Clean up
+  }
 }

@@ -66,20 +66,30 @@ export class LoginComponent {
       });
 
       observer.subscribe({
-        next: (value) => {
+        next: response => {
           this.loadingService.setLoading(false);
-          this.message.create('success', 'Login successfully');
+
           const isAdmin = this.authService.isAdminPermission();
-          if (isAdmin) {
-            this.router.navigate(['/dashboard']);
+
+          if (response?.Success) {
+            this.message.create('success', 'Login successfully');
+            if (isAdmin) {
+              this.router.navigate(['/dashboard']);
+            } else {
+              this.router.navigate(['/']);
+            }
           } else {
-            this.router.navigate(['/']);
+            this.showErrorService.setShowError({
+              icon: 'warning',
+              message: JSON.stringify(response, null, 2),
+              title: response?.ErrorMessage || 'Error',
+            });
           }
         },
         complete: () => {
           this.loadingService.setLoading(false);
         },
-        error: (err) => {
+        error: err => {
           this.loadingService.setLoading(false);
           this.showErrorService.setShowError({
             title: err.message,
@@ -92,7 +102,7 @@ export class LoginComponent {
     }
 
     if (!this.validateForm.valid) {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });

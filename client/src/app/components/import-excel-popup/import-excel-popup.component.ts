@@ -12,6 +12,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 import { ButtonCommonComponent } from '../../component-ui-common/button-common/button-common.component';
+import { IsViewDirective } from '../../directives/is-view.directive';
 
 @Component({
   standalone: true,
@@ -23,20 +24,20 @@ import { ButtonCommonComponent } from '../../component-ui-common/button-common/b
     NzIconModule,
     CommonModule,
     ButtonCommonComponent,
+    IsViewDirective,
   ],
   templateUrl: './import-excel-popup.component.html',
   styleUrl: './import-excel-popup.component.scss',
 })
-export class ImportExcelPopup implements OnChanges {
+export class ImportExcelPopup {
   @Input() isOpenPopup!: boolean;
   @Output() isOpenPopupChange = new EventEmitter<boolean>();
   @Output() _onUploadFile = new EventEmitter<NzUploadFile[]>();
+  @Output() _onExportTemplateFile = new EventEmitter();
 
   fileList: NzUploadFile[] = [];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('🚀 ~ ImportExcelPopup ~ ngOnChanges ~ changes:', changes);
-  }
+  // ngOnChanges(changes: SimpleChanges): void {}
 
   showModal(): void {
     this.isOpenPopup = true;
@@ -55,5 +56,9 @@ export class ImportExcelPopup implements OnChanges {
 
   handleUploadFile(ev: MouseEvent) {
     this._onUploadFile.emit(this.fileList);
+  }
+
+  handleExportTemplateFile(ev: MouseEvent) {
+    this._onExportTemplateFile.emit();
   }
 }

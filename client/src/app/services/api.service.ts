@@ -58,14 +58,22 @@ export class ApiService {
     );
   }
 
-  MstProvinceImportExcel(
-    file: NzUploadFile[]
-  ): Observable<IResponseProvinceCreate> {
+  MstProvinceImportExcel(file: File): Observable<IResponseProvinceCreate> {
+    console.log('🚀 ~ ApiService ~ MstProvinceImportExcel ~ file:', file);
+    const formData = new FormData();
+    console.log(
+      '🚀 ~ ApiService ~ MstProvinceImportExcel ~ formData:',
+      formData
+    );
+    formData.append('file', file);
     return this.http.post<IResponseProvinceCreate>(
       `${this.apiUrl}MstProvince/ImportExcel`,
-      {
-        file,
-      }
+      formData
+      // {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // }
     );
   }
 
@@ -73,6 +81,12 @@ export class ApiService {
     return this.http.get<IResponseProvinceSearch>(
       `${this.apiUrl}MstProvince/ExportExcel`
     );
+  }
+
+  MstProvinceExportTemplate() {
+    return this.http.get(`${this.apiUrl}MstProvince/ExportTemplate`, {
+      responseType: 'blob',
+    });
   }
 
   MstProvinceDelete(key: string): Observable<IResponseProvinceCreate> {

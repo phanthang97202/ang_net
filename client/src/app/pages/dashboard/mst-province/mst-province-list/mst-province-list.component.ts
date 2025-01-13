@@ -23,6 +23,7 @@ import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrum
 import { IBaseResponse } from '../../../../interfaces/common';
 import { ButtonCommonComponent } from '../../../../component-ui-common/button-common/button-common.component';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { Checker } from '../../../../helpers/validator/checker';
 @Component({
   selector: 'app-mst-province',
   standalone: true,
@@ -113,12 +114,24 @@ export class MstProvinceComponent implements OnInit {
 
   private uploadFile(file: NzUploadFile[]) {
     this.setLoading(true);
-    this.api.MstProvinceImportExcel(file).subscribe({
+    this.api.MstProvinceImportExcel(file[0].originFileObj!).subscribe({
       next: response =>
         this.handleApiResponse<IResponseProvinceCreate>(
           response,
           'Import successfully'
         ),
+      error: err => this.handleApiError(err),
+      complete: () => this.setLoading(false),
+    });
+  }
+
+  private exportTemplateFile() {
+    this.setLoading(true);
+    this.api.MstProvinceExportTemplate().subscribe({
+      next: response => {
+        console.log('response', response);
+        Checker.DownloadFile(response, 'Mst_Provice_Template');
+      },
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -141,6 +154,7 @@ export class MstProvinceComponent implements OnInit {
   }
 
   handleOpenCreate(): void {
+    console.log('object');
     this._isOpenPopup = true;
     this.titlePopup = 'Create';
     this.formDataSource = this.getDefaultFormData();
@@ -165,8 +179,12 @@ export class MstProvinceComponent implements OnInit {
   }
 
   handleUploadFile(file: NzUploadFile[]) {
-    console.log('🚀 ~ MstProvinceComponent ~ handleUploadFile ~ file:', file);
     this.uploadFile(file);
+  }
+
+  handleExportTemplateFile() {
+    console.log('click');
+    this.exportTemplateFile();
   }
 
   private setLoading(isLoading: boolean): void {
@@ -180,6 +198,7 @@ export class MstProvinceComponent implements OnInit {
     if (response?.Success) {
       this.message.success(successMessage);
       this._isOpenPopup = false;
+      this._isOpenImportExcelPopup = false;
       this.fetchData();
     } else {
       this.showErrorService.setShowError({

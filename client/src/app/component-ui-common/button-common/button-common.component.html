@@ -13,7 +13,7 @@
   nz-popconfirm
   [nzCondition]="!isShowConfirm"
   nzPopconfirmTitle="Title"
-  (nzOnConfirm)="confirm()"
+  (nzOnConfirm)="isShowConfirm && confirm()"
   (nzOnCancel)="cancel()">
   <p>
     <app-icon-common
@@ -23,3 +23,5 @@
     {{ text }}
   </p>
 </button>
+
+<!-- (nzOnConfirm)="isShowConfirm && confirm()"  /* chặn việc call 2 lần onClick */ -->

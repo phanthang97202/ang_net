@@ -49,7 +49,8 @@ export class ButtonCommonComponent {
 
   handleClick(event: MouseEvent) {
     if (this.isShowConfirm === false) {
-      this._onClick.emit();
+      // this._onClick.emit();
+      this.confirm();
     }
   }
 
