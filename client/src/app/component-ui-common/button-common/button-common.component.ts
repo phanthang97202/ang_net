@@ -33,6 +33,7 @@ export class ButtonCommonComponent {
 
   @Input() class?: string = '';
   @Input() text?: string = '';
+  @Input() titleConfirm?: string = 'AreYouSure';
   @Input() nzType: 'primary' | 'default' | 'dashed' | 'text' | 'link' =
     'primary';
   @Input() nzShape: 'circle' | 'round' | null = null;
@@ -46,6 +47,7 @@ export class ButtonCommonComponent {
   @Input() nzLoading = false;
   @Input() nzGhost = false;
   @Input() isShowConfirm = false;
+  @Input() iconRotate = 0;
 
   handleClick(event: MouseEvent) {
     if (this.isShowConfirm === false) {

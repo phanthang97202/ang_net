@@ -1,0 +1,1399 @@
+2025-01-21 10:56:46.050 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-01-21 10:56:46.173 +07:00 [INF] Now listening on: http://localhost:5000
+2025-01-21 10:56:46.175 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-21 10:56:46.176 +07:00 [INF] Hosting environment: Development
+2025-01-21 10:56:46.176 +07:00 [INF] Content root path: D:\MyHomeWork\ang_net\API
+2025-01-21 10:58:07.674 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-01-21 10:58:07.738 +07:00 [INF] CORS policy execution successful.
+2025-01-21 10:58:07.755 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 82.5267ms
+2025-01-21 10:58:07.761 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-01-21 10:58:07.765 +07:00 [INF] CORS policy execution successful.
+2025-01-21 10:58:07.926 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 10:58:07.959 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-01-21 10:58:09.471 +07:00 [INF] Executed DbCommand (13ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-01-21 10:58:09.750 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-01-21 10:58:09.794 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 10:58:09.818 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 1853.4116ms
+2025-01-21 10:58:09.818 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 10:58:09.824 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 2063.1385ms
+2025-01-21 10:58:13.270 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 10:58:13.272 +07:00 [INF] CORS policy execution successful.
+2025-01-21 10:58:13.273 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 3.1797ms
+2025-01-21 10:58:13.288 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 10:58:13.299 +07:00 [INF] CORS policy execution successful.
+2025-01-21 10:58:13.473 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 10:58:13.479 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 10:58:13.607 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 10:58:13.631 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-21 10:58:13.631 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-21 10:58:13.639 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 10:58:13.642 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 10:58:13.655 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 175.9017ms
+2025-01-21 10:58:13.655 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 10:58:13.656 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 367.4194ms
+2025-01-21 11:14:38.191 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:14:38.191 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:14:38.191 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.6005ms
+2025-01-21 11:14:38.199 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:14:38.199 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:14:38.204 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:14:38.204 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:14:38.244 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:14:38.246 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:14:38.247 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:14:38.247 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 42.6258ms
+2025-01-21 11:14:38.247 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:14:38.247 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 48.7237ms
+2025-01-21 11:14:49.352 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:14:49.352 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:14:49.353 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.775ms
+2025-01-21 11:14:49.360 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:14:49.360 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:14:49.361 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:14:49.361 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:14:49.366 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:14:49.368 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:14:49.368 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:14:49.368 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 7.1198ms
+2025-01-21 11:14:49.368 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:14:49.368 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.4345ms
+2025-01-21 11:15:03.893 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:03.893 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:03.893 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4292ms
+2025-01-21 11:15:03.898 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:03.899 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:03.899 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:03.899 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:15:03.903 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:15:03.905 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:15:03.905 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:15:03.905 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.9345ms
+2025-01-21 11:15:03.905 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:03.905 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.9412ms
+2025-01-21 11:15:27.232 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:27.233 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:27.233 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.7354ms
+2025-01-21 11:15:27.244 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:27.245 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:27.248 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:27.248 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:15:27.256 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:15:27.257 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:15:27.258 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:15:27.258 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.7173ms
+2025-01-21 11:15:27.258 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:27.258 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 14.1275ms
+2025-01-21 11:15:50.192 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:50.192 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:50.193 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.7506ms
+2025-01-21 11:15:50.215 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:15:50.215 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:15:50.216 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:50.216 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:15:50.221 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:15:50.223 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:15:50.223 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:15:50.223 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 6.8801ms
+2025-01-21 11:15:50.223 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:15:50.223 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.3513ms
+2025-01-21 11:17:11.122 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:17:11.123 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:17:11.123 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3973ms
+2025-01-21 11:17:11.127 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:17:11.127 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:17:11.127 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:17:11.128 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:17:11.130 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:17:11.131 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:17:11.131 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:17:11.131 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.9031ms
+2025-01-21 11:17:11.132 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:17:11.132 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.8843ms
+2025-01-21 11:24:40.057 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:24:40.057 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:24:40.057 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.5337ms
+2025-01-21 11:24:40.061 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:24:40.062 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:24:40.062 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:24:40.062 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:24:40.068 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:24:40.069 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:24:40.069 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:24:40.069 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 6.5016ms
+2025-01-21 11:24:40.069 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:24:40.069 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 7.793ms
+2025-01-21 11:28:46.544 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:28:46.544 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:28:46.544 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.7306ms
+2025-01-21 11:28:46.552 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:28:46.552 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:28:46.553 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:28:46.553 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:28:46.560 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:28:46.561 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:28:46.562 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:28:46.562 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 8.9104ms
+2025-01-21 11:28:46.562 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:28:46.563 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 10.6781ms
+2025-01-21 11:29:22.097 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:29:22.097 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:29:22.098 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.5028ms
+2025-01-21 11:29:22.104 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:29:22.104 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:29:22.105 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:29:22.105 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:29:22.109 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:29:22.111 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:29:22.111 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:29:22.111 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 6.5354ms
+2025-01-21 11:29:22.111 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:29:22.112 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 7.6866ms
+2025-01-21 11:30:10.279 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:30:10.280 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:30:10.280 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4157ms
+2025-01-21 11:30:10.285 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:30:10.285 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:30:10.286 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:30:10.286 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:30:10.290 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:30:10.291 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:30:10.291 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:30:10.291 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.0575ms
+2025-01-21 11:30:10.291 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:30:10.291 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.0968ms
+2025-01-21 11:30:29.947 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:30:29.947 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:30:29.947 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2324ms
+2025-01-21 11:30:29.952 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:30:29.952 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:30:29.952 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:30:29.952 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:30:29.958 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:30:29.959 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:30:29.960 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:30:29.960 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 7.4706ms
+2025-01-21 11:30:29.960 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:30:29.960 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.3745ms
+2025-01-21 11:31:09.940 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:31:09.940 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:09.941 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4152ms
+2025-01-21 11:31:09.946 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:31:09.946 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:09.946 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:31:09.947 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:31:09.954 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:31:09.955 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:31:09.956 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:31:09.956 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.1478ms
+2025-01-21 11:31:09.956 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:31:09.956 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 10.1495ms
+2025-01-21 11:31:11.649 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:31:11.649 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:11.649 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 0.5146ms
+2025-01-21 11:31:11.659 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:31:11.660 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:11.660 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:31:11.671 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:31:12.171 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:31:12.946 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:31:12.958 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 1286.9558ms
+2025-01-21 11:31:12.958 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:31:12.958 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 1298.454ms
+2025-01-21 11:31:39.589 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:31:39.590 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:39.590 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.5137ms
+2025-01-21 11:31:39.594 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:31:39.595 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:31:39.595 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:31:39.595 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:31:39.598 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:31:39.599 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:31:39.599 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:31:39.599 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.7453ms
+2025-01-21 11:31:39.599 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:31:39.599 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.9189ms
+2025-01-21 11:32:35.214 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:32:35.215 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:35.216 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 1.3114ms
+2025-01-21 11:32:35.226 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:32:35.226 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:35.228 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:35.228 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:32:35.235 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:32:35.270 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:32:35.271 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 42.5255ms
+2025-01-21 11:32:35.272 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:35.272 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 45.3846ms
+2025-01-21 11:32:53.639 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:32:53.639 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:53.642 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 2.6319ms
+2025-01-21 11:32:53.790 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:32:53.790 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:53.790 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:32:53.790 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:32:53.805 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:32:53.807 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:32:53.807 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:32:53.807 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 16.8215ms
+2025-01-21 11:32:53.807 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:32:53.808 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 18.0862ms
+2025-01-21 11:32:55.694 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:32:55.694 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:55.694 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 0.2101ms
+2025-01-21 11:32:55.707 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:32:55.708 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:55.708 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:55.708 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:32:55.709 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:32:55.738 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:32:55.739 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 30.0592ms
+2025-01-21 11:32:55.739 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:55.739 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 31.5582ms
+2025-01-21 11:32:59.014 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:32:59.014 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:32:59.015 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:59.015 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:32:59.020 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:32:59.027 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:32:59.034 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 18.7488ms
+2025-01-21 11:32:59.034 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:32:59.034 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 19.7017ms
+2025-01-21 11:33:19.811 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:19.811 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:19.812 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2472ms
+2025-01-21 11:33:19.817 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:19.817 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:19.817 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:19.818 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:19.820 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:19.821 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:33:19.822 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:33:19.822 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.1724ms
+2025-01-21 11:33:19.822 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:19.822 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.0066ms
+2025-01-21 11:33:25.462 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:25.462 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:25.462 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 0.2519ms
+2025-01-21 11:33:25.514 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:25.514 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:25.515 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:25.515 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:25.516 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:25.527 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:33:25.527 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 12.6774ms
+2025-01-21 11:33:25.527 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:25.528 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 13.5025ms
+2025-01-21 11:33:26.823 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:26.823 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:26.838 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 15.4461ms
+2025-01-21 11:33:26.982 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:26.982 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:26.989 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:26.989 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:27.003 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:27.005 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:33:27.017 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:33:27.017 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 28.0687ms
+2025-01-21 11:33:27.018 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:27.018 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 35.5003ms
+2025-01-21 11:33:31.130 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:31.131 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:31.131 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 0.196ms
+2025-01-21 11:33:31.155 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:31.156 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:31.156 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:31.156 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:31.157 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:31.183 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:33:31.183 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 27.3655ms
+2025-01-21 11:33:31.183 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:31.184 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 28.1027ms
+2025-01-21 11:33:49.147 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:49.147 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:49.147 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3656ms
+2025-01-21 11:33:49.528 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:33:49.529 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:49.529 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:49.529 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:49.531 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:49.533 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:33:49.534 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:33:49.534 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.8386ms
+2025-01-21 11:33:49.534 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:33:49.534 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.5123ms
+2025-01-21 11:33:51.278 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:51.278 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:51.278 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 0.2033ms
+2025-01-21 11:33:51.327 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:33:51.327 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:33:51.327 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:51.328 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:33:51.329 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:33:51.336 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:33:51.371 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 43.6251ms
+2025-01-21 11:33:51.371 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:33:51.371 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 44.3803ms
+2025-01-21 11:34:30.222 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-01-21 11:34:30.258 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-01-21 04:34:30'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-01-21 11:34:30.351 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-01-21 04:34:30'.
+2025-01-21 11:34:30.351 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 11:34:30.351 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-01-21 11:34:30.457 +07:00 [INF] Executed DbCommand (40ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-01-21 11:34:30.565 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:34:30.565 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 213.949ms
+2025-01-21 11:34:30.565 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 11:34:30.565 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 343.223ms
+2025-01-21 11:34:37.309 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-01-21 11:34:37.310 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-01-21 04:34:37'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-01-21 11:34:37.313 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-01-21 04:34:37'.
+2025-01-21 11:34:37.313 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 11:34:37.313 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-01-21 11:34:37.344 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-01-21 11:34:37.476 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-01-21 11:34:37.482 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:34:37.482 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 169.1858ms
+2025-01-21 11:34:37.482 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-21 11:34:37.482 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 173.4554ms
+2025-01-21 11:34:44.188 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - application/json null
+2025-01-21 11:34:44.197 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenMalformedException: IDX14100: JWT is not well formed, there are no dots (.).
+The token needs to be in JWS or JWE Compact Serialization Format. (JWS): 'EncodedHeader.EndcodedPayload.EncodedSignature'. (JWE): 'EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag'.
+ ---> Microsoft.IdentityModel.Tokens.SecurityTokenMalformedException: IDX14100: JWT is not well formed, there are no dots (.).
+The token needs to be in JWS or JWE Compact Serialization Format. (JWS): 'EncodedHeader.EndcodedPayload.EncodedSignature'. (JWE): 'EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag'.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebToken.ReadToken(String encodedJson)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebToken..ctor(String jwtEncodedString)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ReadToken(String token, TokenValidationParameters validationParameters)
+   --- End of inner exception stack trace ---
+2025-01-21 11:34:44.198 +07:00 [INF] Bearer was not authenticated. Failure message: IDX14100: JWT is not well formed, there are no dots (.).
+The token needs to be in JWS or JWE Compact Serialization Format. (JWS): 'EncodedHeader.EndcodedPayload.EncodedSignature'. (JWE): 'EncodedProtectedHeader.EncodedEncryptedKey.EncodedInitializationVector.EncodedCiphertext.EncodedAuthenticationTag'.
+2025-01-21 11:34:44.198 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:34:44.198 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:34:44.199 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:34:44.209 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:34:44.209 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 10.7469ms
+2025-01-21 11:34:44.209 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:34:44.209 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 21.5424ms
+2025-01-21 11:35:57.011 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:35:57.012 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:35:57.012 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 1.2188ms
+2025-01-21 11:35:57.102 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 11:35:57.102 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:35:57.104 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:35:57.105 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:35:57.112 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:35:57.113 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 11:35:57.113 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 11:35:57.113 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 8.3251ms
+2025-01-21 11:35:57.113 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 11:35:57.113 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 11.3726ms
+2025-01-21 11:35:58.638 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:35:58.640 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:35:58.640 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportExcel - 204 null null 1.7232ms
+2025-01-21 11:35:58.742 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - null null
+2025-01-21 11:35:58.742 +07:00 [INF] CORS policy execution successful.
+2025-01-21 11:35:58.744 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:35:58.744 +07:00 [INF] Route matched with {action = "ExportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportExcel() on controller API.Controllers.MstProvinceController (API).
+2025-01-21 11:35:58.759 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive"
+FROM "MstProvinces" AS "m"
+2025-01-21 11:35:58.780 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Data.xlsx' ...
+2025-01-21 11:35:58.780 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportExcel (API) in 36.252ms
+2025-01-21 11:35:58.780 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportExcel (API)'
+2025-01-21 11:35:58.780 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportExcel - 200 7316 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 38.0187ms
+2025-01-21 14:01:06.698 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:01:06.733 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:01:06.760 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 67.0669ms
+2025-01-21 14:01:06.781 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:01:06.791 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:01:06.848 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:01:06.855 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:01:07.150 +07:00 [INF] Executed DbCommand (66ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:01:07.153 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:01:07.153 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:01:07.160 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 304.396ms
+2025-01-21 14:01:07.160 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:01:07.160 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 379.5157ms
+2025-01-21 14:02:06.649 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:02:06.649 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:02:06.650 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.9685ms
+2025-01-21 14:02:07.153 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:02:07.157 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:02:07.160 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:02:07.160 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:02:07.167 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:02:07.168 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:02:07.169 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:02:07.169 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 8.4167ms
+2025-01-21 14:02:07.169 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:02:07.169 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 16.9688ms
+2025-01-21 14:02:26.886 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:02:26.886 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:02:26.887 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 1.01ms
+2025-01-21 14:02:27.006 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:02:27.007 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:02:27.009 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:02:27.009 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:02:27.012 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:02:27.012 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:02:27.012 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:02:27.014 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.2507ms
+2025-01-21 14:02:27.014 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:02:27.014 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 7.6752ms
+2025-01-21 14:05:59.971 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:05:59.974 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:05:59.974 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 3.0059ms
+2025-01-21 14:06:00.230 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:00.239 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:00.240 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:00.240 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:06:00.246 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:06:00.249 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:06:00.250 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:06:00.251 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 10.677ms
+2025-01-21 14:06:00.251 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:00.251 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 21.0004ms
+2025-01-21 14:06:13.015 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:13.015 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:13.016 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1969ms
+2025-01-21 14:06:13.266 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:13.266 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:13.267 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:13.267 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:06:13.274 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:06:13.278 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:06:13.284 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:06:13.284 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 16.8716ms
+2025-01-21 14:06:13.284 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:13.284 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 18.5821ms
+2025-01-21 14:06:27.867 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:27.867 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:27.867 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1736ms
+2025-01-21 14:06:27.981 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:27.994 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:27.994 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:27.994 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:06:28.004 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:06:28.005 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:06:28.005 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:06:28.005 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 10.7409ms
+2025-01-21 14:06:28.005 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:28.005 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 24.4171ms
+2025-01-21 14:06:43.588 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:43.588 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:43.588 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.195ms
+2025-01-21 14:06:44.101 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:06:44.102 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:06:44.103 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:44.103 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:06:44.107 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:06:44.109 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:06:44.109 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:06:44.110 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 6.452ms
+2025-01-21 14:06:44.110 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:06:44.110 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 9.1621ms
+2025-01-21 14:09:13.254 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:09:13.254 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:09:13.255 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1746ms
+2025-01-21 14:09:13.262 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:09:13.263 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:09:13.263 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:09:13.263 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:09:13.267 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:09:13.268 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:09:13.269 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:09:13.269 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.8045ms
+2025-01-21 14:09:13.269 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:09:13.269 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.5454ms
+2025-01-21 14:09:21.687 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:09:21.687 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:09:21.687 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3219ms
+2025-01-21 14:09:44.140 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:09:44.140 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:09:44.140 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3502ms
+2025-01-21 14:09:44.146 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:09:44.146 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:09:44.146 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:09:44.146 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:09:44.152 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:09:44.154 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:09:44.155 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:09:44.156 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.5758ms
+2025-01-21 14:09:44.156 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:09:44.156 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 10.1106ms
+2025-01-21 14:13:54.773 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:13:54.773 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:13:54.773 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2301ms
+2025-01-21 14:13:54.778 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:13:54.778 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:13:54.778 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:13:54.778 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:13:54.782 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:13:54.784 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:13:54.784 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:13:54.786 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 7.5091ms
+2025-01-21 14:13:54.786 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:13:54.786 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.3595ms
+2025-01-21 14:14:11.089 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:11.089 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:11.089 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2013ms
+2025-01-21 14:14:11.093 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:11.093 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:11.094 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:11.094 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:14:11.097 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:14:11.098 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:14:11.098 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:14:11.098 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.6739ms
+2025-01-21 14:14:11.098 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:11.099 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.2774ms
+2025-01-21 14:14:15.788 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:15.788 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:15.789 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:15.789 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:14:15.793 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:14:15.794 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:14:15.794 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:14:15.794 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.5128ms
+2025-01-21 14:14:15.794 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:15.794 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.8164ms
+2025-01-21 14:14:38.852 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:38.852 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:38.853 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4895ms
+2025-01-21 14:14:38.857 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:38.857 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:38.858 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:38.859 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:14:38.864 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:14:38.865 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:14:38.866 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:14:38.866 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 7.0426ms
+2025-01-21 14:14:38.866 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:38.866 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 9.0445ms
+2025-01-21 14:14:51.910 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:51.910 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:51.910 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1765ms
+2025-01-21 14:14:51.914 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:14:51.914 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:14:51.914 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:51.915 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:14:51.919 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:14:51.920 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:14:51.920 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:14:51.920 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.6685ms
+2025-01-21 14:14:51.920 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:14:51.921 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.4898ms
+2025-01-21 14:52:35.325 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:52:35.326 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:52:35.326 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.5922ms
+2025-01-21 14:52:35.330 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:52:35.330 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:52:35.331 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:52:35.331 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:52:35.346 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:52:35.347 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:52:35.347 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:52:35.347 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 15.9922ms
+2025-01-21 14:52:35.347 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:52:35.347 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 17.014ms
+2025-01-21 14:52:47.135 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:52:47.135 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:52:47.135 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1675ms
+2025-01-21 14:52:47.141 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:52:47.141 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:52:47.143 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:52:47.144 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:52:47.186 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:52:47.187 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:52:47.187 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:52:47.187 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 43.1647ms
+2025-01-21 14:52:47.187 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:52:47.187 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 46.1144ms
+2025-01-21 14:56:25.065 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:56:25.066 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:56:25.066 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 1.2197ms
+2025-01-21 14:56:25.071 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:56:25.072 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:56:25.073 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:56:25.073 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:56:25.076 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:56:25.077 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:56:25.077 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:56:25.078 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.2249ms
+2025-01-21 14:56:25.078 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:56:25.079 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 7.6051ms
+2025-01-21 14:57:08.472 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:57:08.473 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:57:08.473 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2559ms
+2025-01-21 14:57:08.478 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:57:08.478 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:57:08.478 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:57:08.478 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:57:08.481 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:57:08.481 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:57:08.482 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:57:08.482 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.4794ms
+2025-01-21 14:57:08.482 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:57:08.482 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.1361ms
+2025-01-21 14:57:40.094 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:57:40.094 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:57:40.094 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4047ms
+2025-01-21 14:57:40.098 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:57:40.098 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:57:40.099 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:57:40.099 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:57:40.101 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:57:40.102 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:57:40.102 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:57:40.102 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.3901ms
+2025-01-21 14:57:40.102 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:57:40.102 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.1474ms
+2025-01-21 14:58:08.496 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:58:08.496 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:58:08.496 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2297ms
+2025-01-21 14:58:08.501 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 14:58:08.501 +07:00 [INF] CORS policy execution successful.
+2025-01-21 14:58:08.501 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:58:08.502 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 14:58:08.505 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 14:58:08.505 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 14:58:08.505 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 14:58:08.505 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.8542ms
+2025-01-21 14:58:08.506 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 14:58:08.506 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.6984ms
+2025-01-21 15:40:36.574 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:40:36.575 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:40:36.576 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 2.456ms
+2025-01-21 15:40:36.584 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:40:36.585 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:40:36.586 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:40:36.588 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:40:36.625 +07:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:40:36.627 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:40:36.629 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:40:36.630 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 41.9465ms
+2025-01-21 15:40:36.630 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:40:36.630 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 45.3984ms
+2025-01-21 15:40:49.073 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:40:49.073 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:40:49.073 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1563ms
+2025-01-21 15:40:49.082 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:40:49.083 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:40:49.084 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:40:49.084 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:40:49.090 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:40:49.093 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:40:49.093 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:40:49.093 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.611ms
+2025-01-21 15:40:49.093 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:40:49.094 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 11.1068ms
+2025-01-21 15:49:00.039 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:00.039 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:00.039 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2153ms
+2025-01-21 15:49:00.043 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:00.043 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:00.043 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:00.043 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:49:00.052 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:49:00.053 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:49:00.053 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:49:00.053 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.8907ms
+2025-01-21 15:49:00.053 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:00.053 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 10.8202ms
+2025-01-21 15:49:17.932 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:17.932 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:17.932 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2843ms
+2025-01-21 15:49:17.939 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:17.939 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:17.939 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:17.939 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:49:17.942 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:49:17.943 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:49:17.943 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:49:17.943 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.5015ms
+2025-01-21 15:49:17.943 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:17.943 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.2256ms
+2025-01-21 15:49:23.921 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:23.921 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:23.921 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.5428ms
+2025-01-21 15:49:23.926 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:23.926 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:23.927 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:23.927 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:49:23.930 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:49:23.930 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:49:23.931 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:49:23.931 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.6172ms
+2025-01-21 15:49:23.932 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:23.932 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.4346ms
+2025-01-21 15:49:34.939 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:34.939 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:34.939 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2096ms
+2025-01-21 15:49:34.943 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:34.943 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:34.943 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:34.944 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:49:34.946 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:49:34.946 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:49:34.946 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:49:34.947 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.0937ms
+2025-01-21 15:49:34.947 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:34.947 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 3.6193ms
+2025-01-21 15:49:45.886 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:45.886 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:45.886 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.6982ms
+2025-01-21 15:49:45.894 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:49:45.895 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:49:45.895 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:45.895 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:49:45.900 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:49:45.901 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:49:45.902 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:49:45.902 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 6.8654ms
+2025-01-21 15:49:45.902 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:49:45.902 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 7.94ms
+2025-01-21 15:50:12.174 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:12.174 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:12.174 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1427ms
+2025-01-21 15:50:12.178 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:12.178 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:12.178 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:12.178 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:50:12.190 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:50:12.191 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:50:12.191 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:50:12.191 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 12.9657ms
+2025-01-21 15:50:12.191 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:12.192 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 13.4765ms
+2025-01-21 15:50:20.948 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:20.948 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:20.948 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1673ms
+2025-01-21 15:50:20.952 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:20.952 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:20.954 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:20.955 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:50:20.957 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:50:20.957 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:50:20.957 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:50:20.957 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 2.7238ms
+2025-01-21 15:50:20.957 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:20.958 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.6863ms
+2025-01-21 15:50:21.862 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:21.862 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:21.866 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:21.867 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:50:21.874 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:50:21.874 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:50:21.875 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:50:21.875 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 8.2718ms
+2025-01-21 15:50:21.875 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:21.875 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 13.4391ms
+2025-01-21 15:50:39.212 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:39.213 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:39.213 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2992ms
+2025-01-21 15:50:39.217 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:39.217 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:39.219 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:39.219 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:50:39.221 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:50:39.222 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:50:39.222 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:50:39.223 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.8354ms
+2025-01-21 15:50:39.223 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:39.224 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.7648ms
+2025-01-21 15:50:52.152 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:52.152 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:52.152 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1943ms
+2025-01-21 15:50:52.156 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:50:52.156 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:50:52.158 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:52.158 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:50:52.161 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:50:52.162 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:50:52.162 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:50:52.162 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.7037ms
+2025-01-21 15:50:52.162 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:50:52.162 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.9552ms
+2025-01-21 15:51:08.878 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:51:08.878 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:51:08.878 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2223ms
+2025-01-21 15:51:08.888 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:51:08.890 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:51:08.895 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:08.895 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:51:08.899 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:51:08.900 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:51:08.900 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:51:08.900 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.176ms
+2025-01-21 15:51:08.900 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:08.900 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 12.2077ms
+2025-01-21 15:51:55.846 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:51:55.846 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:51:55.846 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2072ms
+2025-01-21 15:51:55.850 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:51:55.850 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:51:55.851 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:55.851 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:51:55.854 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:51:55.854 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:51:55.855 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:51:55.855 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.0735ms
+2025-01-21 15:51:55.855 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:55.855 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.2117ms
+2025-01-21 15:51:56.833 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:51:56.833 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:51:56.833 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:56.834 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:51:56.845 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:51:56.846 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:51:56.846 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:51:56.847 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.8165ms
+2025-01-21 15:51:56.847 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:51:56.847 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 14.3664ms
+2025-01-21 15:52:01.762 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:52:01.762 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:52:01.762 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3871ms
+2025-01-21 15:52:01.774 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:52:01.774 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:52:01.775 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:52:01.775 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:52:01.779 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:52:01.780 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:52:01.780 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:52:01.780 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.4823ms
+2025-01-21 15:52:01.780 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:52:01.780 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.1528ms
+2025-01-21 15:52:48.474 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:52:48.474 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:52:48.474 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1866ms
+2025-01-21 15:52:48.480 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:52:48.480 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:52:48.481 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:52:48.481 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:52:48.485 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:52:48.486 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:52:48.486 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:52:48.486 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.9465ms
+2025-01-21 15:52:48.486 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:52:48.486 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.2766ms
+2025-01-21 15:53:43.706 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:53:43.706 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:53:43.706 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1896ms
+2025-01-21 15:53:43.711 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:53:43.711 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:53:43.711 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:53:43.712 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:53:43.714 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:53:43.715 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:53:43.715 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:53:43.715 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.3005ms
+2025-01-21 15:53:43.715 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:53:43.715 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 3.8845ms
+2025-01-21 15:54:34.132 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:54:34.132 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:54:34.132 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1947ms
+2025-01-21 15:54:34.140 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:54:34.140 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:54:34.140 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:54:34.140 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:54:34.164 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:54:34.165 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:54:34.167 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:54:34.167 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 26.8522ms
+2025-01-21 15:54:34.167 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:54:34.167 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 27.5319ms
+2025-01-21 15:54:49.301 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:54:49.301 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:54:49.301 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1773ms
+2025-01-21 15:54:49.311 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:54:49.311 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:54:49.311 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:54:49.311 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:54:49.316 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:54:49.319 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:54:49.319 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:54:49.319 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 8.1365ms
+2025-01-21 15:54:49.319 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:54:49.320 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.8189ms
+2025-01-21 15:59:47.714 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:59:47.715 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:59:47.715 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.906ms
+2025-01-21 15:59:47.723 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 15:59:47.723 +07:00 [INF] CORS policy execution successful.
+2025-01-21 15:59:47.724 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:59:47.724 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 15:59:47.734 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 15:59:47.735 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 15:59:47.735 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 15:59:47.736 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 11.6836ms
+2025-01-21 15:59:47.736 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 15:59:47.736 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 12.4436ms
+2025-01-21 16:01:52.592 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:01:52.592 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:01:52.592 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2166ms
+2025-01-21 16:01:52.849 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:01:52.849 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:01:52.850 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:01:52.850 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:01:52.867 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:01:52.869 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:01:52.869 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:01:52.870 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 19.8161ms
+2025-01-21 16:01:52.870 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:01:52.875 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 20.3569ms
+2025-01-21 16:06:57.194 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:06:57.194 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:06:57.194 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1814ms
+2025-01-21 16:06:57.199 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:06:57.199 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:06:57.199 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:06:57.199 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:06:57.206 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:06:57.207 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:06:57.207 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:06:57.207 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 7.6571ms
+2025-01-21 16:06:57.207 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:06:57.207 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 8.2127ms
+2025-01-21 16:08:06.193 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:08:06.193 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:08:06.193 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3708ms
+2025-01-21 16:08:06.200 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:08:06.200 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:08:06.200 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:08:06.200 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:08:06.204 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:08:06.205 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:08:06.205 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:08:06.205 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.0206ms
+2025-01-21 16:08:06.205 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:08:06.205 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.4419ms
+2025-01-21 16:11:41.230 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:11:41.230 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:11:41.230 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2157ms
+2025-01-21 16:11:41.235 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:11:41.235 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:11:41.235 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:11:41.236 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:11:41.243 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:11:41.245 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:11:41.245 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:11:41.245 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 9.4968ms
+2025-01-21 16:11:41.245 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:11:41.245 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 10.4666ms
+2025-01-21 16:12:40.834 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:12:40.834 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:12:40.836 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 2.2696ms
+2025-01-21 16:12:40.846 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:12:40.846 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:12:40.846 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:12:40.846 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:12:40.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:12:40.850 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:12:40.850 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:12:40.851 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.9868ms
+2025-01-21 16:12:40.851 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:12:40.851 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 4.9842ms
+2025-01-21 16:12:52.650 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:12:52.650 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:12:52.650 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.2157ms
+2025-01-21 16:12:52.658 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:12:52.658 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:12:52.659 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:12:52.659 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:12:52.663 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:12:52.663 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:12:52.663 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:12:52.664 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.9707ms
+2025-01-21 16:12:52.664 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:12:52.664 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.6995ms
+2025-01-21 16:13:38.299 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:13:38.300 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:13:38.300 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.1758ms
+2025-01-21 16:13:38.310 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-21 16:13:38.310 +07:00 [INF] CORS policy execution successful.
+2025-01-21 16:13:38.310 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:13:38.310 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-21 16:13:38.313 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-21 16:13:38.313 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-21 16:13:38.313 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-21 16:13:38.314 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 3.1081ms
+2025-01-21 16:13:38.314 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-21 16:13:38.314 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 3.6148ms

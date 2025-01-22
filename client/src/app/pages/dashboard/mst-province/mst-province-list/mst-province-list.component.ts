@@ -24,6 +24,13 @@ import { IBaseResponse } from '../../../../interfaces/common';
 import { ButtonCommonComponent } from '../../../../component-ui-common/button-common/button-common.component';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { Checker } from '../../../../helpers/validator/checker';
+import { TagStatusComponent } from '../../../../components/tag-status/tag-status.component';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { IconCommonComponent } from '../../../../component-ui-common/icon-common/icon-common.component';
+import { SidebarSearchComponent } from '../../../../components/sidebar-search/sidebar-search.component';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @Component({
   selector: 'app-mst-province',
   standalone: true,
@@ -40,6 +47,13 @@ import { Checker } from '../../../../helpers/validator/checker';
     NzSpaceModule,
     BreadcrumbComponent,
     ButtonCommonComponent,
+    TagStatusComponent,
+    NzLayoutModule,
+    IconCommonComponent,
+    SidebarSearchComponent,
+    NzFormModule,
+    ReactiveFormsModule,
+    NzInputModule,
   ],
   templateUrl: './mst-province-list.component.html',
   styleUrls: ['./mst-province-list.component.scss'],
@@ -49,12 +63,17 @@ export class MstProvinceComponent implements OnInit {
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
   private loadingService = inject(LoadingService);
+  private fb = inject(NonNullableFormBuilder);
 
   dataSource: IProvince[] = [];
   titlePopup: TTitlePopup = '';
   formDataSource: IRequestProvinceCreate = this.getDefaultFormData();
   _isOpenPopup = false;
   _isOpenImportExcelPopup = false;
+
+  validateForm = this.fb.group({
+    Keyword: this.fb.control(''),
+  });
 
   listButtonsHeader = [
     {
@@ -66,6 +85,11 @@ export class MstProvinceComponent implements OnInit {
       text: 'ImportExcel',
       iconType: 'upload',
       onClick: () => this.handleOpenImportExcel(),
+    },
+    {
+      text: 'ExportExcel',
+      iconType: 'export',
+      onClick: () => this.handleExportExcel(),
     },
   ];
 
@@ -129,8 +153,18 @@ export class MstProvinceComponent implements OnInit {
     this.setLoading(true);
     this.api.MstProvinceExportTemplate().subscribe({
       next: response => {
-        console.log('response', response);
         Checker.DownloadFile(response, 'Mst_Provice_Template');
+      },
+      error: err => this.handleApiError(err),
+      complete: () => this.setLoading(false),
+    });
+  }
+
+  private exportExcel() {
+    this.setLoading(true);
+    this.api.MstProvinceExportExcel().subscribe({
+      next: response => {
+        Checker.DownloadFile(response, 'Mst_Provice_Data');
       },
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
@@ -154,7 +188,6 @@ export class MstProvinceComponent implements OnInit {
   }
 
   handleOpenCreate(): void {
-    console.log('object');
     this._isOpenPopup = true;
     this.titlePopup = 'Create';
     this.formDataSource = this.getDefaultFormData();
@@ -183,8 +216,11 @@ export class MstProvinceComponent implements OnInit {
   }
 
   handleExportTemplateFile() {
-    console.log('click');
     this.exportTemplateFile();
+  }
+
+  handleExportExcel() {
+    this.exportExcel();
   }
 
   private setLoading(isLoading: boolean): void {

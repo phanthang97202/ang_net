@@ -12,14 +12,15 @@
   [nzGhost]="nzGhost"
   nz-popconfirm
   [nzCondition]="!isShowConfirm"
-  nzPopconfirmTitle="Title"
+  [nzPopconfirmTitle]="titleConfirm"
   (nzOnConfirm)="isShowConfirm && confirm()"
   (nzOnCancel)="cancel()">
   <p>
     <app-icon-common
       *ngIf="iconType"
       [iconType]="iconType"
-      [iconTheme]="iconTheme"></app-icon-common>
+      [iconTheme]="iconTheme"
+      [iconRotate]="iconRotate"></app-icon-common>
     {{ text }}
   </p>
 </button>

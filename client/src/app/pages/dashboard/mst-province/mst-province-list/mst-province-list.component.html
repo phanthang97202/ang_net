@@ -1,54 +1,91 @@
-<app-breadcrumb [buttons]="listButtonsHeader" />
-<nz-table
-  nzShowSizeChanger
-  [nzData]="dataSource"
-  [nzFrontPagination]="false"
-  [nzLoading]="false">
-  <thead>
-    <tr>
-      <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
-      <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
-      <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
-      <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
-      <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let data of dataSource; let i = index">
-      <td>
-        <app-button-common
-          [iconType]="'edit'"
-          [iconTheme]="'outline'"
-          [nzType]="'text'"
-          (_onClick)="handleDetail(data)"></app-button-common>
-        <app-button-common
-          [isShowConfirm]="true"
-          [iconType]="'delete'"
-          [iconTheme]="'outline'"
-          [nzType]="'text'"
-          (_onClick)="handleDelete(data)"></app-button-common>
-        <!-- <button nz-button nzType="text" (click)="handleDetail(data)">
-          <span nz-icon nzType="edit" nzTheme="outline"></span>
-        </button>
-        <button nz-button nzType="text" (click)="handleDelete(data)">
-          <span nz-icon nzType="delete" nzTheme="outline"></span>
-        </button> -->
-      </td>
-      <td>
-        {{ i + 1 }}
-      </td>
-      <td>
-        {{ data.ProvinceCode }}
-      </td>
-      <td>{{ data.ProvinceName }}</td>
-      <td>
-        <nz-tag [nzColor]="data.FlagActive ? 'green' : 'red'">{{
-          data.FlagActive ? 'Active' : 'Inactive'
-        }}</nz-tag>
-      </td>
-    </tr>
-  </tbody>
-</nz-table>
+<div class="master__container">
+  <nz-layout>
+    <nz-sider
+      [nzCollapsed]="true"
+      [nzCollapsedWidth]="0"
+      [nzZeroTrigger]="rezoTriggerTemplate"
+      nzCollapsible
+      nzWidth="300px"
+      [nzTheme]="'light'">
+      <div class="sidebar__content">
+        <div>
+          <div>
+            <app-button-common
+              class="w-full"
+              [iconType]="'to-top'"
+              [nzType]="'text'"
+              [text]="'Search'"
+              [iconRotate]="90"></app-button-common>
+          </div>
+          <form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="null">Keyword</nz-form-label>
+              <nz-form-control [nzSpan]="null" nzErrorTip="PleaseEnterKeyword">
+                <input nz-input formControlName="Keyword" id="Keyword" />
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </div>
+
+        <div>
+          <app-button-common
+            class="w-full"
+            [iconType]="'search'"
+            [nzType]="'primary'"
+            [text]="'Search'"></app-button-common>
+        </div>
+      </div>
+    </nz-sider>
+
+    <!-- <app-sidebar-search /> -->
+
+    <nz-content>
+      <!-- <app-breadcrumb [buttons]="listButtonsHeader" /> -->
+      <nz-table
+        nzShowSizeChanger
+        [nzData]="dataSource"
+        [nzFrontPagination]="false"
+        [nzLoading]="false">
+        <thead>
+          <tr>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
+            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
+            <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of dataSource; let i = index">
+            <td>
+              <app-button-common
+                [iconType]="'edit'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDetail(data)"></app-button-common>
+              <app-button-common
+                [isShowConfirm]="true"
+                [iconType]="'delete'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDelete(data)"></app-button-common>
+            </td>
+            <td>
+              {{ i + 1 }}
+            </td>
+            <td>
+              {{ data.ProvinceCode }}
+            </td>
+            <td>{{ data.ProvinceName }}</td>
+            <td>
+              <app-tag-status [boolData]="data.FlagActive"></app-tag-status>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+</div>
 <save-province-popup
   [titlePopup]="titlePopup"
   [formDataSource]="formDataSource"
@@ -59,3 +96,10 @@
   [(isOpenPopup)]="_isOpenImportExcelPopup"
   (_onUploadFile)="handleUploadFile($event)"
   (_onExportTemplateFile)="handleExportTemplateFile()" />
+
+<ng-template #rezoTriggerTemplate>
+  <app-button-common
+    [isShowConfirm]="true"
+    [iconType]="'search'"
+    [nzType]="'primary'"></app-button-common>
+</ng-template>

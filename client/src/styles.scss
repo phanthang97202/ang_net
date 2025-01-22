@@ -58,3 +58,13 @@ html {
   body {
     overflow-y: auto; 
   }
+
+
+  // styles for sidebar search master bussiness
+  .sidebar__content {
+    padding: 0 10px;
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }

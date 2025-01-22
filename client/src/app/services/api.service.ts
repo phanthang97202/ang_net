@@ -59,12 +59,7 @@ export class ApiService {
   }
 
   MstProvinceImportExcel(file: File): Observable<IResponseProvinceCreate> {
-    console.log('🚀 ~ ApiService ~ MstProvinceImportExcel ~ file:', file);
     const formData = new FormData();
-    console.log(
-      '🚀 ~ ApiService ~ MstProvinceImportExcel ~ formData:',
-      formData
-    );
     formData.append('file', file);
     return this.http.post<IResponseProvinceCreate>(
       `${this.apiUrl}MstProvince/ImportExcel`,
@@ -77,10 +72,10 @@ export class ApiService {
     );
   }
 
-  MstProvinceExportExcel(): Observable<IResponseProvinceSearch> {
-    return this.http.get<IResponseProvinceSearch>(
-      `${this.apiUrl}MstProvince/ExportExcel`
-    );
+  MstProvinceExportExcel() {
+    return this.http.get(`${this.apiUrl}MstProvince/ExportExcel`, {
+      responseType: 'blob',
+    });
   }
 
   MstProvinceExportTemplate() {

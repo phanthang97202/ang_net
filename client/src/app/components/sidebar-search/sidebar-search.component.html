@@ -1,0 +1,16 @@
+<nz-sider
+  [nzCollapsed]="true"
+  [nzCollapsedWidth]="0"
+  [nzZeroTrigger]="rezoTriggerTemplate"
+  nzCollapsible
+  nzWidth="100px"
+  [nzTheme]="'light'"
+  >left sidebar</nz-sider
+>
+
+<ng-template #rezoTriggerTemplate>
+  <app-button-common
+    [isShowConfirm]="true"
+    [iconType]="'search'"
+    [nzType]="'primary'"></app-button-common>
+</ng-template>

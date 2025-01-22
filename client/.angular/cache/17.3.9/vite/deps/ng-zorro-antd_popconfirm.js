@@ -1,27 +1,11 @@
 import {
+  A11yModule,
+  CdkTrapFocus
+} from "./chunk-RF6ON4JH.js";
+import {
   NzToolTipComponent,
   NzTooltipBaseDirective
-} from "./chunk-MQAJBLBO.js";
-import {
-  NzI18nModule,
-  NzI18nPipe
-} from "./chunk-H5CIFMSQ.js";
-import {
-  NzNoAnimationDirective
-} from "./chunk-CSDA6CPU.js";
-import {
-  NzConnectedOverlayDirective,
-  NzOverlayModule
-} from "./chunk-TNC4JXPO.js";
-import {
-  CdkConnectedOverlay,
-  OverlayModule
-} from "./chunk-ZZUJ3SND.js";
-import "./chunk-7AXRTXGX.js";
-import "./chunk-QTPV4WNA.js";
-import {
-  zoomBigMotion
-} from "./chunk-NVNECB4U.js";
+} from "./chunk-2KZTB5B3.js";
 import {
   NzButtonComponent,
   NzButtonModule
@@ -32,19 +16,35 @@ import {
 import {
   NzWaveDirective
 } from "./chunk-JHNU6GPU.js";
-import "./chunk-5LPTEFFD.js";
-import "./chunk-5R3VAUVA.js";
-import "./chunk-UZUTYCO5.js";
+import {
+  NzI18nModule,
+  NzI18nPipe
+} from "./chunk-H5CIFMSQ.js";
+import {
+  NzNoAnimationDirective
+} from "./chunk-CSDA6CPU.js";
+import {
+  NzConnectedOverlayDirective,
+  NzOverlayModule
+} from "./chunk-A2UKVHIG.js";
+import {
+  CdkConnectedOverlay,
+  OverlayModule
+} from "./chunk-3TMBZ3B5.js";
+import "./chunk-T4JA2NQD.js";
+import "./chunk-7AXRTXGX.js";
+import "./chunk-QTPV4WNA.js";
+import "./chunk-UEKQJVVI.js";
+import {
+  zoomBigMotion
+} from "./chunk-NVNECB4U.js";
 import {
   NzOutletModule,
   NzStringTemplateOutletDirective
 } from "./chunk-UE57DXRH.js";
-import {
-  A11yModule,
-  CdkTrapFocus
-} from "./chunk-RF6ON4JH.js";
-import "./chunk-T4JA2NQD.js";
-import "./chunk-UEKQJVVI.js";
+import "./chunk-5LPTEFFD.js";
+import "./chunk-5R3VAUVA.js";
+import "./chunk-UZUTYCO5.js";
 import {
   NzIconDirective,
   NzIconModule
