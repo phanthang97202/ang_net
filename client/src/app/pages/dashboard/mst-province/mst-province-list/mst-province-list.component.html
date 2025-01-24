@@ -1,23 +1,30 @@
 <div class="master__container">
+  <app-breadcrumb [buttons]="listButtonsHeader" />
+  <app-button-common
+    class=" "
+    [iconType]="'search'"
+    [nzType]="'text'"></app-button-common>
   <nz-layout>
     <nz-sider
       [nzCollapsed]="true"
       [nzCollapsedWidth]="0"
-      [nzZeroTrigger]="rezoTriggerTemplate"
-      nzCollapsible
-      nzWidth="300px"
+      [nzCollapsible]="false"
+      nzWidth="0px"
       [nzTheme]="'light'">
       <div class="sidebar__content">
-        <div>
-          <div>
+        <div class="sidebar__form">
+          <div class="sidebar__form--close">
             <app-button-common
-              class="w-full"
+              class="w-full sidebar__form--close-btn"
               [iconType]="'to-top'"
               [nzType]="'text'"
-              [text]="'Search'"
-              [iconRotate]="90"></app-button-common>
+              [iconRotate]="-90"></app-button-common>
           </div>
-          <form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+          <form
+            class="sidebar__form--form"
+            nz-form
+            [formGroup]="validateForm"
+            [nzLayout]="'vertical'">
             <nz-form-item>
               <nz-form-label [nzSpan]="null">Keyword</nz-form-label>
               <nz-form-control [nzSpan]="null" nzErrorTip="PleaseEnterKeyword">
@@ -27,7 +34,7 @@
           </form>
         </div>
 
-        <div>
+        <div class="sidebar__btnsearch">
           <app-button-common
             class="w-full"
             [iconType]="'search'"
@@ -40,7 +47,6 @@
     <!-- <app-sidebar-search /> -->
 
     <nz-content>
-      <!-- <app-breadcrumb [buttons]="listButtonsHeader" /> -->
       <nz-table
         nzShowSizeChanger
         [nzData]="dataSource"
@@ -101,5 +107,5 @@
   <app-button-common
     [isShowConfirm]="true"
     [iconType]="'search'"
-    [nzType]="'primary'"></app-button-common>
+    [nzType]="'text'"></app-button-common>
 </ng-template>

@@ -67,4 +67,21 @@ html {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    .sidebar__form {
+      &--close {
+        &-btn {
+          text-align: right;
+          padding: 0 4px;
+        }
+      }
+
+      &--form {
+
+      }
+
+    }  
+    .sidebar__btnsearch {
+
+    }
   }
