@@ -20,17 +20,21 @@ namespace API.Respositories
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AccountRespository(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountRespository(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext dbContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _dbContext = dbContext;
         }
 
-        public string GenerateToken(AppUser user)
+        public string GenerateAccessToken(AppUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JWTSetting").GetSection("securityKey").Value!);
+            var validAudience = _configuration.GetSection("JWTSetting").GetSection("validAudience").Value!;
+            var validIssuer = _configuration.GetSection("JWTSetting").GetSection("validIssuer").Value!;
+            var accessTokenExpired = Convert.ToDouble(_configuration.GetSection("JWTSetting").GetSection("accessTokenExpired").Value!);
             var roles = _userManager.GetRolesAsync(user).Result;
 
             List<Claim> claims = [
@@ -40,11 +44,11 @@ namespace API.Respositories
                 //new (JwtRegisteredClaimNames., user.Avatar ?? "") ,
                 new (
                     JwtRegisteredClaimNames.Aud,
-                    _configuration.GetSection("JWTSetting").GetSection("validAudience").Value!
+                    validAudience
                 ),
                 new (
                     JwtRegisteredClaimNames.Iss,
-                    _configuration.GetSection("JWTSetting").GetSection("validIssuer").Value!
+                    validIssuer
                 )
             ];
 
@@ -56,7 +60,7 @@ namespace API.Respositories
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(8),
+                Expires = DateTime.UtcNow.AddHours(accessTokenExpired),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256
@@ -66,6 +70,12 @@ namespace API.Respositories
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            string refreshToken = Guid.NewGuid().ToString();
+            return refreshToken;
         }
 
         public async Task<ApiResponse<UserDetailDto>> GetAllUser(ClaimsPrincipal User)
@@ -162,11 +172,25 @@ namespace API.Respositories
                 return apiResponse;
             }
 
-            var token = GenerateToken(user);
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpired = Convert.ToDouble(_configuration.GetSection("JWTSetting").GetSection("refreshTokenExpired").Value!);
+
+            RefreshTokenModel dtRefreshToken = new RefreshTokenModel
+            {
+                RefreshToken = refreshToken,
+                UserId = user.Id,
+                ExpiryDate = DateTime.Now.AddDays(refreshTokenExpired),
+                IsRevoked = false,
+            };
+
+            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            await _dbContext.SaveChangesAsync();
 
             AuthResponseDto data = new AuthResponseDto
             {
-                Token = token,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
             };
 
             apiResponse.Data = data;

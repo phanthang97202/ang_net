@@ -16,6 +16,11 @@ namespace API.Data
 
         }
 
+        // 
+        public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
+
+        //
+
         public DbSet<MstProvinceModel> MstProvinces { get; set; }
         public DbSet<MstDistrictModel> MstDistricts { get; set; }
         public DbSet<MstStadiumStatusModel> MstStadiumStatuses { get; set; }
@@ -36,6 +41,13 @@ namespace API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // RefreshTokenModel
+            modelBuilder.Entity<RefreshTokenModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(r => r.UserId)
+                        .OnDelete(DeleteBehavior.Restrict);
 
             // ChatModel
             modelBuilder.Entity<ChatModel>().ToTable("Chat");

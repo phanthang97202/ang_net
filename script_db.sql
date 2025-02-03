@@ -5,7 +5,7 @@ select count(*) from MstProvinces
 select * from MstProvinces where CreatedDTime > '2024-12-07'
 delete from MstProvinces where CreatedDTime > '2024-12-07'
 
-select * from AspNetUsers where UserId = "9d430ca5-5214-4be5-b68f-ff1214c189ca"
+select * from AspNetUsers where id = "9d430ca5-5214-4be5-b68f-ff1214c189ca"
 select * from AspNetUserRoles
 select * from AspNetRoles
 select * from chat
@@ -92,6 +92,8 @@ SELECT DISTINCT NewsId FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM 
 DELETE FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM News);
 
 
+select * from RefreshTokens
+delete from RefreshTokens
 
 
 

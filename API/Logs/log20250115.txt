@@ -1,0 +1,164 @@
+2025-01-15 22:32:12.473 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-01-15 22:32:12.807 +07:00 [INF] Now listening on: http://localhost:5000
+2025-01-15 22:32:12.809 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-15 22:32:12.809 +07:00 [INF] Hosting environment: Development
+2025-01-15 22:32:12.809 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-01-15 22:46:19.317 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-01-15 22:46:19.767 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:19.785 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 472.7492ms
+2025-01-15 22:46:19.800 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-01-15 22:46:19.810 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:21.304 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-15 22:46:21.371 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-01-15 22:46:23.573 +07:00 [INF] Executed DbCommand (64ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-01-15 22:46:23.774 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-01-15 22:46:23.872 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-15 22:46:23.897 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2519.9554ms
+2025-01-15 22:46:23.897 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-01-15 22:46:23.901 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 4102.0082ms
+2025-01-15 22:46:33.366 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 22:46:33.368 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:33.369 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 3.1381ms
+2025-01-15 22:46:33.374 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 22:46:33.387 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:33.541 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 22:46:33.550 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:46:33.826 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-15 22:46:33.855 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-15 22:46:33.855 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-01-15 22:46:33.859 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-15 22:46:33.860 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-15 22:46:33.893 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 342.4874ms
+2025-01-15 22:46:33.893 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 22:46:33.893 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 519.5775ms
+2025-01-15 22:46:49.094 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ImportExcel - null null
+2025-01-15 22:46:49.097 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:49.098 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ImportExcel - 204 null null 3.5925ms
+2025-01-15 22:46:49.102 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstProvince/ImportExcel - multipart/form-data; boundary=----WebKitFormBoundary8DAD12FPOk1AnDOD 7519
+2025-01-15 22:46:49.102 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:46:49.104 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ImportExcel (API)'
+2025-01-15 22:46:49.107 +07:00 [INF] Route matched with {action = "ImportExcel", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ImportExcel(Microsoft.AspNetCore.Http.IFormFile) on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:46:50.285 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-01-15 22:46:50.287 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-15 22:46:50.314 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ImportExcel (API) in 1206.2573ms
+2025-01-15 22:46:50.314 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ImportExcel (API)'
+2025-01-15 22:46:50.314 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstProvince/ImportExcel - 200 null application/json; charset=utf-8 1212.3744ms
+2025-01-15 22:48:32.622 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:48:32.622 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:48:32.622 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 1.1777ms
+2025-01-15 22:48:32.627 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:48:32.629 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:48:32.630 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:48:32.639 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:48:35.356 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:48:35.364 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 2724.6805ms
+2025-01-15 22:48:35.364 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:48:35.364 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 2736.473ms
+2025-01-15 22:49:37.725 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:37.725 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:37.726 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 0.7578ms
+2025-01-15 22:49:37.742 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:37.743 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:37.744 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:37.744 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:37.844 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:49:37.845 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 101.2189ms
+2025-01-15 22:49:37.845 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:37.845 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 103.2722ms
+2025-01-15 22:49:40.654 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 22:49:40.655 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:40.655 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4592ms
+2025-01-15 22:49:40.679 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 22:49:40.680 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:40.681 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 22:49:40.681 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:40.704 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-15 22:49:40.706 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-15 22:49:40.707 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-15 22:49:40.707 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 25.7967ms
+2025-01-15 22:49:40.707 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 22:49:40.707 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 28.1848ms
+2025-01-15 22:49:45.695 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:45.695 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:45.695 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 0.4999ms
+2025-01-15 22:49:45.700 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:45.700 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:45.700 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:45.700 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:45.713 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:49:45.713 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 12.6951ms
+2025-01-15 22:49:45.713 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:45.713 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 13.6649ms
+2025-01-15 22:49:47.278 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:47.279 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:47.279 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 0.254ms
+2025-01-15 22:49:47.289 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:47.289 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:47.290 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:47.290 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:47.299 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:49:47.299 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 9.1808ms
+2025-01-15 22:49:47.299 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:47.299 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 10.0885ms
+2025-01-15 22:49:48.433 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:48.433 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:48.433 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 0.4343ms
+2025-01-15 22:49:48.441 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:48.442 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:48.442 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:48.442 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:48.452 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:49:48.453 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 10.2563ms
+2025-01-15 22:49:48.453 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:48.453 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 11.8686ms
+2025-01-15 22:49:59.611 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:59.611 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:59.612 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/ExportTemplate - 204 null null 0.3256ms
+2025-01-15 22:49:59.615 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - null null
+2025-01-15 22:49:59.615 +07:00 [INF] CORS policy execution successful.
+2025-01-15 22:49:59.616 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:59.616 +07:00 [INF] Route matched with {action = "ExportTemplate", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExportTemplate() on controller API.Controllers.MstProvinceController (API).
+2025-01-15 22:49:59.626 +07:00 [INF] Executing FileContentResult, sending file with download name 'Mst_Province_Template.xlsx' ...
+2025-01-15 22:49:59.626 +07:00 [INF] Executed action API.Controllers.MstProvinceController.ExportTemplate (API) in 10.0375ms
+2025-01-15 22:49:59.626 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.ExportTemplate (API)'
+2025-01-15 22:49:59.626 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/ExportTemplate - 200 6956 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet 11.2668ms
+2025-01-15 23:16:51.941 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 23:16:51.967 +07:00 [INF] CORS policy execution successful.
+2025-01-15 23:16:51.977 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 38.2895ms
+2025-01-15 23:16:51.989 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-01-15 23:16:51.995 +07:00 [INF] CORS policy execution successful.
+2025-01-15 23:16:52.066 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 23:16:52.222 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-01-15 23:16:52.914 +07:00 [INF] Executed DbCommand (141ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-01-15 23:16:52.948 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-01-15 23:16:52.953 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Models.MstProvinceModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-01-15 23:16:53.097 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 874.8818ms
+2025-01-15 23:16:53.097 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-01-15 23:16:53.098 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 1109.0984ms
