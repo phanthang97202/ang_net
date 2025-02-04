@@ -1,7 +1,8 @@
 import { IBaseResponse } from './common';
 
 interface IDetailAuth {
-  Token: string;
+  AccessToken: string;
+  RefreshToken: string;
 }
 
 export interface AuthResponse extends IBaseResponse<IDetailAuth> {

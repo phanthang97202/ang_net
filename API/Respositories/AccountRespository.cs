@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TCommonUtils = API.CommonUtils.CommonUtils;
 
 namespace API.Respositories
 {
@@ -60,7 +61,7 @@ namespace API.Respositories
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(accessTokenExpired),
+                Expires = TCommonUtils.DTimeNow().AddHours(accessTokenExpired),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256
@@ -76,6 +77,59 @@ namespace API.Respositories
         {
             string refreshToken = Guid.NewGuid().ToString();
             return refreshToken;
+        }
+
+        public async Task<bool> ValidateRefreshToken(string refreshToken, string userId)
+        {
+            if (TCommonUtils.IsNullOrEmpty(refreshToken) || TCommonUtils.IsNullOrEmpty(userId))
+            {
+                return false;
+            }
+
+            RefreshTokenModel dtRefreshToken = await _dbContext.RefreshTokens
+                                                        .FirstOrDefaultAsync(rt =>
+                                                            rt.RefreshToken == refreshToken
+                                                            && rt.UserId == userId
+                                                        );
+
+            if (dtRefreshToken is null)
+            {
+                return false;
+            }
+
+            bool isRevoked = dtRefreshToken.IsRevoked;
+            bool isExpired = dtRefreshToken.ExpiryDate < TCommonUtils.DTimeNow();
+
+            if (isRevoked == true || isExpired == true)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> RevokeRefreshToken(string refreshToken, string userId)
+        {
+            try
+            {
+                if (TCommonUtils.IsNullOrEmpty(refreshToken) || TCommonUtils.IsNullOrEmpty(userId))
+                {
+                    return false;
+                }
+
+                await _dbContext.RefreshTokens
+                                    .Where(rt => rt.RefreshToken == refreshToken && rt.UserId == userId)
+                                    .ExecuteUpdateAsync<RefreshTokenModel>(setter =>
+                                                                            setter.SetProperty(r => r.IsRevoked, true)
+                                                                          );
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task<ApiResponse<UserDetailDto>> GetAllUser(ClaimsPrincipal User)
@@ -180,11 +234,65 @@ namespace API.Respositories
             {
                 RefreshToken = refreshToken,
                 UserId = user.Id,
-                ExpiryDate = DateTime.Now.AddDays(refreshTokenExpired),
+                ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
                 IsRevoked = false,
             };
 
             _dbContext.RefreshTokens.Add(dtRefreshToken);
+            await _dbContext.SaveChangesAsync();
+
+            AuthResponseDto data = new AuthResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+            };
+
+            apiResponse.Data = data;
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
+        {
+            ApiResponse<AuthResponseDto> apiResponse = new ApiResponse<AuthResponseDto>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            // 1. check xem refresh token hợp lệ không
+            // 2. nếu hợp lệ thì tạo mới access token và refresh token
+            // 3. lưu lại refresh token mới vào db
+            // 4. revoke token cũ
+            // 5. trả về access token và refresh token mới
+
+            AppUser user = await _userManager.FindByIdAsync(refreshTokenDto.UserId);
+
+            if (user is null)
+            {
+                apiResponse.CatchException(false, "Account.UserNotFound", requestClient);
+                return apiResponse;
+            }
+
+            bool isValidRefreshToken = await ValidateRefreshToken(refreshTokenDto.RefreshToken, refreshTokenDto.UserId);
+
+            if (!isValidRefreshToken)
+            {
+                apiResponse.CatchException(false, "Account.RefreshTokenInvalid", requestClient);
+                return apiResponse;
+            }
+
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpired = Convert.ToDouble(_configuration.GetSection("JWTSetting").GetSection("refreshTokenExpired").Value!);
+
+            RefreshTokenModel dtRefreshToken = new RefreshTokenModel
+            {
+                RefreshToken = refreshToken,
+                UserId = user.Id,
+                ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
+                IsRevoked = false,
+            };
+
+            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            await RevokeRefreshToken(refreshTokenDto.RefreshToken, refreshTokenDto.UserId);
             await _dbContext.SaveChangesAsync();
 
             AuthResponseDto data = new AuthResponseDto

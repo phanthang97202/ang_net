@@ -223,9 +223,9 @@ namespace API.Respositories
 
             await _dbContext.MstProvinces.Where(p => p.ProvinceCode == data.ProvinceCode)
                 .ExecuteUpdateAsync(setter =>
-                setter.SetProperty(p => p.ProvinceName, data.ProvinceName)
-                        .SetProperty(p => p.FlagActive, data.FlagActive)
-                        .SetProperty(p => p.UpdatedDTime, DateTime.Now)
+                      setter.SetProperty(p => p.ProvinceName, data.ProvinceName)
+                            .SetProperty(p => p.FlagActive, data.FlagActive)
+                            .SetProperty(p => p.UpdatedDTime, DateTime.Now)
                 );
             await _dbContext.SaveChangesAsync();
 

@@ -1,4 +1,14 @@
 import {
+  NzButtonComponent,
+  NzButtonModule
+} from "./chunk-Z7EJXFSS.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
+import {
+  NzWaveDirective
+} from "./chunk-JHNU6GPU.js";
+import {
   NzI18nService
 } from "./chunk-H5CIFMSQ.js";
 import {
@@ -15,16 +25,6 @@ import {
 import {
   reqAnimFrame
 } from "./chunk-QTPV4WNA.js";
-import {
-  NzButtonComponent,
-  NzButtonModule
-} from "./chunk-Z7EJXFSS.js";
-import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
-import {
-  NzWaveDirective
-} from "./chunk-JHNU6GPU.js";
 import "./chunk-5LPTEFFD.js";
 import "./chunk-5R3VAUVA.js";
 import {

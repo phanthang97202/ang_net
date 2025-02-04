@@ -1,4 +1,5 @@
-﻿namespace API.Dtos
+﻿using TCommonUtils = API.CommonUtils.CommonUtils;
+namespace API.Dtos
 {
     public class RequestClient
     {
@@ -21,7 +22,7 @@
     {
         public bool Success { get; set; } // false | true
         public string ErrorMessage { get; set; } = default!; // default is null
-        public DateTime RequestDTimeAt { get; } = DateTime.UtcNow; // Changed to UtcNow
+        public DateTime RequestDTimeAt { get; } = TCommonUtils.DTimeNow(); // Changed to UtcNow
         public List<RequestClient> RequestClients { get; set; } = default!; // Initialize to an empty list
         public T Data { get; set; } = default!; // Used for get detail data, data was created
         public List<T> DataList { get; set; } = default!; // used for array list, such as: mapping

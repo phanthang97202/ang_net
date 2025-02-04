@@ -54,6 +54,20 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("refreshtoken")]
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
+        {
+            try
+            {
+                ApiResponse<AuthResponseDto> response = await _accountRespository.RefreshToken(refreshTokenDto);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
         // detail user
         [Authorize]
         [HttpGet("detail")]

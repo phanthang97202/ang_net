@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { LoginRequest } from '../interfaces/login-request';
+import { LoginRequest, RefreshTokenRequest } from '../interfaces/login-request';
 import { delay, map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
@@ -24,22 +24,48 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   apiUrl: string = environment.apiUrl;
-  private tokenKey = 'token';
-  constructor(private http: HttpClient, private router: Router) {}
+  private tokenKey = environment.tokenKey;
+  private refreshTokenKey = environment.refreshTokenKey;
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}account/login`, data)
-
       .pipe(
-        // delay(2000),
-        map((response) => {
+        map(response => {
           if (response.Success) {
-            localStorage.setItem(this.tokenKey, response.Data.Token);
+            localStorage.setItem(this.tokenKey, response.Data.AccessToken);
+            localStorage.setItem(
+              this.refreshTokenKey,
+              response.Data.RefreshToken
+            );
           }
           return response;
         })
       );
+  }
+
+  refreshToken(data: RefreshTokenRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}account/refreshtoken`,
+      data
+    );
+    // .pipe(
+    //   map(response => {
+    //     if (response.Success) {
+    //       localStorage.setItem(this.tokenKey, response.Data.AccessToken);
+    //       localStorage.setItem(
+    //         this.refreshTokenKey,
+    //         response.Data.RefreshToken
+    //       );
+    //     }
+
+    //     return response;
+    //   })
+    // );
   }
 
   getUserDetail(): Observable<IUserResponse> {
@@ -86,6 +112,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
     this.router.navigate(['/login']);
   }
 
@@ -101,9 +128,9 @@ export class AuthService {
       new Date((decodedToken['exp'] as number) * 1000)
     );
 
-    if (!isTokenExpried) {
-      this.logout();
-    }
+    // if (!isTokenExpried) {
+    //   this.logout();
+    // }
 
     return isTokenExpried;
   }

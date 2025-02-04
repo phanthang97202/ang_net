@@ -1,5 +1,7 @@
 export const environment = {
   production: false,
+  tokenKey: 'tokenKey',
+  refreshTokenKey: 'refreshTokenKey',
   apiUrl: 'http://localhost:5000/api/',
   wsUrl: 'http://localhost:5000/',
   // anhduongcute97@gmail.com // AnhDuong09072002!??? => fromt to 2024/11/26

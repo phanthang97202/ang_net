@@ -1,6 +1,4 @@
 ﻿using API.Dtos;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -12,22 +10,23 @@ namespace API.CommonUtils
     {
         public static List<RequestClient> GetKeyValuePairRequestClient(object data, ref List<RequestClient> requestClient)
         {
-            if(data is null)
+            if (data is null)
             {
                 RequestClient rc = new RequestClient(data);
                 requestClient.Add(null);
                 return requestClient;
             }
 
-            if (data.GetType() == typeof(string)) {
+            if (data.GetType() == typeof(string))
+            {
                 RequestClient rc = new RequestClient(data);
                 requestClient.Add(rc);
 
                 return requestClient;
-            } 
+            }
 
             PropertyInfo[] properties = data.GetType().GetProperties();
-            
+
             foreach (PropertyInfo p in properties)
             {
                 string key = p.Name;
@@ -166,5 +165,17 @@ namespace API.CommonUtils
             return 0.00;
         }
 
+
+        // 
+
+        public static DateTime DTimeNow()
+        {
+            return DateTime.Now;
+        }
+
+        public static DateTime DTimeAddDay(double days)
+        {
+            return DateTime.Now.AddDays(days);
+        }
     }
 }

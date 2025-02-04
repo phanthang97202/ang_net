@@ -3,6 +3,16 @@ import {
   NzTooltipBaseDirective
 } from "./chunk-VOYSNBFN.js";
 import {
+  NzButtonComponent,
+  NzButtonModule
+} from "./chunk-Z7EJXFSS.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
+import {
+  NzWaveDirective
+} from "./chunk-JHNU6GPU.js";
+import {
   NzI18nModule,
   NzI18nPipe
 } from "./chunk-H5CIFMSQ.js";
@@ -21,16 +31,6 @@ import "./chunk-QTPV4WNA.js";
 import {
   zoomBigMotion
 } from "./chunk-NVNECB4U.js";
-import {
-  NzButtonComponent,
-  NzButtonModule
-} from "./chunk-Z7EJXFSS.js";
-import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
-import {
-  NzWaveDirective
-} from "./chunk-JHNU6GPU.js";
 import "./chunk-5LPTEFFD.js";
 import "./chunk-5R3VAUVA.js";
 import "./chunk-UZUTYCO5.js";

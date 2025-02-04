@@ -3,14 +3,6 @@ import {
   NzTooltipDirective
 } from "./chunk-VOYSNBFN.js";
 import {
-  NzI18nService
-} from "./chunk-H5CIFMSQ.js";
-import "./chunk-CSDA6CPU.js";
-import "./chunk-3NAXRCUC.js";
-import "./chunk-ZCA3HUEH.js";
-import "./chunk-QTPV4WNA.js";
-import "./chunk-NVNECB4U.js";
-import {
   NzButtonComponent,
   NzButtonModule
 } from "./chunk-Z7EJXFSS.js";
@@ -18,6 +10,14 @@ import {
   NzTransitionPatchDirective
 } from "./chunk-KRIRCCFV.js";
 import "./chunk-JHNU6GPU.js";
+import {
+  NzI18nService
+} from "./chunk-H5CIFMSQ.js";
+import "./chunk-CSDA6CPU.js";
+import "./chunk-3NAXRCUC.js";
+import "./chunk-ZCA3HUEH.js";
+import "./chunk-QTPV4WNA.js";
+import "./chunk-NVNECB4U.js";
 import "./chunk-5LPTEFFD.js";
 import "./chunk-5R3VAUVA.js";
 import {
