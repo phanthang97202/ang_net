@@ -196,8 +196,7 @@ export class BlogsComponent implements OnInit {
       });
   }
 
-  onChanges(values: string[] | null): void {
-    console.log(values);
+  onChanges(values: string[] | null): void { 
   }
 
   onSelectedCategoryNews(event: string): void {
@@ -216,7 +215,6 @@ export class BlogsComponent implements OnInit {
 
   submitForm() {
     if (this.validateForm.valid) {
-      console.log('submit', this.thumnail, this.validateForm.value);
       // return;
       this.apiService
         .CreateNews({
@@ -278,8 +276,6 @@ export class BlogsComponent implements OnInit {
   };
 
   handleContentChangedEditor({ ev, content }: { ev: any; content: string }) {
-    // console.log('Event:', ev);
-    // console.log('Content:', content);
     // this.contentBody = content;
     this.validateForm.patchValue({
       ContentBody: content,

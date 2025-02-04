@@ -92,7 +92,7 @@ SELECT DISTINCT NewsId FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM 
 DELETE FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM News);
 
 
-select * from RefreshTokens
+select count(*) from RefreshTokens
 delete from RefreshTokens
 
 

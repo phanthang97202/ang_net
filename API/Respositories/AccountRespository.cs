@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TCommonUtils = API.CommonUtils.CommonUtils;
+using GuardAuth = API.Middlewares.CheckAuthorized;
 
 namespace API.Respositories
 {
@@ -21,10 +22,16 @@ namespace API.Respositories
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AccountRespository(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext dbContext)
+        public AccountRespository(UserManager<AppUser> userManager
+                                    , RoleManager<IdentityRole> roleManager
+                                    , IHttpContextAccessor httpContextAccessor
+                                    , IConfiguration configuration
+                                    , AppDbContext dbContext
+                                 )
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
             _dbContext = dbContext;
         }
@@ -136,6 +143,15 @@ namespace API.Respositories
         {
             ApiResponse<UserDetailDto> apiResponse = new ApiResponse<UserDetailDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
 
             // có thể thay thế bằng [Authorize(Roles = "Admin")]
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);

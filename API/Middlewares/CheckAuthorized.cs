@@ -24,7 +24,8 @@ namespace API.Middlewares
                     ValidateAudience = true,
                     ValidIssuer = issuer,
                     ValidAudience = audience,
-                    ValidateLifetime = true
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // thực hiện so sánh nghiêm ngặt (bởi mặc định asp net cho phép lệch khoảng 5 phút thì vẫn coi là đúng)
                 }, out SecurityToken validatedToken);
 
                 // Token is valid

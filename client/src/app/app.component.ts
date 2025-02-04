@@ -89,7 +89,6 @@ export class AppComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
-        console.log('🚀 ~ AppComponent ~ .subscribe ~ url:', url);
 
         if (url.startsWith('/dashboard')) {
           this.layoutType = 'admin';
@@ -104,10 +103,7 @@ export class AppComponent implements OnInit {
   // dùng cách này không thể lấy được router chính xác
   // router = inject(Router);
   // ngOnInit() {
-  //   const url = this.router.url;
-  //   console.log({
-  //     url,
-  //   });
+  //   const url = this.router.url; 
   // }
 
   handleLogout() {

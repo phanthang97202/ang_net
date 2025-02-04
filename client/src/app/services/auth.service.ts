@@ -53,19 +53,6 @@ export class AuthService {
       `${this.apiUrl}account/refreshtoken`,
       data
     );
-    // .pipe(
-    //   map(response => {
-    //     if (response.Success) {
-    //       localStorage.setItem(this.tokenKey, response.Data.AccessToken);
-    //       localStorage.setItem(
-    //         this.refreshTokenKey,
-    //         response.Data.RefreshToken
-    //       );
-    //     }
-
-    //     return response;
-    //   })
-    // );
   }
 
   getUserDetail(): Observable<IUserResponse> {

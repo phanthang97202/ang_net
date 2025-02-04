@@ -85,8 +85,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         CreatedDTime: new Date(),
       });
     });
-
-    console.log('msg', this.messages);
+ 
   }
 
   sendMessage() {
@@ -107,8 +106,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     // Upload to Cloudinary
 
     this.cloudinary.uploadImage(file).subscribe({
-      next: (res: any) => {
-        console.log('Uploaded successfully!', res);
+      next: (res: any) => { 
         this.newMessage = res.url;
       },
       error: (err) => {},
