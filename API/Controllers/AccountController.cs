@@ -68,6 +68,7 @@ namespace API.Controllers
             }
         }
 
+
         [HttpPost("logoutalldevice")]
         public async Task<ActionResult<string>> LogoutAllDevice(string userId)
         {

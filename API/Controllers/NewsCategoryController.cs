@@ -3,10 +3,11 @@ using API.Interfaces;
 using API.IRespositories;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsCategoryController : ControllerBase

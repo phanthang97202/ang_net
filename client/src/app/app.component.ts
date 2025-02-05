@@ -107,6 +107,37 @@ export class AppComponent implements OnInit {
   // }
 
   handleLogout() {
-    this.authService.logout();
+    // có thời gian thì làm thêm popup lựa chọn: Đăng xuất hay Đăng xuất khỏi tất cả thiết bị
+    // this.authService.logout();
+    
+    const { nameid: userid } = this.authService.getAccountInfo();
+
+    this.loadingService.setLoading(true);
+    this.authService
+      .logoutFromAllDevice(userid)
+      .subscribe({
+        next: response => { 
+          if (response?.Success) {
+            this.authService.logout();
+          } else {
+            this.errorInfoService.setShowError({
+              icon: 'warning',
+              message: JSON.stringify(response, null, 2),
+              title: response?.ErrorMessage || 'Error',
+            });
+          }
+        },
+        error: err => {
+          this.loadingService.setLoading(false)
+          this.errorInfoService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message || 'Error',
+          });
+        },
+        complete: () => this.loadingService.setLoading(false),
+      });
+
+    
   }
 }

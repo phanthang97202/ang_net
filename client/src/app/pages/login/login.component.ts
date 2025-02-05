@@ -61,8 +61,8 @@ export class LoginComponent {
     if (userName && password) {
       this.loadingService.setLoading(true);
       const observer = this.authService.login({
-        email: 'admin@gmail.com', //userName,
-        password: 'Pt02!?', //password,
+        email: userName,
+        password: password,
       });
 
       observer.subscribe({

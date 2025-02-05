@@ -3,14 +3,14 @@ import {
 } from "./chunk-NVNECB4U.js";
 import "./chunk-UZUTYCO5.js";
 import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import {
   NzIconDirective,
   NzIconModule
 } from "./chunk-PKTFLGWL.js";
 import "./chunk-DHSN6ZQW.js";
-import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
 import {
   Directionality
 } from "./chunk-3OAW3AH7.js";

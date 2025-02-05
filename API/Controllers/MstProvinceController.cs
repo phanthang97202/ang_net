@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MstProvinceController : ControllerBase
@@ -15,8 +15,7 @@ namespace API.Controllers
         public MstProvinceController(IMstProvinceRespository mstProvinceRespository)
         {
             _mstProvinceRespository = mstProvinceRespository;
-        }
-        [Authorize()]
+        } 
         [HttpGet("Search")]
         public async Task<ActionResult<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
         {

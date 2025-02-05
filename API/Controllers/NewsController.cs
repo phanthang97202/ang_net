@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Serilog;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize()]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsController : ControllerBase

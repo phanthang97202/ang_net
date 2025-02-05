@@ -64,18 +64,14 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // return next
-    return next.handle(clonedRequest).pipe(
-      // map(response => {
-      //   if (response.) {
-      //     return this.handleCatchExpiredToken(response);
-      //   }
-      // }),
+    return next.handle(clonedRequest).pipe( 
       catchError((err: HttpErrorResponse) => {
         // đợi xảy ra lỗi Unauthorized => chạy hàm refresh token
         if (err.status === 401) {
           return this.handleRefreshToken(clonedRequest, next);
         }
-        return this.handleCatchExpiredToken(err);
+        // return this.handleCatchExpiredToken(err);
+        return throwError(() => err);
       })
     );
   }

@@ -102,6 +102,12 @@ export class AuthService {
     localStorage.removeItem(this.refreshTokenKey);
     this.router.navigate(['/login']);
   }
+  
+  logoutFromAllDevice(userId: string) {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}account/logoutalldevice?userId=${userId}`, { }
+    ); 
+  }
 
   isLoggedIn(): boolean {
     const token = this.getToken();

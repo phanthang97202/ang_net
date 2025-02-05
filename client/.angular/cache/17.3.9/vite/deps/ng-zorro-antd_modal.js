@@ -1,19 +1,4 @@
 import {
-  FocusTrapFactory,
-  isFakeMousedownFromScreenReader,
-  isFakeTouchstartFromScreenReader
-} from "./chunk-RF6ON4JH.js";
-import {
-  NzButtonComponent,
-  NzButtonModule
-} from "./chunk-DNJLKWMH.js";
-import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
-import {
-  NzWaveDirective
-} from "./chunk-JHNU6GPU.js";
-import {
   NzI18nService
 } from "./chunk-H5CIFMSQ.js";
 import {
@@ -35,13 +20,18 @@ import {
   TemplatePortal
 } from "./chunk-7AXRTXGX.js";
 import {
-  ESCAPE,
-  hasModifierKey
-} from "./chunk-T4JA2NQD.js";
-import {
   reqAnimFrame
 } from "./chunk-QTPV4WNA.js";
-import "./chunk-UEKQJVVI.js";
+import {
+  NzButtonComponent,
+  NzButtonModule
+} from "./chunk-DNJLKWMH.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
+import {
+  NzWaveDirective
+} from "./chunk-JHNU6GPU.js";
 import "./chunk-5LPTEFFD.js";
 import "./chunk-5R3VAUVA.js";
 import {
@@ -52,6 +42,20 @@ import {
   trigger
 } from "./chunk-UZUTYCO5.js";
 import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import {
+  FocusTrapFactory,
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader
+} from "./chunk-RF6ON4JH.js";
+import {
+  ESCAPE,
+  hasModifierKey
+} from "./chunk-T4JA2NQD.js";
+import "./chunk-UEKQJVVI.js";
+import {
   NzIconDirective,
   NzIconModule
 } from "./chunk-PKTFLGWL.js";
@@ -60,10 +64,6 @@ import {
   _getShadowRoot,
   normalizePassiveListenerOptions
 } from "./chunk-DHSN6ZQW.js";
-import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
 import {
   Directionality
 } from "./chunk-3OAW3AH7.js";

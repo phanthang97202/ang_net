@@ -3,6 +3,15 @@ import {
   NzTooltipDirective
 } from "./chunk-MQAJBLBO.js";
 import {
+  NzI18nService
+} from "./chunk-H5CIFMSQ.js";
+import "./chunk-CSDA6CPU.js";
+import "./chunk-TNC4JXPO.js";
+import "./chunk-ZZUJ3SND.js";
+import "./chunk-7AXRTXGX.js";
+import "./chunk-QTPV4WNA.js";
+import "./chunk-NVNECB4U.js";
+import {
   NzButtonComponent,
   NzButtonModule
 } from "./chunk-DNJLKWMH.js";
@@ -10,19 +19,6 @@ import {
   NzTransitionPatchDirective
 } from "./chunk-KRIRCCFV.js";
 import "./chunk-JHNU6GPU.js";
-import {
-  NzI18nService
-} from "./chunk-H5CIFMSQ.js";
-import "./chunk-CSDA6CPU.js";
-import "./chunk-TNC4JXPO.js";
-import "./chunk-ZZUJ3SND.js";
-import "./chunk-7AXRTXGX.js";
-import {
-  ENTER
-} from "./chunk-T4JA2NQD.js";
-import "./chunk-QTPV4WNA.js";
-import "./chunk-UEKQJVVI.js";
-import "./chunk-NVNECB4U.js";
 import "./chunk-5LPTEFFD.js";
 import "./chunk-5R3VAUVA.js";
 import {
@@ -32,16 +28,20 @@ import {
   trigger
 } from "./chunk-UZUTYCO5.js";
 import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import {
+  ENTER
+} from "./chunk-T4JA2NQD.js";
+import "./chunk-UEKQJVVI.js";
+import {
   NzIconDirective,
   NzIconModule
 } from "./chunk-PKTFLGWL.js";
 import {
   Platform
 } from "./chunk-DHSN6ZQW.js";
-import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
 import {
   Directionality
 } from "./chunk-3OAW3AH7.js";
