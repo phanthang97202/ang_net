@@ -1,6 +1,7 @@
 using API.Dtos;
 using API.Interfaces;
 using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -15,6 +16,7 @@ namespace API.Controllers
         {
             _mstProvinceRespository = mstProvinceRespository;
         }
+        [Authorize()]
         [HttpGet("Search")]
         public async Task<ActionResult<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
         {

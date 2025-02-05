@@ -1,26 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
+  "WorkspaceRootPath": "D:\\MyHomeWork\\ang_net\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\mstprovincecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\middlewares\\checkauthorized.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\mstprovincerespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\accountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\newsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\controllers\\newscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|d:\\myhomework\\ang_net\\api\\irespositories\\iaccountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\irespositories\\iaccountrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,11 +34,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Bookmark",
@@ -42,69 +46,82 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "CheckAuthorized.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\CheckAuthorized.cs",
-              "RelativeDocumentMoniker": "API\\Middlewares\\CheckAuthorized.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\CheckAuthorized.cs",
-              "RelativeToolTip": "API\\Middlewares\\CheckAuthorized.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABsAAACVAAAA",
+              "DocumentIndex": 0,
+              "Title": "MstProvinceController.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\MstProvinceController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\MstProvinceController.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\MstProvinceController.cs",
+              "RelativeToolTip": "API\\Controllers\\MstProvinceController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-04T15:22:32.324Z",
+              "WhenOpened": "2025-02-05T10:31:19.425Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeDocumentMoniker": "API\\appsettings.json",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeToolTip": "API\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-02-04T15:24:25.671Z",
+              "DocumentIndex": 1,
+              "Title": "MstProvinceRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\MstProvinceRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\MstProvinceRespository.cs",
+              "RelativeToolTip": "API\\Respositories\\MstProvinceRespository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-05T10:31:03.688Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NewsController.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\NewsController.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\NewsController.cs",
+              "RelativeToolTip": "API\\Controllers\\NewsController.cs",
+              "ViewState": "AQIAACcAAAAAAAAAAAAowFsAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-05T03:52:08.496Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IAccountRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\IRespositories\\IAccountRespository.cs",
+              "RelativeDocumentMoniker": "API\\IRespositories\\IAccountRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\IRespositories\\IAccountRespository.cs",
+              "RelativeToolTip": "API\\IRespositories\\IAccountRespository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-05T03:37:20.254Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "AccountController.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\AccountController.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Controllers\\AccountController.cs",
               "RelativeToolTip": "API\\Controllers\\AccountController.cs",
-              "ViewState": "AQIAACsAAAAAAAAAAAAYwF0AAAAQAAAA",
+              "ViewState": "AQIAACkAAAAAAAAAAAAjwGUAAAAHAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-04T15:17:32.598Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "NewsRespository.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\NewsRespository.cs",
-              "RelativeDocumentMoniker": "API\\Respositories\\NewsRespository.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\NewsRespository.cs",
-              "RelativeToolTip": "API\\Respositories\\NewsRespository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAABiAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-04T15:16:36.283Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "AccountRespository.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\AccountRespository.cs",
+              "DocumentMoniker": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\AccountRespository.cs",
               "RelativeDocumentMoniker": "API\\Respositories\\AccountRespository.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\AccountRespository.cs",
+              "ToolTip": "D:\\MyHomeWork\\ang_net\\API\\Respositories\\AccountRespository.cs",
               "RelativeToolTip": "API\\Respositories\\AccountRespository.cs",
-              "ViewState": "AQIAACIAAAAAAAAAAAAjwGcBAAAFAAAA",
+              "ViewState": "AQIAAB0AAAAAAAAAAAAkwI0AAABWAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-28T13:19:33.851Z",
               "EditorCaption": ""

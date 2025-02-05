@@ -12,5 +12,6 @@ namespace API.IRespositories
         //public string GenerateRefreshToken();
         public Task<ApiResponse<UserDetailDto>> GetUserDetail(ClaimsPrincipal User);
         public Task<ApiResponse<UserDetailDto>> GetAllUser(ClaimsPrincipal User);
+        public Task<ApiResponse<string>> LogoutAllDevice(string userId);
     }
 }

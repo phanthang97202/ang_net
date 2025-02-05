@@ -92,9 +92,9 @@ SELECT DISTINCT NewsId FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM 
 DELETE FROM HashTagNews WHERE NewsId NOT IN (SELECT NewsId FROM News);
 
 
-select count(*) from RefreshTokens
+select * from RefreshTokens
 delete from RefreshTokens
-
+update RefreshTokens set IsRevoked = '1' where RefreshToken = '079edd42-2108-4bcb-b10d-9e3a9c439d67'
 
 
 

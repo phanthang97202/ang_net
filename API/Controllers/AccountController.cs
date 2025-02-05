@@ -68,6 +68,20 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("logoutalldevice")]
+        public async Task<ActionResult<string>> LogoutAllDevice(string userId)
+        {
+            try
+            {
+                ApiResponse<string> response = await _accountRespository.LogoutAllDevice(userId);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
         // detail user
         [Authorize]
         [HttpGet("detail")]

@@ -4,6 +4,7 @@ import {
   IAssignRoleRequest,
   ICreateRoleRequest,
   IRole,
+  IRoleResponse,
 } from '../../../interfaces/role';
 import { AuthService } from '../../../services/auth.service';
 import { LoadingService } from '../../../services/loading-service.service';
@@ -18,7 +19,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { AssignRoleComponent } from '../../../components/assign-role/assign-role.component';
-import { IUser } from '../../../interfaces/user';
+import { IUser, IUserResponse } from '../../../interfaces/user';
+import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-role-list',
   standalone: true,
@@ -43,37 +45,71 @@ export class RoleListComponent implements OnInit {
 
   lstRoles: IRole[] = [];
   lstUsers: IUser[] = [];
-  constructor(private message: NzMessageService, private router: Router) {}
+  constructor(
+    private message: NzMessageService,
+    private router: Router
+  ) {}
 
-  fetchRolesData() {
-    this.authService.getAllRoles().subscribe({
-      next: (data) => {
-        this.loadingService.setLoading(false);
-        this.lstRoles = data.Data; 
-      },
-      complete: () => {
-        this.loadingService.setLoading(false);
-      },
-      error: (err) => {
-        this.loadingService.setLoading(false);
-        this.showErrorService.setShowError({
-          title: err.message,
-          message: JSON.stringify(err, null, 2),
+  // fetchRolesData() {
+  //   this.authService.getAllRoles().subscribe({
+  //     next: data => {
+  //       this.loadingService.setLoading(false);
+  //       this.lstRoles = data.Data;
+  //     },
+  //     complete: () => {
+  //       this.loadingService.setLoading(false);
+  //     },
+  //     error: err => {
+  //       this.loadingService.setLoading(false);
+  //       this.showErrorService.setShowError({
+  //         title: err.message,
+  //         message: JSON.stringify(err, null, 2),
+  //       });
+  //     },
+  //   });
+  // }
+
+  // fetchUsersData() {
+  //   this.authService.getAllUsers().subscribe({
+  //     next: data => {
+  //       this.loadingService.setLoading(false);
+  //       this.lstUsers = data.DataList;
+  //     },
+  //     complete: () => {
+  //       this.loadingService.setLoading(false);
+  //     },
+  //     error: err => {
+  //       this.loadingService.setLoading(false);
+  //       this.showErrorService.setShowError({
+  //         title: err.message,
+  //         message: JSON.stringify(err, null, 2),
+  //       });
+  //     },
+  //   });
+  // }
+
+  fetchAllData() {
+    this.loadingService.setLoading(true);
+    forkJoin([
+      this.authService.getAllRoles(),
+      this.authService.getAllUsers(),
+    ]).subscribe({
+      next: data => {
+        const [objRole, objUser] = data;
+
+        console.log('object', {
+          objRole: objRole.Data,
+          objUser: objUser.DataList,
         });
-      },
-    });
-  }
+        this.lstRoles = objRole.Data;
+        this.lstUsers = objUser.DataList;
 
-  fetchUsersData() {
-    this.authService.getAllUsers().subscribe({
-      next: (data) => {
         this.loadingService.setLoading(false);
-        this.lstUsers = data.DataList;
       },
       complete: () => {
         this.loadingService.setLoading(false);
       },
-      error: (err) => {
+      error: err => {
         this.loadingService.setLoading(false);
         this.showErrorService.setShowError({
           title: err.message,
@@ -84,21 +120,22 @@ export class RoleListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fetchRolesData();
-    this.fetchUsersData();
+    // this.fetchRolesData();
+    // this.fetchUsersData();
+    this.fetchAllData();
   }
 
   handleCreateRole(data: ICreateRoleRequest) {
     this.authService.createRole(data).subscribe({
-      next: (value) => {
+      next: value => {
         this.loadingService.setLoading(false);
         this.message.create('success', 'Create role successfully');
-        this.fetchRolesData();
+        this.fetchAllData();
       },
       complete: () => {
         this.loadingService.setLoading(false);
       },
-      error: (err) => {
+      error: err => {
         this.loadingService.setLoading(false);
         this.showErrorService.setShowError({
           title: err.message,
@@ -110,15 +147,15 @@ export class RoleListComponent implements OnInit {
 
   handleDelete(key: string) {
     this.authService.deleteRole(key).subscribe({
-      next: (value) => {
+      next: value => {
         this.loadingService.setLoading(false);
         this.message.create('success', 'Delete role successfully');
-        this.fetchRolesData();
+        this.fetchAllData();
       },
       complete: () => {
         this.loadingService.setLoading(false);
       },
-      error: (err) => {
+      error: err => {
         this.loadingService.setLoading(false);
         this.showErrorService.setShowError({
           title: err.message,
@@ -136,15 +173,15 @@ export class RoleListComponent implements OnInit {
 
   handleAssignRole(data: IAssignRoleRequest) {
     this.authService.assignRole(data).subscribe({
-      next: (value) => {
+      next: value => {
         this.loadingService.setLoading(false);
         this.message.create('success', 'Assign role successfully');
-        this.fetchRolesData();
+        this.fetchAllData();
       },
       complete: () => {
         this.loadingService.setLoading(false);
       },
-      error: (err) => {
+      error: err => {
         this.loadingService.setLoading(false);
         this.showErrorService.setShowError({
           title: err.message,
@@ -156,15 +193,15 @@ export class RoleListComponent implements OnInit {
 
   handleUnassignRole(data: IAssignRoleRequest) {
     this.authService.unassignRole(data).subscribe({
-      next: (value) => {
+      next: value => {
         this.loadingService.setLoading(false);
         this.message.create('success', 'Unassign role successfully');
-        this.fetchRolesData();
+        this.fetchAllData();
       },
       complete: () => {
         this.loadingService.setLoading(false);
       },
-      error: (err) => {
+      error: err => {
         this.loadingService.setLoading(false);
         this.showErrorService.setShowError({
           title: err.message,

@@ -103,7 +103,19 @@ export class MstProvinceComponent implements OnInit {
       .MstProvinceSearch({ pageIndex: 0, pageSize: 100, keyword: '' })
       .subscribe({
         next: response => {
-          this.dataSource = response.objResult?.DataList || [];
+          console.log(
+            '🚀 ~ MstProvinceComponent ~ fetchData ~ response:',
+            response
+          );
+          if (response?.Success) {
+            this.dataSource = response.objResult?.DataList || [];
+          } else {
+            this.showErrorService.setShowError({
+              icon: 'warning',
+              message: JSON.stringify(response, null, 2),
+              title: response?.ErrorMessage || 'Error',
+            });
+          }
         },
         error: err => this.handleApiError(err),
         complete: () => this.setLoading(false),

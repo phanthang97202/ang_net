@@ -8,8 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TCommonUtils = API.CommonUtils.CommonUtils;
 using GuardAuth = API.Middlewares.CheckAuthorized;
+using TCommonUtils = API.CommonUtils.CommonUtils;
 
 namespace API.Respositories
 {
@@ -355,6 +355,30 @@ namespace API.Respositories
             //    }
             //}
 
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<string>> LogoutAllDevice(string userId)
+        {
+            ApiResponse<string> apiResponse = new ApiResponse<string>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                apiResponse.CatchException(false, "Account.UserNotFound", requestClient);
+                return apiResponse;
+            }
+
+            await _dbContext.RefreshTokens
+                                .Where(rt => rt.UserId == userId)
+                                .ExecuteUpdateAsync<RefreshTokenModel>(setter =>
+                                                                        setter.SetProperty(r => r.IsRevoked, true)
+                                                                      );
+            await _dbContext.SaveChangesAsync();
+
+            apiResponse.Data = "LogoutFromAllDeviceSuccessfully!";
             return apiResponse;
         }
     }

@@ -45,7 +45,7 @@ export class LoginComponent {
     private router: Router
   ) {}
 
-  passwordVisible: boolean = true;
+  passwordVisible = true;
 
   validateForm: FormGroup<{
     userName: FormControl<string>;
@@ -61,8 +61,8 @@ export class LoginComponent {
     if (userName && password) {
       this.loadingService.setLoading(true);
       const observer = this.authService.login({
-        email: userName,
-        password: password,
+        email: 'admin@gmail.com', //userName,
+        password: 'Pt02!?', //password,
       });
 
       observer.subscribe({
