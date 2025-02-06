@@ -8,10 +8,10 @@ import {
   NzStringTemplateOutletDirective
 } from "./chunk-UE57DXRH.js";
 import "./chunk-UEKQJVVI.js";
-import "./chunk-DHSN6ZQW.js";
 import {
   Directionality
 } from "./chunk-3OAW3AH7.js";
+import "./chunk-DHSN6ZQW.js";
 import {
   NzConfigService,
   WithConfig

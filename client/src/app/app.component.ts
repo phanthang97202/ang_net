@@ -1,6 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   ActivatedRoute,
+  Event,
   NavigationEnd,
   Router,
   RouterLink,
@@ -32,6 +33,7 @@ import { ShowErrorService } from './services/show-error.service';
 import { LayoutType } from './types';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { AuthService } from './services/auth.service';
+import posthog from 'posthog-js';
 
 @Component({
   selector: 'app-root',
@@ -61,6 +63,8 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent implements OnInit {
   title = 'client';
+  // tracking pageview
+  navigationEnd: Observable<NavigationEnd>;
 
   isLoading$: Observable<boolean>;
   errorInfo: IErrorInfo = {
@@ -73,20 +77,25 @@ export class AppComponent implements OnInit {
   loadingService = inject(LoadingService);
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
-  router = inject(Router);
+  // router = inject(Router);
 
-  constructor() {
+  constructor(public router: Router) {
     // Subscribe to the loading state from the LoadingService
     this.isLoading$ = this.loadingService.getLoading();
     this.errorInfoService.getErrorInfo().subscribe({
-      next: (value) => {
+      next: value => {
         this.errorInfo = value;
       },
     });
+
+    this.navigationEnd = this.router.events.pipe(
+      filter((event: Event) => event instanceof NavigationEnd)
+    ) as Observable<NavigationEnd>;
   }
+
   ngOnInit() {
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+      .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
 
@@ -98,46 +107,46 @@ export class AppComponent implements OnInit {
           this.layoutType = 'user';
         }
       });
+
+    this.navigationEnd.subscribe((event: NavigationEnd) => {
+      posthog.capture('$pageview');
+    });
   }
 
   // dùng cách này không thể lấy được router chính xác
   // router = inject(Router);
   // ngOnInit() {
-  //   const url = this.router.url; 
+  //   const url = this.router.url;
   // }
 
   handleLogout() {
     // có thời gian thì làm thêm popup lựa chọn: Đăng xuất hay Đăng xuất khỏi tất cả thiết bị
     // this.authService.logout();
-    
+
     const { nameid: userid } = this.authService.getAccountInfo();
 
     this.loadingService.setLoading(true);
-    this.authService
-      .logoutFromAllDevice(userid)
-      .subscribe({
-        next: response => { 
-          if (response?.Success) {
-            this.authService.logout();
-          } else {
-            this.errorInfoService.setShowError({
-              icon: 'warning',
-              message: JSON.stringify(response, null, 2),
-              title: response?.ErrorMessage || 'Error',
-            });
-          }
-        },
-        error: err => {
-          this.loadingService.setLoading(false)
+    this.authService.logoutFromAllDevice(userid).subscribe({
+      next: response => {
+        if (response?.Success) {
+          this.authService.logout();
+        } else {
           this.errorInfoService.setShowError({
             icon: 'warning',
-            message: JSON.stringify(err, null, 2),
-            title: err.message || 'Error',
+            message: JSON.stringify(response, null, 2),
+            title: response?.ErrorMessage || 'Error',
           });
-        },
-        complete: () => this.loadingService.setLoading(false),
-      });
-
-    
+        }
+      },
+      error: err => {
+        this.loadingService.setLoading(false);
+        this.errorInfoService.setShowError({
+          icon: 'warning',
+          message: JSON.stringify(err, null, 2),
+          title: err.message || 'Error',
+        });
+      },
+      complete: () => this.loadingService.setLoading(false),
+    });
   }
 }

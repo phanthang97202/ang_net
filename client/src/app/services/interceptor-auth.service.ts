@@ -43,12 +43,14 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     const curToken = this.authService.getToken();
     let clonedRequest = req;
+    console.log('🚀 ~ AuthInterceptor ~ req:', req);
 
     const listIgnore = [
       'account/login',
       'account/register',
       'account/refreshtoken',
       'cloudinary.com',
+      'posthog.com',
     ];
 
     // Don't attach Authorization header for Cloudinary requests
@@ -64,7 +66,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // return next
-    return next.handle(clonedRequest).pipe( 
+    return next.handle(clonedRequest).pipe(
       catchError((err: HttpErrorResponse) => {
         // đợi xảy ra lỗi Unauthorized => chạy hàm refresh token
         if (err.status === 401) {

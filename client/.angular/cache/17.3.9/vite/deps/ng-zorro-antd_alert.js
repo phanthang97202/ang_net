@@ -7,13 +7,13 @@ import {
   NzStringTemplateOutletDirective
 } from "./chunk-UE57DXRH.js";
 import {
+  Directionality
+} from "./chunk-3OAW3AH7.js";
+import {
   NzIconDirective,
   NzIconModule
 } from "./chunk-PKTFLGWL.js";
 import "./chunk-DHSN6ZQW.js";
-import {
-  Directionality
-} from "./chunk-3OAW3AH7.js";
 import {
   NzConfigService,
   WithConfig
