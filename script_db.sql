@@ -96,6 +96,96 @@ select * from RefreshTokens
 delete from RefreshTokens
 update RefreshTokens set IsRevoked = '1' where RefreshToken = '079edd42-2108-4bcb-b10d-9e3a9c439d67'
 
+update News set Thumbnail = 'https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/e8/f4/fa/e8f4fa94-53ce-0214-7113-f09c8464e5ca/mza_17326581670512848585.jpg/300x300bb.webp' where NewsId = 'learning-about-culture'
+
+select n.UserId, a.Email, count(n.NewsId) as SoLuongBaiViet
+from News n
+inner join AspNetUsers a
+        on n.UserId = a.Id
+group by n.UserId
+having n.ViewCount > 5
+
+-------------------------------
+select distinct a.Email, n.ShortTitle
+from News n
+inner join AspNetUsers a
+        on n.UserId = a.Id 
+order by a.Email asc, n.ShortTitle asc
+
+---------------
+-- L?nh GROUP BY ho?t ??ng nh? th? nào? Có th? dùng v?i WHERE ???c không?
+
+--1? FROM ? Ch?n b?ng d? li?u.
+--2 WHERE ? L?c d? li?u thô (ch? l?c d?a trên c?t g?c, ch?a có t?ng h?p).
+--3? GROUP BY ? Nhóm các dòng có cùng giá tr?.
+--4? Tính toán Aggregate (COUNT(), SUM(), AVG(), …).
+--5? HAVING ? L?c d? li?u sau khi nhóm.
+--6? ORDER BY ? S?p x?p k?t qu? cu?i cùng.
+ 
+select sum(ViewCount)
+from News
+where LikeCount = 0
+group by UserId
+ 
+----
+SELECT Country, COUNT(*) AS TotalCustomers  
+FROM Customers  
+GROUP BY Country  
+WHERE COUNT(*) > 5;  -- ? L?I: COUNT(*) ch?a t?n t?i ? b??c này
+
+------------------
+select  a.Email, n.ShortTitle
+from AspNetUsers a
+left join News n 
+        on n.UserId = a.Id 
+order by a.Email asc, n.ShortTitle asc
+
+------------------
+select a.Email, n.ShortTitle
+from News n
+right join AspNetUsers a 
+        on n.UserId = a.Id 
+order by a.Email asc, n.ShortTitle asc
+
+------------------
+select  a.Email, n.ShortTitle
+from AspNetUsers a
+full join News n 
+        on n.UserId = a.Id 
+order by a.Email asc, n.ShortTitle asc
+
+-----------------------------------------------------------
+-- ******Khi nào nên s? d?ng subquery thay vì JOIN?****
+--- 1. Khi ch? c?n l?y m?t giá tr? c? th?'
+select 
+        (select a.Email from AspNetUsers a where n.UserId = a.Id) Email,
+        n.ShortTitle
+from News n
+
+--- 2. Khi ch? quan tâm ??n d? li?u có ?i?u ki?n c? th?
+select ShortTitle 
+from News
+where UserId in (select Id from AspNetUsers where Email = 'admin@gmail.com')
+
+--- 3. Khi tránh trùng l?p d? li?u do JOIN gây ra
+select n.ShortTitle,
+       (select count(*) 
+        from PointNews p 
+        where p.NewsId = n.NewsId) as CountAudianceAppreciate
+from News n
+
+--- 4. Khi không c?n dùng d? li?u t? b?ng khác trong m?nh ?? SELECT
+--- N?u b?ng ph? ch? c?n dùng ?? ki?m tra ?i?u ki?n (EXISTS, IN), thì subquery t?t h?n JOIN.
+select a.Email 
+from AspNetUsers a
+where not exists (select n.UserId 
+                  from News n
+                  where a.Id = n.UserId) 
+                  
+---***** Làm th? nào ?? tìm các giá tr? trùng l?p trong m?t c?t? *****
+select distinct(n.ViewCount)
+from News n
+order by n.ViewCount asc
 
 
 
