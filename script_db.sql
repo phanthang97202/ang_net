@@ -44,7 +44,7 @@ select * from HashTagNews
 select * from RefFileNews
 select * from PointNews
 
-delete from News where NewsId  like '0%'
+delete from News where NewsId  like 'tourism-new-zealand-website'
 delete from HashTagNews where NewsId  like '%white-queen-%'
 
 delete from News where newsid = 'stain-hero-killer' or newsid = 'stain-hero-killer-3'
@@ -183,9 +183,76 @@ where not exists (select n.UserId
                   where a.Id = n.UserId) 
                   
 ---***** Làm th? nào ?? tìm các giá tr? trùng l?p trong m?t c?t? *****
-select distinct(n.ViewCount)
+select n.ViewCount, count(*) as NumberApprerience
 from News n
+group by n.ViewCount
+having count(*) > 1
 order by n.ViewCount asc
+
+-- lam sao de lay hang co gia tri lon thu n trong SQL
+-- TH1: lay rank bao gom ca truong hop trung rank
+select * 
+from (
+        select n.ShortTitle, dense_rank() over(order by n.ViewCount) as ranking
+        from News n
+        ) as _News 
+where ranking = 2
+
+-- TH2: lay chinh xac rank
+select news.NewsId
+from news
+order by news.ViewCount
+limit 1
+offset 2 -- offset runs before limit
+
+-- lam the nao de tim cac ban ghi khong khop o cac bang khac 
+select a.Email, n.ShortTitle
+from News n
+right join AspNetUsers a 
+        on n.UserId = a.Id 
+where n.ShortTitle is null
+order by a.Email asc, n.ShortTitle asc
+
+-- so sanh su khac nhau giua in va exists
+--Tiêu chí                 IN                                                      EXISTS
+--Cách ho?t ??ng           Ki?m tra m?t giá tr? có n?m trong danh sách hay không   Ki?m tra xem có dòng nào t?n t?i hay không
+--Th?c thi                 L?y toàn b? k?t qu? t? subquery tr??c khi so sánh       D?ng ngay khi tìm th?y k?t qu? ??u tiên
+--Hi?u su?t t?t nh?t khi   D? li?u nh? (t?p h?p con có ít b?n ghi)                 D? li?u l?n (ch? c?n ki?m tra s? t?n t?i)
+--Khi subquery tr? v? NULL Có th? gây l?i ho?c b? qua t?t c?                       Không ?nh h??ng
+
+-- case trong sql
+select n.NewsId, n.ViewCount,
+       case 
+        when n.ViewCount > 5 then 'TB'
+        when n.ViewCount > 10 then 'H'
+        else 'T'  end as 'Text'
+from news n
+
+-- cach dung like trong sql
+-- 1. % dai dien cho 0 hoac nhieu ki tu. Exp: 'a%'
+-- 2. _ dai dien cho 1 ki tu don. Exp: 'a_'
+-- 3. [ ] tim ki tu cu the trong khoang. Exp: 'a[bc]%' (bat dau tu ki tu 'a', ki tu sau co the la 'b' or 'c')
+-- 4. [^ ] loai tru ki tu cu the. Exp: 'a[^b]%'
+
+explain SELECT name 
+FROM sqlite_master 
+WHERE type = 'index';
+
+
+------------
+create view TestView as
+select n.NewsId, n.ViewCount,
+       case 
+        when n.ViewCount > 5 then 'TB'
+        when n.ViewCount > 10 then 'H'
+        else 'T'  end as 'Text'
+from news n
+
+select * from TestView
+
+
+
+
 
 
 
