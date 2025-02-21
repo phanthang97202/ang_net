@@ -1081,20 +1081,169 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 
 	
 14. **Interpolation (`{{ }}`)** trong Angular dùng để làm gì?  
+	Dùng để hiển thị dữ liệu từ component class lên template html
+	Cho phép biểu thức ts được đánh giá và kết quả được hiển thị trong html
+
 15. **Property Binding (`[property]`)** là gì? Khi nào cần dùng?  
+	Binding là cách gán giá trị trừ component vào thuộc tính (property) của phần từ html hoặc component khác trong template
+	Giúp đồng bộ dữ liệu 1 chiều(one way binding) từ ts sang html
+	Khi nào dùng:
+		+ Gán giá trị thuộc tính cho HTML [value]
+		+ Điều khiển thuộc tính Boolean [disabled]
+		+ Binding với component con [dataList]
+
 16. **Event Binding (`(event)`)** hoạt động như thế nào?  
+	Giúp lắng nghe sự kiện click từ người dùng và thực thi 1 hàm trong component khi sự kiện xảy ra
+	Kết hợp event binding với properties binding (two way binding)
+		Ex: 
+			<input [value]="name" (input)="name = $event.target.value" >
+			<p>chào, {{name}}</p>
+		<==>Thay vào đó nên dùng
+			<input [(ngModel)]="name">
+			<p>chào, {{name}}</p>
+	Event binding cho component con
+
+	Event binding cho component con 
+		+ Truyền sự kiện từ component con lên component cha
+			Ex: 
+				child.component.ts
+					@Output() dataEmitter = new EventEmitter<string>()
+					sendData() {
+						this.dataEmitter.emit("ABC")
+					}
+				parent.component.ts
+					<app-child (dataEmitter)="receiveData($event)"></app-child>
+
 17. **Two-way Binding (`[(ngModel)]`)** là gì? Khi nào nên dùng?  
+	2 ways binding hoạt động như nào:	
+		Ex: 
+			+ Với input
+				<input [ngModel]="name" (ngModelChange)="name = $event" >
+				Thay vào đó, dùng:
+				<input [(ngModel)]="name" >
+			+ Với select box
+				<select [(ngModel)]="selectedOption">
+					<option *ngFor="let option of options" [value]="option">
+						{{option}}
+					</option>
+				</select>
+				<p>Bạn đã chọn {{selectedOption}}</p>
+			+ 2 ways binding trong component con
+				child.component.ts
+					<input [(ngModel)]="childMessage">
+					@Input() childMessage: string = ''
+					@Output() childMessageChange = new EventEmitter<string>();
+					ngOnChanges() {
+						this.childMessageChange.emit(this.childMessage)
+					}
+				parent.component.ts
+					<app-child [(childMessage)]="message"></app-child>
+
+
 18. Sự khác nhau giữa `@Input()` và `@Output()` trong Angular?  
+	@Input() dùng để truyền dữ liệu từ cha xuống con
+	@Output() dùng để truyền dữ liệu từ con lên cha
+
+
 19. Làm thế nào để truyền dữ liệu từ component cha xuống component con?  
 20. Khi nào nên dùng ViewChild và ViewChildren?  
-
+	ViewChild() dùng để truy cập 1 phần tử or 1 component con trong template
+		Ex:
+			+ Khi cần truy cập or thao tác với 1 phần tử DOM trong element
+			+ Khi muốn gọi methods or thay đổi dữ liệu component con
+			<input #myInput type="text" value="hello" >
+			@ViewChild("myInput") inputEl!: ElementRef
+			changeValue() {this.inputElement.inputEl.value="xin chào"}
+	ViewChildren() dùng để truy cập danh sách các phần tử or component con trong template
+		Ex:
+			+ Khi có nhiều phần tử or nhiều component con
+			+ Khi cần lặp quá danh sách các phần tử để thao tác
+			child.component.ts
+				<input type="checkbox" [checked]="isChecked" (change)="toggleCheck()">
+				toggleCheck() {this.isChecked = !this.isChecked}
+				setCheckedState(state: boolean){this.isChecked = state}
+			parent.component.ts
+				<app-child *ngFor="let i of items" > </app-child>
+				@ViewChildren("ChildComponent") children!: QueryList<ChildComponent>
+				items = ['i1', 'i2', 'i3']
+				selectedAll() {this.children.forEach(c => c.setCheckedState(true))}
+				unselectedAll() {this.children.forEach(c => c.setCheckedState(false))}
 ---
 
 ## **3. Câu hỏi về Directives và Pipes**
 21. **Structural Directives (`*ngIf`, `*ngFor`, `*ngSwitch`)** là gì?  
+	*ngIf 
+		dùng để hiển thị or ẩn phần tử dựa trên điều kiện
+		Ex: 
+			div *ngIf="isLoggin; else notLogin"
+			<ng-template #notLogin> <p>K đăng nhập</p></ng-template>
+	*ngFor
+		dùng để lặp qua danh sách và render element tương ứng
+			<ul>
+				<li *ngFor="let p of products; 
+								let i = index; 
+								let first = first;
+								let odd = odd;
+								let even = even"
+				> 
+					{{p.name}}
+				</li>
+			</ul>
+	*ngSwitch 
+		dùng để hiển thị phần tử dựa trên 1 giá trị cụ thể
+		<div [ngSwitch]="status">
+			<p *ngSwitchCase"'pending'"> .....
+			<p *ngSwitchCase"'cancel'"> .....
+			<p *ngSwitchCase"'approved'"> .....
+		</div>
+
 22. **Attribute Directives (`[ngClass]`, `[ngStyle]`)** là gì?  
-23. Sự khác nhau giữa `*ngIf` và `hidden` trong Angular?  
-24. Khi nào nên dùng `ng-container`, `ng-content`, `ng-template`?   
+	[ngClass]
+		thêm xóa class động dựa vào điều kiện
+			Ex: 
+				p [ngClass]="{'primary': isActive, 'danger': !isActive}"
+	[ngStyle]
+		thay đổi css động 
+			Ex:
+				p [ngStyle]="{'color': textColor, 'font-size': fontsize + 'px'}"
+
+23. Sự khác nhau giữa `*ngIf` và `hidden` trong Angular?  	
+	ngIf
+		xóa hoàn toàn phần tử khỏi DOM
+	[hidden]
+		chỉ ẩn bằng css, display: none
+
+24. Khi nào nên dùng `ng-container`, `ng-content`, `ng-template`?  
+	ng-container
+		1 thẻ ảo không xuất hiện trong DOM nhưng hỗ trợ *ngIf, *ngFor
+		Ex:
+			<ng-container *ngIf="isLoggedIn">
+				<button (click)="logout()">Đăng xuất</button>
+			</ng-container>
+	ng-content
+		khi cần truyền nội dung từ component cha vào component con
+		Ex:
+			<div class="card"> <ng-content></ng-content> </div>
+			<app-card>
+				<p>Đây là nội dung từ component cha.</p>
+			</app-card>
+	ng-template
+		khi cần tạo nội dung động mà chỉ render khi cần thiết
+		Ex:
+			div *ngIf="isLoggin; else notLogin"
+			<ng-template #notLogin> <p>K đăng nhập</p></ng-template>
+		*ngTemplateOutlet 
+			Ex:
+				<ng-template #alert let-message>
+					<div class="alert">
+						<p>{{ message }}</p>
+					</div>
+				</ng-template>
+				<button (click)="showError()">Hiển thị lỗi</button>
+				<div *ngIf="errorMessage">
+					<ng-container *ngTemplateOutlet="alert; context: { message: errorMessage }"></ng-container>
+				</div>
+
 25. Khi nào cần tạo Custom Directive trong Angular?  
 26. **Pipes trong Angular** dùng để làm gì?  
 27. Cách tạo Custom Pipe trong Angular?  
