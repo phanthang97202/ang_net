@@ -1244,23 +1244,95 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 					<ng-container *ngTemplateOutlet="alert; context: { message: errorMessage }"></ng-container>
 				</div>
 
-25. Khi nào cần tạo Custom Directive trong Angular?  
+25. Khi nào cần tạo Custom Directive trong Angular?
+	+ Thay đổi CSS or style động
+		Ex:  
+			@Directive({
+				selector: '[appHighlight]'
+			}) 
+			constructor(private el: ElementRef, private renderer: Renderer2) {}
+			@HostListener('mouseenter') onMouseEnter() {
+				this.renderer.setStyle(this.el.nativeElement, 'background-color', 'yellow');
+			}
+			@HostListener('mouseleave') onMouseLeave() {
+				this.renderer.setStyle(this.el.nativeElement, 'background-color', 'transparent');
+			} 
+
+	+ Thêm/xóa class dựa trên điều kiện
+		Ex: 
+			@Directive({ selector: '[appToggleClass]' }) 
+			private isActive = false;
+			constructor(private el: ElementRef, private renderer: Renderer2) {}
+			@HostListener('click') onClick() {
+				this.isActive = !this.isActive;
+				if (this.isActive) {
+				this.renderer.addClass(this.el.nativeElement, 'active');
+				} else {
+				this.renderer.removeClass(this.el.nativeElement, 'active');
+				}
+			} 
+
+	+ Xử lý sự kiện DOM
+		Ex: 
+			@Directive({ selector: '[appRightClick]' })
+			@HostListener('contextmenu', ['$event']) onRightClick(event: MouseEvent) {
+				event.preventDefault();
+				alert('Chuột phải đã bị chặn!');
+			}
+
+	+ Tương tác với ElementRef và Renderer2
+		Ex:
+			@Directive({ selector: '[appHideElement]' })
+			private isHidden = false;
+			constructor(private el: ElementRef, private renderer: Renderer2) {}
+			@HostListener('click') onClick() {
+				this.isHidden = !this.isHidden;
+				this.renderer.setStyle(this.el.nativeElement, 'display', this.isHidden ? 'none' : 'block');
+			}
+	Chú ý:
+		Renderer2 giúp thao tác với DOM 1 cách an toàn nhưng phải chỉ rõ là đang thao tác phần tử nào thông qua ElementRef
+
 26. **Pipes trong Angular** dùng để làm gì?  
+	Giúp định dạng dữ liệu trước khi hiển thị lên giao diện template
 27. Cách tạo Custom Pipe trong Angular?  
 28. Sự khác nhau giữa **pure pipes** và **impure pipes** là gì?  
-29. AsyncPipe trong Angular hoạt động như thế nào?  
+	{pure: true} (default): chi chạy lại khi giá trị tham chiếu thay đổi
+	{pure: false}: chạy lại mỗi lần change detection xảy ra
 
+29. AsyncPipe trong Angular hoạt động như thế nào?  
+	Cú pháp: | async
+	AsyncPipe giúp tự động subcribe vào observable or promise trong template, đồng thời unsubcrible khi component bị detroy, tự động cập nhật UI khi dữ liệu thay đổi, giảm memory leak
 ---
 
 ## **4. Câu hỏi về Routing trong Angular**
+
 30. **Angular Router** là gì?  
+	Điều hướng giữa các component mà k cần tải lại trang
+
 31. Làm thế nào để định nghĩa routes trong Angular?  
+	Bắt route k tồn tại:
+		Ex:
+			{ path: '**', component: NotFoundComponent } // 404 Page
+
 32. Khi nào nên dùng `routerLink` và `href`?  
+	routerLink: điều hướng mà không tải lại trang, ngược lại với href
+
 33. `RouterModule.forRoot()` khác gì với `RouterModule.forChild()`?  
+	forRoot() dùng cho app chính
+	forChild dùng cho module con
+
 34. Khi nào cần sử dụng **Lazy Loading** trong Angular?  
+
 35. **Route Guard** trong Angular là gì? Khi nào cần dùng?  
+	Dùng để kiếm soát quyền truy cập vào route
+
 36. Sự khác nhau giữa `CanActivate` và `CanDeactivate`?  
+	CanActivate: Kiểm soát quyền truy cập vào route (chặn hoặc cho phép truy cập).
+	CanDeactivate: Kiểm soát việc rời khỏi route (hỏi xác nhận trước khi thoát).
+
 37. `ActivatedRoute` dùng để làm gì?  
+	dùng để lấy thông tin route hiện tại, tham số url, query params, ...
+
 38. Làm thế nào để lấy `queryParams` từ URL?  
 
 ---
