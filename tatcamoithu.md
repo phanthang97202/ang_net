@@ -1338,7 +1338,18 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 ---
 
 ## **5. Câu hỏi về Forms trong Angular**
-39. **Reactive Forms** và **Template-driven Forms** khác nhau thế nào?  
+39. **Reactive Forms** và **Template-driven Forms** khác nhau thế nào?
+	Reactive forms
+		Dùng ts tạo form trong component
+		Kiểm soát code bằng ts
+		Dữ liệu form lưu trong component dưới dạng FormGroup
+		Validate trong component (ts)
+	Template-driven form
+		Dùng html tạo form trong template
+		Angular tự động thiết lập thông qua directive
+		Dữ liệu gán trực tiếp vào model của component
+		Validate định nghĩa trực tiếp trong template
+
 40. Khi nào nên sử dụng **FormGroup** và **FormControl**?  
 41. Khi nào cần dùng `Validators.required` và `Validators.minLength`?  
 42. Cách xử lý form validation trong Angular?  
