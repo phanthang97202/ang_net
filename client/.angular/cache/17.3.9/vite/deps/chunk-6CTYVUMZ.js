@@ -1,7 +1,4 @@
 import {
-  Directionality
-} from "./chunk-3OAW3AH7.js";
-import {
   NzConfigService,
   WithConfig
 } from "./chunk-PDXXGUNF.js";
@@ -9,6 +6,9 @@ import {
   InputBoolean,
   InputNumber
 } from "./chunk-SQLRFIFY.js";
+import {
+  Directionality
+} from "./chunk-3OAW3AH7.js";
 import {
   NgIf,
   NgTemplateOutlet
@@ -303,4 +303,4 @@ export {
   NzSpinComponent,
   NzSpinModule
 };
-//# sourceMappingURL=chunk-2PEQQVLZ.js.map
+//# sourceMappingURL=chunk-6CTYVUMZ.js.map

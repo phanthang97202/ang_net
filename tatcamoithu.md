@@ -1773,43 +1773,96 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 				filter(v => v % 2) 
 			).subscribe(v => console.log(v))
 
+58. `switchMap()`, `mergeMap()`, `concatMap()` khác nhau như thế nào?
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-58. `switchMap()`, `mergeMap()`, `concatMap()` khác nhau như thế nào?  
 59. **BehaviorSubject, Subject, ReplaySubject** khác gì nhau?  
+	Subject	
+		Không lưu giá trị trước đó
+		Subscriber chỉ nhận được giá trị sau khi đăng ký (subscribe)
+		Không phát lại giá trị trước đó khi có subscriber mới 
+		Ex: 
+			const subject = new Subject<string>();
+
+			subject.subscribe(value => console.log('Subscriber 1:', value));
+
+			subject.next('🚀 Giá trị 1'); // Subscriber 1 nhận được
+			subject.next('🔥 Giá trị 2'); // Subscriber 1 nhận được
+
+			subject.subscribe(value => console.log('Subscriber 2:', value));
+
+			subject.next('🎉 Giá trị 3'); 
+			// Cả Subscriber 1 và 2 đều nhận được '🎉 Giá trị 3'
+			// Nhưng Subscriber 2 không nhận được '🚀 Giá trị 1' và '🔥 Giá trị 2'
+
+			// Output: 
+				Subscriber 1: 🚀 Giá trị 1
+				Subscriber 1: 🔥 Giá trị 2
+				Subscriber 1: 🎉 Giá trị 3
+				Subscriber 2: 🎉 Giá trị 3
+	BehaviorSubject
+		Luôn lưu giữ giá trị cuối cùng
+		Khi có subscriber mới, nó nhận ngay giá trị gần nhất trước đó
+		Ex:
+			const behaviorSubject = new BehaviorSubject<string>('🌱 Giá trị mặc định');
+
+			behaviorSubject.subscribe(value => console.log('Subscriber 1:', value));
+
+			behaviorSubject.next('🚀 Giá trị 1');
+			behaviorSubject.next('🔥 Giá trị 2');
+
+			behaviorSubject.subscribe(value => console.log('Subscriber 2:', value));
+			// Subscriber 2 nhận ngay '🔥 Giá trị 2' (giá trị gần nhất)
+
+			behaviorSubject.next('🎉 Giá trị 3');
+			// Cả 2 subscriber đều nhận được
+
+			// => Output:
+				Subscriber 1: 🌱 Giá trị mặc định
+				login.component.ts:70 Subscriber 1: 🚀 Giá trị 1
+				login.component.ts:70 Subscriber 1: 🔥 Giá trị 2
+				login.component.ts:75 Subscriber 2: 🔥 Giá trị 2
+				login.component.ts:70 Subscriber 1: 🎉 Giá trị 3
+				login.component.ts:75 Subscriber 2: 🎉 Giá trị 3
+	
+	ReplaySubject
+		Lưu N giá trị gần nhất
+		Subscriber mới sẽ nhận lại toàn bộ giá trị đã phát trước đó
+		Ex: 
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 60. Khi nào nên dùng `takeUntil()` trong Angular?  
 61. Khi nào nên sử dụng state management như **NgRx, Akita, hoặc Redux**?  
 62. `Store` trong NgRx hoạt động như thế nào?  

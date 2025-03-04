@@ -1,11 +1,11 @@
 import {
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR
-} from "./chunk-UAO2GPHP.js";
-import {
   DomSanitizer
 } from "./chunk-TNHTN227.js";
 import "./chunk-7ADHWMJE.js";
+import {
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR
+} from "./chunk-UAO2GPHP.js";
 import {
   DOCUMENT,
   NgClass,

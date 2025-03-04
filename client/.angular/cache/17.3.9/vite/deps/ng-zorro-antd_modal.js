@@ -1,6 +1,9 @@
 import {
+  NzI18nService
+} from "./chunk-H5CIFMSQ.js";
+import {
   overlayZIndexSetter
-} from "./chunk-U5LPET4F.js";
+} from "./chunk-3NAXRCUC.js";
 import {
   CdkScrollableModule,
   Overlay,
@@ -8,24 +11,17 @@ import {
   OverlayRef,
   ScrollDispatcher,
   ViewportRuler
-} from "./chunk-T7TID2TT.js";
+} from "./chunk-ZCA3HUEH.js";
 import {
   reqAnimFrame
 } from "./chunk-QTPV4WNA.js";
 import {
-  BasePortalOutlet,
-  CdkPortalOutlet,
-  ComponentPortal,
-  PortalModule,
-  TemplatePortal
-} from "./chunk-7AXRTXGX.js";
-import {
-  NzI18nService
-} from "./chunk-H5CIFMSQ.js";
-import {
   NzButtonComponent,
   NzButtonModule
-} from "./chunk-DZYUY73U.js";
+} from "./chunk-Z7EJXFSS.js";
+import {
+  NzTransitionPatchDirective
+} from "./chunk-KRIRCCFV.js";
 import {
   NzWaveDirective
 } from "./chunk-JHNU6GPU.js";
@@ -39,10 +35,6 @@ import {
   trigger
 } from "./chunk-UZUTYCO5.js";
 import {
-  NzOutletModule,
-  NzStringTemplateOutletDirective
-} from "./chunk-UE57DXRH.js";
-import {
   FocusTrapFactory,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader
@@ -52,9 +44,6 @@ import {
   hasModifierKey
 } from "./chunk-T4JA2NQD.js";
 import "./chunk-UEKQJVVI.js";
-import {
-  Directionality
-} from "./chunk-3OAW3AH7.js";
 import {
   NzIconDirective,
   NzIconModule
@@ -82,8 +71,19 @@ import {
   warn
 } from "./chunk-SQLRFIFY.js";
 import {
-  NzTransitionPatchDirective
-} from "./chunk-KRIRCCFV.js";
+  BasePortalOutlet,
+  CdkPortalOutlet,
+  ComponentPortal,
+  PortalModule,
+  TemplatePortal
+} from "./chunk-7AXRTXGX.js";
+import {
+  NzOutletModule,
+  NzStringTemplateOutletDirective
+} from "./chunk-UE57DXRH.js";
+import {
+  Directionality
+} from "./chunk-3OAW3AH7.js";
 import {
   DomSanitizer
 } from "./chunk-TNHTN227.js";
