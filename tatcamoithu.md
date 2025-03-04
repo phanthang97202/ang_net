@@ -1352,30 +1352,462 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 
 40. Khi nào nên sử dụng **FormGroup** và **FormControl**?  
 41. Khi nào cần dùng `Validators.required` và `Validators.minLength`?  
+	FormControll đại diện cho 1 trường đơn lẻ trong form. Nó quản lý giá trị, trạng thái hợp lệ, validate của field đó
+		Ex: 
+			<input [formControll]="nameControll" >
+			<p> {{nameControll.value}} </p>
+			nameControll = new FormControll("")
+	FormGroup là 1 nhóm các FormControll, giúp quản lý nhiều trường cùng lúc. Nó tập hợp dữ liệu như 1 đối tượng thay vì từng field riêng lẻ
+	Có thể lồng FormGroup trong FormGroup vào cũng được
+		Ex: 
+			<form [formGroup]="userForm" >
+				<input formControllName="fullName" >
+				<p *ngIf="userForm.firstName.hasError('required')">Họ tên k được để trống</p>
+				<input formControllName="firstName" >
+				<p *ngIf="userForm.firstName.hasError('minLength')">Họ tên lớn hơn 6 kí tự</p>
+			</form>
+			userForm = new FormGroup({
+				fullName: new FormControll("", Validators.required)
+				firstName: new FormControll("", Validators.minLength(6))
+			})
+
 42. Cách xử lý form validation trong Angular?  
+	Sử dụng Reactive Form
+		Ex:
+			registerForm = new FormGroup({
+				username: new FormControl("", [Validators.required, Validators.mingLength(4)]),
+				email: new FormControl("", [Validators.required, Validators.email])
+			})
+			get username() { return this.registerForm.get('username'); } // getter trong ts, không dần phải username() khi gọi mà chỉ cần username.[property/method]
+  			get email() { return this.registerForm.get('email'); }
+			<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+			 <p *ngIf="username?.invalid && username?.touched">Tên đăng nhập phải có ít nhất 4 ký tự.</p>
+			</form>
+	Custom validate
+		Ex: 
+			export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+				const password = control.get('password')?.value;
+				const confirmPassword = control.get('confirmPassword')?.value;
+				return password === confirmPassword ? null : { passwordMismatch: true };
+			}
+			this.registerForm = new FormGroup({
+				password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+				confirmPassword: new FormControl('', [Validators.required])
+			}, { validators: passwordMatchValidator });
+			<p *ngIf="registerForm.errors?.passwordMismatch && registerForm.touched">Mật khẩu không khớp!</p>
+
 43. Sự khác nhau giữa `valueChanges` và `statusChanges` trong Forms?  
+	+ valueChanges là Observable theo dõi giá trị của form (FormControl)
+		Ex: 
+			Log ra Giá trị mới nhập vào
+			Kích hoạt Khi người dùng nhập dữ liệu
+		Ứng dụng:
+			Auto-save, gợi ý tìm kiếm
+	
+	+ statusChanges là Observable theo dõi trạng thái validation của form (FormGroup)
+		Ex:
+			Log ra VALID, INVALID, PENDING, DISABLE
+			Kích hoạt Khi form chạy validation
+		Ứng dụng:
+			On/Off button submit, hiển thị lỗi
+	Ex:  
+		export class RegisterComponent implements OnInit {
+			registerForm!: FormGroup;
+			usernamePreview: string = '';
+			isFormValid: boolean = false;
+
+			constructor(private fb: FormBuilder) {}
+			ngOnInit() {
+				this.registerForm = this.fb.group({
+					username: ['', [Validators.required, Validators.minLength(4)]],
+					email: ['', [Validators.required, Validators.email]],
+					password: ['', [Validators.required, Validators.minLength(6)]]
+				});
+
+				// Theo dõi giá trị của username và hiển thị ngay lập tức
+				this.registerForm.get('username')?.valueChanges.subscribe(value => {
+					this.usernamePreview = value;
+				});
+
+				// Theo dõi trạng thái form để bật/tắt nút Submit
+				this.registerForm.statusChanges.subscribe(status => {
+					this.isFormValid = status === 'VALID';
+				});
+			}
+
+			onSubmit() {
+				if (this.registerForm.valid) {
+					console.log('Đăng ký thành công!', this.registerForm.value);
+				}
+			}
+		}
+
+		<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+			<label for="username">Tên người dùng:</label>
+			<input id="username" formControlName="username">
+			<p *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+				⚠ Tên người dùng phải có ít nhất 4 ký tự!
+			</p>
+
+			<p><strong>Preview username:</strong> {{ usernamePreview }}</p>
+
+			<label for="email">Email:</label>
+			<input id="email" formControlName="email">
+			<p *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+				⚠ Email không hợp lệ!
+			</p>
+
+			<label for="password">Mật khẩu:</label>
+			<input id="password" type="password" formControlName="password">
+			<p *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+				⚠ Mật khẩu phải có ít nhất 6 ký tự!
+			</p>
+
+			<button type="submit" [disabled]="!isFormValid">Đăng ký</button>
+		</form>
+
+		Giải thích lý do:
+			valueChanges (Reactive Programing) : 
+				+ Sâu bên trong nó sử dụng cơ chế BehaviorSubject or EventImitter để phát tra giá trị mới khi form thay đổi
+				+ Khi bạn gọi subcribe() là bạn đang lắng nghe sự thay đổi từ Observable
+				+ Mỗi lần người dùng nhập dữ liệu, Angular gọi next(value) làm cho valueChanges phát ra giá trị mới ngay lập tức
+				=> Đó là lý do vì nó nó được đặt trong ngOnInit() nhưng nó vẫn có thể log ra val khi form thay đổi
+				Ex: 
+					class MyFormControl {
+					private valueSubject = new BehaviorSubject<string>('');
+						valueChanges = this.valueSubject.asObservable(); // Trả về Observable để lắng nghe
+						setValue(newValue: string) {
+							this.valueSubject.next(newValue); // Phát giá trị mới
+						}
+					}
+					// 🟢 Sử dụng
+					const control = new MyFormControl();
+					// Đăng ký lắng nghe
+					control.valueChanges.subscribe(value => {
+						console.log('Giá trị mới:', value);
+					});
+					// Giả lập người dùng nhập dữ liệu
+					control.setValue('Hello');
+					control.setValue('World');
+
 44. `FormArray` trong Angular là gì?  
+	FormArray là một loại FormGroup trong Angular Reactive Form, cho phép quản lý danh sách động các FormGroup or FormControl
+	Ex:
+		phoneForm: FormGroup
+		constructor(private fb: FormBuilder) {
+			this.phoneForm = this.fb.group({
+				phones: this.fb.array([])
+			})
+		}
+		get phones(): FormArray {
+			return this.phoneForm.get('phones') as FormArray;
+		}
+		addPhone() {
+			this.phone.push(new FormControl('', Validators.required))
+		}
+		deletePhone(index) {
+			this.phone.removeAt(index)
+		}
+		get phones(): FormArray {
+			return this.phoneForm.get('phones') as FormArray;
+			// Output: { "phones": ["0123456789", "0987654321", "0912345678"] }
+
+		}
+
+		<form [formGroup]="phoneForm" (ngSubmit)="submitForm()">
+			<div formArrayName="phones">
+				<div *ngFor="let phone of phones.controls; let i = index">
+				<input type="text" [formControlName]="i" placeholder="Nhập số điện thoại">
+				<button type="button" (click)="removePhone(i)">Xóa</button>
+				</div>
+			</div>
+			<button type="button" (click)="addPhone()">Thêm số điện thoại</button>
+			<button type="submit" [disabled]="phoneForm.invalid">Gửi</button>
+		</form>
+
 45. Khi nào cần sử dụng Custom Validators trong Angular?  
+	import { AbstractControl, ValidationErrors, AsyncValidatorFn } from '@angular/forms';
+	import { Observable, of } from 'rxjs';
+	import { debounceTime, map, catchError, switchMap } from 'rxjs/operators';
+	import { UserService } from './user.service';
+
+	export function usernameExistsValidator(userService: UserService): AsyncValidatorFn {
+	return (control: AbstractControl): Observable<ValidationErrors | null> => {
+		if (!control.value) return of(null);
+
+		return userService.checkUsername(control.value).pipe(
+			debounceTime(500), // Chỉ gọi API khi user ngừng nhập 500ms
+			map((exists: boolean) => (exists ? { usernameExists: true } : null)),
+			catchError(() => of(null))
+		);
+	};
+	}
 
 ---
 
 ## **6. Câu hỏi về Services và Dependency Injection (DI)**
 46. **Angular Service** là gì? Khi nào cần dùng?  
-47. **Dependency Injection (DI)** trong Angular hoạt động như thế nào?  
+	Chuyên xử lý logic và share dữ liệu across components. Tách biệt business logic khởi component
+	Ứng dụng:
+		+ Gọi API lấy dữ liệu (HttpClient).
+		+ Chia sẻ dữ liệu giữa các component (State Management). Tuy nhiên nó khác với Subject là không thể tự động cập nhật dữ liệu khi data thay đổi
+		+ Xử lý logic phức tạp (Business Logic).
+		+ Quản lý trạng thái ứng dụng (Singleton Services). Ví dụ trong authentication, toàn bộ trạng thái đăng nhập cần phải được lưu trữ và kiểm tra trên toàn bộ ứng dụng
+
+47. **Dependency Injection (DI)** trong Angular hoạt động như thế nào? 
+	DI trong angular là cơ chế tự động cung cấp dependences cho 1 class mà không cần khởi tạo chúng
+	Cách hoạt động:
+		+ Khai báo service (dependency)
+		+ Đăng kí service vào Angular Injection 
+			+ @Injectable =>  
+			+ providedIn: "root" => service tồn tại trong toàn bộ ứng dụng (Singleton)
+			+ providers: [] trong AppModule => service chỉ tồn tại trong module đó
+			+ providers: [] trong @Component => mỗi component có 1 instance riêng của service
+		+ Inject service vào Component, Directive, Pipe or Service khác bằng Constructor Injection
+
 48. Khi nào nên dùng `providedIn: 'root'`?  
+	Khi muốn dùng trên toàn bộ ứng dụng (được sử dụng nhiều ở module, component)
+	Muốn service là singleton để tránh tạo nhiều instance không cần thiết
+	Muốn Angular tự động tree-shake service (chỉ load nơi nào dùng)
+	Ex:
+		+ Call api 
+		+ State management với BehaviorSubject
+		+ Xử lý logic chung
+		+ Không nên dùng nếu chỉ muốn service trong 1 module cụ thể
+
 49. `useClass`, `useValue`, `useFactory` trong DI là gì?  
+	+ useClass thay thế service mặc định, khi bạn muốn cung cấp 1 class khác thay vì class mặc định
+		Ex: 
+			@Injectable()
+			export class ConsoleLoggerService {
+				log(message: string) {
+					console.log(`Dev Log: ${message}`);
+				}
+			}
+
+			@Injectable()
+			export class ServerLoggerService {
+				log(message: string) {
+					// Gửi log lên server
+					fetch('https://api.example.com/logs', {
+						method: 'POST',
+						body: JSON.stringify({ message }),
+					});
+				}
+			}
+
+			// Đăng ký provider
+			providers: [
+				{ provide: ConsoleLoggerService, useClass: environment.production ? ServerLoggerService : ConsoleLoggerService }
+			]
+
+	+ useValue cung cấp giá trị tĩnh. Nếu cần tải cấu hình API từ 1 file or biến global thay vì hardcode
+		Ex: 
+			// Định nghĩa cấu hình API
+			export const APP_CONFIG = {
+				apiUrl: 'https://api.example.com',
+				timeout: 5000
+			};
+
+			// Đăng ký provider
+			providers: [
+				{ provide: 'AppConfig', useValue: APP_CONFIG }
+			]
+
+			// Inject vào component/service
+			constructor(@Inject('AppConfig') private config: any) {
+				console.log(`API URL: ${this.config.apiUrl}`); // Output: https://api.example.com
+			}
+
+	+ useFactory tạo service dựa trên điều kiện động. Bạn muốn tạo authentication service để đăng nhập nhưng có 2 cách: OAuthService và MockAuthService
+		Ex:
+			@Injectable()
+			export class OAuthService {
+				login() { console.log('Logging in with OAuth...'); }
+			}
+
+			@Injectable()
+			export class MockAuthService {
+				login() { console.log('Mock login (dev mode)...'); }
+			}
+
+			// Hàm factory quyết định service nào sẽ được sử dụng
+			export function authFactory() {
+				return environment.production ? new OAuthService() : new MockAuthService();
+			}
+
+			// Đăng ký provider
+			providers: [
+				{ provide: 'AuthService', useFactory: authFactory }
+			]
+
+			// Inject và sử dụng
+			constructor(@Inject('AuthService') private authService: any) {
+				this.authService.login(); // Gọi đúng service tùy theo môi trường
+			}
+
 50. `HttpClientModule` trong Angular dùng để làm gì?  
 51. Làm sao để gọi API từ Angular?  
+	Dùng NgModule => Dùng HttpClientModule để có thể sử dụng HttpClient trong Angular
+		Khai báo: imports: [HttpClientModule] trong Module
+	Dùng Standalone API => Dùng provideHttpClient() để có thể sử dụng HttpClient trong Angular
+		Khai báo: providers: [provideHttpClient()] trong file main
+
 52. `Observable` và `Promise` khác gì nhau trong Angular?  
 53. Khi nào nên dùng `async/await`, khi nào nên dùng RxJS?  
-54. `Interceptor` trong Angular dùng để làm gì?  
+	Promise
+		Chỉ chạy 1 lần
+		Là giá trị bất đồng bộ, chỉ trả về 1 kết quả duy nhất và không thể hủy
+	Observable 	
+		Nhiều lần, có thể hủy
+		Có thể phát ra nhiều giá trị theo thời gian và có thể hủy khi k cần thiết
 
----
+	async/await
+		Dữ liệu: 1 lần
+		Cơ chế xử lý: Đơn giản, dễ đọc
+		Hủy request: không
+		Chaining calls: then or await
+		Xử lý bất đồng bộ: Tốt cho request đơn giản
+		Quản lý trạng thái: Không tự động cập nhật
+	RxJS(Observable)
+		Dữ liệu: nhiều lần
+		Cơ chế xử lý: Mạnh mẽ, linh hoạt
+		Hủy request: Có (unsubcrible)
+		Chaining calls: pipe() với các operators: mergeMap, switchMap
+		Xử lý bất đồng bộ: websocket, stream, api polling
+		Quản lý trạng thái: Có thể theo dõi và phát dữ liệu liên tục
+
+54. `Interceptor` trong Angular dùng để làm gì?  
+	Là cơ chế dùng để chặn và xử lý các request/response của HttpClient trước khi gửi/nhận dữ liệu từ API
+	Sử dụng: 
+		✔ Thêm token vào request (Authentication - JWT, OAuth)
+		✔ Ghi log request/response
+		✔ Xử lý lỗi toàn cục (Global Error Handling)
+		✔ Thay đổi hoặc cache response
+		✔ Hiển thị loader (loading spinner) khi gọi API
+----
 
 ## **7. Câu hỏi về RxJS và State Management**
 55. RxJS là gì? Tại sao Angular sử dụng RxJS?  
+	RxJS là thư viện hỗ trợ lập trình reactive dựa trên Observable. Giúp xử lý các luồng dữ liệu bất đồng bộ như call API, user input, Websocket, event listener
+	
+	Angular sử dụng RxJS vì:
+
+		1️⃣ Quản lý dữ liệu bất đồng bộ hiệu quả
+		→ RxJS giúp xử lý API call (HttpClient), WebSocket, event listener dễ dàng hơn.
+
+		2️⃣ Xử lý event-based logic mạnh mẽ
+		→ Dùng cho click events, form value changes, search input,...
+
+		3️⃣ Cung cấp nhiều toán tử mạnh mẽ
+		→ Các toán tử như map(), filter(), debounceTime() giúp xử lý dữ liệu linh hoạt hơn so với Promise.
+
+		4️⃣ Tích hợp tốt với Angular
+		→ Angular cung cấp các API như HttpClient, ActivatedRoute.params, FormControl.valueChanges,... dựa trên RxJS.
+
 56. **Observable và Observer** trong Angular là gì?  
+	Observable là nguồn dữ liệu bất đồng bộ
+		- Đại diện cho luồng dữ liệu bất đồng bộ, phát tra 1 or nhiều giá trị dữ liệu theo thời gian và cho phép các thành phần khác lắng nghe và phản ứng với dữ liệu đó
+			+ Gọi API HttpClient
+			+ FormControl.valueChanges
+			+ ActivedRoute.params
+			+ Click, keyboard, scroll
+			+ Websocket 
+		Ex:
+			const myObservable = new Observable(o => {
+				o.next("Hello")
+				o.next("Angular")
+				o.complete()
+			})
+			myObservable.subscribe(v => console.log(v))
+	Observer lắng nghe và phản ứng với dữ liệu từ Observable
+		- Là đối tượng đăng kí (subscrible) vào 1 Observable để nhận dữ liệu
+		Ex:
+			const observer = {
+				next: v => console.log('v', v),
+				err: e => console.log('e', e),
+				complete: () => console.log('c'),
+			}
+			myObservable.subscribe(observer)
+
 57. `of()`, `from()`, `map()`, `filter()` trong RxJS hoạt động như thế nào?  
+	of() 
+		phát ra lần lượt các giá trị		
+		Ex: 
+			const numbers$ = of(1, 2, 3);
+			numbers$.subscribe(value => console.log(value));
+			// Output => 
+						1
+						2
+						3 
+	from()
+		Chuyển đổi 1 mảng, Promise, iterable thành Observable
+		Ex:
+			const numbersArray = [10, 20, 30, 40, 50];
+			const numbers$ = from(numbersArray);
+			numbers$.subscribe(value => console.log(value));
+			// Output => 
+						10  
+						20  
+						30  
+						40  
+						50  
+			const promise = new Promise(resolve => {
+				setTimeout(() => resolve('🚀 Dữ liệu từ Promise!'), 2000);
+			});
+			const promise$ = from(promise);
+			promise$.subscribe(value => console.log(value)); // 🚀 Dữ liệu từ Promise!
+	map() 
+		Chuyển đổi dữ liệu trước khi đến Observer
+		Ex:
+			const number = of(1,2,3)
+			number.pipe(
+				map(v => v * 10)
+			).subscribe(v => console.log(v))
+	
+	filter() 
+		Lọc dữ liệu trước khi đến Observer
+		Ex:
+			const number = of(1,2,3)
+			number.pipe(
+				filter(v => v % 2) 
+			).subscribe(v => console.log(v))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 58. `switchMap()`, `mergeMap()`, `concatMap()` khác nhau như thế nào?  
 59. **BehaviorSubject, Subject, ReplaySubject** khác gì nhau?  
 60. Khi nào nên dùng `takeUntil()` trong Angular?  

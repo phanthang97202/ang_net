@@ -17,6 +17,8 @@ import { AuthService } from '../../services/auth.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { LoadingService } from '../../services/loading-service.service';
 import { ShowErrorService } from '../../services/show-error.service';
+import { from, of } from 'rxjs';
+import { Observable } from 'ckeditor5';
 
 @Component({
   selector: 'app-login',
@@ -43,7 +45,12 @@ export class LoginComponent {
     private fb: NonNullableFormBuilder,
     private message: NzMessageService,
     private router: Router
-  ) {}
+  ) {
+    // const testOb = of(1, 2, 3);
+    // testOb.subscribe(v => console.log(v));
+
+    from({ name: 'thang' }).subscribe(v => console.log(v));
+  }
 
   passwordVisible = true;
 
