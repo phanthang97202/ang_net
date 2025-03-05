@@ -1799,9 +1799,11 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 
 59. **BehaviorSubject, Subject, ReplaySubject** khác gì nhau?  
 	Subject	
+		Nó vừa là Observable vừa là Observer
 		Không lưu giá trị trước đó
 		Subscriber chỉ nhận được giá trị sau khi đăng ký (subscribe)
 		Không phát lại giá trị trước đó khi có subscriber mới 
+		Có thể áp dụng cho Chat realtime
 		Ex: 
 			const subject = new Subject<string>();
 
@@ -1821,6 +1823,11 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 				Subscriber 1: 🔥 Giá trị 2
 				Subscriber 1: 🎉 Giá trị 3
 				Subscriber 2: 🎉 Giá trị 3
+			Giải thích: 
+				Khi có subscriber đăng kí vào Observable của Subject, thì tất cả các subsriber sẽ nhận được value khi có value được phát ra tại thời điểm đó. Subscriber nào đăng kí sau thì sẽ nhận được các value từ lúc đó đi, đương nhiên sẽ k nhận được các value trước đó (trước lúc mà nó subscribe)
+				✅ All active subscribers will receive the same emitted values.
+				❌ New subscribers will only receive values emitted after they subscribe.
+				❌ They will not receive any past values.
 	BehaviorSubject
 		Luôn lưu giữ giá trị cuối cùng
 		Khi có subscriber mới, nó nhận ngay giá trị gần nhất trước đó
@@ -1840,53 +1847,70 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 
 			// => Output:
 				Subscriber 1: 🌱 Giá trị mặc định
-				login.component.ts:70 Subscriber 1: 🚀 Giá trị 1
-				login.component.ts:70 Subscriber 1: 🔥 Giá trị 2
-				login.component.ts:75 Subscriber 2: 🔥 Giá trị 2
-				login.component.ts:70 Subscriber 1: 🎉 Giá trị 3
-				login.component.ts:75 Subscriber 2: 🎉 Giá trị 3
+				Subscriber 1: 🚀 Giá trị 1
+				Subscriber 1: 🔥 Giá trị 2
+				Subscriber 2: 🔥 Giá trị 2
+				Subscriber 1: 🎉 Giá trị 3
+				Subscriber 2: 🎉 Giá trị 3
 	
 	ReplaySubject
 		Lưu N giá trị gần nhất
 		Subscriber mới sẽ nhận lại toàn bộ giá trị đã phát trước đó
 		Ex: 
+			const replaySubject = new ReplaySubject<number>(2); // Lưu trữ 2 giá trị gần nhất
+			// Subscriber 1 đăng ký ngay lập tức
+			replaySubject.subscribe(value => console.log('Subscriber 1 nhận:', value));
+
+			replaySubject.next(1); // Phát giá trị 1
+			replaySubject.next(2); // Phát giá trị 2
+			replaySubject.next(3); // Phát giá trị 3
+			replaySubject.next(4); // Phát giá trị 4
+			// Bộ nhớ ReplaySubject lưu giá trị: [3, 4]
+
+			// Subscriber 2 đăng ký muộn
+			replaySubject.subscribe(value => console.log('Subscriber 2 nhận:', value));
+
+			replaySubject.next(5); // Phát giá trị 5
+			replaySubject.next(6); // Phát giá trị 5
+			replaySubject.next(7); // Phát giá trị 5
+			replaySubject.subscribe(value => console.log('Subscriber 3 nhận:', value));
 			
- 
+			Output: 
+				Subscriber 1 nhận: 1
+				Subscriber 1 nhận: 2
+				Subscriber 1 nhận: 3
+				Subscriber 1 nhận: 4
+				Subscriber 2 nhận: 3
+				Subscriber 2 nhận: 4
+				Subscriber 1 nhận: 5
+				Subscriber 2 nhận: 5
+				Subscriber 1 nhận: 6
+				Subscriber 2 nhận: 6
+				Subscriber 1 nhận: 7
+				Subscriber 2 nhận: 7
+				Subscriber 3 nhận: 6
+				Subscriber 3 nhận: 7
+				
+				Giải thích: 
+					subscriber 1 nhận lần lượt các giá trị 1 - 2 - 3 - 4, sau đó nó lấy [3,4] lưu vào subject
+					subscriber tạo sau nên nhận các giá trị 3 - 4 thuộc [3,4] trong bộ nhớ
+					tiếp tục phát 5 => subscriber 1 và 2 cùng nhận 5
+					tiếp tục phát 6 => subscriber 1 và 2 cùng nhận 6
+					tiếp tục phát 7 => subscriber 1 và 2 cùng nhận 7
+					subscriber 3 tạo sau nên nhận  6 7 thuộc [6,7] trong bộ nhớ
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<<<<<<< Updated upstream
-
-
-  
-=======
- 
->>>>>>> Stashed changes
 60. Khi nào nên dùng `takeUntil()` trong Angular?  
+	takeUntil() là 1 operator trong rxjs giúp hủy (unsubscribe) tự động 1 Observable khi 1 điều kiện nào đó kích hoạt, giúp tránh rò rỉ bộ nhớ và cải thiện hiệu suất
+	Khi nào nên dùng:
+		Hủy subscription khi component bị hủy (ngOnDetroy())
+		Hủy 1 stream khi có sự kiện khác xảy ra
+		NGừng lắng nghe sự kiện khi k cần thiết nữa
+	Ex: 
+		const stop$ = of(true); // Phát ngay lập tức
+		interval(1000)
+			.pipe(takeUntil(stop$))
+			.subscribe(val => console.log('This will not log:', val));
+ 
 61. Khi nào nên sử dụng state management như **NgRx, Akita, hoặc Redux**?  
 62. `Store` trong NgRx hoạt động như thế nào?  
 
@@ -1895,7 +1919,190 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 ## **8. Câu hỏi về Performance Optimization**
 63. Khi nào Angular bị re-render lại một component?  
 64. Khi nào nên dùng **OnPush Change Detection**?  
+	Khi input của component thay đổi
+	Khi component có sự kiện click, input thay đổi. Angular sẽ chạy change detection và có thể re render
+	Khi component có async pipe or subscribe dữ liệu từ observable
+		Ex: 
+			<p>{{ data$ | async }}</p>
+			data$ = this.http.get('https://api.example.com/data');
+	Khi có setTimeout, setInterval
+	Khi component có DI thay đổi
+		Ex:
+			@Injectable({ providedIn: 'root' })
+			export class DataService {
+			private data = new BehaviorSubject<string>('Hello');
+				data$ = this.data.asObservable();
+				updateData(newData: string) {
+					this.data.next(newData);
+				}
+			}
+
+			@Component({...})
+			export class MyComponent {
+				constructor(private dataService: DataService) {}
+				update() {
+					this.dataService.updateData('New Data');
+				}
+			}
+	Angular k re render lại component khi:
+		Object, array thay đổi nhưng không tạo tham chiếu mới
+		Change detection bị chặn
+			Sử dụng ChangeDetectionStrategy.OnPush mà không có thay đổi @Input() hoặc event.
+			ChangeDetectionStrategy.OnPush, Angular chỉ cập nhật khi:
+				Có Input mới (tham chiếu mới)
+				Có event từ component 
+			Ex:
+				@Component({
+					selector: 'app-child',
+					template: `<p>{{ data }}</p>`,
+					changeDetection: ChangeDetectionStrategy.OnPush
+				})
+				export class ChildComponent {
+					@Input() data!: string;
+				}
+
 65. `trackBy` trong `*ngFor` dùng để làm gì?  
+	Mặc định, khi Angular lặp danh sách với *ngFor, nếu có sự thay đổi, Angular sẽ hủy toàn bộ danh sách cũ và tạo mới hoàn toàn danh sách. Điều này làm ảnh hưởng đến hiệu suất vì tất cả các phần tử bị vẽ lại dù chỉ có một phần tử thay đổi.
+
+	TrackBy giúp Angular nhận diện phần tử nào thay đổi dựa trên một giá trị duy nhất (ID, index,...) để chỉ cập nhật phần tử đó thay vì vẽ lại toàn bộ danh sách.
+
 66. Khi nào nên sử dụng `async pipe`?  
+	AsyncPipe được sử dụng khi làm việc với Observable or Promise trong Angular template giúp tự động subscribe và unsubscribe để tránh memory leak
+
+	Khi nào dùng:
+		Gọi danh sách users
+			Ex: 
+			 	app.component.ts
+					users$ = this.userService.getUsers(); // Observable giữ dữ liệu 
+				app.component.html
+					<ul> <li *ngFor="let user of users$ | async">{{ user.name }}</li> </ul>
+		Check user is existing
+			Ex:
+				<div *ngIf="user$ | async as user; else loading">
+					<p>Username: {{ user.name }}</p>
+				</div>
+				<ng-template #loading>
+					<p>Loading...</p>
+				</ng-template>
+
 67. Tại sao không nên gọi API trực tiếp trong `ngOnInit()` mà nên dùng Service?  
+	Vi phạm nguyên tắc "Separation of Concerns" (Tách biệt trách nhiệm). ngOnInit() là vòng đời của Component, chỉ nên dùng để khởi tạo dữ liệu chứ không nên xử lý logic gọi API.
+	Khó tái sử dụng API ở nhiều nơi
+	Gây khó khăn khi kiểm thử (Unit Test)
+	Không dễ dàng quản lý state ứng dụng
+
+Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và **.NET Core API 8** dành cho lập trình viên **junior**.  
+
+---
+
+## **I. Câu hỏi phỏng vấn về C# cơ bản**
+### 🔹 **1. C# là gì? Những đặc điểm chính của C#?**  
+### 🔹 **2. Biến và kiểu dữ liệu trong C#?**  
+- **Value Type vs Reference Type** khác nhau thế nào?  
+- **Nullable Type** là gì?  
+
+### 🔹 **3. Boxing và Unboxing trong C# là gì?**  
+### 🔹 **4. `var`, `dynamic`, `object` khác nhau như thế nào?**  
+### 🔹 **5. `readonly` vs `const` khác nhau như thế nào?**  
+### 🔹 **6. `ref` vs `out` vs `in` trong C# khác nhau như thế nào?**  
+### 🔹 **7. `string` và `StringBuilder` khác nhau thế nào?**  
+### 🔹 **8. Delegate và Event trong C# là gì? Khác nhau ra sao?**  
+### 🔹 **9. Anonymous Function, Lambda Expression trong C# là gì?**  
+### 🔹 **10. `async/await` hoạt động như thế nào trong C#?**  
+
+---
+
+## **II. Câu hỏi về Lập trình Hướng đối tượng (OOP) trong C#**
+### 🔹 **11. Bốn tính chất chính của OOP là gì?**
+- **Encapsulation (Đóng gói)**
+- **Abstraction (Trừu tượng hóa)**
+- **Inheritance (Kế thừa)**
+- **Polymorphism (Đa hình)**
+
+### 🔹 **12. Encapsulation trong C# là gì? Tại sao cần dùng?**  
+### 🔹 **13. Abstract Class và Interface khác nhau thế nào?**  
+### 🔹 **14. Khi nào sử dụng Interface thay vì Abstract Class?**  
+### 🔹 **15. Overloading vs Overriding khác nhau thế nào?**  
+### 🔹 **16. Constructor và Destructor trong C# hoạt động ra sao?**  
+### 🔹 **17. Static Class, Sealed Class, Partial Class, Record là gì?**  
+### 🔹 **18. `IEnumerable` vs `IQueryable` khác nhau như thế nào?**  
+### 🔹 **19. Dependency Injection (DI) trong C# là gì?**  
+### 🔹 **20. SOLID Principles trong C# là gì?**  
+
+---
+
+## **III. Câu hỏi về .NET Core API 8**
+### 🔹 **21. .NET Core là gì? .NET Core 8 có gì mới so với các phiên bản trước?**  
+### 🔹 **22. Cấu trúc một dự án .NET Core Web API gồm những gì?**  
+### 🔹 **23. Middleware trong .NET Core API là gì?**  
+### 🔹 **24. Attribute Routing và Conventional Routing khác nhau như thế nào?**  
+### 🔹 **25. Model Binding và Model Validation trong .NET Core API hoạt động ra sao?**  
+### 🔹 **26. Tại sao nên sử dụng Dependency Injection (DI) trong .NET Core API?**  
+### 🔹 **27. Các kiểu DI trong .NET Core (`Transient`, `Scoped`, `Singleton`) khác nhau như thế nào?**  
+### 🔹 **28. Action Filter trong .NET Core API là gì?**  
+### 🔹 **29. CORS là gì? Cách cấu hình CORS trong .NET Core API?**  
+### 🔹 **30. Cách xử lý lỗi toàn cục trong .NET Core API? (`UseExceptionHandler`)**  
+
+---
+
+## **IV. Câu hỏi về Database và Entity Framework Core**
+### 🔹 **31. Entity Framework Core (EF Core) là gì? Cách sử dụng?**  
+### 🔹 **32. `DbContext` là gì? Cách sử dụng trong .NET Core API?**  
+### 🔹 **33. Code-First vs Database-First trong EF Core khác nhau như thế nào?**  
+### 🔹 **34. Migrations trong EF Core là gì? Cách tạo và áp dụng migration?**  
+### 🔹 **35. Cách xử lý quan hệ **One-to-Many**, **Many-to-Many** trong EF Core?**  
+### 🔹 **36. Lazy Loading vs Eager Loading vs Explicit Loading trong EF Core khác nhau như thế nào?**  
+### 🔹 **37. Query Tracking trong EF Core là gì? Khi nào nên dùng `AsNoTracking()`?**  
+### 🔹 **38. Cách triển khai Repository Pattern trong .NET Core API?**  
+### 🔹 **39. Dapper vs EF Core, khi nào nên dùng cái nào?**  
+### 🔹 **40. Các kiểu trạng thái Entity trong EF Core (`Added`, `Modified`, `Deleted`, `Unchanged`)?**  
+
+---
+
+## **V. Câu hỏi về Bảo mật và JWT Authentication**
+### 🔹 **41. Authentication vs Authorization khác nhau thế nào?**  
+### 🔹 **42. JSON Web Token (JWT) là gì? Cách triển khai trong .NET Core API?**  
+### 🔹 **43. Cách bảo vệ API bằng JWT Authentication?**  
+### 🔹 **44. Refresh Token là gì? Cách triển khai Refresh Token?**  
+### 🔹 **45. Role-Based Authorization và Policy-Based Authorization trong .NET Core API khác nhau thế nào?**  
+
+---
+
+## **VI. Câu hỏi về Hiệu suất và Testing**
+### 🔹 **46. Cách tối ưu hiệu suất API trong .NET Core?**  
+### 🔹 **47. Caching trong .NET Core API là gì? Có những loại caching nào?**  
+### 🔹 **48. Unit Test vs Integration Test khác nhau thế nào?**  
+### 🔹 **49. Cách viết Unit Test cho Controller trong .NET Core API?**  
+### 🔹 **50. Logging trong .NET Core API hoạt động thế nào?**  
+
+---
+
+💡 **Bạn cần thêm giải thích hoặc ví dụ thực tế về câu hỏi nào không?** 🚀
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
  

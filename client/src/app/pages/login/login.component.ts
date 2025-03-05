@@ -17,7 +17,15 @@ import { AuthService } from '../../services/auth.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { LoadingService } from '../../services/loading-service.service';
 import { ShowErrorService } from '../../services/show-error.service';
-import { BehaviorSubject, from, of, ReplaySubject, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  from,
+  interval,
+  of,
+  ReplaySubject,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { Observable } from 'ckeditor5';
 
 @Component({
@@ -63,7 +71,6 @@ export class LoginComponent {
     // subject.next('🎉 Giá trị 3');
     // Cả Subscriber 1 và 2 đều nhận được '🎉 Giá trị 3'
     // Nhưng Subscriber 2 không nhận được '🚀 Giá trị 1' và '🔥 Giá trị 2'
-    console.log('======================');
 
     // const behaviorSubject = new BehaviorSubject<string>('🌱 Giá trị mặc định');
 
@@ -78,19 +85,42 @@ export class LoginComponent {
     // behaviorSubject.next('🎉 Giá trị 3');
     // // Cả 2 subscriber đều nhận được
 
-    const replaySubject = new ReplaySubject<string>(2); // Lưu trữ 2 giá trị gần nhất
+    // const replaySubject = new ReplaySubject<string>(2); // Lưu trữ 2 giá trị gần nhất
 
-    replaySubject.next('🚀 Giá trị 1');
-    replaySubject.next('🔥 Giá trị 2');
-    replaySubject.next('🎉 Giá trị 3');
+    // replaySubject.next('🚀 Giá trị 1');
+    // replaySubject.next('🔥 Giá trị 2');
+    // replaySubject.next('🎉 Giá trị 3');
 
-    replaySubject.subscribe(value => console.log('Subscriber 1:', value));
-    // Subscriber 1 nhận được '🔥 Giá trị 2' và '🎉 Giá trị 3'
+    // replaySubject.subscribe(value => console.log('Subscriber 1:', value));
+    // // Subscriber 1 nhận được '🔥 Giá trị 2' và '🎉 Giá trị 3'
+    // console.log('======================');
+    // replaySubject.next('💡 Giá trị 4');
+    // replaySubject.next('💡 Giá trị 5');
+    // replaySubject.next('💡 Giá trị 6');
+    // replaySubject.subscribe(value => console.log('Subscriber 2:', value));
+    // // Subscriber 2 nhận được '💡 Giá trị 5'
+    // // Subscriber 2 nhận được '💡 Giá trị 6'
+
     console.log('======================');
-    replaySubject.next('💡 Giá trị 4');
-    replaySubject.next('💡 Giá trị 5');
-    replaySubject.next('💡 Giá trị 6');
-    // Subscriber 1 nhận được '💡 Giá trị 4'
+    const replaySubject = new ReplaySubject<number>(2); // Lưu trữ 2 giá trị gần nhất
+    // Subscriber 1 đăng ký ngay lập tức
+    replaySubject.subscribe(value => console.log('Subscriber 1 nhận:', value));
+
+    replaySubject.next(1); // Phát giá trị 1
+    replaySubject.next(2); // Phát giá trị 2
+    replaySubject.next(3); // Phát giá trị 3
+    replaySubject.next(4); // Phát giá trị 4
+    // Bộ nhớ ReplaySubject lưu giá trị: [3, 4]
+
+    // Subscriber 2 đăng ký muộn
+    replaySubject.subscribe(value => console.log('Subscriber 2 nhận:', value));
+
+    replaySubject.next(5); // Phát giá trị 5
+    replaySubject.next(6); // Phát giá trị 5
+    replaySubject.next(7); // Phát giá trị 5
+    replaySubject
+      .pipe(takeUntil(interval(2000)))
+      .subscribe(value => console.log('Subscriber 3 nhận:', value));
   }
 
   passwordVisible = true;
