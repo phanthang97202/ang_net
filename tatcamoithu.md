@@ -1772,9 +1772,30 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 			number.pipe(
 				filter(v => v % 2) 
 			).subscribe(v => console.log(v))
-
-58. `switchMap()`, `mergeMap()`, `concatMap()` khác nhau như thế nào?
-
+ 
+58. `switchMap()`, `mergeMap()`, `concatMap()` khác nhau như thế nào? 
+	- switchMap
+		Hủy bỏ luồng trước đó, chỉ giữ luồng mới nhất. Khi có 1 giá trị mới đến, nó hủy Observable trước đó và chỉ giữ lại Observable mới nhất
+		Ứng dụng:
+			Call api từ textbox (cách cùi sẽ làm như này, thay vào đó dùng debounce + switchMap)
+			fromEvent(input, 'input').pipe(
+				debounceTime(500), // Chờ 500ms sau khi nhập
+				switchMap(event => fakeApi(event.target.value)) // Hủy request cũ, chỉ lấy cái mới nhất
+			).subscribe(result => console.log(result));
+	- mergeMap
+		Không hủy bỏ các request cũ mà xử lý đồng thời, song song, không quan tâm thứ tự kết thúc
+		Ứng dụng:
+			Gọi nhiều api cùng 1 lúc
+			fromEvent(button, 'click').pipe(
+				mergeMap(() => fakeApi())
+			).subscribe(result => console.log(result));
+	- concatMap
+		Chạy tuần tự, hoàn thành request trước rồi mới chạy tiếp request tiếp theo
+		Ứng dụng:
+			Đặt hàng onlien, nhấn nút xử lý từng đơn 1
+			fromEvent(button, 'click').pipe(
+				concatMap(() => fakeApi())
+			).subscribe(result => console.log(result));
 
 59. **BehaviorSubject, Subject, ReplaySubject** khác gì nhau?  
 	Subject	
@@ -1830,6 +1851,7 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 		Subscriber mới sẽ nhận lại toàn bộ giá trị đã phát trước đó
 		Ex: 
 			
+ 
 
 
 
@@ -1857,12 +1879,13 @@ Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior 
 
 
 
-
-
-
+<<<<<<< Updated upstream
 
 
   
+=======
+ 
+>>>>>>> Stashed changes
 60. Khi nào nên dùng `takeUntil()` trong Angular?  
 61. Khi nào nên sử dụng state management như **NgRx, Akita, hoặc Redux**?  
 62. `Store` trong NgRx hoạt động như thế nào?  
