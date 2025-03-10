@@ -2000,10 +2000,147 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 ### 🔹 **2. Biến và kiểu dữ liệu trong C#?**  
 - **Value Type vs Reference Type** khác nhau thế nào?  
 - **Nullable Type** là gì?  
+	Value Type (Kiểu giá trị)
+		Lưu trữ trên stack
+		Khi gán biến này cho biến khác, nó sẽ tạo ra 1 bản sao mới
+		Mỗi biến giữ 1 giá trị độc lập, thay đổi biến này không ảnh hướng đến biến kia
+		Không thể chưa giá trị null (trừ khi dùng Nullable<T> or ? or như int?)
+		VD: int, double, char, bool, struct, enum
+		Ex;
+			int a = 10;
+			int b = a; // Copy giá trị từ a sang b
+			b = 20;
+			Console.WriteLine(a); // Output: 10 (a không bị thay đổi)
+			Console.WriteLine(b); // Output: 20
+	Reference Type(Kiểu tham chiếu)
+		Lưu trữ trên Heap (biến chỉ giữ địa chỉ của vùng nhớ chứa dữ liệu)
+		Khi gán biến này cho biến khác thì nó cùng trỏ đến 1 vùng nhớ
+		Thay đổi biến => biến kia cũng ảnh hưởng
+		Có thể chứa null
+		VD: string, class, arrary, object, delegate, interface
+		Ex: 
+			class Person { public string Name; }
+
+			Person p1 = new Person() { Name = "Alice" };
+			Person p2 = p1; // p2 và p1 cùng trỏ đến một vùng nhớ
+			p2.Name = "Bob";
+
+			Console.WriteLine(p1.Name); // Output: "Bob" (p1 cũng bị thay đổi)
+			Console.WriteLine(p2.Name); // Output: "Bob"
+
 
 ### 🔹 **3. Boxing và Unboxing trong C# là gì?**  
+	🔹 1. Boxing là gì?
+		Là quá trình chuyển đổi từ Value Type sang Reference Type (object).
+		Khi một giá trị kiểu Value Type (int, double, bool,...) được gán vào một biến kiểu object hoặc một interface, nó sẽ được đóng gói (box) vào trong Heap.
+		Tốn hiệu suất hơn vì phải cấp phát bộ nhớ trên Heap.
+
+	🔹 2. Unboxing là gì?
+		Là quá trình chuyển đổi từ Reference Type (object) về lại Value Type.
+		Khi trích xuất giá trị từ object về kiểu dữ liệu ban đầu, C# thực hiện Unboxing.
+		Cần ép kiểu (explicit cast).
+		Nếu ép kiểu sai, sẽ gây lỗi InvalidCastException.
+
 ### 🔹 **4. `var`, `dynamic`, `object` khác nhau như thế nào?**  
+	1. var - Xác định kiểu tại thời điểm biên dịch
+		Kiểu dữ liệu được xác định tại compile-time (thời gian biên dịch).
+		Sau khi gán giá trị, kiểu không thể thay đổi.
+		Yêu cầu phải gán giá trị ngay khi khai báo.
+		Cải thiện hiệu suất vì kiểu đã được xác định tại compile-time.
+		Ex:
+			var x = 10;  // Compiler tự hiểu x là int
+			var y = "Hello";  // Compiler hiểu y là string
+			var z = new List<int>();  // Compiler hiểu z là List<int>
+
+			// ❌ Sai: Không thể thay đổi kiểu dữ liệu
+			// x = "abc";  // Lỗi vì x đã được xác định là int
+	2. dynamic - Xác định kiểu tại runtime
+		Kiểu dữ liệu được xác định tại runtime (thời gian chạy).
+		Có thể thay đổi kiểu dữ liệu sau khi gán giá trị.
+		Cho phép thực hiện các thao tác trên biến mà không cần kiểm tra kiểu trước.
+		Dễ bị lỗi do không được kiểm tra kiểu tại compile-time.
+		Ex: 
+			dynamic d = 10;  // d là int
+			Console.WriteLine(d.GetType());  // Output: System.Int32
+
+			d = "Hello";  // d giờ là string
+			Console.WriteLine(d.GetType());  // Output: System.String
+
+			d = new List<int>();  // d giờ là List<int>
+			
+			dynamic d = 10;
+			d.NonExistentMethod();  // ❌ Lỗi runtime vì không có phương thức này
+	3. object - Kiểu dữ liệu cơ bản của C#
+		Là kiểu dữ liệu cơ bản nhất trong C# (System.Object).
+		Có thể chứa bất kỳ kiểu dữ liệu nào.
+		Cần ép kiểu (casting) khi sử dụng giá trị ban đầu.
+		Ít bị lỗi hơn dynamic nhưng chậm hơn var do cần ép kiểu.
+		Ex: 
+			object obj = 10;  // obj lưu trữ giá trị int
+			Console.WriteLine(obj.GetType());  // Output: System.Int32
+
+			obj = "Hello";  // obj giờ lưu trữ string
+			Console.WriteLine(obj.GetType());  // Output: System.String
+
+			// Ép kiểu (unboxing) khi sử dụng
+			int num = (int)obj;  // ❌ Lỗi runtime nếu obj không phải int
+	Đặc điểm	var	dynamic	object
+	Xác định kiểu	Compile-time	Runtime	Compile-time
+	Thay đổi kiểu dữ liệu	❌ Không	✅ Có thể	✅ Có thể
+	Hiệu suất	Nhanh nhất	Chậm hơn do runtime	Chậm hơn do boxing/unboxing
+	Cần ép kiểu?	❌ Không	❌ Không	✅ Có
+	Lỗi tại compile-time?	✅ Có kiểm tra	❌ Không kiểm tra	✅ Có kiểm tra
+	Dùng cho anonymous types?	✅ Có thể	❌ Không	❌ Không
+
+	Tình huống	Nên dùng var	Nên dùng dynamic	Nên dùng object
+	Biến có kiểu rõ ràng	✅	❌	❌
+	Làm việc với dữ liệu không xác định trước	❌	✅	✅
+	Tương tác với COM, Reflection, JSON, ExpandoObject	❌	✅	❌
+	Viết code an toàn, tránh lỗi runtime	✅	❌	✅
+	Cần ép kiểu khi sử dụng	❌	❌	✅
+
+
 ### 🔹 **5. `readonly` vs `const` khác nhau như thế nào?**  
+	 1. const - Hằng số tại thời điểm biên dịch
+		Giá trị phải được khởi tạo ngay khi khai báo.
+		Không thể thay đổi sau khi đã khai báo.
+		Giá trị được xác định tại compile-time.
+		Mặc định là static, thuộc về lớp chứ không phải instance.
+		Chỉ có thể là kiểu dữ liệu cơ bản (int, double, string, bool, v.v.).
+		Ex: 
+			public class Example
+			{
+				public const double Pi = 3.14159;
+				public const int MaxValue = 100;
+			}
+
+			// Sử dụng
+			Console.WriteLine(Example.Pi);  // Output: 3.14159
+
+	 2. readonly - Chỉ đọc nhưng có thể gán trong constructor
+		Giá trị có thể được gán trong constructor hoặc khi khai báo.
+		Không thể thay đổi sau khi đã khởi tạo.
+		Giá trị được xác định tại runtime.
+		Có thể sử dụng với kiểu tham chiếu (List<T>, DateTime, object, v.v.).
+		Ex:
+			public class Example
+			{
+				public readonly int Id;
+				public readonly DateTime CreatedAt = DateTime.Now;
+
+				public Example(int id)
+				{
+					Id = id; // Gán giá trị trong constructor
+				}
+			}
+
+			// Sử dụng
+			var example = new Example(10);
+			Console.WriteLine(example.Id);  // Output: 10
+			Console.WriteLine(example.CreatedAt);  // Output: (thời gian hiện tại)
+
+
+
 ### 🔹 **6. `ref` vs `out` vs `in` trong C# khác nhau như thế nào?**  
 ### 🔹 **7. `string` và `StringBuilder` khác nhau thế nào?**  
 ### 🔹 **8. Delegate và Event trong C# là gì? Khác nhau ra sao?**  
