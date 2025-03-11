@@ -2140,24 +2140,583 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 			Console.WriteLine(example.CreatedAt);  // Output: (thời gian hiện tại)
 
 
-
 ### 🔹 **6. `ref` vs `out` vs `in` trong C# khác nhau như thế nào?**  
+	ref: Truyền tham chiếu có giá trị ban đầu
+		- Giá trị phải được khởi tạo trước khi truyền
+		- Giá trị có thể bị thay đổi bên trong method
+		- Không cần gán lại giá trị trước khi method completes
+		Ex: 	
+			public void ModifyRef(ref int x)
+			{
+				x *= 2;
+			}
+
+			int num = 10;
+			ModifyRef(ref num);
+			Console.WriteLine(num);  // Output: 20
+	
+	out: Truyền tham chiếu không cần giá trị ban đầu
+		- Dùng khi truyền tham số bằng tham chiếu nhưng k cần giá trị khởi tạo
+		- Bắt buộc phải gán giá trị trước khi method completes
+		- Chủ yếu được dùng khi trả về giá trị từ 1 method
+		Ex: 
+			public void GetValues(out int a, out int b)
+			{
+				a = 10;
+				b = 20;
+			}
+
+			int x, y;
+			GetValues(out x, out y);
+			Console.WriteLine($"x = {x}, y = {y}");  // Output: x = 10, y = 20
+	
+	in: Truyền tham chiếu không cho thay đổi
+		- Dùng để truyền tham số bằng tham chiếu nhưng k cho ppheps thay đổi giá trị bên trong method
+		- Chỉ đọc
+		Ex: 
+			public void PrintValue(in int x)
+			{
+				Console.WriteLine(x); // Chỉ đọc, không thể gán lại x
+			}
+
+			int num = 100;
+			PrintValue(num);
+
+
 ### 🔹 **7. `string` và `StringBuilder` khác nhau thế nào?**  
+	string: Immutable
+		Là kiểu reference type + immutable (bất biến)
+		Mỗi lần thay đổi, một đối tượng mới được tạo, làm tăng bộ nhớ sử dụng và ảnh hưởng đến hiệu suất.
+		Ex:
+			string s1 = "Hello";
+			s1 += " World";  // Tạo một đối tượng mới trong bộ nhớ
+			Console.WriteLine(s1);  // Output: "Hello World"
+	StringBuilder: Mutable
+		Có thể thay đổi giá trị mà không tạo đối tượng mới, giúp cải thiện hiệu suất
+		Ex: 
+			StringBuilder sb = new StringBuilder("Hello");
+			sb.Append(" World");  // Không tạo đối tượng mới, chỉ sửa đổi chuỗi hiện tại
+			Console.WriteLine(sb.ToString());  // Output: "Hello World"
+
 ### 🔹 **8. Delegate và Event trong C# là gì? Khác nhau ra sao?**  
+	Delegate:
+		Là 1 kiểu reference type đại diện cho 1 or nhiều method có cùng kiểu trả về và danh sách tham số
+		C# có sẵn các delegate tổng quát (Func<>, Action<>) giúp đơn giản hóa code.
+		Ex:
+			Action<string> printMessage = msg => Console.WriteLine("Message: " + msg);
+			printMessage("Hello, Action!");
+
+			Func<int, int, int> sum = (x, y) => x + y;
+			Console.WriteLine(sum(5, 3));  // Output: 8
+
+
+		Ex: 
+			public class HelloWorld
+			{
+				public delegate Task Callback(string msg);
+
+				public static async Task<string> ShowMsg(string msg, Callback cb)
+				{
+					await Task.Delay(2000);
+					string msgUpperCase = msg.ToUpper();
+					await cb(msgUpperCase);
+					return msgUpperCase;
+				}
+
+
+				public static async Task FetchAPI()
+				{
+					await ShowMsg("Thăng: 1", async (msg) =>
+					{
+						Console.WriteLine(msg);
+						await ShowMsg("Đông: 2", async (msg) =>
+						{
+							Console.WriteLine(msg);
+						});
+					});
+				}
+
+				public static async Task Main(string[] args)
+				{
+					Console.WriteLine("Start...");
+					await FetchAPI();
+				}
+			}
+
+	Event:
+		Là 1 cơ chế giúp 1 class thông báo (publish) đến các đối tượng khác(subscriber) khi có điều gì đó xảy ra
+		Nó hoạt động dựa trên delegate, nhưng có kiểm saots hơn, giúp encapsulation
+		Chỉ được thêm or xóa xử lý, (+= / -=)
+		Chỉ class sở hữu event mới có thể gọi nó, nhờ từ khóa event
+		Ex:
+			public class SecuritySystem
+			{
+				public event Action<string>? OnIntruderDetected;
+				public void DetectIntruder(string title)
+				{
+					OnIntruderDetected?.Invoke(title);
+				}
+			}
+
+			public class Alarm
+			{
+				public void ActiveAlarm(string msg)
+				{
+					Console.WriteLine("Horn speaks: " + msg);
+				}
+			}
+
+			public class SMSNotifer
+			{
+				public void SendSMS(string msg)
+				{
+					Console.WriteLine("Sending SMS: " + msg);
+				}
+			}
+
+			public class HelloWorld
+			{
+				public static void Main(string[] args)
+				{
+					SecuritySystem security = new SecuritySystem();
+					Alarm alarm = new Alarm();
+					SMSNotifer smsnotifier = new SMSNotifer();
+
+					// Subcribe event
+					security.OnIntruderDetected += alarm.ActiveAlarm;
+					security.OnIntruderDetected += smsnotifier.SendSMS;
+
+					// event detect intruder
+					security.DetectIntruder("Have importor");
+
+					// unsubcribe event
+					security.OnIntruderDetected -= alarm.ActiveAlarm;
+					security.DetectIntruder("Something went wrong");
+				}
+			}
+
 ### 🔹 **9. Anonymous Function, Lambda Expression trong C# là gì?**  
+	Anonymous Function dùng delegate để tạo hàm không có tên.
+		Ex: 
+			using System;
+
+			delegate int MathOperation(int x, int y);
+
+			class Program
+			{
+				public static int Calculate(int a, int b) {
+					return a + b;
+				}
+				static void Main()
+				{
+					// Other way
+					// MathOperation add = Calculate
+
+					// Anonymous Function
+					MathOperation add = delegate (int a, int b)
+					{
+						return a + b;
+					};
+
+					Console.WriteLine(add(5, 3));  // Output: 8
+				}
+			}
+
+	Lambda Expression là cách viết ngắn gọn hơn của Anonymous Function.
+	Lambda Expression phổ biến trong LINQ, callback, và event.
+		Ex: 
+			using System;
+
+			delegate int MathOperation(int x, int y);
+
+			class Program
+			{
+				static void Main()
+				{
+					// Anonymous Function
+					MathOperation add = (a, b) => a + b;
+
+					Console.WriteLine(add(5, 3));  // Output: 8
+				}
+			}
+
 ### 🔹 **10. `async/await` hoạt động như thế nào trong C#?**  
+	async đánh dấu một phương thức là đồng bộ
+	await dùng để đợi 1 tác vụ Task hoàn thành mà không chặn blocking luồng chính 
+	Ex:
+		public class HelloWorld
+		{
+			static async Task DoSomethingAsync()
+			{
+				Console.WriteLine("Start!");
+				await Task.Delay(2000); // Không chặn luồng chính
+				Console.WriteLine("Done!");
+			}
+
+			public static async Task Main(string[] args)
+			{
+				await DoSomethingAsync();
+			}
+		}
+
+		+ Call API / Đọc file bất đồng bộ 
+			Ex:
+				public class HelloWorld
+				{
+					static async Task DoSomethingAsync()
+					{
+						string api = "https://jsonplaceholder.typicode.com/todos/1";
+						using HttpClient hc = new HttpClient();
+						string result = await hc.GetStringAsync(api);
+						Console.WriteLine(result);
+					}
+
+					static async Task ReadFileDataAsync()
+					{
+						Console.WriteLine("Reading file...");
+						string filePath = "D:\\MyHomeWork\\Alg\\Alg\\Alg\\data.txt";
+						using StreamReader reader = new StreamReader(filePath);
+						string data = await reader.ReadToEndAsync();
+						Console.WriteLine("data..." + data);
+					}
+
+					public static async Task Main(string[] args)
+					{
+						await DoSomethingAsync();
+						await ReadFileDataAsync();
+					}
+				}
 
 ---
 
 ## **II. Câu hỏi về Lập trình Hướng đối tượng (OOP) trong C#**
 ### 🔹 **11. Bốn tính chất chính của OOP là gì?**
-- **Encapsulation (Đóng gói)**
-- **Abstraction (Trừu tượng hóa)**
-- **Inheritance (Kế thừa)**
-- **Polymorphism (Đa hình)**
+	- **Encapsulation (Đóng gói)**
+		Che giấu thông tin bên trong đối tượng, chỉ cho phép truy cập thông qua các phương thức cụ thể.
+		Giúp bảo vệ dữ liệu và kiểm soát quyền truy cập.
+		Ex: 
+			class BankAccount
+			{
+				private decimal balance; // Không thể truy cập trực tiếp từ bên ngoài
+
+				public void Deposit(decimal amount)
+				{
+					if (amount > 0) balance += amount;
+				}
+
+				public decimal GetBalance()
+				{
+					return balance; // Chỉ có thể truy cập thông qua phương thức này
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					BankAccount account = new BankAccount();
+					account.Deposit(100);
+					Console.WriteLine(account.GetBalance()); // ✅ Truy cập đúng cách
+				}
+			}
+
+	- **Abstraction (Trừu tượng hóa)**
+		Chỉ hiển thị những gì cần thiết, giấu đi phần triển khai chi tiết.
+		Dễ dàng thay đổi và bảo trì mà không ảnh hưởng đến các phần khác của chương trình.
+		Ex:
+			abstract class Animal
+			{
+				public abstract void MakeSound(); // Chỉ định nghĩa, không triển khai
+			}
+
+			class Dog : Animal
+			{
+				public override void MakeSound()
+				{
+					Console.WriteLine("Woof! Woof!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					Animal myDog = new Dog();
+					myDog.MakeSound(); // Output: Woof! Woof!
+				}
+			}
+
+
+	- **Inheritance (Kế thừa)**
+		Cho phép một class con kế thừa thuộc tính và phương thức từ một class cha.
+		Giúp tái sử dụng mã và mở rộng chức năng dễ dàng.
+		Ex: 
+			class Person
+			{
+				public string Name { get; set; }
+				
+				public void Speak()
+				{
+					Console.WriteLine("Hello, my name is " + Name);
+				}
+			}
+
+			class Student : Person
+			{
+				public void Study()
+				{
+					Console.WriteLine(Name + " is studying.");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					Student student = new Student();
+					student.Name = "Alice";
+					student.Speak();  // Kế thừa từ class Person
+					student.Study();  // Hành vi riêng của Student
+				}
+			}
+
+	- **Polymorphism (Đa hình)**
+		Cùng một phương thức có thể hoạt động theo nhiều cách khác nhau.
+		Có hai loại: Overriding (Ghi đè) và Overloading (Nạp chồng).
+		Ex:
+			Ví dụ 1: Overriding (Ghi đè phương thức)
+				class Animal
+				{
+					public virtual void Speak()
+					{
+						Console.WriteLine("The animal makes a sound.");
+					}
+				}
+
+				class Cat : Animal
+				{
+					public override void Speak()
+					{
+						Console.WriteLine("Meow! Meow!");
+					}
+				}
+
+				class Program
+				{
+					static void Main()
+					{
+						Animal myAnimal = new Cat();
+						myAnimal.Speak(); // Output: Meow! Meow!
+					}
+				}
+
+			Ví dụ 2: Overloading (Nạp chồng phương thức)
+				class MathOperations
+				{
+					public int Add(int a, int b)
+					{
+						return a + b;
+					}
+
+					public double Add(double a, double b)
+					{
+						return a + b;
+					}
+				}
+
+				class Program
+				{
+					static void Main()
+					{
+						MathOperations math = new MathOperations();
+						Console.WriteLine(math.Add(5, 3));       // Output: 8
+						Console.WriteLine(math.Add(5.5, 3.2));   // Output: 8.7
+					}
+				}
 
 ### 🔹 **12. Encapsulation trong C# là gì? Tại sao cần dùng?**  
+	Encapsulation giúp bảo vệ dữ liệu bằng cách che giấu thông tin nội bộ và chỉ cung cấp các method để truy cập
+	Sử dụng các access modifier (private, protected, public,...) để kiểm soát quyền truy cập
+	Cung cấp các method getter, setter or properties để thao tác với dữ liệu 1 các an toàn
+	Ex:
+		class BankApp
+		{
+			private float _balance;
+			public float Balance
+			{
+				get { return _balance; }
+				set
+				{
+					if (value >= 0)
+					{
+						_balance = value;
+					}
+				}
+			}
+		}
+		public class HelloWorld
+		{
+			public static void Main(string[] args)
+			{
+				BankApp ba = new BankApp();
+				ba.Balance = 10;
+				Console.Write(ba.Balance);
+			}
+		}
+
 ### 🔹 **13. Abstract Class và Interface khác nhau thế nào?**  
+	Abstract class
+		Là 1 lớp trừu tượng
+		Không thể tạo đối tượng trực tiếp
+		Dùng để định nghĩa cấu trúc chung cho các lớp con 
+		Ex:
+			abstract class Animal
+			{
+				public string Name { get; set; }
+
+				// Phương thức trừu tượng (bắt buộc lớp con phải override)
+				public abstract void MakeSound();
+
+				// Phương thức có sẵn cài đặt (tùy chọn override)
+				public void Sleep()
+				{
+					Console.WriteLine($"{Name} is sleeping...");
+				}
+			}
+
+			class Dog : Animal
+			{
+				public override void MakeSound()
+				{
+					Console.WriteLine("Woof! Woof!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					Dog dog = new Dog { Name = "Buddy" };
+					dog.MakeSound();  // Output: Woof! Woof!
+					dog.Sleep();      // Output: Buddy is sleeping...
+				}
+			}
+
+	Interface
+		Định nghĩa các method, property mà lớp triển khai phải tuân theo nhưng không chứa code cài đặt trước
+		Hỗ trợ đa kế thừa (1 lớp có thể triển khai từ nhiều interface)
+		Không chứa fields hay constructor
+		Ex:
+			interface IFlyable
+			{
+				void Fly();  // Chỉ khai báo, không có code cài đặt
+			}
+
+			class Bird : IFlyable
+			{
+				public void Fly()
+				{
+					Console.WriteLine("The bird is flying!");
+				}
+			}
+
+			class Airplane : IFlyable
+			{
+				public void Fly()
+				{
+					Console.WriteLine("The airplane is flying!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					IFlyable bird = new Bird();
+					bird.Fly();  // Output: The bird is flying!
+
+					IFlyable airplane = new Airplane();
+					airplane.Fly();  // Output: The airplane is flying!
+				}
+			}
+
+	🎯 4. Khi nào dùng Abstract Class, khi nào dùng Interface?
+	✅ Dùng Abstract Class khi:
+
+	Muốn tạo một lớp cơ sở có chung một phần cài đặt cho các lớp con.
+	Muốn sử dụng constructor hoặc fields.
+	Muốn có thể mở rộng hoặc thay đổi hành vi chung cho các lớp con.
+	✅ Dùng Interface khi:
+
+	Muốn xác định một tập hợp hành vi mà nhiều lớp có thể chia sẻ mà không quan tâm đến quan hệ kế thừa.
+	Muốn đa kế thừa (vì một lớp có thể triển khai nhiều interface nhưng chỉ có thể kế thừa một abstract class).
+	Cần tạo hợp đồng chung mà mọi class phải tuân theo mà không cần quan tâm đến cài đặt.
+	
+	Ex:  
+		abstract class BankCore
+		{
+			public string _version;
+			public BankCore(string version)
+			{
+				_version = version;
+			}
+
+			public void ShowUpdate()
+			{
+				Console.WriteLine("Depredated version: " + _version);
+			}
+
+			public abstract void MoreDeposit(int money);
+		}
+
+		class BankVCB : BankCore
+		{
+			public BankVCB(string version) : base(version)
+			{
+
+			}
+
+			public override void MoreDeposit(int money)
+			{
+				Console.WriteLine("Cho phép chuyển nhiều tiền hơn: " + money);
+			}
+		}
+
+		public class HelloWorld
+		{
+			public static void Main(string[] args)
+			{
+
+				BankVCB bvcb = new BankVCB("1.0");
+				bvcb.MoreDeposit(20000);
+				bvcb.ShowUpdate();
+				Console.WriteLine(bvcb._version);
+			}
+		}
+
+		Dùng : base() khi:
+			✅ Lớp cha có constructor không mặc định (constructor có tham số).
+			✅ Lớp cha có logic khởi tạo cần được thực thi trước khi lớp con chạy.
+			✅ Muốn truyền giá trị từ lớp con lên lớp cha.
+		🎯 4. Tại sao lại cần gọi constructor của lớp cha trước?
+			💡 Lý do chính: Nguyên tắc kế thừa – lớp con phụ thuộc vào lớp cha, nên phải đảm bảo rằng lớp cha được khởi tạo trước.
+
+			Khi ta tạo một Dog, thực chất ta đang tạo một Animal trước, sau đó mới thêm phần riêng của Dog. Nếu không gọi constructor của lớp cha, C# không biết phải khởi tạo Animal như thế nào.
+		✅ 5. Khi nào : base() là không cần thiết?
+			Nếu lớp cha có constructor mặc định (public Animal() { }), thì lớp con không cần : base(), vì C# tự động gọi constructor mặc định.
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 🔹 **14. Khi nào sử dụng Interface thay vì Abstract Class?**  
 ### 🔹 **15. Overloading vs Overriding khác nhau thế nào?**  
 ### 🔹 **16. Constructor và Destructor trong C# hoạt động ra sao?**  
