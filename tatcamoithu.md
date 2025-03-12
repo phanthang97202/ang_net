@@ -2705,24 +2705,372 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 		✅ 5. Khi nào : base() là không cần thiết?
 			Nếu lớp cha có constructor mặc định (public Animal() { }), thì lớp con không cần : base(), vì C# tự động gọi constructor mặc định.
 
-
-
-
-
-
-
-
-
-
-
-
-
 ### 🔹 **14. Khi nào sử dụng Interface thay vì Abstract Class?**  
+	Interface
+		Khi cần đảm bảo nhiều lớp có cùng hành vi, nhưng k có quan hệ trực tiếp
+		Khi hỗ trợ đa kế thừa
+		Khi cần mô tả hành vi chung mà k quan tâm đến cách cài đặt
+
+	Abstract class
+		Khi có logic chung giữa các lớp con, nên cần chia sẻ 1 phần cài đặt
+		Khi cần định nghĩa fields, constructor or methods có sẵn code
+		Khi các lớp con có quan hệ chặt chẽ với nhau
+
 ### 🔹 **15. Overloading vs Overriding khác nhau thế nào?**  
+	Overloading - Nạp chồng phương thức
+		Là việc định nghĩa nhiều phương thức cùng tên trong cùng 1 lớp, nhưng khác nhau về tham số(số lương, kiểu dữ liệu or cả 2)
+		Ex:
+			class MathUtils
+			{
+				public int Add(int a, int b) => a + b;
+				public double Add(double a, double b) => a + b;
+				public int Add(int a, int b, int c) => a + b + c;
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					MathUtils math = new MathUtils();
+					Console.WriteLine(math.Add(2, 3));        // Output: 5
+					Console.WriteLine(math.Add(2.5, 3.5));    // Output: 6.0
+					Console.WriteLine(math.Add(1, 2, 3));     // Output: 6
+				}
+			}
+
+	Overriding - Ghi đè phương thức
+		Là định nghĩa lại 1 method từ lớp cha trong lớp con, giúp thay đổi cách hoạt động của method đó
+		Phương thức của lớp cha phải có từ khóa virtual or abstract
+		Lớp con phải có từ khóa override để ghi đè phương thức
+		Có trong tính Abstraction và Polymorphism
+		Ex:
+			class Animal
+			{
+				public virtual void Speak()
+				{
+					Console.WriteLine("Animal is making a sound.");
+				}
+			}
+
+			class Dog : Animal
+			{
+				public override void Speak()
+				{
+					Console.WriteLine("Dog barks: Woof woof!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					Animal myAnimal = new Dog();
+					myAnimal.Speak();  // Output: Dog barks: Woof woof!
+				}
+			}
+
 ### 🔹 **16. Constructor và Destructor trong C# hoạt động ra sao?**  
+	Constructor (Hàm khởi tạo) 
+		Tên giống với tên lớp
+		Không có kiểu trả về (không có void, int)
+		Dùng để khởi tạo giá trị cho biến thành viên or thiết ập tài nguyên ban đầu cho đối tượng
+		Các loại constructor:
+			+ Default constructor:  Nếu không khai báo constructor, C# sẽ tự tạo một constructor mặc định (không tham số).
+				Ex:
+					class Person
+					{
+						public string Name = "Unknown";
+					}
+
+					class Program
+					{
+						static void Main()
+						{
+							Person p = new Person();
+							Console.WriteLine(p.Name);  // Output: Unknown
+						}
+					}
+			+ Parameterized constructor: Dùng để truyền giá trị ngay khi tạo đối tượng.
+				Ex:
+					class Person
+					{
+						public string Name;
+
+						public Person(string name)
+						{
+							Name = name;
+						}
+					}
+
+					class Program
+					{
+						static void Main()
+						{
+							Person p = new Person("John");
+							Console.WriteLine(p.Name);  // Output: John
+						}
+					}
+
+			+ Conpy constructor: Dùng để sao chép đối tượng đã có
+				Ex:
+					class Person
+					{
+						public string Name;
+
+						public Person(string name)
+						{
+							Name = name;
+						}
+
+						// Copy Constructor
+						public Person(Person p)
+						{
+							Name = p.Name;
+						}
+					}
+
+					class Program
+					{
+						static void Main()
+						{
+							Person p1 = new Person("Alice");
+							Person p2 = new Person(p1);
+							Console.WriteLine(p2.Name);  // Output: Alice
+						}
+					}
+
+			+ Static constructor: Được gọi duy nhất khi lớp dùng lần dầu tiên, dùng để khởi tạo dữ liệu tĩnh
+				Ex: 
+					class Logger
+					{
+						static Logger()
+						{
+							Console.WriteLine("Static constructor is called.");
+						}
+
+						public static void Log(string message)
+						{
+							Console.WriteLine(message);
+						}
+					}
+
+					class Program
+					{
+						static void Main()
+						{
+							Logger.Log("Hello, world!");  
+							// Output:
+							// Static constructor is called.
+							// Hello, world!
+						}
+					}
+
+	Destructor - Hàm hủy
+		Là phương thức đặc biệt để giải phóng tài nguyên trước khi đối tượng bị xóa khởi bộ nhớ
+		Tên giống tên lớp nhưng có dấu ~ phía trước
+		Không có tham số, không có kiểu trả về
+		Được gọi khi đối tượng bị hủy (GC chạy)
+		Ex:
+			class Car
+			{
+				public Car()
+				{
+					Console.WriteLine("Car is created!");
+				}
+
+				// Destructor
+				~Car()
+				{
+					Console.WriteLine("Car is destroyed!");
+				}
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					Car myCar = new Car();
+				}
+			}
+
 ### 🔹 **17. Static Class, Sealed Class, Partial Class, Record là gì?**  
+	Static class 
+		Không thể khởi tạo instance của lớp
+		Chỉ chứa static field, static method
+		Không thể kế thừa or bị kế thừa
+		Ex: 
+			public static class MathUtils
+			{
+				public static double Square(double num) => num * num;
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					double result = MathUtils.Square(5);
+					Console.WriteLine(result);  // Output: 25
+				}
+			}
+
+	Sealed class
+		Dùng để ngăn chặn lớp khác kế thừa
+		Ex:
+			public sealed class FinalClass
+			{
+				public void Show() => Console.WriteLine("Sealed class method");
+			}
+
+			// ❌ Lỗi: Không thể kế thừa từ một lớp `sealed`
+			// public class SubClass : FinalClass {}
+
+			class Program
+			{
+				static void Main()
+				{
+					FinalClass obj = new FinalClass();
+					obj.Show();  // Output: Sealed class method
+				}
+			}
+
+	Partial class
+		Chia 1 lớp thành nhiều file khác nhau nhưng vẫn hoạt động như 1 lớp duy nhất
+		Ex:
+			Car_Part1.cs
+				public partial class Car
+				{
+					public string Brand;
+					public void ShowBrand() => Console.WriteLine($"Car brand: {Brand}");
+				}
+			Car_Part2.cs 
+				public partial class Car
+				{
+					public int Speed;
+					public void ShowSpeed() => Console.WriteLine($"Speed: {Speed} km/h");
+				}
+
 ### 🔹 **18. `IEnumerable` vs `IQueryable` khác nhau như thế nào?**  
+	IEnumerable
+		System.Collections
+		In-memory - trong bộ nhớ
+		Dữ liệu được tải về ram trước khi xử lý
+		Chậm hơn với dữ liệu lớn
+		Lazy loading: Không hỗ trợ(thực thi ngay)
+		Không thể mở rộng (chỉ dùng LINQ To Objects)
+		Ex:  
+			class Program
+			{
+				static void Main()
+				{
+					List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+
+					IEnumerable<int> query = numbers.Where(n => n > 2);
+					
+					foreach (var num in query)
+					{
+						Console.WriteLine(num);  // Output: 3, 4, 5
+					}
+				}
+			}
+
+	IQueryable
+		System.Linq
+		Database query (truy vấn trực tiếp)
+		Tạo truy vấn SQL để xử lý trên Database Server
+		Nhanh hơn vì xử lý trên SQL Server
+		Lazy loading: Hỗ trợ(thực thi khi cần)
+		Có thể mở rộng (LINQ to SQL, Entity framework)
+		Ex: 
+
+			public class AppDbContext : DbContext
+			{
+				public DbSet<User> Users { get; set; }
+			}
+
+			public class User
+			{
+				public int Id { get; set; }
+				public string Name { get; set; }
+			}
+
+			class Program
+			{
+				static void Main()
+				{
+					using var context = new AppDbContext();
+					
+					IQueryable<User> query = context.Users.Where(u => u.Name.StartsWith("A"));
+					
+					foreach (var user in query)
+					{
+						Console.WriteLine(user.Name);
+					}
+				}
+			}
+			=> Query sẽ được chuyển thành sql như sau: 
+				SELECT * FROM Users WHERE Name LIKE 'A%'
+	
+	🔥 5️⃣ Tổng kết
+		✔ IEnumerable<T> – Duyệt danh sách trong bộ nhớ, phù hợp với danh sách nhỏ.
+		✔ IQueryable<T> – Truy vấn trực tiếp trên database, giúp tối ưu hiệu suất.
+
+		⏩ Nếu làm việc với database, hãy ưu tiên IQueryable<T> để tránh tải dữ liệu dư thừa về RAM. 🚀
+
+
 ### 🔹 **19. Dependency Injection (DI) trong C# là gì?**  
+	Giúp giảm sự phụ thuộc giữa các class bằng cách cung cấp (inject) dependences từ bên ngoài thay vì dùng class để khởi tạo bên trong
+
+	Các phương pháp DI
+		+ Constructor injection (Phổ biến nhất)
+			public class Notification
+			{
+				private readonly IMessageService _messageService;
+
+				public Notification(IMessageService messageService) // ✅ Inject dependency qua constructor
+				{
+					_messageService = messageService;
+				}
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 🔹 **20. SOLID Principles trong C# là gì?**  
 
 ---
