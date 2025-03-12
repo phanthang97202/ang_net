@@ -1,4 +1,4 @@
-Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior Developer trong các công nghệ JavaScript, ReactJS, và Angular:
+### Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior Developer trong các công nghệ JavaScript, ReactJS, Angular, C#, ASP.NET Core API, ASP.NET MVC:
 
 ### **Câu hỏi về JavaScript**
 
@@ -3022,6 +3022,60 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 
 	Các phương pháp DI
 		+ Constructor injection (Phổ biến nhất)
+			Ex:
+				public class Notification
+				{
+					private readonly IMessageService _messageService;
+
+					public Notification(IMessageService messageService) // ✅ Inject dependency qua constructor
+					{
+						_messageService = messageService;
+					}
+				}
+		+ Property injection
+			Ex: 
+				public class Notification
+				{
+					public IMessageService MessageService { get; set; }
+
+					public void Notify(string message)
+					{
+						MessageService?.SendMessage(message);
+					}
+				}
+		+ Method injection
+			Ex: 
+				public class Notification
+				{
+					public void Notify(string message, IMessageService messageService)
+					{
+						messageService.SendMessage(message);
+					}
+				}
+	
+	DI Core
+		Ex: 
+			public interface IMessageService
+			{
+				void SendMessage(string message);
+			}
+			// ===================================================
+			public class EmailService : IMessageService
+			{
+				public void SendMessage(string message)
+				{
+					Console.WriteLine($"📧 Sending Email: {message}");
+				}
+			}
+			
+			public class SMSService : IMessageService
+			{
+				public void SendMessage(string message)
+				{
+					Console.WriteLine($"📱 Sending SMS: {message}");
+				}
+			}
+			// ===================================================
 			public class Notification
 			{
 				private readonly IMessageService _messageService;
@@ -3030,49 +3084,224 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 				{
 					_messageService = messageService;
 				}
+
+				public void Notify(string message)
+				{
+					_messageService.SendMessage(message);
+				}
+			}
+			// ===================================================
+			class Program
+			{
+				static void Main()
+				{
+					IMessageService emailService = new EmailService(); // 🟢 Hoàn toàn có thể thay bằng SMSService
+					Notification notification = new Notification(emailService);
+					notification.Notify("Hello Dependency Injection!");
+
+					IMessageService smsService = new SMSService(); // 🟢 Dùng SMS thay thế mà không cần sửa Notification
+					Notification smsNotification = new Notification(smsService);
+					smsNotification.Notify("Hello SMS!");
+				}
 			}
 
+	Install dotnet add package Microsoft.Extensions.DependencyInjection
+		Ex:
+			using System;
+			using Microsoft.Extensions.DependencyInjection;
+
+			class Program
+			{
+				static void Main()
+				{
+					// 🏗️ Tạo DI Container
+					var serviceProvider = new ServiceCollection()
+						.AddScoped<IMessageService, EmailService>() // Đăng ký service
+						.BuildServiceProvider();
+
+					// 🔥 Lấy instance từ DI Container
+					var notification = new Notification(serviceProvider.GetService<IMessageService>());
+					notification.Notify("Hello from DI Container!");
+				}
+			}
+			Lợi ích khi dùng DI Container:
+				Không cần khởi tạo thủ công (new EmailService()), mà container tự quản lý.
+				Dễ dàng thay đổi implementation chỉ bằng cách thay đổi .AddScoped<IMessageService, SMSService>().
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	DI trong ASP.NET Core API
+		builder.Services.AddTransient<IMessageService, EmailService>(); // Mỗi lần inject sẽ tạo mới
+		builder.Services.AddScoped<IMessageService, EmailService>(); // Cùng request dùng chung
+		builder.Services.AddSingleton<IMessageService, EmailService>(); // Toàn bộ app dùng chung một instance
 
 ### 🔹 **20. SOLID Principles trong C# là gì?**  
+	+ Single responsibility principle
+		Ex: 
+			// ❌ Sai: Class có nhiều trách nhiệm
+			public class ReportGenerator
+			{
+				public string GenerateReport() => "Report Data";
 
+				public void SaveToFile(string report)
+				{
+					File.WriteAllText("report.txt", report);
+				}
+			}
+
+			// ✅ Đúng: Chia ra thành 2 class
+			public class ReportService
+			{
+				public string GenerateReport() => "Report Data";
+			}
+
+			public class FileService
+			{
+				public void SaveToFile(string data)
+				{
+					File.WriteAllText("report.txt", data);
+				}
+			}
+	+ O - Open/Closed Principle (OCP)
+		Ex: 
+			// ❌ Sai: Phải sửa code cũ nếu thêm loại giảm giá mới
+			public class DiscountCalculator
+			{
+				public double GetDiscount(string type, double amount)
+				{
+					if (type == "Normal") return amount * 0.1;
+					if (type == "VIP") return amount * 0.2;
+					return 0;
+				}
+			}
+
+			// ✅ Đúng: Dễ dàng mở rộng mà không cần sửa code cũ
+			public interface IDiscount
+			{
+				double ApplyDiscount(double amount);
+			}
+
+			public class NormalDiscount : IDiscount
+			{
+				public double ApplyDiscount(double amount) => amount * 0.1;
+			}
+
+			public class VIPDiscount : IDiscount
+			{
+				public double ApplyDiscount(double amount) => amount * 0.2;
+			}
+	+ L - Liskov Substitution Principle (LSP)
+		Ex: 
+			// ❌ Sai: Square kế thừa nhưng thay đổi hành vi của Rectangle
+			public class Rectangle
+			{
+				public virtual int Width { get; set; }
+				public virtual int Height { get; set; }
+			}
+
+			public class Square : Rectangle
+			{
+				public override int Width
+				{
+					set { base.Width = base.Height = value; }
+				}
+				public override int Height
+				{
+					set { base.Width = base.Height = value; }
+				}
+			}
+
+			// ✅ Đúng: Tách thành class riêng biệt
+			public interface IShape
+			{
+				int GetArea();
+			}
+
+			public class RectangleNew : IShape
+			{
+				public int Width { get; set; }
+				public int Height { get; set; }
+				public int GetArea() => Width * Height;
+			}
+
+			public class SquareNew : IShape
+			{
+				public int Side { get; set; }
+				public int GetArea() => Side * Side;
+			}
+	+ I - Interface Segregation Principle (ISP)
+		Ex:
+			// ❌ Sai: Interface quá lớn
+			public interface IPrinter
+			{
+				void Print();
+				void Scan();
+			}
+
+			public class BasicPrinter : IPrinter
+			{
+				public void Print() => Console.WriteLine("Printing...");
+				
+				public void Scan() => throw new NotImplementedException(); // ❌ Máy in này không hỗ trợ Scan
+			}
+
+			// ✅ Đúng: Chia thành nhiều interface
+			public interface IPrint
+			{
+				void Print();
+			}
+
+			public interface IScan
+			{
+				void Scan();
+			}
+
+			public class AdvancedPrinter : IPrint, IScan
+			{
+				public void Print() => Console.WriteLine("Printing...");
+				public void Scan() => Console.WriteLine("Scanning...");
+			}
+	+ D - Dependency Inversion Principle (DIP)
+		Ex: 
+			// ❌ Sai: Notification phụ thuộc vào EmailService
+			public class EmailService
+			{
+				public void SendEmail(string message) => Console.WriteLine($"📧 Sending Email: {message}");
+			}
+
+			public class Notification
+			{
+				private EmailService _emailService = new EmailService();
+				public void Notify(string message) => _emailService.SendEmail(message);
+			}
+
+			// ✅ Đúng: Dùng interface
+			public interface IMessageService
+			{
+				void SendMessage(string message);
+			}
+
+			public class EmailServiceNew : IMessageService
+			{
+				public void SendMessage(string message) => Console.WriteLine($"📧 Sending Email: {message}");
+			}
+
+			public class SMSService : IMessageService
+			{
+				public void SendMessage(string message) => Console.WriteLine($"📱 Sending SMS: {message}");
+			}
+
+			public class NotificationNew
+			{
+				private readonly IMessageService _messageService;
+				public NotificationNew(IMessageService messageService) => _messageService = messageService;
+				public void Notify(string message) => _messageService.SendMessage(message);
+			}
+
+			// 🏗 Inject service từ bên ngoài (Dependency Injection)
+			var notification = new NotificationNew(new EmailServiceNew());
+			notification.Notify("Hello, world!");
+
+ 
 ---
 
 ## **III. Câu hỏi về .NET Core API 8**
@@ -3119,11 +3348,106 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 ### 🔹 **49. Cách viết Unit Test cho Controller trong .NET Core API?**  
 ### 🔹 **50. Logging trong .NET Core API hoạt động thế nào?**  
 
+--- 
+
+Dưới đây là danh sách **top các câu hỏi phỏng vấn ASP.NET MVC level Junior**, được chia thành từng nhóm chủ đề quan trọng:  
+
 ---
 
-💡 **Bạn cần thêm giải thích hoặc ví dụ thực tế về câu hỏi nào không?** 🚀
+## **I. Tổng quan về ASP.NET MVC**  
+### 🔹 **1. ASP.NET MVC là gì?**  
+### 🔹 **2. ASP.NET MVC khác gì so với ASP.NET WebForms?**  
+### 🔹 **3. Mô hình MVC trong ASP.NET hoạt động như thế nào?**  
+- **Model** là gì?  
+- **View** là gì?  
+- **Controller** là gì?  
+### 🔹 **4. Request xử lý như thế nào trong ASP.NET MVC?**  
 
+---
 
+## **II. Controller & Routing**  
+### 🔹 **5. Controller trong ASP.NET MVC là gì? Cách tạo một Controller?**  
+### 🔹 **6. Action Method là gì? Có những loại Action Result nào?**  
+### 🔹 **7. Cách trả về JSON từ Controller?**  
+### 🔹 **8. Attribute Routing là gì?**  
+### 🔹 **9. `TempData`, `ViewData`, `ViewBag` khác nhau như thế nào?**  
+### 🔹 **10. `ActionFilter`, `ResultFilter`, `ExceptionFilter` trong ASP.NET MVC là gì?**  
+
+---
+
+## **III. View & Razor**  
+### 🔹 **11. Razor View Engine là gì?**  
+### 🔹 **12. `@Html.Partial()` vs `@Html.RenderPartial()` khác nhau thế nào?**  
+### 🔹 **13. Cách truyền dữ liệu từ Controller sang View?**  
+### 🔹 **14. Cách sử dụng Layout trong Razor View?**  
+### 🔹 **15. Cách sử dụng View Component trong ASP.NET MVC?**  
+
+---
+
+## **IV. Model & Validation**  
+### 🔹 **16. Model trong ASP.NET MVC là gì?**  
+### 🔹 **17. Cách sử dụng Data Annotation Validation trong Model?**  
+### 🔹 **18. Cách sử dụng `IValidatableObject` trong Model Validation?**  
+### 🔹 **19. Cách sử dụng `FluentValidation` để validate Model?**  
+### 🔹 **20. Cách sử dụng `AutoMapper` để map dữ liệu giữa Model và ViewModel?**  
+
+---
+
+## **V. Entity Framework & Database**  
+### 🔹 **21. Entity Framework là gì?**  
+### 🔹 **22. Code First vs Database First trong Entity Framework khác nhau thế nào?**  
+### 🔹 **23. Cách tạo Migration trong Entity Framework?**  
+### 🔹 **24. Cách xử lý quan hệ **One-to-Many**, **Many-to-Many** trong Entity Framework?**  
+### 🔹 **25. `Lazy Loading` vs `Eager Loading` trong Entity Framework khác nhau như thế nào?**  
+
+---
+
+## **VI. Authentication & Authorization**  
+### 🔹 **26. Authentication vs Authorization khác nhau thế nào?**  
+### 🔹 **27. Cách triển khai **Role-Based Authentication** trong ASP.NET MVC?**  
+### 🔹 **28. Cách triển khai **JWT Authentication** trong ASP.NET MVC?**  
+### 🔹 **29. Cách sử dụng `Authorize` Attribute để phân quyền trong ASP.NET MVC?**  
+### 🔹 **30. CORS là gì? Cách enable CORS trong ASP.NET MVC?**  
+
+---
+
+## **VII. Hiệu suất & Bảo mật**  
+### 🔹 **31. Cách tối ưu hiệu suất trong ASP.NET MVC?**  
+### 🔹 **32. Cách triển khai Caching trong ASP.NET MVC?**  
+### 🔹 **33. `OutputCache` Attribute trong ASP.NET MVC hoạt động như thế nào?**  
+### 🔹 **34. SQL Injection là gì? Cách phòng chống trong ASP.NET MVC?**  
+### 🔹 **35. Cross-Site Request Forgery (CSRF) là gì? ASP.NET MVC có cơ chế bảo vệ không?**  
+
+---
+
+## **VIII. API & Ajax**  
+### 🔹 **36. Web API trong ASP.NET MVC là gì?**  
+### 🔹 **37. Khi nào nên dùng ASP.NET MVC thay vì Web API?**  
+### 🔹 **38. Cách gọi AJAX từ View lên Controller?**  
+### 🔹 **39. Cách sử dụng `JsonResult` trong ASP.NET MVC?**  
+### 🔹 **40. Cách sử dụng `HttpClient` để gọi API trong ASP.NET MVC?**  
+
+---
+
+## **IX. Unit Testing & Logging**  
+### 🔹 **41. Unit Test là gì? Vì sao cần test trong ASP.NET MVC?**  
+### 🔹 **42. Cách viết Unit Test cho Controller trong ASP.NET MVC?**  
+### 🔹 **43. Mocking là gì? Tại sao dùng `Moq` trong Unit Test?**  
+### 🔹 **44. Cách sử dụng Serilog để logging trong ASP.NET MVC?**  
+### 🔹 **45. Global Exception Handling trong ASP.NET MVC như thế nào?**  
+
+---
+
+## **X. Các câu hỏi mở rộng**  
+### 🔹 **46. Cách triển khai file upload trong ASP.NET MVC?**  
+### 🔹 **47. Cách tạo Custom HTML Helper trong ASP.NET MVC?**  
+### 🔹 **48. Cách sử dụng Session trong ASP.NET MVC?**  
+### 🔹 **49. Khi nào nên sử dụng ASP.NET Core thay vì ASP.NET MVC?**  
+### 🔹 **50. ASP.NET MVC có còn được sử dụng rộng rãi không, hay nên chuyển qua .NET Core?**  
+
+---
+
+💡 **Bạn muốn mình giải thích chi tiết hay có ví dụ thực tế cho câu hỏi nào không?** 🚀
 
 
 
