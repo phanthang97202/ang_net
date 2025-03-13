@@ -3601,40 +3601,262 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 		Quản lý vòng đời đối tượng tốt hơn
 		Mã nguồn dễ mở rộng và bảo trì
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### 🔹 **27. Các kiểu DI trong .NET Core (`Transient`, `Scoped`, `Singleton`) khác nhau như thế nào?**  
+	Transient
+		Tạo mới mỗi lần yêu cầu 
+		Dùng cho dịch vụ nhẹ, không có trạng thái(stateless): formatter, helper, logic tính toán
+	Scoped
+		Giữ nguyê trong 1 request (http request)
+		Dùng khi cần duy trì dữ liệu trong 1 request: service thao tác db
+	Singleton
+		Tạo 1 lần duy nhất trong suốt vòng đời
+		Dùng cho dịch vụ toàn cụ(global): caching, logging, cấu hình
+
+	Ex: 
+		public interface IMyService
+		{
+			Guid GetId();
+		}
+
+		public class MyService : IMyService
+		{
+			private readonly Guid _id;
+			public MyService()
+			{
+				_id = Guid.NewGuid();
+			}
+
+			public Guid GetId() => _id;
+		}
+
+		// =================
+
+		public class HomeController : Controller
+		{
+			private readonly IMyService _service1;
+			private readonly IMyService _service2;
+
+			public HomeController(IMyService service1, IMyService service2)
+			{
+				_service1 = service1;
+				_service2 = service2;
+			}
+
+			public IActionResult Index()
+			{
+				return Content($"Service1: {_service1.GetId()} \nService2: {_service2.GetId()}");
+			}
+		}
+
+		+ Transient	
+			services.AddTransient<IMyService, MyService>();
+				Service1: c1d5a53a-4f42-4e35-bb27-2d0c2e68e187
+				Service2: 5c0f6b6a-3b4a-4d8e-98a7-71d9f6b6c30d
+		+ Scoped
+			services.AddScoped<IMyService, MyService>();
+				Service1: c1d5a53a-4f42-4e35-bb27-2d0c2e68e187
+				Service2: c1d5a53a-4f42-4e35-bb27-2d0c2e68e187
+		+ Singleton
+			services.AddSingleton<IMyService, MyService>();
+				Service1: 8a5b6c4d-1d5e-4a2b-9b5c-3a5d2f6e5c1d
+				Service2: 8a5b6c4d-1d5e-4a2b-9b5c-3a5d2f6e5c1d
+
 ### 🔹 **28. Action Filter trong .NET Core API là gì?**  
+	Là một middleware cho phép chạy trước và sau 1 action trong controller
+	Giúp:
+		Xử lý logic chung trước khi vào action
+		Thay đổi or kiểm tra dữ liệu đầu vào/đầu ra
+		Ghi log, kiểm tra quyền, xác thực, cache dữ liệu
+	   Phương thức	                 Khi nào chạy?	                                Mô tả
+	OnActionExecuting	      Trước khi action chạy   	             Dùng để kiểm tra dữ liệu đầu vào, ghi log, validate.
+	OnActionExecuted	      Sau khi action chạy xong	             Dùng để xử lý dữ liệu trả về, log kết quả.
+	OnResultExecuting	      Trước khi kết quả response trả về	     Dùng để sửa đổi response trước khi gửi đến client.
+	OnResultExecuted	      Sau khi response đã trả về	         Dùng để log response hoặc xử lý logic sau cùng.
+	Ex:
+		using Microsoft.AspNetCore.Mvc.Filters;
+		using Microsoft.AspNetCore.Mvc;
+		using System;
+
+		public class MyActionFilter : ActionFilterAttribute
+		{
+			public override void OnActionExecuting(ActionExecutingContext context)
+			{
+				// Chạy TRƯỚC khi action thực thi
+				Console.WriteLine("🚀 OnActionExecuting: Trước khi chạy action");
+
+				// Nếu cần hủy bỏ action và trả về lỗi
+				// context.Result = new BadRequestObjectResult("Dữ liệu không hợp lệ");
+			}
+
+			public override void OnActionExecuted(ActionExecutedContext context)
+			{
+				// Chạy SAU khi action đã thực thi
+				Console.WriteLine("✅ OnActionExecuted: Sau khi chạy action");
+			}
+		}
+		⚡   Cách sử dụng Action Filter
+			1. Áp dụng trực tiếp vào action
+				[HttpGet]
+				[MyActionFilter]
+				public IActionResult GetData()
+				{
+					return Ok("Dữ liệu đã được lấy");
+				}
+			2. Áp dụng vào toàn bộ controller
+				[ApiController]
+				[Route("api/[controller]")]
+				[MyActionFilter] // Áp dụng cho tất cả action trong controller này
+				public class MyController : ControllerBase
+				{
+					[HttpGet("test")]
+					public IActionResult Test()
+					{
+						return Ok("Hello từ action test!");
+					}
+				}
+			3. Đăng kí toàn cục (Dùng cho toàn bộ api)
+				builder.Services.AddControllers(options =>
+				{
+					options.Filters.Add<MyActionFilter>(); // Áp dụng cho tất cả controller
+				});
+
 ### 🔹 **29. CORS là gì? Cách cấu hình CORS trong .NET Core API?**  
+	CORS (Cross-Origin Resource Sharing) 
+		Cơ chế bảo mật của trình duyệt
+		Ngăn không cho một trang web gửi request đến một domain khác trừ khi server đích cho phép.
+	Các cách cấu hình cors
+		✅ 2.1. Cho phép tất cả nguồn gốc (Không bảo mật - Dành cho Dev)
+			var builder = WebApplication.CreateBuilder(args);
+			var app = builder.Build();
+
+			// Bật CORS cho tất cả (KHÔNG bảo mật)
+			app.UseCors(policy =>
+				policy.AllowAnyOrigin()
+					.AllowAnyMethod()
+					.AllowAnyHeader());
+
+			app.UseAuthorization();
+			app.MapControllers();
+			app.Run();
+		✅ 2.2. Chỉ cho phép một số nguồn gốc nhất định (Khuyến nghị)
+			var builder = WebApplication.CreateBuilder(args);
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("AllowSpecificOrigins", policy =>
+					policy.WithOrigins("https://myfrontend.com")  // Chỉ cho phép frontend này
+						.AllowAnyMethod()
+						.AllowAnyHeader());
+			});
+
+			var app = builder.Build();
+			app.UseCors("AllowSpecificOrigins"); // Áp dụng CORS policy
+
+			app.UseAuthorization();
+			app.MapControllers();
+			app.Run();
+		✅ 2.3. Cho phép CORS chỉ với một số HTTP Methods
+			options.AddPolicy("CustomCorsPolicy", policy =>
+				policy.WithOrigins("https://myfrontend.com")
+					.WithMethods("GET", "POST") // Chỉ cho phép GET và POST
+					.AllowAnyHeader());
+		✅ 2.4. Bật CORS cho một Controller hoặc Action cụ thể
+			[ApiController]
+			[Route("api/[controller]")]
+			[EnableCors("AllowSpecificOrigins")]
+			public class UserController : ControllerBase
+			{
+				[HttpGet]
+				public IActionResult GetUser() => Ok("User Data");
+			}
+
 ### 🔹 **30. Cách xử lý lỗi toàn cục trong .NET Core API? (`UseExceptionHandler`)**  
+	🔥 1. Sử dụng UseExceptionHandler để xử lý lỗi toàn cục
+		🔹 Bước 1: Cấu hình Middleware trong Program.cs
+			var builder = WebApplication.CreateBuilder(args);
+			var app = builder.Build();
+
+			app.UseExceptionHandler("/error"); // Chuyển hướng tất cả lỗi đến endpoint `/error`
+			app.UseAuthorization();
+			app.MapControllers();
+			app.Run();
+		🔹 Bước 2: Tạo một Endpoint /error để xử lý lỗi
+			[ApiController]
+			public class ErrorController : ControllerBase
+			{
+				[Route("error")]
+				public IActionResult HandleError()
+				{
+					return Problem( // Trả về lỗi chuẩn RFC 7807
+						title: "Có lỗi xảy ra!",
+						statusCode: StatusCodes.Status500InternalServerError
+					);
+				}
+			}
+	🔥 2. Dùng Middleware để Xử lý Exception Tốt hơn
+		🔹 Tạo Middleware xử lý lỗi
+			public class GlobalExceptionHandlerMiddleware
+			{
+				private readonly RequestDelegate _next;
+				private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+
+				public GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
+				{
+					_next = next;
+					_logger = logger;
+				}
+
+				public async Task Invoke(HttpContext context)
+				{
+					try
+					{
+						await _next(context);
+					}
+					catch (Exception ex)
+					{
+						_logger.LogError(ex, "Lỗi không mong muốn xảy ra");
+
+						context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+						context.Response.ContentType = "application/json";
+						var errorResponse = new { message = "Có lỗi xảy ra, vui lòng thử lại sau!" };
+						await context.Response.WriteAsJsonAsync(errorResponse);
+					}
+				}
+			}
+		🔹 Đăng ký Middleware trong Program.cs
+			var builder = WebApplication.CreateBuilder(args);
+			var app = builder.Build();
+
+			app.UseMiddleware<GlobalExceptionHandlerMiddleware>(); // Thêm middleware vào pipeline
+
+			app.UseAuthorization();
+			app.MapControllers();
+			app.Run();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
