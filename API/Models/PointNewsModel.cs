@@ -9,6 +9,7 @@ namespace API.Models
         public string NewsId { get; set; } = string.Empty; // Mã bài viết 
         [Required]
         public string UserId { get; set; } = string.Empty; // Người cho điểm bài viết
+        [Range(0, 10, ErrorMessage = "PointEmbraceInRangeFrom0To10")]
         public double Point { get; set; } // Điểm bài viết
         public bool FlagActive { get; set; } // Trạng thái danh mục
         public DateTime CreatedDTime { get; set; } // Thời gian tạo

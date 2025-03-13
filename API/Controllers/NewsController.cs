@@ -3,12 +3,8 @@ using API.Dtos;
 using API.IRespositories;
 using API.Middlewares;
 using API.Models;
-using API.Respositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using Serilog;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -58,12 +54,12 @@ namespace API.Controllers
         public async Task<IActionResult> Create([FromBody] NewsDto news)
         {
             try
-            { 
-                ApiResponse<NewsModel> response = await _newsRespository.Create(User, news); 
+            {
+                ApiResponse<NewsModel> response = await _newsRespository.Create(User, news);
 
                 _logger.LogInformation("NewsRespository.Create", news, response);
 
-                return Ok(response);  
+                return Ok(response);
             }
             catch (System.Exception ex)
             {
@@ -72,14 +68,14 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("Like")] 
+        [HttpPost("Like")]
         public async Task<IActionResult> Like(string newsId)
         {
             try
             {
                 ApiResponse<NewsModel> response = await _newsRespository.Like(User, newsId);
 
-                _logger.LogInformation("NewsRespository.Create", newsId, response); 
+                _logger.LogInformation("NewsRespository.Create", newsId, response);
                 return Ok(response);
             }
             catch (System.Exception ex)
@@ -94,6 +90,10 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
                 ApiResponse<NewsModel> response = await _newsRespository.Point(User, newsId, point);
                 return Ok(response);
             }

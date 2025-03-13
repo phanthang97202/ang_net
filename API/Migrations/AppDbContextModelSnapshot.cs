@@ -231,6 +231,7 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.MstProvinceModel", b =>
                 {
                     b.Property<string>("ProvinceCode")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedDTime")

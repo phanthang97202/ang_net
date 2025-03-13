@@ -3306,11 +3306,331 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 
 ## **III. Câu hỏi về .NET Core API 8**
 ### 🔹 **21. .NET Core là gì? .NET Core 8 có gì mới so với các phiên bản trước?**  
+	.NET 8
+		Hiệu suất tối ưu hơn						.NET 8 cải thiện hiệu suất ASP.NET Core, gRPC, và các bộ thu gom rác (GC).
+		Native AOT (Ahead-of-Time Compilation)		Hỗ trợ biên dịch ứng dụng thành mã máy gốc giúp giảm kích thước và tăng tốc độ khởi động.
+		Blazor Full-Stack Web UI					Hợp nhất Blazor Server, WebAssembly và Blazor Hybrid để phát triển web.
+		Entity Framework Core 8						Tối ưu hóa truy vấn LINQ, cải thiện khả năng caching dữ liệu.
+		ASP.NET Core 8								Cải tiến minimal APIs, SignalR, WebSockets, và khả năng xử lý request hiệu quả hơn.
+		Hỗ trợ gRPC nâng cao						Cải thiện streaming, hiệu suất kết nối giữa các dịch vụ.
+		Bảo mật nâng cao							Cập nhật TLS, HTTPS, xác thực và ủy quyền mạnh mẽ hơn.
+
+	Tiêu chí					.NET Core (→ .NET 5, 6, 7, 8, ...)									.NET Framework
+	Nền tảng				Chạy đa nền tảng (Windows, Linux, macOS)						Chỉ chạy trên Windows
+	Hiệu suất				Hiệu suất cao hơn, tối ưu cho microservices, cloud				Kém hơn, do kiến trúc cũ hơn
+	Mở rộng					Mã nguồn mở, phát triển liên tục trên GitHub					Đóng, chỉ Microsoft cập nhật
+	Ứng dụng				Web API, Microservices, Desktop (MAUI), Cloud, AI				Ứng dụng Windows, ASP.NET Web Forms
+	Hỗ trợ lâu dài			.NET 8 là bản LTS mới nhất (3 năm)								Ngừng phát triển sau .NET Framework 4.8
+	Entity Framework		EF Core (nhẹ, nhanh, linh hoạt hơn)								EF cũ (nặng hơn, ít tối ưu hơn)
+	Windows Forms & WPF		Hỗ trợ nhưng cần cài đặt thêm									Hỗ trợ tốt hơn nhưng chỉ trên Windows
+	Web Development			ASP.NET Core (Hiệu suất cao, hỗ trợ Blazor)						ASP.NET MVC & Web Forms (cũ hơn, chậm hơn)
+
 ### 🔹 **22. Cấu trúc một dự án .NET Core Web API gồm những gì?**  
+## 🔹 **Cấu trúc một dự án .NET Core Web API**  
+	### 📂 **1. Các thư mục chính**  
+		#### 🔹 **1.1. Controllers/**  
+		📌 Chứa các **API Controllers**, nơi xử lý các request từ client.  
+		Ví dụ:   
+			[ApiController]
+			[Route("api/[controller]")]
+			public class ProductsController : ControllerBase
+			{
+				[HttpGet]
+				public IActionResult GetAll() => Ok(new { Message = "Danh sách sản phẩm" });
+			} 
+		#### 🔹 **1.2. Models/**  
+		📌 Chứa các **class đại diện cho dữ liệu** (Entity, DTOs,...).  
+		Ví dụ:   
+			public class Product
+			{
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public decimal Price { get; set; }
+			} 
+		#### 🔹 **1.3. Data/**  
+		📌 Chứa lớp làm việc với database (**DbContext**).  
+		Ví dụ:   
+			public class AppDbContext : DbContext
+			{
+				public DbSet<Product> Products { get; set; }
+
+				public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+			} 
+		#### 🔹 **1.4. Repositories/**  
+		📌 Chứa các **lớp xử lý truy vấn dữ liệu**, giúp tách biệt logic truy xuất database.  
+		Ví dụ:   
+			public interface IProductRepository
+			{
+				Task<IEnumerable<Product>> GetAllAsync();
+			} 
+			public class ProductRepository : IProductRepository
+			{
+				private readonly AppDbContext _context;
+				public ProductRepository(AppDbContext context) => _context = context;
+
+				public async Task<IEnumerable<Product>> GetAllAsync() => await _context.Products.ToListAsync();
+			} 
+		#### 🔹 **1.5. Services/**  
+		📌 Chứa logic xử lý nghiệp vụ (Business Logic).  
+		Ví dụ:   
+			public interface IProductService
+			{
+				Task<IEnumerable<Product>> GetAllProductsAsync();
+			} 
+			public class ProductService : IProductService
+			{
+				private readonly IProductRepository _repository;
+				public ProductService(IProductRepository repository) => _repository = repository;
+
+				public async Task<IEnumerable<Product>> GetAllProductsAsync() => await _repository.GetAllAsync();
+			} 
+		#### 🔹 **1.6. Middlewares/**  
+		📌 Chứa các **Middleware tùy chỉnh** như xử lý lỗi, logging,...  
+		Ví dụ Middleware xử lý lỗi:   
+			public class ExceptionMiddleware
+			{
+				private readonly RequestDelegate _next;
+
+				public ExceptionMiddleware(RequestDelegate next) => _next = next;
+
+				public async Task Invoke(HttpContext context)
+				{
+					try { await _next(context); }
+					catch (Exception ex)
+					{
+						context.Response.StatusCode = 500;
+						await context.Response.WriteAsync($"Lỗi hệ thống: {ex.Message}");
+					}
+				}
+			} 
+
+	### 📄 **2. Các file quan trọng**  
+	#### 🔹 **Program.cs**  
+		📌 File khởi động ứng dụng, khai báo các service và middleware.  
+		Ví dụ:   
+		var builder = WebApplication.CreateBuilder(args);
+		builder.Services.AddControllers();
+		builder.Services.AddDbContext<AppDbContext>(options =>
+			options.UseSqlite("Data Source=app.db"));
+		builder.Services.AddScoped<IProductRepository, ProductRepository>();
+		builder.Services.AddScoped<IProductService, ProductService>();
+
+		var app = builder.Build();
+		app.UseMiddleware<ExceptionMiddleware>();
+		app.MapControllers();
+		app.Run(); 
+	#### 🔹 **appsettings.json**  
+	📌 File cấu hình (Database, Logging, JWT,...).  
+	Ví dụ:   
+		{
+			"ConnectionStrings": {
+				"DefaultConnection": "Server=localhost;Database=MyDB;User Id=sa;Password=123456;"
+			},
+			"Logging": {
+				"LogLevel": {
+				"Default": "Information",
+				"Microsoft.AspNetCore": "Warning"
+				}
+			}
+		} 
+	#### 🔹 **.gitignore, launchSettings.json**   
+
 ### 🔹 **23. Middleware trong .NET Core API là gì?**  
+	Là các thành phần xử lý HTTP request và response trong pipeline 
+		Xử lý request (xác thực, login)
+		Gọi middleware tiếp theo
+		Chỉnh sửa response trước khi trả về cho client 
+	Request -> Middleware A -> Middleware B -> Middleware C -> Controller
+
+	ASP NET Core cung cấp sẵn 1 số middleware như sau:
+		UseRouting() → Xác định route của request.
+		UseAuthentication() → Xác thực user.
+		UseAuthorization() → Kiểm tra quyền truy cập.
+		UseExceptionHandler() → Xử lý lỗi toàn cục.
+		UseEndpoints() → Chuyển request đến controller phù hợp.
+
+	Tạo 1 middlware tùy chỉnh	
+		Ex:
+			public class LoggingMiddleware
+			{
+				private readonly RequestDelegate _next;
+
+				public LoggingMiddleware(RequestDelegate next) => _next = next;
+
+				public async Task Invoke(HttpContext context)
+				{
+					Console.WriteLine($"[Request] {context.Request.Method} - {context.Request.Path}");
+					await _next(context);
+				}
+			}
+
+			Đăng ký middleware trong Program.cs 
+				var app = builder.Build();
+				app.UseMiddleware<LoggingMiddleware>(); // Đăng ký middleware
+				app.UseRouting();
+				app.MapControllers();
+				app.Run();
+
 ### 🔹 **24. Attribute Routing và Conventional Routing khác nhau như thế nào?**  
+	Có 2 cách để định nghĩa routing request đến các controllers 
+		+ Conventional routing 
+			Ex:
+				app.UseRouting();
+				app.UseEndpoints(endpoints =>
+				{
+					endpoints.MapControllerRoute(
+						name: "default",
+						pattern: "api/{controller}/{action}/{id?}");
+				});
+
+				public class ProductsController : ControllerBase
+				{
+					public IActionResult GetAll() => Ok("Danh sách sản phẩm");
+
+					public IActionResult GetById(int id) => Ok($"Sản phẩm có ID = {id}");
+				}
+
+				Khi gửi request:
+					GET /api/products/getall → Gọi GetAll()
+					GET /api/products/getbyid/3 → Gọi GetById(3)
+
+
+		+ Attribute routing 
+			Sử dụng thuộc tính [Route] ngay trong controller và action để định nghĩa url cụ thể 
+			Ex:
+				[Route("api/products")]
+				[ApiController]
+				public class ProductsController : ControllerBase
+				{
+					[HttpGet] 
+					public IActionResult GetAll() => Ok("Danh sách sản phẩm");
+
+					[HttpGet("{id}")]
+					public IActionResult GetById(int id) => Ok($"Sản phẩm có ID = {id}");
+				}	
+				
+				Khi gửi request:
+					GET /api/products → Gọi GetAll()
+					GET /api/products/3 → Gọi GetById(3)
+
 ### 🔹 **25. Model Binding và Model Validation trong .NET Core API hoạt động ra sao?**  
+	Model binding
+		Tự động ánh xạ (bind) dữ liệu từ HTTP request vào các tham số của acion method or model 
+		Hỗ trợ nhiều nguồn dữ liệu 
+			Query string 
+			Router parameters 
+			Request body (json, xml, form  data)
+			Header 
+		Ex: 
+			Ví dụ Model Binding từ Query String & Route
+				[HttpGet("api/products/{id}")]
+				public IActionResult GetProduct(int id, string category)
+				{
+					return Ok($"Product ID: {id}, Category: {category}");
+				}
+				// 	GET /api/products/5?category=electronics
+
+			Ví dụ Model Binding từ Request Body (JSON)
+				public class ProductDto
+				{
+					public int Id { get; set; }
+					public string Name { get; set; }
+					public decimal Price { get; set; }
+				}
+
+				[HttpPost("api/products")]
+				public IActionResult CreateProduct([FromBody] ProductDto product)
+				{
+					return Ok($"Created product: {product.Name} with price {product.Price}");
+				}
+				Gửi request (JSON body):
+					<!-- {
+						"id": 1,
+						"name": "Laptop",
+						"price": 1500.50
+					} -->
+
+	Model validation 
+		Sau khi model binding xong, asp.net core tự động kiểm tra tính hợp lệ của dữ liệu bằng data annotation 
+		Nếu dữ liệu không hợp lệ => 400
+		Ex:
+			Định nghĩa model validation 
+				public class ProductDto
+				{
+					[Required(ErrorMessage = "Tên sản phẩm không được để trống")]
+					[MaxLength(100)]
+					public string Name { get; set; }
+
+					[Range(1, 10000, ErrorMessage = "Giá phải từ 1 đến 10,000")]
+					public decimal Price { get; set; }
+				}
+
+			Kiểm tra model validation trong API 
+				[HttpPost("api/products")]
+				public IActionResult CreateProduct([FromBody] ProductDto product)
+				{
+					if (!ModelState.IsValid)
+					{
+						return BadRequest(ModelState);
+					}
+
+					return Ok($"Created product: {product.Name} with price {product.Price}");
+				}
+
+			Gửi request lỗi:
+				{
+					"name": "",
+					"price": 20000
+				}
+
+			API trả về lỗi 400 Bad Request:
+				{
+					"Name": ["Tên sản phẩm không được để trống"],
+					"Price": ["Giá phải từ 1 đến 10,000"]
+				}
+
+			Chú ý: 
+				✔ ASP.NET Core tự động validate model nếu [ApiController] được sử dụng.
+				✔ Nếu model không hợp lệ, API tự động trả về lỗi 400 mà không cần if (!ModelState.IsValid).
+				Có thể dùng middleware để custom reponse  lỗi 
+
 ### 🔹 **26. Tại sao nên sử dụng Dependency Injection (DI) trong .NET Core API?**  
+	Dependency Injection (DI) giúp:
+		Giảm phụ thuộc chặt chẽ (Loose Coupling)
+		Dễ dàng kiểm thử (Unit Testing dễ dàng)
+		Quản lý vòng đời đối tượng tốt hơn
+		Mã nguồn dễ mở rộng và bảo trì
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 🔹 **27. Các kiểu DI trong .NET Core (`Transient`, `Scoped`, `Singleton`) khác nhau như thế nào?**  
 ### 🔹 **28. Action Filter trong .NET Core API là gì?**  
 ### 🔹 **29. CORS là gì? Cách cấu hình CORS trong .NET Core API?**  
