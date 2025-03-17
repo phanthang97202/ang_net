@@ -1,4 +1,4 @@
-### Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior Developer trong các công nghệ JavaScript, ReactJS, Angular, C#, ASP.NET Core API, ASP.NET MVC:
+### Dưới đây là danh sách các câu hỏi phỏng vấn cho vị trí Junior Developer trong các công nghệ JavaScript, ReactJS, NodeJs/ExpressJs, Angular, C#, ASP.NET Core API, ASP.NET MVC:
 
 ### **Câu hỏi về JavaScript**
 
@@ -3832,63 +3832,1054 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 			app.MapControllers();
 			app.Run();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---
 
 ## **IV. Câu hỏi về Database và Entity Framework Core**
 ### 🔹 **31. Entity Framework Core (EF Core) là gì? Cách sử dụng?**  
+	EF Core là 1 ORM (Object-Relational Mapper) giúp ltv tương tác với db bằng c# thay vì viết sql thủ công
+	Install:
+		dotnet add package Microsoft.EntityFrameworkCore
+		dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+		dotnet add package Microsoft.EntityFrameworkCore.Design
+
 ### 🔹 **32. `DbContext` là gì? Cách sử dụng trong .NET Core API?**  
+	Là một lớp trung gian giữa ứng dụng C# và db trong EF Core
+	Giúp:
+		Kết nối db
+		CRUD
+		Quản lý migration và db transactions
+		LinQ để truy vấn
+	Nó có vai trò giống Unit of Work trong mô hình respository pattern
+	Bước									Mô tả																									Đánh giá
+	1. Xây dựng UnitOfWork			Inject các repository, quản lý transaction, Dispose(), SaveChangesAsync()										✅ Đúng ✔️
+	2. Xây dựng Repository Layer	Chỉ tập trung vào thao tác dữ liệu (EF Core, LinQ, Dapper...), không gọi _dbContext.SaveChanges() trực tiếp		✅ Đúng ✔️
+	3. Xây dựng Service Layer		Inject IUnitOfWork, xử lý nghiệp vụ, gọi nhiều repository, commit SaveChangesAsync() một lần					✅ Đúng ✔️
+	4. Xây dựng Controller Layer	Inject Service, chỉ gọi các phương thức Service phù hợp															✅ Đúng ✔️
+
+		+------------------------+
+		|      Controller        |  ⬅️ Inject Service
+		+------------------------+
+					⬇
+		+------------------------+
+		|      Service Layer     |  ⬅️ Inject IUnitOfWork
+		+------------------------+
+					⬇
+		+------------------------+
+		|    UnitOfWork Layer    |  ⬅️ Inject Repositories
+		| - NewsRepository       |
+		| - CategoryNewsRepo     |
+		| - SaveChangesAsync()   |
+		| - Dispose()           |
+		+------------------------+
+					⬇
+		+------------------------+
+		|   Repository Layer     |  ⬅️ Inject AppDbContext
+		| - Chỉ thao tác DB      |
+		| - Không gọi SaveChanges|
+		+------------------------+
+					⬇
+		+------------------------+
+		|       Database         |
+		+------------------------+
+
+		// dùng AddScoped để: 
+		//      Đảm bảo DbContext dùng chung trong 1 request,
+		//      Tránh xung đột dữ liệu nếu có nhiều thao tác db trong cùng 1 request,
+		//      Quản lý transaction dễ dàng khi gọi SaveChangesAsync() trong 1 lần duy nhất,
+		//      Hiệu suất tốt
+
 ### 🔹 **33. Code-First vs Database-First trong EF Core khác nhau như thế nào?**  
+	Code-First:
+		Ưu tiên code, tạo db từ code
+		Dùng khi:
+			Khi dự án mới không có sẵn db
+			KHi muốn kiểm soát mô hình dữ liệu trực tiếp từ code
+			Khi áp dụng nguyên tắc DDD (Domain-Driven Design)
+	Database-First:
+		Ưu tiên db, tạo code từ db
+		Dùng khi:
+			Db có từ trước và cần sd nó trong ứng dụng
+			KHi muốn làm việc với dữ liệu mà không thay đổi cấu trúc db
+
 ### 🔹 **34. Migrations trong EF Core là gì? Cách tạo và áp dụng migration?**  
+	Là 1 cơ chế giúp theo dõi và quản lý thay đổi của mô hình dữ liệu (Model) và đồng bộ với db mà không cần tạo db từ đầu
+	Tác dụng:
+		Tạo db từ model
+		Cập nhật schema db khi có thay đổi model
+		Giữ lịch sử thay đổi rollback nếu cần
+	🔥 Rollback về migration trước đó
+		Giả sử bạn có các migration sau:
+			InitialCreate
+			AddDescriptionToProduct
+			AddCategoryToProduct (mới nhất)
+
+		=> dotnet ef database update AddDescriptionToProduct
+
 ### 🔹 **35. Cách xử lý quan hệ **One-to-Many**, **Many-to-Many** trong EF Core?**  
+	One - to - Many
+		Ex:
+			Cách 1: 
+				// 1 danh mục sản phẩm => có thể có nhiều sản phẩm
+				public class Category
+				{
+					public int Id { get; set; }
+					public string Name { get; set; }
+					
+					// Navigation Property
+					public List<Product> Products { get; set; } = new();
+				}
+
+				// 1 sản phẩm => thuộc 1 danh mục sản phẩm
+				public class Product
+				{
+					public int Id { get; set; }
+					public string Name { get; set; }
+					public decimal Price { get; set; }
+					
+					// Foreign Key
+					public int CategoryId { get; set; }
+					
+					// Navigation Property
+					public Category Category { get; set; }
+				}
+
+			Cách 2:
+				public class AppDbContext : DbContext
+				{
+					public DbSet<Category> Categories { get; set; }
+					public DbSet<Product> Products { get; set; }
+
+					protected override void OnModelCreating(ModelBuilder modelBuilder)
+					{
+						modelBuilder.Entity<Product>()
+							.HasOne(p => p.Category) // Một Product có một Category
+							.WithMany(c => c.Products) // Một Category có nhiều Products
+							.HasForeignKey(p => p.CategoryId) // Khoá ngoại
+							.OnDelete(DeleteBehavior.Cascade); // Xoá Category sẽ xoá luôn Product
+					}
+				}
+
+	Many - to - Many
+		Ex: 
+			Cách 1: 
+				public class Student
+				{
+					public int Id { get; set; }
+					public string Name { get; set; }
+					
+					// Navigation Property
+					public List<Course> Courses { get; set; } = new();
+				}
+
+				public class Course
+				{
+					public int Id { get; set; }
+					public string Title { get; set; }
+
+					// Navigation Property
+					public List<Student> Students { get; set; } = new();
+				}
+			Cách 2: 
+				protected override void OnModelCreating(ModelBuilder modelBuilder)
+				{
+					modelBuilder.Entity<Student>()
+						.HasMany(s => s.Courses)
+						.WithMany(c => c.Students)
+						.UsingEntity(j => j.ToTable("StudentCourse")); // Tên bảng trung gian
+				}
+
 ### 🔹 **36. Lazy Loading vs Eager Loading vs Explicit Loading trong EF Core khác nhau như thế nào?**  
+	Khi làm việc với Entity Framework Core (EF Core), việc load dữ liệu từ database có thể thực hiện theo ba cách:
+		Lazy Loading 🐌 (Tải dữ liệu khi cần)
+		Eager Loading 🚀 (Tải dữ liệu ngay lập tức)
+		Explicit Loading 🎯 (Tải dữ liệu thủ công)
+
+	Lazy loading
+		Tải khi cần - Chậm nhưng tiết kiệm tài nguyên
+		Trì hoãn việc load dữ liệu con cho đến khi nó thực sự được truy cập
+		Cần thêm virtual để EF Core hỗ trợ Lazy Loading.
+		Ex:
+			public class Category
+			{
+				public int Id { get; set; }
+				public string Name { get; set; }
+
+				// Navigation Property (Virtual để Lazy Loading hoạt động)
+				public virtual List<Product> Products { get; set; } = new();
+			}
+
+			public class Product
+			{
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public int CategoryId { get; set; }
+				public virtual Category Category { get; set; }
+			}
+
+			Cấu hình Lazy Loading bằng Microsoft.EntityFrameworkCore.Proxies
+				protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+				{
+					optionsBuilder.UseLazyLoadingProxies()
+						.UseSqlServer("YourConnectionString");
+				}
+			Khi truy vấn Category, Products không được tải ngay lập tức:
+				using (var context = new AppDbContext())
+				{
+					var category = context.Categories.FirstOrDefault(c => c.Id == 1);
+					Console.WriteLine(category.Name); // Không truy vấn Products
+
+					var products = category.Products; // Lúc này mới truy vấn Products
+				}
+		🟢 Ưu điểm:
+			 Chỉ tải dữ liệu khi thực sự cần, giảm tải ban đầu.
+		🔴 Nhược điểm:
+			 Dễ gây ra N+1 Query Problem (nhiều truy vấn không cần thiết).
+
+	Eager Loading 
+		Tải ngay - Tối ưu nhưng có thể có dư thừa dữ liệu
+		Tải luôn toàn bộ dữ liệu liên quan ngay từ đầu bằng Include()
+		Ex: 
+			var category = context.Categories
+					.Include(c => c.Products) // Tải toàn bộ Products ngay lập tức
+					.FirstOrDefault(c => c.Id == 1);
+		🟢 Ưu điểm:
+			✔ Giảm số lượng truy vấn (1 query duy nhất).
+			✔ Tránh N+1 Query Problem.
+
+		🔴 Nhược điểm:
+			❌ Nếu dữ liệu lớn, tải dư thừa sẽ làm chậm hệ thống.
+
+	Explicit Loading 
+		Tải thủ công - Chủ động hơn nhưng cần nhiều code
+		Sử dụng context.Entry().Collection().Load().
+		Ex: 
+			using (var context = new AppDbContext())
+			{
+				var category = context.Categories.FirstOrDefault(c => c.Id == 1);
+				
+				// Explicitly load Products
+				context.Entry(category).Collection(c => c.Products).Load();
+			}
+		🟢 Ưu điểm:
+			✔ Kiểm soát tốt việc load dữ liệu.
+			✔ Giảm tải cho hệ thống khi chỉ load dữ liệu cần thiết.
+
+		🔴 Nhược điểm:
+			❌ Yêu cầu nhiều dòng code hơn.
+			❌ Dễ quên load nếu không cẩn thận.
+
+	👉 Nên dùng khi nào?
+		✅ Lazy Loading: Khi chỉ load dữ liệu con nếu thực sự cần.
+		✅ Eager Loading: Khi luôn cần dữ liệu con, tránh N+1 Query Problem.
+		✅ Explicit Loading: Khi cần kiểm soát chặt chẽ việc load dữ liệu.
+
+	🚀 Lời khuyên:
+		Nếu bạn muốn tối ưu query và tránh lỗi performance, Eager Loading là lựa chọn tốt nhất.
+		Nếu bạn muốn code dễ đọc và chỉ tải dữ liệu khi cần, dùng Lazy Loading nhưng cẩn thận với N+1 Query Problem.
+		Nếu bạn muốn kiểm soát dữ liệu nhưng không muốn tải quá nhiều, dùng Explicit Loading.
+
+	N + 1 Query Problem
+		## 🔹 **N+1 Query Problem là gì?**  
+
+		**N+1 Query Problem** là một vấn đề hiệu suất phổ biến khi truy vấn dữ liệu trong **ORM (Object-Relational Mapping)** như **Entity Framework Core**.  
+
+		Vấn đề này xảy ra khi hệ thống thực hiện **N + 1 truy vấn SQL**, thay vì chỉ một truy vấn tối ưu.  
+
+		---
+
+		## ✅ **Ví dụ về N+1 Query Problem trong EF Core**  
+		Giả sử ta có hai bảng **Categories** và **Products** (quan hệ **One-to-Many**).  
+
+		```csharp
+		public class Category
+		{
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public virtual List<Product> Products { get; set; } = new();
+		}
+
+		public class Product
+		{
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public int CategoryId { get; set; }
+			public virtual Category Category { get; set; }
+		}
+		```
+
+		📌 **Truy vấn có vấn đề (Lazy Loading gây ra N+1 Query Problem)**  
+		```csharp
+		var categories = context.Categories.ToList(); // (1) Query đầu tiên: Lấy danh sách Categories
+
+		foreach (var category in categories)
+		{
+			Console.WriteLine($"Category: {category.Name}");
+			
+			// Mỗi lần truy cập Products là một truy vấn SQL riêng biệt (N truy vấn)
+			foreach (var product in category.Products)
+			{
+				Console.WriteLine($" - Product: {product.Name}");
+			}
+		}
+		```
+		### 🔥 **SQL được tạo ra**  
+		```sql
+		SELECT * FROM Categories;  -- (1 query)
+
+		SELECT * FROM Products WHERE CategoryId = 1; -- (N query)
+		SELECT * FROM Products WHERE CategoryId = 2; -- (N query)
+		SELECT * FROM Products WHERE CategoryId = 3; -- (N query)
+		...
+		```
+		📌 **Vấn đề**: Nếu có **100 categories**, thì sẽ có **1 + 100 = 101 queries** → Không tối ưu ❌  
+
+		---
+
+		## ✅ **Cách khắc phục N+1 Query Problem**  
+		### 1️⃣ **Dùng `Include()` (Eager Loading) để chỉ cần 1 query**
+		```csharp
+		var categories = context.Categories
+			.Include(c => c.Products) // Load luôn Products
+			.ToList();
+		```
+		### 🔥 **SQL tối ưu hơn**  
+		```sql
+		SELECT * FROM Categories
+		LEFT JOIN Products ON Categories.Id = Products.CategoryId;  -- (1 query duy nhất)
+		```
+		✅ Chỉ cần **1 truy vấn duy nhất** thay vì **N+1 truy vấn**  
+
+		---
+
+		## ✅ **Tóm tắt**
+		| Cách truy vấn | Số lượng Query | Hiệu suất |
+		|--------------|--------------|------------|
+		| **Lazy Loading** ❌ | `N+1` query | Chậm nếu có nhiều dữ liệu |
+		| **Eager Loading (`Include()`)** ✅ | `1` query | Tối ưu hơn |
+
+		👉 **Luôn dùng `Include()` khi cần tránh N+1 Query Problem!** 🚀
+
 ### 🔹 **37. Query Tracking trong EF Core là gì? Khi nào nên dùng `AsNoTracking()`?**  
+	Query tracking 
+		+ Là cơ chế của ef core dùng để theo dõi các entity sau khi truy vấn từ db
+		+ Khi 1 entity được tracking, EF Core lưu trữ nó trong DbContext, cho phép tự động phát hiện thay đổi và cập nhật vào db khi gọi SaveChange()
+		=> Giúp tránh phải cập nhật thủ công từng entity
+
+	Có 2 loại Query Tracking
+		Tracking Queries - EF Core theo dõi entity, giúp p.hiện và lưu thay đổi
+		No-Tracking Queries - EF Core không theo dõi entity, giúp cải thiện hiệu suất khi chỉ đọc dữ liệu
+	
+	Khi nào nên dùng AsNoTracking()	
+		Chỉ đọc dữ liệu (read-only), không cần sửa đổi.
+		Cần tăng hiệu suất khi truy vấn dữ liệu lớn.
+		Muốn tránh EF Core lưu trữ quá nhiều entity trong bộ nhớ.
+	Không dùng AsNoTracking() 
+		Cần cập nhật dữ liệu, vì EF Core không theo dõi thay đổi, buộc phải cập nhật thủ công.
+
+	✅ 4. Ví dụ về Tracking Query
+		Mặc định, EF Core theo dõi entity và tự động phát hiện thay đổi:
+		var product = context.Products.FirstOrDefault(p => p.Id == 1);
+		product.Name = "Updated Product";
+		context.SaveChanges();  // EF Core tự động cập nhật vào database
+		🔹 SQL chạy ngầm: 
+			SELECT * FROM Products WHERE Id = 1;
+			UPDATE Products SET Name = 'Updated Product' WHERE Id = 1;
+		✅ Lợi ích: Không cần gọi context.Update(product), EF Core tự phát hiện thay đổi.
+
+	✅ 5. Ví dụ dùng AsNoTracking() để tối ưu hiệu suất 
+		var products = context.Products
+			.AsNoTracking() // Không theo dõi entity
+			.Where(p => p.Price > 1000)
+			.ToList();
+		🔹 SQL chạy ngầm (tương tự nhưng nhanh hơn) 
+			SELECT * FROM Products WHERE Price > 1000;
+		🚀 Hiệu suất cao hơn, EF Core không theo dõi entity trong bộ nhớ.
+
 ### 🔹 **38. Cách triển khai Repository Pattern trong .NET Core API?**  
+	Là 1 lớp trung gian giữa Data Access Layer và Business Logic Layer giúp:
+		Tách biệt logic truy vấn db khởi business logic
+		Giảm sự phụ thuộc vào EF Core 
+		Dễ mock data khi viết unit test
+
+	Cách cài đặt repository pattern
+		1️⃣ Tạo INewsCategoryRepository (Interface)		
+		2️⃣ Tạo NewsCategoryRepository (Implementation)
+		3️⃣ Đăng ký Repository trong Program.cs 
+		4️⃣ Tạo NewsCategoryController
+
 ### 🔹 **39. Dapper vs EF Core, khi nào nên dùng cái nào?**  
+	Dapper:
+		Là 1 Micro (Object-Relational Mapper) dành cho .NET, giúp thực thi sql thuần nhanh chóng mà vẫn ánh xạ dữ liệu vào các object C#
+		Đặc điểm:
+			✅ Thực thi truy vấn SQL trực tiếp với hiệu suất cao.
+			✅ Ít bộ nhớ hơn, tránh overhead của ORM lớn.
+			✅ Thích hợp cho các ứng dụng yêu cầu truy vấn nhanh.
+
+	EF Core:
+		Giúp làm việc với database mà không cần viết SQL trực tiếp.
+		Đặc điểm:
+			✅ Code-First, Database-First hỗ trợ tốt.
+			✅ Cung cấp Lazy Loading, Eager Loading, tránh lỗi N+1 Query.
+			✅ Hỗ trợ Query Tracking, giúp cập nhật dữ liệu dễ dàng.
+			✅ Dễ dàng migrate database với Migrations.
+
+	📌 So sánh Dapper vs EF Core
+		Tiêu chí	                   Dapper 🏎️									EF Core 🚀
+		Hiệu suất			Cực nhanh ⚡ (do dùng SQL thuần)				Chậm hơn Dapper (do mapping, tracking)
+		Cách truy vấn		Viết SQL thủ công							  Dùng LINQ, mạnh mẽ hơn
+		Hỗ trợ LINQ			❌ Không có									✅ Có
+		Mapping Object		✅ Tốt, nhưng cần khai báo rõ				✅ Tự động mapping
+		Tracking Entity		❌ Không có									✅ Có (AsNoTracking(), ChangeTracker)
+		Lazy Loading		❌ Không có									✅ Hỗ trợ
+		Migration DB		❌ Không hỗ trợ								✅ Hỗ trợ Code-First Migrations
+		Khi nào dùng?		Khi cần hiệu suất cao, truy vấn nhanh.			Khi muốn quản lý dữ liệu tốt hơn, dễ bảo trì.
+
+	Ex:
+		public class NewsRepository
+		{
+			private readonly ApplicationDbContext _context;
+			private readonly IDbConnection _dbConnection;
+
+			public NewsRepository(ApplicationDbContext context, IDbConnection dbConnection)
+			{
+				_context = context;
+				_dbConnection = dbConnection;
+			}
+
+			public async Task<IEnumerable<NewsModel>> GetAllNews_EFCore()
+			{
+				return await _context.News.ToListAsync(); // EF Core
+			}
+
+			public async Task<IEnumerable<NewsModel>> GetAllNews_Dapper()
+			{
+				string sql = "SELECT * FROM News";
+				return await _dbConnection.QueryAsync<NewsModel>(sql); // Dapper
+			}
+		}
+
 ### 🔹 **40. Các kiểu trạng thái Entity trong EF Core (`Added`, `Modified`, `Deleted`, `Unchanged`)?**  
+	Trong EF Core, mỗi entity có 1 trạng thái (Entity State) khác nhau được theo bởi DbContext, nó quyết định cách cập nhật dữ liệu vào db khi gọi SaveChanges()
+
+	📌 EF Core cung cấp 5 trạng thái chính của entity:
+		✅ Added	
+			Entity mới được thêm vào DbContext và sẽ được chèn (INSERT) vào database khi gọi SaveChanges().
+		✅ Modified	
+			Entity đã bị thay đổi một hoặc nhiều thuộc tính (UPDATE) và sẽ được cập nhật vào database khi gọi SaveChanges().
+		✅ Deleted	
+			Entity bị đánh dấu là đã xóa (DELETE) và sẽ bị xóa khỏi database khi gọi SaveChanges().
+		✅ Unchanged	
+			Entity không thay đổi, EF Core sẽ không thực hiện bất kỳ thao tác nào với nó trong database.
+		✅ Detached	
+			Entity không thuộc bất kỳ DbContext nào, EF Core không theo dõi nó.
 
 ---
 
 ## **V. Câu hỏi về Bảo mật và JWT Authentication**
-### 🔹 **41. Authentication vs Authorization khác nhau thế nào?**  
+### 🔹 **41. Authentication vs Authorization khác nhau thế nào?**   
+	Tiêu chí				Authentication (Xác thực)																	Authorization (Phân quyền)
+	Khái niệm				Xác minh danh tính của người dùng (Bạn là ai?).								Xác định quyền truy cập của người dùng (Bạn có quyền gì?).
+	Mục tiêu				Đảm bảo người dùng là hợp lệ trước khi cho phép truy cập hệ thống.			Kiểm soát tài nguyên mà người dùng có thể sử dụng sau khi xác thực thành công.
+	Cách thức hoạt động		Yêu cầu cung cấp thông tin xác thực như username/password, token, v.v.		Dựa vào vai trò (roles), quyền hạn (permissions), policy, v.v. để cấp quyền truy cập.
+	Khi nào xảy ra?			Diễn ra trước khi cấp quyền truy cập vào hệ thống.							Diễn ra sau khi xác thực thành công.
+	Xử lý bởi?				Hệ thống xác thực (Identity Server, Firebase Auth, JWT, OAuth, v.v.).		Hệ thống phân quyền (Role-based Access Control - RBAC, Policy-based Authorization).
+	Ví dụ thực tế			Khi bạn đăng nhập vào một ứng dụng với tài khoản của mình.					Khi bạn cố gắng truy cập trang quản trị nhưng không có quyền admin.
+
 ### 🔹 **42. JSON Web Token (JWT) là gì? Cách triển khai trong .NET Core API?**  
 ### 🔹 **43. Cách bảo vệ API bằng JWT Authentication?**  
-### 🔹 **44. Refresh Token là gì? Cách triển khai Refresh Token?**  
-### 🔹 **45. Role-Based Authorization và Policy-Based Authorization trong .NET Core API khác nhau thế nào?**  
+	1️⃣ Quy trình xác thực API bằng JWT
+		📌 Bước 1: Người dùng gửi username/password đến API.
+		📌 Bước 2: API kiểm tra thông tin đăng nhập, nếu hợp lệ sẽ trả về JWT token.
+		📌 Bước 3: Client lưu token và gửi trong Authorization Header khi gọi API.
+		📌 Bước 4: API kiểm tra token, nếu hợp lệ thì trả về dữ liệu được bảo vệ.
 
+	Các bước:
+		📌 Bước 1: Cài đặt thư viện JWT
+			dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+		📌 Bước 2: Cấu hình JWT trong appsettings.json
+			"Jwt": {
+				"Key": "your_secret_key_123456789", //  Khóa bí mật dùng để ký JWT.
+				"Issuer": "yourdomain.com", //  Máy chủ phát hành JWT.
+				"Audience": "yourdomain.com", //  Máy khách (Client) được phép sử dụng JWT.
+				"ExpireMinutes": 60 // Thời gian hết hạn của token.
+			}
+		📌 Bước 3: Tạo TokenService để sinh JWT
+			using System.IdentityModel.Tokens.Jwt;
+			using System.Security.Claims;
+			using System.Text;
+			using Microsoft.Extensions.Configuration;
+			using Microsoft.IdentityModel.Tokens;
+
+			public class TokenService
+			{
+				private readonly IConfiguration _config;
+
+				public TokenService(IConfiguration config)
+				{
+					_config = config;
+				}
+
+				public string GenerateToken(string userId, string role)
+				{
+					var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+					var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+					// Chứa thông tin user như userId, role.
+					var claims = new[]
+					{
+						new Claim(JwtRegisteredClaimNames.Sub, userId),
+						new Claim(ClaimTypes.Role, role),
+						new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+					};
+
+					var token = new JwtSecurityToken(
+						issuer: _config["Jwt:Issuer"],
+						audience: _config["Jwt:Audience"],
+						claims: claims,
+						expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
+						signingCredentials: creds
+					);
+
+					return new JwtSecurityTokenHandler().WriteToken(token);
+				}
+			}
+		📌 Bước 4: Cấu hình Authentication trong Program.cs
+			using Microsoft.AspNetCore.Authentication.JwtBearer;
+			using Microsoft.IdentityModel.Tokens;
+			using System.Text;
+
+			var builder = WebApplication.CreateBuilder(args);
+
+			// Cấu hình Authentication với JWT
+			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = builder.Configuration["Jwt:Issuer"],
+						ValidAudience = builder.Configuration["Jwt:Audience"],
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+					};
+				});
+
+			builder.Services.AddAuthorization();
+
+			var app = builder.Build();
+
+			app.UseAuthentication(); // Đăng ký Middleware Authentication
+			app.UseAuthorization(); // Đăng ký Middleware Authorization
+
+			app.MapControllers();
+			app.Run();
+		📌 Bước 5: API Login để cấp JWT
+			[ApiController]
+			[Route("api/auth")]
+			public class AuthController : ControllerBase
+			{
+				private readonly TokenService _tokenService;
+
+				public AuthController(TokenService tokenService)
+				{
+					_tokenService = tokenService;
+				}
+
+				[HttpPost("login")]
+				public IActionResult Login([FromBody] LoginModel model)
+				{
+					if (model.Username == "admin" && model.Password == "123") // Giả lập check user
+					{
+						var token = _tokenService.GenerateToken("1", "Admin");
+						return Ok(new { Token = token });
+					}
+					return Unauthorized("Invalid credentials");
+				}
+			}
+		📌 Bước 6: Bảo vệ API bằng [Authorize]
+			[Authorize]
+			[HttpGet("protected")]
+			public IActionResult GetProtectedData()
+			{
+				return Ok("Bạn đã truy cập API được bảo vệ!");
+			}
+
+			[Authorize(Roles = "Admin")]
+			[HttpGet("admin-only")]
+			public IActionResult AdminEndpoint()
+			{
+				return Ok("Chỉ Admin mới truy cập được!");
+			}
+
+### 🔹 **44. Refresh Token là gì? Cách triển khai Refresh Token?**  
+	1️⃣  Quy trình Refresh Token hoạt động
+		📌 Bước 1: Khi người dùng đăng nhập, API trả về Access Token và Refresh Token.
+		📌 Bước 2: Khi Access Token hết hạn, client gửi Refresh Token lên API để lấy token mới.
+		📌 Bước 3: API kiểm tra Refresh Token, nếu hợp lệ sẽ cấp Access Token mới.
+		📌 Bước 4: Nếu Refresh Token không hợp lệ (hết hạn, bị thu hồi), người dùng phải đăng nhập lại.
+
+### 🔹 **45. Role-Based Authorization và Policy-Based Authorization trong .NET Core API khác nhau thế nào?**  
+	🔹 1️⃣ Role-Based Authorization là gì?
+		JWT Token sẽ chứa một claim về role, và hệ thống chỉ kiểm tra xem user có quyền truy cập tài nguyên hay không dựa trên role này
+		✅ Cách sử dụng Role-Based Authorization
+			📌 Bước 1: Gán role cho user khi tạo token
+				var claims = new List<Claim>
+				{
+					new Claim(ClaimTypes.Name, user.Username),
+					new Claim(ClaimTypes.Role, "Admin") // Gán role "Admin"
+				};
+			📌 Bước 2: Áp dụng role vào controller hoặc action
+				[Authorize(Roles = "Admin")]
+				[HttpGet("admin-data")]
+				public IActionResult GetAdminData()
+				{
+					return Ok("This is Admin data!");
+				}
+			💡 Giải thích:
+				Chỉ những user có role "Admin" mới được truy cập API này.
+				Nếu user không có role "Admin", API trả về 403 Forbidden.
+			📌 Bước 3: Kiểm tra nhiều role 
+				[Authorize(Roles = "Admin,Manager")]
+				[HttpGet("manager-or-admin")]
+				public IActionResult GetData()
+				{
+					return Ok("Accessible by Admin or Manager!");
+				}
+
+	🔹 2️⃣ Policy-Based Authorization là gì?		
+		🔥 Policy-Based Authorization cho phép định nghĩa chính sách bảo mật (policies) linh hoạt hơn Role-Based Authorization.
+		Chính sách có thể dựa trên nhiều điều kiện hơn chỉ Role, ví dụ:
+			Kiểm tra tuổi (Age > 18).
+			Kiểm tra quyền hạn (HasClaim("Permission", "Edit")).
+			Kiểm tra trạng thái tài khoản (IsAccountActive = true).
+		✅ Cách sử dụng Policy-Based Authorization
+			📌 Bước 1: Định nghĩa policy trong Program.cs hoặc Startup.cs
+				builder.Services.AddAuthorization(options =>
+				{
+					options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+					options.AddPolicy("MinimumAge", policy => policy.RequireClaim("Age", "18"));
+				});
+			📌 Bước 2: Áp dụng policy vào controller hoặc action 
+				[Authorize(Policy = "RequireAdmin")]
+				[HttpGet("admin-data")]
+				public IActionResult GetAdminData()
+				{
+					return Ok("Only Admins can access this!");
+				}
+
+				[Authorize(Policy = "MinimumAge")]
+				[HttpGet("age-restricted")]
+				public IActionResult GetAgeRestrictedData()
+				{
+					return Ok("You are old enough to see this content.");
+				}
+		🔹 3️⃣ Tạo Policy Tùy Chỉnh (Custom Policy)
+			📌 Bước 1: Tạo một Requirement (Yêu cầu bảo mật)
+				public class MinimumAgeRequirement : IAuthorizationRequirement
+				{
+					public int MinimumAge { get; }
+
+					public MinimumAgeRequirement(int minimumAge)
+					{
+						MinimumAge = minimumAge;
+					}
+				}
+			📌 Bước 2: Tạo AuthorizationHandler để xử lý logic
+				public class MinimumAgeHandler : AuthorizationHandler<MinimumAgeRequirement>
+				{
+					protected override Task HandleRequirementAsync(
+						AuthorizationHandlerContext context, 
+						MinimumAgeRequirement requirement)
+					{
+						var ageClaim = context.User.FindFirst(c => c.Type == "Age");
+
+						if (ageClaim != null && int.Parse(ageClaim.Value) >= requirement.MinimumAge)
+						{
+							context.Succeed(requirement);
+						}
+
+						return Task.CompletedTask;
+					}
+				}
+				📌 Logic kiểm tra:
+					Lấy claim "Age" từ token.
+					Nếu "Age" ≥ requirement.MinimumAge → Cho phép truy cập.
+
+			📌 Bước 3: Đăng ký policy tùy chỉnh trong Program.cs
+				builder.Services.AddAuthorization(options =>
+				{
+					options.AddPolicy("Over18", policy =>
+						policy.Requirements.Add(new MinimumAgeRequirement(18)));
+				});
+
+				builder.Services.AddSingleton<IAuthorizationHandler, MinimumAgeHandler>();
+			📌 Bước 4: Áp dụng policy vào controller
+				[Authorize(Policy = "Over18")]
+				[HttpGet("restricted-content")]
+				public IActionResult GetRestrictedContent()
+				{
+					return Ok("This content is only for users over 18.");
+				}
+
+	### 🔹 **Làm sao để hệ thống biết được Policy khi đăng nhập?**  
+		Khi người dùng đăng nhập, hệ thống cần **gắn các claims vào JWT Token** để khi gửi request, hệ thống có thể xác định user có **thoả mãn policy hay không**.
+
+		---
+
+		## ✅ **Bước 1: Thêm Claims vào JWT Token khi đăng nhập**
+			Để hệ thống có thể kiểm tra **Policy-Based Authorization**, khi tạo JWT Token, bạn cần gán **claims** phù hợp.
+
+			### **📌 Ví dụ: Thêm Role + Claim "Age" khi đăng nhập**
+			Trong **Login API**, khi tạo token, ta thêm claim `"Age"` vào token:
+			private string GenerateJwtToken(AppUser user)
+			{
+				var claims = new List<Claim>
+				{
+					new Claim(ClaimTypes.Name, user.UserName),
+					new Claim(ClaimTypes.Role, user.Role), // Role-based
+					new Claim("Age", user.Age.ToString()), // Policy-based
+					new Claim("Permission", "Edit") // Thêm quyền tuỳ chỉnh
+				};
+
+				var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+				var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+				
+				var token = new JwtSecurityToken(
+					issuer: _jwtSettings.Issuer,
+					audience: _jwtSettings.Audience,
+					claims: claims,
+					expires: DateTime.UtcNow.AddHours(1),
+					signingCredentials: creds
+				);
+
+				return new JwtSecurityTokenHandler().WriteToken(token);
+			}
+			📌 **Giải thích**:  
+			- **Role-Based Authorization** → Claim `"Role"` giúp kiểm tra `[Authorize(Roles = "Admin")]`.  
+			- **Policy-Based Authorization** → Claim `"Age"` giúp kiểm tra `[Authorize(Policy = "Over18")]`.  
+
+			---
+
+		## ✅ **Bước 2: Cấu hình Policy trong `Program.cs`**
+			Sau khi user đăng nhập, token có chứa claims. Hệ thống cần xác định **Policy nào cần kiểm tra**.
+
+			builder.Services.AddAuthorization(options =>
+			{
+				// Role-Based
+				options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+
+				// Policy-Based: Kiểm tra claim "Age"
+				options.AddPolicy("Over18", policy => 
+					policy.RequireClaim("Age", "18", "19", "20", "21", "22")); 
+			});
+			📌 **Giải thích**:  
+			- Policy `"RequireAdmin"` kiểm tra role `"Admin"`.  
+			- Policy `"Over18"` kiểm tra claim `"Age"` phải từ `18` trở lên.  
+
+			---
+
+		## ✅ **Bước 3: Áp dụng Policy vào Controller**
+			Bây giờ bạn có thể **sử dụng Policy để bảo vệ API**:
+
+			[Authorize(Policy = "RequireAdmin")]
+			[HttpGet("admin-dashboard")]
+			public IActionResult GetAdminDashboard()
+			{
+				return Ok("Chỉ Admin mới xem được dashboard này.");
+			}
+
+			[Authorize(Policy = "Over18")]
+			[HttpGet("adult-content")]
+			public IActionResult GetAdultContent()
+			{
+				return Ok("Nội dung chỉ dành cho người trên 18 tuổi.");
+			}
+			📌 **Hệ thống sẽ tự động kiểm tra JWT Token xem user có claim `"Age"` hoặc `"Role"` phù hợp không.**  
+
+			---
+
+		## ✅ **Bước 4: Middleware Xác thực JWT Token**
+			Cuối cùng, bạn cần bật **JWT Authentication Middleware** trong `Program.cs`:
+
+			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = _jwtSettings.Issuer,
+						ValidAudience = _jwtSettings.Audience,
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret))
+					};
+				});
+			📌 **Middleware này sẽ kiểm tra JWT Token trong request và xác nhận claims của user trước khi áp dụng policy.**  
+
+		## 🔹 **Tóm tắt**
+		1️⃣ **Thêm claims vào token khi đăng nhập** (chứa thông tin role, tuổi, quyền...).  
+		2️⃣ **Cấu hình Policy trong `Program.cs`** để kiểm tra claims khi user truy cập API.  
+		3️⃣ **Dùng `[Authorize(Policy = "...")]` trong Controller** để kiểm soát truy cập API.  
+		4️⃣ **Bật JWT Authentication Middleware** để xác thực token mỗi request.  
+ 
 ---
 
 ## **VI. Câu hỏi về Hiệu suất và Testing**
 ### 🔹 **46. Cách tối ưu hiệu suất API trong .NET Core?**  
+	✅ 1. Bật Caching để giảm tải Database
+		✔ Response Caching: Lưu trữ phản hồi của API để không phải xử lý lại yêu cầu lặp lại.
+		✔ Distributed Caching: Sử dụng Redis để lưu cache trên nhiều server.
+		📌 Cách dùng Response Caching
+			[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
+			[HttpGet("products")]
+			public IActionResult GetProducts()
+			{
+				var products = _dbContext.Products.ToList();
+				return Ok(products);
+			}
+
+		📌 Cách dùng Distributed Cache với Redis
+			Cấu hình Redis trong appsettings.json:
+				"ConnectionStrings": {
+					"Redis": "localhost:6379"
+				}
+			Thêm Redis vào Program.cs:
+				builder.Services.AddStackExchangeRedisCache(options =>
+				{
+					options.Configuration = builder.Configuration.GetConnectionString("Redis");
+				});
+			Sử dụng Redis trong Controller:
+				public class ProductService
+				{
+					private readonly IDistributedCache _cache;
+
+					public ProductService(IDistributedCache cache)
+					{
+						_cache = cache;
+					}
+
+					public async Task<List<Product>> GetProductsAsync()
+					{
+						var cachedData = await _cache.GetStringAsync("products");
+						if (!string.IsNullOrEmpty(cachedData))
+						{
+							return JsonConvert.DeserializeObject<List<Product>>(cachedData);
+						}
+
+						var products = _dbContext.Products.ToList();
+						await _cache.SetStringAsync("products", JsonConvert.SerializeObject(products),
+							new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
+
+						return products;
+					}
+				}
+
+	✅ 2. Dùng AsNoTracking() nếu không cần theo dõi Entity
+		Entity Framework Core theo dõi dữ liệu trong DbContext, gây tốn RAM. Dùng AsNoTracking() nếu chỉ cần đọc dữ liệu. 
+			var products = _dbContext.Products.AsNoTracking().ToList();
+		🔹 Giảm bộ nhớ, tăng tốc độ đọc dữ liệu.
+
+	✅ 3. Giảm số lượng Query (Tránh N+1 Query Problem)
+		Khi dùng Lazy Loading, EF Core có thể gửi N+1 Query (1 query chính + N query con).
+		🔹 Giải pháp: Dùng Include() để load dữ liệu trong 1 query.
+
+		❌ Sai: Gây N+1 Query Problem 
+			var orders = _dbContext.Orders.ToList();
+			foreach (var order in orders)
+			{
+				var customer = _dbContext.Customers.Find(order.CustomerId); // Query riêng từng khách hàng
+			}
+			🔴 N Query chạy cho mỗi order → Chậm!
+
+		✅ Đúng: Dùng Include() để giảm query 
+			var orders = _dbContext.Orders.Include(o => o.Customer).ToList();
+			🔹 Tất cả được lấy trong 1 query → Tăng tốc độ xử lý.
+	
+	✅ 4. Dùng Pagination khi lấy danh sách lớn
+		[HttpGet("products")]
+		public IActionResult GetProducts(int page = 1, int pageSize = 10)
+		{
+			var products = _dbContext.Products
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToList();
+			
+			return Ok(products);
+		}
+	✅ 5. Dùng Background Services cho công việc nặng
+		🔹 Tránh chạy xử lý nặng ngay trong API, dùng Background Services (IHostedService).
+
+		📌 Ví dụ: Gửi Email trong Background
+			Dùng Hangfire để chạy job nền: 
+			public class EmailService
+			{
+				public void SendEmail(string to, string subject, string body)
+				{
+					Console.WriteLine($"Sending email to {to}");
+					Thread.Sleep(5000); // Giả lập thời gian gửi email
+				}
+			}
+			Gọi Hangfire để gửi email mà không làm chậm API:
+ 
+			[HttpPost("send-email")]
+			public IActionResult SendEmail(string email)
+			{
+				BackgroundJob.Enqueue(() => _emailService.SendEmail(email, "Hello", "Test Email"));
+				return Ok("Email đang được gửi...");
+			}
+			🔹 API phản hồi ngay lập tức, công việc chạy nền.
+
+	✅ 6. Dùng Dapper thay vì Entity Framework (Nếu chỉ cần truy vấn đơn giản)
+		🔹 Dapper nhanh hơn EF Core với các truy vấn đơn giản. 
+			using (var connection = new SqliteConnection("Data Source=app.db"))
+			{
+				var products = connection.Query<Product>("SELECT * FROM Products").ToList();
+			}
+		🔹 Dapper không tracking entity → Tốc độ nhanh hơn EF Core.
+	✅ 7. Nén Response để giảm dung lượng dữ liệu
+		Dùng Gzip Compression để giảm băng thông khi truyền dữ liệu.
+
+		📌 Bật nén Gzip trong Program.cs 
+			builder.Services.AddResponseCompression(options =>
+			{
+				options.EnableForHttps = true;
+				options.Providers.Add<GzipCompressionProvider>();
+			});
+			🔹 API phản hồi nhanh hơn nhờ dữ liệu nhỏ gọn hơn.
+	✅ 8. Bật Logging & Performance Monitoring
+		Sử dụng Application Insights hoặc Serilog để theo dõi hiệu suất API.
+
+		📌 Cấu hình Serilog trong Program.cs 
+			builder.Host.UseSerilog((context, config) =>
+			{
+				config.WriteTo.Console()
+					.WriteTo.File("logs/api-log.txt", rollingInterval: RollingInterval.Day);
+			});
+			🔹 Ghi log hiệu suất, phát hiện API chạy chậm.
+
 ### 🔹 **47. Caching trong .NET Core API là gì? Có những loại caching nào?**  
+	🔹 1. In-Memory Caching
+		Lưu dữ liệu trên RAM → Truy xuất nhanh nhưng mất khi restart server.
+		📌 Cấu hình In-Memory Cache trong Program.cs
+			builder.Services.AddMemoryCache();
+		📌 Cách sử dụng
+			public class ProductService
+			{
+				private readonly IMemoryCache _cache;
+
+				public ProductService(IMemoryCache cache)
+				{
+					_cache = cache;
+				}
+
+				public List<Product> GetProducts()
+				{
+					if (!_cache.TryGetValue("products", out List<Product> products))
+					{
+						// Lấy từ database
+						products = _dbContext.Products.ToList();
+
+						// Lưu cache trong 10 phút
+						_cache.Set("products", products, TimeSpan.FromMinutes(10));
+					}
+					return products;
+				}
+			}
+
+			🔹 Lần đầu lấy từ DB, lần sau lấy từ Cache.
+
+	🔹 2. Distributed Caching (Redis, SQL Server)
+		Lưu cache ngoài RAM (Redis, SQL Server) → Dữ liệu không bị mất khi server restart.
+		📌 Cấu hình Redis Cache trong appsettings.json
+			"ConnectionStrings": {
+				"Redis": "localhost:6379"
+			}
+		📌 Thêm Redis vào Program.cs
+			builder.Services.AddStackExchangeRedisCache(options =>
+			{
+				options.Configuration = builder.Configuration.GetConnectionString("Redis");
+			});
+		📌 Sử dụng Redis để cache dữ liệu
+			public class ProductService
+			{
+				private readonly IDistributedCache _cache;
+
+				public ProductService(IDistributedCache cache)
+				{
+					_cache = cache;
+				}
+
+				public async Task<List<Product>> GetProductsAsync()
+				{
+					var cachedData = await _cache.GetStringAsync("products");
+					if (!string.IsNullOrEmpty(cachedData))
+					{
+						return JsonConvert.DeserializeObject<List<Product>>(cachedData);
+					}
+
+					var products = _dbContext.Products.ToList();
+					await _cache.SetStringAsync("products", JsonConvert.SerializeObject(products),
+						new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
+
+					return products;
+				}
+			}
+	🔹 3. Response Caching
+		Cache toàn bộ HTTP Response, không cần truy vấn lại database
+		📌 Bật Response Caching trong Program.cs
+			builder.Services.AddResponseCaching();
+		📌 Áp dụng cache vào Controller
+			[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
+			[HttpGet("products")]
+			public IActionResult GetProducts()
+			{
+				var products = _dbContext.Products.ToList();
+				return Ok(products);
+			}
+			API trả về Response cũ trong 60 giây, không truy vấn lại DB.
+	🔹 4. Output Caching (ASP.NET Core 7+)
+		Cache kết quả của API dựa trên tham số đầu vào.
+		📌 Bật Output Caching trong Program.cs
+			builder.Services.AddOutputCache();
+		📌 Áp dụng vào Controller
+			[HttpGet("products")]
+			[OutputCache(Duration = 60)]
+			public IActionResult GetProducts()
+			{
+				var products = _dbContext.Products.ToList();
+				return Ok(products);
+			}
+			Chỉ gọi API một lần trong 60 giây, các lần sau lấy cache.
+
 ### 🔹 **48. Unit Test vs Integration Test khác nhau thế nào?**  
 ### 🔹 **49. Cách viết Unit Test cho Controller trong .NET Core API?**  
 ### 🔹 **50. Logging trong .NET Core API hoạt động thế nào?**  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --- 
 
@@ -3988,31 +4979,94 @@ Dưới đây là danh sách **top các câu hỏi phỏng vấn ASP.NET MVC lev
 ### 🔹 **50. ASP.NET MVC có còn được sử dụng rộng rãi không, hay nên chuyển qua .NET Core?**  
 
 ---
+ Dưới đây là danh sách **các câu hỏi phỏng vấn Node.js/Express.js level Junior**, được chia theo từng chủ đề quan trọng:  
 
-💡 **Bạn muốn mình giải thích chi tiết hay có ví dụ thực tế cho câu hỏi nào không?** 🚀
+---
 
+## **I. Tổng quan về Node.js**  
+### 🔹 **1. Node.js là gì? Vì sao nên sử dụng Node.js?**  
+### 🔹 **2. Node.js khác gì so với các backend framework khác như ASP.NET, Django, hoặc Spring Boot?**  
+### 🔹 **3. V8 Engine trong Node.js là gì?**  
+### 🔹 **4. Node.js là single-threaded hay multi-threaded?**  
+### 🔹 **5. Event Loop trong Node.js hoạt động như thế nào?**  
+### 🔹 **6. Khi nào nên sử dụng Node.js thay vì các công nghệ backend khác?**  
 
+---
 
+## **II. Express.js Framework**  
+### 🔹 **7. Express.js là gì? Vì sao sử dụng Express.js thay vì Node.js thuần?**  
+### 🔹 **8. Middleware trong Express.js là gì? Các loại Middleware trong Express.js?**  
+### 🔹 **9. Cách tạo một API cơ bản trong Express.js?**  
+### 🔹 **10. `req.params`, `req.query`, và `req.body` khác nhau như thế nào?**  
+### 🔹 **11. CORS là gì? Làm sao enable CORS trong Express.js?**  
+### 🔹 **12. Sự khác nhau giữa `app.use()`, `app.get()`, và `app.post()` trong Express.js?**  
 
+---
 
+## **III. Routing & Request Handling**  
+### 🔹 **13. Routing trong Express.js hoạt động như thế nào?**  
+### 🔹 **14. Cách xử lý request với phương thức GET, POST, PUT, DELETE trong Express.js?**  
+### 🔹 **15. Cách xử lý lỗi 404 trong Express.js?**  
+### 🔹 **16. Cách sử dụng Router trong Express.js?**  
+### 🔹 **17. Cách redirect trong Express.js?**  
 
+---
 
+## **IV. Middleware & Authentication**  
+### 🔹 **18. Middleware là gì? Khi nào nên sử dụng Middleware?**  
+### 🔹 **19. Phân biệt giữa Application-Level Middleware và Router-Level Middleware?**  
+### 🔹 **20. Cách tạo Custom Middleware trong Express.js?**  
+### 🔹 **21. Làm thế nào để bảo vệ API bằng JWT trong Express.js?**  
+### 🔹 **22. `passport.js` là gì? Cách sử dụng nó để xác thực người dùng?**  
+### 🔹 **23. Cách triển khai Role-Based Authentication trong Express.js?**  
+### 🔹 **24. Cách hash mật khẩu trong Node.js với bcrypt?**  
 
+---
 
+## **V. Cơ sở dữ liệu (MongoDB, MySQL, PostgreSQL)**  
+### 🔹 **25. Cách kết nối Express.js với MongoDB bằng Mongoose?**  
+### 🔹 **26. Cách tạo Model trong Mongoose?**  
+### 🔹 **27. Cách thực hiện CRUD với MongoDB trong Express.js?**  
+### 🔹 **28. MongoDB Schema vs NoSQL Schema khác nhau như thế nào?**  
+### 🔹 **29. Khi nào nên dùng MongoDB thay vì MySQL/PostgreSQL?**  
+### 🔹 **30. Cách sử dụng Sequelize để kết nối Express.js với MySQL/PostgreSQL?**  
 
+---
 
+## **VI. RESTful API & WebSockets**  
+### 🔹 **31. RESTful API là gì? Các nguyên tắc thiết kế RESTful API?**  
+### 🔹 **32. Khi nào nên dùng REST API, khi nào nên dùng GraphQL?**  
+### 🔹 **33. Cách xây dựng REST API với Express.js?**  
+### 🔹 **34. Cách sử dụng WebSocket với Express.js?**  
+### 🔹 **35. Cách sử dụng `socket.io` để tạo ứng dụng realtime trong Express.js?**  
 
+---
 
+## **VII. File Handling & Performance Optimization**  
+### 🔹 **36. Cách upload file trong Express.js với `multer`?**  
+### 🔹 **37. Cách tối ưu hiệu suất ứng dụng Node.js?**  
+### 🔹 **38. Khi nào nên sử dụng Redis trong ứng dụng Node.js?**  
+### 🔹 **39. Cách sử dụng caching trong Express.js?**  
+### 🔹 **40. Làm sao để scale ứng dụng Express.js?**  
 
- 
+---
 
+## **VIII. Error Handling & Logging**  
+### 🔹 **41. Cách xử lý lỗi trong Express.js?**  
+### 🔹 **42. Cách sử dụng `try...catch` với async/await trong Express.js?**  
+### 🔹 **43. Cách log lỗi trong Express.js với `winston` hoặc `morgan`?**  
+### 🔹 **44. Khi nào nên dùng Global Error Handling Middleware?**  
+### 🔹 **45. Cách gửi lỗi dạng JSON trong API thay vì trả về HTML?**  
 
+---
 
+## **IX. Unit Testing & Security**  
+### 🔹 **46. Unit Test là gì? Làm thế nào để test API trong Express.js?**  
+### 🔹 **47. Cách sử dụng `jest` hoặc `mocha` để test API trong Express.js?**  
+### 🔹 **48. Các lỗ hổng bảo mật phổ biến trong Node.js và cách phòng tránh?**  
+### 🔹 **49. CSRF là gì? Làm sao để phòng chống CSRF trong Express.js?**  
+### 🔹 **50. SQL Injection là gì? Làm sao để phòng chống SQL Injection trong Node.js?**  
 
+---
 
-
-
-
-
-
- 
+💡 **Bạn muốn mình giải thích chi tiết hoặc có ví dụ code cụ thể cho câu hỏi nào không?** 🚀

@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[0.102.3, )"
             },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
             "ExcelDataReader": {
               "target": "Package",
               "version": "[3.7.0, )"
@@ -69,6 +73,10 @@
             "Microsoft.AspNetCore.SignalR.Client": {
               "target": "Package",
               "version": "[8.0.8, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

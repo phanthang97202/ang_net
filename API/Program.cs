@@ -5,6 +5,8 @@ using API.Middlewares;
 using API.Models;
 using API.Respositories;
 using API.SignalR;
+using API.UnitOfWork;
+using API.UnitOfWork.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,25 @@ builder.Services.AddScoped<INewsRespository, NewsRespository>();
 builder.Services.AddScoped<IAccountRespository, AccountRespository>();
 builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
+
+// ============ Unit Of Work Pattern ============ 
+// dùng AddScoped để: 
+//      Đảm bảo DbContext dùng chung trong 1 request,
+//      Tránh xung đột dữ liệu nếu có nhiều thao tác db trong cùng 1 request,
+//      Quản lý transaction dễ dàng khi gọi SaveChangesAsync() trong 1 lần duy nhất,
+//      Hiệu suất tốt
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IMstStadiumStatusRespository, MstStadiumStatusRespository>();
+builder.Services.AddScoped<MstStadiumStatusService>();
+
+builder.Services.AddScoped<IMstStadiumTypeRespository, MstStadiumTypeRespository>();
+builder.Services.AddScoped<MstStadiumTypeService>();
+
+builder.Services.AddScoped<IMstStadiumRespository, MstStadiumRespository>();
+builder.Services.AddScoped<MstStadiumService>();
+
+// inject AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
 // log service 
 builder.Services.AddSingleton(typeof(WriteLog));

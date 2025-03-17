@@ -10,6 +10,9 @@ using GuardAuth = API.Middlewares.CheckAuthorized;
 using TCommonUtils = API.CommonUtils.CommonUtils;
 using TConstValue = API.CommonUtils.ConstValue;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
+using Dapper;
+using Microsoft.Data.Sqlite;
 
 namespace API.Respositories
 {
@@ -18,18 +21,23 @@ namespace API.Respositories
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
-        
+        private readonly string _connectionString;
+        private readonly IConfigurationRoot configuration = new ConfigurationBuilder()
+                                        .AddJsonFile("appsettings.json")
+                                        .Build();
+
 
         public NewsRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+            _connectionString = configuration.GetSection("ConnectionStrings")["LocalDb"];
         }
 
         public bool CheckNewsCategoryExist(string newsId, ref NewsCategoryModel data)
         {
-            NewsCategoryModel record = _dbContext.NewsCategory.Find(newsId);
+            NewsCategoryModel record = _dbContext.NewsCategory.AsNoTracking().FirstOrDefault(n => n.NewsCategoryId == newsId) ;
             if (record is not null)
             {
                 data = record;
@@ -41,7 +49,7 @@ namespace API.Respositories
 
         public bool CheckNewsExist(string newsId, ref NewsModel data)
         {
-            NewsModel record = _dbContext.News.Find(newsId);
+            NewsModel record = _dbContext.News.AsNoTracking().FirstOrDefault(n => n.NewsId == newsId);
             if (record is not null)
             {
                 data = record;
@@ -53,7 +61,7 @@ namespace API.Respositories
 
         public bool CheckLikeNewsExist(string newsId, string userId, ref LikeNewsModel data)
         {
-            LikeNewsModel record = _dbContext.LikeNews.FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
+            LikeNewsModel record = _dbContext.LikeNews.AsNoTracking().FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
             if (record is not null)
             {
                 data = record;
@@ -65,7 +73,7 @@ namespace API.Respositories
 
         public bool CheckPointNewsExist(string newsId, string userId, ref PointNewsModel data)
         {
-            PointNewsModel record = _dbContext.PointNews.FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
+            PointNewsModel record = _dbContext.PointNews.AsNoTracking().FirstOrDefault(i => i.NewsId == newsId && i.UserId == userId);
             if (record is not null)
             {
                 data = record;
@@ -83,11 +91,11 @@ namespace API.Respositories
             // Get detail News  
             AppUser userDetail = await _userManager.FindByIdAsync(objNews.UserId);
 
-            NewsCategoryModel categoryDetail = await _dbContext.NewsCategory.FirstOrDefaultAsync(item => item.NewsCategoryId == objNews.CategoryNewsId);
+            NewsCategoryModel categoryDetail = await _dbContext.NewsCategory.AsNoTracking().FirstOrDefaultAsync(item => item.NewsCategoryId == objNews.CategoryNewsId);
 
             // Get HashTag of News
             List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
-            dtHashTagNews = _dbContext.HashTagNews.Where(item => item.NewsId == objNews.NewsId).ToList();
+            dtHashTagNews = _dbContext.HashTagNews.AsNoTracking().Where(item => item.NewsId == objNews.NewsId).ToList();
 
             List<HashTagNewsDto> lstHashTagNews = dtHashTagNews.Select(i => new HashTagNewsDto
             {
@@ -96,7 +104,7 @@ namespace API.Respositories
 
             // Get File of News
             List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
-            dtRefFileNews = _dbContext.RefFileNews.Where(item => item.NewsId == objNews.NewsId).ToList();
+            dtRefFileNews = _dbContext.RefFileNews.AsNoTracking().Where(item => item.NewsId == objNews.NewsId).ToList();
 
             List<RefFileNewsDto> lstRefFileNews = dtRefFileNews.Select(i => new RefFileNewsDto
             {
@@ -104,7 +112,7 @@ namespace API.Respositories
             }).ToList();
 
             // Get AvgPoint of News
-            List<PointNewsModel> dtPointNews = _dbContext.PointNews.Where(i => i.NewsId == objNews.NewsId).ToList();
+            List<PointNewsModel> dtPointNews = _dbContext.PointNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
             double avgPoint;
             if (dtPointNews.Count > 0)
             {
@@ -116,7 +124,7 @@ namespace API.Respositories
             }
 
             // Get LikeCount of News
-            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.Where(i => i.NewsId == objNews.NewsId).ToList();
+            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
             int countLike;
             if (dtLikeNews.Count > 0)
             {
@@ -193,7 +201,7 @@ namespace API.Respositories
 
             if (!TCommonUtils.IsNullOrEmpty(_keyword))
             {
-                query = _dbContext.News
+                query = _dbContext.News.AsNoTracking()
                                      .Where(i =>
                                              (i.ShortTitle.Trim().ToLower()).Contains(_keyword)
                                              || (i.ShortDescription.Trim().ToLower()).Contains(_keyword)
@@ -201,27 +209,27 @@ namespace API.Respositories
             }
             else if (!TCommonUtils.IsNullOrEmpty(_userId))
             {
-                query = _dbContext.News
+                query = _dbContext.News.AsNoTracking()
                                      .Where(i =>
                                              (i.UserId.Trim().ToLower()) == (_userId)
                                      );
             }
             else if (!TCommonUtils.IsNullOrEmpty(_categoryId))
             {
-                query = _dbContext.News
+                query = _dbContext.News.AsNoTracking()
                                      .Where(i =>
                                              (i.CategoryNewsId.Trim().ToLower()) == (_categoryId)
                                      );
             }
             else
             {
-                query = _dbContext.News
+                query = _dbContext.News.AsNoTracking()
                                      .Where(i => true);
             }
 
             int itemCount = query.ToList().Count;
 
-            dataResult = query.OrderByDescending(i => i.CreatedDTime)
+            dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
                              .Skip(_pageIndex * _pageSize)
                              .Take(_pageSize)
                              .ToList();
@@ -391,7 +399,7 @@ namespace API.Respositories
             for (int i = 0; i < lstHashTagNews.Count; i++)
             {
                 string HashTagNewId = TCommonUtils.PureString(lstHashTagNews[i].HashTagNewsName);
-                HashTagNewsModel record = _dbContext.HashTagNews
+                HashTagNewsModel record = _dbContext.HashTagNews.AsNoTracking()
                                             .FirstOrDefault(i => i.HashTagNewsId == HashTagNewId && i.NewsId == NewsId);
 
                 //if (!(record is null))
@@ -427,7 +435,7 @@ namespace API.Respositories
             {
                 string RefFileNewsId = TCommonUtils.GenUniqueId();
                 string FileUrl = lstRefFileNews[i].FileUrl;
-                RefFileNewsModel record = _dbContext.RefFileNews.Find(RefFileNewsId);
+                RefFileNewsModel record = _dbContext.RefFileNews.AsNoTracking().FirstOrDefault(n => n.RefFileNewsId == RefFileNewsId);
 
                 RefFileNewsModel refFileNews = new RefFileNewsModel()
                 {
@@ -616,8 +624,11 @@ namespace API.Respositories
 
             if (!isExistRecordPointNews)
             {
-                FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {DateTime.Now}, {DateTime.Now})";
-                _dbContext.Database.ExecuteSql(sql);
+                // Cách 1
+                //FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {DateTime.Now}, {DateTime.Now})";
+                //_dbContext.Database.ExecuteSql(sql);
+
+                // Cách 2
                 //await _dbContext.PointNews.AddAsync(new PointNewsModel
                 //{
                 //    NewsId = objNews.NewsId,
@@ -628,6 +639,24 @@ namespace API.Respositories
                 //    UpdatedDTime = DateTime.Now
                 //});
                 //await _dbContext.SaveChangesAsync();
+
+                // Cách 3: Using Dapper
+                using (var connection = new SqliteConnection(_connectionString))
+                {
+                    string sql = @"INSERT INTO PointNews (NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) 
+                   VALUES (@NewsId, @UserId, @Point, @FlagActive, @CreatedDTime, @UpdatedDTime)";
+
+                    await connection.ExecuteAsync(sql, new
+                    {
+                        NewsId = objNews.NewsId,
+                        UserId = currentUserId,
+                        Point = pointVal,
+                        FlagActive = true,
+                        CreatedDTime = DateTime.Now,
+                        UpdatedDTime = DateTime.Now
+                    });
+                }
+
             }
             #endregion
 

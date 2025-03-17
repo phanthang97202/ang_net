@@ -38,6 +38,83 @@ update News
 set ContentBody = '"<h3><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\">Quirk và kh? n?ng ??c bi?t c?a Toga Himiko</strong></h3><ul><li><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\">Quirk: Transform:</strong><span style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\"> Kh? n?ng bi?n ??i ngo?i hình và máu thành c?a ng??i khác b?ng cách u?ng máu c?a h?.</span></li><li><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\">?u ?i?m:</strong><span style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\"> Linh ho?t trong chi?n ??u, kh? n?ng ng?y trang hoàn h?o, có th? s? d?ng s?c m?nh c?a nh?ng ng??i mà cô ?ã bi?n ??i.</span></li><li><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\">H?n ch?:</strong><span style=\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\"> C?n ph?i u?ng máu th??ng xuyên ?? duy trì bi?n ??i, có th? b? m?t ki?m soát khi u?ng quá nhi?u máu.</span></li></ul><p></p><p></p><p>Tác gi?: PHan Thang</p>"' 
 where NewsId = 'toga'
 
+insert into MstStadiumStatuses values
+('P', 'Pending', 1, '2024-10-23 23:31:52.0811634', '2024-10-23 23:31:52.0811634')
+
+insert into MstStadiumStatuses values
+('F', 'Fixing', 1, '2024-10-23 23:32:52.0811634', '2024-10-23 23:32:52.0811634')
+
+insert into MstStadiumStatuses values
+('U', 'Using', 1, '2024-10-23 23:33:52.0811634', '2024-10-23 23:33:52.0811634')
+
+insert into MstStadiumStatuses values
+('D', 'Detroy', 1, '2024-10-23 23:34:52.0811634', '2024-10-23 23:34:52.0811634')
+
+// select * from MstStadiumTypes
+insert into MstStadiumTypes values
+('FUTSAL_STADIUM', 'Futsal stadium', 350000, 0, 2, 1, '2024-10-23 23:35:52.0811634', '2024-10-23 23:35:52.0811634')
+
+insert into MstStadiumTypes values
+('ARTIFICIAL_FOOTBALL_STADIUM_SIZE_5', 'Artificial football stadium (5vs5)', 250000, 0, 5, 1, '2024-10-23 23:36:52.0811634', '2024-10-23 23:36:52.0811634')
+
+insert into MstStadiumTypes values
+('ARTIFICIAL_FOOTBALL_STADIUM_SIZE_7', 'Artificial football stadium (7vs7)', 300000, 0, 3, 1, '2024-10-23 23:37:52.0811634', '2024-10-23 23:37:52.0811634')
+
+insert into MstStadiumTypes values
+('NATURAL_GRASS_STADIUM_SIZE_11', 'Natural grass stadium (11vs11)', 20000000, 0, 2, 1, '2024-10-23 23:38:52.0811634', '2024-10-23 23:38:52.0811634')
+
+-- dành cho sql server
+UPDATE MstStadiumTypes t
+JOIN MstStadiumTypes a ON a.StadiumTypeCode = t.StadiumTypeCode
+SET t.StadiumTypeSale = a.StadiumTypePrice;
+
+-- dành cho sqlite
+WITH temp AS (
+    SELECT StadiumTypeCode, StadiumTypePrice 
+    FROM MstStadiumTypes
+)
+UPDATE MstStadiumTypes 
+SET StadiumTypeSale = (SELECT StadiumTypePrice FROM temp WHERE temp.StadiumTypeCode = MstStadiumTypes.StadiumTypeCode);
+
+
+
+
+// select * from MstStadiums
+insert into MstStadiums values
+(
+        'SANTIAGO_BERNABEU_STD', -- StadiumCode
+        '2024-10-23 23:35:52.0811634', -- CreatedDTime
+        1, -- FlagActive
+        0, -- FlagSale
+        0, -- FlagStadiumRent
+        'randomid1', -- Id
+        'Av. de Concha Espina, 1, Chamartín, 28036 Madrid, Spain', -- StadiumAddress
+        '<p>The only official ticket sales channels are www.realmadrid.com and www.entradas.com</p>', -- StadiumDescription
+        '90_LyNhan', -- StadiumDistrictCode
+        'Santiago Bernabeu Stadium', -- StadiumName
+        200000000, -- StadiumPrice
+        '2024-11-23 20:00:52.0811634', -- StadiumRentDTimeFrom
+        '2024-11-23 21:45:52.0811634', -- StadiumRentDTimeTo
+        200000000, -- StadiumSalePrice
+        'P', -- StadiumStatusCode
+        'NATURAL_GRASS_STADIUM_SIZE_11', -- StadiumTypeCode
+        '2024-10-23 23:35:52.0811634' -- UpdatedDTime
+)
+
+
+// select * from MstDistricts
+// select * from MstProvinces
+// delete from MstDistricts where DistrictCode = '90_LyNhan'
+insert into MstDistricts values
+(
+        '90', -- ProvinceCode
+        '90_LyNhan', -- DistrictCode
+        'Lý Nhân', -- DistrictName
+        1, -- FlagActive
+        '2024-10-23 23:35:52.0811634', -- CreatedDTime
+        '2024-10-23 23:35:52.0811634' -- UpdatedDTime
+)
+
 select * from NewsCategory
 select * from News order by CreatedDTime desc
 select * from HashTagNews
@@ -249,6 +326,7 @@ select n.NewsId, n.ViewCount,
 from news n
 
 select * from TestView
+
 
 
 
