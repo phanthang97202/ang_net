@@ -353,3 +353,51 @@ VALUES (@p0, @p1, @p2, @p3);
 2025-03-19 11:53:29.947 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2325.6226ms
 2025-03-19 11:53:29.948 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
 2025-03-19 11:53:29.958 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 2389.4668ms
+2025-03-19 16:25:08.018 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-03-19 16:25:08.360 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-03-19 16:25:08.360 +07:00 [INF] Hosting environment: Development
+2025-03-19 16:25:08.360 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-03-19 16:25:08.416 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-03-19 16:25:09.291 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 879.5354ms
+2025-03-19 16:25:09.593 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2025-03-19 16:25:09.603 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 5.3205ms
+2025-03-19 16:25:09.659 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2025-03-19 16:25:09.744 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 84.9961ms
+2025-03-19 16:25:10.043 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2025-03-19 16:25:10.255 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 212.7321ms
+2025-03-19 16:25:58.730 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 66
+2025-03-19 16:26:00.509 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-03-19 09:26:00'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-03-19 16:26:00.699 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-03-19 09:26:00'.
+2025-03-19 16:26:00.705 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-03-19 16:26:00.731 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-03-19 16:26:03.935 +07:00 [INF] Executed DbCommand (149ms) [Parameters=[@__normalizedEmail_0='?' (Size = 19)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-03-19 16:26:04.217 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-03-19 16:26:04.410 +07:00 [INF] Executed DbCommand (77ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-03-19 16:26:04.437 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-19 16:26:04.461 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 3725.0832ms
+2025-03-19 16:26:04.461 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-03-19 16:26:04.468 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 5738.242ms
+2025-03-19 16:26:16.139 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - null null
+2025-03-19 16:26:16.163 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-19 16:26:16.168 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] GetAllActive() on controller API.Controllers.MstProvinceController (API).
+2025-03-19 16:26:16.324 +07:00 [INF] Executed DbCommand (32ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-03-19 16:26:16.327 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-19 16:26:16.331 +07:00 [INF] Executed action API.Controllers.MstProvinceController.GetAllActive (API) in 162.6014ms
+2025-03-19 16:26:16.331 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-19 16:26:16.331 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - 200 null application/json; charset=utf-8 192.5654ms

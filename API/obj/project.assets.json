@@ -3411,6 +3411,29 @@
         "runtime": {
           "lib/netstandard1.6/XLParser.dll": {}
         }
+      },
+      "CommonUtils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "SharedModels": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/CommonUtils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CommonUtils.dll": {}
+        }
+      },
+      "SharedModels/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/SharedModels.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SharedModels.dll": {}
+        }
       }
     }
   },
@@ -9837,11 +9860,22 @@
         "xlparser.1.5.2.nupkg.sha512",
         "xlparser.nuspec"
       ]
+    },
+    "CommonUtils/1.0.0": {
+      "type": "project",
+      "path": "../CommonUtils/CommonUtils.csproj",
+      "msbuildProject": "../CommonUtils/CommonUtils.csproj"
+    },
+    "SharedModels/1.0.0": {
+      "type": "project",
+      "path": "../SharedModels/SharedModels.csproj",
+      "msbuildProject": "../SharedModels/SharedModels.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "ClosedXML >= 0.102.3",
+      "CommonUtils >= 1.0.0",
       "Dapper >= 2.1.66",
       "ExcelDataReader >= 3.7.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.1",
@@ -9854,6 +9888,7 @@
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.1",
       "Serilog.AspNetCore >= 8.0.3",
       "Serilog.Sinks.File >= 6.0.0",
+      "SharedModels >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.4.0"
     ]
   },
@@ -9889,7 +9924,14 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+              "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+            },
+            "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+              "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

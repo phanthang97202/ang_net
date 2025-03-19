@@ -4,6 +4,75 @@
     "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Contacts.Maui.csproj": {}
   },
   "projects": {
+    "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj",
+        "projectName": "CommonUtils",
+        "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj",
+        "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
+        "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\phant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
     "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Contacts.Maui.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -36,19 +105,47 @@
         "frameworks": {
           "net8.0-android34.0": {
             "targetAlias": "net8.0-android",
-            "projectReferences": {}
+            "projectReferences": {
+              "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+              },
+              "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+              }
+            }
           },
           "net8.0-ios17.2": {
             "targetAlias": "net8.0-ios",
-            "projectReferences": {}
+            "projectReferences": {
+              "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+              },
+              "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+              }
+            }
           },
           "net8.0-maccatalyst17.2": {
             "targetAlias": "net8.0-maccatalyst",
-            "projectReferences": {}
+            "projectReferences": {
+              "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+              },
+              "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+              }
+            }
           },
           "net8.0-windows10.0.19041": {
             "targetAlias": "net8.0-windows10.0.19041.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+              },
+              "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+                "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -290,6 +387,71 @@
         },
         "win10-x64": {
           "#import": []
+        }
+      }
+    },
+    "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj",
+        "projectName": "SharedModels",
+        "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj",
+        "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
+        "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\phant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

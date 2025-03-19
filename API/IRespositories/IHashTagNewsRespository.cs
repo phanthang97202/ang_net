@@ -1,5 +1,5 @@
-﻿using API.Dtos;
-using API.Models;
+﻿using SharedModels.Dtos;
+using SharedModels.Models;
 
 namespace API.IRespositories
 {

@@ -1,5 +1,7 @@
-﻿using Contacts.Maui.Models; 
+﻿//using Contacts.Maui.Models; 
 using System;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
@@ -28,8 +30,8 @@ namespace Contacts.Maui.ApiServices
                 string jsonData = await response.Content.ReadAsStringAsync();
                 if(jsonData is not null)
                 {
-                    dynamic data = JsonSerializer.Deserialize<dynamic>(jsonData);
-                    List <MstProvinceModel> dataProvices = data?.DataList ;
+                    dynamic data = JsonSerializer.Deserialize<ApiResponse<MstProvinceModel>>(jsonData);
+                    List <MstProvinceModel> dataProvices = data?.DataList;
                     return data;
                 }
             }

@@ -9,11 +9,13 @@
     ".NETCoreApp,Version=v8.0/win10-x64": {
       "Contacts.Maui/1.0": {
         "dependencies": {
+          "CommonUtils": "1.0.0",
           "Microsoft.Extensions.Http": "9.0.3",
           "Microsoft.Extensions.Logging.Debug": "8.0.0",
           "Microsoft.Maui.Controls": "8.0.61",
           "Microsoft.Maui.Controls.Compatibility": "8.0.61",
           "Newtonsoft.Json": "13.0.3",
+          "SharedModels": "1.0.0",
           "runtimepack.Microsoft.Windows.SDK.NET.Ref": "10.0.19041.31"
         },
         "runtime": {
@@ -522,6 +524,19 @@
             "fileVersion": "9.0.325.11113"
           }
         }
+      },
+      "CommonUtils/1.0.0": {
+        "dependencies": {
+          "SharedModels": "1.0.0"
+        },
+        "runtime": {
+          "CommonUtils.dll": {}
+        }
+      },
+      "SharedModels/1.0.0": {
+        "runtime": {
+          "SharedModels.dll": {}
+        }
       }
     }
   },
@@ -738,6 +753,16 @@
       "sha512": "sha512-cBA+28xDW33tSiGht/H8xvr8lnaCrgJ7EdO348AfSGsX4PPJUOULKxny/cc9DVNGExaCrtqagsnm5M2mkWIZ+g==",
       "path": "system.diagnostics.diagnosticsource/9.0.3",
       "hashPath": "system.diagnostics.diagnosticsource.9.0.3.nupkg.sha512"
+    },
+    "CommonUtils/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharedModels/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

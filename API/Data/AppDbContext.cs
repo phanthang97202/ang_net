@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Threading.Tasks;
-using API.Models;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data
 {
-    public class AppDbContext : IdentityDbContext<AppUser>
+    public class AppDbContext : IdentityDbContext<API.Models.AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -44,7 +40,7 @@ namespace API.Data
 
             // RefreshTokenModel
             modelBuilder.Entity<RefreshTokenModel>()
-                        .HasOne<AppUser>()
+                        .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(r => r.UserId)
                         .OnDelete(DeleteBehavior.Restrict);
@@ -88,7 +84,7 @@ namespace API.Data
                         .HasForeignKey(o => o.PaymentTypeCode)
                         .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<OrderStadiumModel>()
-                        .HasOne<AppUser>()
+                        .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(o => o.UserName)
                         .OnDelete(DeleteBehavior.Restrict);
@@ -102,7 +98,7 @@ namespace API.Data
                         .HasForeignKey(p => p.NewsId)
                         .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PointNewsModel>()
-                        .HasOne<AppUser>()
+                        .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(p => p.UserId)
                         .OnDelete(DeleteBehavior.Cascade);
@@ -133,14 +129,14 @@ namespace API.Data
                         .HasForeignKey(p => p.NewsId)
                         .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<LikeNewsModel>()
-                        .HasOne<AppUser>()
+                        .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(p => p.UserId)
                         .OnDelete(DeleteBehavior.Cascade);
 
             // NewsModel
             modelBuilder.Entity<NewsModel>()
-                        .HasOne<AppUser>()
+                        .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(p => p.UserId)
                         .OnDelete(DeleteBehavior.Cascade);

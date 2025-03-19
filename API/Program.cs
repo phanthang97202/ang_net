@@ -2,6 +2,7 @@ using API.Data;
 using API.Interfaces;
 using API.IRespositories;
 using API.Middlewares;
+using SharedModels.Models;
 using API.Models;
 using API.Respositories;
 using API.SignalR;

@@ -1,9 +1,6 @@
 ﻿using API.Data;
 using API.Interfaces;
-using API.IRespositories;
-using DocumentFormat.OpenXml.Vml;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using API.IRespositories; 
 
 namespace API.UnitOfWork
 {

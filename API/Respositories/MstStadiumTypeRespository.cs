@@ -1,17 +1,11 @@
-﻿using API.Data;
-using API.Dtos;
-using API.IRespositories;
-using API.Models;
- 
-using API.Interfaces;
-using ClosedXML.Excel;
-using ExcelDataReader;
+﻿using API.Data; 
+using API.IRespositories; 
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Reflection;
-using System.Text.Json;
+using System.Data; 
 using GuardAuth = API.Middlewares.CheckAuthorized;
-using TCommonUtils = API.CommonUtils.CommonUtils;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
+using SharedModels.Dtos;
+using SharedModels.Models;
 
 namespace API.Respositories
 {

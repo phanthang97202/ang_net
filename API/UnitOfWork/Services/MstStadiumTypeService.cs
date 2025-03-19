@@ -1,6 +1,6 @@
-﻿using API.Dtos;
+﻿using SharedModels.Dtos;
+using SharedModels.Models;
 using API.Interfaces;
-using API.Models;
 
 namespace API.UnitOfWork.Services
 {

@@ -1,7 +1,5 @@
-﻿using API.Interfaces;
+﻿
 using API.IRespositories;
-using API.Models;
-using API.Respositories;
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.SignalR

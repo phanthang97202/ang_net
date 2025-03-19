@@ -1,7 +1,5 @@
-﻿using API.Dtos;
-using API.Interfaces;
-using API.IRespositories;
-using API.Models;
+﻿using SharedModels.Dtos;
+using SharedModels.Models;
 using API.UnitOfWork.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

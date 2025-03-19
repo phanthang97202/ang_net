@@ -3,24 +3,20 @@
   "WorkspaceRootPath": "F:\\Java \u002B Angular\\FullstackAppToturial\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|f:\\java \u002B angular\\fullstackapptoturial\\mobile\\apiservices\\mstprovinceapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|solutionrelative:mobile\\apiservices\\mstprovinceapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\respositories\\hashtagnewsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\respositories\\hashtagnewsrespository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|f:\\java \u002B angular\\fullstackapptoturial\\mobile\\apiservices\\providerservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|solutionrelative:mobile\\apiservices\\providerservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|f:\\java \u002B angular\\fullstackapptoturial\\commonutils\\commonutils\\commonutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|solutionrelative:commonutils\\commonutils\\commonutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|f:\\java \u002B angular\\fullstackapptoturial\\mobile\\views\\contactspage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|solutionrelative:mobile\\views\\contactspage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|f:\\java \u002B angular\\fullstackapptoturial\\commonutils\\commonutils\\constvalue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|solutionrelative:commonutils\\commonutils\\constvalue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|f:\\java \u002B angular\\fullstackapptoturial\\mobile\\views\\contactspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{55A16D01-0242-419B-874B-67F522282177}|Mobile\\Contacts.Maui.csproj|solutionrelative:mobile\\views\\contactspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|f:\\java \u002B angular\\fullstackapptoturial\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}|API\\API.csproj|solutionrelative:api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|f:\\java \u002B angular\\fullstackapptoturial\\commonutils\\commonutils.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{ACBBA48C-97C9-4093-96AA-F2AF7E6D327C}|CommonUtils\\CommonUtils.csproj|solutionrelative:commonutils\\commonutils.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,21 +26,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 309,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "MstProvinceApiService.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\ApiServices\\MstProvinceApiService.cs",
-              "RelativeDocumentMoniker": "Mobile\\ApiServices\\MstProvinceApiService.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\ApiServices\\MstProvinceApiService.cs",
-              "RelativeToolTip": "Mobile\\ApiServices\\MstProvinceApiService.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAnAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-19T04:54:42.059Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
@@ -59,54 +42,54 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProviderServices.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\ApiServices\\ProviderServices.cs",
-              "RelativeDocumentMoniker": "Mobile\\ApiServices\\ProviderServices.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\ApiServices\\ProviderServices.cs",
-              "RelativeToolTip": "Mobile\\ApiServices\\ProviderServices.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "DocumentIndex": 0,
+              "Title": "HashTagNewsRespository.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\HashTagNewsRespository.cs",
+              "RelativeDocumentMoniker": "API\\Respositories\\HashTagNewsRespository.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\HashTagNewsRespository.cs*",
+              "RelativeToolTip": "API\\Respositories\\HashTagNewsRespository.cs*",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAABDAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-19T04:55:31.963Z",
+              "WhenOpened": "2025-03-19T09:24:15.25Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ContactsPage.xaml.cs",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\Views\\ContactsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Mobile\\Views\\ContactsPage.xaml.cs",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\Views\\ContactsPage.xaml.cs",
-              "RelativeToolTip": "Mobile\\Views\\ContactsPage.xaml.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAaAAAA",
+              "Title": "ConstValue.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils\\ConstValue.cs",
+              "RelativeDocumentMoniker": "CommonUtils\\CommonUtils\\ConstValue.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils\\ConstValue.cs",
+              "RelativeToolTip": "CommonUtils\\CommonUtils\\ConstValue.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-19T04:55:29.605Z",
+              "WhenOpened": "2025-03-19T09:23:27.761Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "ContactsPage.xaml",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\Views\\ContactsPage.xaml",
-              "RelativeDocumentMoniker": "Mobile\\Views\\ContactsPage.xaml",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\Mobile\\Views\\ContactsPage.xaml",
-              "RelativeToolTip": "Mobile\\Views\\ContactsPage.xaml",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-03-19T04:55:27.266Z",
+              "Title": "CommonUtils",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj",
+              "RelativeDocumentMoniker": "CommonUtils\\CommonUtils.csproj",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj",
+              "RelativeToolTip": "CommonUtils\\CommonUtils.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-03-19T09:20:04.161Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeDocumentMoniker": "API\\appsettings.json",
-              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\API\\appsettings.json",
-              "RelativeToolTip": "API\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAARAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-03-19T04:53:44.776Z",
+              "DocumentIndex": 1,
+              "Title": "CommonUtils.cs",
+              "DocumentMoniker": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils\\CommonUtils.cs",
+              "RelativeDocumentMoniker": "CommonUtils\\CommonUtils\\CommonUtils.cs",
+              "ToolTip": "F:\\Java \u002B Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils\\CommonUtils.cs",
+              "RelativeToolTip": "CommonUtils\\CommonUtils\\CommonUtils.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-19T09:11:28.14Z",
               "EditorCaption": ""
             }
           ]

@@ -9,6 +9,7 @@
       "API/1.0.0": {
         "dependencies": {
           "ClosedXML": "0.102.3",
+          "CommonUtils": "1.0.0",
           "Dapper": "2.1.66",
           "ExcelDataReader": "3.7.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.1",
@@ -21,6 +22,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "8.0.1",
           "Serilog.AspNetCore": "8.0.3",
           "Serilog.Sinks.File": "6.0.0",
+          "SharedModels": "1.0.0",
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
@@ -2077,6 +2079,19 @@
             "fileVersion": "1.5.2.0"
           }
         }
+      },
+      "CommonUtils/1.0.0": {
+        "dependencies": {
+          "SharedModels": "1.0.0"
+        },
+        "runtime": {
+          "CommonUtils.dll": {}
+        }
+      },
+      "SharedModels/1.0.0": {
+        "runtime": {
+          "SharedModels.dll": {}
+        }
       }
     }
   },
@@ -3373,6 +3388,16 @@
       "sha512": "sha512-8tnUCmMbn6c/HGuHFyq1sulHym8YReTKDNXFFQk0U8nldNx6RGrwRvLh0+aQjEc7YoC3Q1ztH1npLt7dClKqjw==",
       "path": "xlparser/1.5.2",
       "hashPath": "xlparser.1.5.2.nupkg.sha512"
+    },
+    "CommonUtils/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharedModels/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

@@ -1,7 +1,7 @@
 ﻿using API.Data;
-using API.Dtos;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using API.IRespositories;
-using API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GuardAuth = API.Middlewares.CheckAuthorized;
-using TCommonUtils = API.CommonUtils.CommonUtils;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
 namespace API.Respositories
 {
@@ -18,11 +18,11 @@ namespace API.Respositories
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
 
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<API.Models.AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AccountRespository(UserManager<AppUser> userManager
+        public AccountRespository(UserManager<API.Models.AppUser> userManager
                                     , RoleManager<IdentityRole> roleManager
                                     , IHttpContextAccessor httpContextAccessor
                                     , IConfiguration configuration
@@ -36,7 +36,7 @@ namespace API.Respositories
             _dbContext = dbContext;
         }
 
-        public string GenerateAccessToken(AppUser user)
+        public string GenerateAccessToken(API.Models.AppUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JWTSetting").GetSection("securityKey").Value!);
@@ -279,7 +279,7 @@ namespace API.Respositories
             // 4. revoke token cũ
             // 5. trả về access token và refresh token mới
 
-            AppUser user = await _userManager.FindByIdAsync(refreshTokenDto.UserId);
+            API.Models.AppUser user = await _userManager.FindByIdAsync(refreshTokenDto.UserId);
 
             if (user is null)
             {
@@ -327,7 +327,7 @@ namespace API.Respositories
             ApiResponse<RegisterDto> apiResponse = new ApiResponse<RegisterDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
-            var user = new AppUser
+            var user = new API.Models.AppUser
             {
                 Email = registerDto.Email,
                 FullName = registerDto.FullName,

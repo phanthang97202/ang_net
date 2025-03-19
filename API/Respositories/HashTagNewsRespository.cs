@@ -1,10 +1,9 @@
 ﻿using API.Data;
-using API.Dtos;
 using API.IRespositories;
-using API.Models;
-using TCommonUtils = API.CommonUtils.CommonUtils;
+using SharedModels.Dtos;
+using SharedModels.Models; 
 using GuardAuth = API.Middlewares.CheckAuthorized;
-using TConstValue = API.CommonUtils.ConstValue;
+using TConstValue = CommonUtils.CommonUtils.ConstValue;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Respositories

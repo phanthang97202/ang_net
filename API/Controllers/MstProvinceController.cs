@@ -1,6 +1,6 @@
-using API.Dtos;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using API.Interfaces;
-using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

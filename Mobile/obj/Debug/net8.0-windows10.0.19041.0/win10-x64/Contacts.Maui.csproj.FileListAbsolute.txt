@@ -733,3 +733,7 @@ F:\Java + Angular\FullstackAppToturial\Mobile\obj\Debug\net8.0-windows10.0.19041
 F:\Java + Angular\FullstackAppToturial\Mobile\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 F:\Java + Angular\FullstackAppToturial\Mobile\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
 F:\Java + Angular\FullstackAppToturial\Mobile\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\ProjectArchitectures.txt
+F:\Java + Angular\FullstackAppToturial\Mobile\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\CommonUtils.dll
+F:\Java + Angular\FullstackAppToturial\Mobile\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\SharedModels.dll
+F:\Java + Angular\FullstackAppToturial\Mobile\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\CommonUtils.pdb
+F:\Java + Angular\FullstackAppToturial\Mobile\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\SharedModels.pdb

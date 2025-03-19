@@ -1,4 +1,5 @@
-﻿using API.Dtos;
+﻿using SharedModels.Models;
+using SharedModels.Dtos;
 using System.Security.Claims;
 
 namespace API.IRespositories

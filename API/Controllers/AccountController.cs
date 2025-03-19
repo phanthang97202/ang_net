@@ -1,6 +1,6 @@
-﻿using API.Dtos;
-using API.IRespositories;
-using API.Models;
+﻿using API.IRespositories;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +12,12 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<API.Models.AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IAccountRespository _accountRespository;
 
-        public AccountController(IAccountRespository accountRespository, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountController(IAccountRespository accountRespository, UserManager<API.Models.AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;

@@ -1,10 +1,9 @@
-﻿using API.CommonUtils;
+﻿using SharedModels.Dtos;
+using SharedModels.Models;
 using API.Data;
-using API.Dtos;
-using API.IRespositories;
-using API.Models;
+using API.IRespositories; 
 using Microsoft.EntityFrameworkCore;
-using TCommonUtils = API.CommonUtils.CommonUtils;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
 namespace API.Respositories
 {

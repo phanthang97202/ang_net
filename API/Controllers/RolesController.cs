@@ -1,5 +1,5 @@
-using API.Dtos;
-using API.Models;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +13,9 @@ namespace API.Controllers
     public class RolesController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly UserManager<AppUser> _appUser;
+        private readonly UserManager<API.Models.AppUser> _appUser;
 
-        public RolesController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> appUser)
+        public RolesController(RoleManager<IdentityRole> roleManager, UserManager<API.Models.AppUser> appUser)
         {
             _roleManager = roleManager;
             _appUser = appUser;

@@ -1,8 +1,7 @@
 ﻿using API.Data;
-using API.Dtos;
-using API.Models;
-using Microsoft.EntityFrameworkCore;
-using TCommonUtils = API.CommonUtils.CommonUtils;
+using SharedModels.Dtos;
+using SharedModels.Models;
+using Microsoft.EntityFrameworkCore; 
 using GuardAuth = API.Middlewares.CheckAuthorized;
 using API.IRespositories;
 

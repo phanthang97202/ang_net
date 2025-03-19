@@ -1,8 +1,8 @@
 ﻿using API.Attributes;
-using API.Dtos;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using API.IRespositories;
 using API.Middlewares;
-using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
