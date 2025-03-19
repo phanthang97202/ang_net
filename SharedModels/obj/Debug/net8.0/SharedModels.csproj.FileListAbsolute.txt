@@ -1,0 +1,12 @@
+F:\Java + Angular\FullstackAppToturial\SharedModels\bin\Debug\net8.0\SharedModels.deps.json
+F:\Java + Angular\FullstackAppToturial\SharedModels\bin\Debug\net8.0\SharedModels.dll
+F:\Java + Angular\FullstackAppToturial\SharedModels\bin\Debug\net8.0\SharedModels.pdb
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.GeneratedMSBuildEditorConfig.editorconfig
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.AssemblyInfoInputs.cache
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.AssemblyInfo.cs
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.csproj.CoreCompileInputs.cache
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.sourcelink.json
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.dll
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\refint\SharedModels.dll
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\SharedModels.pdb
+F:\Java + Angular\FullstackAppToturial\SharedModels\obj\Debug\net8.0\ref\SharedModels.dll

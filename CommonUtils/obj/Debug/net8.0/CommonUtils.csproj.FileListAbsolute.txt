@@ -1,0 +1,16 @@
+F:\Java + Angular\FullstackAppToturial\CommonUtils\bin\Debug\net8.0\CommonUtils.deps.json
+F:\Java + Angular\FullstackAppToturial\CommonUtils\bin\Debug\net8.0\CommonUtils.dll
+F:\Java + Angular\FullstackAppToturial\CommonUtils\bin\Debug\net8.0\CommonUtils.pdb
+F:\Java + Angular\FullstackAppToturial\CommonUtils\bin\Debug\net8.0\SharedModels.dll
+F:\Java + Angular\FullstackAppToturial\CommonUtils\bin\Debug\net8.0\SharedModels.pdb
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.csproj.AssemblyReference.cache
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.GeneratedMSBuildEditorConfig.editorconfig
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.AssemblyInfoInputs.cache
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.AssemblyInfo.cs
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.csproj.CoreCompileInputs.cache
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.sourcelink.json
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUt.BC25C500.Up2Date
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.dll
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\refint\CommonUtils.dll
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.pdb
+F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\ref\CommonUtils.dll
