@@ -1,4 +1,5 @@
-﻿namespace Contacts.Maui
+﻿
+namespace Angnet.Maui
 {
     public partial class App : Application
     {

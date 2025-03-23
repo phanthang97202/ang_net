@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "6hSQgX21atE=",
+  "dgSpecHash": "LMRM6jHEi78=",
   "success": true,
-  "projectFilePath": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Contacts.Maui.csproj",
+  "projectFilePath": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Angnet.Maui.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\phant\\.nuget\\packages\\googlegson\\2.10.1.4\\googlegson.2.10.1.4.nupkg.sha512",
     "C:\\Users\\phant\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.3\\microsoft.extensions.configuration.9.0.3.nupkg.sha512",

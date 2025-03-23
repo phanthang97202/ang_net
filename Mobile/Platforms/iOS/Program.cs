@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     public class Program
     {

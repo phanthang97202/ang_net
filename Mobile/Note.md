@@ -44,10 +44,10 @@ constructor để khởi tạo giao diện UI từ file .xaml tương ứng củ
 	Ex: 
 		<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Contacts.Maui.MainPage">
+             x:Class="Angnet.Maui.MainPage">
 		+ xmlns="http://schemas.microsoft.com/dotnet/2021/maui" khai báo namespace cho .net maui, nó cho phép sử dụng các thành phần của net maui trong file xaml
 		+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" là khai báo namespace chuẩn, giúp sử dụng các tính năng nâng cao của xaml như: x:Class (liên kết với file C#), x:Name (định danh cho control), x:Static(Sử dụng giá trị tĩnh)
-		+ x:Class="Contacts.Maui.MainPage" chỉ định tên class C# tương tứng với file xaml này, có nghĩa là MainPage.xaml được liên kết với MainPage.xaml.cs, khi chạy ứng dụng nó sẽ khởi tạo MainPage.xaml.cs rồi load file xaml từ file này
+		+ x:Class="Angnet.Maui.MainPage" chỉ định tên class C# tương tứng với file xaml này, có nghĩa là MainPage.xaml được liên kết với MainPage.xaml.cs, khi chạy ứng dụng nó sẽ khởi tạo MainPage.xaml.cs rồi load file xaml từ file này
 
 	Một số properties khác cho ContentPage
 		### **1️⃣ Thuộc tính liên quan đến Giao diện & Layout**
@@ -140,6 +140,10 @@ constructor để khởi tạo giao diện UI từ file .xaml tương ứng củ
 				✅ Alias giúp bạn dùng namespace theo cách ngắn gọn hơn, ví dụ: x:Name, x:Key.
 				✅ Namespace chính (xmlns="") không cần alias, mọi thẻ không có prefix sẽ thuộc về
 
+### HttpClient 
+	❌ KHÔNG nên dùng TryAddWithoutValidation → có thể không ghi đè, không đảm bảo đúng định dạng.
+	✅ NÊN dùng AuthenticationHeaderValue → đảm bảo header được ghi đè và đúng chuẩn.
+
 ### Navigate trong MAUI
 	Trong .NET MAUI Shell, màn hình đầu tiên mà ứng dụng hiển thị khi khởi động chính là ShellContent được khai báo đầu tiên trong Shell.
 
@@ -184,12 +188,12 @@ constructor để khởi tạo giao diện UI từ file .xaml tương ứng củ
 					Ex: navigate đến chi tiết của contact
 						- AppShell.xaml
 							<Shell
-								x:Class="Contacts.Maui.AppShell"
+								x:Class="Angnet.Maui.AppShell"
 								xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 								xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-								xmlns:views="clr-namespace:Contacts.Maui.Views"
+								xmlns:views="clr-namespace:Angnet.Maui.Views"
 								Shell.FlyoutBehavior="Disabled"
-								Title="Contacts.Maui">
+								Title="Angnet.Maui">
 
 								<FlyoutItem Title="Home">
 									<ShellContent Title="Main" ContentTemplate="{DataTemplate views:MainPage}" Route="MainPage"/>
@@ -282,3 +286,134 @@ constructor để khởi tạo giao diện UI từ file .xaml tương ứng củ
 
 				+ ObservableCollection<T>
 					GIúp tự động cập nhật UI, thông báo cho UI khi: update, add, remove phần tử
+
+
+### Lifecycle trong MAUI 
+
+	Trong .NET MAUI, vòng đời (lifecycle) của ứng dụng và của từng trang (`Page`) hoạt động theo các sự kiện khác nhau.  
+
+	### 🏗 **1. Lifecycle của Ứng Dụng (`App`)**  
+		Là vòng đời của toàn bộ ứng dụng, được quản lý trong **`App.xaml.cs`**.  
+
+		#### 🔹 **Các sự kiện chính của ứng dụng:**
+		| 🏷 **Sự kiện** | 🎯 **Ý nghĩa** |
+		|--------------|----------------|
+		| **`OnStart()`** | Ứng dụng bắt đầu chạy lần đầu tiên. |
+		| **`OnSleep()`** | Ứng dụng chuyển sang nền (background). |
+		| **`OnResume()`** | Ứng dụng được đưa trở lại foreground. |
+
+		#### 🚀 **Ví dụ trong `App.xaml.cs`**  
+		```csharp
+		public partial class App : Application
+		{
+			public App()
+			{
+				InitializeComponent();
+			}
+
+			protected override void OnStart()
+			{
+				// Ứng dụng bắt đầu chạy
+				Console.WriteLine("App started!");
+			}
+
+			protected override void OnSleep()
+			{
+				// Ứng dụng vào chế độ nền
+				Console.WriteLine("App sleeping...");
+			}
+
+			protected override void OnResume()
+			{
+				// Ứng dụng quay lại foreground
+				Console.WriteLine("App resumed!");
+			}
+		}
+		```
+
+	---
+
+	### 📄 **2. Lifecycle của Page (`ContentPage`)**  
+		Là vòng đời của từng trang (`Page`) khi điều hướng trong ứng dụng.  
+
+		#### 🔹 **Các phương thức quan trọng:**
+		| 🏷 **Phương thức** | 🎯 **Ý nghĩa** |
+		|-------------------|----------------|
+		| **`OnAppearing()`** | Khi trang xuất hiện trên màn hình (tương tự `ngOnInit()` trong Angular). |
+		| **`OnDisappearing()`** | Khi trang bị ẩn đi hoặc bị điều hướng khỏi. |
+		| **`OnNavigatedTo()`** | Khi trang được điều hướng đến. |
+		| **`OnNavigatedFrom()`** | Khi trang bị điều hướng đi. |
+
+		#### 🚀 **Ví dụ:**
+		```csharp
+		public partial class EditProvincePage : ContentPage
+		{
+			public EditProvincePage()
+			{
+				InitializeComponent();
+			}
+
+			protected override void OnAppearing()
+			{
+				base.OnAppearing();
+				Console.WriteLine("Page is appearing!");
+			}
+
+			protected override void OnDisappearing()
+			{
+				base.OnDisappearing();
+				Console.WriteLine("Page is disappearing!");
+			}
+
+			protected override void OnNavigatedTo(NavigatedToEventArgs args)
+			{
+				base.OnNavigatedTo(args);
+				Console.WriteLine("Navigated to this page!");
+			}
+
+			protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
+			{
+				base.OnNavigatedFrom(args);
+				Console.WriteLine("Navigated away from this page!");
+			}
+		}
+		```
+
+	---
+
+	### 📱 **3. Lifecycle trên Android, iOS, Windows**  
+		.NET MAUI có thể chạy trên nhiều nền tảng khác nhau, mỗi nền tảng có lifecycle riêng.  
+
+		#### 🔹 **Android Lifecycle (`MainActivity.cs`)**  
+		| 🏷 **Phương thức** | 🎯 **Ý nghĩa** |
+		|-------------------|----------------|
+		| `OnCreate()` | Khi Activity được tạo lần đầu. |
+		| `OnStart()` | Khi Activity bắt đầu. |
+		| `OnResume()` | Khi Activity tiếp tục từ background. |
+		| `OnPause()` | Khi Activity bị gián đoạn (chuyển sang nền). |
+		| `OnStop()` | Khi Activity không còn hiển thị. |
+		| `OnDestroy()` | Khi Activity bị hủy. |
+
+		#### 🚀 **Ví dụ trên Android (`MainActivity.cs`)**
+		```csharp
+		protected override void OnResume()
+		{
+			base.OnResume();
+			Console.WriteLine("Android: App resumed!");
+		}
+		```
+
+	---
+
+	### 🎯 **Tóm lại**
+	| 🏷 **Loại Lifecycle** | 🎯 **Sự kiện quan trọng** |
+	|---------------------|----------------|
+	| **Ứng dụng (`App`)** | `OnStart()`, `OnSleep()`, `OnResume()` |
+	| **Trang (`Page`)** | `OnAppearing()`, `OnDisappearing()`, `OnNavigatedTo()`, `OnNavigatedFrom()` |
+	| **Android** | `OnCreate()`, `OnStart()`, `OnResume()`, `OnPause()`, `OnStop()`, `OnDestroy()` |
+
+	💡 **Lưu ý:**  
+	- **Sử dụng `OnNavigatedTo()` khi trang cần xử lý dữ liệu từ tham số điều hướng.**  
+	- **Dùng `OnAppearing()` khi muốn tải dữ liệu mỗi khi trang xuất hiện.**  
+	- **Sử dụng `OnDisappearing()` để lưu trạng thái hoặc dừng các tiến trình.**  
+	 

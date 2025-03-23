@@ -1,0 +1,82 @@
+2025-03-23 22:33:57.866 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-03-23 22:33:58.220 +07:00 [INF] Now listening on: http://localhost:5000
+2025-03-23 22:33:58.222 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-03-23 22:33:58.222 +07:00 [INF] Hosting environment: Development
+2025-03-23 22:33:58.223 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-03-23 22:34:48.043 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 66
+2025-03-23 22:34:49.574 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-03-23 15:34:49'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-03-23 22:34:49.589 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-03-23 15:34:49'.
+2025-03-23 22:34:49.593 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-03-23 22:34:49.624 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-03-23 22:34:52.066 +07:00 [INF] Executed DbCommand (15ms) [Parameters=[@__normalizedEmail_0='?' (Size = 19)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-03-23 22:34:52.417 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-03-23 22:34:52.719 +07:00 [INF] Executed DbCommand (112ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-03-23 22:34:52.728 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:34:52.754 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 3126.245ms
+2025-03-23 22:34:52.755 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-03-23 22:34:52.762 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 4722.7956ms
+2025-03-23 22:41:00.063 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - null null
+2025-03-23 22:41:00.315 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-23 22:41:00.393 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] GetAllActive() on controller API.Controllers.MstProvinceController (API).
+2025-03-23 22:41:00.961 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-03-23 22:41:01.002 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:41:01.011 +07:00 [INF] Executed action API.Controllers.MstProvinceController.GetAllActive (API) in 617.6203ms
+2025-03-23 22:41:01.011 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-23 22:41:01.011 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - 200 null application/json; charset=utf-8 950.5686ms
+2025-03-23 22:41:03.033 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key=18 - null null
+2025-03-23 22:41:03.041 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:41:03.059 +07:00 [INF] Route matched with {action = "Detail", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Detail(System.String) on controller API.Controllers.MstProvinceController (API).
+2025-03-23 22:41:03.216 +07:00 [INF] Executed DbCommand (24ms) [Parameters=[@__p_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-03-23 22:41:03.240 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:41:03.240 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Detail (API) in 180.517ms
+2025-03-23 22:41:03.240 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:41:03.240 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key=18 - 200 null application/json; charset=utf-8 206.8885ms
+2025-03-23 22:54:08.025 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - null null
+2025-03-23 22:54:08.262 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-23 22:54:08.280 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] GetAllActive() on controller API.Controllers.MstProvinceController (API).
+2025-03-23 22:54:09.816 +07:00 [INF] Executed DbCommand (124ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."ProvinceName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-03-23 22:54:10.115 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:54:10.172 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key= - null null
+2025-03-23 22:54:10.219 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:54:10.221 +07:00 [INF] Route matched with {action = "Detail", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Detail(System.String) on controller API.Controllers.MstProvinceController (API).
+2025-03-23 22:54:10.514 +07:00 [INF] Executed action API.Controllers.MstProvinceController.GetAllActive (API) in 2232.2357ms
+2025-03-23 22:54:10.515 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.GetAllActive (API)'
+2025-03-23 22:54:10.518 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/GetAllActive - 200 null application/json; charset=utf-8 2494.4372ms
+2025-03-23 22:54:10.781 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:54:10.810 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Detail (API) in 588.5004ms
+2025-03-23 22:54:10.810 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:54:10.810 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key= - 200 null application/json; charset=utf-8 638.1023ms
+2025-03-23 22:54:13.889 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key=18 - null null
+2025-03-23 22:54:13.890 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:54:13.890 +07:00 [INF] Route matched with {action = "Detail", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Detail(System.String) on controller API.Controllers.MstProvinceController (API).
+2025-03-23 22:54:13.952 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-03-23 22:54:13.958 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-03-23 22:54:13.958 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Detail (API) in 68.2995ms
+2025-03-23 22:54:13.958 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Detail (API)'
+2025-03-23 22:54:13.959 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Detail?key=18 - 200 null application/json; charset=utf-8 69.7173ms

@@ -1,8 +1,8 @@
-﻿using Contacts.Maui.ApiServices;
-using Contacts.Maui.Views;
+﻿using Angnet.Maui.ApiServices;
+using Angnet.Maui.Views;
 using Microsoft.Extensions.Logging;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     public static class MauiProgram
     {
@@ -22,7 +22,8 @@ namespace Contacts.Maui
 #endif
             // DI
             builder.Services.AddSingleton<MstProvinceApiService>();
-            builder.Services.AddTransient<ContactsPage>();
+            builder.Services.AddTransient<ListProvincePage>();
+            builder.Services.AddTransient<EditProvincePage>();
             // register http client
             builder.Services.AddHttpClient(); 
             // 

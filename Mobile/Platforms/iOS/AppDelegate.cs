@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

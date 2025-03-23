@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{7A5C2D9B-53A9-4CAF-8B54-996AE6A27B56}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contacts.Maui", "Mobile\Contacts.Maui.csproj", "{55A16D01-0242-419B-874B-67F522282177}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Angnet.Maui", "Mobile\Angnet.Maui.csproj", "{55A16D01-0242-419B-874B-67F522282177}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedModels", "SharedModels\SharedModels.csproj", "{396E6CBB-C968-4B0C-A99B-35F886DA23CD}"
 EndProject

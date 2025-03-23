@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x1="http://schemas.microsoft.com/winfx/2009/xaml"
-             x1:Class="Contacts.Maui.MainPage"
+             x1:Class="Angnet.Maui.MainPage"
              IsVisible="True"
              BackgroundColor="Bisque" 
              > 
@@ -26,17 +26,6 @@
                 Aspect="AspectFit"
                 SemanticProperties.Description="dot net bot in a race car number eight" />
 
-            <Label
-                Text="mobile development! You will learn the essentials of building mobile applications with .NET MAUI and C# while creating a Contacts app. "
-                Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
-
-            <Label
-                Text="Demo MAUI"
-                Style="{StaticResource StyleMainLable}"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Demo" />
-
             <Button
                 x1:Name="CounterBtn"
                 Text="Click me" 
@@ -44,12 +33,6 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <Button
-                x1:Name="GetValueCounterBtn"
-                Text="Get value btn counter" 
-                SemanticProperties.Hint="Click to get value btn counter"
-                Clicked="handleGetValueCounterBtn"
-                HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 

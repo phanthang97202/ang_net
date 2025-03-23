@@ -1,1 +1,1 @@
-F:\Java + Angular\FullstackAppToturial\Mobile\Contacts.Maui.csproj;x64
+F:\Java + Angular\FullstackAppToturial\Mobile\Angnet.Maui.csproj;x64

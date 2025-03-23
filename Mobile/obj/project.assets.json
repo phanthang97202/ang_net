@@ -38521,9 +38521,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Contacts.Maui.csproj",
-      "projectName": "Contacts.Maui",
-      "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Contacts.Maui.csproj",
+      "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Angnet.Maui.csproj",
+      "projectName": "Angnet.Maui",
+      "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\Angnet.Maui.csproj",
       "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
       "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\Mobile\\obj\\",
       "projectStyle": "PackageReference",

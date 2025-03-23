@@ -1,6 +1,6 @@
-﻿using Contacts.Maui.Views;
+﻿using Angnet.Maui.Views;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     public partial class AppShell : Shell
     {
@@ -20,16 +20,15 @@ namespace Contacts.Maui
             //});
 
             // nếu đã định nghĩa Route trong ShellContent thì đoạn register dưới là thừa
-            Routing.RegisterRoute(nameof(ContactsPage), typeof(ContactsPage));
-            Routing.RegisterRoute(nameof(EditContactPage), typeof(EditContactPage));
-            Routing.RegisterRoute(nameof(AddContactPage), typeof(AddContactPage));
+            Routing.RegisterRoute(nameof(ListProvincePage), typeof(ListProvincePage));
+            Routing.RegisterRoute(nameof(EditProvincePage), typeof(EditProvincePage)); 
 
 
         }
 
         public async void NavigateDefaultRoute()
         {
-            await Shell.Current.GoToAsync("//ContactsPage");
+            await Shell.Current.GoToAsync("//ListProvincePage");
         }
     }
 }

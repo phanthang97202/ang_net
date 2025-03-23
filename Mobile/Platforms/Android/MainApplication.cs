@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     [Application]
     public class MainApplication : MauiApplication

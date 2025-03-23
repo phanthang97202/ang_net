@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Angnet.Maui.Views.ListProvincePage"
+             xmlns:models="clr-namespace:SharedModels.Models;assembly=SharedModels"
+             Title="Contacts">
+
+    <Grid>
+
+        <!-- Full-Screen Loading Overlay -->
+        <!--<StackLayout AbsoluteLayout.LayoutFlags="All" 
+                 AbsoluteLayout.LayoutBounds="0,0,1,1"
+                 BackgroundColor="Black"
+                 Opacity="0.5"
+                 IsVisible="True"
+                 VerticalOptions="Center"
+                 HorizontalOptions="Center"
+            >
+
+            <ActivityIndicator 
+                IsRunning="True" 
+                IsVisible="True"
+                Color="White"  />
+
+        </StackLayout>-->
+
+        <!-- Main Content -->
+
+        <ScrollView>
+            <VerticalStackLayout Margin="10"
+                                 Spacing="10">
+
+                <Button x:Name="AddContactBtn"
+                        Text="Add contact"
+                        Clicked="handleAddContact"
+                        HorizontalOptions="Fill" />
+
+
+                <ListView x:Name="listViewContracts"
+                          ItemsSource="{Binding MstProviceModelData}"
+                          ItemSelected="listViewContracts_ItemSelected"
+                          ItemTapped="listViewContracts_ItemTapped">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:MstProvinceModel">
+                            <ViewCell>
+                                <Grid Padding="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackLayout Padding="10"
+                                                 Orientation="Horizontal"
+                                                 Spacing="10">
+                                        <Image Grid.RowSpan="2"
+                                               Source="{Binding ProvinceCode}"
+                                               Aspect="AspectFill"
+                                               HeightRequest="30"
+                                               WidthRequest="30" />
+                                        <StackLayout VerticalOptions="Center">
+                                            <Label Text="{Binding ProvinceName}"
+                                                   FontAttributes="Bold" />
+                                            <Label Text="{Binding FlagActive}"
+                                                   FontAttributes="Italic"
+                                                   VerticalOptions="End" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+
+    </Grid>
+
+
+</ContentPage>

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Contacts.Maui
+namespace Angnet.Maui
 {
     public partial class MainPage : ContentPage
     {
@@ -29,12 +29,7 @@ namespace Contacts.Maui
             // Hỗ trợ người khiếm thị (đọc to nội dung nút)
             SemanticScreenReader.Announce(CounterBtn.Text);
         }
-
-        private async void handleGetValueCounterBtn(object sender, EventArgs e)
-        {
-            string value = CounterBtn.Text;
-            await Application.Current.MainPage.DisplayAlert("Thông báo", value, "OK");
-        } 
+         
     }
 
 }
