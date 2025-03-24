@@ -1,7 +1,8 @@
-﻿using SharedModels.Dtos; 
+﻿using SharedModels.Dtos;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace CommonUtils.CommonUtils
@@ -176,6 +177,15 @@ namespace CommonUtils.CommonUtils
         public static DateTime DTimeAddDay(double days)
         {
             return DateTime.Now.AddDays(days);
+        }
+
+        // HttpClient
+        public static StringContent GetContent(object dado)
+        {
+            return new StringContent(
+                JsonSerializer.Serialize(dado),
+                Encoding.UTF8,
+                "application/json");
         }
     }
 }

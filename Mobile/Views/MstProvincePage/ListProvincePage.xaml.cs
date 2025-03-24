@@ -1,4 +1,5 @@
 ﻿using Angnet.Maui.ApiServices;
+using SharedModels.Dtos;
 using SharedModels.Models;
 using System.Collections.ObjectModel;
 
@@ -22,9 +23,17 @@ public partial class ListProvincePage : ContentPage
         // *** Set BindingContext to the entire page (Required)
         BindingContext = this;
 
-        // Load data
+        //// Load data
+        //LoadData();
+    }
+
+    // hàm chạy ngay khi xuất hiện (giống ngOnInit() )
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         LoadData();
     }
+
 
     public async void LoadData()
     {
@@ -40,14 +49,16 @@ public partial class ListProvincePage : ContentPage
         }
     }
 
-    private void handleAddContact(object sender, EventArgs e)
+    private void handleAddProvince(object sender, EventArgs e)
     {
-         Shell.Current.GoToAsync(nameof(EditProvincePage));
+        string path = $"{nameof(EditProvincePage)}?isedit=false";
+
+        Shell.Current.GoToAsync(path);
     }
 
     private void handleEditContact(object sender, EventArgs e)
     {
-       
+
     }
 
     private void listViewContracts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -56,7 +67,7 @@ public partial class ListProvincePage : ContentPage
         {
             //DisplayAlert("Thông báo", selectedItem.ProvinceName, "OK");
             string provinceCode = selectedItem.ProvinceCode;
-            string path = $"{nameof(EditProvincePage)}?provincecode={provinceCode}";
+            string path = $"{nameof(EditProvincePage)}?isedit=true&provincecode={provinceCode}";
 
             Shell.Current.GoToAsync(path);
         }
@@ -65,5 +76,18 @@ public partial class ListProvincePage : ContentPage
     private void listViewContracts_ItemTapped(object sender, ItemTappedEventArgs e)
     {
         Console.WriteLine(e);
+    }
+
+    private async void handleDeleteProvince(object sender, EventArgs e)
+    {
+        Button button = sender as Button;
+        string provinceCode = button?.CommandParameter.ToString();
+
+        if (!string.IsNullOrEmpty(provinceCode))
+        {
+            ApiResponse<MstProvinceModel> response = await _mstProvinceApiService.Delete(provinceCode);
+            await DisplayAlert("Thông báo", "Xóa thành công!", "OK");
+            LoadData();
+        }
     }
 }

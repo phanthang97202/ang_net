@@ -9899,11 +9899,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
+      "projectUniqueName": "D:\\MyHomeWork\\ang_net\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\API.csproj",
+      "projectPath": "D:\\MyHomeWork\\ang_net\\API\\API.csproj",
       "packagesPath": "C:\\Users\\phant\\.nuget\\packages\\",
-      "outputPath": "F:\\Java + Angular\\FullstackAppToturial\\API\\obj\\",
+      "outputPath": "D:\\MyHomeWork\\ang_net\\API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -9925,11 +9925,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj": {
-              "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\CommonUtils\\CommonUtils.csproj"
+            "D:\\MyHomeWork\\ang_net\\CommonUtils\\CommonUtils.csproj": {
+              "projectPath": "D:\\MyHomeWork\\ang_net\\CommonUtils\\CommonUtils.csproj"
             },
-            "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj": {
-              "projectPath": "F:\\Java + Angular\\FullstackAppToturial\\SharedModels\\SharedModels.csproj"
+            "D:\\MyHomeWork\\ang_net\\SharedModels\\SharedModels.csproj": {
+              "projectPath": "D:\\MyHomeWork\\ang_net\\SharedModels\\SharedModels.csproj"
             }
           }
         }
@@ -10027,7 +10027,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

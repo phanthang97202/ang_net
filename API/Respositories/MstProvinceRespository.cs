@@ -1,10 +1,10 @@
 ﻿using API.Data;
-using API.Interfaces;  
-using SharedModels.Dtos;
-using SharedModels.Models;
+using API.Interfaces;
 using ClosedXML.Excel;
 using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
+using SharedModels.Dtos;
+using SharedModels.Models;
 using System.Data;
 using System.Reflection;
 using System.Text.Json;
@@ -287,7 +287,7 @@ namespace API.Respositories
                 return apiResponse;
             }
 
-            List<MstProvinceModel> data = await _dbContext.MstProvinces.Select(i =>
+            List<MstProvinceModel> data = await _dbContext.MstProvinces.Where(p => p.FlagActive == true).Select(i =>
                 new MstProvinceModel
                 {
                     ProvinceCode = i.ProvinceCode,

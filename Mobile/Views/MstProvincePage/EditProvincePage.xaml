@@ -24,6 +24,7 @@
                 <Entry Grid.Column="1"
                        Margin="0,0,0,0"
                        Text="{Binding ProvinceCode}"
+                       IsReadOnly="{Binding IsEdit}"
                        VerticalOptions="Center"
                        HorizontalOptions="Fill"
                        Placeholder="Nhập mã tỉnh..."

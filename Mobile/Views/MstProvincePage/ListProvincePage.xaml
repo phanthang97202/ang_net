@@ -30,9 +30,9 @@
             <VerticalStackLayout Margin="10"
                                  Spacing="10">
 
-                <Button x:Name="AddContactBtn"
-                        Text="Add contact"
-                        Clicked="handleAddContact"
+                <Button x:Name="AddProvinceBtn"
+                        Text="Add province"
+                        Clicked="handleAddProvince"
                         HorizontalOptions="Fill" />
 
 
@@ -55,18 +55,21 @@
 
                                     <StackLayout Padding="10"
                                                  Orientation="Horizontal"
-                                                 Spacing="10">
-                                        <Image Grid.RowSpan="2"
-                                               Source="{Binding ProvinceCode}"
-                                               Aspect="AspectFill"
-                                               HeightRequest="30"
-                                               WidthRequest="30" />
-                                        <StackLayout VerticalOptions="Center">
+                                                 Spacing="10"> 
+                                        <StackLayout VerticalOptions="Start">
                                             <Label Text="{Binding ProvinceName}"
                                                    FontAttributes="Bold" />
                                             <Label Text="{Binding FlagActive}"
                                                    FontAttributes="Italic"
                                                    VerticalOptions="End" />
+                                        </StackLayout>
+
+                                        <StackLayout VerticalOptions="End">
+                                            <Button x:Name="DeleteProvinceBtn"
+                                                    Text="Delete"
+                                                    Clicked="handleDeleteProvince"
+                                                    CommandParameter="{Binding ProvinceCode}"
+                                                    HorizontalOptions="Fill" />
                                         </StackLayout>
                                     </StackLayout>
                                 </Grid>

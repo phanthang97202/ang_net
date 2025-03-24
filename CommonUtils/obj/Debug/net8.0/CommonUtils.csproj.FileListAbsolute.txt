@@ -14,3 +14,19 @@ F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.
 F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\refint\CommonUtils.dll
 F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\CommonUtils.pdb
 F:\Java + Angular\FullstackAppToturial\CommonUtils\obj\Debug\net8.0\ref\CommonUtils.dll
+D:\MyHomeWork\ang_net\CommonUtils\bin\Debug\net8.0\CommonUtils.deps.json
+D:\MyHomeWork\ang_net\CommonUtils\bin\Debug\net8.0\CommonUtils.dll
+D:\MyHomeWork\ang_net\CommonUtils\bin\Debug\net8.0\CommonUtils.pdb
+D:\MyHomeWork\ang_net\CommonUtils\bin\Debug\net8.0\SharedModels.dll
+D:\MyHomeWork\ang_net\CommonUtils\bin\Debug\net8.0\SharedModels.pdb
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.csproj.AssemblyReference.cache
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.GeneratedMSBuildEditorConfig.editorconfig
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.AssemblyInfoInputs.cache
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.AssemblyInfo.cs
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.csproj.CoreCompileInputs.cache
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.sourcelink.json
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUt.BC25C500.Up2Date
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.dll
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\refint\CommonUtils.dll
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\CommonUtils.pdb
+D:\MyHomeWork\ang_net\CommonUtils\obj\Debug\net8.0\ref\CommonUtils.dll
