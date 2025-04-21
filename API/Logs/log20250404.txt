@@ -1,0 +1,640 @@
+2025-04-04 09:56:56.072 +07:00 [INF] Executed DbCommand (44ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2025-04-04 09:56:56.131 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2025-04-04 09:56:56.156 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-04-04 09:56:56.171 +07:00 [INF] Applying migration '20250404025635_add_stadiumfilemodel'.
+2025-04-04 09:56:56.299 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "MstStadiumFileModel" (
+    "StadiumFileId" TEXT NOT NULL CONSTRAINT "PK_MstStadiumFileModel" PRIMARY KEY,
+    "StadiumCode" TEXT NOT NULL,
+    "FileUrl" TEXT NOT NULL,
+    "FlagActive" INTEGER NOT NULL,
+    "CreatedDTime" TEXT NOT NULL,
+    "UpdatedDTime" TEXT NOT NULL,
+    CONSTRAINT "FK_MstStadiumFileModel_MstStadiums_StadiumCode" FOREIGN KEY ("StadiumCode") REFERENCES "MstStadiums" ("StadiumCode") ON DELETE CASCADE
+);
+2025-04-04 09:56:56.299 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_MstStadiumFileModel_StadiumCode" ON "MstStadiumFileModel" ("StadiumCode");
+2025-04-04 09:56:56.299 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250404025635_add_stadiumfilemodel', '8.0.1');
+2025-04-04 10:16:24.312 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-04 10:16:24.972 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-04 10:16:24.973 +07:00 [INF] Hosting environment: Development
+2025-04-04 10:16:24.973 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-04 10:16:25.041 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:16:25.041 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-04-04 10:16:27.786 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 2755.2891ms
+2025-04-04 10:16:28.282 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2025-04-04 10:16:28.301 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 12.8178ms
+2025-04-04 10:16:28.342 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2025-04-04 10:16:28.432 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 401 null null 3402.0027ms
+2025-04-04 10:16:28.735 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 392.1997ms
+2025-04-04 10:16:29.904 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2025-04-04 10:16:32.715 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 2811.2831ms
+2025-04-04 10:16:33.150 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-04-04 10:16:33.183 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 03:16:33'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-04-04 10:16:33.257 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 03:16:33'.
+2025-04-04 10:16:33.262 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 10:16:33.337 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-04-04 10:16:35.059 +07:00 [INF] Executed DbCommand (94ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-04-04 10:16:35.339 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 10:16:35.692 +07:00 [INF] Executed DbCommand (83ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-04 10:16:35.716 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 10:16:35.740 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2396.1955ms
+2025-04-04 10:16:35.740 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 10:16:35.748 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 2598.8669ms
+2025-04-04 10:16:39.205 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:17:57.605 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 78399.7838ms
+2025-04-04 10:18:21.825 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:32.418 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 10592.7472ms
+2025-04-04 10:18:42.688 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:42.938 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 249.9182ms
+2025-04-04 10:18:44.956 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:45.214 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 257.9062ms
+2025-04-04 10:18:46.246 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:46.496 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 249.5529ms
+2025-04-04 10:18:47.404 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:47.631 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 227.3649ms
+2025-04-04 10:18:48.502 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:48.723 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 221.4727ms
+2025-04-04 10:18:49.578 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:18:49.807 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 229.2426ms
+2025-04-04 10:19:08.976 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 835
+2025-04-04 10:19:08.979 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2025-04-04 10:19:08.993 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2025-04-04 10:19:09.061 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__newsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__newsId_0
+LIMIT 1
+2025-04-04 10:19:09.062 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__newsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+WHERE "n"."NewsId" = @__newsId_0
+LIMIT 1
+2025-04-04 10:19:09.103 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[@__HashTagNewId_0='?' (Size = 4), @__8__locals1_NewsId_1='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."HashTagNewsId" = @__HashTagNewId_0 AND "h"."NewsId" = @__8__locals1_NewsId_1
+LIMIT 1
+2025-04-04 10:19:09.109 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__RefFileNewsId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."RefFileNewsId" = @__RefFileNewsId_0
+LIMIT 1
+2025-04-04 10:19:09.109 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__RefFileNewsId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."RefFileNewsId" = @__RefFileNewsId_0
+LIMIT 1
+2025-04-04 10:19:09.230 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (Size = 18), @p1='?' (DbType = Double), @p2='?' (Size = 5), @p3='?' (Size = 62), @p4='?' (DbType = DateTime), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 74), @p9='?' (Size = 19), @p10='?' (Size = 18), @p11='?' (Size = 139), @p12='?' (DbType = DateTime), @p13='?' (Size = 36), @p14='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "News" ("NewsId", "AvgPoint", "CategoryNewsId", "ContentBody", "CreatedDTime", "FlagActive", "LikeCount", "ShareCount", "ShortDescription", "ShortTitle", "Slug", "Thumbnail", "UpdatedDTime", "UserId", "ViewCount")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
+2025-04-04 10:19:09.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 4), @p1='?' (Size = 18), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?' (DbType = Boolean), @p5='?' (Size = 4), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "HashTagNews" ("HashTagNewsId", "NewsId", "Count", "CreatedDTime", "FlagActive", "HashTagNewsName", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+2025-04-04 10:19:09.233 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (Size = 77), @p3='?' (DbType = Boolean), @p4='?' (Size = 18), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefFileNews" ("RefFileNewsId", "CreatedDTime", "FileUrl", "FlagActive", "NewsId", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-04 10:19:09.233 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (Size = 47), @p3='?' (DbType = Boolean), @p4='?' (Size = 18), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefFileNews" ("RefFileNewsId", "CreatedDTime", "FileUrl", "FlagActive", "NewsId", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-04 10:19:09.274 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : {"Thumbnail":"https://i.ytimg.com/vi/yIdjPnEM1AQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD\u0026rs=AOn4CLBYtPkAj_tDH9SvTv--wIS5TT7n5w","CategoryNewsId":"anime","ShortTitle":"\u0111\u00E2y l\u00E0 b\u00E0i vi\u1EBFt m\u1EDBi","ShortDescription":"Honjou Nia l\u00E0 tinh linh th\u1EE9 ch\u00EDn xu\u1EA5t hi\u1EC7n trong Ch\u00EDnh truy\u1EC7n Date A Live.","ContentBody":"\u003Cb\u003ETrong khi \u0111i kh\u00E1m ph\u00E1 trong \u0110\u1EC7 C\u1EEDu Th\u1EBF gi\u1EDBi v\u1EDBi Hibiki.\u003C/b\u003E","FlagActive":true,"LstHashTagNews":[{"HashTagNewsName":"Test"}],"LstRefFileNews":[{"FileUrl":"https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg"},{"FileUrl":"https://pbs.twimg.com/media/GR9rHgnXEAAdxdC.jpg"}]}
+                        Response     : {"Success":true,"ErrorMessage":null,"RequestDTimeAt":"2025-04-04T10:19:09.0354991+07:00","RequestClients":null,"Data":null,"DataList":null,"objResult":null}
+                        ------------------------------------------------
+                        
+2025-04-04 10:19:09.276 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.NewsModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 10:19:09.278 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 284.9551ms
+2025-04-04 10:19:09.278 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2025-04-04 10:19:09.279 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 302.4242ms
+2025-04-04 10:19:28.132 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:19:28.380 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 248.4368ms
+2025-04-04 10:19:29.401 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:19:29.645 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 243.6151ms
+2025-04-04 10:19:33.146 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=%C4%91%C3%A2y%20l%C3%A0%20b%C3%A0i%20vi%E1%BA%BFt%20m%E1%BB%9Bi - null null
+2025-04-04 10:19:33.152 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=%C4%91%C3%A2y%20l%C3%A0%20b%C3%A0i%20vi%E1%BA%BFt%20m%E1%BB%9Bi - 200 null application/json; charset=utf-8 5.7713ms
+2025-04-04 10:19:44.091 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageSize=10&keyword&pageIndex=0 - null null
+2025-04-04 10:19:44.091 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-04 10:19:44.097 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-04 10:19:44.116 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-04 10:19:44.178 +07:00 [INF] Executed DbCommand (11ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-04 10:19:44.179 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-04 10:19:44.181 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-04 10:19:44.183 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.187 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.188 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.188 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.190 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-04 10:19:44.190 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.191 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.191 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.192 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-04 10:19:44.193 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 10:19:44.199 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 101.5241ms
+2025-04-04 10:19:44.199 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-04 10:19:44.199 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageSize=10&keyword&pageIndex=0 - 200 null application/json; charset=utf-8 108.2336ms
+2025-04-04 10:19:53.865 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:19:54.199 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 333.8747ms
+2025-04-04 10:19:58.437 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:19:58.807 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 369.5537ms
+2025-04-04 10:20:00.924 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:01.207 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 282.4689ms
+2025-04-04 10:20:02.514 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:02.759 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 244.9836ms
+2025-04-04 10:20:04.006 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:04.327 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 320.6124ms
+2025-04-04 10:20:05.271 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:05.620 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 348.6774ms
+2025-04-04 10:20:06.647 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:06.941 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 294.5523ms
+2025-04-04 10:20:07.923 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:08.222 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 299.1503ms
+2025-04-04 10:20:09.208 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:09.529 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 321.5729ms
+2025-04-04 10:20:13.442 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:20:13.685 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 243.476ms
+2025-04-04 10:20:14.750 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:20:15.003 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 253.161ms
+2025-04-04 10:20:18.690 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:18.937 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 246.5817ms
+2025-04-04 10:20:19.981 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:20.222 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 240.6262ms
+2025-04-04 10:20:33.979 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:34.197 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 218.0734ms
+2025-04-04 10:20:43.819 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:44.064 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 245.0421ms
+2025-04-04 10:20:51.582 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:20:58.651 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 7068.7544ms
+2025-04-04 10:35:06.863 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-04 10:35:07.145 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-04 10:35:07.145 +07:00 [INF] Hosting environment: Development
+2025-04-04 10:35:07.145 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-04 10:35:07.182 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-04-04 10:35:07.469 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 292.7104ms
+2025-04-04 10:35:07.540 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2025-04-04 10:35:07.556 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 7.5311ms
+2025-04-04 10:35:07.609 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2025-04-04 10:35:07.661 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 52.1497ms
+2025-04-04 10:35:08.032 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2025-04-04 10:35:08.223 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 190.7721ms
+2025-04-04 10:40:22.311 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:40:50.485 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 28175.1485ms
+2025-04-04 10:44:10.541 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:44:43.432 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 32908.6562ms
+2025-04-04 10:44:46.547 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:44:57.707 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 11159.9186ms
+2025-04-04 10:45:04.061 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:07.412 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 3350.3424ms
+2025-04-04 10:45:09.667 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:09.921 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 253.7835ms
+2025-04-04 10:45:11.025 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:11.251 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 225.7395ms
+2025-04-04 10:45:12.252 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:12.495 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 243.3119ms
+2025-04-04 10:45:13.347 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:13.564 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 216.8785ms
+2025-04-04 10:45:14.416 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:14.633 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 217.3149ms
+2025-04-04 10:45:15.566 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:15.796 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 230.4689ms
+2025-04-04 10:45:16.702 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - null null
+2025-04-04 10:45:16.956 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 254.2424ms
+2025-04-04 10:45:20.916 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:45:21.389 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 472.4549ms
+2025-04-04 10:45:29.683 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:45:29.930 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 247.5522ms
+2025-04-04 10:45:31.060 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:45:31.308 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 248.2805ms
+2025-04-04 10:45:32.271 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:45:32.520 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 249.0687ms
+2025-04-04 10:45:33.431 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 10:45:33.680 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 249.111ms
+2025-04-04 11:27:44.635 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-04 11:27:44.980 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-04 11:27:44.982 +07:00 [INF] Hosting environment: Development
+2025-04-04 11:27:44.982 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-04 11:27:45.039 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-04-04 11:27:45.039 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:27:45.402 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:27:45.440 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:27:45.480 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 404 null null 451.7665ms
+2025-04-04 11:27:45.506 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger/index.html, Response status code: 404
+2025-04-04 11:27:48.693 +07:00 [INF] Executed DbCommand (312ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:27:49.090 +07:00 [INF] Executed DbCommand (143ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = Int32), @p2='?', @p3='?', @p4='?' (Size = 36), @p5='?' (Size = 14), @p6='?' (DbType = Boolean), @p7='?' (DbType = Boolean), @p8='?' (Size = 4), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTimeOffset), @p11='?' (Size = 14), @p12='?' (Size = 14), @p13='?' (Size = 84), @p14='?', @p15='?' (DbType = Boolean), @p16='?' (Size = 32), @p17='?' (DbType = Boolean), @p18='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "AspNetUsers" ("Id", "AccessFailedCount", "Address", "Avatar", "ConcurrencyStamp", "Email", "EmailConfirmed", "FlagActive", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18);
+2025-04-04 11:27:49.110 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:27:49.115 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:27:49.512 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 4067.2439ms
+2025-04-04 11:27:49.513 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:27:49.669 +07:00 [ERR] 
+                        ------------------------------------------------
+                                        500 Internal Server Error | The server has encountered a situation it does not know how to handle.
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/account/register
+                        Request Body : {"StatusCode":500,"Message":"500 Internal Server Error | The server has encountered a situation it does not know how to handle.","DetailException":{"Message":"Role USER does not exist.","StackTrace":"   at Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore\u00609.AddToRoleAsync(TUser user, String normalizedRoleName, CancellationToken cancellationToken)\r\n   at Microsoft.AspNetCore.Identity.UserManager\u00601.AddToRoleAsync(TUser user, String role)\r\n   at API.Respositories.AccountRespository.Register(RegisterDto registerDto) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Respositories\\AccountRespository.cs:line 347\r\n   at API.Controllers.AccountController.Register(RegisterDto registerDto) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\AccountController.cs:line 33\r\n   at lambda_method13(Closure, Object)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.\u003CInvokeActionMethodAsync\u003Eg__Awaited|12_0(ControllerActionInvoker invoker, ValueTask\u00601 actionResultValueTask)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.\u003CInvokeNextActionFilterAsync\u003Eg__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State\u0026 next, Scope\u0026 scope, Object\u0026 state, Boolean\u0026 isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()\r\n--- End of stack trace from previous location ---\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeFilterPipelineAsync\u003Eg__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeAsync\u003Eg__Logged|17_1(ResourceInvoker invoker)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeAsync\u003Eg__Logged|17_1(ResourceInvoker invoker)\r\n   at Microsoft.AspNetCore.Routing.EndpointMiddleware.\u003CInvoke\u003Eg__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)\r\n   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)\r\n   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)\r\n   at API.Middlewares.LoggingMiddleware.InvokeAsync(HttpContext context) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\LoggingMiddleware.cs:line 23\r\n   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)\r\n   at API.Middlewares.GlobalExceptionHandlerMiddleware.InvokeAsync(HttpContext context) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs:line 25","InnerException":null,"Source":"Microsoft.AspNetCore.Identity.EntityFrameworkCore"}}
+                        Response     : System.InvalidOperationException: Role USER does not exist.
+   at Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore`9.AddToRoleAsync(TUser user, String normalizedRoleName, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.UserManager`1.AddToRoleAsync(TUser user, String role)
+   at API.Respositories.AccountRespository.Register(RegisterDto registerDto) in F:\Java + Angular\FullstackAppToturial\API\Respositories\AccountRespository.cs:line 347
+   at API.Controllers.AccountController.Register(RegisterDto registerDto) in F:\Java + Angular\FullstackAppToturial\API\Controllers\AccountController.cs:line 33
+   at lambda_method13(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at API.Middlewares.LoggingMiddleware.InvokeAsync(HttpContext context) in F:\Java + Angular\FullstackAppToturial\API\Middlewares\LoggingMiddleware.cs:line 23
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at API.Middlewares.GlobalExceptionHandlerMiddleware.InvokeAsync(HttpContext context) in F:\Java + Angular\FullstackAppToturial\API\Middlewares\GlobalExceptionHandlerMiddleware.cs:line 25
+                        ------------------------------------------------
+                        
+2025-04-04 11:27:49.690 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 500 null application/json; charset=utf-8 4662.4438ms
+2025-04-04 11:28:23.148 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/roles/create - application/json 28
+2025-04-04 11:28:23.316 +07:00 [INF] Executing endpoint 'API.Controllers.RolesController.CreateRole (API)'
+2025-04-04 11:28:23.323 +07:00 [INF] Route matched with {action = "CreateRole", controller = "Roles"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateRole(SharedModels.Dtos.CreateRoleDto) on controller API.Controllers.RolesController (API).
+2025-04-04 11:28:23.442 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedName_0
+LIMIT 1
+2025-04-04 11:28:23.446 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedName_0
+LIMIT 1
+2025-04-04 11:28:23.536 +07:00 [INF] Executed DbCommand (39ms) [Parameters=[@p0='?' (Size = 36), @p1='?', @p2='?' (Size = 4), @p3='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "AspNetRoles" ("Id", "ConcurrencyStamp", "Name", "NormalizedName")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-04 11:28:23.544 +07:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType0`2[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-04-04 11:28:23.552 +07:00 [INF] Executed action API.Controllers.RolesController.CreateRole (API) in 228.2396ms
+2025-04-04 11:28:23.552 +07:00 [INF] Executed endpoint 'API.Controllers.RolesController.CreateRole (API)'
+2025-04-04 11:28:23.553 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/roles/create - 200 null application/json; charset=utf-8 405.0793ms
+2025-04-04 11:28:31.660 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:28:31.662 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:31.662 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:28:31.775 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:28:31.784 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RegisterDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:28:31.797 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 135.3399ms
+2025-04-04 11:28:31.797 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:31.798 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 200 null application/json; charset=utf-8 137.5436ms
+2025-04-04 11:28:41.861 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:28:41.862 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:41.863 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:28:41.952 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:28:41.954 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RegisterDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:28:41.955 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 91.9544ms
+2025-04-04 11:28:41.955 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:41.955 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 200 null application/json; charset=utf-8 94.1047ms
+2025-04-04 11:28:56.343 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:28:56.345 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:56.345 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:28:56.430 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:28:56.430 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RegisterDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:28:56.431 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 85.7398ms
+2025-04-04 11:28:56.431 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:28:56.431 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 200 null application/json; charset=utf-8 88.8046ms
+2025-04-04 11:29:31.829 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/roles/roles - null null
+2025-04-04 11:29:31.842 +07:00 [INF] Executing endpoint 'API.Controllers.RolesController.GetAllRole (API)'
+2025-04-04 11:29:31.851 +07:00 [INF] Route matched with {action = "GetAllRole", controller = "Roles"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAllRole() on controller API.Controllers.RolesController (API).
+2025-04-04 11:29:32.169 +07:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."Name"
+FROM "AspNetRoles" AS "a"
+2025-04-04 11:29:32.185 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.254 +07:00 [INF] Executed DbCommand (30ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.255 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.258 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.259 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.260 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.260 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.261 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.261 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.262 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.262 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.262 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.263 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.263 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.264 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedRoleName_0
+LIMIT 2
+2025-04-04 11:29:32.265 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Id", "a0"."AccessFailedCount", "a0"."Address", "a0"."Avatar", "a0"."ConcurrencyStamp", "a0"."Email", "a0"."EmailConfirmed", "a0"."FlagActive", "a0"."FullName", "a0"."LockoutEnabled", "a0"."LockoutEnd", "a0"."NormalizedEmail", "a0"."NormalizedUserName", "a0"."PasswordHash", "a0"."PhoneNumber", "a0"."PhoneNumberConfirmed", "a0"."SecurityStamp", "a0"."TwoFactorEnabled", "a0"."UserName"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetUsers" AS "a0" ON "a"."UserId" = "a0"."Id"
+WHERE "a"."RoleId" = @__role_Id_0
+2025-04-04 11:29:32.268 +07:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType1`2[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[SharedModels.Dtos.RoleResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-04-04 11:29:32.279 +07:00 [INF] Executed action API.Controllers.RolesController.GetAllRole (API) in 427.5975ms
+2025-04-04 11:29:32.279 +07:00 [INF] Executed endpoint 'API.Controllers.RolesController.GetAllRole (API)'
+2025-04-04 11:29:32.280 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/roles/roles - 200 null application/json; charset=utf-8 450.7387ms
+2025-04-04 11:29:37.564 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/roles/create - application/json 28
+2025-04-04 11:29:37.566 +07:00 [INF] Executing endpoint 'API.Controllers.RolesController.CreateRole (API)'
+2025-04-04 11:29:37.566 +07:00 [INF] Route matched with {action = "CreateRole", controller = "Roles"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateRole(SharedModels.Dtos.CreateRoleDto) on controller API.Controllers.RolesController (API).
+2025-04-04 11:29:37.567 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 4)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."ConcurrencyStamp", "a"."Name", "a"."NormalizedName"
+FROM "AspNetRoles" AS "a"
+WHERE "a"."NormalizedName" = @__normalizedName_0
+LIMIT 1
+2025-04-04 11:29:37.568 +07:00 [INF] Executing BadRequestObjectResult, writing value of type '<>f__AnonymousType0`2[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-04-04 11:29:37.607 +07:00 [INF] Executed action API.Controllers.RolesController.CreateRole (API) in 40.9589ms
+2025-04-04 11:29:37.607 +07:00 [INF] Executed endpoint 'API.Controllers.RolesController.CreateRole (API)'
+2025-04-04 11:29:37.608 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/roles/create - 400 null application/json; charset=utf-8 44.5095ms
+2025-04-04 11:29:54.219 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:29:54.220 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:29:54.220 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:29:54.304 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:29:54.305 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RegisterDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:29:54.305 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 85.4493ms
+2025-04-04 11:29:54.305 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:29:54.305 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 200 null application/json; charset=utf-8 87.0432ms
+2025-04-04 11:30:37.185 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register - application/json 92
+2025-04-04 11:30:37.186 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:30:37.186 +07:00 [INF] Route matched with {action = "Register", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RegisterDto]] Register(SharedModels.Dtos.RegisterDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:30:37.299 +07:00 [INF] Executed DbCommand (30ms) [Parameters=[@__normalizedUserName_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedUserName" = @__normalizedUserName_0
+LIMIT 1
+2025-04-04 11:30:37.301 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RegisterDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:30:37.302 +07:00 [INF] Executed action API.Controllers.AccountController.Register (API) in 115.9588ms
+2025-04-04 11:30:37.302 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Register (API)'
+2025-04-04 11:30:37.302 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/register - 200 null application/json; charset=utf-8 117.5617ms
+2025-04-04 11:31:02.179 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/account/users - null null
+2025-04-04 11:31:02.180 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-04 11:31:02.185 +07:00 [INF] Route matched with {action = "GetAllUser", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.UserDetailDto]] GetAllUser() on controller API.Controllers.AccountController (API).
+2025-04-04 11:31:02.443 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-04 11:31:02.464 +07:00 [INF] Executed DbCommand (12ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:02.504 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."Email", "a"."FullName", "a"."Avatar", "a"."FlagActive", "a"."AccessFailedCount", "a"."Address", "a"."ConcurrencyStamp", "a"."EmailConfirmed", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+2025-04-04 11:31:02.505 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:02.506 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:02.506 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:02.507 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:02.507 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.UserDetailDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:31:02.519 +07:00 [INF] Executed action API.Controllers.AccountController.GetAllUser (API) in 333.7034ms
+2025-04-04 11:31:02.519 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-04 11:31:02.519 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/account/users - 200 null application/json; charset=utf-8 340.1516ms
+2025-04-04 11:31:53.943 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 61
+2025-04-04 11:31:53.957 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 04:31:53'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-04-04 11:31:53.984 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 04:31:53'.
+2025-04-04 11:31:53.984 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 11:31:53.989 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:31:54.028 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-04-04 11:31:54.121 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:31:54.384 +07:00 [INF] Executed DbCommand (159ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-04 11:31:54.385 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:31:54.389 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 399.8233ms
+2025-04-04 11:31:54.389 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 11:31:54.389 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 445.7027ms
+2025-04-04 11:32:02.472 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:03.950 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 1477.8824ms
+2025-04-04 11:32:08.543 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:08.820 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 276.7714ms
+2025-04-04 11:32:10.055 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:10.317 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 261.5752ms
+2025-04-04 11:32:27.161 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:27.444 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 283.1995ms
+2025-04-04 11:32:28.355 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:28.673 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 318.0808ms
+2025-04-04 11:32:29.600 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:29.917 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 317.021ms
+2025-04-04 11:32:30.832 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:31.083 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 250.1684ms
+2025-04-04 11:32:31.965 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:32.215 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 249.5478ms
+2025-04-04 11:32:33.120 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:33.372 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 252.2878ms
+2025-04-04 11:32:39.156 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-04-04 11:32:39.157 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 04:32:39'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-04-04 11:32:39.157 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-04 04:32:39'.
+2025-04-04 11:32:39.158 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 11:32:39.158 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-04-04 11:32:39.160 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-04-04 11:32:39.240 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-04 11:32:39.282 +07:00 [INF] Executed DbCommand (40ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-04 11:32:39.282 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-04 11:32:39.283 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 124.9832ms
+2025-04-04 11:32:39.283 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-04 11:32:39.283 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 126.665ms
+2025-04-04 11:32:49.589 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:49.835 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 246.15ms
+2025-04-04 11:32:51.002 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:51.267 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 265.3876ms
+2025-04-04 11:32:52.376 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:52.628 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 252.2128ms
+2025-04-04 11:32:53.883 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - null null
+2025-04-04 11:32:54.132 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsId=phan-thang-test-ne - 200 null application/json; charset=utf-8 248.5928ms

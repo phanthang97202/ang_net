@@ -11,12 +11,14 @@ using SharedModels.Dtos;
 using SharedModels.Models;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using StackExchange.Redis; 
 
 namespace API.Respositories
 {
-    public class NewsRespository : INewsRespository
+    public class NewsRespository : CommonRespository, INewsRespository
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        //private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
         private readonly string _connectionString;
@@ -25,9 +27,13 @@ namespace API.Respositories
                                         .Build();
 
 
-        public NewsRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
+        public NewsRespository(AppDbContext appDbContext
+                                , IHttpContextAccessor httpContextAccessor
+                                , UserManager<AppUser> userManager
+                                , IConnectionMultiplexer connectionMultiplexer) : base(connectionMultiplexer, httpContextAccessor)
         {
             _dbContext = appDbContext;
+            //_connectionMultiplexer = connectionMultiplexer;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _connectionString = configuration.GetSection("ConnectionStrings")["LocalDb"];
@@ -293,12 +299,22 @@ namespace API.Respositories
                 );
             await _dbContext.SaveChangesAsync();
 
-            // 
-            RPNewsDto rsNews = new RPNewsDto();
-
             // Get detail News  
+            RPNewsDto rsNews = new RPNewsDto();
             List<string> excludeFields = new List<string>() {  };
-            rsNews =  await FactoryNewsRecord(objNews, excludeFields);
+            // Starting cache data in RedisCloud 
+            //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
+            string keyCached = GenerateUniqueCacheKey(TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
+            RPNewsDto rsNewsCached = await GetCacheAsync<RPNewsDto>(keyCached);
+            
+            if(rsNewsCached is null)
+            {
+                rsNews = await FactoryNewsRecord(objNews, excludeFields);
+                await SetCacheAsync(keyCached, rsNews);
+            }else
+            {
+                rsNews = rsNewsCached; 
+            }
 
             apiResponse.Data = rsNews;
 
@@ -639,21 +655,21 @@ namespace API.Respositories
                 //await _dbContext.SaveChangesAsync();
 
                 // Cách 3: Using Dapper
-                using (var connection = new SqliteConnection(_connectionString))
-                {
-                    string sql = @"INSERT INTO PointNews (NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) 
-                   VALUES (@NewsId, @UserId, @Point, @FlagActive, @CreatedDTime, @UpdatedDTime)";
+                //using (var connection = new SqliteConnection(_connectionString))
+                //{
+                //    string sql = @"INSERT INTO PointNews (NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) 
+                //   VALUES (@NewsId, @UserId, @Point, @FlagActive, @CreatedDTime, @UpdatedDTime)";
 
-                    await connection.ExecuteAsync(sql, new
-                    {
-                        NewsId = objNews.NewsId,
-                        UserId = currentUserId,
-                        Point = pointVal,
-                        FlagActive = true,
-                        CreatedDTime = DateTime.Now,
-                        UpdatedDTime = DateTime.Now
-                    });
-                }
+                //    await connection.ExecuteAsync(sql, new
+                //    {
+                //        NewsId = objNews.NewsId,
+                //        UserId = currentUserId,
+                //        Point = pointVal,
+                //        FlagActive = true,
+                //        CreatedDTime = DateTime.Now,
+                //        UpdatedDTime = DateTime.Now
+                //    });
+                //}
 
             }
             #endregion

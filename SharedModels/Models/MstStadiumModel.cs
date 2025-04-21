@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,16 +9,15 @@ namespace SharedModels.Models
 {
     public class MstStadiumModel
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString(); // Id sân bóng
         [Key]
-        [Required]
         [StringLength(250, ErrorMessage = "Length of StadiumCode is invalid (<= 250 characters)")]
         public string StadiumCode { get; set; } = string.Empty; // Mã sân
-        [Required]
+        [ForeignKey("StadiumTypeCode")]
         public string StadiumTypeCode { get; set; } = string.Empty; // Mã loại sân
-        [Required]
+        [ForeignKey("StadiumStatusCode")]
         public string StadiumStatusCode { get; set; } = string.Empty; // Mã tình trạng sân
-        public string StadiumDistrictCode { get; set; } = string.Empty; // Mã quận/huyện sân
+        [ForeignKey("DistrictCode")]
+        public string DistrictCode { get; set; } = string.Empty; // Mã quận/huyện sân
         public bool FlagStadiumRent { get; set; } // Sân đã được thuê chưa
         public DateTime StadiumRentDTimeFrom { get; set; } // Sân thuê trong thời gian nào
         public DateTime StadiumRentDTimeTo { get; set; } // Sân thuê trong thời gian nào

@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CommonUtils.CommonUtils
+{
+    public static partial class ConstValue
+    {
+        // Expired Time
+        public const int CACHE_EXPIRED_TIME = 5;
+
+        // News - Bài viết
+        public const string CACHEKEY_NEWS_DETAIL = "CACHEKEY_NEWS_DETAIL";
+    }
+}

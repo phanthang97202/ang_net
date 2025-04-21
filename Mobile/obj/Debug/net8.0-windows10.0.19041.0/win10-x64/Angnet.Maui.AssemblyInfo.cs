@@ -18,7 +18,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Angnet.Maui")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+d37af38b9fd9fab8893cb95a8ede6a12f7ac42df")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+76a0f275b3e7aa0b9401b63112d83e309a048604")]
 [assembly: System.Reflection.AssemblyProductAttribute("Angnet.Maui")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Angnet.Maui")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

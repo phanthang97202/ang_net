@@ -66,11 +66,24 @@ namespace API.Data
                         .WithMany()
                         .HasForeignKey(s => s.StadiumTypeCode)
                         .OnDelete(DeleteBehavior.Restrict);
+
+            // MstStadiumFileModel
+            modelBuilder.Entity<MstStadiumFileModel>()
+                        .HasOne<MstStadiumModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.StadiumCode)
+                        .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<MstStadiumModel>()
+            //            .HasOne<MstDistrictModel>()
+            //            .WithMany()
+            //            .HasForeignKey(s => s.DistrictCode)
+            //            .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<MstStadiumModel>()
                         .HasOne<MstDistrictModel>()
                         .WithMany()
-                        .HasForeignKey(s => s.StadiumDistrictCode)
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey(d => d.DistrictCode)
+                        .OnDelete(DeleteBehavior.Cascade);
+
 
             // OrderStadiumModel
             modelBuilder.Entity<OrderStadiumModel>()
@@ -86,7 +99,7 @@ namespace API.Data
             modelBuilder.Entity<OrderStadiumModel>()
                         .HasOne<API.Models.AppUser>()
                         .WithMany()
-                        .HasForeignKey(o => o.UserName)
+                        .HasForeignKey(o => o.UserId)
                         .OnDelete(DeleteBehavior.Restrict);
 
             // PointNewsModel

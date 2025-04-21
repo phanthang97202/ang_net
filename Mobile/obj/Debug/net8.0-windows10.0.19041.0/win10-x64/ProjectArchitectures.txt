@@ -1,1 +1,1 @@
-D:\MyHomeWork\ang_net\Mobile\Angnet.Maui.csproj;x64
+F:\Java + Angular\FullstackAppToturial\Mobile\Angnet.Maui.csproj;x64

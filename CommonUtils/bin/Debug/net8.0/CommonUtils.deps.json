@@ -16,7 +16,10 @@
       },
       "SharedModels/1.0.0": {
         "runtime": {
-          "SharedModels.dll": {}
+          "SharedModels.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

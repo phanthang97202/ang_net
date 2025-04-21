@@ -16,6 +16,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using StackExchange.Redis;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +25,14 @@ var builder = WebApplication.CreateBuilder(args);
 //    options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection")));
 
 var JWTSetting = builder.Configuration.GetSection("JWTSetting");
+var redisCloudEnv = builder.Configuration.GetSection("RedisCloud");
 var database = builder.Configuration.GetSection("ConnectionStrings");
 var clientConfig = builder.Configuration.GetSection("ClientConfig");
+string RedisUrl = redisCloudEnv.GetSection("RedisUrl").Value;
+int RedisPort = TCommonUtils.ConvertToInt(redisCloudEnv.GetSection("RedisPort").Value);
+string RedisUser = (redisCloudEnv.GetSection("RedisUser").Value);
+string RedisPassword = (redisCloudEnv.GetSection("RedisPassword").Value);
+
 // Add services to the container.
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IChatRepository, ChatRespository>();
@@ -52,9 +60,17 @@ builder.Services.AddScoped<MstStadiumService>();
 
 // inject AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
+// inject Redis 
+ConfigurationOptions configRedis = new ConfigurationOptions
+{
+    EndPoints = { { RedisUrl, RedisPort } },
+    User = RedisUser,
+    Password = RedisPassword
+};
+ConnectionMultiplexer connectRedis = ConnectionMultiplexer.Connect(configRedis);
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => connectRedis); // tùy chỉnh logic bên trong bằng lamda
 // log service 
 builder.Services.AddSingleton(typeof(WriteLog));
-
 
 // config jwt 
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
@@ -168,7 +184,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    // app.UseSwaggerUI();
 }
 
 app.UseMiddleware<LoggingMiddleware>();

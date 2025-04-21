@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Models\MstStadiumModel.cs~RF2bece2ac.TMP" />
     <None Remove="Respositories\MstProvinceRespository.cs~RF503558dd.TMP" />
+    <None Remove="Respositories\NewsRespository.cs~RF7a211d2.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,11 +30,13 @@
     </PackageReference>
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Exports\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 

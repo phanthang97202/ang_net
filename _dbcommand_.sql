@@ -104,7 +104,33 @@ insert into MstStadiums values
 
 // select * from MstDistricts
 // select * from MstProvinces
-// delete from MstDistricts where DistrictCode = '90_LyNhan'
+// delete from MstStadiums where StadiumCode = 'SANTIAGO_BERNABEU_STD'
+
+SELECT *
+FROM OrderStadiums
+WHERE StadiumCode NOT IN (SELECT StadiumCode FROM MstStadiums);
+
+SELECT *
+FROM OrderStadiums
+WHERE PaymentTypeCode NOT IN (SELECT PaymentTypeCode FROM MstPaymentTypes);
+
+SELECT *
+FROM OrderStadiums
+WHERE UserId NOT IN (SELECT Id FROM AspNetUsers);
+
+PRAGMA foreign_keys = on;
+
+PRAGMA foreign_key_list(MstStadiums);
+
+drop table mstdistricts
+drop table mststadiums
+drop table 
+PRAGMA index_list('MstStadiums');
+
+drop database auth
+
+select * from mstdistricts
+
 insert into MstDistricts values
 (
         '90', -- ProvinceCode

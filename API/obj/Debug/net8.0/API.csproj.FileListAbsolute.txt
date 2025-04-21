@@ -424,3 +424,5 @@ D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\CommonUtils.dll
 D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\SharedModels.dll
 D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\CommonUtils.pdb
 D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\SharedModels.pdb
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\StackExchange.Redis.dll

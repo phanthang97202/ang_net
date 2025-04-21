@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 
 namespace CommonUtils.CommonUtils
@@ -125,7 +126,6 @@ namespace CommonUtils.CommonUtils
             }
         }
 
-
         public static int CeilingValue(int value)
         {
             if (value % 10 > 0)
@@ -166,8 +166,41 @@ namespace CommonUtils.CommonUtils
             return 0.00;
         }
 
+        public static int ConvertToInt(string input, int defaultValue = 0)
+        {
+            return int.TryParse(input, out int result) ? result : defaultValue;
+        }
 
-        // 
+        // Json 
+        public static string ConvertToJsonStringify<T>(T data)
+        {
+            string content = JsonSerializer.Serialize(data, new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // giữ nguyên UTF8
+            });
+            return content;
+        }
+        
+        public static T? ParseJsonStringify<T>(string data)
+        {
+
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return default(T); // Returns null for reference types, 0/false for value types
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<T>(data);
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"JSON deserialization error: {ex.Message}");
+                return default(T);
+            }
+
+        }
+        // DateTime
 
         public static DateTime DTimeNow()
         {
@@ -183,9 +216,16 @@ namespace CommonUtils.CommonUtils
         public static StringContent GetContent(object dado)
         {
             return new StringContent(
-                JsonSerializer.Serialize(dado),
+                ConvertToJsonStringify(dado),
                 Encoding.UTF8,
                 "application/json");
+        }
+
+        // RedisCache
+        public static string GenerateUniqueCacheKey(string userId, string keyCache,string primaryKeyRecord)
+        {
+            string val = $"{userId}.{keyCache}.{primaryKeyRecord}";
+            return val;
         }
     }
 }

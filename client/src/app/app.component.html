@@ -1,73 +1,79 @@
 <error-popup [errorInfo]="errorInfo" />
 <div *ngIf="isLoading$ | async" class="app__loading">
-    <nz-spin nzSimple nzSize="large"></nz-spin>
+  <nz-spin nzSimple nzSize="large"></nz-spin>
 </div>
 
 <nz-layout *ngIf="layoutType === 'none'" class="layout">
-    <nz-content>
-        <router-outlet></router-outlet>
-    </nz-content>
+  <nz-content>
+    <router-outlet></router-outlet>
+  </nz-content>
 </nz-layout>
 
 <div *ngIf="layoutType === 'user'" class="layout mx-[10%]">
-    <app-navbar />
-    <router-outlet></router-outlet>
+  <app-navbar />
+  <router-outlet></router-outlet>
 </div>
 
 <nz-layout *ngIf="layoutType === 'admin'" class="layout">
-    <nz-sider [nzCollapsed]="true" nzCollapsible nzWidth="200px">
-        <div class="logo">
-            <a routerLink="/">
-                <img class="w-full h-full p-[14px]" src="https://i.namu.wiki/i/6qXDHBtQocsyExrVodOPkLcRNdXY1uo4hwcRaetGbr13nEhVMsgwxV7JkDUvMc6JHxo3lVaEIzsGOe7oXlMMHQ.png" alt="">
-            </a>
-        </div>
-        <ul nz-menu nzTheme="dark" nzMode="inline">
-            <li nz-submenu nzTitle="Users" nzIcon="team">
-                <ul>
-                    <li nz-menu-item>
-                        <a routerLink="/dashboard/users">
-                            All Users
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li nz-submenu nzTitle="Roles" nzIcon="safety">
-                <ul>
-                    <li nz-menu-item>
-                        <a routerLink="/dashboard/role">
-                            Setting Role
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li nz-submenu nzTitle="Masters" nzIcon="table">
-                <ul>
-                    <li nz-menu-item>
-                        <a routerLink="/dashboard/mstprovince">
-                            Provinces
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li nz-submenu nzTitle="Blogs" nzIcon="read">
-                <ul>
-                    <li nz-menu-item>
-                        <a routerLink="/dashboard/blog">
-                            Blogs
-                        </a>
-                    </li>
-                </ul>
-            </li>
+  <nz-sider [nzCollapsed]="true" nzCollapsible nzWidth="200px">
+    <div class="logo">
+      <a routerLink="/">
+        <img
+          class="w-full h-full p-[14px]"
+          src="assets/images/logo.png"
+          alt="" />
+      </a>
+    </div>
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      <li nz-submenu nzTitle="Users" nzIcon="team">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/users"> All Users </a>
+          </li>
         </ul>
-        <div class="logo absolute bottom-[50px] w-full ">
-            <button class="w-full bg-transparent border-none" (click)="handleLogout()" nz-button
-                [nzType]="'primary'">Logout</button>
-        </div>
-    </nz-sider>
+      </li>
 
-    <nz-content class="admin__layout--content h-full overflow-y-auto">
-        <router-outlet></router-outlet>
-    </nz-content>
+      <li nz-submenu nzTitle="Roles" nzIcon="safety">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/role"> Setting Role </a>
+          </li>
+        </ul>
+      </li>
+      <li nz-submenu nzTitle="Masters" nzIcon="table">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/mstprovince"> Provinces </a>
+          </li>
+        </ul>
+      </li>
+      <li nz-submenu nzTitle="Blogs" nzIcon="read">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/blog"> Blogs </a>
+          </li>
+        </ul>
+      </li>
+      <li nz-submenu nzTitle="Order" nzIcon="solution">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/order"> Order </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <div class="logo absolute bottom-[50px] w-full">
+      <button
+        class="w-full bg-transparent border-none"
+        (click)="handleLogout()"
+        nz-button
+        [nzType]="'primary'">
+        Logout
+      </button>
+    </div>
+  </nz-sider>
 
+  <nz-content class="admin__layout--content h-full overflow-y-auto">
+    <router-outlet></router-outlet>
+  </nz-content>
 </nz-layout>
