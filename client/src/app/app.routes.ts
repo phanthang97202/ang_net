@@ -7,7 +7,7 @@ import { DetailUserComponent } from './pages/detail-user/detail-user.component';
 import { DashboardComponent } from './pages/dashboard/dashboard/dashboard.component';
 import { UserListComponent } from './pages/dashboard/user-list/user-list.component';
 import { RoleListComponent } from './pages/dashboard/role-list/role-list.component';
-import { CreateRoleComponent } from './components/create-role/create-role.component';
+// import { CreateRoleComponent } from './components/create-role/create-role.component';
 import { MstProvinceComponent } from './pages/dashboard/mst-province/mst-province-list/mst-province-list.component';
 import { BlogsComponent } from './pages/dashboard/blogs/blogs.component';
 import { NewsComponent } from './pages/home/news/news.component';
@@ -72,6 +72,11 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/mstprovince',
+    component: MstProvinceComponent,
+    canActivate: [canActiveForAdmin],
+  },
+  {
+    path: 'dashboard/mstdistrict',
     component: MstProvinceComponent,
     canActivate: [canActiveForAdmin],
   },

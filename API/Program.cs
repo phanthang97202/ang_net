@@ -42,6 +42,31 @@ builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
 
 // ============ Unit Of Work Pattern ============ 
+//          +------------------------+
+//          | Controller |  ⬅️ Inject Service
+//          +------------------------+
+//          			⬇
+//          +------------------------+
+//          |      Service Layer     |  ⬅️ Inject IUnitOfWork
+//          +------------------------+
+//          			⬇
+//          +------------------------+
+//          |    UnitOfWork Layer    |  ⬅️ Inject Repositories
+//          | - NewsRepository       |
+//          | - CategoryNewsRepo     |
+//          | - SaveChangesAsync()   |
+//          | - Dispose()           |
+//          +------------------------+
+//          			⬇
+//          +------------------------+
+//          |   Repository Layer     |  ⬅️ Inject AppDbContext
+//          | - Chỉ thao tác DB      |
+//          | - Không gọi SaveChanges|
+//          +------------------------+
+//          			⬇
+//          +------------------------+
+//          |       Database         |
+//          +------------------------+
 // dùng AddScoped để: 
 //      Đảm bảo DbContext dùng chung trong 1 request,
 //      Tránh xung đột dữ liệu nếu có nhiều thao tác db trong cùng 1 request,
@@ -57,6 +82,9 @@ builder.Services.AddScoped<MstStadiumTypeService>();
 
 builder.Services.AddScoped<IMstStadiumRespository, MstStadiumRespository>();
 builder.Services.AddScoped<MstStadiumService>();
+
+builder.Services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
+builder.Services.AddScoped<MstDistrictService>();
 
 // inject AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));

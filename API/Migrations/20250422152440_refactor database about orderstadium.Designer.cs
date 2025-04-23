@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250422152440_refactor database about orderstadium")]
+    partial class refactordatabaseaboutorderstadium
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -628,14 +631,14 @@ namespace API.Migrations
                     b.Property<DateTime>("CreatedDTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("DebtMoney")
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("InDebt")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsCancel")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("OderDTime")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("OrderStatus")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PaymentTypeCode")
                         .IsRequired()
@@ -677,43 +680,6 @@ namespace API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("OrderStadiums");
-                });
-
-            modelBuilder.Entity("SharedModels.Models.OrderStadiumStatusLogModel", b =>
-                {
-                    b.Property<int>("OrderStadiumLogCode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OrderStadiumCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedDTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("OrderStadiumLogCode");
-
-                    b.HasIndex("OrderStadiumCode");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("OrderStadiumStatusLogModel");
                 });
 
             modelBuilder.Entity("SharedModels.Models.PointNewsModel", b =>
@@ -934,21 +900,6 @@ namespace API.Migrations
                     b.HasOne("SharedModels.Models.MstStadiumModel", null)
                         .WithMany()
                         .HasForeignKey("StadiumCode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SharedModels.Models.OrderStadiumStatusLogModel", b =>
-                {
-                    b.HasOne("SharedModels.Models.OrderStadiumModel", null)
-                        .WithMany()
-                        .HasForeignKey("OrderStadiumCode")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

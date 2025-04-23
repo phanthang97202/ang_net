@@ -23,6 +23,7 @@ namespace API.UnitOfWork
         public IMstStadiumStatusRespository MstStadiumStatusRespository { get; }
         public IMstStadiumTypeRespository MstStadiumTypeRespository { get; }
         public IMstStadiumRespository MstStadiumRespository { get; }
+        public IMstDistrictRespository MstDistrictRespository { get; }
 
         public UnitOfWork
             (
@@ -30,6 +31,7 @@ namespace API.UnitOfWork
                 ,IMstStadiumStatusRespository mstStadiumStatusRespository
                 ,IMstStadiumTypeRespository mstStadiumTypeRespository
                 ,IMstStadiumRespository mstStadiumRespository
+                ,IMstDistrictRespository mstDistrictRespository
             )
         {
             _appDbContext = appDbContext;
@@ -37,6 +39,7 @@ namespace API.UnitOfWork
             MstStadiumStatusRespository = mstStadiumStatusRespository;
             MstStadiumTypeRespository = mstStadiumTypeRespository;
             MstStadiumRespository = mstStadiumRespository;
+            MstDistrictRespository = mstDistrictRespository;
         }
 
         // ====================================

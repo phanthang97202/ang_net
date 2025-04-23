@@ -25,9 +25,11 @@ namespace SharedModels.Models
         [Required]
         public string PaymentTypeCode {get; set; } = string.Empty; // Hình thức thanh toán
         [Required]
-        public decimal PrePrice {get; set; } // Tiền cọc 
-        public decimal Sale {get; set; } // Giảm giá
-        public bool FlagFinish {get; set; } // Hoàn thành chưa
+        public decimal PreMoney {get; set; } // Tiền thanh toán trước
+        public decimal SalePercent {get; set; } // % Giảm giá
+        public decimal DebtMoney {get; set; } // Nếu còn nợ => Tiền nợ (thanh toán thiếu)
+        public string Remark { get; set; } = string.Empty; // Ghi chú
+        public bool OrderStatus { get; set; } // Pending - Chờ, Approved - Duyệt, Done - Đã thanh toán, InDebt - Nợ, Canceled - Hủy
         public DateTime CreatedDTime {get; set; } // Thời gian tạo
         public DateTime UpdatedDTime { get; set; } // Thời gian cập nhật
     }

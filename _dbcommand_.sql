@@ -354,7 +354,7 @@ from news n
 select * from TestView
 
 
-
+-- delete from MstDistricts where districtcode = '90_LyNhan'
 
 
 

@@ -1,4 +1,4 @@
-using SharedModels.Dtos;
+﻿using SharedModels.Dtos;
 using SharedModels.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +43,7 @@ namespace API.Data
                         .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(r => r.UserId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict); // Nếu tồn tại bản ghi con thì không cho xóa cha
 
             // ChatModel
             modelBuilder.Entity<ChatModel>().ToTable("Chat");
@@ -72,7 +72,7 @@ namespace API.Data
                         .HasOne<MstStadiumModel>()
                         .WithMany()
                         .HasForeignKey(p => p.StadiumCode)
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade); // Nếu xóa bản ghi cha thì xóa cả con
             //modelBuilder.Entity<MstStadiumModel>()
             //            .HasOne<MstDistrictModel>()
             //            .WithMany()
@@ -97,6 +97,18 @@ namespace API.Data
                         .HasForeignKey(o => o.PaymentTypeCode)
                         .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<OrderStadiumModel>()
+                        .HasOne<API.Models.AppUser>()
+                        .WithMany()
+                        .HasForeignKey(o => o.UserId)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+            // OrderStadiumStatusLogModel
+            modelBuilder.Entity<OrderStadiumStatusLogModel>()
+                        .HasOne<OrderStadiumModel>()
+                        .WithMany()
+                        .HasForeignKey(o => o.OrderStadiumCode)
+                        .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<OrderStadiumStatusLogModel>()
                         .HasOne<API.Models.AppUser>()
                         .WithMany()
                         .HasForeignKey(o => o.UserId)
@@ -159,7 +171,6 @@ namespace API.Data
                         .WithMany()
                         .HasForeignKey(p => p.CategoryNewsId)
                         .OnDelete(DeleteBehavior.Cascade);
-            
         }
     }
 }

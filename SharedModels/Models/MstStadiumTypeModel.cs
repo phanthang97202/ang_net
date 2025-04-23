@@ -10,9 +10,8 @@ namespace SharedModels.Models
         [Required]
         public string StadiumTypeName { get; set; } = string.Empty; // Tên loại sân
         [Required]
-        public decimal StadiumTypePrice {  get; set; } // Giá loại sân 
-        public decimal StadiumTypeSale { get; set; } // Giảm giá 
-        public int StadiumTypeQuantity { get; set; } // Số lượng sân còn
+        public decimal StadiumTypeSalePercent { get; set; } // Giảm giá 
+        public string Remark { get; set; } = string.Empty; // Ghi chú
         public bool FlagActive { get; set; } // Trạng thái loại sân (1/0)
         public DateTime CreatedDTime { get; set; } // Thời gian tạo
         public DateTime UpdatedDTime { get; set; } // Thời gian tạo
