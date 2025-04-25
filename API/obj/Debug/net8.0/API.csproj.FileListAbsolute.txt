@@ -426,3 +426,10 @@ D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\CommonUtils.pdb
 D:\MyHomeWork\ang_net\API\bin\Debug\net8.0\SharedModels.pdb
 F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
 F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\StackExchange.Redis.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Google.Apis.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Google.Apis.Auth.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Google.Apis.Core.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\Newtonsoft.Json.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\System.Management.dll
+F:\Java + Angular\FullstackAppToturial\API\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll

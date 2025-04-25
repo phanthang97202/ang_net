@@ -4,6 +4,8 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Google.Apis.Auth;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace API.Controllers
 {
@@ -53,6 +55,20 @@ namespace API.Controllers
                 throw;
             }
         }
+
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginDto loginGoogleDto)
+        {
+            try
+            {
+                ApiResponse<AuthResponseDto> response = await _accountRespository.LoginWithGoogle(loginGoogleDto);
+                return Ok(response);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        } 
 
         [HttpPost("refreshtoken")]
         public async Task<ActionResult<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)

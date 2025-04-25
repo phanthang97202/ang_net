@@ -1,25 +1,36 @@
 
 
 /API/appsettings.json
+/API/bin/
+/API/obj/
+/API/Publish/
 
+# =================
+/CommonUtils/bin/
+/CommonUtils/obj/
 
+# =================
+/SharedModels/bin/
+/SharedModels/obj/
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
-/client/dist
+/Client/dist/
 !/src/environments/
-/client/tmp
-/client/out-tsc
-/client/bazel-out
-
-
-
+/Client/tmp/
+/Client/out-tsc/
+/Client/bazel-out /
+/Client/angular/	 
+/Client/vscode/	 
+/Client/vs/
 # Node
-/client/node_modules 
+/Client/node_modules/
+
+
 # System files
 .DS_Store
 Thumbs.db
-
+.vscode/
 
 # # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 

@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -26,8 +26,11 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import { Observable } from 'ckeditor5';
+import { Observable } from 'rxjs';
 
+import { HttpClient } from '@angular/common/http';
+import { AuthResponse } from '../../interfaces/auth-response';
+declare const google: any;
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -44,7 +47,7 @@ import { Observable } from 'ckeditor5';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   authService = inject(AuthService);
   loadingService = inject(LoadingService);
   showErrorService = inject(ShowErrorService);
@@ -52,7 +55,8 @@ export class LoginComponent {
   constructor(
     private fb: NonNullableFormBuilder,
     private message: NzMessageService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {
     // const testOb = of(1, 2, 3);
     // testOb.subscribe(v => console.log(v));
@@ -123,6 +127,19 @@ export class LoginComponent {
       .subscribe(value => console.log('Subscriber 3 nhận:', value));
   }
 
+  ngAfterViewInit(): void {
+    google.accounts.id.initialize({
+      client_id:
+        '202020211023-c70kb86dn19s9q0tvotv94f04no8r1ct.apps.googleusercontent.com',
+      callback: (response: any) => this.handleCredentialResponse(response),
+    });
+
+    google.accounts.id.renderButton(document.getElementById('google-button'), {
+      theme: 'outline',
+      size: 'large',
+    });
+  }
+
   passwordVisible = true;
 
   validateForm: FormGroup<{
@@ -133,9 +150,19 @@ export class LoginComponent {
     password: ['', [Validators.required]],
   });
 
+  handleCredentialResponse(res: any): void {
+    const idToken = res.credential;
+    console.log('Google ID Token:', idToken);
+
+    this.loadingService.setLoading(true);
+    const observer = this.authService.signInWithGoogle(idToken);
+    this.handleLoginResponse(observer);
+  }
+
   submitForm(event: Event) {
     event.preventDefault();
     const { userName, password } = this.validateForm.value;
+
     if (userName && password) {
       this.loadingService.setLoading(true);
       const observer = this.authService.login({
@@ -143,40 +170,7 @@ export class LoginComponent {
         password: password,
       });
 
-      observer.subscribe({
-        next: response => {
-          this.loadingService.setLoading(false);
-
-          const isAdmin = this.authService.isAdminPermission();
-
-          if (response?.Success) {
-            this.message.create('success', 'Login successfully');
-            if (isAdmin) {
-              this.router.navigate(['/dashboard']);
-            } else {
-              this.router.navigate(['/']);
-            }
-          } else {
-            this.showErrorService.setShowError({
-              icon: 'warning',
-              message: JSON.stringify(response, null, 2),
-              title: response?.ErrorMessage || 'Error',
-            });
-          }
-        },
-        complete: () => {
-          this.loadingService.setLoading(false);
-        },
-        error: err => {
-          this.loadingService.setLoading(false);
-          this.showErrorService.setShowError({
-            title: err.message,
-            message: JSON.stringify(err, null, 2),
-          });
-          // const { message } = err.error;
-          // this.message.create('error', JSON.stringify(err));
-        },
-      });
+      this.handleLoginResponse(observer);
     }
 
     if (!this.validateForm.valid) {
@@ -187,5 +181,36 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  private handleLoginResponse(observer: Observable<AuthResponse>) {
+    observer.subscribe({
+      next: response => {
+        this.loadingService.setLoading(false);
+
+        const isAdmin = this.authService.isAdminPermission();
+
+        if (response?.Success) {
+          this.message.create('success', 'Login successfully');
+          this.router.navigate([isAdmin ? '/dashboard' : '/']);
+        } else {
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(response, null, 2),
+            title: response?.ErrorMessage || 'Error',
+          });
+        }
+      },
+      error: err => {
+        this.loadingService.setLoading(false);
+        this.showErrorService.setShowError({
+          title: err.message,
+          message: JSON.stringify(err, null, 2),
+        });
+      },
+      complete: () => {
+        this.loadingService.setLoading(false);
+      },
+    });
   }
 }

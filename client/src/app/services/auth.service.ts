@@ -48,6 +48,23 @@ export class AuthService {
       );
   }
 
+  signInWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}account/login-google`, { idToken })
+      .pipe(
+        map(response => {
+          if (response.Success) {
+            localStorage.setItem(this.tokenKey, response.Data.AccessToken);
+            localStorage.setItem(
+              this.refreshTokenKey,
+              response.Data.RefreshToken
+            );
+          }
+          return response;
+        })
+      );
+  }
+
   refreshToken(data: RefreshTokenRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}account/refreshtoken`,
@@ -102,11 +119,12 @@ export class AuthService {
     localStorage.removeItem(this.refreshTokenKey);
     this.router.navigate(['/login']);
   }
-  
+
   logoutFromAllDevice(userId: string) {
     return this.http.post<AuthResponse>(
-      `${this.apiUrl}account/logoutalldevice?userId=${userId}`, { }
-    ); 
+      `${this.apiUrl}account/logoutalldevice?userId=${userId}`,
+      {}
+    );
   }
 
   isLoggedIn(): boolean {
@@ -135,7 +153,7 @@ export class AuthService {
 
     const decodedToken: any = jwtDecode(token);
 
-    const bool = decodedToken.role.includes('Admin');
+    const bool = decodedToken?.role?.includes('Admin') ?? false;
 
     return bool;
   }

@@ -5,7 +5,7 @@ select count(*) from MstProvinces
 select * from MstProvinces where CreatedDTime > '2024-12-07'
 delete from MstProvinces where CreatedDTime > '2024-12-07'
 
-select * from AspNetUsers where id = "9d430ca5-5214-4be5-b68f-ff1214c189ca"
+delete from AspNetUsers where id = 'b94a6c9b-6a3d-4e27-a5c4-38859d37a247'
 select * from AspNetUserRoles
 select * from AspNetRoles
 select * from chat

@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using GuardAuth = API.Middlewares.CheckAuthorized;
 using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
+using Google.Apis.Auth;
 
 namespace API.Respositories
 {
@@ -320,6 +321,79 @@ namespace API.Respositories
             apiResponse.Data = data;
 
             return apiResponse;
+        }
+
+        public async Task<ApiResponse<AuthResponseDto>> LoginWithGoogle(GoogleLoginDto request) {
+            ApiResponse<AuthResponseDto> apiResponse = new ApiResponse<AuthResponseDto>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            var payload = await VerifyGoogleToken(request.IdToken);
+
+
+            // Kiểm tra email, tạo user nếu chưa có, v.v.
+            //var user = await _userService.FindOrCreateUser(payload.Email, payload.Name);
+
+
+            var user = new API.Models.AppUser
+            {
+                Email = payload.Email,
+                FullName = payload.Name,
+                UserName = payload.Email
+            };
+
+            var isExistUser = await _userManager.FindByEmailAsync(payload.Email);
+
+            if (isExistUser is null)
+            {
+                 
+                await _userManager.CreateAsync(user);
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+
+            // Tạo JWT token
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpired = Convert.ToDouble(_configuration.GetSection("JWTSetting").GetSection("refreshTokenExpired").Value!);
+
+            RefreshTokenModel dtRefreshToken = new RefreshTokenModel
+            {
+                RefreshToken = refreshToken,
+                UserId = isExistUser?.Id ?? user.Id,
+                ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
+                IsRevoked = false,
+            };
+
+            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            await _dbContext.SaveChangesAsync();
+
+            AuthResponseDto data = new AuthResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+            };
+
+            apiResponse.Data = data;
+
+            return apiResponse;
+        }
+
+        private async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(string idToken)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { "202020211023-c70kb86dn19s9q0tvotv94f04no8r1ct.apps.googleusercontent.com" } // thay bằng của bạn
+            };
+
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+                return payload;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<ApiResponse<RegisterDto>> Register(RegisterDto registerDto)
