@@ -49,7 +49,7 @@ export class ButtonCommonComponent {
   @Input() isShowConfirm = false;
   @Input() iconRotate = 0;
 
-  handleClick(event: MouseEvent) {
+  handleClick() {
     if (this.isShowConfirm === false) {
       // this._onClick.emit();
       this.confirm();
