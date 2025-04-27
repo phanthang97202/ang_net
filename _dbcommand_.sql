@@ -8,6 +8,19 @@ delete from MstProvinces where CreatedDTime > '2024-12-07'
 delete from AspNetUsers where id = 'b94a6c9b-6a3d-4e27-a5c4-38859d37a247'
 select * from AspNetUserRoles
 select * from AspNetRoles
+
+select 
+        r.Id, r.Name, u.Email, ur.UserId as 'UserId'
+from AspNetRoles r
+inner join AspNetUserRoles ur
+        on r.Id = ur.RoleId
+inner join AspNetUsers u
+        on ur.UserId = u.Id
+
+
+
+
+
 select * from chat
 delete from Chat where MessageId = '2a157142-7a67-41c3-a337-5db73909c92f'  UserId  = 'anhduong@gmail.com' or UserId = 'phanthang@gmail.com'
 update  chat set Message = 'https://i.pinimg.com/736x/f1/58/14/f15814f88258c133540f9e914499364d.jpg'  where MessageId = 'test11'

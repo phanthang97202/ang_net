@@ -1,1 +1,0 @@
-F:\Java + Angular\FullstackAppToturial\Mobile\Angnet.Maui.csproj;x64
