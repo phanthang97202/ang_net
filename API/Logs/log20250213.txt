@@ -1,0 +1,135 @@
+2025-02-13 00:36:17.474 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-02-13 00:36:17.677 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-02-13 00:36:17.677 +07:00 [INF] Hosting environment: Development
+2025-02-13 00:36:17.678 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-02-13 00:36:17.721 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-02-13 00:36:18.363 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 646.2249ms
+2025-02-13 00:36:18.770 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2025-02-13 00:36:18.803 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2025-02-13 00:36:18.804 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 4.3645ms
+2025-02-13 00:36:18.867 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 64.2805ms
+2025-02-13 00:36:19.115 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2025-02-13 00:36:19.282 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 167.3145ms
+2025-02-13 00:36:26.944 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-02-13 00:36:28.498 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:28'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-02-13 00:36:28.546 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:28'.
+2025-02-13 00:36:28.551 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:36:28.613 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-13 00:36:33.852 +07:00 [INF] Executed DbCommand (60ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-13 00:36:34.208 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-13 00:36:34.230 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-13 00:36:34.251 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 5631.8847ms
+2025-02-13 00:36:34.251 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:36:34.263 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 7319.5993ms
+2025-02-13 00:36:42.884 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 118
+2025-02-13 00:36:42.888 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:42'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-02-13 00:36:42.888 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:42'.
+2025-02-13 00:36:42.890 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 404 null null 6.3686ms
+2025-02-13 00:36:42.892 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: POST http://localhost:5000/api/account/refreshtoken, Response status code: 404
+2025-02-13 00:36:47.884 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-02-13 00:36:47.887 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:47'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-02-13 00:36:47.887 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:36:47'.
+2025-02-13 00:36:47.887 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:36:47.888 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-13 00:36:52.950 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-13 00:36:53.030 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-13 00:36:53.031 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-13 00:36:53.031 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 5143.8106ms
+2025-02-13 00:36:53.032 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:36:53.032 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 5148.1621ms
+2025-02-13 00:41:49.243 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-02-13 00:41:49.476 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-02-13 00:41:49.476 +07:00 [INF] Hosting environment: Development
+2025-02-13 00:41:49.476 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-02-13 00:41:49.530 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/index.html - null null
+2025-02-13 00:41:50.056 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/index.html - 200 null text/html;charset=utf-8 529.8296ms
+2025-02-13 00:41:50.151 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - null null
+2025-02-13 00:41:50.157 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_framework/aspnetcore-browser-refresh.js - 200 13742 application/javascript; charset=utf-8 4.9935ms
+2025-02-13 00:41:50.619 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/_vs/browserLink - null null
+2025-02-13 00:41:50.678 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/_vs/browserLink - 200 null text/javascript; charset=UTF-8 58.3598ms
+2025-02-13 00:41:50.886 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - null null
+2025-02-13 00:41:51.083 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 196.4085ms
+2025-02-13 00:41:54.903 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-02-13 00:41:55.292 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:41:55'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-02-13 00:41:55.358 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:41:55'.
+2025-02-13 00:41:55.364 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:41:55.409 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-13 00:41:57.657 +07:00 [INF] Executed DbCommand (117ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-13 00:41:57.911 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-13 00:41:58.094 +07:00 [INF] Executed DbCommand (42ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-02-13 00:41:58.104 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-13 00:41:58.120 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2706.8185ms
+2025-02-13 00:41:58.120 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-13 00:41:58.126 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 3222.7392ms
+2025-02-13 00:42:03.589 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageSize=10&keyword&pageIndex=0 - null null
+2025-02-13 00:42:03.667 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-02-13 00:42:03.675 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-02-13 00:42:03.924 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.RPNewsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-13 00:42:03.931 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 255.9004ms
+2025-02-13 00:42:03.932 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-02-13 00:42:03.932 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageSize=10&keyword&pageIndex=0 - 200 null application/json; charset=utf-8 343.1459ms
+2025-02-13 00:42:18.074 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 118
+2025-02-13 00:42:18.080 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:42:18'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-02-13 00:42:18.081 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-02-12 17:42:18'.
+2025-02-13 00:42:18.081 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-13 00:42:18.086 +07:00 [INF] Route matched with {action = "RefreshToken", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] RefreshToken(API.Dtos.RefreshTokenDto) on controller API.Controllers.AccountController (API).
+2025-02-13 00:42:18.181 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-02-13 00:42:18.223 +07:00 [INF] Executed DbCommand (30ms) [Parameters=[@__refreshToken_0='?' (Size = 36), @__userId_1='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefreshToken", "r"."ExpiryDate", "r"."IsRevoked", "r"."UserId"
+FROM "RefreshTokens" AS "r"
+WHERE "r"."RefreshToken" = @__refreshToken_0 AND "r"."UserId" = @__userId_1
+LIMIT 1
+2025-02-13 00:42:18.225 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-13 00:42:18.226 +07:00 [INF] Executed action API.Controllers.AccountController.RefreshToken (API) in 139.9423ms
+2025-02-13 00:42:18.226 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-13 00:42:18.227 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 200 null application/json; charset=utf-8 152.8987ms

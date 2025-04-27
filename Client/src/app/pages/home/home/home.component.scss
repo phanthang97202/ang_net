@@ -1,0 +1,28 @@
+.news__container {
+    display: flex;
+    gap: 70px;
+  
+    .news__content {
+      width: 60%;
+    }
+  
+    .news__aside {
+      flex: 1;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .news__container  {
+      flex-direction: column;
+      gap: 0; /* Optional, adjust as needed */
+  
+      > .news__content {
+        width: 100%;
+      }
+  
+      > .news__aside {
+        width: 100%;
+      }
+    }
+  }
+  

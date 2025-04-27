@@ -1,0 +1,16 @@
+<nz-page-header class="breadcrumb__container" nzBackIcon [nzGhost]="false">
+  <nz-page-header-title>Province</nz-page-header-title>
+  <nz-page-header-subtitle></nz-page-header-subtitle>
+  <nz-page-header-extra>
+    <div class="right">
+      <div class="flex gap-2">
+        <app-button-common
+          *ngFor="let b of buttons"
+          [text]="b.text"
+          [iconType]="b.iconType"
+          (_onClick)="b.onClick($event)">
+        </app-button-common>
+      </div>
+    </div>
+  </nz-page-header-extra>
+</nz-page-header>

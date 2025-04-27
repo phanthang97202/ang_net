@@ -1,0 +1,210 @@
+2025-02-14 10:47:01.350 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-02-14 10:47:01.510 +07:00 [INF] Now listening on: http://localhost:5000
+2025-02-14 10:47:01.511 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-02-14 10:47:01.511 +07:00 [INF] Hosting environment: Development
+2025-02-14 10:47:01.511 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-02-14 10:51:07.255 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-02-14 10:51:07.957 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:07.969 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 716.2022ms
+2025-02-14 10:51:07.974 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-02-14 10:51:07.977 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:10.258 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:51:10.293 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:51:12.886 +07:00 [INF] Executed DbCommand (156ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-14 10:51:13.087 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-14 10:51:13.382 +07:00 [INF] Executed DbCommand (145ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-02-14 10:51:13.392 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:51:13.413 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 3116.0279ms
+2025-02-14 10:51:13.413 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:51:13.418 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 5444.2014ms
+2025-02-14 10:51:24.671 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - null null
+2025-02-14 10:51:24.678 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:24.688 +07:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2025-02-14 10:51:24.693 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2025-02-14 10:51:24.694 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - 401 0 null 22.5354ms
+2025-02-14 10:51:24.722 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - null null
+2025-02-14 10:51:24.722 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:24.722 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - 204 null null 0.5219ms
+2025-02-14 10:51:24.724 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 103
+2025-02-14 10:51:24.725 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:24.726 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:51:24.729 +07:00 [INF] Route matched with {action = "RefreshToken", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] RefreshToken(API.Dtos.RefreshTokenDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:51:24.957 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-02-14 10:51:24.967 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__refreshToken_0='?' (Size = 36), @__userId_1='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefreshToken", "r"."ExpiryDate", "r"."IsRevoked", "r"."UserId"
+FROM "RefreshTokens" AS "r"
+WHERE "r"."RefreshToken" = @__refreshToken_0 AND "r"."UserId" = @__userId_1
+LIMIT 1
+2025-02-14 10:51:24.991 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:51:24.992 +07:00 [INF] Executed action API.Controllers.AccountController.RefreshToken (API) in 262.5463ms
+2025-02-14 10:51:24.992 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:51:24.992 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 200 null application/json; charset=utf-8 267.9591ms
+2025-02-14 10:51:52.461 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-02-14 10:51:52.462 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:52.462 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 1.0924ms
+2025-02-14 10:51:52.467 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-02-14 10:51:52.467 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:51:52.467 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:51:52.467 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:51:52.502 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-14 10:51:52.587 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-14 10:51:52.759 +07:00 [INF] Executed DbCommand (169ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-02-14 10:51:52.759 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:51:52.760 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 292.3068ms
+2025-02-14 10:51:52.760 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:51:52.760 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 292.9448ms
+2025-02-14 10:52:26.542 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - null null
+2025-02-14 10:52:26.542 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:52:26.544 +07:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2025-02-14 10:52:26.544 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2025-02-14 10:52:26.544 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - 401 0 null 2.5983ms
+2025-02-14 10:52:26.639 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - null null
+2025-02-14 10:52:26.639 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:52:26.640 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - 204 null null 0.4537ms
+2025-02-14 10:52:26.644 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 103
+2025-02-14 10:52:26.644 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:52:26.644 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:52:26.645 +07:00 [INF] Route matched with {action = "RefreshToken", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] RefreshToken(API.Dtos.RefreshTokenDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:52:26.651 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-02-14 10:52:26.654 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__refreshToken_0='?' (Size = 36), @__userId_1='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefreshToken", "r"."ExpiryDate", "r"."IsRevoked", "r"."UserId"
+FROM "RefreshTokens" AS "r"
+WHERE "r"."RefreshToken" = @__refreshToken_0 AND "r"."UserId" = @__userId_1
+LIMIT 1
+2025-02-14 10:52:26.655 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:52:26.656 +07:00 [INF] Executed action API.Controllers.AccountController.RefreshToken (API) in 10.8611ms
+2025-02-14 10:52:26.656 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:52:26.656 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 200 null application/json; charset=utf-8 12.0409ms
+2025-02-14 10:53:04.472 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-02-14 10:53:04.473 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:04.473 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 0.405ms
+2025-02-14 10:53:04.474 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-02-14 10:53:04.474 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:04.474 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:53:04.474 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:53:04.476 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-14 10:53:04.548 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-14 10:53:04.630 +07:00 [INF] Executed DbCommand (81ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-02-14 10:53:04.630 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:53:04.630 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 156.3455ms
+2025-02-14 10:53:04.631 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:53:04.631 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 156.8078ms
+2025-02-14 10:53:06.479 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - null null
+2025-02-14 10:53:06.480 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:06.481 +07:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2025-02-14 10:53:06.481 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2025-02-14 10:53:06.481 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - 401 0 null 1.754ms
+2025-02-14 10:53:06.530 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - null null
+2025-02-14 10:53:06.530 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:06.530 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - 204 null null 0.5789ms
+2025-02-14 10:53:06.532 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 103
+2025-02-14 10:53:06.532 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:06.532 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:53:06.532 +07:00 [INF] Route matched with {action = "RefreshToken", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] RefreshToken(API.Dtos.RefreshTokenDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:53:06.534 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-02-14 10:53:06.535 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__refreshToken_0='?' (Size = 36), @__userId_1='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefreshToken", "r"."ExpiryDate", "r"."IsRevoked", "r"."UserId"
+FROM "RefreshTokens" AS "r"
+WHERE "r"."RefreshToken" = @__refreshToken_0 AND "r"."UserId" = @__userId_1
+LIMIT 1
+2025-02-14 10:53:06.535 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:53:06.535 +07:00 [INF] Executed action API.Controllers.AccountController.RefreshToken (API) in 2.8418ms
+2025-02-14 10:53:06.535 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:53:06.535 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 200 null application/json; charset=utf-8 3.5211ms
+2025-02-14 10:53:25.698 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-02-14 10:53:25.698 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:25.699 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 0.5ms
+2025-02-14 10:53:25.700 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-02-14 10:53:25.700 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:25.701 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:53:25.701 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] Login(API.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:53:25.703 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-02-14 10:53:25.789 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-02-14 10:53:25.963 +07:00 [INF] Executed DbCommand (173ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-02-14 10:53:25.963 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:53:25.964 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 263.1347ms
+2025-02-14 10:53:25.964 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-02-14 10:53:25.965 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 264.0168ms
+2025-02-14 10:53:27.700 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - null null
+2025-02-14 10:53:27.700 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:27.701 +07:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2025-02-14 10:53:27.701 +07:00 [INF] AuthenticationScheme: Bearer was challenged.
+2025-02-14 10:53:27.701 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - 401 0 null 0.4979ms
+2025-02-14 10:53:27.803 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - null null
+2025-02-14 10:53:27.803 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:27.803 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/refreshtoken - 204 null null 0.3388ms
+2025-02-14 10:53:27.805 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - application/json 103
+2025-02-14 10:53:27.805 +07:00 [INF] CORS policy execution successful.
+2025-02-14 10:53:27.805 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:53:27.805 +07:00 [INF] Route matched with {action = "RefreshToken", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[API.Dtos.AuthResponseDto]] RefreshToken(API.Dtos.RefreshTokenDto) on controller API.Controllers.AccountController (API).
+2025-02-14 10:53:27.808 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-02-14 10:53:27.810 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__refreshToken_0='?' (Size = 36), @__userId_1='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefreshToken", "r"."ExpiryDate", "r"."IsRevoked", "r"."UserId"
+FROM "RefreshTokens" AS "r"
+WHERE "r"."RefreshToken" = @__refreshToken_0 AND "r"."UserId" = @__userId_1
+LIMIT 1
+2025-02-14 10:53:27.810 +07:00 [INF] Executing OkObjectResult, writing value of type 'API.Dtos.ApiResponse`1[[API.Dtos.AuthResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-02-14 10:53:27.811 +07:00 [INF] Executed action API.Controllers.AccountController.RefreshToken (API) in 5.5079ms
+2025-02-14 10:53:27.811 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.RefreshToken (API)'
+2025-02-14 10:53:27.811 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/refreshtoken - 200 null application/json; charset=utf-8 6.1606ms
+2025-02-14 11:13:04.097 +07:00 [INF] Application is shutting down...

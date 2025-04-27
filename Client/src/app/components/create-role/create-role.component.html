@@ -1,0 +1,12 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+        <nz-form-control [nzSpan]="24" nzErrorTip="RoleName is required!">
+            <input id="roleName" type="text" placeholder="Enter role name" nz-input formControlName="roleName" />
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <nz-form-control>
+            <button nz-button nzType="primary">Create</button>
+        </nz-form-control>
+    </nz-form-item>
+</form>

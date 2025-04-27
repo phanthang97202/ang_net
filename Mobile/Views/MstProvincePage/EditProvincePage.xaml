@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Angnet.Maui.Views.MstProvincePage"
+             x:Class="Angnet.Maui.Views.EditProvincePage"
+             Title="Edit Contact">
+
+    <ContentPage.BindingContext>
+        <vm:EditProvinceBindingContext>
+        </vm:EditProvinceBindingContext>
+    </ContentPage.BindingContext>
+    
+    <VerticalStackLayout Spacing="10">
+        <Frame Margin="10, 0, 10, 0"
+               Padding="10"
+               BorderColor="Transparent">
+            <Grid ColumnDefinitions="Auto, *">
+                <Label VerticalOptions="Center"
+                       Text="Mã tỉnh: "
+                       HorizontalOptions="Start"
+                       Margin="0,0,10,0"
+                       WidthRequest="80" />
+
+                <Entry Grid.Column="1"
+                       Margin="0,0,0,0"
+                       Text="{Binding ProvinceCode}"
+                       IsReadOnly="{Binding IsEdit}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Fill"
+                       Placeholder="Nhập mã tỉnh..."
+                       ClearButtonVisibility="WhileEditing" />
+            </Grid>
+        </Frame>
+
+        <Frame Margin="10, 0, 10, 0"
+               Padding="10"
+               BorderColor="Transparent">
+            <Grid ColumnDefinitions="Auto, *">
+                <Label VerticalOptions="Center"
+                       Text="Tên tỉnh: "
+                       HorizontalOptions="Start"
+                       Margin="0,0,10,0"
+                       WidthRequest="80" />
+
+                <Entry Grid.Column="1"
+                       Margin="0,0,0,0"
+                       Text="{Binding ProvinceName}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Fill"
+                       Placeholder="Nhập tên tỉnh..."
+                       ClearButtonVisibility="WhileEditing" />
+            </Grid>
+        </Frame>
+
+        <Frame Margin="10, 0, 10, 0"
+               Padding="10"
+               BorderColor="Transparent">
+            <Grid ColumnDefinitions="Auto, *">
+                <Label VerticalOptions="Center"
+                       Text="Trạng thái: "
+                       HorizontalOptions="Start"
+                       Margin="0,0,10,0"
+                       WidthRequest="80" />
+
+                <Switch Grid.Column="1" IsToggled="{Binding FlagActive}"></Switch>
+            </Grid>
+        </Frame>
+
+        <HorizontalStackLayout Spacing="10"
+                               HorizontalOptions="Center">
+            <Button Text="Lưu"
+                    Clicked="handleSave"
+                    WidthRequest="100"></Button>
+            <Button Text="Hủy"
+                    WidthRequest="100"
+                    BackgroundColor="Gray"
+            >
+            </Button>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+
+</ContentPage>

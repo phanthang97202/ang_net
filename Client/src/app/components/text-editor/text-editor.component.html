@@ -1,0 +1,7 @@
+<div>
+    <div class="editor-container">
+        <quill-editor format="html" [styles]="{height: '500px'}" [(ngModel)]="content"
+            (onEditorChanged)="handleonEditorChanged($event)"
+            (onContentChanged)="handleContentChanged($event)"></quill-editor>
+    </div>
+</div>

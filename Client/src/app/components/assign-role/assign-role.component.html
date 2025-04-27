@@ -1,0 +1,26 @@
+<form nz-form nzSpan="24" [formGroup]="validateForm">
+    <nz-form-item nz-form nzSpan="12">
+        <nz-form-control nzErrorTip="Please select user!">
+            <nz-select id="UserId" formControlName="UserId" nzPlaceHolder="Select user">
+                @for (user of lstUsers; track user) {
+                <nz-option [nzValue]="user.Id" [nzLabel]="user.Email" />
+                }
+            </nz-select>
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nzSpan="12">
+        <nz-form-control nzErrorTip="Please select role!">
+            <nz-select id="RoleId" formControlName="RoleId" nzPlaceHolder="Select role">
+                @for (role of lstRoles; track role) {
+                <nz-option [nzValue]="role.Id" [nzLabel]="role.Name" />
+                }
+            </nz-select>
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <nz-form-control>
+            <button nz-button (click)="handleAssign()" nzType="primary">Assign</button>
+            <button class="ml-1" nz-button (click)="handleUnassign()" nzDanger nzType="primary">Unassign</button>
+        </nz-form-control>
+    </nz-form-item>
+</form>

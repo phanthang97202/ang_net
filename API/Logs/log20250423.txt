@@ -1,0 +1,1308 @@
+2025-04-23 22:10:15.708 +07:00 [INF] Executed DbCommand (122ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2025-04-23 22:10:15.799 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2025-04-23 22:10:15.814 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-04-23 22:10:15.834 +07:00 [INF] Applying migration '20250423151001_refactor database about orderstadium and add model log for orderstadium'.
+2025-04-23 22:10:16.023 +07:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "OrderStadiums" RENAME COLUMN "IsCancel" TO "OrderStatus";
+2025-04-23 22:10:16.024 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "OrderStadiums" ADD "DebtMoney" TEXT NOT NULL DEFAULT '0.0';
+2025-04-23 22:10:16.025 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "OrderStadiumStatusLogModel" (
+    "OrderStadiumLogCode" INTEGER NOT NULL CONSTRAINT "PK_OrderStadiumStatusLogModel" PRIMARY KEY AUTOINCREMENT,
+    "OrderStadiumCode" TEXT NOT NULL,
+    "UserId" TEXT NOT NULL,
+    "Status" TEXT NOT NULL,
+    "Note" TEXT NOT NULL,
+    "CreatedDTime" TEXT NOT NULL,
+    "UpdatedDTime" TEXT NOT NULL,
+    CONSTRAINT "FK_OrderStadiumStatusLogModel_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "AspNetUsers" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_OrderStadiumStatusLogModel_OrderStadiums_OrderStadiumCode" FOREIGN KEY ("OrderStadiumCode") REFERENCES "OrderStadiums" ("OrderStadiumCode") ON DELETE RESTRICT
+);
+2025-04-23 22:10:16.025 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OrderStadiumStatusLogModel_OrderStadiumCode" ON "OrderStadiumStatusLogModel" ("OrderStadiumCode");
+2025-04-23 22:10:16.025 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OrderStadiumStatusLogModel_UserId" ON "OrderStadiumStatusLogModel" ("UserId");
+2025-04-23 22:10:16.025 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ef_temp_OrderStadiums" (
+    "OrderStadiumCode" TEXT NOT NULL CONSTRAINT "PK_OrderStadiums" PRIMARY KEY,
+    "CreatedDTime" TEXT NOT NULL,
+    "DebtMoney" TEXT NOT NULL,
+    "OderDTime" TEXT NOT NULL,
+    "OrderStatus" INTEGER NOT NULL,
+    "PaymentTypeCode" TEXT NOT NULL,
+    "PreMoney" TEXT NOT NULL,
+    "Remark" TEXT NOT NULL,
+    "RentDTimeFrom" TEXT NOT NULL,
+    "RentDTimeTo" TEXT NOT NULL,
+    "SalePercent" TEXT NOT NULL,
+    "StadiumCode" TEXT NOT NULL,
+    "UpdatedDTime" TEXT NOT NULL,
+    "UserId" TEXT NOT NULL,
+    CONSTRAINT "FK_OrderStadiums_AspNetUsers_UserId" FOREIGN KEY ("UserId") REFERENCES "AspNetUsers" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_OrderStadiums_MstPaymentTypes_PaymentTypeCode" FOREIGN KEY ("PaymentTypeCode") REFERENCES "MstPaymentTypes" ("PaymentTypeCode") ON DELETE RESTRICT,
+    CONSTRAINT "FK_OrderStadiums_MstStadiums_StadiumCode" FOREIGN KEY ("StadiumCode") REFERENCES "MstStadiums" ("StadiumCode") ON DELETE RESTRICT
+);
+2025-04-23 22:10:16.026 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "ef_temp_OrderStadiums" ("OrderStadiumCode", "CreatedDTime", "DebtMoney", "OderDTime", "OrderStatus", "PaymentTypeCode", "PreMoney", "Remark", "RentDTimeFrom", "RentDTimeTo", "SalePercent", "StadiumCode", "UpdatedDTime", "UserId")
+SELECT "OrderStadiumCode", "CreatedDTime", "DebtMoney", "OderDTime", "OrderStatus", "PaymentTypeCode", "PreMoney", "Remark", "RentDTimeFrom", "RentDTimeTo", "SalePercent", "StadiumCode", "UpdatedDTime", "UserId"
+FROM "OrderStadiums";
+2025-04-23 22:10:16.061 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+PRAGMA foreign_keys = 0;
+2025-04-23 22:10:16.065 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DROP TABLE "OrderStadiums";
+2025-04-23 22:10:16.068 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+ALTER TABLE "ef_temp_OrderStadiums" RENAME TO "OrderStadiums";
+2025-04-23 22:10:16.081 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+PRAGMA foreign_keys = 1;
+2025-04-23 22:10:16.081 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OrderStadiums_PaymentTypeCode" ON "OrderStadiums" ("PaymentTypeCode");
+2025-04-23 22:10:16.082 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OrderStadiums_StadiumCode" ON "OrderStadiums" ("StadiumCode");
+2025-04-23 22:10:16.082 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OrderStadiums_UserId" ON "OrderStadiums" ("UserId");
+2025-04-23 22:10:16.082 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20250423151001_refactor database about orderstadium and add model log for orderstadium', '8.0.1');
+2025-04-23 22:16:31.452 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 22:16:31.624 +07:00 [INF] Now listening on: http://localhost:5000
+2025-04-23 22:16:31.625 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 22:16:31.625 +07:00 [INF] Hosting environment: Development
+2025-04-23 22:16:31.625 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 22:18:40.160 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - null null
+2025-04-23 22:18:40.269 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:18:40.277 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/login - 204 null null 118.6807ms
+2025-04-23 22:18:40.295 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 47
+2025-04-23 22:18:40.302 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:18:42.197 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-23 22:18:42.216 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-04-23 22:18:44.444 +07:00 [INF] Executed DbCommand (65ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-04-23 22:18:44.641 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 22:18:44.840 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-23 22:18:44.850 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:18:44.870 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 2650.7732ms
+2025-04-23 22:18:44.870 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-23 22:18:44.876 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 4581.1346ms
+2025-04-23 22:24:23.473 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:24:23.476 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:24:23.477 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 4.2321ms
+2025-04-23 22:24:23.484 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:24:23.487 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:24:23.766 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:24:23.787 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 22:24:24.180 +07:00 [INF] Executed DbCommand (40ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 22:24:24.214 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 22:24:24.216 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 22:24:24.221 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:24:24.223 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:24:24.258 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 471.3554ms
+2025-04-23 22:24:24.258 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:24:24.259 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 775.0535ms
+2025-04-23 22:25:13.363 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:25:13.366 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:25:13.439 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 75.8306ms
+2025-04-23 22:25:13.445 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:25:13.446 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:25:13.455 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:25:13.457 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 22:25:13.594 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 22:25:13.596 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:25:13.597 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:25:13.598 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 140.6519ms
+2025-04-23 22:25:13.598 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:25:13.598 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 152.5892ms
+2025-04-23 22:25:15.352 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/newscategory/getallactive - null null
+2025-04-23 22:25:15.355 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:25:15.355 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/newscategory/getallactive - 204 null null 2.7676ms
+2025-04-23 22:25:15.359 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - null null
+2025-04-23 22:25:15.360 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:25:15.363 +07:00 [INF] Executing endpoint 'API.Controllers.NewsCategoryController.GetAllActive (API)'
+2025-04-23 22:25:15.370 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "NewsCategory"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.NewsCategoryDto]] GetAllActive() on controller API.Controllers.NewsCategoryController (API).
+2025-04-23 22:25:15.667 +07:00 [INF] Executed DbCommand (139ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."NewsCategoryParentId", "n"."NewsCategoryName", "n"."NewsCategoryIndex"
+FROM "NewsCategory" AS "n"
+WHERE "n"."FlagActive"
+ORDER BY "n"."NewsCategoryIndex"
+2025-04-23 22:25:15.672 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.NewsCategoryDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:25:15.677 +07:00 [INF] Executed action API.Controllers.NewsCategoryController.GetAllActive (API) in 307.2425ms
+2025-04-23 22:25:15.677 +07:00 [INF] Executed endpoint 'API.Controllers.NewsCategoryController.GetAllActive (API)'
+2025-04-23 22:25:15.678 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/newscategory/getallactive - 200 null application/json; charset=utf-8 318.256ms
+2025-04-23 22:26:45.681 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/create - null null
+2025-04-23 22:26:45.713 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:45.713 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/create - 204 null null 32.0951ms
+2025-04-23 22:26:45.717 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/news/create - application/json 24397
+2025-04-23 22:26:45.718 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:45.719 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Create (API)'
+2025-04-23 22:26:45.734 +07:00 [INF] Route matched with {action = "Create", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Dtos.NewsDto) on controller API.Controllers.NewsController (API).
+2025-04-23 22:26:46.092 +07:00 [INF] Executed DbCommand (62ms) [Parameters=[@__newsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__newsId_0
+LIMIT 1
+2025-04-23 22:26:46.102 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__newsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+WHERE "n"."NewsId" = @__newsId_0
+LIMIT 1
+2025-04-23 22:26:46.181 +07:00 [INF] Executed DbCommand (11ms) [Parameters=[@__HashTagNewId_0='?' (Size = 5), @__8__locals1_NewsId_1='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."HashTagNewsId" = @__HashTagNewId_0 AND "h"."NewsId" = @__8__locals1_NewsId_1
+LIMIT 1
+2025-04-23 22:26:46.500 +07:00 [INF] Executed DbCommand (82ms) [Parameters=[@p0='?' (Size = 23), @p1='?' (DbType = Double), @p2='?' (Size = 5), @p3='?' (Size = 20098), @p4='?' (DbType = DateTime), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 250), @p9='?' (Size = 32), @p10='?' (Size = 23), @p11='?' (Size = 85), @p12='?' (DbType = DateTime), @p13='?' (Size = 36), @p14='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "News" ("NewsId", "AvgPoint", "CategoryNewsId", "ContentBody", "CreatedDTime", "FlagActive", "LikeCount", "ShareCount", "ShortDescription", "ShortTitle", "Slug", "Thumbnail", "UpdatedDTime", "UserId", "ViewCount")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
+2025-04-23 22:26:46.515 +07:00 [INF] Executed DbCommand (13ms) [Parameters=[@p0='?' (Size = 5), @p1='?' (Size = 23), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?' (DbType = Boolean), @p5='?' (Size = 5), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "HashTagNews" ("HashTagNewsId", "NewsId", "Count", "CreatedDTime", "FlagActive", "HashTagNewsName", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+2025-04-23 22:26:46.639 +07:00 [INF] 
+                        ------------------------------------------------
+                                        NewsRespository.Create
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/news/create
+                        Request Body : {"Thumbnail":"http://res.cloudinary.com/dumdpgmgs/image/upload/v1745421957/ovqcpjypyklvzlhdmdar.jpg","CategoryNewsId":"anime","ShortTitle":"Yuuko Kanoe (\u5E9A \u5915\u5B50, Kanoe Yuuko )","ShortDescription":"Yuuko Kanoe (\u5E9A \u5915\u5B50, Kanoe Yuuko ) l\u00E0 linh h\u1ED3n c\u1EE7a m\u1ED9t c\u00F4 g\u00E1i \u0111\u00E3 ch\u1EBFt b\u00EAn trong t\u00F2a nh\u00E0 l\u00E2u \u0111\u1EDDi nh\u1EA5t c\u1EE7a H\u1ECDc vi\u1EC7n Seikyou . C\u00F4 \u0111\u00E3 m\u1EA5t \u0111i k\u00FD \u1EE9c v\u00E0 cu\u1ED1i c\u00F9ng tr\u1EDF th\u00E0nh m\u1ED9t linh h\u1ED3n lang thang cho \u0111\u1EBFn khi c\u00F4 \u0111\u01B0\u1EE3c Teiichi Niiya ph\u00E1t hi\u1EC7n m\u1ED9t c\u00E1ch t\u00ECnh c\u1EDD .","ContentBody":"\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EBan \u0111\u1EA7u c\u00F4 s\u1EDF h\u1EEFu b\u1ED9 \u0111\u1ED3ng ph\u1EE5c c\u0169 c\u1EE7a\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Seikyou_Academy?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ETr\u01B0\u1EDDng Seikyou\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0tr\u01B0\u1EDBc khi n\u00F3 thay \u0111\u1ED5i v\u00E0 c\u00F4 \u0111\u00E3 m\u1EB7c b\u1ED9 \u0111\u1ED3ng ph\u1EE5c m\u1EDBi k\u1EC3 t\u1EEB \u0111\u00F3, nh\u01B0ng sau \u0111\u00F3 c\u00F4 \u0111\u00E3 thay l\u1EA1i b\u1ED9 \u0111\u1ED3ng ph\u1EE5c c\u0169 sau khi b\u1ECB\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Teiichi_Niiya?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ETeiichi Niiya\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0ph\u00E1t hi\u1EC7n .\u003C/span\u003E\u003C/p\u003E\u003Ch2 class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ENh\u00E2n c\u00E1ch\u003C/span\u003E\u003C/h2\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EM\u1EB7c d\u00F9 v\u1EBB ngo\u00E0i c\u1EE7a Yuuko to\u00E1t l\u00EAn v\u1EBB nham hi\u1EC3m, nh\u01B0ng th\u1EF1c ra c\u00F4 l\u00E0 m\u1ED9t ng\u01B0\u1EDDi vui v\u1EBB. \u0110\u00F4i khi c\u00F4 tr\u00EAu ch\u1ECDc\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Teiichi_Niiya?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ETeiichi Niiya\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0b\u1EB1ng nh\u1EEFng g\u1EE3i \u00FD t\u00ECnh d\u1EE5c v\u00E0 n\u1EBFu Teiichi kh\u00F4ng \u1EDF g\u1EA7n, c\u00F4 \u0111\u01B0\u1EE3c nh\u00ECn th\u1EA5y \u0111ang lang thang trong khu ph\u1EE9c h\u1EE3p c\u1EE7a tr\u01B0\u1EDDng (th\u01B0\u1EDDng t\u1EA1o ra nh\u1EEFng c\u00E2u chuy\u1EC7n ma nh\u01B0 m\u1ED9t hi\u1EC7u \u1EE9ng). Sau \u0111\u00F3, ng\u01B0\u1EDDi ta ti\u1EBFt l\u1ED9 r\u1EB1ng Yuuko b\u1EAFt \u0111\u1EA7u tr\u1EDF n\u00EAn g\u1EAFn b\u00F3 v\u1EDBi Teiichi, v\u00EC anh l\u00E0 ng\u01B0\u1EDDi \u0111\u1EA7u ti\u00EAn t\u01B0\u01A1ng t\u00E1c v\u1EDBi c\u00F4 sau khi ch\u1EBFt c\u00E1ch \u0111\u00E2y r\u1EA5t l\u00E2u. \u0110i\u1EC1u \u0111\u00E1ng ch\u00FA \u00FD l\u00E0 c\u00F4 kh\u00F4ng ng\u1EA1i \u0111\u1EC3 Teiichi nh\u00ECn th\u1EA5y c\u01A1 th\u1EC3 h\u1EA5p d\u1EABn c\u1EE7a m\u00ECnh, nh\u01B0ng ng\u00E0y c\u00E0ng x\u1EA5u h\u1ED5 n\u1EBFu anh ta \u0111\u1EC3 m\u1EAFt \u0111\u1EBFn c\u00F4. M\u1EB7c d\u00F9 c\u00F4 c\u00F3 v\u1EBB kh\u00E1 t\u1EF1 h\u00E0o v\u1EC1 c\u01A1 th\u1EC3 c\u1EE7a m\u00ECnh, th\u01B0\u1EDDng d\u00F9ng n\u00F3 \u0111\u1EC3 tr\u00EAu ch\u1ECDc Teiichi, c\u00F4 th\u1EF1c s\u1EF1 b\u1ECB \u00E1m \u1EA3nh b\u1EDFi c\u00E2n n\u1EB7ng c\u1EE7a m\u00ECnh v\u00E0 s\u1EBD c\u1ED1 g\u1EAFng che gi\u1EA5u n\u00F3, m\u1EB7c d\u00F9 c\u00F4 r\u1EA5t nh\u1EB9, v\u00E0, ti\u1EBFp t\u1EE5c v\u1EDBi c\u00E1c t\u1EADp phim, Yuuko d\u01B0\u1EDDng nh\u01B0 b\u1EAFt \u0111\u1EA7u tr\u1EDF n\u00EAn ghen t\u1ECB n\u1EBFu b\u1EA5t k\u1EF3 ai th\u1EC3 hi\u1EC7n d\u1EA5u hi\u1EC7u y\u00EAu Teiichi.\u003C/span\u003E\u003C/p\u003E\u003Ch2 class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EQu\u00E1 kh\u1EE9\u003C/span\u003E\u003C/h2\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EC\u1ED1t truy\u1EC7n\u003C/strong\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0\u003C/span\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E(B\u1ED9 truy\u1EC7n tranh)\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ES\u00E1u m\u01B0\u01A1i n\u0103m tr\u01B0\u1EDBc, ng\u00F4i l\u00E0ng n\u01A1i Yuuko v\u00E0 gia \u0111\u00ECnh c\u00F4 sinh s\u1ED1ng \u0111ang ph\u1EA3i ch\u1ECBu \u0111\u1EF1ng m\u1ED9t tr\u1EADn d\u1ECBch h\u1EA1ch kh\u1EE7ng khi\u1EBFp. Yuuko v\u00E0 em g\u00E1i c\u00F4, Yukariko, s\u1EDBm b\u1EAFt \u0111\u1EA7u nghe \u0111\u01B0\u1EE3c nh\u1EEFng l\u1EDDi th\u00EC th\u1EA7m trong l\u00E0ng r\u1EB1ng ch\u00EDnh gia \u0111\u00ECnh h\u1ECD l\u00E0 ng\u01B0\u1EDDi \u0111\u00E3 g\u00E2y ra c\u0103n b\u1EC7nh n\u00E0y. Trong h\u00E0ng tr\u0103m n\u0103m, gia \u0111\u00ECnh Kanoe ch\u1ECBu tr\u00E1ch nhi\u1EC7m x\u00E2y d\u1EF1ng m\u1ED9t ng\u00F4i \u0111\u1EC1n th\u1EDD Th\u1EA7n N\u00FAi; \u0111\u1EC3 ng\u0103n ch\u1EB7n v\u1ECB th\u1EA7n n\u00E0y nguy\u1EC1n r\u1EE7a m\u1ECDi ng\u01B0\u1EDDi, ng\u01B0\u1EDDi ta ph\u1EA3i d\u00E2ng \u0026quot;th\u1EE9 qu\u00FD gi\u00E1 nh\u1EA5t\u0026quot; c\u1EE7a m\u00ECnh cho Akahito-sama, s\u1EE9 gi\u1EA3 c\u1EE7a v\u1ECB th\u1EA7n, - t\u1EE9c l\u00E0 ph\u1EA3i hi\u1EBFn t\u1EBF ng\u01B0\u1EDDi. Trong nh\u1EEFng n\u0103m g\u1EA7n \u0111\u00E2y, ng\u00F4i \u0111\u1EC1n \u0111\u00E3 b\u1ECB m\u1EA5t v\u00E0 r\u01A1i v\u00E0o t\u00ECnh tr\u1EA1ng h\u01B0 h\u1ECFng.\u00A0\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EKhi m\u1EB9 c\u00F4 m\u1EA5t, Yuuko nh\u1EADn th\u1EA5y s\u1EF1 thay \u0111\u1ED5i trong t\u00E2m tr\u1EA1ng c\u1EE7a ch\u1ECB g\u00E1i m\u00ECnh, ng\u01B0\u1EDDi b\u1EAFt \u0111\u1EA7u tin r\u1EB1ng l\u1EDDi nguy\u1EC1n l\u00E0 c\u00F3 th\u1EADt. D\u00E2n l\u00E0ng ho\u1EA3ng lo\u1EA1n, khi\u1EBFn cha c\u00F4 quy\u1EBFt \u0111\u1ECBnh \u0111\u01B0a c\u00E1c con g\u00E1i m\u00ECnh r\u1EDDi kh\u1ECFi khu v\u1EF1c n\u00E0y; th\u1EADt kh\u00F4ng may, Yukariko \u0111\u00E3 m\u1EA5t t\u00EDch. Yuuko \u0111i\u00EAn cu\u1ED3ng t\u00ECm ki\u1EBFm kh\u1EAFp l\u00E0ng tr\u01B0\u1EDBc khi \u0111\u1EBFn tr\u01B0\u1EDDng. Kinh ho\u00E0ng, c\u00F4 ph\u00E1t hi\u1EC7n ra r\u1EB1ng ch\u1ECB g\u00E1i m\u00ECnh \u0111ang \u0111\u00F3ng vai s\u1EE9 gi\u1EA3 c\u1EE7a th\u1EA7n linh .... v\u00E0 c\u00F4 \u0111\u00E3 quy\u1EBFt \u0111\u1ECBnh r\u1EB1ng Yuuko s\u1EBD l\u00E0 v\u1EADt t\u1EBF th\u1EA7n. Tr\u01B0\u1EDBc khi Yuuko c\u00F3 th\u1EC3 tr\u1ED1n tho\u00E1t, c\u00F4 \u0111\u00E3 b\u1ECB m\u1ED9t nh\u00F3m \u0111\u00E0n \u00F4ng trong l\u00E0ng \u0111\u1EA9y ng\u00E3, ch\u00FAng b\u1EBB g\u00E3y ch\u00E2n c\u00F4 v\u00E0 n\u00E9m c\u00F4 v\u00E0o m\u1ED9t c\u00E1i l\u00E1n cho \u0111\u1EBFn ch\u1EBFt. Yuuko ch\u1EBFt v\u1EDBi s\u1EF1 ph\u1EA3n b\u1ED9i trong l\u00F2ng; b\u1EC7nh d\u1ECBch v\u1EABn ti\u1EBFp di\u1EC5n v\u00E0 cha c\u00F4 \u0111\u00E3 t\u1EF1 t\u1EED v\u00EC m\u1EA5t con g\u00E1i. V\u00E0i ng\u00E0y sau, Yukariko, ng\u01B0\u1EDDi l\u00FAc n\u00E0y nh\u1EADn ra sai l\u1EA7m kh\u1EE7ng khi\u1EBFp m\u00E0 m\u00ECnh \u0111\u00E3 m\u1EAFc ph\u1EA3i, quay tr\u1EDF l\u1EA1i c\u00E1i l\u00E1n \u0111\u1EC3 c\u1ED1 g\u1EAFng gi\u1EA3i c\u1EE9u em g\u00E1i m\u00ECnh. Th\u1EADt kh\u00F4ng may, c\u00F4 \u0111\u00E3 qu\u00E1 mu\u1ED9n ...... v\u00E0 s\u1ED1ng trong c\u1EA3m gi\u00E1c t\u1ED9i l\u1ED7i m\u1ED7i ng\u00E0y trong cu\u1ED9c \u0111\u1EDDi m\u00ECnh.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EH\u1ED3 s\u01A1 ch\u00EDnh th\u1EE9c kh\u1EB3ng \u0111\u1ECBnh r\u1EB1ng Yuuko \u0111\u00E3 ch\u1EBFt v\u00EC m\u1EA3ng b\u00E1m v\u00E0 thi th\u1EC3 c\u1EE7a c\u00F4 \u0111\u00E3 b\u1ECB v\u1EE9t b\u1ECF ngay sau \u0111\u00F3.\u00A0\u003C/span\u003E\u003C/p\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EYuuko, Linh h\u1ED3n c\u1EE7a t\u1EA5m g\u01B0\u01A1ng\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ETrong m\u1ED9t chuy\u1EBFn \u0111i ng\u1EABu nhi\u00EAn qua tr\u01B0\u1EDDng, Yuuko t\u00ECnh c\u1EDD g\u1EB7p m\u1ED9t c\u1EADu b\u00E9 t\u00EAn l\u00E0\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Teiichi_Niiya?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ETeiichi Niiya\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0trong m\u1ED9t c\u0103n ph\u00F2ng b\u1ECF hoang \u1EDF T\u00F2a nh\u00E0 Tr\u01B0\u1EDDng c\u0169 c\u1EE7a H\u1ECDc vi\u1EC7n Seikyou. Th\u1EADt ng\u1EA1c nhi\u00EAn, Teiichi \u0111\u00E3 c\u00F3 th\u1EC3 nh\u00ECn th\u1EA5y c\u00F4, v\u00E0 Yuuko t\u1EF1 gi\u1EDBi thi\u1EC7u m\u00ECnh l\u00E0 h\u1ED3n ma c\u1EE7a ng\u00F4i tr\u01B0\u1EDDng. Tr\u01B0\u1EDBc s\u1EF1 ng\u1EA1c nhi\u00EAn c\u1EE7a c\u00F4, anh ngay l\u1EADp t\u1EE9c tr\u1EDF n\u00EAn h\u1EE9ng th\u00FA mu\u1ED1n bi\u1EBFt th\u00EAm v\u1EC1 c\u00F4, v\u00E0 c\u00F4 b\u1EAFt \u0111\u1EA7u t\u01B0\u01A1ng t\u00E1c v\u1EDBi anh nhi\u1EC1u h\u01A1n.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Teiichi_Niiya?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ES\u1EF1 quan t\u00E2m ng\u00E0y c\u00E0ng t\u0103ng c\u1EE7a Teiichi\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0mu\u1ED1n bi\u1EBFt th\u00EAm v\u1EC1 c\u00F4 cu\u1ED1i c\u00F9ng \u0111\u00E3 d\u1EABn \u0111\u1EBFn vi\u1EC7c ph\u00E1t hi\u1EC7n ra h\u00E0i c\u1ED1t c\u1EE7a c\u00F4 trong m\u1ED9t trong nh\u1EEFng c\u0103n ph\u00F2ng c\u1EE7a T\u00F2a nh\u00E0 Tr\u01B0\u1EDDng c\u0169, v\u00E0 s\u1EF1 vi\u1EC7c n\u00E0y \u0111\u00E3 tr\u1EDF th\u00E0nh \u0111\u1ED9ng l\u1EF1c \u0111\u1EC3 Yuuko m\u1EDF C\u00E2u l\u1EA1c\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Paranormal_Investigation_Club?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003Eb\u1ED9 \u0111i\u1EC1u tra hi\u1EC7n t\u01B0\u1EE3ng huy\u1EC1n b\u00ED\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0.\u003C/span\u003E\u003C/p\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ECon qu\u1EF7 \u1EA9n n\u00FAp\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Ca href=\u0022https://translate.google.com/website?sl=en\u0026amp;tl=vi\u0026amp;hl=vi\u0026amp;client=srp\u0026amp;u=https://static.wikia.nocookie.net/tasogare-otome/images/7/70/Two_different_visions_of_ghost_busting.png/revision/latest?cb%3D20120415223225\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022color: rgb(233, 210, 168); background-color: unset;\u0022\u003E\u003Cimg src=\u0022https://static.wikia.nocookie.net/tasogare-otome/images/7/70/Two_different_visions_of_ghost_busting.png/revision/latest/scale-to-width-down/220?cb=20120415223225\u0022 alt=\u0022Hai g\u00F3c nh\u00ECn kh\u00E1c nhau v\u1EC1 vi\u1EC7c \u0111u\u1ED5i ma\u0022 height=\u0022138\u0022 width=\u0022220\u0022\u003E\u003C/a\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022color: rgb(230, 230, 230); background-color: initial;\u0022\u003ETeiichi v\u00E0 Yuuko c\u00F3 hai phi\u00EAn b\u1EA3n ri\u00EAng bi\u1EC7t cho k\u1EBF ho\u1EA1ch \u0026quot;b\u1EAFt ma\u0026quot; c\u1EE7a h\u1ECD.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ETrong nh\u1EEFng ng\u00E0y \u0111\u1EA7u ti\u00EAn c\u1EE7a C\u00E2u l\u1EA1c b\u1ED9 \u0111i\u1EC1u tra hi\u1EC7n t\u01B0\u1EE3ng si\u00EAu nhi\u00EAn, Yuuko \u0111\u00E3 d\u00EDnh l\u00EDu \u0111\u1EBFn Teiichi trong m\u1ED9t v\u1EE5 \u00E1n \u0111\u01B0\u1EE3c cho l\u00E0 m\u1ED9t trong b\u1EA3y c\u00E2u chuy\u1EC7n ma n\u1ED5i ti\u1EBFng nh\u1EA5t trong tr\u01B0\u1EDDng: c\u00E2u chuy\u1EC7n v\u1EC1 \u0026quot;\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Hidden_Demon?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003ECon qu\u1EF7 \u1EA9n n\u00FAp\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0\u0026quot;. Theo Momoe Okonogi, \u0026quot;n\u1EA1n nh\u00E2n\u0026quot; m\u1EDBi nh\u1EA5t c\u1EE7a c\u00E2u chuy\u1EC7n n\u00F3i tr\u00EAn, c\u00F4 \u0111\u00E3 ch\u01A1i tr\u00F2 ch\u01A1i v\u1EDBi Yuuko-san l\u00E0 \u0026quot;n\u00F3\u0026quot;, v\u00E0 gi\u1EDD c\u00F4 \u1EA5y lo s\u1EE3 cho m\u1EA1ng s\u1ED1ng c\u1EE7a m\u00ECnh khi c\u00F4 \u1EA5y kh\u00F4ng th\u1EC3 k\u1EBFt th\u00FAc tr\u00F2 ch\u01A1i. Yuuko t\u1ECF ra kh\u00F4ng h\u1EE9ng th\u00FA gi\u00FAp Momoe, nh\u01B0ng v\u1EDBi s\u1EF1 thuy\u1EBFt ph\u1EE5c c\u1EE7a Teiichi, c\u00F4 quy\u1EBFt \u0111\u1ECBnh ch\u01A1i c\u00F9ng.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EYuuko h\u00F3a trang th\u00E0nh \u0026quot;\u00C1c qu\u1EF7 \u1EA9n\u0026quot;, trong khi Teiichi \u0111\u00F3ng vai ng\u01B0\u1EDDi s\u1EBD gi\u1EA3i c\u1EE9u Momoe kh\u1ECFi linh h\u1ED3n. H\u1ECD nhanh ch\u00F3ng gi\u1EA3 v\u1EDD r\u1EB1ng c\u00F3 m\u1ED9t nghi l\u1EC5 thanh t\u1EA9y \u0111ang di\u1EC5n ra, ho\u00E0n th\u00E0nh v\u1EDBi m\u1ED9t l\u00E1 b\u00F9a h\u1ED9 m\u1EC7nh gi\u1EA3 \u0111\u1EC3 thanh t\u1EA9y con qu\u1EF7 tr\u01B0\u1EDBc khi n\u00F3 c\u00F3 th\u1EC3 \u0111\u1EBFn \u0111\u01B0\u1EE3c Momoe. May m\u1EAFn thay, Momoe kh\u00F4ng th\u1EC3 bi\u1EBFt r\u1EB1ng m\u1ECDi th\u1EE9 \u0111\u1EC1u l\u00E0 gi\u1EA3, v\u00E0 v\u1EDBi Teiichi th\u00E0nh c\u00F4ng v\u00E0 \u0111\u1EA9y l\u00F9i \u0111\u01B0\u1EE3c \u0026quot;\u00C1c qu\u1EF7 \u1EA9n\u0026quot;, anh \u0111\u00E3 gi\u00E0nh \u0111\u01B0\u1EE3c s\u1EF1 ng\u01B0\u1EE1ng m\u1ED9 c\u1EE7a Momoe, ng\u01B0\u1EDDi sau \u0111\u00F3 tham gia v\u1EDBi t\u01B0 c\u00E1ch l\u00E0 ng\u01B0\u1EDDi \u0111\u00F3ng g\u00F3p cho C\u00E2u l\u1EA1c b\u1ED9 \u0111i\u1EC1u tra huy\u1EC1n b\u00ED.\u003C/span\u003E\u003C/p\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EV\u00F9ng \u0111\u1EA5t linh h\u1ED3n\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Ca href=\u0022https://translate.google.com/website?sl=en\u0026amp;tl=vi\u0026amp;hl=vi\u0026amp;client=srp\u0026amp;u=https://static.wikia.nocookie.net/tasogare-otome/images/3/34/Yuuko_cling_teiichi.jpg/revision/latest?cb%3D20120423011145\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022color: rgb(233, 210, 168); background-color: unset;\u0022\u003E\u003Cimg src=\u0022https://static.wikia.nocookie.net/tasogare-otome/images/3/34/Yuuko_cling_teiichi.jpg/revision/latest/scale-to-width-down/220?cb=20120423011145\u0022 alt=\u0022Yuuko b\u00E1m ch\u1EB7t teiichi\u0022 height=\u0022148\u0022 width=\u0022220\u0022\u003E\u003C/a\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022color: rgb(230, 230, 230); background-color: initial;\u0022\u003EYuuko \u01B0\u1EDBt \u0111\u1EABm \u00F4m ch\u1EB7t Teiichi.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ESau khi Momoe gia nh\u1EADp C\u00E2u l\u1EA1c b\u1ED9 \u0111i\u1EC1u tra hi\u1EC7n t\u01B0\u1EE3ng huy\u1EC1n b\u00ED, Teiichi nh\u1EADn \u0111\u01B0\u1EE3c m\u1ED9t l\u00E1 th\u01B0 y\u00EAu c\u1EA7u anh \u0111\u1EBFn c\u00E2y \u1EDF \u0110\u1ED3i Kaede \u0111\u1EC3 n\u00F3i chuy\u1EC7n ri\u00EAng. Teiichi c\u1ED1 gi\u1EA5u chuy\u1EC7n n\u00E0y v\u1EDBi Yuuko, nh\u01B0ng m\u1EB7c d\u00F9 \u0111\u00E3 gi\u1EA5u \u0111\u01B0\u1EE3c chi ti\u1EBFt, c\u00F4 v\u1EABn nghi ng\u1EDD v\u1EC1 nh\u1EEFng g\u00EC \u0111ang di\u1EC5n ra. N\u1ED7i lo l\u1EAFng c\u1EE7a c\u00F4 nhanh ch\u00F3ng l\u00EAn \u0111\u1EBFn m\u1EE9c c\u00F4 ph\u1EA3i \u0111i kh\u1EAFp tr\u01B0\u1EDDng t\u00ECm anh d\u01B0\u1EDBi c\u01A1n m\u01B0a nh\u01B0 tr\u00FAt n\u01B0\u1EDBc. C\u00F4 c\u1ED1 g\u1EAFng t\u00ECm th\u1EA5y Teiichi \u2014 v\u00E0 g\u1EB7p c\u00F4 g\u00E1i \u0111\u00E3 g\u1EB7p anh. Sau \u0111\u00F3, h\u1ECD quay l\u1EA1i ngay l\u1EADp t\u1EE9c \u0111\u1EC3 tr\u00E1nh b\u1ECB c\u1EA3m v\u00EC ti\u1EBFp x\u00FAc v\u1EDBi m\u01B0a.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ETrong th\u1EDDi gian \u1EDF b\u1EC7nh x\u00E1 c\u1EE7a tr\u01B0\u1EDDng, Yuuko t\u1EEB t\u1EEB c\u1ED1 g\u1EAFng tr\u1EDF n\u00EAn th\u00E2n thi\u1EBFt h\u01A1n v\u1EDBi Teiichi. C\u01A1 h\u1ED9i n\u00E0y \u0111\u00E3 b\u1ECB gi\u00E1n \u0111o\u1EA1n b\u1EDFi c\u00F4 g\u00E1i l\u00FAc tr\u01B0\u1EDBc, ng\u01B0\u1EDDi kh\u0103ng kh\u0103ng r\u1EB1ng Yuuko, c\u00F4 g\u00E1i hi\u1EC7n \u0111ang b\u00E1m l\u1EA5y anh, l\u00E0 m\u1ED9t sinh v\u1EADt \u0111\u00E1ng s\u1EE3 s\u1EBD l\u1EA5y m\u1EA1ng anh n\u1EBFu anh ti\u1EBFp t\u1EE5c \u1EDF b\u00EAn c\u00F4. \u1EDE \u0111\u00F3, quan \u0111i\u1EC3m c\u1EE7a Teiichi v\u1EC1 Yuuko \u0111\u00E3 thay \u0111\u1ED5i \u0111\u00E1ng k\u1EC3 v\u00E0, v\u00EC s\u1EE3 h\u00E3i, Teiichi b\u1ECF tr\u1ED1n c\u00F9ng c\u00F4 g\u00E1i, b\u1ECF l\u1EA1i Yuuko, ng\u01B0\u1EDDi gi\u1EDD \u0111\u00E2y l\u00E0 m\u1ED9t thi\u1EBFu n\u1EEF b\u1ECB h\u1EE7y ho\u1EA1i b\u1EDFi c\u00E1i ch\u1EBFt v\u00E0 th\u1EDDi gian.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Ca href=\u0022https://translate.google.com/website?sl=en\u0026amp;tl=vi\u0026amp;hl=vi\u0026amp;client=srp\u0026amp;u=https://static.wikia.nocookie.net/tasogare-otome/images/d/d6/Teiichi_hold_yuuko_corpse_hand.jpg/revision/latest?cb%3D20120423013427\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022color: rgb(233, 210, 168); background-color: unset;\u0022\u003E\u003Cimg src=\u0022https://static.wikia.nocookie.net/tasogare-otome/images/d/d6/Teiichi_hold_yuuko_corpse_hand.jpg/revision/latest/scale-to-width-down/220?cb=20120423013427\u0022 alt=\u0022Teiichi n\u1EAFm tay x\u00E1c Yuuko\u0022 height=\u0022138\u0022 width=\u0022220\u0022\u003E\u003C/a\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022color: rgb(230, 230, 230); background-color: initial;\u0022\u003ETeiichi \u0111\u1ED1i ch\u1EA5t v\u1EDBi Yuuko v\u1EC1 ngo\u1EA1i h\u00ECnh c\u1EE7a c\u00F4.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EYuuko ti\u1EBFp t\u1EE5c truy \u0111u\u1ED5i hai ng\u01B0\u1EDDi, v\u00E0 cu\u1ED9c r\u01B0\u1EE3t \u0111u\u1ED5i n\u00E0y k\u1EBFt th\u00FAc trong ph\u00F2ng C\u00E2u l\u1EA1c b\u1ED9 \u0111i\u1EC1u tra hi\u1EC7n t\u01B0\u1EE3ng si\u00EAu nhi\u00EAn, n\u01A1i c\u00F4 g\u00E1i, ng\u01B0\u1EDDi \u0111\u00E3 t\u1EF1 gi\u1EDBi thi\u1EC7u m\u00ECnh l\u00E0\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Kirie_Kanoe?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003EKirie Kanoe\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0tr\u01B0\u1EDBc \u0111\u00F3, \u0111ang t\u00ECm ki\u1EBFm h\u00E0i c\u1ED1t c\u1EE7a Yuuko. Yuuko c\u1ED1 g\u1EAFng gi\u1EEF ch\u1EB7t Teiichi tr\u01B0\u1EDBc khi anh ta c\u00F3 th\u1EC3 theo Kirie xu\u1ED1ng con \u0111\u01B0\u1EDDng b\u00ED m\u1EADt b\u00EAn trong ph\u00F2ng c\u00E2u l\u1EA1c b\u1ED9, v\u00E0 khi th\u1EA5y ph\u1EA3n \u1EE9ng c\u1EE7a Teiichi tr\u01B0\u1EDBc h\u00ECnh d\u1EA1ng gh\u00EA r\u1EE3n c\u1EE7a c\u00F4, c\u00F4 \u0111\u00E3 g\u1EA7n nh\u01B0 t\u1EEB b\u1ECF anh ta. Tuy nhi\u00EAn, Teiichi, th\u1EEBa nh\u1EADn r\u1EB1ng anh ta \u0111\u00E3 c\u1EA3m th\u1EA5y s\u1EE3 h\u00E3i khi l\u1EA7n \u0111\u1EA7u ti\u00EAn nh\u00ECn th\u1EA5y h\u00ECnh d\u1EA1ng kh\u00E1c c\u1EE7a Yuuko, quy\u1EBFt \u0111\u1ECBnh r\u1EB1ng anh ta s\u1EBD truy \u0111u\u1ED5i c\u00F4 \u1EA5y d\u00F9 sao \u0111i n\u1EEFa, v\u00E0 quy\u1EBFt t\u00E2m nh\u00ECn th\u1EA5y m\u1ECDi th\u1EE9 v\u1EC1 c\u00F4 \u1EA5y. M\u1EB7c d\u00F9 r\u1EA5t vui m\u1EEBng tr\u01B0\u1EDBc tuy\u00EAn b\u1ED1 c\u1EE7a Teiichi, c\u00F4 \u1EA5y s\u1EDBm b\u1ECB cho\u00E1ng ng\u1EE3p b\u1EDFi s\u1EF1 x\u1EA5u h\u1ED5 khi Teiichi ti\u1EBFp t\u1EE5c \u0111i\u1EC1u tra th\u00EAm v\u1EC1 x\u01B0\u01A1ng c\u1EE7a c\u00F4 \u1EA5y tr\u00EAn con \u0111\u01B0\u1EDDng b\u00ED m\u1EADt, m\u00E0 c\u00F4 \u1EA5y coi l\u00E0 kho\u1EA3nh kh\u1EAFc Teiichi nh\u00ECn th\u1EA5y \u0026quot;h\u00ECnh d\u1EA1ng tr\u1EA7n tr\u1EE5i nh\u1EA5t\u0026quot; c\u1EE7a c\u00F4 \u1EA5y.\u003C/span\u003E\u003C/p\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EQuicksilver sau gi\u1EDD h\u1ECDc\u003C/strong\u003E\u003C/h3\u003E\u003Ch2 class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EC\u1ED1t truy\u1EC7n (Lo\u1EA1t phim ho\u1EA1t h\u00ECnh)\u003C/span\u003E\u003C/h2\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EYuuko v\u00E0 c\u00E1i b\u00F3ng c\u1EE7a c\u00F4 \u1EA5y\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u1EDE T\u1EADp 7, Momoe mu\u1ED1n bi\u1EBFt th\u00EAm v\u1EC1 Teiichi v\u00E0 \u0111\u1ED9t nhi\u00EAn tr\u1EDF n\u00EAn h\u00F2a h\u1EE3p v\u1EDBi anh \u1EA5y. Khi Yuuko nh\u1EADn ra \u0111i\u1EC1u \u0111\u00F3, c\u00F4 \u1EA5y c\u1EA3m th\u1EA5y ghen t\u1ECB. Nh\u1EEFng ng\u00E0y g\u1EA7n \u0111\u00E2y, Teiichi nh\u1EADn th\u1EA5y r\u1EB1ng c\u00F3 \u0111i\u1EC1u g\u00EC \u0111\u00F3 kh\u00F4ng \u1ED5n \u1EDF Yuuko. V\u00E0o gi\u1EDD ngh\u1EC9 tr\u01B0a, khi Yuuko mu\u1ED1n \u0103n tr\u01B0a tr\u00EAn s\u00E2n th\u01B0\u1EE3ng v\u1EDBi Teiichi. Momoe m\u1EDDi anh \u1EA5y \u0111i \u0103n tr\u01B0a c\u00F9ng nhau. Teiichi ch\u1EA5p nh\u1EADn \u0111i\u1EC1u \u0111\u00F3 v\u00EC Yuuko ghen t\u1ECB v\u1EDBi Momoe. V\u00E0o gi\u1EDD \u0103n tr\u01B0a c\u1EE7a h\u1ECD, khi Momoe mu\u1ED1n \u0103n tr\u01B0a c\u00F9ng anh \u1EA5y v\u00EC Yuuko \u0111\u00E3 \u0103n h\u1EBFt Onigiri c\u1EE7a anh \u1EA5y, Yuuko \u0111\u00E3 t\u00E1t \u0111\u1ED3 \u0103n c\u1EE7a Momoe. Khi Momoe b\u1ECB s\u1ED1c, c\u00F4 \u1EA5y c\u1EA3m th\u1EA5y v\u1EE5ng v\u1EC1 v\u1EDBi anh \u1EA5y v\u00E0 \u0111i r\u1EEDa \u0111\u0169a c\u1EE7a m\u00ECnh. Khi Yuuko xin l\u1ED7i, Teiichi t\u1EF1 x\u00E1c nh\u1EADn r\u1EB1ng c\u00F3 \u0111i\u1EC1u g\u00EC \u0111\u00F3 kh\u00F4ng \u1ED5n \u1EDF c\u00F4 \u1EA5y. Khi Kirie v\u00E0 Teiichi n\u00F3i v\u1EC1 b\u00F3ng ma. Yuuko nh\u00ECn th\u1EA5y h\u1ECD v\u00E0 ch\u1EA1m tr\u00E1n v\u1EDBi b\u00F3ng ma m\u00E0 c\u00F4 \u1EA5y kh\u00F4ng nh\u00ECn th\u1EA5y v\u00EC c\u00F4 \u1EA5y \u0111\u00E3 gi\u1EA3 v\u1EDD. Khi Yuuko \u0111\u1EBFn g\u1EA7n Teiichi v\u00E0 Kirie, c\u00F4 \u1EA5y nghe n\u00F3i r\u1EB1ng c\u00F4 \u1EA5y kh\u00F4ng c\u1EA3m th\u1EA5y t\u1EE9c gi\u1EADn v\u00E0 c\u0103m gh\u00E9t Momoe, ch\u1EC9 ghen t\u1ECB. Teiichi, Kirie v\u00E0 Yuuko \u0111\u00E3 nh\u00ECn th\u1EA5y b\u00F3ng ma. Ng\u01B0\u1EDDi ta n\u00F3i r\u1EB1ng Yuuko kh\u00F4ng c\u00F3 s\u1EF1 t\u1EE9c gi\u1EADn v\u00E0 h\u1EADn th\u00F9 gi\u00FAp c\u00F4 \u1EA5y lu\u00F4n xinh \u0111\u1EB9p v\u00E0 s\u1EF1 t\u1EE9c gi\u1EADn v\u00E0 h\u1EADn th\u00F9 c\u1EE7a c\u00F4 \u1EA5y d\u00E0nh cho c\u00E1i b\u00F3ng c\u1EE7a c\u00F4 \u1EA5y. Khi Teiichi nh\u00ECn th\u1EA5y Yuuko, c\u00E1i b\u00F3ng bi\u1EBFn m\u1EA5t v\u00E0 Yuuko b\u1ECF ch\u1EA1y. Teiichi \u0111u\u1ED5i theo c\u00F4 \u1EA5y v\u00E0 h\u1ECD nh\u00ECn th\u1EA5y T\u1EA3ng \u0111\u00E1 nguy\u1EC1n r\u1EE7a. Khi h\u1ECD \u0111i v\u00E0o s\u00E2n trong, Teiichi nh\u1EADn th\u1EA5y r\u1EB1ng t\u1EA3ng \u0111\u00E1 \u0111\u00E3 thay \u0111\u1ED5i v\u00E0 h\u1ECD nh\u00ECn th\u1EA5y c\u00E1i t\u00EAn \u0026quot;Kanoe Yuko\u0026quot; tr\u00EAn \u0111\u00F3. Khi h\u1ECD th\u1EA3o lu\u1EADn v\u1EC1 \u0111i\u1EC1u \u0111\u00F3 tr\u00EAn s\u00E2n th\u01B0\u1EE3ng, Theo Teiichi, Yuuko \u0111\u00E3 t\u1EF1 nguy\u1EC7n tr\u1EDF th\u00E0nh v\u1EADt hy sinh m\u00E0 kh\u00F4ng h\u1EC1 h\u1EADn th\u00F9 ng\u00F4i tr\u01B0\u1EDDng, \u0111\u00E2y l\u00E0 qu\u00E1 kh\u1EE9 c\u1EE7a Yuuko nh\u01B0ng c\u00E1i b\u00F3ng c\u1EE7a c\u00F4 \u1EA5y xu\u1EA5t hi\u1EC7n v\u00E0 mu\u1ED1n Yuuko nh\u1EDB l\u1EA1i qu\u00E1 kh\u1EE9 c\u1EE7a c\u00F4 \u1EA5y. V\u00EC Yuuko kh\u00F4ng mu\u1ED1n nh\u1EDB l\u1EA1i qu\u00E1 kh\u1EE9 c\u1EE7a m\u00ECnh, c\u00E1i b\u00F3ng c\u1EE7a c\u00F4 \u1EA5y \u0111\u00E3 ti\u1EBFp c\u1EADn c\u00F4 \u1EA5y v\u00E0 tr\u1EDF th\u00E0nh m\u1ED9t trong s\u1ED1 c\u00F4 \u1EA5y. Teiichi kh\u00F4ng \u0111\u1EC3 \u00FD \u0111\u1EBFn \u0111i\u1EC1u \u0111\u00F3 v\u00EC Yuuko c\u00F3 v\u1EBB r\u1EA5t vui. Ng\u00E0y h\u00F4m sau, khi Yuuko nh\u00ECn th\u1EA5y \u0111\u00F4i m\u1EAFt c\u1EE7a Teiichi, c\u00F4 \u1EA5y nh\u00ECn th\u1EA5y \u0111i\u1EC1u g\u00EC \u0111\u00F3 v\u00E0 c\u1EA3m th\u1EA5y ch\u00E1n n\u1EA3n. V\u00E0o gi\u1EDD ngh\u1EC9 tr\u01B0a, Momoe l\u1EA1i m\u1EDDi anh \u1EA5y nh\u01B0ng Teiichi \u0111\u00E3 t\u1EEB ch\u1ED1i. Tr\u00EAn s\u00E2n th\u01B0\u1EE3ng, khi Teiichi \u0103n tr\u01B0a xong v\u00E0 tr\u1EDF l\u1EA1i l\u1EDBp h\u1ECDc, Yuuko c\u1EA3m th\u1EA5y s\u1EE3 h\u00E3i v\u00EC c\u00F4 nh\u00ECn th\u1EA5y h\u00ECnh \u1EA3nh ph\u1EA3n chi\u1EBFu c\u1EE7a m\u00ECnh trong m\u1EAFt Teiichi. H\u00ECnh \u1EA3nh ph\u1EA3n chi\u1EBFu c\u1EE7a c\u00F4 l\u00E0 m\u1ED9t c\u00E1i b\u00F3ng. Khi Teiichi d\u1EEBng l\u1EA1i \u1EDF c\u1EA7u thang \u0111\u1EC3 g\u1ECDi Yuuko, Yuuko \u0111\u1EE9ng d\u1EADy v\u00E0 c\u00F4 \u0111\u1EA9y Teiichi \u1EDF c\u1EA7u thang. Teiichi b\u1ECB s\u1ED1c v\u00E0 b\u1ECB th\u01B0\u01A1ng, anh nh\u00ECn th\u1EA5y Yuuko v\u1EDBi m\u1ED9t c\u00E1i b\u00F3ng d\u1EEF d\u1ED9i v\u00E0 \u0111\u00F4i m\u1EAFt c\u00F4 ph\u00E1t s\u00E1ng. Ng\u00E0y h\u00F4m sau, khi Yuuko kh\u00F4ng xu\u1EA5t hi\u1EC7n t\u1EA1i Injured Teiichi. Anh \u0111\u1EBFn C\u00E2u l\u1EA1c b\u1ED9 \u0111i\u1EC1u tra huy\u1EC1n b\u00ED, anh kh\u00F4ng th\u1EA5y Yuuko v\u00E0 nh\u00ECn v\u00E0o g\u01B0\u01A1ng. T\u1EA1i G\u01B0\u01A1ng, anh th\u1EA5y Yuuko \u0111i ngang qua ph\u00EDa sau anh. Anh g\u1ECDi Yuuko. Nh\u01B0ng Yuuko n\u00F3i r\u1EB1ng anh c\u00F3 th\u1EC3 nh\u00ECn th\u1EA5y c\u00F4 v\u00E0 c\u1EA3m th\u1EA5y nh\u1EB9 nh\u00F5m. Khi Teiichi nh\u1EADn ra \u0111i\u1EC1u \u0111\u00F3, anh n\u00F3i r\u1EB1ng anh l\u00E0 Teiichi nh\u01B0ng Yuuko tr\u1EA3 l\u1EDDi, \u0026quot;Xin l\u1ED7i, nh\u01B0ng t\u00F4i \u0111\u00E3 qu\u00EAn b\u1EA1n.\u0026quot;. Ngh\u0129a l\u00E0 Yuuko kh\u00F4ng nh\u1EDB Teiichi.\u003C/span\u003E\u003C/p\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ECu\u1ED1i c\u00F9ng Teiichi c\u1ED1 g\u1EAFng t\u00ECm c\u00F4 v\u1EDBi Kirie v\u00E0 Momoe ph\u00EDa sau anh, v\u00E0 t\u00ECm th\u1EA5y c\u00F4 tr\u00EAn m\u00E1i tr\u01B0\u1EDDng. C\u1ED1 g\u1EAFng khi\u1EBFn c\u00F4 nh\u1EDB l\u1EA1i, anh c\u0169ng n\u00F3i v\u1EDBi c\u00F4 r\u1EB1ng anh y\u00EAu c\u00F4 v\u00E0 Teiichi v\u00F4 t\u00ECnh ng\u00E3 v\u00E0o c\u00F4 khi ch\u1EA1m v\u00E0o ng\u1EF1c c\u00F4. Yuuko s\u1EDBm \u0111\u1EC1 c\u1EADp r\u1EB1ng \u0111\u00F3 ch\u1EC9 l\u00E0 l\u1EA7n \u0111\u1EA7u ti\u00EAn h\u1ECD g\u1EB7p nhau v\u00E0 tuy\u00EAn b\u1ED1 r\u1EB1ng anh nh\u1EDB Teiichi.\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Shadow_Yuuko?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003EShadow Yuuko\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0, ng\u01B0\u1EDDi \u1EDF g\u1EA7n \u0111\u00F3, \u0111\u1EC1 c\u1EADp r\u1EB1ng c\u00F4 \u0111\u00E3 tr\u1EA3 l\u1EA1i cho c\u00F4 nh\u1EEFng k\u00FD \u1EE9c v\u1EC1 Teiichi trong th\u1EDDi \u0111i\u1EC3m hi\u1EC7n t\u1EA1i v\u00E0 cu\u1ED1i c\u00F9ng c\u00F4 s\u1EBD ph\u1EE5c v\u1EE5 m\u1EE5c \u0111\u00EDch c\u1EE7a m\u00ECnh (c\u00F3 th\u1EC3 l\u00E0 kh\u00F4i ph\u1EE5c l\u1EA1i to\u00E0n b\u1ED9 k\u00FD \u1EE9c c\u1EE7a Yuuko). Momoe h\u1ECFi khi anh th\u00FA nh\u1EADn r\u1EB1ng anh c\u00F3 y\u00EAu Yuuko kh\u00F4ng, v\u00E0 anh n\u00F3i r\u1EB1ng anh y\u00EAu c\u00F4, Yuuko \u00F4m Teiichi v\u00E0 tuy\u00EAn b\u1ED1 r\u1EB1ng c\u00F4 c\u0169ng y\u00EAu anh.\u003C/span\u003E\u003C/p\u003E\u003Ch2 class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ENh\u01B0 m\u1ED9t con ma\u003C/span\u003E\u003C/h2\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EB\u1ED9 truy\u1EC7n mi\u00EAu t\u1EA3 Yuuko l\u00E0 m\u1ED9t h\u1ED3n ma v\u1EDBi nh\u1EEFng \u0111\u1EB7c \u0111i\u1EC3m v\u1EABn gi\u1ED1ng v\u1EDBi m\u1ED9t con ng\u01B0\u1EDDi b\u00ECnh th\u01B0\u1EDDng. Kh\u00F4ng gi\u1ED1ng nh\u01B0 h\u1ED3n ma khu\u00F4n m\u1EABu c\u00F3 th\u1EC3 bay ho\u1EB7c \u0111i xuy\u00EAn qua t\u01B0\u1EDDng, s\u00E0n v\u00E0 tr\u1EA7n nh\u00E0, Yuuko c\u1EA7n ph\u1EA3i \u0111i b\u1ED9 \u0111\u1EBFn n\u01A1i c\u00F4 \u1EA5y mong mu\u1ED1n. Ngo\u00E0i ra, Yuuko c\u00F3 th\u1EC3 \u0111\u00F3i ho\u1EB7c b\u1ECB b\u1EC7nh nh\u01B0 m\u1ED9t con ng\u01B0\u1EDDi b\u00ECnh th\u01B0\u1EDDng. Trong s\u1ED1 nh\u1EEFng \u0111\u1EB7c \u0111i\u1EC3m m\u00E0 Yuuko chia s\u1EBB v\u1EDBi h\u1ED3n ma l\u00E0 s\u1EF1 thi\u1EBFu hi\u1EC7n di\u1EC7n c\u1EE7a c\u00F4 \u1EA5y \u0111\u1ED1i v\u1EDBi h\u1EA7u h\u1EBFt m\u1ECDi ng\u01B0\u1EDDi.\u003C/span\u003E\u003C/p\u003E\u003Ch3 class=\u0022ql-align-justify\u0022\u003E\u003Cstrong style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003ES\u1EF1 nh\u1EADn th\u1EE9c\u003C/strong\u003E\u003C/h3\u003E\u003Cp class=\u0022ql-align-justify\u0022\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003EKirie \u0111\u00E3 ch\u1EE9ng minh r\u1EB1ng Yuuko c\u00F3 th\u1EC3 \u0111\u01B0\u1EE3c nh\u00ECn th\u1EA5y nh\u01B0 th\u1EBF n\u00E0o t\u00F9y thu\u1ED9c v\u00E0o ng\u01B0\u1EDDi nh\u00ECn nh\u1EADn c\u00F4 \u1EA5y. M\u1EB7c d\u00F9 Yuuko th\u01B0\u1EDDng l\u00E0 m\u1ED9t c\u00F4 g\u00E1i c\u00F3 n\u01B0\u1EDBc da nh\u1EE3t nh\u1EA1t, m\u1EAFt \u0111\u1ECF v\u00E0 m\u00E1i t\u00F3c \u0111en d\u00E0i nh\u01B0 trong m\u1EAFt Teiichi, c\u00F4 \u1EA5y c\u00F3 th\u1EC3 c\u00F3 m\u1ED9t h\u00ECnh d\u1EA1ng k\u00E9m r\u00F5 r\u00E0ng h\u01A1n v\u00E0 nham hi\u1EC3m h\u01A1n: m\u1ED9t h\u00ECnh b\u00F3ng m\u1EDD \u1EA3o gi\u1ED1ng nh\u01B0 m\u1ED9t h\u00ECnh b\u00F3ng. \u0110i\u1EC1u n\u00E0y c\u00F3 th\u1EC3 thay \u0111\u1ED5i t\u00F9y thu\u1ED9c v\u00E0o ng\u01B0\u1EDDi nh\u00ECn th\u1EA5y Yuuko, v\u00E0 trong tr\u01B0\u1EDDng h\u1EE3p c\u1EE7a Kirie, c\u00F4 \u1EA5y nh\u00ECn th\u1EA5y Yuuko l\u00E0 m\u1ED9t c\u00F4 g\u00E1i c\u00F3 l\u00E0n da x\u00E1m x\u1ECBt, m\u00E1i t\u00F3c r\u1ED1i b\u00F9 v\u00E0 \u00E1nh m\u1EAFt nham hi\u1EC3m, Kirie c\u0169ng \u0111\u00E3 t\u1EEBng nh\u00ECn th\u1EA5y ch\u00EDnh m\u00ECnh m\u1ED9t l\u1EA7n. M\u1ED9t v\u00ED d\u1EE5 kh\u00E1c l\u00E0 khi nh\u1EEFng h\u1ECDc sinh c\u1ED1 g\u1EAFng hy sinh\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Yuuko_Kirishima?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003EYuuko Kirishima\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0nh\u00ECn th\u1EA5y Yuuko l\u00E0\u00A0\u003C/span\u003E\u003Ca href=\u0022https://tasogare--otome-fandom-com.translate.goog/wiki/Akahito?_x_tr_sl=en\u0026amp;_x_tr_tl=vi\u0026amp;_x_tr_hl=vi\u0026amp;_x_tr_pto=tc\u0022 rel=\u0022noopener noreferrer\u0022 target=\u0022_blank\u0022 style=\u0022background-color: rgb(45, 44, 24); color: rgb(233, 210, 168);\u0022\u003EAkahito\u003C/a\u003E\u003Cspan style=\u0022background-color: rgb(45, 44, 24); color: rgb(230, 230, 230);\u0022\u003E\u00A0.\u003C/span\u003E\u003C/p\u003E\u003Cp\u003E\u003C/p\u003E","FlagActive":true,"LstHashTagNews":[{"HashTagNewsName":"Yuuko"}],"LstRefFileNews":[]}
+                        Response     : {"Success":true,"ErrorMessage":null,"RequestDTimeAt":"2025-04-23T22:26:45.9301025+07:00","RequestClients":null,"Data":null,"DataList":null,"objResult":null}
+                        ------------------------------------------------
+                        
+2025-04-23 22:26:46.662 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.NewsModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:26:46.664 +07:00 [INF] Executed action API.Controllers.NewsController.Create (API) in 929.1464ms
+2025-04-23 22:26:46.664 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Create (API)'
+2025-04-23 22:26:46.664 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/news/create - 200 null application/json; charset=utf-8 946.5873ms
+2025-04-23 22:26:50.520 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=100&keyword=&userid=&categoryid= - null null
+2025-04-23 22:26:50.521 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/hashtagnews/gettophashtag - null null
+2025-04-23 22:26:50.524 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:26:50.525 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.525 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.525 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.525 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/hashtagnews/gettophashtag - 204 null null 4.8237ms
+2025-04-23 22:26:50.526 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=100&keyword=&userid=&categoryid= - 204 null null 5.9376ms
+2025-04-23 22:26:50.526 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 204 null null 1.6773ms
+2025-04-23 22:26:50.530 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/hashtagnews/gettophashtag - null null
+2025-04-23 22:26:50.530 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.530 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:26:50.530 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.530 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=100&keyword=&userid=&categoryid= - null null
+2025-04-23 22:26:50.530 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:50.531 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:26:50.531 +07:00 [INF] Executing endpoint 'API.Controllers.HashTagNewsController.GetTopHashTag (API)'
+2025-04-23 22:26:50.533 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:26:50.534 +07:00 [INF] Route matched with {action = "GetTopHashTag", controller = "HashTagNews"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.HashTagNewsModel]] GetTopHashTag() on controller API.Controllers.HashTagNewsController (API).
+2025-04-23 22:26:50.534 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-23 22:26:50.537 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-23 22:26:50.547 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-23 22:26:50.552 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:26:50.678 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 22:26:50.692 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.733 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.740 +07:00 [INF] Executed DbCommand (145ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."HashTagNewsName", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+ORDER BY "h"."Count" DESC
+LIMIT @__p_0
+2025-04-23 22:26:50.741 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.HashTagNewsModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:26:50.744 +07:00 [INF] Executed DbCommand (150ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-23 22:26:50.747 +07:00 [INF] Executed action API.Controllers.HashTagNewsController.GetTopHashTag (API) in 213.3518ms
+2025-04-23 22:26:50.748 +07:00 [INF] Executed endpoint 'API.Controllers.HashTagNewsController.GetTopHashTag (API)'
+2025-04-23 22:26:50.748 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/hashtagnews/gettophashtag - 200 null application/json; charset=utf-8 218.0095ms
+2025-04-23 22:26:50.748 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:26:50.751 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.751 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 22:26:50.752 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.753 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.753 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.761 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.761 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.769 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.769 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.772 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.773 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.774 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.774 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.775 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.776 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.776 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.777 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.777 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.778 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.779 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.779 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:26:50.779 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.780 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.780 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.780 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.781 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.781 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.781 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.781 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:26:50.781 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:26:50.781 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:26:50.795 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 257.8367ms
+2025-04-23 22:26:50.795 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:26:50.795 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 260.6335ms
+2025-04-23 22:26:50.795 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:26:50.795 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 200 null application/json; charset=utf-8 265.5319ms
+2025-04-23 22:26:50.795 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=100&keyword=&userid=&categoryid= - 200 null application/json; charset=utf-8 265.2787ms
+2025-04-23 22:26:55.614 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - null null
+2025-04-23 22:26:55.614 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:26:55.614 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - 204 null null 0.5012ms
+2025-04-23 22:26:55.619 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - null null
+2025-04-23 22:26:56.040 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - 200 null application/json; charset=utf-8 421.3988ms
+2025-04-23 22:27:11.261 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=ay-la-bai-viet-moi - null null
+2025-04-23 22:27:11.262 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:11.262 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=ay-la-bai-viet-moi - 204 null null 0.4287ms
+2025-04-23 22:27:11.267 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=ay-la-bai-viet-moi - null null
+2025-04-23 22:27:11.481 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=ay-la-bai-viet-moi - 200 null application/json; charset=utf-8 214.7032ms
+2025-04-23 22:27:13.036 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - null null
+2025-04-23 22:27:13.036 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:13.036 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - 204 null null 0.3322ms
+2025-04-23 22:27:13.041 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - null null
+2025-04-23 22:27:13.260 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - 200 null application/json; charset=utf-8 219.021ms
+2025-04-23 22:27:14.303 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - null null
+2025-04-23 22:27:14.303 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:14.303 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - 204 null null 0.5498ms
+2025-04-23 22:27:14.308 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - null null
+2025-04-23 22:27:14.515 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - 200 null application/json; charset=utf-8 207.1022ms
+2025-04-23 22:27:16.217 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:27:16.217 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:16.217 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 204 null null 0.2002ms
+2025-04-23 22:27:16.220 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:27:16.220 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:16.222 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:16.222 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-23 22:27:16.225 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-23 22:27:16.226 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:27:16.226 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 22:27:16.227 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:16.228 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.229 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.230 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.230 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.230 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:16.231 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.231 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.231 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.231 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:16.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.232 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:16.232 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:27:16.233 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 10.302ms
+2025-04-23 22:27:16.233 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:16.233 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 200 null application/json; charset=utf-8 12.6301ms
+2025-04-23 22:27:17.812 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - null null
+2025-04-23 22:27:18.014 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=yuuko-kanoe-kanoe-yuuko - 200 null application/json; charset=utf-8 201.9459ms
+2025-04-23 22:27:19.822 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:27:19.831 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:19.841 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:19.841 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-23 22:27:19.844 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-23 22:27:19.846 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:27:19.848 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 22:27:19.848 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:19.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.849 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:19.850 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.850 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.851 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.851 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.852 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:19.852 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.852 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.852 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.853 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:19.853 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:27:19.854 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 12.4004ms
+2025-04-23 22:27:19.854 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:19.854 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 200 null application/json; charset=utf-8 31.6918ms
+2025-04-23 22:27:26.483 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - null null
+2025-04-23 22:27:26.483 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:26.483 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - 204 null null 0.4374ms
+2025-04-23 22:27:26.487 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - null null
+2025-04-23 22:27:26.605 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/detail?newsid=phan-thang-test-ne - 200 null application/json; charset=utf-8 117.4441ms
+2025-04-23 22:27:27.920 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:27:27.921 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:27.921 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 204 null null 0.6556ms
+2025-04-23 22:27:27.926 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - null null
+2025-04-23 22:27:27.927 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:27.927 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:27.928 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-04-23 22:27:27.932 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+2025-04-23 22:27:27.969 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsId", "n"."AvgPoint", "n"."CategoryNewsId", "n"."ContentBody", "n"."CreatedDTime", "n"."FlagActive", "n"."LikeCount", "n"."ShareCount", "n"."ShortDescription", "n"."ShortTitle", "n"."Slug", "n"."Thumbnail", "n"."UpdatedDTime", "n"."UserId", "n"."ViewCount"
+FROM "News" AS "n"
+ORDER BY "n"."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:27:27.969 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 22:27:27.970 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:27.970 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.970 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.970 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.971 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.971 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:27.972 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.972 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.972 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.972 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.972 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_CategoryNewsId_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "n"."NewsCategoryId", "n"."CreatedDTime", "n"."FlagActive", "n"."NewsCategoryIndex", "n"."NewsCategoryName", "n"."NewsCategoryParentId", "n"."UpdatedDTime"
+FROM "NewsCategory" AS "n"
+WHERE "n"."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-04-23 22:27:27.973 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "h"."HashTagNewsId", "h"."NewsId", "h"."Count", "h"."CreatedDTime", "h"."FlagActive", "h"."HashTagNewsName", "h"."UpdatedDTime"
+FROM "HashTagNews" AS "h"
+WHERE "h"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.973 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "r"."RefFileNewsId", "r"."CreatedDTime", "r"."FileUrl", "r"."FlagActive", "r"."NewsId", "r"."UpdatedDTime"
+FROM "RefFileNews" AS "r"
+WHERE "r"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.973 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."NewsId", "p"."UserId", "p"."CreatedDTime", "p"."FlagActive", "p"."Point", "p"."UpdatedDTime"
+FROM "PointNews" AS "p"
+WHERE "p"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.973 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+SELECT "l"."LikeNewsId", "l"."CreatedDTime", "l"."NewsId", "l"."UpdatedDTime", "l"."UserId"
+FROM "LikeNews" AS "l"
+WHERE "l"."NewsId" = @__objNews_NewsId_0
+2025-04-23 22:27:27.973 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:27:27.973 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 45.3964ms
+2025-04-23 22:27:27.973 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-04-23 22:27:27.973 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?pageIndex=0&pageSize=10&keyword=&userid=&categoryid= - 200 null application/json; charset=utf-8 46.8275ms
+2025-04-23 22:27:35.634 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:27:35.634 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:35.634 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3243ms
+2025-04-23 22:27:35.638 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 22:27:35.638 +07:00 [INF] CORS policy execution successful.
+2025-04-23 22:27:35.639 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:27:35.639 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 22:27:35.641 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 22:27:35.641 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 22:27:35.641 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 22:27:35.641 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 2.6912ms
+2025-04-23 22:27:35.641 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 22:27:35.641 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 3.2899ms
+2025-04-23 22:28:55.317 +07:00 [INF] Application is shutting down...
+2025-04-23 23:01:44.732 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:01:53.423 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:01:53.423 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:01:53.423 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:01:53.462 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:01:56.982 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 3525.1608ms
+2025-04-23 23:01:56.989 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:03:11.372 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/login - application/json 62
+2025-04-23 23:03:11.584 +07:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-23 16:03:11'.
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-04-23 23:03:11.634 +07:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '2024-10-04 17:25:15', Current time (UTC): '2025-04-23 16:03:11'.
+2025-04-23 23:03:11.635 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-23 23:03:11.669 +07:00 [INF] Route matched with {action = "Login", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.AuthResponseDto]] Login(SharedModels.Dtos.LoginDto) on controller API.Controllers.AccountController (API).
+2025-04-23 23:03:14.566 +07:00 [INF] Executed DbCommand (144ms) [Parameters=[@__normalizedEmail_0='?' (Size = 15)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."NormalizedEmail" = @__normalizedEmail_0
+LIMIT 2
+2025-04-23 23:03:14.882 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:03:15.251 +07:00 [INF] Executed DbCommand (149ms) [Parameters=[@p0='?' (Size = 36), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "RefreshTokens" ("RefreshToken", "ExpiryDate", "IsRevoked", "UserId")
+VALUES (@p0, @p1, @p2, @p3);
+2025-04-23 23:03:15.273 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.AuthResponseDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:03:15.353 +07:00 [INF] Executed action API.Controllers.AccountController.Login (API) in 3637.8896ms
+2025-04-23 23:03:15.353 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.Login (API)'
+2025-04-23 23:03:15.370 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/account/login - 200 null application/json; charset=utf-8 3998.0867ms
+2025-04-23 23:03:19.896 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:03:19.935 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:03:19.942 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:03:20.907 +07:00 [INF] Executed DbCommand (108ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:03:20.909 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:03:20.916 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 973.4699ms
+2025-04-23 23:03:20.916 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:03:20.919 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 1022.4735ms
+2025-04-23 23:03:26.150 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/Search?pageIndex=0&pageSize=100&keyword - null null
+2025-04-23 23:03:26.152 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/Search?pageIndex=0&pageSize=100&keyword - 404 null null 1.1861ms
+2025-04-23 23:03:26.152 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/api/MstDistrict/Search, Response status code: 404
+2025-04-23 23:03:54.382 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword - null null
+2025-04-23 23:03:54.402 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:03:54.408 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:03:54.512 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:03:54.537 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:03:54.537 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:03:54.544 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:03:54.559 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:03:54.578 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 170.5992ms
+2025-04-23 23:03:54.579 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:03:54.579 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword - 200 null application/json; charset=utf-8 196.8925ms
+2025-04-23 23:04:33.229 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 98
+2025-04-23 23:04:33.230 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 404 null null 1.4092ms
+2025-04-23 23:04:33.230 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: POST http://localhost:5000/api/MstDistrict/Create, Response status code: 404
+2025-04-23 23:06:58.447 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:06:59.016 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:06:59.017 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:06:59.017 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:06:59.056 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:06:59.500 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 449.3092ms
+2025-04-23 23:06:59.504 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:07:20.777 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 98
+2025-04-23 23:07:21.685 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:07:21.719 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:07:25.063 +07:00 [INF] Executed DbCommand (212ms) [Parameters=[@__p_0='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:07:25.425 +07:00 [INF] Executed DbCommand (43ms) [Parameters=[@p0='?' (Size = 9), @p1='?' (DbType = DateTime), @p2='?' (Size = 7), @p3='?' (DbType = Boolean), @p4='?' (Size = 2), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MstDistricts" ("DistrictCode", "CreatedDTime", "DistrictName", "FlagActive", "ProvinceCode", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-23 23:07:25.454 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:07:25.492 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 3768.8146ms
+2025-04-23 23:07:25.492 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:07:25.499 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 4722.4093ms
+2025-04-23 23:07:30.360 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword - null null
+2025-04-23 23:07:30.369 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:07:30.377 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:07:30.501 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:07:30.535 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:07:30.536 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:07:30.539 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:07:30.542 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:07:30.557 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 179.715ms
+2025-04-23 23:07:30.557 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:07:30.565 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword - 200 null application/json; charset=utf-8 204.4128ms
+2025-04-23 23:07:37.425 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/Search?pageIndex=0&pageSize=100&keyword - null null
+2025-04-23 23:07:37.427 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/Search?pageIndex=0&pageSize=100&keyword - 404 null null 1.7486ms
+2025-04-23 23:07:37.427 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5000/api/MstDistrict/Search, Response status code: 404
+2025-04-23 23:07:41.322 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:07:41.325 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:07:41.330 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:07:41.572 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:07:41.577 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:07:41.578 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 247.7465ms
+2025-04-23 23:07:41.578 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:07:41.578 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 256.4712ms
+2025-04-23 23:08:53.667 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:08:53.669 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:08:53.670 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:08:53.743 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:08:53.746 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:08:53.753 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 83.1088ms
+2025-04-23 23:08:53.753 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:08:53.754 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 86.3999ms
+2025-04-23 23:12:51.724 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:12:51.912 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:12:51.912 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:12:51.913 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:12:51.949 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:12:52.695 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 751.6424ms
+2025-04-23 23:12:52.699 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:13:01.012 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:13:01.027 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 10.9424ms
+2025-04-23 23:13:01.029 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:13:05.168 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 98
+2025-04-23 23:13:06.862 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:13:06.905 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:13:09.017 +07:00 [INF] Executed DbCommand (62ms) [Parameters=[@__p_0='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:13:09.258 +07:00 [INF] Executed DbCommand (16ms) [Parameters=[@p0='?' (Size = 9), @p1='?' (DbType = DateTime), @p2='?' (Size = 7), @p3='?' (DbType = Boolean), @p4='?' (Size = 2), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MstDistricts" ("DistrictCode", "CreatedDTime", "DistrictName", "FlagActive", "ProvinceCode", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-23 23:13:09.282 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:13:09.314 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 2404.3996ms
+2025-04-23 23:13:09.314 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:13:09.321 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 4152.7168ms
+2025-04-23 23:13:17.895 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:13:17.905 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:13:17.917 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:13:17.994 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:13:18.010 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:13:18.013 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 95.8576ms
+2025-04-23 23:13:18.014 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:13:18.014 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 119.072ms
+2025-04-23 23:14:50.354 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:14:50.618 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:14:50.619 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:14:50.619 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:14:50.652 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:14:50.990 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 342.5677ms
+2025-04-23 23:14:50.995 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:15:13.752 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 101
+2025-04-23 23:15:13.957 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:13.990 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:15:16.827 +07:00 [INF] Executed DbCommand (52ms) [Parameters=[@__p_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:15:17.106 +07:00 [ERR] Failed executing DbCommand (13ms) [Parameters=[@p0='?' (Size = 10), @p1='?' (DbType = DateTime), @p2='?' (Size = 8), @p3='?' (DbType = Boolean), @p4='?' (Size = 3), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MstDistricts" ("DistrictCode", "CreatedDTime", "DistrictName", "FlagActive", "ProvinceCode", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-23 23:15:17.160 +07:00 [ERR] An exception occurred in the database while saving changes for context type 'API.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2025-04-23 23:15:18.389 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 4394.3514ms
+2025-04-23 23:15:18.390 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:18.521 +07:00 [ERR] 
+                        ------------------------------------------------
+                                        500 Internal Server Error | The server has encountered a situation it does not know how to handle.
+                        ------------------------------------------------
+                        Method       : POST
+                        Path         : /api/MstDistrict/Create
+                        Request Body : {"StatusCode":500,"Message":"500 Internal Server Error | The server has encountered a situation it does not know how to handle.","DetailException":{"Message":"An error occurred while saving the entity changes. See the inner exception for details.","StackTrace":"   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable\u00601 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable\u00601 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable\u00601 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList\u00601 entriesToSave, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)\r\n   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)\r\n   at API.UnitOfWork.UnitOfWork.SaveChangesAsync() in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\UnitOfWork\\UnitOfWork.cs:line 54\r\n   at API.UnitOfWork.Services.MstDistrictService.Create(MstDistrictModel data) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\UnitOfWork\\Services\\MstDistrictService.cs:line 28\r\n   at API.Controllers.MstDistrictController.Create(MstDistrictModel reqData) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Controllers\\MstDistrictController.cs:line 42\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.\u003CInvokeActionMethodAsync\u003Eg__Awaited|12_0(ControllerActionInvoker invoker, ValueTask\u00601 actionResultValueTask)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.\u003CInvokeNextActionFilterAsync\u003Eg__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State\u0026 next, Scope\u0026 scope, Object\u0026 state, Boolean\u0026 isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()\r\n--- End of stack trace from previous location ---\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeFilterPipelineAsync\u003Eg__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeAsync\u003Eg__Logged|17_1(ResourceInvoker invoker)\r\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.\u003CInvokeAsync\u003Eg__Logged|17_1(ResourceInvoker invoker)\r\n   at Microsoft.AspNetCore.Routing.EndpointMiddleware.\u003CInvoke\u003Eg__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)\r\n   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)\r\n   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)\r\n   at API.Middlewares.LoggingMiddleware.InvokeAsync(HttpContext context) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\LoggingMiddleware.cs:line 23\r\n   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)\r\n   at API.Middlewares.GlobalExceptionHandlerMiddleware.InvokeAsync(HttpContext context) in F:\\Java \u002B Angular\\FullstackAppToturial\\API\\Middlewares\\GlobalExceptionHandlerMiddleware.cs:line 25","InnerException":"SQLite Error 19: \u0027FOREIGN KEY constraint failed\u0027.","Source":"Microsoft.EntityFrameworkCore.Relational"}}
+                        Response     : Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at API.UnitOfWork.UnitOfWork.SaveChangesAsync() in F:\Java + Angular\FullstackAppToturial\API\UnitOfWork\UnitOfWork.cs:line 54
+   at API.UnitOfWork.Services.MstDistrictService.Create(MstDistrictModel data) in F:\Java + Angular\FullstackAppToturial\API\UnitOfWork\Services\MstDistrictService.cs:line 28
+   at API.Controllers.MstDistrictController.Create(MstDistrictModel reqData) in F:\Java + Angular\FullstackAppToturial\API\Controllers\MstDistrictController.cs:line 42
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at API.Middlewares.LoggingMiddleware.InvokeAsync(HttpContext context) in F:\Java + Angular\FullstackAppToturial\API\Middlewares\LoggingMiddleware.cs:line 23
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at API.Middlewares.GlobalExceptionHandlerMiddleware.InvokeAsync(HttpContext context) in F:\Java + Angular\FullstackAppToturial\API\Middlewares\GlobalExceptionHandlerMiddleware.cs:line 25
+                        ------------------------------------------------
+                        
+2025-04-23 23:15:18.539 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 500 null application/json; charset=utf-8 4786.8411ms
+2025-04-23 23:15:44.766 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 100
+2025-04-23 23:15:44.772 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:44.772 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:15:44.852 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:15:44.936 +07:00 [INF] Executed DbCommand (82ms) [Parameters=[@p0='?' (Size = 10), @p1='?' (DbType = DateTime), @p2='?' (Size = 8), @p3='?' (DbType = Boolean), @p4='?' (Size = 2), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MstDistricts" ("DistrictCode", "CreatedDTime", "DistrictName", "FlagActive", "ProvinceCode", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-23 23:15:44.962 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:15:44.977 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 205.2844ms
+2025-04-23 23:15:44.978 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:44.978 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 212.833ms
+2025-04-23 23:15:51.234 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 100
+2025-04-23 23:15:51.237 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:51.237 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:15:51.319 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:15:51.334 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:15:51.364 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 127.0398ms
+2025-04-23 23:15:51.365 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:15:51.366 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 131.7008ms
+2025-04-23 23:16:03.786 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:16:03.788 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:16:03.795 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:16:03.846 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:16:03.851 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:16:03.852 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 57.0437ms
+2025-04-23 23:16:03.852 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:16:03.853 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 66.7562ms
+2025-04-23 23:20:57.458 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:20:57.679 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:20:57.680 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:20:57.680 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:20:57.728 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-04-23 23:20:58.188 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 468.362ms
+2025-04-23 23:20:58.193 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-04-23 23:21:09.396 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 100
+2025-04-23 23:21:09.604 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:09.637 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:21:12.268 +07:00 [INF] Executed DbCommand (209ms) [Parameters=[@__p_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:12.387 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:12.453 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:21:12.511 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 2866.6059ms
+2025-04-23 23:21:12.511 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:12.519 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 3123.6028ms
+2025-04-23 23:21:31.420 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 98
+2025-04-23 23:21:31.436 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:31.437 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:21:31.480 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 8)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:31.483 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 3)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:31.484 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:21:31.485 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 47.3321ms
+2025-04-23 23:21:31.485 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:31.485 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 65.8651ms
+2025-04-23 23:21:40.706 +07:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - application/json 97
+2025-04-23 23:21:40.709 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:40.709 +07:00 [INF] Route matched with {action = "Create", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Create(SharedModels.Models.MstDistrictModel) on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:21:40.798 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 8)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."DistrictCode", "m"."CreatedDTime", "m"."DistrictName", "m"."FlagActive", "m"."ProvinceCode", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."DistrictCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:40.800 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+WHERE "m"."ProvinceCode" = @__p_0
+LIMIT 1
+2025-04-23 23:21:40.951 +07:00 [INF] Executed DbCommand (48ms) [Parameters=[@p0='?' (Size = 8), @p1='?' (DbType = DateTime), @p2='?' (Size = 6), @p3='?' (DbType = Boolean), @p4='?' (Size = 2), @p5='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MstDistricts" ("DistrictCode", "CreatedDTime", "DistrictName", "FlagActive", "ProvinceCode", "UpdatedDTime")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+2025-04-23 23:21:40.964 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:21:40.965 +07:00 [INF] Executed action API.Controllers.MstDistrictController.Create (API) in 255.8904ms
+2025-04-23 23:21:40.966 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.Create (API)'
+2025-04-23 23:21:40.966 +07:00 [INF] Request finished HTTP/1.1 POST http://localhost:5000/api/MstDistrict/Create - 200 null application/json; charset=utf-8 259.9441ms
+2025-04-23 23:21:44.147 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - null null
+2025-04-23 23:21:44.149 +07:00 [INF] Executing endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:21:44.157 +07:00 [INF] Route matched with {action = "GetAllActive", controller = "MstDistrict"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstDistrictModel]] GetAllActive() on controller API.Controllers.MstDistrictController (API).
+2025-04-23 23:21:44.289 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."DistrictCode", "m"."DistrictName", "m"."FlagActive", "m"."CreatedDTime", "m"."UpdatedDTime"
+FROM "MstDistricts" AS "m"
+WHERE "m"."FlagActive"
+2025-04-23 23:21:44.297 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstDistrictModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:21:44.300 +07:00 [INF] Executed action API.Controllers.MstDistrictController.GetAllActive (API) in 142.8208ms
+2025-04-23 23:21:44.301 +07:00 [INF] Executed endpoint 'API.Controllers.MstDistrictController.GetAllActive (API)'
+2025-04-23 23:21:44.302 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstDistrict/GetAllActive - 200 null application/json; charset=utf-8 154.5548ms
+2025-04-23 23:23:00.525 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-04-23 23:23:00.633 +07:00 [INF] Now listening on: http://localhost:5000
+2025-04-23 23:23:00.634 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-04-23 23:23:00.634 +07:00 [INF] Hosting environment: Development
+2025-04-23 23:23:00.634 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-04-23 23:24:15.724 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/users - null null
+2025-04-23 23:24:16.278 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:16.286 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/users - 204 null null 568.6378ms
+2025-04-23 23:24:16.325 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/account/users - null null
+2025-04-23 23:24:16.329 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:17.390 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-23 23:24:17.406 +07:00 [INF] Route matched with {action = "GetAllUser", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.UserDetailDto]] GetAllUser() on controller API.Controllers.AccountController (API).
+2025-04-23 23:24:20.938 +07:00 [INF] Executed DbCommand (561ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 23:24:21.225 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:21.260 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."Email", "a"."FullName", "a"."Avatar", "a"."FlagActive", "a"."AccessFailedCount", "a"."Address", "a"."ConcurrencyStamp", "a"."EmailConfirmed", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+2025-04-23 23:24:21.264 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:21.264 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:21.265 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:21.266 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:21.277 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.UserDetailDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:24:21.384 +07:00 [INF] Executed action API.Controllers.AccountController.GetAllUser (API) in 3973.2706ms
+2025-04-23 23:24:21.384 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-23 23:24:21.392 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/account/users - 200 null application/json; charset=utf-8 5067.0853ms
+2025-04-23 23:24:27.395 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/account/users - null null
+2025-04-23 23:24:27.421 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:27.421 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/account/users - 204 null null 26.2303ms
+2025-04-23 23:24:27.428 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/account/users - null null
+2025-04-23 23:24:27.428 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:27.432 +07:00 [INF] Executing endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-23 23:24:27.433 +07:00 [INF] Route matched with {action = "GetAllUser", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.UserDetailDto]] GetAllUser() on controller API.Controllers.AccountController (API).
+2025-04-23 23:24:27.622 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."AccessFailedCount", "a"."Address", "a"."Avatar", "a"."ConcurrencyStamp", "a"."Email", "a"."EmailConfirmed", "a"."FlagActive", "a"."FullName", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+WHERE "a"."Id" = @__p_0
+LIMIT 1
+2025-04-23 23:24:27.625 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:27.629 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "a"."Id", "a"."Email", "a"."FullName", "a"."Avatar", "a"."FlagActive", "a"."AccessFailedCount", "a"."Address", "a"."ConcurrencyStamp", "a"."EmailConfirmed", "a"."LockoutEnabled", "a"."LockoutEnd", "a"."NormalizedEmail", "a"."NormalizedUserName", "a"."PasswordHash", "a"."PhoneNumber", "a"."PhoneNumberConfirmed", "a"."SecurityStamp", "a"."TwoFactorEnabled", "a"."UserName"
+FROM "AspNetUsers" AS "a"
+2025-04-23 23:24:27.630 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:27.631 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:27.631 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:27.632 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (Size = 36)], CommandType='"Text"', CommandTimeout='30']
+SELECT "a0"."Name"
+FROM "AspNetUserRoles" AS "a"
+INNER JOIN "AspNetRoles" AS "a0" ON "a"."RoleId" = "a0"."Id"
+WHERE "a"."UserId" = @__userId_0
+2025-04-23 23:24:27.633 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.UserDetailDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:24:27.633 +07:00 [INF] Executed action API.Controllers.AccountController.GetAllUser (API) in 200.1817ms
+2025-04-23 23:24:27.635 +07:00 [INF] Executed endpoint 'API.Controllers.AccountController.GetAllUser (API)'
+2025-04-23 23:24:27.636 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/account/users - 200 null application/json; charset=utf-8 207.8694ms
+2025-04-23 23:24:36.158 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:24:36.159 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:36.159 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.8915ms
+2025-04-23 23:24:36.258 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:24:36.261 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:24:36.289 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:24:36.319 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:24:36.517 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:24:36.547 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:24:36.547 +07:00 [WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+2025-04-23 23:24:36.550 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:24:36.552 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:24:36.560 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 241.0207ms
+2025-04-23 23:24:36.560 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:24:36.560 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 302.1521ms
+2025-04-23 23:25:10.932 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:10.933 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:10.934 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 1.3675ms
+2025-04-23 23:25:10.937 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:10.937 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:10.938 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:10.939 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:25:10.962 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:25:10.963 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:25:10.964 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:25:10.964 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 25.4354ms
+2025-04-23 23:25:10.964 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:10.964 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 27.1612ms
+2025-04-23 23:25:49.505 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:49.505 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:49.510 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 4.7421ms
+2025-04-23 23:25:49.531 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:49.531 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:49.533 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:49.538 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:25:49.580 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:25:49.581 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:25:49.581 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:25:49.582 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 37.6793ms
+2025-04-23 23:25:49.582 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:49.582 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 51.2272ms
+2025-04-23 23:25:55.025 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:55.026 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:55.026 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.6702ms
+2025-04-23 23:25:55.049 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:55.050 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:55.050 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:55.050 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:25:55.054 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:25:55.055 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:25:55.055 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:25:55.056 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.2529ms
+2025-04-23 23:25:55.056 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:55.056 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.3834ms
+2025-04-23 23:25:56.075 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:56.075 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:56.075 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.6868ms
+2025-04-23 23:25:56.081 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:56.081 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:56.081 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:56.081 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:25:56.115 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:25:56.115 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:25:56.115 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:25:56.116 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 34.0382ms
+2025-04-23 23:25:56.116 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:56.116 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 34.8046ms
+2025-04-23 23:25:56.811 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:56.812 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:56.816 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 4.2094ms
+2025-04-23 23:25:56.823 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:25:56.823 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:25:56.824 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:56.824 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:25:56.826 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:25:56.828 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:25:56.828 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:25:56.828 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.1814ms
+2025-04-23 23:25:56.828 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:25:56.828 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.206ms
+2025-04-23 23:26:00.766 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:26:00.766 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:26:00.766 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.4058ms
+2025-04-23 23:26:00.774 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:26:00.774 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:26:00.774 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:26:00.774 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:26:00.777 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:26:00.777 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:26:00.778 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:26:00.779 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 4.1967ms
+2025-04-23 23:26:00.779 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:26:00.779 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 5.1868ms
+2025-04-23 23:26:02.414 +07:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:26:02.414 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:26:02.414 +07:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 204 null null 0.3033ms
+2025-04-23 23:26:02.420 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - null null
+2025-04-23 23:26:02.421 +07:00 [INF] CORS policy execution successful.
+2025-04-23 23:26:02.421 +07:00 [INF] Executing endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:26:02.421 +07:00 [INF] Route matched with {action = "Search", controller = "MstProvince"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Models.MstProvinceModel]] Search(Int32, Int32, System.String) on controller API.Controllers.MstProvinceController (API).
+2025-04-23 23:26:02.425 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+2025-04-23 23:26:02.426 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."ProvinceCode", "m"."CreatedDTime", "m"."FlagActive", "m"."ProvinceName", "m"."UpdatedDTime"
+FROM "MstProvinces" AS "m"
+LIMIT @__p_1 OFFSET @__p_0
+2025-04-23 23:26:02.426 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Models.MstProvinceModel, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-04-23 23:26:02.427 +07:00 [INF] Executed action API.Controllers.MstProvinceController.Search (API) in 5.4016ms
+2025-04-23 23:26:02.427 +07:00 [INF] Executed endpoint 'API.Controllers.MstProvinceController.Search (API)'
+2025-04-23 23:26:02.427 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/MstProvince/Search?pageIndex=0&pageSize=100&keyword= - 200 null application/json; charset=utf-8 6.3285ms

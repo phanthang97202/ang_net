@@ -1,0 +1,34 @@
+.chat__container {
+    border: 1px solid red;
+    position: relative;
+    scroll-behavior: "smooth";
+
+    .comment__container {
+        .ant-comment-inner {
+            padding: 0px 0px !important;
+        } 
+    } 
+    
+    .myMessage {
+        background-color: blue;
+        color: white;
+        padding: 6px 8px;
+        border-radius: 20px;
+    }
+
+    .form__send {
+        height: max-content;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+}
+::ng-deep .uploadfile__container {
+    .ant-upload.ant-upload-select-picture-card {
+        margin: 0 !important;
+        width: fit-content !important;
+        height: fit-content !important;
+    }
+}
+ 

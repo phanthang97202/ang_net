@@ -1,0 +1,57 @@
+<div class="login__container">
+  <form
+    nz-form
+    class="login-form"
+    [formGroup]="validateForm"
+    (ngSubmit)="submitForm($event)">
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please input your username!">
+        <nz-input-group nzPrefixIcon="user">
+          <input
+            type="text"
+            nz-input
+            formControlName="userName"
+            placeholder="Username" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please input your Password!">
+        <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+          <input
+            [type]="passwordVisible ? 'password' : 'text'"
+            nz-input
+            formControlName="password"
+            placeholder="Password" />
+        </nz-input-group>
+        <ng-template #suffixTemplate>
+          <span
+            class="form__password-visible"
+            nz-icon
+            [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+            (click)="passwordVisible = !passwordVisible"></span>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <button
+          nz-button
+          class="login-form-button login-form-margin"
+          nzType="primary">
+          Log in
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <div id="google-button"></div>
+      </nz-form-control>
+    </nz-form-item>
+    Or
+    <a class="text-[blue]" routerLink="/register">register now!</a>
+    <a class="login-form-forgot text-[blue]">Forgot password</a>
+  </form>
+</div>
