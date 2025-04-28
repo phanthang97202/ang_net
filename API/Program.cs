@@ -19,6 +19,7 @@ using System.Text;
 using StackExchange.Redis;
 using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
+// Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
 
 //builder.Services.AddDbContext<AppDbContext>(options =>
@@ -241,5 +242,9 @@ app.MapControllers();
 
 
 app.MapHub<ChatHub>("chat-hub");
+
+// ---------------------------------
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+app.Urls.Add($"http://*:{port}");
 
 app.Run();

@@ -1,4 +1,5 @@
 /API/appsettings.json
+/API/appsettings.Production.json
 /API/bin/
 /API/obj/
 /API/Publish/
@@ -27,6 +28,7 @@
 .DS_Store
 Thumbs.db
 .vscode/
+.vs
 
 # # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 

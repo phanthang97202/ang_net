@@ -4,19 +4,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 # Set working directory
 WORKDIR /src
 
-# Copy solution file and project files
-COPY FullstackAppTutorial.generated.sln ./
-COPY API/API.csproj ./API/
-COPY CommonUtils/CommonUtils.csproj ./CommonUtils/
-COPY SharedModels/SharedModels.csproj ./SharedModels/
+# Copy everything at once (solution + all projects)
+COPY . .
 
 # Restore dependencies
-RUN dotnet restore "API/API.csproj"
-
-# Copy all source files
-COPY API/ ./API/
-COPY CommonUtils/ ./CommonUtils/
-COPY SharedModels/ ./SharedModels/
+RUN dotnet restore "FullstackAppTutorial.generated.sln"
 
 # Build the application
 WORKDIR /src/API
