@@ -2,8 +2,8 @@ export const environment = {
   production: false,
   tokenKey: 'tokenKey',
   refreshTokenKey: 'refreshTokenKey',
-  apiUrl: 'https://myblogs-be-1.onrender.com/api/',
-  wsUrl: 'https://myblogs-be-1.onrender.com/',
+  apiUrl: 'https://ang-net.onrender.com/api/',
+  wsUrl: 'https://ang-net.onrender.com/',
   // anhduongcute97@gmail.com // AnhDuong09072002!??? => fromt to 2024/11/26
   text_editor_key:
     'eWxWRTZOOVRqMVpaUjZQTjJvUVZkUkpNYnVMb05uUGZnOHpPbFRqaGNsYURVVXRyeTZESzE4bk1FNHdoMGc9PS1NakF5TkRFeE1qWT0=',
