@@ -247,4 +247,13 @@ app.MapHub<ChatHub>("chat-hub");
 var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
 app.Urls.Add($"http://*:{port}");
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate(); // Tự động apply migration
+}
+
+
 app.Run();
