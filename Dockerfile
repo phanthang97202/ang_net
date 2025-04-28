@@ -8,7 +8,7 @@ WORKDIR /src
 COPY . .
 
 # Restore dependencies
-RUN dotnet restore "FullstackAppTutorial.generated.sln"
+RUN dotnet restore "FullstackAppToturial.generated.sln"
 
 # Build the application
 WORKDIR /src/API
