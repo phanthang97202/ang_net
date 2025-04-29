@@ -195,8 +195,8 @@ namespace API.Respositories
             {
                 data.FlagActive = true;
             }
-            data.CreatedDTime = DateTime.Now;
-            data.UpdatedDTime = DateTime.Now;
+            data.CreatedDTime = TCommonUtils.DTimeNow();
+            data.UpdatedDTime = TCommonUtils.DTimeNow();
 
             await _dbContext.MstDistricts.AddAsync(data);
             //await _dbContext.SaveChangesAsync(); // chuyển => Dùng UoW
@@ -246,7 +246,7 @@ namespace API.Respositories
                 .ExecuteUpdateAsync(setter =>
                       setter.SetProperty(p => p.DistrictName, data.DistrictName)
                             .SetProperty(p => p.FlagActive, data.FlagActive)
-                            .SetProperty(p => p.UpdatedDTime, DateTime.Now)
+                            .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow())
                 );
             //await _dbContext.SaveChangesAsync();
 
@@ -411,8 +411,8 @@ namespace API.Respositories
                                     DistrictCode = DistrictCode,
                                     DistrictName = DistrictName,
                                     FlagActive = true,
-                                    CreatedDTime = DateTime.Now,
-                                    UpdatedDTime = DateTime.Now,
+                                    CreatedDTime = TCommonUtils.DTimeNow(),
+                                    UpdatedDTime = TCommonUtils.DTimeNow(),
                                 };
 
                                 // Khóa chính của bảng

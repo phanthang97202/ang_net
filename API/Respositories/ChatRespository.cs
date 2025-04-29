@@ -24,7 +24,7 @@ namespace API.Respositories
                 UserId = userId,
                 Message = message,
                 Type = type,
-                CreatedDTime = DateTime.Now
+                CreatedDTime = TCommonUtils.DTimeNow()
             };
 
             await _dbContext.Chat.AddAsync(data);

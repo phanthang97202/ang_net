@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +16,10 @@ namespace API.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,25 +30,25 @@ namespace API.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    FullName = table.Column<string>(type: "TEXT", nullable: true),
-                    Avatar = table.Column<string>(type: "TEXT", nullable: true),
-                    Address = table.Column<string>(type: "TEXT", nullable: true),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: true),
+                    Avatar = table.Column<string>(type: "text", nullable: true),
+                    Address = table.Column<string>(type: "text", nullable: true),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,11 +59,11 @@ namespace API.Migrations
                 name: "Chat",
                 columns: table => new
                 {
-                    MessageId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Message = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    MessageId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,11 +74,11 @@ namespace API.Migrations
                 name: "MstPaymentTypes",
                 columns: table => new
                 {
-                    PaymentTypeCode = table.Column<string>(type: "TEXT", nullable: false),
-                    PaymentTypeName = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    PaymentTypeCode = table.Column<string>(type: "text", nullable: false),
+                    PaymentTypeName = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,11 +89,11 @@ namespace API.Migrations
                 name: "MstProvinces",
                 columns: table => new
                 {
-                    ProvinceCode = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
-                    ProvinceName = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    ProvinceCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    ProvinceName = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,11 +104,11 @@ namespace API.Migrations
                 name: "MstStadiumStatuses",
                 columns: table => new
                 {
-                    StadiumStatusCode = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumStatusName = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    StadiumStatusCode = table.Column<string>(type: "text", nullable: false),
+                    StadiumStatusName = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,14 +119,13 @@ namespace API.Migrations
                 name: "MstStadiumTypes",
                 columns: table => new
                 {
-                    StadiumTypeCode = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumTypeName = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumTypePrice = table.Column<decimal>(type: "TEXT", nullable: false),
-                    StadiumTypeSale = table.Column<decimal>(type: "TEXT", nullable: false),
-                    StadiumTypeQuantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    StadiumTypeCode = table.Column<string>(type: "text", nullable: false),
+                    StadiumTypeName = table.Column<string>(type: "text", nullable: false),
+                    StadiumTypeSalePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    Remark = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,13 +136,13 @@ namespace API.Migrations
                 name: "NewsCategory",
                 columns: table => new
                 {
-                    NewsCategoryId = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsCategoryParentId = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsCategoryName = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsCategoryIndex = table.Column<int>(type: "INTEGER", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    NewsCategoryId = table.Column<string>(type: "text", nullable: false),
+                    NewsCategoryParentId = table.Column<string>(type: "text", nullable: false),
+                    NewsCategoryName = table.Column<string>(type: "text", nullable: false),
+                    NewsCategoryIndex = table.Column<int>(type: "integer", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -153,11 +153,11 @@ namespace API.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -174,11 +174,11 @@ namespace API.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -195,10 +195,10 @@ namespace API.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -215,8 +215,8 @@ namespace API.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -239,10 +239,10 @@ namespace API.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -259,10 +259,10 @@ namespace API.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    RefreshToken = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false)
+                    RefreshToken = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -279,12 +279,12 @@ namespace API.Migrations
                 name: "MstDistricts",
                 columns: table => new
                 {
-                    DistrictCode = table.Column<string>(type: "TEXT", nullable: false),
-                    ProvinceCode = table.Column<string>(type: "TEXT", nullable: false),
-                    DistrictName = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    DistrictCode = table.Column<string>(type: "text", nullable: false),
+                    ProvinceCode = table.Column<string>(type: "character varying(10)", nullable: false),
+                    DistrictName = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -301,21 +301,21 @@ namespace API.Migrations
                 name: "News",
                 columns: table => new
                 {
-                    NewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    CategoryNewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    Slug = table.Column<string>(type: "TEXT", nullable: false),
-                    Thumbnail = table.Column<string>(type: "TEXT", nullable: false),
-                    ShortTitle = table.Column<string>(type: "TEXT", nullable: false),
-                    ShortDescription = table.Column<string>(type: "TEXT", nullable: false),
-                    ContentBody = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ViewCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    ShareCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    LikeCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    AvgPoint = table.Column<double>(type: "REAL", nullable: false)
+                    NewsId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    CategoryNewsId = table.Column<string>(type: "text", nullable: false),
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Thumbnail = table.Column<string>(type: "text", nullable: false),
+                    ShortTitle = table.Column<string>(type: "text", nullable: false),
+                    ShortDescription = table.Column<string>(type: "text", nullable: false),
+                    ContentBody = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false),
+                    ShareCount = table.Column<int>(type: "integer", nullable: false),
+                    LikeCount = table.Column<int>(type: "integer", nullable: false),
+                    AvgPoint = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -338,22 +338,20 @@ namespace API.Migrations
                 name: "MstStadiums",
                 columns: table => new
                 {
-                    StadiumCode = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
-                    StadiumTypeCode = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumStatusCode = table.Column<string>(type: "TEXT", nullable: false),
-                    DistrictCode = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagStadiumRent = table.Column<bool>(type: "INTEGER", nullable: false),
-                    StadiumRentDTimeFrom = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    StadiumRentDTimeTo = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    StadiumName = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumPrice = table.Column<decimal>(type: "TEXT", nullable: false),
-                    StadiumDescription = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumAddress = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagSale = table.Column<bool>(type: "INTEGER", nullable: false),
-                    StadiumSalePrice = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    StadiumCode = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    StadiumTypeCode = table.Column<string>(type: "text", nullable: false),
+                    StadiumStatusCode = table.Column<string>(type: "text", nullable: false),
+                    DistrictCode = table.Column<string>(type: "text", nullable: false),
+                    FlagStadiumRent = table.Column<bool>(type: "boolean", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    StadiumName = table.Column<string>(type: "text", nullable: false),
+                    StadiumPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    StadiumDescription = table.Column<string>(type: "text", nullable: false),
+                    StadiumAddress = table.Column<string>(type: "text", nullable: false),
+                    StadiumSalePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    Remark = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -382,13 +380,13 @@ namespace API.Migrations
                 name: "HashTagNews",
                 columns: table => new
                 {
-                    HashTagNewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    HashTagNewsName = table.Column<string>(type: "TEXT", maxLength: 30, nullable: false),
-                    Count = table.Column<int>(type: "INTEGER", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    HashTagNewsId = table.Column<string>(type: "text", nullable: false),
+                    NewsId = table.Column<string>(type: "text", nullable: false),
+                    HashTagNewsName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Count = table.Column<int>(type: "integer", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -405,11 +403,11 @@ namespace API.Migrations
                 name: "LikeNews",
                 columns: table => new
                 {
-                    LikeNewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    LikeNewsId = table.Column<string>(type: "text", nullable: false),
+                    NewsId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -432,12 +430,12 @@ namespace API.Migrations
                 name: "PointNews",
                 columns: table => new
                 {
-                    NewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    Point = table.Column<double>(type: "REAL", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    NewsId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Point = table.Column<double>(type: "double precision", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -460,12 +458,12 @@ namespace API.Migrations
                 name: "RefFileNews",
                 columns: table => new
                 {
-                    RefFileNewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    NewsId = table.Column<string>(type: "TEXT", nullable: false),
-                    FileUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    FlagActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    RefFileNewsId = table.Column<string>(type: "text", nullable: false),
+                    NewsId = table.Column<string>(type: "text", nullable: false),
+                    FileUrl = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -479,21 +477,45 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MstStadiumFileModel",
+                columns: table => new
+                {
+                    StadiumFileId = table.Column<string>(type: "text", nullable: false),
+                    StadiumCode = table.Column<string>(type: "character varying(250)", nullable: false),
+                    FileUrl = table.Column<string>(type: "text", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MstStadiumFileModel", x => x.StadiumFileId);
+                    table.ForeignKey(
+                        name: "FK_MstStadiumFileModel_MstStadiums_StadiumCode",
+                        column: x => x.StadiumCode,
+                        principalTable: "MstStadiums",
+                        principalColumn: "StadiumCode",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderStadiums",
                 columns: table => new
                 {
-                    OrderStadiumCode = table.Column<string>(type: "TEXT", nullable: false),
-                    StadiumCode = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    OderDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    RentDTimeFrom = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    RentDTimeTo = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PaymentTypeCode = table.Column<string>(type: "TEXT", nullable: false),
-                    PrePrice = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Sale = table.Column<decimal>(type: "TEXT", nullable: false),
-                    FlagFinish = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedDTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    OrderStadiumCode = table.Column<string>(type: "text", nullable: false),
+                    StadiumCode = table.Column<string>(type: "character varying(250)", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    OderDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RentDTimeFrom = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RentDTimeTo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PaymentTypeCode = table.Column<string>(type: "text", nullable: false),
+                    PreMoney = table.Column<decimal>(type: "numeric", nullable: false),
+                    SalePercent = table.Column<decimal>(type: "numeric", nullable: false),
+                    DebtMoney = table.Column<decimal>(type: "numeric", nullable: false),
+                    Remark = table.Column<string>(type: "text", nullable: false),
+                    OrderStatus = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -515,6 +537,36 @@ namespace API.Migrations
                         column: x => x.StadiumCode,
                         principalTable: "MstStadiums",
                         principalColumn: "StadiumCode",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderStadiumStatusLogModel",
+                columns: table => new
+                {
+                    OrderStadiumLogCode = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrderStadiumCode = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    Note = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderStadiumStatusLogModel", x => x.OrderStadiumLogCode);
+                    table.ForeignKey(
+                        name: "FK_OrderStadiumStatusLogModel_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OrderStadiumStatusLogModel_OrderStadiums_OrderStadiumCode",
+                        column: x => x.OrderStadiumCode,
+                        principalTable: "OrderStadiums",
+                        principalColumn: "OrderStadiumCode",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -576,6 +628,11 @@ namespace API.Migrations
                 column: "ProvinceCode");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MstStadiumFileModel_StadiumCode",
+                table: "MstStadiumFileModel",
+                column: "StadiumCode");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MstStadiums_DistrictCode",
                 table: "MstStadiums",
                 column: "DistrictCode");
@@ -613,6 +670,16 @@ namespace API.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_OrderStadiums_UserId",
                 table: "OrderStadiums",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderStadiumStatusLogModel_OrderStadiumCode",
+                table: "OrderStadiumStatusLogModel",
+                column: "OrderStadiumCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderStadiumStatusLogModel_UserId",
+                table: "OrderStadiumStatusLogModel",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -659,7 +726,10 @@ namespace API.Migrations
                 name: "LikeNews");
 
             migrationBuilder.DropTable(
-                name: "OrderStadiums");
+                name: "MstStadiumFileModel");
+
+            migrationBuilder.DropTable(
+                name: "OrderStadiumStatusLogModel");
 
             migrationBuilder.DropTable(
                 name: "PointNews");
@@ -674,13 +744,22 @@ namespace API.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "OrderStadiums");
+
+            migrationBuilder.DropTable(
+                name: "News");
+
+            migrationBuilder.DropTable(
                 name: "MstPaymentTypes");
 
             migrationBuilder.DropTable(
                 name: "MstStadiums");
 
             migrationBuilder.DropTable(
-                name: "News");
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "NewsCategory");
 
             migrationBuilder.DropTable(
                 name: "MstDistricts");
@@ -690,12 +769,6 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "MstStadiumTypes");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "NewsCategory");
 
             migrationBuilder.DropTable(
                 name: "MstProvinces");

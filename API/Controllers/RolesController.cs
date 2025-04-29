@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class RolesController : ControllerBase
@@ -67,12 +67,31 @@ namespace API.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetAllRole()
         {
-            var allRoles = await _roleManager.Roles.Select(r => new RoleResponseDto
+            // ?o?n này c?ng m?c l?i t??ng t? nh? tr??c: g?i .Result trong m?t bi?u th?c LINQ async (ToListAsync()),
+            // s? d?n ??n deadlock ho?c l?i k?t n?i song song trong PostgreSQL v?i EF Core.
+            
+            //var allRoles = await _roleManager.Roles.Select(r => new RoleResponseDto
+            //{
+            //    Id = r.Id,
+            //    Name = r.Name,
+            //    TotalUsers = _appUser.GetUsersInRoleAsync(r.Name!).Result.Count
+            //}).ToListAsync();
+
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            var allRoles = new List<RoleResponseDto>();
+
+            foreach (var r in roles)
             {
-                Id = r.Id,
-                Name = r.Name,
-                TotalUsers = _appUser.GetUsersInRoleAsync(r.Name!).Result.Count
-            }).ToListAsync();
+                var usersInRole = await _appUser.GetUsersInRoleAsync(r.Name!);
+                allRoles.Add(new RoleResponseDto
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    TotalUsers = usersInRole.Count
+                });
+            }
+
 
             return Ok(new
             {

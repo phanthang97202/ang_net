@@ -174,8 +174,8 @@ namespace API.Respositories
             {
                 data.FlagActive = true;
             }
-            data.CreatedDTime = DateTime.Now;
-            data.UpdatedDTime = DateTime.Now;
+            data.CreatedDTime = TCommonUtils.DTimeNow();
+            data.UpdatedDTime = TCommonUtils.DTimeNow();
 
             await _dbContext.MstProvinces.AddAsync(data);
             await _dbContext.SaveChangesAsync();
@@ -225,7 +225,7 @@ namespace API.Respositories
                 .ExecuteUpdateAsync(setter =>
                       setter.SetProperty(p => p.ProvinceName, data.ProvinceName)
                             .SetProperty(p => p.FlagActive, data.FlagActive)
-                            .SetProperty(p => p.UpdatedDTime, DateTime.Now)
+                            .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow())
                 );
             await _dbContext.SaveChangesAsync();
 
@@ -389,8 +389,8 @@ namespace API.Respositories
                                     ProvinceCode = provinceCode,
                                     ProvinceName = provinceName,
                                     FlagActive = true,
-                                    CreatedDTime = DateTime.Now,
-                                    UpdatedDTime = DateTime.Now,
+                                    CreatedDTime = TCommonUtils.DTimeNow(),
+                                    UpdatedDTime = TCommonUtils.DTimeNow(),
                                 };
 
                                 // Khóa chính của bảng

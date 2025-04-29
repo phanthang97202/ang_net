@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models; 
 using Serilog;
 using System.Text;
 using StackExchange.Redis;
@@ -88,7 +88,10 @@ builder.Services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
 builder.Services.AddScoped<MstDistrictService>();
 
 // inject AppDbContext
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
+// builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(database["PostgresqlDb"]));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresqlDb")));
 // inject Redis 
 ConfigurationOptions configRedis = new ConfigurationOptions
 {
@@ -244,16 +247,16 @@ app.MapControllers();
 app.MapHub<ChatHub>("chat-hub");
 
 // ---------------------------------
-var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-app.Urls.Add($"http://*:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+//app.Urls.Add($"http://*:{port}");
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate(); // Tự động apply migration
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var dbContext = services.GetRequiredService<AppDbContext>();
+//    dbContext.Database.Migrate(); // Tự động apply migration
+//}
 
 
 app.Run();

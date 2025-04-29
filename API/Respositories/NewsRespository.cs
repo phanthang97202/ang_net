@@ -345,8 +345,8 @@ namespace API.Respositories
             string ShortTitle = TCommonUtils.PureString(data.ShortTitle);
             string ShortDescription = TCommonUtils.PureString(data.ShortDescription);
             string ContentBody = data.ContentBody;
-            DateTime CreatedDTime = DateTime.Now;
-            DateTime UpdatedDTime = DateTime.Now;
+            DateTime CreatedDTime = TCommonUtils.DTimeNow();
+            DateTime UpdatedDTime = TCommonUtils.DTimeNow();
             bool FlagActive = true;
             int ViewCount = 0;
             int ShareCount = 0;
@@ -433,8 +433,8 @@ namespace API.Respositories
                         HashTagNewsName = HashTagNewId,
                         NewsId = NewsId,
                         FlagActive = true,
-                        CreatedDTime = DateTime.Now,
-                        UpdatedDTime = DateTime.Now, 
+                        CreatedDTime = TCommonUtils.DTimeNow(),
+                        UpdatedDTime = TCommonUtils.DTimeNow(), 
                     };
 
                     saveDtHashTagNews.Add(hashTagNews);
@@ -457,8 +457,8 @@ namespace API.Respositories
                     NewsId = NewsId,
                     FileUrl = FileUrl,
                     FlagActive = true,
-                    CreatedDTime = DateTime.Now,
-                    UpdatedDTime = DateTime.Now,
+                    CreatedDTime = TCommonUtils.DTimeNow(),
+                    UpdatedDTime = TCommonUtils.DTimeNow(),
 
                 };
                 saveDtRefFileNews.Add(refFileNews);
@@ -557,8 +557,8 @@ namespace API.Respositories
                 {
                     NewsId = objNews.NewsId,
                     UserId = currentUserId,
-                    CreatedDTime = DateTime.Now,
-                    UpdatedDTime = DateTime.Now
+                    CreatedDTime = TCommonUtils.DTimeNow(),
+                    UpdatedDTime = TCommonUtils.DTimeNow()
                 });
                 await _dbContext.SaveChangesAsync();
             }
@@ -639,7 +639,7 @@ namespace API.Respositories
             if (!isExistRecordPointNews)
             {
                 // Cách 1
-                //FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {DateTime.Now}, {DateTime.Now})";
+                //FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {TCommonUtils.DTimeNow()}, {TCommonUtils.DTimeNow()})";
                 //_dbContext.Database.ExecuteSql(sql);
 
                 // Cách 2
@@ -649,8 +649,8 @@ namespace API.Respositories
                 //    UserId = currentUserId,
                 //    Point = pointVal,
                 //    FlagActive = true,
-                //    CreatedDTime = DateTime.Now,
-                //    UpdatedDTime = DateTime.Now
+                //    CreatedDTime = TCommonUtils.DTimeNow(),
+                //    UpdatedDTime = TCommonUtils.DTimeNow()
                 //});
                 //await _dbContext.SaveChangesAsync();
 
@@ -666,8 +666,8 @@ namespace API.Respositories
                 //        UserId = currentUserId,
                 //        Point = pointVal,
                 //        FlagActive = true,
-                //        CreatedDTime = DateTime.Now,
-                //        UpdatedDTime = DateTime.Now
+                //        CreatedDTime = TCommonUtils.DTimeNow(),
+                //        UpdatedDTime = TCommonUtils.DTimeNow()
                 //    });
                 //}
 

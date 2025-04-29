@@ -167,15 +167,38 @@ namespace API.Respositories
             }
             else
             {
-                var result = await _userManager.Users.Select(u => new UserDetailDto
+                // Đây là "async-over-sync deadlock" – vì bạn đang chặn luồng hiện tại để đợi một tác
+                // vụ async trong khi EF Core cũng đang sử dụng cùng một kết nối để load dữ liệu.
+                // PostgreSQL (thông qua Npgsql) không hỗ trợ nhiều lệnh đồng thời trên cùng một connection.
+                
+                //var result = await _userManager.Users.Select(u => new UserDetailDto
+                //{
+                //    Id = u.Id,
+                //    Email = u.Email,
+                //    FullName = u.FullName,
+                //    Avatar = u.Avatar,
+                //    FlagActive = u.FlagActive,
+                //    Roles = _userManager.GetRolesAsync(u).Result.ToArray()
+                //}).ToListAsync();
+
+                // Thay thế bằng: => 
+                var users = await _userManager.Users.ToListAsync();
+
+                var result = new List<UserDetailDto>();
+
+                foreach (var u in users)
                 {
-                    Id = u.Id,
-                    Email = u.Email,
-                    FullName = u.FullName,
-                    Avatar = u.Avatar,
-                    FlagActive = u.FlagActive,
-                    Roles = _userManager.GetRolesAsync(u).Result.ToArray()
-                }).ToListAsync();
+                    var _roles = await _userManager.GetRolesAsync(u); // Chờ đúng cách
+                    result.Add(new UserDetailDto
+                    {
+                        Id = u.Id,
+                        Email = u.Email,
+                        FullName = u.FullName,
+                        Avatar = u.Avatar,
+                        FlagActive = u.FlagActive,
+                        Roles = _roles.ToArray()
+                    });
+                }
 
                 if (result.Count == 0)
                 {
