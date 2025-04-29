@@ -247,8 +247,8 @@ app.MapControllers();
 app.MapHub<ChatHub>("chat-hub");
 
 // ---------------------------------
-//var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-//app.Urls.Add($"http://*:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+app.Urls.Add($"http://*:{port}");
 
 
 //using (var scope = app.Services.CreateScope())
