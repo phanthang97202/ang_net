@@ -22,6 +22,14 @@ using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
 
+// =====================================
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true) // 👈 Cho phép thiếu
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+
 //builder.Services.AddDbContext<AppDbContext>(options =>
 //    options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection")));
 
