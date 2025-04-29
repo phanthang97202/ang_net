@@ -258,5 +258,12 @@ app.Urls.Add($"http://*:{port}");
 //    dbContext.Database.Migrate(); // Tự động apply migration
 //}
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+
 
 app.Run();
