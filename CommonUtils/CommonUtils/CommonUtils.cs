@@ -204,12 +204,13 @@ namespace CommonUtils.CommonUtils
 
         public static DateTime DTimeNow()
         {
-            return DateTime.Now;
+            return DateTime.UtcNow;
         }
+
 
         public static DateTime DTimeAddDay(double days)
         {
-            return DateTime.Now.AddDays(days);
+            return DateTime.UtcNow.AddDays(days);
         }
 
         // HttpClient
