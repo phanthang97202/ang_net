@@ -10,9 +10,26 @@ namespace API.Middlewares
         public static bool IsAuthorized(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var securityKey = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["securityKey"];
-            var issuer = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["validIssuer"];
-            var audience = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["validAudience"];
+
+
+            // Lấy môi trường hiện tại: Development, Production, v.v.
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
+            // Load config dựa vào môi trường
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true) // để tránh lỗi nếu không có
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var securityKey = config["JWTSetting:securityKey"];
+            var issuer = config["JWTSetting:validIssuer"];
+            var audience = config["JWTSetting:validAudience"];
+
+            //var securityKey = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["securityKey"];
+            //var issuer = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["validIssuer"];
+            //var audience = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("JWTSetting")["validAudience"];
 
             try
             {
