@@ -21,10 +21,10 @@ namespace API.Respositories
         //private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
-        private readonly string _connectionString;
-        private readonly IConfigurationRoot configuration = new ConfigurationBuilder()
-                                        .AddJsonFile("appsettings.json")
-                                        .Build();
+        //private readonly string _connectionString;
+        //private readonly IConfigurationRoot configuration = new ConfigurationBuilder()
+        //                                .AddJsonFile("appsettings.json")
+        //                                .Build();
 
 
         public NewsRespository(AppDbContext appDbContext
@@ -36,7 +36,7 @@ namespace API.Respositories
             //_connectionMultiplexer = connectionMultiplexer;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
-            _connectionString = configuration.GetSection("ConnectionStrings")["LocalDb"];
+            //_connectionString = configuration.GetSection("ConnectionStrings")["LocalDb"];
         }
 
         public bool CheckNewsCategoryExist(string newsId, ref NewsCategoryModel data)
