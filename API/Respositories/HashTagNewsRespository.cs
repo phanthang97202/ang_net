@@ -25,12 +25,12 @@ namespace API.Respositories
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
 
             List<HashTagNewsModel> data = await _dbContext.HashTagNews
                 .Select(i =>

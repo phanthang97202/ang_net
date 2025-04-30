@@ -174,12 +174,12 @@ namespace API.Respositories
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
 
             // 
             int _pageIndex = 0;
@@ -267,12 +267,12 @@ namespace API.Respositories
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
 
             // Validate input
             if (TCommonUtils.IsNullOrEmpty(newsId))
@@ -528,12 +528,12 @@ namespace API.Respositories
 
             #region // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
             #endregion
 
             #region // Validate input 
@@ -589,12 +589,12 @@ namespace API.Respositories
 
             #region // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            //bool isAuthorized = GuardAuth.IsAuthorized(token);
+            //if (!isAuthorized)
+            //{
+            //    apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+            //    return apiResponse;
+            //}
             #endregion
 
             #region // Validate input 

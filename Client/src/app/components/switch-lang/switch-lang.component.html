@@ -1,0 +1,14 @@
+<div (click)="toggleLanguage()">
+  <div class="flex items-center cursor-pointer">
+    <div>
+      <img width="30" src="assets/images/switchlang.jpg" alt="" />
+    </div>
+    <div>
+      <img
+        [src]="'assets/images/' + currentLang + '.jpg'"
+        alt="flag"
+        width="30"
+        style="margin-right: 8px" />
+    </div>
+  </div>
+</div>

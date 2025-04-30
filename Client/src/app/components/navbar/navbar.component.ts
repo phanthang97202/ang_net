@@ -13,6 +13,8 @@ import { NzMenuItemComponent, NzMenuModule } from 'ng-zorro-antd/menu';
 import { AuthService } from '../../services/auth.service';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -26,6 +28,8 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
     NzMenuItemComponent,
     NzIconModule,
     NzButtonComponent,
+    SwitchLangComponent,
+    TranslateModule,
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
@@ -34,12 +38,15 @@ export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
   activeRoute: boolean = false;
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   listRoute = [{ path: '/', title: 'Home', icon: 'home', isActive: false }];
 
   ngOnInit() {
-    this.listRoute.map((item) => {
+    this.listRoute.map(item => {
       return {
         ...item,
         isActive: item.path === this.activatedRoute.snapshot.url.join('/'),

@@ -20,7 +20,7 @@ export const routes: Routes = [
     title: 'Home',
     path: '',
     component: HomeComponent,
-    canActivate: [canActive],
+    // canActivate: [canActive],
     children: [
       {
         path: '',
@@ -45,13 +45,13 @@ export const routes: Routes = [
     title: 'About',
     path: 'about',
     component: AboutComponent,
-    canActivate: [canActive],
+    // canActivate: [canActive],
   },
   {
     title: 'User detail',
     path: 'userinfor',
     component: DetailUserComponent,
-    canActivate: [canActive],
+    // canActivate: [canActive],
   },
   {
     title: 'Dashboard',

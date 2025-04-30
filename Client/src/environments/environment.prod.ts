@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   tokenKey: 'tokenKey',
+  langKey: 'langKey',
   refreshTokenKey: 'refreshTokenKey',
   apiUrl: 'https://ang-net.onrender.com/api/',
   wsUrl: 'https://ang-net.onrender.com/',

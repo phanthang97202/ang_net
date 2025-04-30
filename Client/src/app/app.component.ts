@@ -1,12 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
-  ActivatedRoute,
   Event,
   NavigationEnd,
   Router,
   RouterLink,
   RouterOutlet,
-  RouterStateSnapshot,
 } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -24,16 +22,21 @@ import {
 import { NzSpinComponent } from 'ng-zorro-antd/spin';
 import { NzAlertComponent } from 'ng-zorro-antd/alert';
 import { LoadingService } from './services/loading-service.service';
-import { filter, map, Observable, Subscription } from 'rxjs';
+import { filter, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
-import { NzButtonComponent } from 'ng-zorro-antd/button';
+import { NzButtonComponent, NzButtonModule } from 'ng-zorro-antd/button';
 import { IErrorInfo } from './interfaces/error-info';
 import { ShowErrorService } from './services/show-error.service';
 import { LayoutType } from './types';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { AuthService } from './services/auth.service';
 import posthog from 'posthog-js';
+import { TranslateService } from '@ngx-translate/core';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
+import { LangService } from './services/lang-service.service';
 
 @Component({
   selector: 'app-root',
@@ -56,6 +59,10 @@ import posthog from 'posthog-js';
     NzButtonComponent,
     NzSiderComponent,
     NzMenuModule,
+    NzDropDownModule,
+    NzButtonModule,
+    NzIconModule,
+    SwitchLangComponent,
   ],
   providers: [],
   templateUrl: './app.component.html',
@@ -75,11 +82,20 @@ export class AppComponent implements OnInit {
   layoutType: LayoutType = 'user';
 
   loadingService = inject(LoadingService);
+  langService = inject(LangService);
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
+
   // router = inject(Router);
 
-  constructor(public router: Router) {
+  constructor(
+    public router: Router,
+    private translate: TranslateService
+  ) {
+    const curLang = this.langService.getLang();
+    this.translate.setDefaultLang(curLang);
+    this.translate.use(curLang);
+
     // Subscribe to the loading state from the LoadingService
     this.isLoading$ = this.loadingService.getLoading();
     this.errorInfoService.getErrorInfo().subscribe({
@@ -108,9 +124,12 @@ export class AppComponent implements OnInit {
         }
       });
 
-    this.navigationEnd.subscribe((event: NavigationEnd) => {
-      posthog.capture('$pageview');
-    });
+    this.navigationEnd.subscribe(() =>
+      // event: NavigationEnd
+      {
+        posthog.capture('$pageview');
+      }
+    );
   }
 
   // dùng cách này không thể lấy được router chính xác

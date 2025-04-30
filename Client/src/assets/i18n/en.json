@@ -1,0 +1,11 @@
+{
+    "T_LOGIN": "Login",
+    "T_ENTERUSERNAME": "Enter your username",
+    "T_ENTERPASSWORD": "Enter your password",
+    "T_REGISTERNOW": "Register account",
+    "T_FORGOTPASSWORD": "Forgot password!",
+    "T_LANGUAGE": "Language",
+    "T_HOME": "Home",
+    "T_USERNAME": "Username",
+    "T_ROLE": "Role"
+}

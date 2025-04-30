@@ -1,0 +1,11 @@
+{
+    "T_LOGIN": "Đăng nhập",
+    "T_ENTERUSERNAME": "Nhập tài khoản của bạn",
+    "T_ENTERPASSWORD": "Nhập mật khẩu của bạn",
+    "T_REGISTERNOW": "Tạo tài khoản",
+    "T_FORGOTPASSWORD": "Quên mật khẩu!",
+    "T_LANGUAGE": "Ngôn ngữ",
+    "T_HOME": "Trang chủ",
+    "T_USERNAME": "Tên đăng nhập",
+    "T_ROLE": "Vai trò"
+}

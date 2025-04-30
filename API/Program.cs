@@ -254,9 +254,12 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("chat-hub");
 
-// ---------------------------------
-var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-app.Urls.Add($"http://*:{port}");
+// -----------Auto tracking port in production----------------------
+if (app.Environment.IsProduction())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+    app.Urls.Add($"http://*:{port}");
+}
 
 
 //using (var scope = app.Services.CreateScope())

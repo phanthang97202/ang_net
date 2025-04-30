@@ -19,9 +19,9 @@
 /Client/tmp/
 /Client/out-tsc/
 /Client/bazel-out /
-/Client/angular/	 
-/Client/vscode/	 
-/Client/vs/
+/Client/.angular/	 
+/Client/.vscode/	 
+/Client/.vs/
 # Node
 /Client/node_modules/
 # System files

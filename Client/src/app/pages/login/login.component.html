@@ -11,7 +11,7 @@
             type="text"
             nz-input
             formControlName="userName"
-            placeholder="Enter your username" />
+            [placeholder]="'T_ENTERUSERNAME' | translate" />
         </nz-input-group>
       </nz-form-control>
     </nz-form-item>
@@ -22,7 +22,7 @@
             [type]="passwordVisible ? 'password' : 'text'"
             nz-input
             formControlName="password"
-            placeholder="Enter your password" />
+            [placeholder]="'T_ENTERPASSWORD' | translate" />
         </nz-input-group>
         <ng-template #suffixTemplate>
           <span
@@ -40,18 +40,21 @@
           nz-button
           class="login-form-button login-form-margin"
           nzType="primary">
-          Log in
+          {{ 'T_LOGIN' | translate }}
         </button>
       </nz-form-control>
     </nz-form-item>
 
-    <nz-form-item>
+    <nz-form-item class="mt-[-12px]">
       <nz-form-control>
-        <div id="google-button"></div>
+        <div id="google-button" class="mx-[auto]"></div>
       </nz-form-control>
     </nz-form-item>
-    Or
-    <a class="text-[blue]" routerLink="/register">register now!</a>
-    <a class="login-form-forgot text-[blue]">Forgot password</a>
+    <a class="text-[blue]" routerLink="/register">{{
+      'T_REGISTERNOW' | translate
+    }}</a>
+    <a class="login-form-forgot text-[blue]">{{
+      'T_FORGOTPASSWORD' | translate
+    }}</a>
   </form>
 </div>

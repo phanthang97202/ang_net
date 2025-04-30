@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   tokenKey: 'tokenKey',
+  langKey: 'langKey',
   refreshTokenKey: 'refreshTokenKey',
   apiUrl: 'http://localhost:5000/api/',
   wsUrl: 'http://localhost:5000/',

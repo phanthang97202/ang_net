@@ -48,6 +48,13 @@ export class AuthInterceptor implements HttpInterceptor {
       'account/login',
       'account/register',
       'account/refreshtoken',
+      // ----
+      'news/search',
+      'news/detail',
+      'news/like',
+      'news/point',
+      // ----
+      'hashtagnews/gettophashtag',
       'cloudinary.com',
       'posthog.com',
     ];

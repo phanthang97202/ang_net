@@ -49,14 +49,21 @@ namespace API.Respositories
                 cacheKey: whatever name you want
                 primaryKey is specify record which you want to cache data
         */
-        public string GenerateUniqueCacheKey(string cacheKey, string primaryKey)
+        public string GenerateUniqueCacheKey(string cacheKey, string primaryKey, bool isIdentity = false)
         {
-            string userId = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value
-                     ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId))
+            string userId;
+            if (isIdentity == false)
             {
-                throw new Exception("User ID not found in token.");
+                userId = "";
+            }
+            else
+            {
+                userId = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value
+                         ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new Exception("User ID not found in token.");
+                }
             }
 
             string key = userId + "." + cacheKey + "." + primaryKey;

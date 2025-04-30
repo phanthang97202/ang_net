@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize()]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsController : ControllerBase
@@ -50,6 +49,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize()] 
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] NewsDto news)
         {

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class HashTagNewsController : ControllerBase
@@ -16,7 +15,8 @@ namespace API.Controllers
         public HashTagNewsController(IHashTagNewsRespository hashTagNewsRespository)
         {
             _hashTagNewsRespository = hashTagNewsRespository;
-        } 
+        }
+        
         [HttpGet("GetTopHashTag")]
         public async Task<ActionResult<HashTagNewsModel>> GetTopHashTag()
         {
