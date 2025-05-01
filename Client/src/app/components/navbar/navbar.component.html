@@ -10,7 +10,7 @@
 
   <li *ngIf="!authService.isLoggedIn()" nz-menu-item class="navbar_item-login">
     <button nz-button nzType="primary" (click)="handleNavigateLogin($event)">
-      {{ 'LOGIN' | translate }}
+      {{ 'T_LOGIN' | translate }}
     </button>
   </li>
   <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">

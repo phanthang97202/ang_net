@@ -7,5 +7,17 @@
     "T_LANGUAGE": "Ngôn ngữ",
     "T_HOME": "Trang chủ",
     "T_USERNAME": "Tên đăng nhập",
-    "T_ROLE": "Vai trò"
+    "T_ROLE": "Vai trò",
+    "T_POST": "Đăng",
+    "T_SHORTTITLE": "Tiêu đề",
+    "T_TYPINGNEWSTITLE": "Nhập tiêu đề...",
+    "T_SHORTDESCRIPTION": "Mô tả ngắn",
+    "T_TYPINGNEWSSHORTDESCRIPTION": "Nhập mô tả ngắn...",
+    "T_CATEGORYNEWSID": "Danh mục",
+    "T_PLEASESELECT": "Chọn...",
+    "T_LSTHASHTAGNEWS": "Hashtags",
+    "T_LISTHASHTAG": "Hashtags...",
+    "T_THUMNAIL": "Ảnh bài viết",
+    "T_UPLOAD": "Tải lên",
+    "T_LSTREFFILENEWS": "File liên quan"
 }

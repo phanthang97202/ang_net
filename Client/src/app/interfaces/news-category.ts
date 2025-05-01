@@ -1,4 +1,4 @@
-import { IBaseResponse, IPageInfo } from './common';
+import { IBaseResponse } from './common';
 
 export interface INewsCategory {
   NewsCategoryId: string;
@@ -9,4 +9,10 @@ export interface INewsCategory {
 
 export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
   DataList: INewsCategory[];
+}
+
+export interface INewsCategoryNode extends INewsCategory {
+  key: string;
+  title: string | undefined;
+  children: any;
 }

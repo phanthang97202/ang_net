@@ -11,7 +11,6 @@ import {
 } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ContentChange } from 'ngx-quill';
 import { ApiService } from '../../../services/api.service';
 import { ShowErrorService } from '../../../services/show-error.service';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
@@ -21,53 +20,20 @@ import { CommonModule } from '@angular/common';
 import { CloudinaryService } from '../../../services/cloudinary.service';
 import { ChatBoxComponent } from '../../../components/chat-box/chat-box.component';
 import { NzMentionModule } from 'ng-zorro-antd/mention';
-import { NzCascaderModule, NzCascaderOption } from 'ng-zorro-antd/cascader';
+import { NzCascaderModule } from 'ng-zorro-antd/cascader';
 import { NzTreeSelectModule } from 'ng-zorro-antd/tree-select';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { LoadingService } from '../../../services/loading-service.service';
-import { delay } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
-const options = [
-  {
-    value: 'zhejiang',
-    label: 'Zhejiang',
-    children: [
-      {
-        value: 'hangzhou',
-        label: 'Hangzhou',
-        children: [
-          {
-            value: 'xihu',
-            label: 'West Lake',
-            isLeaf: true,
-          },
-        ],
-      },
-      {
-        value: 'ningbo',
-        label: 'Ningbo',
-        isLeaf: true,
-      },
-    ],
-  },
-  {
-    value: 'jiangsu',
-    label: 'Jiangsu',
-    children: [
-      {
-        value: 'nanjing',
-        label: 'Nanjing',
-        children: [
-          {
-            value: 'zhonghuamen',
-            label: 'Zhong Hua Men',
-            isLeaf: true,
-          },
-        ],
-      },
-    ],
-  },
-];
+import { TranslateModule } from '@ngx-translate/core';
+import {
+  INewsCategory,
+  INewsCategoryNode,
+} from '../../../interfaces/news-category';
+import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
+import { Util } from '../../../helpers/utils/util';
+import { UploadCommonComponent } from '../../../component-ui-common/upload-common/upload-common.component';
+
 @Component({
   selector: 'app-blogs',
   standalone: true,
@@ -88,6 +54,8 @@ const options = [
     NzCascaderModule,
     NzSelectModule,
     NzTreeSelectModule,
+    TranslateModule,
+    UploadCommonComponent,
   ],
   templateUrl: './blogs.component.html',
   styleUrl: './blogs.component.scss',
@@ -99,25 +67,13 @@ export class BlogsComponent implements OnInit {
   loadingService = inject(LoadingService);
   private message = inject(NzMessageService);
 
-  suggestions = [
-    'afc163',
-    'benjycui',
-    'yiminghe',
-    'RaoHai',
-    '中文',
-    'にほんご',
-  ];
+  nodes: NzTreeNodeOptions[] | NzTreeNode[] = [];
 
-  nodes: any = [];
-
-  nzOptions: NzCascaderOption[] = options;
-
-  thumnail: any;
   lstRefFileNews: any;
-  contentBody: string = '';
+  contentBody = '';
 
-  previewVisible: boolean = false;
-  previewImage: string | undefined = '';
+  previewVisible = false;
+  previewImage: ArrayBuffer | string | null = null;
 
   validateForm!: FormGroup<{
     Thumbnail: FormControl<string>;
@@ -151,40 +107,45 @@ export class BlogsComponent implements OnInit {
       .GetAllActiveNewsCategory()
       .pipe()
       .subscribe({
-        next: (data) => {
-          this.nodes = data.DataList.reduce((prev: any[], cur: any) => {
-            const newNode = {
-              title: cur.NewsCategoryName,
-              NewsCategoryIndex: cur.NewsCategoryIndex,
-              key: cur.NewsCategoryId,
-              NewsCategoryParentId: cur.NewsCategoryParentId,
-              children: [],
-            };
-
-            if (!cur.NewsCategoryParentId) {
-              // Root-level node
-              prev.push(newNode);
-            } else {
-              // Find parent node recursively and add the current node as a child
-              const addNodeToParent = (nodes: any[]): boolean => {
-                for (const node of nodes) {
-                  if (node.key === cur.NewsCategoryParentId) {
-                    node.children.push(newNode);
-                    return true;
-                  }
-                  if (addNodeToParent(node.children)) {
-                    return true;
-                  }
-                }
-                return false;
+        next: data => {
+          this.nodes = data.DataList.reduce(
+            (prev: Partial<INewsCategoryNode>[], cur: INewsCategory) => {
+              const newNode = {
+                title: cur.NewsCategoryName,
+                NewsCategoryIndex: cur.NewsCategoryIndex,
+                key: cur.NewsCategoryId,
+                NewsCategoryParentId: cur.NewsCategoryParentId,
+                children: [],
               };
-              addNodeToParent(prev);
-            }
-            return prev;
-          }, []);
+
+              if (!cur.NewsCategoryParentId) {
+                // Root-level node
+                prev.push(newNode);
+              } else {
+                // Find parent node recursively and add the current node as a child
+                const addNodeToParent = (
+                  nodes: Partial<INewsCategoryNode>[]
+                ): boolean => {
+                  for (const node of nodes) {
+                    if (node.key === cur.NewsCategoryParentId) {
+                      node.children.push(newNode);
+                      return true;
+                    }
+                    if (addNodeToParent(node.children)) {
+                      return true;
+                    }
+                  }
+                  return false;
+                };
+                addNodeToParent(prev);
+              }
+              return prev;
+            },
+            []
+          ) as NzTreeNodeOptions[] | NzTreeNode[];
           this.loadingService.setLoading(false);
         },
-        error: (err) => {
+        error: err => {
           this.loadingService.setLoading(false);
           this.showErrorService.setShowError({
             icon: 'warning',
@@ -192,30 +153,29 @@ export class BlogsComponent implements OnInit {
             title: err.message,
           });
         },
-        complete() {},
+        complete: () => {
+          this.loadingService.setLoading(false);
+        },
       });
   }
 
-  onChanges(values: string[] | null): void { 
-  }
+  // onChanges(values: string[] | null): void {}
 
-  onSelectedCategoryNews(event: string): void {
-    this.validateForm.patchValue({
-      CategoryNewsId: event,
+  handleUploadFile = (file: any) => {
+    this.cloudinary.uploadImage(file).subscribe({
+      next: (res: any) => {
+        this.validateForm.patchValue({
+          Thumbnail: res.url,
+        });
+      },
+      error: err => {},
     });
-  }
-
-  handlePreview = async (file: NzUploadFile | any): Promise<void> => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj!);
-    }
-    this.previewImage = file.url || file.preview;
-    this.previewVisible = true;
+    return true; // Prevent default behavior
   };
 
   submitForm() {
     if (this.validateForm.valid) {
-      // return;
+      this.loadingService.setLoading(true);
       this.apiService
         .CreateNews({
           Thumbnail: this.validateForm.value.Thumbnail ?? '',
@@ -239,12 +199,14 @@ export class BlogsComponent implements OnInit {
           ],
         })
         .subscribe({
-          next: (res) => {
+          next: res => {
             if (res.Success) {
+              this.loadingService.setLoading(false);
               this.message.create('success', 'Create successfully');
             }
           },
-          error: (err) => {
+          error: err => {
+            this.loadingService.setLoading(false);
             this.showErrorService.setShowError({
               icon: 'warning',
               message: JSON.stringify(err, null, 2),
@@ -252,9 +214,12 @@ export class BlogsComponent implements OnInit {
             });
             throw new Error(err);
           },
+          complete: () => {
+            this.loadingService.setLoading(false);
+          },
         });
     } else {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });
@@ -263,22 +228,32 @@ export class BlogsComponent implements OnInit {
     }
   }
 
-  handleUploadFile = (file: any) => {
-    this.cloudinary.uploadImage(file).subscribe({
-      next: (res: any) => {
-        this.validateForm.patchValue({
-          Thumbnail: res.url,
-        });
-      },
-      error: (err) => {},
-    });
-    return true; // Prevent default behavior
-  };
-
-  handleContentChangedEditor({ ev, content }: { ev: any; content: string }) {
+  handleContentChangedEditor({ content }: { content: string }) {
     // this.contentBody = content;
     this.validateForm.patchValue({
       ContentBody: content,
+    });
+  }
+
+  // Preview ảnh
+  handlePreview = async (file: NzUploadFile): Promise<void> => {
+    const extendedFile = file as NzUploadFile & {
+      url: string;
+      preview: ArrayBuffer | string | null;
+      originFileObj: string;
+      previewImage: ArrayBuffer | string | null;
+    };
+
+    if (!extendedFile.url && !extendedFile.preview) {
+      extendedFile.preview = await Util.getBase64(extendedFile.originFileObj!);
+    }
+    this.previewImage = extendedFile.url || extendedFile.preview;
+    this.previewVisible = true;
+  };
+
+  onSelectedCategoryNews(event: string): void {
+    this.validateForm.patchValue({
+      CategoryNewsId: event,
     });
   }
 
@@ -288,11 +263,3 @@ export class BlogsComponent implements OnInit {
     this.validateForm.value.Thumbnail = '';
   }
 }
-
-const getBase64 = (file: File): Promise<string | ArrayBuffer | null> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });

@@ -7,5 +7,17 @@
     "T_LANGUAGE": "Language",
     "T_HOME": "Home",
     "T_USERNAME": "Username",
-    "T_ROLE": "Role"
+    "T_ROLE": "Role",
+    "T_POST": "Post",
+    "T_SHORTTITLE": "Short title",
+    "T_TYPINGNEWSTITLE": "Typing news title...",
+    "T_SHORTDESCRIPTION": "Short descriptions",
+    "T_TYPINGNEWSSHORTDESCRIPTION": "Typing short descriptions",
+    "T_CATEGORYNEWSID": "Category",
+    "T_PLEASESELECT": "Select",
+    "T_LSTHASHTAGNEWS": "Hashtags",
+    "T_LISTHASHTAG": "Hashtags",
+    "T_THUMNAIL": "Thumnail",
+    "T_UPLOAD": "Upload",
+    "T_LSTREFFILENEWS": "File references"
 }

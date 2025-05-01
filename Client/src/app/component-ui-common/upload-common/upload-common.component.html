@@ -1,0 +1,24 @@
+<nz-upload
+  [nzShowButton]="thumnail?.length !== 1"
+  formControlName="Thumbnail"
+  nzListType="picture-card"
+  [(nzFileList)]="thumnail"
+  [nzPreview]="handlePreview"
+  [nzBeforeUpload]="handleUploadFile">
+  <div>
+    <span nz-icon nzType="plus"></span>
+    <div style="margin-top: 8px">{{ 'T_UPLOAD' | translate }}</div>
+  </div>
+</nz-upload>
+<nz-modal
+  [nzVisible]="previewVisible"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  (nzOnCancel)="previewVisible = false">
+  <ng-template #modalContent>
+    <img
+      [src]="previewImage"
+      [ngStyle]="{ width: '100%' }"
+      alt="previewImage" />
+  </ng-template>
+</nz-modal>

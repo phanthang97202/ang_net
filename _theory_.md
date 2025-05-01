@@ -1796,6 +1796,21 @@
 			fromEvent(button, 'click').pipe(
 				concatMap(() => fakeApi())
 			).subscribe(result => console.log(result));
+	- forkJoin 
+		forkJoin là một hàm trong thư viện rxjs của Angular/TypeScript được dùng để chạy nhiều Observable song song và trả kết quả khi tất cả hoàn thành.
+		Nó chờ tất cả các Observable hoàn thành (complete).
+		Trả về một mảng kết quả, theo đúng thứ tự của các Observable.
+		Nếu một trong các Observable lỗi hoặc không hoàn thành, thì forkJoin cũng lỗi hoặc không phát ra giá trị nào.
+		Ex:
+			forkJoin({
+				user: this.api.getUser(),           // Observable<User>
+				posts: this.api.getUserPosts(),     // Observable<Post[]>
+				comments: this.api.getComments()    // Observable<Comment[]>
+			}).subscribe(({ user, posts, comments }) => {
+				console.log(user, posts, comments);
+			});
+
+
 
 59. **BehaviorSubject, Subject, ReplaySubject** khác gì nhau?  
 	Subject	

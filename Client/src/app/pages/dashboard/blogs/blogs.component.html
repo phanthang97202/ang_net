@@ -1,95 +1,110 @@
 <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
-    <nz-form-item>
-        <nz-form-control [nzOffset]="1">
-            <button nz-button nzType="primary">
-                <span nz-icon nzType="upload" nzTheme="outline"></span>
-                Post
-            </button>
-
+  <nz-form-item>
+    <nz-form-control [nzOffset]="1">
+      <button nz-button nzType="primary">
+        <span nz-icon nzType="upload" nzTheme="outline"></span>
+        {{ 'T_POST' | translate }}
+      </button>
+    </nz-form-control>
+  </nz-form-item>
+  <div
+    nz-row
+    [nzGutter]="24"
+    class="flex items-center justify-center blogpost__container">
+    <div nz-col [nzSpan]="8" [nzXs]="24" [nzMd]="8">
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired
+          >{{ 'T_SHORTTITLE' | translate }}
+        </nz-form-label>
+        <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
+          <input
+            nz-input
+            formControlName="ShortTitle"
+            id="ShortTitle"
+            [placeholder]="'T_TYPINGNEWSTITLE' | translate" />
         </nz-form-control>
-    </nz-form-item>
-    <div nz-row [nzGutter]="24">
-        <div nz-col [nzSpan]="8">
+      </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label nzSpan="8" nzRequired>ShortTitle</nz-form-label>
-                <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <input nz-input formControlName="ShortTitle" id="ShortTitle" placeholder="Typing news's title" />
-                </nz-form-control>
-            </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+          'T_SHORTDESCRIPTION' | translate
+        }}</nz-form-label>
+        <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
+          <nz-textarea-count [nzMaxCharacterCount]="100">
+            <textarea
+              rows="4"
+              formControlName="ShortDescription"
+              [placeholder]="'T_TYPINGNEWSSHORTDESCRIPTION' | translate"
+              nz-input></textarea>
+          </nz-textarea-count>
+        </nz-form-control>
+      </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label nzSpan="8" nzRequired>ShortDescription</nz-form-label>
-                <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <nz-textarea-count [nzMaxCharacterCount]="100">
-                        <textarea rows="4" formControlName="ShortDescription"
-                            placeholder="Typing news's short description" nz-input></textarea>
-                    </nz-textarea-count>
-                </nz-form-control>
-            </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+          'T_CATEGORYNEWSID' | translate
+        }}</nz-form-label>
+        <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
+          <nz-tree-select
+            formControlName="CategoryNewsId"
+            [nzNodes]="nodes"
+            nzShowSearch
+            [nzPlaceHolder]="'T_PLEASESELECT' | translate"
+            (ngModelChange)="onSelectedCategoryNews($event)"></nz-tree-select>
+        </nz-form-control>
+      </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label nzSpan="8" nzRequired>CategoryNewsId</nz-form-label>
-                <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <nz-tree-select formControlName="CategoryNewsId" [nzNodes]="nodes" nzShowSearch
-                        nzPlaceHolder="Please select" (ngModelChange)="onSelectedCategoryNews($event)"></nz-tree-select>
-                </nz-form-control>
-            </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8" nzFor="mention">{{
+          'T_LSTHASHTAGNEWS' | translate
+        }}</nz-form-label>
+        <nz-form-control nzErrorTip="More than one must be selected!">
+          <nz-mention #mentions>
+            <textarea
+              rows="1"
+              id="LstHashTagNews"
+              [placeholder]="'T_LISTHASHTAG' | translate"
+              formControlName="LstHashTagNews"
+              nzMentionTrigger
+              nz-input></textarea>
+          </nz-mention>
+        </nz-form-control>
+      </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label nzSpan="8" nzFor="mention">LstHashTagNews</nz-form-label>
-                <nz-form-control nzErrorTip="More than one must be selected!">
-                    <nz-mention #mentions [nzSuggestions]="suggestions">
-                        <textarea rows="1" id="LstHashTagNews" placeholder="List hashtag: #"
-                            formControlName="LstHashTagNews" nzMentionTrigger nz-input></textarea>
-                    </nz-mention>
-                </nz-form-control>
-            </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+          'T_THUMNAIL' | translate
+        }}</nz-form-label>
+        <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
+          <app-upload-common (_onClick)="handleUploadFile($event)" />
+        </nz-form-control>
+      </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label nzSpan="8" nzRequired>Thumbnail</nz-form-label>
-                <nz-form-control nzValidatingTip="Validating..." nzErrorTip="Required!">
-                    <nz-upload [nzShowButton]="thumnail?.length !== 1" formControlName="Thumbnail"
-                        nzListType="picture-card" [(nzFileList)]="thumnail" [nzPreview]="handlePreview"
-                        [nzBeforeUpload]="handleUploadFile">
-                        <div>
-                            <span nz-icon nzType="plus"></span>
-                            <div style="margin-top: 8px">Upload</div>
-                        </div>
-                    </nz-upload>
-                    <nz-modal [nzVisible]="previewVisible" [nzContent]="modalContent" [nzFooter]="null"
-                        (nzOnCancel)="previewVisible = false">
-                        <ng-template #modalContent>
-                            <img [src]="previewImage" [ngStyle]="{ width: '100%' }" />
-                        </ng-template>
-                    </nz-modal>
-                </nz-form-control>
-            </nz-form-item>
-
-            <nz-form-item>
-                <nz-form-label nzSpan="8">LstRefFileNews</nz-form-label>
-                <nz-form-control formControlName="LstRefFileNews">
-                    <nz-upload nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                        [nzFileList]="lstRefFileNews">
-                        <button nz-button>
-                            <span nz-icon nzType="upload"></span>
-                            Upload
-                        </button>
-                    </nz-upload>
-                </nz-form-control>
-            </nz-form-item>
-        </div>
-
-        <div nz-col [nzSpan]="16">
-            <nz-form-item>
-                <nz-form-control nzValidatingTip="Validating...">
-                    <text-editor formControlName="ContentBody"
-                        (onContentChanged)="handleContentChangedEditor($event)" />
-                </nz-form-control>
-            </nz-form-item>
-        </div>
-
-
-
+      <nz-form-item>
+        <nz-form-label nzLabelAlign="left" nzSpan="8">{{
+          'T_LSTREFFILENEWS' | translate
+        }}</nz-form-label>
+        <nz-form-control formControlName="LstRefFileNews">
+          <nz-upload
+            nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            [nzFileList]="lstRefFileNews">
+            <button nz-button>
+              <span nz-icon nzType="upload"></span>
+              {{ 'T_UPLOAD' | translate }}
+            </button>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>
     </div>
+
+    <div nz-col [nzSpan]="16" [nzXs]="24" [nzMd]="16">
+      <nz-form-item>
+        <nz-form-control nzValidatingTip="Validating...">
+          <text-editor
+            formControlName="ContentBody"
+            (onContentChanged)="handleContentChangedEditor($event)" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
 </form>
