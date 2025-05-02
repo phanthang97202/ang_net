@@ -6,16 +6,13 @@ import {
   IResponseProvinceCreate,
   IResponseProvinceSearch,
   ISearchProvinceRequest,
-} from '../interfaces/province';
-import { Observable } from 'rxjs';
-import {
+  IHashTagNewsResponse,
+  INewsCategoryResponse,
   ICreateNews,
   IDetailNewsResponse,
   INewsResponse,
-} from '../interfaces/news';
-import { IHashTagNewsResponse } from '../interfaces/hash-tag-news';
-import { INewsCategoryResponse } from '../interfaces/news-category';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
+} from '../interfaces';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

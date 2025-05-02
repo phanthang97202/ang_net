@@ -1,40 +1,23 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CreateRoleComponent } from '../../../components/create-role/create-role.component';
 import {
   IAssignRoleRequest,
   ICreateRoleRequest,
   IRole,
-  IRoleResponse,
-} from '../../../interfaces/role';
-import { AuthService } from '../../../services/auth.service';
-import { LoadingService } from '../../../services/loading-service.service';
-import { ShowErrorService } from '../../../services/show-error.service';
+  IUser,
+} from '../../../interfaces';
+import {
+  AuthService,
+  LoadingService,
+  ShowErrorService,
+} from '../../../services';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Router } from '@angular/router';
-import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { AssignRoleComponent } from '../../../components/assign-role/assign-role.component';
-import { IUser, IUserResponse } from '../../../interfaces/user';
 import { forkJoin } from 'rxjs';
+import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 @Component({
   selector: 'app-role-list',
   standalone: true,
-  imports: [
-    CreateRoleComponent,
-    NzBreadCrumbModule,
-    NzGridModule,
-    NzTableModule,
-    NzButtonModule,
-    NzIconModule,
-    NzPopconfirmModule,
-    NzTypographyModule,
-    AssignRoleComponent,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
   templateUrl: './role-list.component.html',
   styleUrl: './role-list.component.scss',
 })

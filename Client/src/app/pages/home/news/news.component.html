@@ -1,10 +1,13 @@
 <div class="w-full flex flex-col gap-[80px]">
-    @for (item of lstNews; track item) {
-    <news-item [item]="item" />
-    }
+  @for (item of lstNews; track item) {
+    <app-news-item [item]="item" />
+  }
 </div>
 
 <div class="text-center my-[30px]">
-    <pagination [pageIndex]="currentPage + 1" [itemCount]='itemCount'
-        (onPageIndexChange)="handlePageIndexChange($event)" [size]="'small'" />
+  <pagination
+    [pageIndex]="currentPage + 1"
+    [itemCount]="itemCount"
+    (onPageIndexChange)="handlePageIndexChange($event)"
+    [size]="'small'" />
 </div>

@@ -1,29 +1,22 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { NzListModule } from 'ng-zorro-antd/list';
-import { ApiService } from '../../../services/api.service';
-import { IDetailNews, INews } from '../../../interfaces/news';
-import { ShowErrorService } from '../../../services/show-error.service';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LoadingService } from '../../../services/loading-service.service';
-import { NewsItemComponennt } from '../../../components/news-item/news-item.component';
-import { PaginationComponent } from '../../../components/pagination/pagination.component';
-import { CONSTANTS_APP } from '../../../helpers/constants';
+import { Component, inject, OnInit } from '@angular/core';
+import {
+  ApiService,
+  ShowErrorService,
+  LoadingService,
+} from '../../../services';
+import { IDetailNews } from '../../../interfaces';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CONSTANTS_APP } from '../../../helpers';
+import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 
 @Component({
-  selector: 'news-page',
+  selector: 'app-news-page',
   standalone: true,
-  imports: [
-    NewsItemComponennt,
-    NzListModule,
-    NzIconModule,
-    RouterModule,
-    PaginationComponent,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
   templateUrl: './news.component.html',
   styleUrl: './news.component.scss',
 })
-export class NewsComponent {
+export class NewsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
   loadingService = inject(LoadingService);
@@ -31,12 +24,12 @@ export class NewsComponent {
   activedRouter = inject(ActivatedRoute);
 
   lstNews: IDetailNews[] = [];
-  currentPage: number = 0;
-  pageSize: number = CONSTANTS_APP.PAGE_SIZE;
-  itemCount: number = 0;
+  currentPage = 0;
+  pageSize = CONSTANTS_APP.PAGE_SIZE;
+  itemCount = 0;
 
   ngOnInit() {
-    this.activedRouter.queryParams.subscribe((p) => {
+    this.activedRouter.queryParams.subscribe(p => {
       const pageIndex = p['pageIndex'] || 0;
       this.loadData({
         pageIndex: pageIndex,
@@ -52,7 +45,7 @@ export class NewsComponent {
       .SearchNews(pageIndex, pageSize, '', '', '')
       .pipe()
       .subscribe({
-        next: (res) => {
+        next: res => {
           const { DataList, PageIndex, ItemCount } = res.objResult;
 
           this.lstNews = DataList;
@@ -61,7 +54,7 @@ export class NewsComponent {
 
           this.loadingService.setLoading(false);
         },
-        error: (err) => {
+        error: err => {
           this.showErrorService.setShowError({
             icon: 'warning',
             message: JSON.stringify(err, null, 2),

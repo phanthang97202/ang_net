@@ -6,11 +6,10 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
-// import { IButtonCommon } from '../../interfaces/common';
 import { IconCommonComponent } from '../icon-common/icon-common.component';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { Util } from '../../helpers/utils/util';
-import { CloudinaryService } from '../../services/cloudinary.service';
+import { Util } from '../../helpers';
+import { CloudinaryService } from '../../services';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({

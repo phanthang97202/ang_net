@@ -1,60 +1,29 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { ShowErrorService } from '../../../../services/show-error.service';
-import { LoadingService } from '../../../../services/loading-service.service';
-import { ApiService } from '../../../../services/api.service';
+import {
+  ShowErrorService,
+  LoadingService,
+  ApiService,
+} from '../../../../services';
 import {
   IProvince,
   IRequestProvinceCreate,
   IResponseProvinceCreate,
-} from '../../../../interfaces/province';
-import { SaveProvincePopupComponent } from '../save-province-popup/save-province-popup.component';
-import { NzButtonModule } from 'ng-zorro-antd/button';
+  IBaseResponse,
+} from '../../../../interfaces';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzTagModule } from 'ng-zorro-antd/tag';
 import { TTitlePopup } from '../type';
-import { ImportExcelPopup } from '../../../../components/import-excel-popup/import-excel-popup.component';
-import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
-import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrumb.component';
-import { IBaseResponse } from '../../../../interfaces/common';
-import { ButtonCommonComponent } from '../../../../component-ui-common/button-common/button-common.component';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { Checker } from '../../../../helpers/validator/checker';
-import { TagStatusComponent } from '../../../../components/tag-status/tag-status.component';
-import { NzLayoutModule } from 'ng-zorro-antd/layout';
-import { IconCommonComponent } from '../../../../component-ui-common/icon-common/icon-common.component';
-import { SidebarSearchComponent } from '../../../../components/sidebar-search/sidebar-search.component';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
+import { Checker } from '../../../../helpers';
+import { NonNullableFormBuilder } from '@angular/forms';
+import {
+  AntdModule,
+  REUSE_COMPONENT_MODULES,
+  REUSE_PIPE_MODULE,
+} from '../../../../modules';
 @Component({
   selector: 'app-mst-province',
   standalone: true,
-  imports: [
-    NzTableModule,
-    NzBreadCrumbModule,
-    CommonModule,
-    NzIconModule,
-    SaveProvincePopupComponent,
-    NzButtonModule,
-    NzTagModule,
-    ImportExcelPopup,
-    NzPageHeaderModule,
-    NzSpaceModule,
-    BreadcrumbComponent,
-    ButtonCommonComponent,
-    TagStatusComponent,
-    NzLayoutModule,
-    IconCommonComponent,
-    SidebarSearchComponent,
-    NzFormModule,
-    ReactiveFormsModule,
-    NzInputModule,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
   templateUrl: './mst-province-list.component.html',
   styleUrls: ['./mst-province-list.component.scss'],
 })
@@ -102,7 +71,7 @@ export class MstProvinceComponent implements OnInit {
     this.api
       .MstProvinceSearch({ pageIndex: 0, pageSize: 100, keyword: '' })
       .subscribe({
-        next: response => { 
+        next: response => {
           if (response?.Success) {
             this.dataSource = response.objResult?.DataList || [];
           } else {

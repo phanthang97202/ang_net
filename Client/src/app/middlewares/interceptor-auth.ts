@@ -1,6 +1,6 @@
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Provider } from '@angular/core';
-import { AuthInterceptor } from '../services/interceptor-auth.service';
+import { AuthInterceptor } from '../services';
 
 /** Provider for the Noop Interceptor. */
 /*

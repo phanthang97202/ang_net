@@ -10,8 +10,8 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { IAssignRoleRequest, IRole } from '../../interfaces/role';
-import { IUser } from '../../interfaces/user';
+import { IAssignRoleRequest, IRole } from '../../interfaces';
+import { IUser } from '../../interfaces';
 
 @Component({
   selector: 'app-assign-role',
@@ -50,7 +50,7 @@ export class AssignRoleComponent {
         RoleId: this.validateForm.value.RoleId!,
       });
     } else {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });
@@ -66,7 +66,7 @@ export class AssignRoleComponent {
         RoleId: this.validateForm.value.RoleId!,
       });
     } else {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });

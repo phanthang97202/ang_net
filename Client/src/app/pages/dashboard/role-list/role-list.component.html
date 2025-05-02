@@ -1,50 +1,68 @@
-<nz-breadcrumb>
+<div class="mx-[10px]">
+  <nz-breadcrumb>
     <nz-breadcrumb-item>Roles</nz-breadcrumb-item>
     <nz-breadcrumb-item>Setting Role</nz-breadcrumb-item>
     <nz-breadcrumb-item>Create Role</nz-breadcrumb-item>
-</nz-breadcrumb>
-<div class="flex mx-[4%]" nz-row>
-    <div nz-col nzSpan="12">
-        <div nz-col nzSpan="22">
-            <h5 nz-typography>Create roles</h5>
-            <app-create-role (onCreateRole)="handleCreateRole($event)" />
-        </div>
-        <div nz-col nzSpan="22">
-            <h5 nz-typography>Assign roles for user</h5>
-            <app-assign-role [lstRoles]="lstRoles" [lstUsers]="lstUsers" (onAssignRole)="handleAssignRole($event)"
-                (onUnassignRole)="handleUnassignRole($event)" />
-        </div>
+  </nz-breadcrumb>
+  <div class="" nz-row>
+    <div nz-col [nzXs]="24" [nzSm]="12">
+      <div nz-col [nzXs]="24" [nzSm]="22">
+        <h5 nz-typography>Create roles</h5>
+        <app-create-role (onCreateRole)="handleCreateRole($event)" />
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="22">
+        <h5 nz-typography>Assign roles for user</h5>
+        <app-assign-role
+          [lstRoles]="lstRoles"
+          [lstUsers]="lstUsers"
+          (onAssignRole)="handleAssignRole($event)"
+          (onUnassignRole)="handleUnassignRole($event)" />
+      </div>
     </div>
 
-    <div class="mt-[32px]" nz-col nzSpan="12">
-        <nz-table nzShowSizeChanger [nzData]="lstRoles" [nzFrontPagination]="true" [nzLoading]="false" [nzTotal]="100"
-            [nzPageSize]="10" [nzPageIndex]="0">
-            <thead>
-                <tr>
-                    <th nzColumnKey="name" [nzFilterFn]="true">Name</th>
-                    <th nzColumnKey="totalUsers" [nzSortFn]="true">Total users</th>
-                    <th nzColumnKey="options">Options</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (data of lstRoles; track data) {
-                <tr>
-                    <td>
-                        {{ data.Name }}
-                    </td>
-                    <td>{{ data.TotalUsers }} </td>
-                    <td>
-                        <button nz-popconfirm [nzOkText]='"Yes"' [nzCancelText]='"No"'
-                            nzPopconfirmTitle="Are you sure ?" (nzOnConfirm)="handleDelete(data.Id)"
-                            (nzOnCancel)="cancel()" nz-button nzType="default" nzShape="circle">
-                            <span nz-icon nzType="delete"></span>
-                        </button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </nz-table>
+    <div class="mt-[32px]" nz-col [nzXs]="24" [nzSm]="12">
+      <nz-table
+        nzShowSizeChanger
+        [nzData]="lstRoles"
+        [nzFrontPagination]="true"
+        [nzLoading]="false"
+        [nzTotal]="100"
+        [nzPageSize]="10"
+        [nzPageIndex]="0">
+        <thead>
+          <tr>
+            <th nzColumnKey="name" [nzFilterFn]="true">Name</th>
+            <th nzColumnKey="totalUsers" [nzSortFn]="true">Total users</th>
+            <th nzColumnKey="options">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (data of lstRoles; track data) {
+            <tr>
+              <td>
+                {{ data.Name }}
+              </td>
+              <td>{{ data.TotalUsers }}</td>
+              <td>
+                <button
+                  nz-popconfirm
+                  [nzOkText]="'Yes'"
+                  [nzCancelText]="'No'"
+                  nzPopconfirmTitle="Are you sure ?"
+                  (nzOnConfirm)="handleDelete(data.Id)"
+                  (nzOnCancel)="cancel()"
+                  nz-button
+                  nzType="default"
+                  nzShape="circle">
+                  <span nz-icon nzType="delete"></span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </nz-table>
     </div>
+  </div>
 </div>
 
 <!-- (click)="handleDelete(data.id)" -->

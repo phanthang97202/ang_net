@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { IErrorInfo } from '../interfaces/error-info';
+import { IErrorInfo } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',

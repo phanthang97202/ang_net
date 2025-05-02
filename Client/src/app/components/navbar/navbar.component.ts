@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { isReactive } from '@angular/core/primitives/signals';
 import {
   ActivatedRoute,
   Router,
@@ -10,7 +9,7 @@ import {
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMenuItemComponent, NzMenuModule } from 'ng-zorro-antd/menu';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
@@ -36,14 +35,17 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
-  activeRoute: boolean = false;
+  activeRoute = false;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {}
 
-  listRoute = [{ path: '/', title: 'Home', icon: 'home', isActive: false }];
+  listRoute = [
+    { path: '/', title: 'Home', icon: 'home', isActive: false },
+    { path: '/about', title: 'AboutMe', icon: 'user', isActive: false },
+  ];
 
   ngOnInit() {
     this.listRoute.map(item => {

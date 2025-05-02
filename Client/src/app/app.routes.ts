@@ -1,17 +1,5 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login.component';
-import { AboutComponent } from './pages/about/about.component';
-import { HomeComponent } from './pages/home/home/home.component';
-import { canActive, canActiveForAdmin } from './middlewares/guard-auth';
-import { DetailUserComponent } from './pages/detail-user/detail-user.component';
-import { DashboardComponent } from './pages/dashboard/dashboard/dashboard.component';
-import { UserListComponent } from './pages/dashboard/user-list/user-list.component';
-import { RoleListComponent } from './pages/dashboard/role-list/role-list.component';
-// import { CreateRoleComponent } from './components/create-role/create-role.component';
-import { MstProvinceComponent } from './pages/dashboard/mst-province/mst-province-list/mst-province-list.component';
-import { BlogsComponent } from './pages/dashboard/blogs/blogs.component';
-import { NewsComponent } from './pages/home/news/news.component';
-import { DetailNewsComponent } from './pages/home/detail-news/detail-news.component';
+import { canActive, canActiveForAdmin } from './middlewares';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -19,70 +7,125 @@ export const routes: Routes = [
   {
     title: 'Home',
     path: '',
-    component: HomeComponent,
+    // component: HomeComponent,
+    loadComponent: () =>
+      import('./pages/home/home/home.component').then(p => p.HomeComponent),
     // canActivate: [canActive],
     children: [
       {
         path: '',
-        component: NewsComponent,
+        // component: NewsComponent,
+        loadComponent: () =>
+          import('./pages/home/news/news.component').then(p => p.NewsComponent),
       },
       {
         path: 'news',
-        component: NewsComponent,
+        // component: NewsComponent,
+        loadComponent: () =>
+          import('./pages/home/news/news.component').then(p => p.NewsComponent),
       },
       {
         path: 'news/:categoryId/:newsId',
-        component: DetailNewsComponent,
+        // component: DetailNewsComponent,
+        loadComponent: () =>
+          import('./pages/home/detail-news/detail-news.component').then(
+            p => p.DetailNewsComponent
+          ),
       },
     ],
   },
   {
     title: 'Login',
     path: 'login',
-    component: LoginComponent,
+    // component: LoginComponent,
+    loadComponent() {
+      return import('./pages/login/login.component').then(
+        p => p.LoginComponent
+      );
+    },
   },
   {
     title: 'About',
     path: 'about',
-    component: AboutComponent,
+    // component: AboutComponent,
+    loadComponent: () =>
+      import('./pages/about/about.component').then(p => p.AboutComponent),
     // canActivate: [canActive],
   },
   {
     title: 'User detail',
     path: 'userinfor',
-    component: DetailUserComponent,
+    // component: DetailUserComponent,
+    loadComponent: () =>
+      import('./pages/detail-user/detail-user.component').then(
+        p => p.DetailUserComponent
+      ),
     // canActivate: [canActive],
   },
   {
     title: 'Dashboard',
     path: 'dashboard',
-    component: DashboardComponent,
+    // component: LayoutDashboardComponent,
+    loadComponent: () =>
+      import('./pages/dashboard/_layout/_layout.component').then(
+        p => p.LayoutDashboardComponent
+      ),
     canActivate: [canActiveForAdmin],
-    children: [],
-  },
-  {
-    path: 'dashboard/users',
-    component: UserListComponent,
-    canActivate: [canActiveForAdmin],
-  },
-  {
-    path: 'dashboard/role',
-    component: RoleListComponent,
-    canActivate: [canActiveForAdmin],
-  },
-  {
-    path: 'dashboard/mstprovince',
-    component: MstProvinceComponent,
-    canActivate: [canActiveForAdmin],
-  },
-  {
-    path: 'dashboard/mstdistrict',
-    component: MstProvinceComponent,
-    canActivate: [canActiveForAdmin],
-  },
-  {
-    path: 'dashboard/blog',
-    component: BlogsComponent,
-    canActivate: [canActiveForAdmin],
+    children: [
+      {
+        path: '',
+        // component: DashboardComponent,
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard/dashboard.component').then(
+            p => p.DashboardComponent
+          ),
+        canActivate: [canActiveForAdmin],
+      },
+      {
+        path: 'users',
+        // component: UserListComponent,
+        loadComponent: () =>
+          import('./pages/dashboard/user-list/user-list.component').then(
+            p => p.UserListComponent
+          ),
+        canActivate: [canActiveForAdmin],
+      },
+      {
+        path: 'role',
+        // component: RoleListComponent,
+        loadComponent: () =>
+          import('./pages/dashboard/role-list/role-list.component').then(
+            p => p.RoleListComponent
+          ),
+        canActivate: [canActiveForAdmin],
+      },
+      {
+        path: 'mstprovince',
+        // component: MstProvinceComponent,
+        loadComponent: () =>
+          import(
+            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
+          ).then(p => p.MstProvinceComponent),
+        canActivate: [canActiveForAdmin],
+      },
+      {
+        path: 'mstdistrict',
+        // component: MstProvinceComponent,
+        loadComponent: () =>
+          import(
+            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
+          ).then(p => p.MstProvinceComponent),
+        canActivate: [canActiveForAdmin],
+      },
+      {
+        path: 'blog',
+        // component: BlogsComponent,
+        loadComponent: () =>
+          import('./pages/dashboard/blogs/blogs.component').then(
+            p => p.BlogsComponent
+          ),
+        canActivate: [canActiveForAdmin],
+      },
+    ],
   },
 ];

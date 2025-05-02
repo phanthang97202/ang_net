@@ -6,29 +6,20 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { FormValidatorsCommon } from '../../../../helpers/validator/form/validator-form';
-import { IRequestProvinceCreate } from '../../../../interfaces/province';
+import { NonNullableFormBuilder } from '@angular/forms';
+import { FormValidatorsCommon } from '../../../../helpers';
+import { IRequestProvinceCreate } from '../../../../interfaces';
 import { TTitlePopup } from '../type';
+import {
+  AntdModule,
+  REUSE_COMPONENT_MODULES,
+  REUSE_PIPE_MODULE,
+} from '../../../../modules';
 
 @Component({
-  selector: 'save-province-popup',
+  selector: 'app-save-province-popup',
   standalone: true,
-  imports: [
-    NzFormModule,
-    NzSwitchModule,
-    ReactiveFormsModule,
-    NzIconModule,
-    NzInputModule,
-    NzButtonModule,
-    NzModalModule,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, REUSE_PIPE_MODULE],
   templateUrl: './save-province-popup.component.html',
   styleUrl: './save-province-popup.component.scss',
 })
@@ -39,7 +30,7 @@ export class SaveProvincePopupComponent implements OnChanges {
   @Input() titlePopup: TTitlePopup = '';
 
   @Output() isOpenPopupChange = new EventEmitter<boolean>();
-  @Output() onSave = new EventEmitter<IRequestProvinceCreate>();
+  @Output() _onSave = new EventEmitter<IRequestProvinceCreate>();
 
   validateForm = this.fb.group({
     ProvinceCode: this.fb.control('', [
@@ -95,9 +86,9 @@ export class SaveProvincePopupComponent implements OnChanges {
       const formValue = this.validateForm.value as IRequestProvinceCreate; // The current value of the control.
       const remainFormValue = this.validateForm.getRawValue(); // Retrieves all values regardless of disabled status.
 
-      this.onSave.emit({ ...remainFormValue, ...formValue });
+      this._onSave.emit({ ...remainFormValue, ...formValue });
     } else {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });

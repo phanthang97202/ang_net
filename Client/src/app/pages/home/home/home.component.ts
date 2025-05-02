@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { AsideNewsComponent } from '../aside-news/aside-news.component';
-import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterOutlet, AsideNewsComponent, CommonModule],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

@@ -10,6 +10,8 @@ export const environment = {
     'eWxWRTZOOVRqMVpaUjZQTjJvUVZkUkpNYnVMb05uUGZnOHpPbFRqaGNsYURVVXRyeTZESzE4bk1FNHdoMGc9PS1NakF5TkRFeE1qWT0=',
   POSTHOG_KEY: 'phc_o7HguYwZUd6ZDzXDTuiVhHitMxLeDIRdmPEFoxLxije',
   POSTHOG_HOST: 'https://us.i.posthog.com',
+  gg_client_id:
+    '202020211023-c70kb86dn19s9q0tvotv94f04no8r1ct.apps.googleusercontent.com',
 };
 
 // npm install cloudinary-angular @cloudinary/base @cloudinary/angular

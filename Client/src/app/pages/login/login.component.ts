@@ -1,41 +1,27 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, Component, inject } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { NzButtonComponent } from 'ng-zorro-antd/button';
-import { NzCheckboxComponent } from 'ng-zorro-antd/checkbox';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { AuthService, LoadingService, ShowErrorService } from '../../services';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { LoadingService } from '../../services/loading-service.service';
-import { ShowErrorService } from '../../services/show-error.service';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { AuthResponse } from '../../interfaces/auth-response';
-import { TranslateModule } from '@ngx-translate/core';
+import { AuthResponse } from '../../interfaces';
+import {
+  AntdModule,
+  REUSE_COMPONENT_MODULES,
+  REUSE_PIPE_MODULE,
+} from '../../modules';
+import { environment } from '../../../environments/environment';
 declare const google: any;
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    RouterLink,
-    NgTemplateOutlet,
-    NzIconModule,
-    ReactiveFormsModule,
-    NzCheckboxComponent,
-    NzFormModule,
-    NzInputModule,
-    NzButtonComponent,
-    TranslateModule,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -61,8 +47,7 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     google.accounts.id.initialize({
-      client_id:
-        '202020211023-c70kb86dn19s9q0tvotv94f04no8r1ct.apps.googleusercontent.com',
+      client_id: environment.gg_client_id,
       callback: (response: any) => this.handleCredentialResponse(response),
     });
 

@@ -1,6 +1,10 @@
-<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
-  <nz-form-item>
-    <nz-form-control [nzOffset]="1">
+<form
+  class="overflow-hidden"
+  nz-form
+  [formGroup]="validateForm"
+  (ngSubmit)="submitForm()">
+  <nz-form-item class="fixed top-0 w-full z-10 bg-[#fff] px-[10px] py-[4px]">
+    <nz-form-control>
       <button nz-button nzType="primary">
         <span nz-icon nzType="upload" nzTheme="outline"></span>
         {{ 'T_POST' | translate }}

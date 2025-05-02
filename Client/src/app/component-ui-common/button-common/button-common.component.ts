@@ -6,7 +6,6 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-// import { IButtonCommon } from '../../interfaces/common';
 import { IconCommonComponent } from '../icon-common/icon-common.component';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 

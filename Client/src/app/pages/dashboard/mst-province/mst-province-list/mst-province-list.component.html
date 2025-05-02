@@ -92,13 +92,13 @@
     </nz-content>
   </nz-layout>
 </div>
-<save-province-popup
+<app-save-province-popup
   [titlePopup]="titlePopup"
   [formDataSource]="formDataSource"
   [(isOpenPopup)]="_isOpenPopup"
   [titlePopup]="titlePopup"
-  (onSave)="handleSaveForm($event)" />
-<import-excel-popup
+  (_onSave)="handleSaveForm($event)" />
+<app-import-excel-popup
   [(isOpenPopup)]="_isOpenImportExcelPopup"
   (_onUploadFile)="handleUploadFile($event)"
   (_onExportTemplateFile)="handleExportTemplateFile()" />

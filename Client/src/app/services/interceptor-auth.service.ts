@@ -12,7 +12,6 @@ import {
   BehaviorSubject,
   catchError,
   filter,
-  map,
   Observable,
   switchMap,
   take,

@@ -3,13 +3,12 @@ import {
   inject,
   Input,
   OnChanges,
-  OnInit,
   SimpleChanges,
 } from '@angular/core';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
-import { ShowErrorService } from '../../services/show-error.service';
-import { IErrorInfo } from '../../interfaces/error-info';
+import { ShowErrorService } from '../../services';
+import { IErrorInfo } from '../../interfaces';
 
 @Component({
   standalone: true,

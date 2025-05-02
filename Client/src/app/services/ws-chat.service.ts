@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as SignalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { IChat, IChatResponse, TypeMessage } from '../interfaces/chat';
+import { IChatResponse, TypeMessage } from '../interfaces';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -28,7 +28,7 @@ export class ChatService {
       .then(() => {
         console.log('ConnectSuccessfully');
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   }
@@ -37,7 +37,7 @@ export class ChatService {
   sendMessage(userId: string, message: string, type: TypeMessage) {
     this.hubConnection
       .invoke('SendMessage', userId, message, type)
-      .catch((err) => console.error(err));
+      .catch(err => console.error(err));
   }
 
   // listener method ReceiveMessage signalR BE

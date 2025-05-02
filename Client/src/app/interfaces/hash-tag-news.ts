@@ -1,4 +1,4 @@
-import { IBaseResponse, IPageInfo } from './common';
+import { IBaseResponse } from './common';
 
 export interface IHashTagNews {
   HashTagNewsId: string;

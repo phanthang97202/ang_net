@@ -1,14 +1,11 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import {
   ContentChange,
   EditorChangeContent,
   EditorChangeSelection,
   QuillModule,
 } from 'ngx-quill';
-import { ApiService } from '../../services/api.service';
-import { ShowErrorService } from '../../services/show-error.service';
+import { ApiService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -21,8 +18,8 @@ import { DomSanitizer } from '@angular/platform-browser';
   styleUrl: './text-editor.component.scss',
 })
 export class TextEditorComponent {
-  editorContent: string = '';
-  content: string = '';
+  editorContent = '';
+  content = '';
   apiService = inject(ApiService);
   showErrorService = inject(ShowErrorService);
   @Output('onContentChanged')

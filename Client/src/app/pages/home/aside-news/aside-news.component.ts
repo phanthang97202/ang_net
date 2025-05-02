@@ -1,28 +1,24 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ShowErrorService } from '../../../services/show-error.service';
-import { ApiService } from '../../../services/api.service';
-import { LoadingService } from '../../../services/loading-service.service';
-import { IDetailNews } from '../../../interfaces/news';
-import { IHashTagNews } from '../../../interfaces/hash-tag-news';
-import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NewsItemSmComponennt } from '../../../components/news-items-sm/news-item-sm.component';
-import { HashTagComponennt } from '../../../components/hash-tag/hash-tag.component';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import {
+  ShowErrorService,
+  ApiService,
+  LoadingService,
+} from '../../../services';
+import { IDetailNews, IHashTagNews } from '../../../interfaces';
+import {
+  AntdModule,
+  REUSE_COMPONENT_MODULES,
+  REUSE_PIPE_MODULE,
+} from '../../../modules';
 
 @Component({
-  selector: 'aside-news',
+  selector: 'app-aside-news',
   standalone: true,
-  imports: [
-    NzAvatarModule,
-    CommonModule,
-    NewsItemSmComponennt,
-    HashTagComponennt,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
   templateUrl: './aside-news.component.html',
   styleUrl: './aside-news.component.scss',
 })
-export class AsideNewsComponent {
+export class AsideNewsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
   loadingService = inject(LoadingService);
@@ -40,11 +36,11 @@ export class AsideNewsComponent {
       .SearchNews(0, 100, '', '', '')
       .pipe()
       .subscribe({
-        next: (res) => {
+        next: res => {
           this.lstNews = res.objResult.DataList;
           this.loadingService.setLoading(false);
         },
-        error: (err) => {
+        error: err => {
           this.showErrorService.setShowError({
             icon: 'warning',
             message: JSON.stringify(err, null, 2),
@@ -58,11 +54,11 @@ export class AsideNewsComponent {
       .GetTopHashTag()
       .pipe()
       .subscribe({
-        next: (res) => {
+        next: res => {
           this.lstTopHashTag = res.DataList;
           this.loadingService.setLoading(false);
         },
-        error: (err) => {
+        error: err => {
           this.showErrorService.setShowError({
             icon: 'warning',
             message: JSON.stringify(err, null, 2),

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
-import { CONSTANTS_APP } from '../../helpers/constants';
+import { CONSTANTS_APP } from '../../helpers';
 
 @Component({
   selector: 'pagination',
@@ -14,7 +14,7 @@ export class PaginationComponent {
 
   @Input() pageIndex: number = CONSTANTS_APP.PAGE_INDEX;
   @Input() pageSize: number = CONSTANTS_APP.PAGE_SIZE;
-  @Input() itemCount: number = 0;
+  @Input() itemCount = 0;
 
   @Output() onPageIndexChange = new EventEmitter<number>();
 

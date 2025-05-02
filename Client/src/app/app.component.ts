@@ -1,69 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { Event, NavigationEnd, Router } from '@angular/router';
 import {
-  Event,
-  NavigationEnd,
-  Router,
-  RouterLink,
-  RouterOutlet,
-} from '@angular/router';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { FooterComponent } from './components/footer/footer.component';
-import {
-  NzContentComponent,
-  NzFooterComponent,
-  NzHeaderComponent,
-  NzLayoutComponent,
-  NzSiderComponent,
-} from 'ng-zorro-antd/layout';
-import {
-  NzBreadCrumbComponent,
-  NzBreadCrumbItemComponent,
-} from 'ng-zorro-antd/breadcrumb';
-import { NzSpinComponent } from 'ng-zorro-antd/spin';
-import { NzAlertComponent } from 'ng-zorro-antd/alert';
-import { LoadingService } from './services/loading-service.service';
+  LoadingService,
+  ShowErrorService,
+  AuthService,
+  LangService,
+} from './services';
 import { filter, Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
-import { NzButtonComponent, NzButtonModule } from 'ng-zorro-antd/button';
-import { IErrorInfo } from './interfaces/error-info';
-import { ShowErrorService } from './services/show-error.service';
+import { IErrorInfo } from './interfaces';
 import { LayoutType } from './types';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
-import { AuthService } from './services/auth.service';
 import posthog from 'posthog-js';
 import { TranslateService } from '@ngx-translate/core';
-import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
-import { LangService } from './services/lang-service.service';
+import {
+  AntdModule,
+  REUSE_COMPONENT_MODULES,
+  REUSE_PIPE_MODULE,
+} from './modules';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterLink,
-    CommonModule,
-    NzSpinComponent,
-    NzAlertComponent,
-    NzLayoutComponent,
-    NzHeaderComponent,
-    NzContentComponent,
-    NzBreadCrumbComponent,
-    NzBreadCrumbItemComponent,
-    NzFooterComponent,
-    RouterOutlet,
-    NavbarComponent,
-    FooterComponent,
-    ErrorPopupComponent,
-    NzButtonComponent,
-    NzSiderComponent,
-    NzMenuModule,
-    NzDropDownModule,
-    NzButtonModule,
-    NzIconModule,
-    SwitchLangComponent,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
   providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

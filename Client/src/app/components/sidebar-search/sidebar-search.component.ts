@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NzSiderComponent } from 'ng-zorro-antd/layout';
-import { IconCommonComponent } from '../../component-ui-common/icon-common/icon-common.component';
-import { ButtonCommonComponent } from '../../component-ui-common/button-common/button-common.component';
+import { IconCommonComponent } from '../../component-ui-common';
+import { ButtonCommonComponent } from '../../component-ui-common';
 import { CommonModule } from '@angular/common';
 
 @Component({

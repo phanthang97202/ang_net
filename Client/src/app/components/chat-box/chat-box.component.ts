@@ -7,21 +7,22 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ChatService } from '../../services/ws-chat.service';
+import {
+  ChatService,
+  AuthService,
+  ShowErrorService,
+  CloudinaryService,
+} from '../../services';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgModel } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzCommentModule } from 'ng-zorro-antd/comment';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { IChat, TypeMessage } from '../../interfaces/chat';
-import { ShowErrorService } from '../../services/show-error.service';
+import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { HttpClient } from '@angular/common/http';
-import { CloudinaryService } from '../../services/cloudinary.service';
 @Component({
   selector: 'chat-box',
   standalone: true,
@@ -60,12 +61,12 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     this.chatService.getMessage(this.pageIndex, this.pageSize).subscribe({
-      next: (res) => {
+      next: res => {
         this.messages = [...this.messages, ...res.objResult.DataList];
         this.itemCount = res.objResult.ItemCount;
         return res.objResult.DataList;
       },
-      error: (err) => {
+      error: err => {
         this.showErrorService.setShowError({
           icon: 'warning',
           message: JSON.stringify(err, null, 2),
@@ -85,7 +86,6 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         CreatedDTime: new Date(),
       });
     });
- 
   }
 
   sendMessage() {
@@ -106,10 +106,10 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     // Upload to Cloudinary
 
     this.cloudinary.uploadImage(file).subscribe({
-      next: (res: any) => { 
+      next: (res: any) => {
         this.newMessage = res.url;
       },
-      error: (err) => {},
+      error: err => {},
     });
     return false; // Prevent default behavior
   };
@@ -135,7 +135,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     const oldScrollHeight = this.chatContainer.nativeElement.scrollHeight;
 
     this.chatService.getMessage(this.pageIndex + 1, this.pageSize).subscribe({
-      next: (res) => {
+      next: res => {
         this.messages = [...res.objResult.DataList, ...this.messages];
         this.pageIndex += 1;
         this.loadingMessages = false;
@@ -146,7 +146,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
             newScrollHeight - oldScrollHeight;
         }, 0); // Delay to allow DOM to update
       },
-      error: (err) => {
+      error: err => {
         console.error('Error loading messages:', err);
         this.loadingMessages = false;
       },

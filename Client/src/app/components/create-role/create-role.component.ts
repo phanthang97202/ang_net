@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
@@ -10,7 +9,7 @@ import {
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { ICreateRoleRequest } from '../../interfaces/role';
+import { ICreateRoleRequest } from '../../interfaces';
 
 @Component({
   selector: 'app-create-role',
@@ -41,7 +40,7 @@ export class CreateRoleComponent {
         roleName: this.validateForm.value.roleName!,
       });
     } else {
-      Object.values(this.validateForm.controls).forEach((control) => {
+      Object.values(this.validateForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });

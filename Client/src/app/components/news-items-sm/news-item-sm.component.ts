@@ -1,14 +1,13 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { RouterModule } from '@angular/router';
-import { SubString } from '../../pipes/subString.pipe';
+import { SubString, LocalDTime } from '../../pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { IDetailNews, INews } from '../../interfaces/news';
-import { LocalDTime } from '../../pipes/localeDTime.pipe';
+import { IDetailNews } from '../../interfaces';
 
 @Component({
-  selector: 'news-item-sm',
+  selector: 'app-news-item-sm',
   standalone: true,
   imports: [
     NzListModule,
@@ -21,7 +20,7 @@ import { LocalDTime } from '../../pipes/localeDTime.pipe';
   templateUrl: './news-item-sm.component.html',
   styleUrl: './news-item-sm.component.scss',
 })
-export class NewsItemSmComponennt implements OnInit {
+export class NewsItemSmComponent implements OnInit {
   @Input() item!: IDetailNews;
   constructor() {}
 

@@ -1,22 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { LoginRequest, RefreshTokenRequest } from '../interfaces/login-request';
-import { delay, map, Observable } from 'rxjs';
-import { AuthResponse } from '../interfaces/auth-response';
+import { map, Observable } from 'rxjs';
+import {
+  LoginRequest,
+  RefreshTokenRequest,
+  AuthResponse,
+  IUserResponse,
+} from '../interfaces';
 import { jwtDecode } from 'jwt-decode';
-import { isAfter, isBefore } from 'date-fns';
-import { IUser, IUserInfo, IUserResponse } from '../interfaces/user';
+import { isBefore } from 'date-fns';
 import {
   IAssignRoleRequest,
   IAssignRoleResponse,
   ICreateRoleRequest,
   IDeleteRoleResponse,
-  IRole,
   IRoleResponse,
   IUnasignRoleResponse,
   IUnassignRoleRequest,
-} from '../interfaces/role';
+} from '../interfaces';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -154,10 +156,6 @@ export class AuthService {
     const decodedToken: any = jwtDecode(token);
 
     const bool = decodedToken?.role?.includes('Admin') ?? false;
-    console.log(
-      '🚀 ~ AuthService ~ isAdminPermission ~ decodedToken:',
-      decodedToken
-    );
 
     return bool;
   }

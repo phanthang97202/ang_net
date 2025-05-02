@@ -1,62 +1,27 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TextEditorComponent } from '../../../components/text-editor/text-editor.component';
-import { NzFormModule } from 'ng-zorro-antd/form';
 import {
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ApiService } from '../../../services/api.service';
-import { ShowErrorService } from '../../../services/show-error.service';
-import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { CommonModule } from '@angular/common';
-import { CloudinaryService } from '../../../services/cloudinary.service';
-import { ChatBoxComponent } from '../../../components/chat-box/chat-box.component';
-import { NzMentionModule } from 'ng-zorro-antd/mention';
-import { NzCascaderModule } from 'ng-zorro-antd/cascader';
-import { NzTreeSelectModule } from 'ng-zorro-antd/tree-select';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { LoadingService } from '../../../services/loading-service.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { TranslateModule } from '@ngx-translate/core';
 import {
-  INewsCategory,
-  INewsCategoryNode,
-} from '../../../interfaces/news-category';
+  ApiService,
+  ShowErrorService,
+  CloudinaryService,
+  LoadingService,
+} from '../../../services';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { INewsCategory, INewsCategoryNode } from '../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
-import { Util } from '../../../helpers/utils/util';
-import { UploadCommonComponent } from '../../../component-ui-common/upload-common/upload-common.component';
+import { Util } from '../../../helpers';
+import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 
 @Component({
   selector: 'app-blogs',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    TextEditorComponent,
-    NzFormModule,
-    NzInputModule,
-    NzButtonModule,
-    NzUploadModule,
-    NzIconModule,
-    NzModalModule,
-    CommonModule,
-    ReactiveFormsModule,
-    ChatBoxComponent,
-    NzInputModule,
-    NzMentionModule,
-    NzCascaderModule,
-    NzSelectModule,
-    NzTreeSelectModule,
-    TranslateModule,
-    UploadCommonComponent,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
   templateUrl: './blogs.component.html',
   styleUrl: './blogs.component.scss',
 })

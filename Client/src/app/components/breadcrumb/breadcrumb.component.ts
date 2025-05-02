@@ -6,8 +6,8 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
-import { IButtonBreadcrumb } from '../../interfaces/common';
-import { ButtonCommonComponent } from '../../component-ui-common/button-common/button-common.component';
+import { IButtonBreadcrumb } from '../../interfaces';
+import { ButtonCommonComponent } from '../../component-ui-common';
 
 @Component({
   standalone: true,

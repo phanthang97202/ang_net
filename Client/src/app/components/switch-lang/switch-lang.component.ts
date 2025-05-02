@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { environment } from '../../../environments/environment';
-import { LangService } from '../../services/lang-service.service';
+import { LangService } from '../../services';
 
 @Component({
   standalone: true,
