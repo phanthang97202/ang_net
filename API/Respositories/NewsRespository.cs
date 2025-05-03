@@ -247,6 +247,10 @@ namespace API.Respositories
 
             if (rsNewsCached is null)
             {
+                dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
+                              .Skip(_pageIndex * _pageSize)
+                              .Take(_pageSize)
+                              .ToList();
                 foreach (var item in dataResult)
                 {
                     RPNewsDto obj = await FactoryNewsRecord(item, excludeFields);
