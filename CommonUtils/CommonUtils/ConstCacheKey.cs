@@ -13,6 +13,7 @@ namespace CommonUtils.CommonUtils
         public const int CACHE_EXPIRED_TIME = 5;
 
         // News - Bài viết
-        public const string CACHEKEY_NEWS_DETAIL = "CACHEKEY_NEWS_DETAIL";
+        public const string NewsRespository_Search = "NewsRespository.Search";
+        public const string NewsRespository_Detail = "NewsRespository.Detail";
     }
 }

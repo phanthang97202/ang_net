@@ -449,7 +449,14 @@ namespace API.Respositories
 
             if (registerDto.Roles is null)
             {
-                await _userManager.AddToRoleAsync(user, "User");
+                string defaultRoleName = "User";
+                var isRoleExist = await _roleManager.RoleExistsAsync(defaultRoleName);
+                if (!isRoleExist)
+                {
+                    var createRole = await _roleManager.CreateAsync(new IdentityRole(defaultRoleName));
+                }
+
+                await _userManager.AddToRoleAsync(user, defaultRoleName);
             }
             //Không có quyền admin thì không được thêm roles
             //else

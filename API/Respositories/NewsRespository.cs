@@ -233,10 +233,28 @@ namespace API.Respositories
 
             int itemCount = query.ToList().Count;
 
-            dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
+            // Starting cache data in RedisCloud 
+            //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
+            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId})";
+            string keyStoreManager = TConstValue.NewsRespository_Search;
+
+            string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
+            string rsNewsCached = await GetFieldOfHashCacheAsync(keyStoreManager, fieldKey);
+
+            if (rsNewsCached is null)
+            {
+                dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
                              .Skip(_pageIndex * _pageSize)
                              .Take(_pageSize)
                              .ToList();
+                string jsonDataResult = TCommonUtils.ConvertToJsonStringify(dataResult);
+                await HashCacheAsync(keyStoreManager, fieldKey, jsonDataResult);
+            }
+            else
+            {
+                List<NewsModel> parseDataResult = TCommonUtils.ParseJsonStringify<List<NewsModel>>(rsNewsCached);
+                dataResult = parseDataResult;
+            }  
 
             //
             List<RPNewsDto> dataResponse = new List<RPNewsDto>();
@@ -304,7 +322,8 @@ namespace API.Respositories
             List<string> excludeFields = new List<string>() {  };
             // Starting cache data in RedisCloud 
             //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
-            string keyCached = GenerateUniqueCacheKey(TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
+            string cacheId = $"({newsId})";
+            string keyCached = GenerateUniqueCacheKey(TConstValue.NewsRespository_Detail, cacheId);
             RPNewsDto rsNewsCached = await GetCacheAsync<RPNewsDto>(keyCached);
             
             if(rsNewsCached is null)
@@ -507,6 +526,10 @@ namespace API.Respositories
             }
 
             await _dbContext.SaveChangesAsync();
+
+            // when create new post => delete cached search api
+            string keyStoreManager = TConstValue.NewsRespository_Search;
+            await DeleteCachedAsync(keyStoreManager);
             #endregion 
             return apiResponse;
         }
@@ -566,6 +589,10 @@ namespace API.Respositories
             {
                 await _dbContext.LikeNews.Where(i => i.LikeNewsId == objLikeNews.LikeNewsId).ExecuteDeleteAsync();
                 await _dbContext.SaveChangesAsync();
+
+                // delete cached search api
+                string keyStoreManager = TConstValue.NewsRespository_Search;
+                await DeleteCachedAsync(keyStoreManager);
             }
             #endregion
 
@@ -670,6 +697,10 @@ namespace API.Respositories
                 //        UpdatedDTime = TCommonUtils.DTimeNow()
                 //    });
                 //}
+
+                // delete cached search api
+                string keyStoreManager = TConstValue.NewsRespository_Search;
+                await DeleteCachedAsync(keyStoreManager);
 
             }
             #endregion

@@ -7,26 +7,22 @@ export const routes: Routes = [
   {
     title: 'Home',
     path: '',
-    // component: HomeComponent,
     loadComponent: () =>
       import('./pages/home/home/home.component').then(p => p.HomeComponent),
     // canActivate: [canActive],
     children: [
       {
         path: '',
-        // component: NewsComponent,
         loadComponent: () =>
           import('./pages/home/news/news.component').then(p => p.NewsComponent),
       },
       {
         path: 'news',
-        // component: NewsComponent,
         loadComponent: () =>
           import('./pages/home/news/news.component').then(p => p.NewsComponent),
       },
       {
         path: 'news/:categoryId/:newsId',
-        // component: DetailNewsComponent,
         loadComponent: () =>
           import('./pages/home/detail-news/detail-news.component').then(
             p => p.DetailNewsComponent
@@ -37,7 +33,6 @@ export const routes: Routes = [
   {
     title: 'Login',
     path: 'login',
-    // component: LoginComponent,
     loadComponent() {
       return import('./pages/login/login.component').then(
         p => p.LoginComponent
@@ -47,7 +42,6 @@ export const routes: Routes = [
   {
     title: 'About',
     path: 'about',
-    // component: AboutComponent,
     loadComponent: () =>
       import('./pages/about/about.component').then(p => p.AboutComponent),
     // canActivate: [canActive],
@@ -55,7 +49,6 @@ export const routes: Routes = [
   {
     title: 'User detail',
     path: 'userinfor',
-    // component: DetailUserComponent,
     loadComponent: () =>
       import('./pages/detail-user/detail-user.component').then(
         p => p.DetailUserComponent
@@ -65,7 +58,6 @@ export const routes: Routes = [
   {
     title: 'Dashboard',
     path: 'dashboard',
-    // component: LayoutDashboardComponent,
     loadComponent: () =>
       import('./pages/dashboard/_layout/_layout.component').then(
         p => p.LayoutDashboardComponent
@@ -74,7 +66,6 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        // component: DashboardComponent,
         loadComponent: () =>
           import('./pages/dashboard/dashboard/dashboard.component').then(
             p => p.DashboardComponent
@@ -83,7 +74,6 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        // component: UserListComponent,
         loadComponent: () =>
           import('./pages/dashboard/user-list/user-list.component').then(
             p => p.UserListComponent
@@ -92,7 +82,6 @@ export const routes: Routes = [
       },
       {
         path: 'role',
-        // component: RoleListComponent,
         loadComponent: () =>
           import('./pages/dashboard/role-list/role-list.component').then(
             p => p.RoleListComponent
@@ -101,7 +90,6 @@ export const routes: Routes = [
       },
       {
         path: 'mstprovince',
-        // component: MstProvinceComponent,
         loadComponent: () =>
           import(
             './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
@@ -110,7 +98,6 @@ export const routes: Routes = [
       },
       {
         path: 'mstdistrict',
-        // component: MstProvinceComponent,
         loadComponent: () =>
           import(
             './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
@@ -119,7 +106,6 @@ export const routes: Routes = [
       },
       {
         path: 'blog',
-        // component: BlogsComponent,
         loadComponent: () =>
           import('./pages/dashboard/blogs/blogs.component').then(
             p => p.BlogsComponent
