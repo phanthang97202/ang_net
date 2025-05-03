@@ -33,7 +33,7 @@ export class AsideNewsComponent implements OnInit {
   loadData(pi: number): void {
     this.loadingService.setLoading(true);
     this.apiService
-      .SearchNews(0, 100, '', '', '')
+      .SearchNews(0, 10, '', '', '')
       .pipe()
       .subscribe({
         next: res => {
