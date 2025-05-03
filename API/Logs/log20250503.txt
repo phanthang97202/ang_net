@@ -3194,3 +3194,496 @@ WHERE l."NewsId" = @__objNews_NewsId_0
 2025-05-03 10:30:01.311 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 87.3702ms
 2025-05-03 10:30:01.311 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
 2025-05-03 10:30:01.312 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - 200 null application/json; charset=utf-8 88.8902ms
+2025-05-03 11:43:55.140 +07:00 [INF] Executed DbCommand (114ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+2025-05-03 11:43:55.229 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-03 11:43:55.309 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+2025-05-03 11:43:55.397 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1 FROM pg_catalog.pg_class c
+    JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND
+          c.relname='__EFMigrationsHistory'
+)
+2025-05-03 11:43:55.424 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-03 11:43:55.439 +07:00 [INF] No migrations were applied. The database is already up to date.
+2025-05-03 11:43:55.508 +07:00 [INF] User profile is available. Using 'C:\Users\phant\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-05-03 11:43:55.869 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-03 11:43:55.869 +07:00 [INF] Hosting environment: Development
+2025-05-03 11:43:55.870 +07:00 [INF] Content root path: F:\Java + Angular\FullstackAppToturial\API
+2025-05-03 11:43:55.912 +07:00 [INF] Request starting HTTP/2 GET https://localhost:44398/swagger - null null
+2025-05-03 11:43:55.912 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - null null
+2025-05-03 11:43:57.878 +07:00 [INF] Request finished HTTP/2 GET https://localhost:44398/swagger - 404 null null 1972.9213ms
+2025-05-03 11:43:57.881 +07:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:44398/swagger, Response status code: 404
+2025-05-03 11:43:58.115 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:43:58.172 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-05-03 11:43:58.737 +07:00 [INF] Executed DbCommand (50ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+2025-05-03 11:43:58.895 +07:00 [INF] Executed DbCommand (16ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+ORDER BY n."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-05-03 11:43:59.205 +07:00 [INF] Executed DbCommand (16ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:43:59.317 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:43:59.327 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.339 +07:00 [INF] Executed DbCommand (5ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.347 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.355 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.372 +07:00 [INF] Executed DbCommand (11ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:43:59.376 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:43:59.377 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.379 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.379 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.380 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:43:59.391 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-03 11:43:59.419 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 1241.0115ms
+2025-05-03 11:43:59.419 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:43:59.426 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - 200 null application/json; charset=utf-8 3522.3635ms
+2025-05-03 11:44:54.694 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - null null
+2025-05-03 11:44:54.793 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:44:54.797 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-05-03 11:44:55.108 +07:00 [INF] Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+2025-05-03 11:44:55.216 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+ORDER BY n."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-05-03 11:44:55.415 +07:00 [INF] Executed DbCommand (23ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:44:55.427 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:44:55.458 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.460 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.462 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.464 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.466 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:44:55.469 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:44:55.471 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.472 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.472 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.473 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:44:55.474 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-03 11:44:55.477 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 678.594ms
+2025-05-03 11:44:55.477 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:44:55.478 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - 200 null application/json; charset=utf-8 788.6784ms
+2025-05-03 11:45:19.641 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - null null
+2025-05-03 11:45:19.642 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:45:19.642 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-05-03 11:45:19.661 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+2025-05-03 11:45:19.732 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+ORDER BY n."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-05-03 11:45:19.873 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:45:19.875 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:45:19.877 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.877 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.878 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.879 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.881 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 11:45:19.884 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 11:45:19.885 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.886 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.887 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.887 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 11:45:19.888 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-03 11:45:19.888 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 245.7697ms
+2025-05-03 11:45:19.888 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 11:45:19.888 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=2 - 200 null application/json; charset=utf-8 248.2837ms
+2025-05-03 12:02:57.667 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=5 - null null
+2025-05-03 12:02:57.822 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 12:02:57.860 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-05-03 12:02:58.148 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+2025-05-03 12:02:58.309 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+ORDER BY n."CreatedDTime" DESC
+LIMIT @__p_1 OFFSET @__p_0
+2025-05-03 12:02:58.544 +07:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=5 - null null
+2025-05-03 12:02:58.544 +07:00 [INF] Executing endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 12:02:58.545 +07:00 [INF] Route matched with {action = "Search", controller = "News"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[SharedModels.Dtos.RPNewsDto]] Search(Int32, Int32, System.String, System.String, System.String) on controller API.Controllers.NewsController (API).
+2025-05-03 12:02:58.547 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsId", n."AvgPoint", n."CategoryNewsId", n."ContentBody", n."CreatedDTime", n."FlagActive", n."LikeCount", n."ShareCount", n."ShortDescription", n."ShortTitle", n."Slug", n."Thumbnail", n."UpdatedDTime", n."UserId", n."ViewCount"
+FROM "News" AS n
+2025-05-03 12:02:58.857 +07:00 [INF] Executed DbCommand (18ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 12:02:58.877 +07:00 [INF] Executed DbCommand (10ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:58.889 +07:00 [INF] Executed DbCommand (8ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.898 +07:00 [INF] Executed DbCommand (8ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.905 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.913 +07:00 [INF] Executed DbCommand (7ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.937 +07:00 [INF] Executed DbCommand (17ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 12:02:58.941 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:58.943 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.948 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.950 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.952 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.958 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:58.960 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.962 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.964 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.965 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.971 +07:00 [INF] Executed DbCommand (5ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:58.973 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.974 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.976 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.977 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.979 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:58.982 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.983 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.984 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.985 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:58.989 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-03 12:02:59.029 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 1168.0121ms
+2025-05-03 12:02:59.029 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 12:02:59.031 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=5 - 200 null application/json; charset=utf-8 1398.4958ms
+2025-05-03 12:02:59.046 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 12:02:59.048 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:59.054 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.056 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.061 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.062 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.064 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."Address", a."Avatar", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."FlagActive", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = @__p_0
+LIMIT 1
+2025-05-03 12:02:59.069 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:59.070 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.072 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.073 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.073 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.076 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:59.078 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.082 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.084 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.088 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.090 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:59.091 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.092 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.093 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.093 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.095 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_CategoryNewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT n."NewsCategoryId", n."CreatedDTime", n."FlagActive", n."NewsCategoryIndex", n."NewsCategoryName", n."NewsCategoryParentId", n."UpdatedDTime"
+FROM "NewsCategory" AS n
+WHERE n."NewsCategoryId" = @__objNews_CategoryNewsId_0
+LIMIT 1
+2025-05-03 12:02:59.098 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT h."HashTagNewsId", h."NewsId", h."Count", h."CreatedDTime", h."FlagActive", h."HashTagNewsName", h."UpdatedDTime"
+FROM "HashTagNews" AS h
+WHERE h."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.100 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT r."RefFileNewsId", r."CreatedDTime", r."FileUrl", r."FlagActive", r."NewsId", r."UpdatedDTime"
+FROM "RefFileNews" AS r
+WHERE r."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.101 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT p."NewsId", p."UserId", p."CreatedDTime", p."FlagActive", p."Point", p."UpdatedDTime"
+FROM "PointNews" AS p
+WHERE p."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.103 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@__objNews_NewsId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT l."LikeNewsId", l."CreatedDTime", l."NewsId", l."UpdatedDTime", l."UserId"
+FROM "LikeNews" AS l
+WHERE l."NewsId" = @__objNews_NewsId_0
+2025-05-03 12:02:59.103 +07:00 [INF] Executing OkObjectResult, writing value of type 'SharedModels.Dtos.ApiResponse`1[[SharedModels.Dtos.RPNewsDto, SharedModels, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-03 12:02:59.104 +07:00 [INF] Executed action API.Controllers.NewsController.Search (API) in 559.168ms
+2025-05-03 12:02:59.104 +07:00 [INF] Executed endpoint 'API.Controllers.NewsController.Search (API)'
+2025-05-03 12:02:59.104 +07:00 [INF] Request finished HTTP/1.1 GET http://localhost:5000/api/news/search?keyword&pageIndex=0&pageSize=5 - 200 null application/json; charset=utf-8 560.5859ms

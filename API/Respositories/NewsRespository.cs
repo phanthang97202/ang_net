@@ -231,7 +231,11 @@ namespace API.Respositories
                                      .Where(i => true);
             }
 
-            int itemCount = query.ToList().Count;
+            int itemCount = query.ToList().Count; 
+
+            //
+            List<RPNewsDto> dataResponse = new List<RPNewsDto>();
+            List<string> excludeFields = new List<string>() { "ContentBody" };
 
             // Starting cache data in RedisCloud 
             //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
@@ -243,34 +247,26 @@ namespace API.Respositories
 
             if (rsNewsCached is null)
             {
-                dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
-                             .Skip(_pageIndex * _pageSize)
-                             .Take(_pageSize)
-                             .ToList();
-                string jsonDataResult = TCommonUtils.ConvertToJsonStringify(dataResult);
+                foreach (var item in dataResult)
+                {
+                    RPNewsDto obj = await FactoryNewsRecord(item, excludeFields);
+                    dataResponse.Add(obj);
+                }
+                string jsonDataResult = TCommonUtils.ConvertToJsonStringify(dataResponse);
                 await HashCacheAsync(keyStoreManager, fieldKey, jsonDataResult);
             }
             else
             {
-                List<NewsModel> parseDataResult = TCommonUtils.ParseJsonStringify<List<NewsModel>>(rsNewsCached);
-                dataResult = parseDataResult;
-            }  
-
-            //
-            List<RPNewsDto> dataResponse = new List<RPNewsDto>();
-            List<string> excludeFields = new List<string>() { "ContentBody" };
-            foreach (var item in dataResult)
-            {
-                RPNewsDto obj = await FactoryNewsRecord(item, excludeFields);
-                dataResponse.Add(obj);
+                List<RPNewsDto> parseDataResult = TCommonUtils.ParseJsonStringify<List<RPNewsDto>>(rsNewsCached);
+                dataResponse = parseDataResult;
             }
-            
+
             PageInfo<RPNewsDto> pageInfo = new PageInfo<RPNewsDto>();
             pageInfo.PageIndex = pageIndex;
             pageInfo.PageSize = pageSize;
             pageInfo.PageCount = itemCount % pageSize == 0 ? itemCount / pageSize : itemCount / pageSize + 1;
             pageInfo.ItemCount = itemCount;
-            pageInfo.DataList = dataResult.Count == 0 ? new List<RPNewsDto>() : dataResponse;
+            pageInfo.DataList = dataResponse ?? new List<RPNewsDto>();
 
 
             apiResponse.objResult = pageInfo;
