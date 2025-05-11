@@ -1,15 +1,21 @@
 <div class="flex gap-[20px]">
-    <div class="h-[68px] !w-[58px]">
-        <a [routerLink]="['news', item.CategoryNewsId ,item.NewsId]">
-            <img class="h-full w-full object-cover" [src]="item.Thumbnail" [alt]="item.Slug">
-        </a>
-    </div>
-    <div class="flex-1">
-        <a [routerLink]="['news', item.CategoryNewsId ,item.NewsId]">
-            <h5 class="hover:underline text-[15px] text-[#454360] font-josefin tracking-[.25px] font-bold mb-[2px]">
-                {{item.ShortTitle}}
-            </h5>
-        </a>
-        <p class="font-sourceSerif text-[#596172] text-[12px] tracking-[.5px]">{{item.CreatedDTime | localeDTime}}</p>
-    </div>
+  <div class="h-[68px] !w-[58px]">
+    <a [routerLink]="['news', item.CategoryNewsId, item.NewsId]">
+      <img
+        class="h-full w-full object-cover"
+        [src]="item.Thumbnail | sizeImgCloudinary"
+        [alt]="item.Slug" />
+    </a>
+  </div>
+  <div class="flex-1">
+    <a [routerLink]="['news', item.CategoryNewsId, item.NewsId]">
+      <h5
+        class="hover:underline text-[15px] text-[#454360] font-josefin tracking-[.25px] font-bold mb-[2px]">
+        {{ item.ShortTitle }}
+      </h5>
+    </a>
+    <p class="font-sourceSerif text-[#596172] text-[12px] tracking-[.5px]">
+      {{ item.CreatedDTime | localeDTime }}
+    </p>
+  </div>
 </div>

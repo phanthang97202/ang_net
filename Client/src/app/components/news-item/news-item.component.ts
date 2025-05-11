@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { RouterModule } from '@angular/router';
-import { SubString, LocalDTime } from '../../pipes';
+import { SubString, LocalDTime, SizeImgCloudinary } from '../../pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { IDetailNews } from '../../interfaces';
 import { HashTagComponent } from '../hash-tag/hash-tag.component';
@@ -18,6 +18,7 @@ import { HashTagComponent } from '../hash-tag/hash-tag.component';
     NzAvatarModule,
     LocalDTime,
     HashTagComponent,
+    SizeImgCloudinary,
   ],
   templateUrl: './news-item.component.html',
   styleUrl: './news-item.component.scss',

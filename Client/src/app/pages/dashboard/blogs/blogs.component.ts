@@ -130,7 +130,7 @@ export class BlogsComponent implements OnInit {
     this.cloudinary.uploadImage(file).subscribe({
       next: (res: any) => {
         this.validateForm.patchValue({
-          Thumbnail: res.url,
+          Thumbnail: res.secure_url,
         });
       },
       error: err => {},

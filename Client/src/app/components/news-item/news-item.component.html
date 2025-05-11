@@ -4,7 +4,7 @@
     <div class="w-full xl:w-[200px] h-[132px]">
       <img
         class="h-full w-full object-cover"
-        [src]="item.Thumbnail"
+        [src]="item.Thumbnail | sizeImgCloudinary"
         [alt]="item.ShortTitle" />
     </div>
 
