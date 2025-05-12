@@ -3451,6 +3451,7 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 	#### 🔹 **.gitignore, launchSettings.json**   
 
 ### 🔹 **23. Middleware trong .NET Core API là gì?**  
+	https://medium.com/@ravipatel.it/a-complete-beginners-guide-to-asp-net-core-net-8-middleware-1e35c0eab444
 	Là các thành phần xử lý HTTP request và response trong pipeline 
 		Xử lý request (xác thực, login)
 		Gọi middleware tiếp theo
@@ -5085,3 +5086,17 @@ Dưới đây là danh sách **top các câu hỏi phỏng vấn ASP.NET MVC lev
 ---
 
 💡 **Bạn muốn mình giải thích chi tiết hoặc có ví dụ code cụ thể cho câu hỏi nào không?** 🚀
+
+
+## Tổng hợp SQL Server
+	https://roadmap.sh/sql
+
+### Truncate vs Delete
+	| Đặc điểm                 | `TRUNCATE TABLE`                        | `DELETE`                                    |
+	| ------------------------ | --------------------------------------- | ------------------------------------------- |
+	| Ghi log                  | Chỉ ghi log cho việc cấp phát trang     | Ghi log từng bản ghi bị xóa                 |
+	| Khóa ngoại (Foreign Key) | Không thể dùng nếu có khóa ngoại        | Có thể xóa dữ liệu trong bảng có khóa ngoại |
+	| Trigger                  | Không kích hoạt trigger                 | Kích hoạt trigger                           |
+	| IDENTITY                 | Có thể reset bằng `DBCC CHECKIDENT`     | Không reset IDENTITY                        |
+	| Tốc độ                   | Nhanh hơn do không ghi log từng bản ghi | Chậm hơn, nhất là với bảng lớn              |
+	| Điều kiện WHERE          | Không hỗ trợ, xóa tất cả bản ghi        | Hỗ trợ, có thể xóa từng bản ghi             |
