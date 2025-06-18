@@ -2,8 +2,7 @@
 using SharedModels.Models;
 namespace API.Application.Interfaces.Repositories
 {
-    public interface IMstStadiumStatusRespository
+    public interface IMstStadiumStatusRespository : IBaseRespository<MstStadiumStatusModel>
     {
-        Task<ApiResponse<MstStadiumStatusModel>> GetAllStadiumStatus();
     }
 }

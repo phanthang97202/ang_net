@@ -89,16 +89,16 @@ builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IMstProvinceService, MstProvinceService>();
 
 builder.Services.AddScoped<IMstStadiumStatusRespository, MstStadiumStatusRespository>();
-builder.Services.AddScoped<MstStadiumStatusService>();
+builder.Services.AddScoped<IMstStadiumStatusService, MstStadiumStatusService>();
 
 builder.Services.AddScoped<IMstStadiumTypeRespository, MstStadiumTypeRespository>();
-builder.Services.AddScoped<MstStadiumTypeService>();
+builder.Services.AddScoped<IMstStadiumTypeService, MstStadiumTypeService>();
 
 builder.Services.AddScoped<IMstStadiumRespository, MstStadiumRespository>();
 builder.Services.AddScoped<MstStadiumService>();
 
 builder.Services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
-builder.Services.AddScoped<MstDistrictService>();
+builder.Services.AddScoped<IMstDistrictService, MstDistrictService>();
 
 // inject AppDbContext
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));

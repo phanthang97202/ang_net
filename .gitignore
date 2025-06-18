@@ -3,6 +3,7 @@
 /API/bin/
 /API/obj/
 /API/Publish/
+/API/RuntimeData/
 # =================
 /CommonUtils/bin/
 /CommonUtils/obj/

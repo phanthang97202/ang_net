@@ -166,6 +166,28 @@ namespace CommonUtils.CommonUtils
             return 0.00;
         }
 
+        public static bool IsDecimalType(object value)
+        {
+            return value is decimal;
+        }
+
+        public static decimal ConvertToDecimal(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+            {
+                return 0.00m;
+            }
+
+            if (decimal.TryParse(value.ToString(), out decimal result))
+            {
+                return Math.Round(result, 2); // Làm tròn đến 2 chữ số thập phân
+            }
+
+            return 0.00m;
+        }
+
+
+
         public static int ConvertToInt(string input, int defaultValue = 0)
         {
             return int.TryParse(input, out int result) ? result : defaultValue;

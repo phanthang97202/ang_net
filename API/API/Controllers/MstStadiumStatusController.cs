@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Infrastructure.Data.Services;
+using API.Application.Interfaces.Services;
 
 namespace API.API.Controllers
 {
@@ -12,19 +13,33 @@ namespace API.API.Controllers
     public class MstStadiumStatusController : Controller
     {
         //(Separation of Concerns - SoC) → Controller chỉ nên điều phối yêu cầu, còn Service xử lý logic, Repository thao tác dữ liệu.
-        private readonly MstStadiumStatusService _mstStadiumStatusService;
+        private readonly IMstStadiumStatusService _MstStadiumStatusService;
 
-        public MstStadiumStatusController(MstStadiumStatusService mstStadiumStatusService)
+        public MstStadiumStatusController(IMstStadiumStatusService mstStadiumStatusService)
         {
-            _mstStadiumStatusService = mstStadiumStatusService;
+            _MstStadiumStatusService = mstStadiumStatusService;
         }
 
-        [HttpGet("GetAllStadiumStatus")]
-        public async Task<ActionResult<MstStadiumStatusModel>> GetAllStadiumStatus()
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] MstStadiumStatusModel reqData)
         {
             try
             {
-                ApiResponse<MstStadiumStatusModel> response = await _mstStadiumStatusService.GetAllStadiumStatus();
+                ApiResponse<MstStadiumStatusModel> response = await _MstStadiumStatusService.Create(reqData);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("GetAllActive")]
+        public async Task<ActionResult<MstStadiumStatusModel>> GetAllActive()
+        {
+            try
+            {
+                ApiResponse<MstStadiumStatusModel> response = await _MstStadiumStatusService.GetAllActive();
                 return Ok(response);
             }
             catch (Exception)

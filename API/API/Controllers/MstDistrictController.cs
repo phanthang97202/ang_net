@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Infrastructure.Data.Services;
+using API.Application.Interfaces.Services;
 
 namespace API.API.Controllers
 {
@@ -13,9 +14,9 @@ namespace API.API.Controllers
     {
         // (Separation of Concerns - SoC) → Controller chỉ nên điều phối yêu cầu,
         // còn Service xử lý logic, Repository thao tác dữ liệu.
-        private readonly MstDistrictService _MstDistrictService;
+        private readonly IMstDistrictService _MstDistrictService;
 
-        public MstDistrictController(MstDistrictService MstDistrictService)
+        public MstDistrictController(IMstDistrictService MstDistrictService)
         {
             _MstDistrictService = MstDistrictService;
         }

@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Infrastructure.Data.Services;
+using API.Application.Interfaces.Services;
 
 namespace API.API.Controllers
 {
@@ -12,19 +13,33 @@ namespace API.API.Controllers
     public class MstStadiumTypeController : Controller
     {
         //(Separation of Concerns - SoC) → Controller chỉ nên điều phối yêu cầu, còn Service xử lý logic, Repository thao tác dữ liệu.
-        private readonly MstStadiumTypeService _MstStadiumTypeService;
+        private readonly IMstStadiumTypeService _MstStadiumTypeService;
 
-        public MstStadiumTypeController(MstStadiumTypeService MstStadiumTypeService)
+        public MstStadiumTypeController(IMstStadiumTypeService mstStadiumTypeService)
         {
-            _MstStadiumTypeService = MstStadiumTypeService;
+            _MstStadiumTypeService = mstStadiumTypeService;
         }
 
-        [HttpGet("GetAllStadiumType")]
-        public async Task<ActionResult<MstStadiumTypeModel>> GetAllStadiumType()
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] MstStadiumTypeModel reqData)
         {
             try
             {
-                ApiResponse<MstStadiumTypeModel> response = await _MstStadiumTypeService.GetAllStadiumType();
+                ApiResponse<MstStadiumTypeModel> response = await _MstStadiumTypeService.Create(reqData);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("GetAllActive")]
+        public async Task<ActionResult<MstStadiumTypeModel>> GetAllActive()
+        {
+            try
+            {
+                ApiResponse<MstStadiumTypeModel> response = await _MstStadiumTypeService.GetAllActive();
                 return Ok(response);
             }
             catch (Exception)
