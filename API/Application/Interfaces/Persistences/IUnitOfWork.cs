@@ -9,6 +9,7 @@ namespace API.Application.Interfaces.Persistences
         IMstStadiumTypeRespository MstStadiumTypeRespository { get; }
         IMstStadiumRespository MstStadiumRespository { get; }
         IMstDistrictRespository MstDistrictRespository { get; }
+        INewsCategoryRespository NewsCategoryRespository { get; }
         Task<int> SaveChangesAsync(); // commit all changes into db
     }
 }

@@ -1,4 +1,4 @@
-using SharedModels.Dtos;
+﻿using SharedModels.Dtos;
 using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +13,11 @@ namespace API.API.Controllers
     public class MstProvinceController : ControllerBase
     {
         private readonly IMstProvinceService _mstProvinceService;
-        public MstProvinceController(IMstProvinceService mstProvinceService)
+        private ILogger<MstProvinceController> _logger;
+        public MstProvinceController(IMstProvinceService mstProvinceService, ILogger<MstProvinceController> logger)
         {
             _mstProvinceService = mstProvinceService;
+            _logger = logger;
         }
         [HttpGet("Search")]
         public async Task<ActionResult<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
@@ -47,13 +49,14 @@ namespace API.API.Controllers
         public async Task<ActionResult<MstProvinceModel>> GetAllActive()
         {
             try
-            {
+            { 
                 ApiResponse<MstProvinceModel> response = await _mstProvinceService.GetAllActive();
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogDebug("==========GetAllActive==================\nCancellationToken excuted!! ", ex.Message);
+                throw ;
             }
         }
         [HttpPost("Create")]

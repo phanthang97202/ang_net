@@ -50,7 +50,6 @@ builder.Services.AddScoped<IChatRepository, ChatRespository>();
 builder.Services.AddScoped<INewsRespository, NewsRespository>();
 builder.Services.AddScoped<IAccountRespository, AccountRespository>();
 builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
-builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
 
 // ============ Unit Of Work Pattern ============ 
 //          +------------------------+
@@ -84,6 +83,9 @@ builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
 //      Quản lý transaction dễ dàng khi gọi SaveChangesAsync() trong 1 lần duy nhất,
 //      Hiệu suất tốt
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
+builder.Services.AddScoped<INewsCategoryService, NewsCategoryService>();
 
 builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
 builder.Services.AddScoped<IMstProvinceService, MstProvinceService>();

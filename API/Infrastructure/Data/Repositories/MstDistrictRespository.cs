@@ -16,7 +16,7 @@ namespace API.Infrastructure.Data.Repositories
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
-        public MstDistrictRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor) : base(appDbContext)
+        public MstDistrictRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor) : base(appDbContext, httpContextAccessor)
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;

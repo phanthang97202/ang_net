@@ -58,8 +58,11 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstStadiumStatusModel _data = new MstStadiumStatusModel();
-            bool isExistRecord = CheckRecordExist(data.StadiumStatusCode, ref _data);
+            //MstStadiumStatusModel _data = new MstStadiumStatusModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                .CheckRecordExist<MstStadiumStatusModel>(
+                                                    x => x.StadiumStatusCode == data.StadiumStatusCode
+                                                );
 
             if (isExistRecord == true)
             {
@@ -67,7 +70,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (string.IsNullOrEmpty(data.StadiumStatusName))
+            if (TCommonUtils.IsNullOrEmpty(data.StadiumStatusName))
             {
                 apiResponse.CatchException(false, "MstStadiumStatus_Create.StadiumStatusNameIsNotValid", requestClient);
                 return apiResponse;
@@ -142,21 +145,6 @@ namespace API.Infrastructure.Data.Services
         public Task<ApiResponse<MstStadiumStatusModel>> Update(MstStadiumStatusModel data)
         {
             throw new NotImplementedException();
-        }
-
-        public bool CheckRecordExist(string key, ref MstStadiumStatusModel data)
-        {
-            var record = _dbContext.MstStadiumStatuses
-                .Find(key);
-
-            if (record is not null)
-            {
-                data = record;
-                return true;
-            }
-
-            data = null;
-            return false;
-        }
+        } 
     }
 }

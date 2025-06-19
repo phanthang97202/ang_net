@@ -1,16 +1,10 @@
 ﻿using API.Application.Interfaces.Services;
 using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
-using Microsoft.EntityFrameworkCore;
 using SharedModels.Dtos;
 using SharedModels.Models;
 using GuardAuth = API.Shared.Utilities.CheckAuthorized;
 using System.Reflection;
-using API.Infrastructure.Data.Repositories;
 using API.Application.Interfaces.Persistences;
-using ExcelDataReader;
-using System.Text.Json;
-using ClosedXML.Excel;
-using System.Data;
 
 namespace API.Infrastructure.Data.Services
 {
@@ -121,8 +115,10 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstDistrictModel _data = new MstDistrictModel();
-            bool isExistRecord = CheckRecordExist(data.ProvinceCode, data.DistrictCode, ref _data);
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                            .CheckRecordExist<MstDistrictModel>(
+                                                                x => x.DistrictCode == data.DistrictCode && x.ProvinceCode == data.ProvinceCode
+                                                            );
 
             if (isExistRecord == true)
             {
@@ -130,7 +126,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (string.IsNullOrEmpty(data.DistrictName))
+            if (TCommonUtils.IsNullOrEmpty(data.DistrictName))
             {
                 apiResponse.CatchException(false, "MstDistrict_Create.DistrictNameIsNotValid", requestClient);
                 return apiResponse;
@@ -150,22 +146,7 @@ namespace API.Infrastructure.Data.Services
 
             return apiResponse;
 
-        } 
-
-        public bool CheckRecordExist(string provinceCode, string districtCode, ref MstDistrictModel data)
-        {
-            var record = _dbContext.MstDistricts
-                .FirstOrDefault(x => x.ProvinceCode == provinceCode && x.DistrictCode == districtCode);
-
-            if (record is not null)
-            {
-                data = record;
-                return true;
-            }
-
-            data = null;
-            return false; 
-        }
+        }  
 
         public Task<ApiResponse<MstDistrictModel>> Detail(string key)
         {

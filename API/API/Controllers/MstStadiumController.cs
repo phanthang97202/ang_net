@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Infrastructure.Data.Services;
+using API.Application.Interfaces.Services;
 
 namespace API.API.Controllers
 {
@@ -17,6 +18,20 @@ namespace API.API.Controllers
         public MstStadiumController(MstStadiumService MstStadiumService)
         {
             _MstStadiumService = MstStadiumService;
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] MstStadiumModel reqData)
+        {
+            try
+            {
+                ApiResponse<MstStadiumModel> response = await _MstStadiumService.Create(reqData);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpGet("GetAllActive")]

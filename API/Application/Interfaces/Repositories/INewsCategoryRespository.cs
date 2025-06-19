@@ -3,8 +3,8 @@ using SharedModels.Models;
 
 namespace API.Application.Interfaces.Repositories
 {
-    public interface INewsCategoryRespository
+    public interface INewsCategoryRespository : IBaseRespository<NewsCategoryModel>
     {
-        public Task<ApiResponse<NewsCategoryDto>> GetAllActive();
+        Task<List<NewsCategoryDto>> GetAllNewCategory();
     }
 }

@@ -58,8 +58,12 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstStadiumTypeModel _data = new MstStadiumTypeModel();
-            bool isExistRecord = CheckRecordExist(data.StadiumTypeCode, ref _data);
+            //MstStadiumTypeModel _data = new MstStadiumTypeModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                            .CheckRecordExist<MstStadiumTypeModel>(
+                                                                x => x.StadiumTypeCode == data.StadiumTypeCode
+                                                            );
+
 
             if (isExistRecord == true)
             {
@@ -154,21 +158,6 @@ namespace API.Infrastructure.Data.Services
         public Task<ApiResponse<MstStadiumTypeModel>> Update(MstStadiumTypeModel data)
         {
             throw new NotImplementedException();
-        }
-
-        public bool CheckRecordExist(string key, ref MstStadiumTypeModel data)
-        {
-            var record = _dbContext.MstStadiumTypes
-                .Find(key);
-
-            if (record is not null)
-            {
-                data = record;
-                return true;
-            }
-
-            data = null;
-            return false;
-        }
+        } 
     }
 }

@@ -5,7 +5,6 @@ using SharedModels.Dtos;
 using SharedModels.Models;
 using GuardAuth = API.Shared.Utilities.CheckAuthorized;
 using System.Reflection;
-using API.Infrastructure.Data.Repositories;
 using API.Application.Interfaces.Persistences;
 using ExcelDataReader;
 using System.Text.Json;
@@ -106,8 +105,12 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstProvinceModel _data = new MstProvinceModel();
-            bool isExistRecord = CheckRecordExist(data.ProvinceCode, ref _data);
+            //MstProvinceModel _data = new MstProvinceModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                            .CheckRecordExist<MstProvinceModel>(
+                                                                x => x.ProvinceCode == data.ProvinceCode
+                                                            );
+
 
 
             if (isExistRecord == true)
@@ -116,7 +119,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (string.IsNullOrEmpty(data.ProvinceName))
+            if (TCommonUtils.IsNullOrEmpty(data.ProvinceName))
             {
                 apiResponse.CatchException(false, "MstProvince_Create.ProvinceNameIsNotValid", requestClient);
                 return apiResponse;
@@ -159,8 +162,11 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstProvinceModel _data = new MstProvinceModel();
-            bool isExistRecord = CheckRecordExist(ProvinceCode, ref _data);
+            //MstProvinceModel _data = new MstProvinceModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                            .CheckRecordExist<MstProvinceModel>(
+                                                                x => x.ProvinceCode == ProvinceCode
+                                                            );
 
             if (isExistRecord == false)
             {
@@ -198,8 +204,11 @@ namespace API.Infrastructure.Data.Services
             }
 
             //
-            MstProvinceModel _data = new MstProvinceModel();
-            bool isExistRecord = CheckRecordExist(key, ref _data);
+            //MstProvinceModel _data = new MstProvinceModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                .CheckRecordExist<MstProvinceModel>(
+                                                    x => x.ProvinceCode == key
+                                                );
 
             if (isExistRecord == false)
             {
@@ -216,6 +225,9 @@ namespace API.Infrastructure.Data.Services
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
+
+            //// Kiểm tra Client có ngắt kết nối call api không?
+            //var cancellationToken = _httpContextAccessor.HttpContext.RequestAborted; 
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -321,8 +333,11 @@ namespace API.Infrastructure.Data.Services
                                     break;
                                 }
 
-                                MstProvinceModel _data = new MstProvinceModel();
-                                bool isExistRecord = CheckRecordExist(provinceCode, ref _data);
+                                //MstProvinceModel _data = new MstProvinceModel();
+                                var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                                                .CheckRecordExist<MstProvinceModel>(
+                                                                                    x => x.ProvinceCode == provinceCode
+                                                                                );
 
 
                                 if (isExistRecord == true)
@@ -332,7 +347,7 @@ namespace API.Infrastructure.Data.Services
                                     break;
                                 }
 
-                                if (string.IsNullOrEmpty(provinceName))
+                                if (TCommonUtils.IsNullOrEmpty(provinceName))
                                 {
                                     requestClient.Add(rqClient);
                                     apiResponse.CatchException(false, "MstProvince_ImportExcel.ProvinceNameIsNotValid", requestClient);
@@ -401,8 +416,11 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            MstProvinceModel _data = new MstProvinceModel();
-            bool isExistRecord = CheckRecordExist(data.ProvinceCode, ref _data);
+            //MstProvinceModel _data = new MstProvinceModel();
+            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+                                .CheckRecordExist<MstProvinceModel>(
+                                                    x => x.ProvinceCode == data.ProvinceCode
+                                                );
 
             if (isExistRecord == false)
             {
@@ -410,7 +428,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (string.IsNullOrEmpty(data.ProvinceName))
+            if (TCommonUtils.IsNullOrEmpty(data.ProvinceName))
             {
                 apiResponse.CatchException(false, "MstProvince_Update.ProvinceNameIsNotValid", requestClient);
                 return apiResponse;
@@ -435,21 +453,7 @@ namespace API.Infrastructure.Data.Services
 
             return apiResponse;
         }
-
-        public bool CheckRecordExist(string key, ref MstProvinceModel data)
-        {
-            MstProvinceModel record = _dbContext.MstProvinces.Find(key);
-            //MstProvinceModel record = await _unitOfWork.MstProvinceRespository. .GetByCode(key);
-
-            if (record is not null)
-            {
-                data = record;
-                return true;
-            }
-            data = null;
-            return false;
-        }
-
+         
         public async Task<byte[]> ExportExcel()
         {
             //ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();

@@ -1,5 +1,6 @@
 ﻿using Serilog.Context;
 using System.Security.Claims;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
 namespace API.API.Middlewares
 {
@@ -16,7 +17,7 @@ namespace API.API.Middlewares
         {
             var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!string.IsNullOrEmpty(userId))
+            if (!TCommonUtils.IsNullOrEmpty(userId))
             {
                 using (LogContext.PushProperty("UserId", userId))
                 {

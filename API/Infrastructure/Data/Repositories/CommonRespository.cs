@@ -83,7 +83,7 @@ namespace API.Infrastructure.Data.Repositories
         {
             IDatabase redisDb = _connectionMultiplexer.GetDatabase();
             RedisValue content = await redisDb.StringGetAsync(keyCache);
-            if (string.IsNullOrEmpty(content))
+            if (TCommonUtils.IsNullOrEmpty(content))
             {
                 return default;
             }
@@ -113,7 +113,7 @@ namespace API.Infrastructure.Data.Repositories
             {
                 userId = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value
                          ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                if (TCommonUtils.IsNullOrEmpty(userId))
                 {
                     throw new Exception("User ID not found in token.");
                 }

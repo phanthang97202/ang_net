@@ -17,7 +17,7 @@ namespace API.Infrastructure.Data.Repositories
         public MstStadiumTypeRespository(
                 AppDbContext appDbContext
                 , IHttpContextAccessor httpContextAccessor
-            ) : base(appDbContext)
+            ) : base(appDbContext, httpContextAccessor)
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;

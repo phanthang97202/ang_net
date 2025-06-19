@@ -4,32 +4,22 @@ using Microsoft.EntityFrameworkCore;
 using GuardAuth = API.Shared.Utilities.CheckAuthorized;
 using API.Application.Interfaces.Repositories;
 using API.Infrastructure.Data;
+using static Dapper.SqlMapper;
+using System.Linq.Expressions;
 
 namespace API.Infrastructure.Data.Repositories
 {
-    public class NewsCategoryRespository : INewsCategoryRespository
+    public class NewsCategoryRespository : BaseRepository<NewsCategoryModel>, INewsCategoryRespository
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
-        public NewsCategoryRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
+        public NewsCategoryRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor) : base(appDbContext, httpContextAccessor)
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<ApiResponse<NewsCategoryDto>> GetAllActive()
+        public async Task<List<NewsCategoryDto>> GetAllNewCategory()
         {
-            ApiResponse<NewsCategoryDto> apiResponse = new ApiResponse<NewsCategoryDto>();
-            List<RequestClient> requestClient = new List<RequestClient>();
-
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
-
             List<NewsCategoryDto> data = await _dbContext.NewsCategory
                                                 .Where(i => i.FlagActive == true)
                                                 .Select(i =>
@@ -43,9 +33,7 @@ namespace API.Infrastructure.Data.Repositories
                                                 .OrderBy(i => i.NewsCategoryIndex)
                                                 .ToListAsync();
 
-            apiResponse.DataList = data;
-
-            return apiResponse;
+            return data;
         }
     }
 }

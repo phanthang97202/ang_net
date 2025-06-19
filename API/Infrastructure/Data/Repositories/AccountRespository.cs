@@ -461,13 +461,13 @@ namespace API.Infrastructure.Data.Repositories
                 await _userManager.AddToRoleAsync(user, defaultRoleName);
             }
             //Không có quyền admin thì không được thêm roles
-            //else
-            //{
-            //    foreach (var role in registerDto.Roles)
-            //    {
-            //        await _userManager.AddToRoleAsync(user, role);
-            //    }
-            //}
+            else
+            {
+                foreach (var role in registerDto.Roles)
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+            }
 
             return apiResponse;
         }

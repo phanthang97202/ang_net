@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.API.Models;
+using TCommonUtils = CommonUtils.CommonUtils.CommonUtils;
 
 namespace API.API.Controllers
 {
@@ -25,7 +26,7 @@ namespace API.API.Controllers
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleDto createRoleDto)
         {
             // 
-            if (string.IsNullOrEmpty(createRoleDto.RoleName))
+            if (TCommonUtils.IsNullOrEmpty(createRoleDto.RoleName))
             {
                 return BadRequest(new
                 {
@@ -104,7 +105,7 @@ namespace API.API.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailRole([FromQuery] string idRole)
         {
-            if (!string.IsNullOrEmpty(idRole))
+            if (!TCommonUtils.IsNullOrEmpty(idRole))
             {
                 var role = await _roleManager.FindByIdAsync(idRole);
                 if (role != null)
@@ -127,7 +128,7 @@ namespace API.API.Controllers
         [HttpDelete("{idRole}")]
         public async Task<IActionResult> DeleteRole(string idRole)
         {
-            if (!string.IsNullOrEmpty(idRole))
+            if (!TCommonUtils.IsNullOrEmpty(idRole))
             {
                 var role = await _roleManager.FindByIdAsync(idRole);
                 if (role != null)
@@ -155,7 +156,7 @@ namespace API.API.Controllers
             string idUser = assignRole.UserId;
             string idRole = assignRole.RoleId;
 
-            if (string.IsNullOrEmpty(idRole) || string.IsNullOrEmpty(idUser))
+            if (TCommonUtils.IsNullOrEmpty(idRole) || TCommonUtils.IsNullOrEmpty(idUser))
             {
                 return BadRequest(new
                 {
@@ -204,7 +205,7 @@ namespace API.API.Controllers
             string idUser = unassignRole.UserId;
             string idRole = unassignRole.RoleId;
 
-            if (string.IsNullOrEmpty(idRole) || string.IsNullOrEmpty(idUser))
+            if (TCommonUtils.IsNullOrEmpty(idRole) || TCommonUtils.IsNullOrEmpty(idUser))
             {
                 return BadRequest(new
                 {
