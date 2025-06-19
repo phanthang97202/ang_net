@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using API.Application.Interfaces.Repositories;
+using API.Application.Interfaces.Services;
 
 namespace API.API.Controllers
 {
@@ -11,10 +12,10 @@ namespace API.API.Controllers
     [ApiController]
     public class NewsCategoryController : ControllerBase
     {
-        private readonly INewsCategoryRespository _newsCategoryRespository;
-        public NewsCategoryController(INewsCategoryRespository newsCategoryRespository)
+        private readonly INewsCategoryService _newsCategoryService;
+        public NewsCategoryController(INewsCategoryService newsCategoryService)
         {
-            _newsCategoryRespository = newsCategoryRespository;
+            _newsCategoryService = newsCategoryService;
         }
 
         [HttpGet("GetAllActive")]
@@ -22,7 +23,7 @@ namespace API.API.Controllers
         {
             try
             {
-                ApiResponse<NewsCategoryDto> response = await _newsCategoryRespository.GetAllActive();
+                ApiResponse<NewsCategoryDto> response = await _newsCategoryService.GetAllActive();
                 return Ok(response);
             }
             catch (Exception)

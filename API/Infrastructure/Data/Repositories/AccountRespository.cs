@@ -23,12 +23,14 @@ namespace API.Infrastructure.Data.Repositories
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountRespository> _logger;
 
         public AccountRespository(UserManager<AppUser> userManager
                                     , RoleManager<IdentityRole> roleManager
                                     , IHttpContextAccessor httpContextAccessor
                                     , IConfiguration configuration
                                     , AppDbContext dbContext
+                                    , ILogger<AccountRespository> logger
                                  )
         {
             _userManager = userManager;
@@ -36,6 +38,7 @@ namespace API.Infrastructure.Data.Repositories
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public string GenerateAccessToken(AppUser user)
@@ -251,11 +254,24 @@ namespace API.Infrastructure.Data.Repositories
             ApiResponse<AuthResponseDto> apiResponse = new ApiResponse<AuthResponseDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
+            var MaxFailedAccessAttempts = Convert.ToInt32(_configuration.GetSection("AspIdentity").GetSection("MaxFailedAccessAttempts").Value!);
+
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
             if (user is null)
             {
                 apiResponse.CatchException(false, "Account.EmailIsNotExist", requestClient);
+                _logger.LogWarning($"========LOGIN FAILED: Account.EmailIsNotExist=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}");
+                return apiResponse;
+            }
+
+            // Check if user is lockout ư
+            var isUserLockout = await _userManager.IsLockedOutAsync(user);
+            var dtimeCanTryLogin = await _userManager.GetLockoutEndDateAsync(user);
+            if (isUserLockout)
+            {
+                apiResponse.CatchException(false, $"Account.AccountWasLockedOut(YouCanLoginAt{dtimeCanTryLogin})", requestClient);
+                _logger.LogWarning($"========USER WAS LOCKED=======\n user: {user} at DTime: {TCommonUtils.DTimeNow()}");
                 return apiResponse;
             }
 
@@ -263,9 +279,31 @@ namespace API.Infrastructure.Data.Repositories
 
             if (!result)
             {
-                apiResponse.CatchException(false, "Account.PasswordIsNotValid", requestClient);
+                if(user.LockoutEnabled)
+                {
+                    // prevent brute force (max failed 5 times)
+                    await _userManager.AccessFailedAsync(user);
+                    var failedCount = (await _userManager.GetAccessFailedCountAsync(user));
+
+                    if (failedCount == 0) {
+                        apiResponse.CatchException(false, $"Account.ExceedLoginAttemps(AccountWasLockedOut)", requestClient);
+                        _logger.LogWarning($"========USER WAS LOCKED=======\n user: {user} at DTime: {TCommonUtils.DTimeNow()}");
+                        return apiResponse;
+                    }
+
+                    var remainTryLogin = MaxFailedAccessAttempts - failedCount;
+                    apiResponse.CatchException(false, $"Account.PasswordIsNotValid(YouHave{remainTryLogin}TimesRemain)", requestClient);
+                    _logger.LogWarning($"========LOGIN FAILED: Account.PasswordIsNotValid=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}");
+                    return apiResponse;
+                }
+
+                apiResponse.CatchException(false, $"Account.PasswordIsNotValid", requestClient);
+                _logger.LogWarning($"========LOGIN FAILED: Account.PasswordIsNotValid=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}");
                 return apiResponse;
             }
+
+            // Dismiss failed count history
+            await _userManager.ResetAccessFailedCountAsync(user);
 
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -446,6 +484,7 @@ namespace API.Infrastructure.Data.Repositories
             if (!result.Succeeded)
             {
                 apiResponse.CatchException(false, "Account.OccurErrorWhileCreateNewUser", requestClient);
+                _logger.LogWarning($"========REGISTER FAILED: Account.OccurErrorWhileCreateNewUser=======\n user: {user} | password: {registerDto.Password} at DTime: {TCommonUtils.DTimeNow()}");
                 return apiResponse;
             }
 
@@ -461,13 +500,13 @@ namespace API.Infrastructure.Data.Repositories
                 await _userManager.AddToRoleAsync(user, defaultRoleName);
             }
             //Không có quyền admin thì không được thêm roles
-            else
-            {
-                foreach (var role in registerDto.Roles)
-                {
-                    await _userManager.AddToRoleAsync(user, role);
-                }
-            }
+            //else
+            //{
+            //    foreach (var role in registerDto.Roles)
+            //    {
+            //        await _userManager.AddToRoleAsync(user, role);
+            //    }
+            //}
 
             return apiResponse;
         }

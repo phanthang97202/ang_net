@@ -44,6 +44,7 @@ string RedisUrl = redisCloudEnv.GetSection("RedisUrl").Value;
 int RedisPort = TCommonUtils.ConvertToInt(redisCloudEnv.GetSection("RedisPort").Value);
 string RedisUser = (redisCloudEnv.GetSection("RedisUser").Value);
 string RedisPassword = (redisCloudEnv.GetSection("RedisPassword").Value);
+var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 
 // Add services to the container.
 builder.Services.AddScoped<IChatRepository, ChatRespository>();
@@ -119,10 +120,23 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp => connectRedis); // t�
 // log service 
 builder.Services.AddSingleton(typeof(WriteLog));
 
-// config jwt 
+// Identity ASP NET CORE
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Số lần nhập sai tối đa trước khi khóa
+    options.Lockout.MaxFailedAccessAttempts = Convert.ToInt32(AspIdentity["MaxFailedAccessAttempts"]);
+
+    // Thời gian khóa mặc định (phút)
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(Convert.ToInt32(AspIdentity["LockoutTimeSpan"]));
+
+    // Áp dụng khóa cho user mới
+    options.Lockout.AllowedForNewUsers = true;
+});
+
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
+// config jwt 
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

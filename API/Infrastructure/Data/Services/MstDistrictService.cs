@@ -177,7 +177,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            List<MstDistrictModel> data = await _unitOfWork.MstDistrictRespository.GetAll(x => x.FlagActive == true);
+            List<MstDistrictModel> data = await _unitOfWork.MstDistrictRespository.GetAll<MstDistrictModel>(x => x.FlagActive == true);
 
             apiResponse.DataList = data;
 

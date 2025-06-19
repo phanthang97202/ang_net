@@ -238,7 +238,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             } 
 
-            List<MstProvinceModel> data = await _unitOfWork.MstProvinceRespository.GetAll(x => x.FlagActive == true);
+            List<MstProvinceModel> data = await _unitOfWork.MstProvinceRespository.GetAll<MstProvinceModel>(x => x.FlagActive == true);
 
             apiResponse.DataList = data;
 

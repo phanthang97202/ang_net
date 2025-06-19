@@ -138,7 +138,7 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            List<MstStadiumTypeModel> data = await _unitOfWork.MstStadiumTypeRespository.GetAll(x => x.FlagActive == true);
+            List<MstStadiumTypeModel> data = await _unitOfWork.MstStadiumTypeRespository.GetAll<MstStadiumTypeModel>(x => x.FlagActive == true);
 
             apiResponse.DataList = data;
 
