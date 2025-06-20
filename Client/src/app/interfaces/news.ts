@@ -22,6 +22,7 @@ export interface INews {
   UpdatedDTime: Date;
   FlagActive: boolean;
   ViewCount: number;
+  EstimatedReadingTime: number;
   ShareCount: number;
   LikeCount: number;
   AvgPoint: number;
@@ -51,6 +52,7 @@ export interface IDetailNews {
   UpdatedDTime: string;
   FlagActive: boolean;
   ViewCount: number;
+  EstimatedReadingTime: number;
   ShareCount: number;
   LikeCount: number;
   AvgPoint: number;

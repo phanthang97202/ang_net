@@ -5,7 +5,7 @@ namespace API.Application.Interfaces.Services
 {
     public interface IMstDistrictService
     {
-        public Task<ApiResponse<MstDistrictModel>> Search(int pageIndex, int pageSize, string keyword);
+        public ApiResponse<MstDistrictModel> Search(int pageIndex, int pageSize, string keyword);
         public Task<ApiResponse<MstDistrictModel>> Detail(string key);
         public Task<ApiResponse<MstDistrictModel>> Create(MstDistrictModel data);
         public Task<ApiResponse<MstDistrictModel>> Update(MstDistrictModel data);

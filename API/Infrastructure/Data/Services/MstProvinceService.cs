@@ -25,7 +25,7 @@ namespace API.Infrastructure.Data.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ApiResponse<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
+        public ApiResponse<MstProvinceModel> Search(int pageIndex, int pageSize, string keyword)
         {
             ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -60,7 +60,7 @@ namespace API.Infrastructure.Data.Services
             }
 
             //
-            (List<MstProvinceModel> dataResult, int itemCount) = await _unitOfWork.MstProvinceRespository.Search(pageIndex, pageSize, keyword);
+            (List<MstProvinceModel> dataResult, int itemCount) = _unitOfWork.MstProvinceRespository.Search(pageIndex, pageSize, keyword);
 
             PageInfo<MstProvinceModel> pageInfo = new PageInfo<MstProvinceModel>();
             pageInfo.PageIndex = pageIndex;
@@ -494,7 +494,7 @@ namespace API.Infrastructure.Data.Services
             return file;
         }
 
-        public async Task<DataTable> TemplateTableProvince()
+        public DataTable TemplateTableProvince()
         {
             DataTable tb = new DataTable();
             tb.TableName = "MstProvince";
@@ -527,9 +527,9 @@ namespace API.Infrastructure.Data.Services
             return tb;
         }
 
-        public async Task<byte[]> ExportTemplate()
+        public byte[] ExportTemplate()
         {
-            DataTable tbData = await this.TemplateTableProvince();
+            DataTable tbData = this.TemplateTableProvince();
             byte[] file;
 
             using (XLWorkbook wb = new XLWorkbook())

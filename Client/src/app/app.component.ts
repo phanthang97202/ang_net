@@ -64,6 +64,20 @@ export class AppComponent implements OnInit {
     this.navigationEnd = this.router.events.pipe(
       filter((event: Event) => event instanceof NavigationEnd)
     ) as Observable<NavigationEnd>;
+
+    // auto scroll to top when navigate route
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Scroll to top khi route thay đổi
+        window.scrollTo(0, 0);
+
+        // Hoặc mượt hơn với behavior smooth
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+    });
   }
 
   ngOnInit() {

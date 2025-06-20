@@ -139,6 +139,8 @@ namespace API.Infrastructure.Data.Repositories
                 countLike = 0;
             }
 
+            // Estimated Reading Time 
+            (int estimatedReadingTime, int wordCountContent) = TCommonUtils.CalculateReadingTime(objNews.ContentBody);
             //
             rsNews.NewsId = objNews.NewsId;
             rsNews.UserId = objNews.UserId;
@@ -161,6 +163,7 @@ namespace API.Infrastructure.Data.Repositories
             rsNews.AvgPoint = avgPoint;
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
+            rsNews.EstimatedReadingTime = estimatedReadingTime;
 
             // 
             return rsNews;

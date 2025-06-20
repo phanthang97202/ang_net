@@ -20,5 +20,8 @@
     "T_THUMNAIL": "Thumnail",
     "T_UPLOAD": "Upload",
     "T_LSTREFFILENEWS": "File references",
-    "T_ABOUTME": "About me"
+    "T_ABOUTME": "About me",
+    "T_RECENTNEWS": "Recent news",
+    "T_TAGNEWS": "Hot tags",
+    "T_MINUTESREAD": "minute(s) read"
 }

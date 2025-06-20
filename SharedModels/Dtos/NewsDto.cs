@@ -28,6 +28,7 @@
         public string ShortTitle { get; set; } // Tiêu đề ngắn bài viết
         public string ShortDescription { get; set; }  // Mô tả ngắn bài viết
         public string ContentBody { get; set; }  // Nội dung bài viết
+        public int EstimatedReadingTime { get; set; } // Ước lượng thời gian đọc
         public DateTime CreatedDTime { get; set; } // Thời gian đăng bài
         public DateTime UpdatedDTime { get; set; } // Thời gian sửa bài
         public bool FlagActive { get; set; } // Trạng thái bài viết

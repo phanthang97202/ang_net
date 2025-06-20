@@ -5,6 +5,6 @@ namespace API.Application.Interfaces.Repositories
 {
     public interface IMstProvinceRespository : IBaseRespository<MstProvinceModel>
     {
-        public Task<(List<MstProvinceModel> Data, int TotalCount)> Search(int pageIndex, int pageSize, string keyword); 
+        public (List<MstProvinceModel> Data, int TotalCount) Search(int pageIndex, int pageSize, string keyword); 
     }
 }

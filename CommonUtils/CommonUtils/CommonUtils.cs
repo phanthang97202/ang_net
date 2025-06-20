@@ -250,5 +250,24 @@ namespace CommonUtils.CommonUtils
             string val = $"{userId}.{keyCache}.{primaryKeyRecord}";
             return val;
         }
+
+        // Count word HTML Body
+        public static (int Minutes, int WordCount) CalculateReadingTime(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return (0, 0);
+
+            // Xóa HTML tags nếu có
+            var textOnly = Regex.Replace(content, "<[^>]*>", string.Empty);
+
+            // Đếm từ (hỗ trợ cả tiếng Việt)
+            var wordCount = textOnly.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                  .Count(word => word.Length > 1 || char.IsLetterOrDigit(word[0]));
+
+            // Tính phút (200 từ/phút là tốc độ đọc trung bình)
+            var minutes = (int)Math.Ceiling(wordCount / 200.0);
+
+            return (minutes, wordCount);
+        }
     }
 }

@@ -7,6 +7,7 @@ using Google.Apis.Auth;
 using DocumentFormat.OpenXml.Spreadsheet;
 using API.Application.Interfaces.Repositories;
 using API.API.Models;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
@@ -29,6 +30,7 @@ namespace API.API.Controllers
         }
 
         [HttpPost("register")]
+        [EnableRateLimitingAttribute("API")]
         public async Task<ActionResult<RegisterDto>> Register(RegisterDto registerDto)
         {
             try
@@ -43,6 +45,7 @@ namespace API.API.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimitingAttribute("API")]
         // login 
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {

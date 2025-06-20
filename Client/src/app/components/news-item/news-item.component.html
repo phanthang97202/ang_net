@@ -29,8 +29,12 @@
         </div>
         <div>
           <p>
-            <span class="pr-[4px] font-sourceSerif"> 2 </span>
-            <span class="font-sourceSerif"> mins read </span>
+            <span class="pr-[4px] font-sourceSerif">
+              {{ item.EstimatedReadingTime }}
+            </span>
+            <span class="font-sourceSerif">
+              {{ 'T_MINUTESREAD' | translate }}
+            </span>
           </p>
         </div>
 

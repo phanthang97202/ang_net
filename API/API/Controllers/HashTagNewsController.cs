@@ -1,13 +1,14 @@
 ﻿using SharedModels.Dtos;
 using SharedModels.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using API.Application.Interfaces.Repositories;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimitingAttribute("API")]
     public class HashTagNewsController : ControllerBase
     {
         private readonly IHashTagNewsRespository _hashTagNewsRespository;

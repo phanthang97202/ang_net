@@ -6,6 +6,7 @@ import { SubString, LocalDTime, SizeImgCloudinary } from '../../pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { IDetailNews } from '../../interfaces';
 import { HashTagComponent } from '../hash-tag/hash-tag.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-news-item',
@@ -19,6 +20,7 @@ import { HashTagComponent } from '../hash-tag/hash-tag.component';
     LocalDTime,
     HashTagComponent,
     SizeImgCloudinary,
+    TranslateModule,
   ],
   templateUrl: './news-item.component.html',
   styleUrl: './news-item.component.scss',

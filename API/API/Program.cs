@@ -20,20 +20,18 @@ using API.Application.Interfaces.Services;
 using API.API.Models;
 using API.API.Middlewares;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.Http.Timeouts;
-using Azure.Core;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using static System.Net.WebRequestMethods;
-using DocumentFormat.OpenXml.Spreadsheet;
-using ClosedXML.Graphics;
-using System.Net.NetworkInformation;
-using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Http.Timeouts; 
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
-var builder = WebApplication.CreateBuilder(args); 
+var builder = WebApplication.CreateBuilder(args);
 var loggerFactory = LoggerFactory.Create(builder =>
 {
-    builder.AddEventLog();
+    builder.AddConsole();
+
+    if (OperatingSystem.IsWindows())
+    {
+        builder.AddEventLog(); // Chỉ thêm EventLog nếu là Windows
+    }
 });
 var logger = loggerFactory.CreateLogger<Program>();
 
@@ -191,7 +189,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Prevent DDoS attack (free)
+// Prevent DDoS attack (free) // [EnableRateLimitingAttribute("API")]
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("API", limiter =>
@@ -220,8 +218,6 @@ builder.Services.AddRateLimiter(options =>
         limiter.QueueLimit = 10;                    // (3) Số request được xếp hàng
 
         //limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-
-
     });
 
     // Tùy chọn: thay vì trả 503, trả 429 Too Many Requests
@@ -237,10 +233,8 @@ builder.Services.AddRateLimiter(options =>
 
         // Trả về thông báo JSON
         context.HttpContext.Response.ContentType = "application/json";
-        await context.HttpContext.Response.WriteAsync(
-            "{\"error\": \"Too many requests. Please try again later.\"}", token);
+        await context.HttpContext.Response.WriteAsync("{\"error\": \"Too many requests. Please try again later.\"}", token);
     };
-
 });
 
 builder.Services.Configure<RequestTimeoutOptions>(options =>
@@ -252,7 +246,8 @@ builder.Services.Configure<RequestTimeoutOptions>(options =>
     //Lưu ý:
     //  Với API có xử lý phức tạp(upload file lớn), cần tăng giá trị này.
     //  Có thể áp dụng riêng cho từng endpoint:
-    options.AddPolicy("DefaultPolicy", TimeSpan.FromSeconds(30));
+    options.AddPolicy("API", TimeSpan.FromSeconds(30)); // dùng cách này thì phải gắn Attribute thủ công  [RequestTimeout("API")]
+
 });
 
 builder.Services.AddControllers();
@@ -346,7 +341,6 @@ app.UseSerilogRequestLogging(); // tự động log thông tin HTTP request
 
 app.UseMiddleware<LoggingMiddleware>();
 
-
 // Note: Nếu như không dùng SSL thì disable feature này đi, nếu không nó sẽ tự động chuyển sang https nếu client đang call api dạng http
 //Bật SSL: dotnet dev-certs https --trust
 //app.UseHttpsRedirection();
@@ -364,7 +358,6 @@ app.MapControllers();
 //    await context.Clients.All.ReceiveMessage(message);
 //    return Results.NoContent();
 //});
-
 
 app.MapHub<ChatHub>("chat-hub");
 

@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using API.Application.Interfaces.Repositories;
 using API.API.Filters;
 using API.Shared.Utilities;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimitingAttribute("API")]
     public class NewsController : ControllerBase
     {
         private readonly INewsRespository _newsRespository;

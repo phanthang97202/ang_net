@@ -139,7 +139,7 @@ namespace API.Infrastructure.Data.Repositories
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

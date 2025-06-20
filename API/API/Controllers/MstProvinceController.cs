@@ -21,11 +21,11 @@ namespace API.API.Controllers
             _logger = logger;
         }
         [HttpGet("Search")]
-        public async Task<ActionResult<MstProvinceModel>> Search(int pageIndex, int pageSize, string keyword)
+        public ActionResult<MstProvinceModel> Search(int pageIndex, int pageSize, string keyword)
         {
             try
             {
-                ApiResponse<MstProvinceModel> response = await _mstProvinceService.Search(pageIndex, pageSize, keyword);
+                ApiResponse<MstProvinceModel> response = _mstProvinceService.Search(pageIndex, pageSize, keyword);
                 return Ok(response);
             }
             catch (Exception)
@@ -58,7 +58,7 @@ namespace API.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogDebug("==========GetAllActive==================\nCancellationToken excuted!! ", ex.Message);
+                _logger.LogDebug($"==========GetAllActive==================\nCancellationToken excuted!! {ex.Message}");
                 throw ;
             }
         }
@@ -127,22 +127,22 @@ namespace API.API.Controllers
 
                 return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mst_Province_Data.xlsx");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while exporting the Excel file.");
             }
         }
 
         [HttpGet("ExportTemplate")]
-        public async Task<IActionResult> ExportTemplate()
+        public IActionResult ExportTemplate()
         {
             try
             {
-                byte[] file = await _mstProvinceService.ExportTemplate();
+                byte[] file = _mstProvinceService.ExportTemplate();
 
                 return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mst_Province_Template.xlsx");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while exporting the Excel file.");
             }

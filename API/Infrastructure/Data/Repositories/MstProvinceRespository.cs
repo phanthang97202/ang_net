@@ -23,7 +23,7 @@ namespace API.Infrastructure.Data.Repositories
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(List<MstProvinceModel> Data, int TotalCount)> Search(
+        public (List<MstProvinceModel> Data, int TotalCount) Search(
                                                                                 int pageIndex
                                                                                 , int pageSize
                                                                                 , string keyword

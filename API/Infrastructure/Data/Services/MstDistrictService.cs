@@ -27,7 +27,7 @@ namespace API.Infrastructure.Data.Services
             _mstProvinceService = mstProvinceService;
         }
 
-        public async Task<ApiResponse<MstDistrictModel>> Search(int pageIndex, int pageSize, string keyword)
+        public ApiResponse<MstDistrictModel> Search(int pageIndex, int pageSize, string keyword)
         {
             ApiResponse<MstDistrictModel> apiResponse = new ApiResponse<MstDistrictModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -62,7 +62,7 @@ namespace API.Infrastructure.Data.Services
             }
 
             //
-            (List<MstDistrictModel> dataResult, int itemCount) = await _unitOfWork.MstDistrictRespository.Search(pageIndex, pageSize, keyword);
+            (List<MstDistrictModel> dataResult, int itemCount) = _unitOfWork.MstDistrictRespository.Search(pageIndex, pageSize, keyword);
 
             PageInfo<MstDistrictModel> pageInfo = new PageInfo<MstDistrictModel>();
             pageInfo.PageIndex = pageIndex;

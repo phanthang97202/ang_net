@@ -20,5 +20,8 @@
     "T_THUMNAIL": "Ảnh bài viết",
     "T_UPLOAD": "Tải lên",
     "T_LSTREFFILENEWS": "File liên quan",
-    "T_ABOUTME": "Tôi"
+    "T_ABOUTME": "Tôi",
+    "T_RECENTNEWS": "Bài viết gần đây",
+    "T_TAGNEWS": "Thẻ nổi bật",
+    "T_MINUTESREAD": "phút đọc"
 }
