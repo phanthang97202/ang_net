@@ -1,0 +1,16 @@
+config:
+  tls:
+    rejectUnauthorized: false
+  target: "https://localhost:44398"
+  phases:
+    - duration: 30         # Test trong 30 giây
+      arrivalRate: 100      # 10 request/giây
+  defaults:
+    headers:
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsIm5hbWUiOiJBZG1pbiBUZXN0IiwibmFtZWlkIjoiZjNjZDRlMTEtZTQ3Ny00ZGM1LTlmMTAtZDZjNDQyM2JkMDIwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo0MjAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3NTA0MTEwNDMsImV4cCI6MTc1MDQ1NDI0MywiaWF0IjoxNzUwNDExMDQzfQ.r6fw4TjfuRiE4v1TJbMeQl85V1_vchYHyOGAXnVM5I4"
+      Accept: "application/json"
+
+scenarios:
+  - flow:
+      - get:
+          url: "/api/MstProvince/GetAllActive"

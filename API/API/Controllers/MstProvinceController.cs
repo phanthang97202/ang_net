@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Application.Interfaces.Repositories;
 using API.Application.Interfaces.Services;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
@@ -45,6 +46,8 @@ namespace API.API.Controllers
                 throw;
             }
         }
+        
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<MstProvinceModel>> GetAllActive()
         {

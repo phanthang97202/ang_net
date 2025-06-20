@@ -12,6 +12,7 @@ using Google.Apis.Auth;
 using API.Application.Interfaces.Repositories;
 using API.Infrastructure.Data;
 using API.API.Models;
+using API.Shared.Utilities;
 
 namespace API.Infrastructure.Data.Repositories
 {
@@ -23,14 +24,14 @@ namespace API.Infrastructure.Data.Repositories
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<AccountRespository> _logger;
+        private readonly WriteLog _logger;
 
         public AccountRespository(UserManager<AppUser> userManager
                                     , RoleManager<IdentityRole> roleManager
                                     , IHttpContextAccessor httpContextAccessor
                                     , IConfiguration configuration
                                     , AppDbContext dbContext
-                                    , ILogger<AccountRespository> logger
+                                    , WriteLog logger
                                  )
         {
             _userManager = userManager;
@@ -251,6 +252,7 @@ namespace API.Infrastructure.Data.Repositories
 
         public async Task<ApiResponse<AuthResponseDto>> Login(LoginDto loginDto)
         {
+            _logger.LogInformation("LOGIN LOG", loginDto.Email, null);
             ApiResponse<AuthResponseDto> apiResponse = new ApiResponse<AuthResponseDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
