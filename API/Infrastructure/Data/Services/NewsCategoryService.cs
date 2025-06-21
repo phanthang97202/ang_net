@@ -50,12 +50,33 @@ namespace API.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryParentId))
+            if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryId))
             {
-                apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryParentIdIsNotValid", requestClient);
+                apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryIdIsNotValid", requestClient);
                 return apiResponse;
             }
 
+            var (isExistRecordNewsCate, _dataNewsCate) = await _unitOfWork.NewsCategoryRespository
+                                            .CheckRecordExist<NewsCategoryModel>(
+                                                                x => x.NewsCategoryId == data.NewsCategoryId
+                                                            );
+
+            if (isExistRecordNewsCate == true)
+            {
+                apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryIdExisted", requestClient);
+                return apiResponse;
+            }
+
+            var (isExistRecord, _data) = await _unitOfWork.NewsCategoryRespository
+                                            .CheckRecordExist<NewsCategoryModel>(
+                                                                x => x.NewsCategoryId == data.NewsCategoryParentId
+                                                            );
+
+            if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryParentId) == false && isExistRecord == false)
+            {
+                apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryParentIdNotExist", requestClient);
+                return apiResponse;
+            }
 
             if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryName))
             {

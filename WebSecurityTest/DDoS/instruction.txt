@@ -1,0 +1,5 @@
+npm i -g artillery
+
+artillery run angnet-requesttesting.yml --output report.json
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass

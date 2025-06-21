@@ -18,6 +18,7 @@ namespace API.Infrastructure.Data.Repositories
     public class NewsRespository : CommonRespository, INewsRespository
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebHostEnvironment _env;
         //private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly AppDbContext _dbContext;
         private readonly UserManager<AppUser> _userManager;
@@ -30,12 +31,14 @@ namespace API.Infrastructure.Data.Repositories
         public NewsRespository(AppDbContext appDbContext
                                 , IHttpContextAccessor httpContextAccessor
                                 , UserManager<AppUser> userManager
-                                , IConnectionMultiplexer connectionMultiplexer) : base(connectionMultiplexer, httpContextAccessor)
+                                , IWebHostEnvironment env
+                                , IConnectionMultiplexer connectionMultiplexer) : base(connectionMultiplexer, httpContextAccessor, env)
         {
             _dbContext = appDbContext;
             //_connectionMultiplexer = connectionMultiplexer;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+            _env = env;
             //_connectionString = configuration.GetSection("ConnectionStrings")["LocalDb"];
         }
 

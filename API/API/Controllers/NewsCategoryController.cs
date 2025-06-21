@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using API.Application.Interfaces.Repositories;
 using API.Application.Interfaces.Services;
+using API.Infrastructure.Data.Repositories;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NewsCategoryController : ControllerBase
@@ -18,6 +19,7 @@ namespace API.API.Controllers
             _newsCategoryService = newsCategoryService;
         }
 
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<NewsCategoryDto>> GetAllActive()
         {
@@ -28,6 +30,22 @@ namespace API.API.Controllers
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        [Authorize()]
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] NewsCategoryModel news)
+        {
+            try
+            {
+                ApiResponse<NewsCategoryModel> response = await _newsCategoryService.Create(news); 
+
+                return Ok(response);
+            }
+            catch (Exception)
+            { 
                 throw;
             }
         }

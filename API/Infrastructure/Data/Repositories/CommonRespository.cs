@@ -10,13 +10,17 @@ namespace API.Infrastructure.Data.Repositories
         public readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IDatabase _redisDb;
+        private readonly IWebHostEnvironment _env;
 
         public CommonRespository(IConnectionMultiplexer connectionMultiplexer
-                                 , IHttpContextAccessor httpContextAccessor)
+                                 , IHttpContextAccessor httpContextAccessor
+                                 , IWebHostEnvironment env
+            )
         {
             _connectionMultiplexer = connectionMultiplexer;
             _httpContextAccessor = httpContextAccessor;
             _redisDb = _connectionMultiplexer.GetDatabase();
+            _env = env;
         }
 
         public IDatabase GetRedisDb()
@@ -119,8 +123,8 @@ namespace API.Infrastructure.Data.Repositories
                 }
                 prefixKey = userId + "|";
             }
-
-            string key = prefixKey + cacheKey + primaryKey;
+            string webHostEnvType = _env.IsDevelopment() ? "dev" : "production";
+            string key = prefixKey + cacheKey + primaryKey + webHostEnvType;
             return key;
         }
     }

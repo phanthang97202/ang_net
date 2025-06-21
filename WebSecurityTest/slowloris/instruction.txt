@@ -1,0 +1,12 @@
+
+download python
+python --version
+
+git clone https://github.com/gkbrk/slowloris.git
+cd slowloris
+
+python slowloris.py localhost --port 5000 --sockets 2000
+
+netstat -ano | findstr :5000 // kiểm tra connection đến server
+
+dotnet run

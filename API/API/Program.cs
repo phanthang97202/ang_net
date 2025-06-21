@@ -20,7 +20,11 @@ using API.Application.Interfaces.Services;
 using API.API.Models;
 using API.API.Middlewares;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.Http.Timeouts; 
+using Microsoft.AspNetCore.Http.Timeouts;
+using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System;
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
@@ -120,7 +124,11 @@ builder.Services.AddScoped<IMstDistrictService, MstDistrictService>();
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(database["PostgresqlDb"]));
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresqlDb")));
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresqlDb"), sqlOptions => sqlOptions.EnableRetryOnFailure());
+    //options.EnableSensitiveDataLogging(); // Chỉ nên bật trong môi trường phát triển
+    //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 
 // inject Redis 
 ConfigurationOptions configRedis = new ConfigurationOptions
@@ -133,7 +141,7 @@ ConnectionMultiplexer connectRedis = ConnectionMultiplexer.Connect(configRedis);
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp => connectRedis); // tùy chỉnh logic bên trong bằng lamda
 
 // log service 
-builder.Services.AddSingleton(typeof(WriteLog));
+builder.Services.AddSingleton(typeof(WriteLog));  
 
 // Identity ASP NET CORE
 builder.Services.Configure<IdentityOptions>(options =>
@@ -247,8 +255,30 @@ builder.Services.Configure<RequestTimeoutOptions>(options =>
     //  Với API có xử lý phức tạp(upload file lớn), cần tăng giá trị này.
     //  Có thể áp dụng riêng cho từng endpoint:
     options.AddPolicy("API", TimeSpan.FromSeconds(30)); // dùng cách này thì phải gắn Attribute thủ công  [RequestTimeout("API")]
-
 });
+
+//// Kestrel config cho test Slowloris
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenAnyIP(5000); // Hoặc chỉ ListenLocalhost nếu cần
+
+//    // Các giới hạn xử lý connection
+//    options.Limits.MaxConcurrentConnections = 10000; // Tuỳ cấu hình máy
+//    options.Limits.MaxConcurrentUpgradedConnections = 10000;
+
+//    // Thời gian chờ header gửi đến (Slowloris hay lợi dụng cái này)
+//    options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(300); // Đặt cao nếu muốn server "chịu trận"
+
+//    // Nếu muốn test server dễ sập, set timeout cực cao
+//    // Nếu muốn thấy server bảo vệ tốt, giảm xuống thấp (5s hoặc 10s)
+
+//    // Keep-alive timeout: thời gian giữ connection nếu client không gửi gì
+//    options.Limits.KeepAliveTimeout = TimeSpan.FromSeconds(120);
+
+//    // Cấu hình tối đa body size nếu muốn kiểm thử thêm layer
+//    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10MB
+//});
+
 
 builder.Services.AddControllers();
 
@@ -325,6 +355,32 @@ app.Use(async (context, next) =>
         context.Response.StatusCode = 403;
         return;
     }
+    await next();
+});
+
+// Middleware bảo mật
+app.Use(async (context, next) =>
+{
+    //Mục đích: Chống clickjacking
+    //Tác dụng: Ngăn trang web của bạn bị nhúng trong<iframe>
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+
+    //Mục đích: Chống MIME sniffing
+    //Tác dụng: Buộc trình duyệt tôn trọng Content-Type
+    //Ví dụ phòng ngừa:
+    //File upload .jpg nhưng thực chất là.js → Trình duyệt sẽ không thực thi nếu header này có
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+
+    //Mục đích: Bảo vệ thông tin người dùng
+    //Tác dụng: Không gửi URL nguồn(referrer) khi chuyển trang
+    context.Response.Headers.Add("Referrer-Policy", "no-referrer");
+
+    //CSP Header(Chống XSS):
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'");
+
+    // HSTS Header (Bắt buộc HTTPS):
+    context.Response.Headers.Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+
     await next();
 });
 
