@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SharedModels.Dtos
+﻿namespace SharedModels.Dtos
 {
     public class NewsCategoryDto
     {

@@ -2,7 +2,7 @@
 
 namespace SharedModels.Models
 {
-    public class HashTagNewsModel
+    public class HashTagNewsModel : BaseModel
     { 
         [Required]
         public string HashTagNewsId { get; set; } = string.Empty; // Mã hashtag
@@ -10,9 +10,6 @@ namespace SharedModels.Models
         [Required]
         [StringLength(30, ErrorMessage = "HashTagNameIsLimited30Characters")]
         public string HashTagNewsName { get; set; } = string.Empty; // Tên hashtag
-        public int Count { get; set; } // Số lần tag
-        public bool FlagActive { get; set; } // Trạng thái danh mục
-        public DateTime CreatedDTime { get; set; } // Thời gian tạo
-        public DateTime UpdatedDTime { get; set; } // Thời gian tạo
+        public int Count { get; set; } // Số lần tag 
     }
 }

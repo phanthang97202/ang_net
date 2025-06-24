@@ -16,18 +16,18 @@
 
     public class RPNewsDto
     {
-        public string NewsId { get; set; } // Mã bài viết
-        public string UserId { get; set; } // Mã người tạo
-        public string UserName { get; set; } // Tác giả
-        public string FullName { get; set; } // Tác giả
-        public string Avatar { get; set; } // Tác giả
-        public string CategoryNewsId { get; set; } // Mã danh mục
-        public string CategoryNewsName { get; set; } // Tên danh mục
-        public string Slug { get; set; }  // Slug bài viết
-        public string Thumbnail { get; set; }  // Ảnh thu nhỏ bài viết
-        public string ShortTitle { get; set; } // Tiêu đề ngắn bài viết
-        public string ShortDescription { get; set; }  // Mô tả ngắn bài viết
-        public string ContentBody { get; set; }  // Nội dung bài viết
+        public string NewsId { get; set; } = string.Empty; // Mã bài viết
+        public string UserId { get; set; } = string.Empty;  // Mã người tạo
+        public string UserName { get; set; } = string.Empty; // Tác giả
+        public string FullName { get; set; } = string.Empty; // Tác giả
+        public string Avatar { get; set; } = string.Empty; // Tác giả
+        public string CategoryNewsId { get; set; } = string.Empty; // Mã danh mục
+        public string CategoryNewsName { get; set; } = string.Empty; // Tên danh mục
+        public string Slug { get; set; } = string.Empty;  // Slug bài viết
+        public string Thumbnail { get; set; } = string.Empty;  // Ảnh thu nhỏ bài viết
+        public string ShortTitle { get; set; } = string.Empty; // Tiêu đề ngắn bài viết
+        public string ShortDescription { get; set; } = string.Empty;  // Mô tả ngắn bài viết
+        public string ContentBody { get; set; } = string.Empty; // Nội dung bài viết
         public int EstimatedReadingTime { get; set; } // Ước lượng thời gian đọc
         public DateTime CreatedDTime { get; set; } // Thời gian đăng bài
         public DateTime UpdatedDTime { get; set; } // Thời gian sửa bài

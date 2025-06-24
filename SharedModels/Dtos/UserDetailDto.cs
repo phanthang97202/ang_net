@@ -2,10 +2,10 @@
 {
     public class UserDetailDto
     {
-        public string? Id { get; set; }
-        public string? FullName { get; set; }
-        public string Avatar {  get; set; }
-        public string Address { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Avatar { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
         public bool FlagActive { get; set; }
         public string? Email { get; set; }
         public string[]? Roles { get; set; }

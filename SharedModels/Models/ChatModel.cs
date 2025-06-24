@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SharedModels.Models
 {
-    public class ChatModel
+    public class ChatModel : BaseModel
     {
         [Key]
         public string MessageId { get; set; } = Guid.NewGuid().ToString();
@@ -13,8 +13,6 @@ namespace SharedModels.Models
         [Required]
         public string Type {  get; set; } = string.Empty; // string, txt, png, jpg, mp4, mp3
         [Required]
-        public string Message { get; set; } = string.Empty;
-        [Required]
-        public DateTime CreatedDTime { get; set; }
+        public string Message { get; set; } = string.Empty; 
     }
 }
