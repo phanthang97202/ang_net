@@ -2,7 +2,7 @@
 
 namespace SharedModels.Models
 {
-    public class PointNewsModel
+    public class PointNewsModel : BaseModel
     {
         // modelBuilder.Entity<PointNews>().HasKey(p => new { p.NewsId, p.UserId });
         [Required]
@@ -10,10 +10,7 @@ namespace SharedModels.Models
         [Required]
         public string UserId { get; set; } = string.Empty; // Người cho điểm bài viết
         [Range(0, 10, ErrorMessage = "PointEmbraceInRangeFrom0To10")]
-        public double Point { get; set; } // Điểm bài viết
-        public bool FlagActive { get; set; } // Trạng thái danh mục
-        public DateTime CreatedDTime { get; set; } // Thời gian tạo
-        public DateTime UpdatedDTime { get; set; } // Thời gian tạo
+        public double Point { get; set; } // Điểm bài viết 
 
         //
         // public NewsModel News { get; set; } = new NewsModel();

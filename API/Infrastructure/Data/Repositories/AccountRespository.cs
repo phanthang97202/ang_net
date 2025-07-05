@@ -260,10 +260,17 @@ namespace API.Infrastructure.Data.Repositories
 
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
-            if (user is null)
+            // Check user is existed and actived ?
+            if (user is null || !user.FlagActive)
             {
                 apiResponse.CatchException(false, "Account.EmailIsNotExist", requestClient);
                 _logger.LogWarning($"========LOGIN FAILED: Account.EmailIsNotExist=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}");
+                return apiResponse;
+            }
+            
+            if (!user.FlagActive)
+            {
+                apiResponse.CatchException(false, "Account.UserIsNotActived", requestClient);
                 return apiResponse;
             }
 
@@ -352,6 +359,12 @@ namespace API.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            if (!user.FlagActive)
+            {
+                apiResponse.CatchException(false, "Account.UserIsNotActived", requestClient);
+                return apiResponse;
+            }
+
             bool isValidRefreshToken = await ValidateRefreshToken(refreshTokenDto.RefreshToken, refreshTokenDto.UserId);
 
             if (!isValidRefreshToken)
@@ -403,7 +416,10 @@ namespace API.Infrastructure.Data.Repositories
             {
                 Email = payload.Email,
                 FullName = payload.Name,
-                UserName = payload.Email
+                UserName = payload.Email,
+                FlagActive = true,
+                CreatedDTime = TCommonUtils.DTimeNow(),
+                UpdatedDTime = TCommonUtils.DTimeNow()
             };
 
             AppUser userExist = await _userManager.FindByEmailAsync(payload.Email);
@@ -420,6 +436,12 @@ namespace API.Infrastructure.Data.Repositories
             }
             else
             {
+                if (!user.FlagActive)
+                {
+                    apiResponse.CatchException(false, "Account.UserIsNotActived", requestClient);
+                    return apiResponse;
+                }
+
                 user = userExist;
             }
 
@@ -478,7 +500,10 @@ namespace API.Infrastructure.Data.Repositories
             {
                 Email = registerDto.Email,
                 FullName = registerDto.FullName,
-                UserName = registerDto.Email
+                UserName = registerDto.Email,
+                FlagActive = true,
+                CreatedDTime = TCommonUtils.DTimeNow(),
+                UpdatedDTime = TCommonUtils.DTimeNow()
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);

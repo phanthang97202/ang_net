@@ -4,7 +4,7 @@ using SharedModels.Enums;
 
 namespace SharedModels.Models
 {
-    public class OrderStadiumModel
+    public class OrderStadiumModel : BaseModel
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -33,8 +33,6 @@ namespace SharedModels.Models
         public decimal DebtMoney {get; set; } // Nếu còn nợ => Tiền nợ (thanh toán thiếu)
         public string Remark { get; set; } = string.Empty; // Ghi chú
         public EOrderStatus OrderStatus { get; set; } // Trạng thái order
-        public string VoucherCode { get; set; } = string.Empty; // Mã phần thưởng nếu có
-        public DateTime CreatedDTime {get; set; } // Thời gian tạo
-        public DateTime UpdatedDTime { get; set; } // Thời gian cập nhật
+        public string VoucherCode { get; set; } = string.Empty; // Mã phần thưởng nếu có 
     } 
 }

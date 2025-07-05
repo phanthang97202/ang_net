@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using API.API.Models;
+using SharedModels.Enums;
 
 namespace API.Infrastructure.Data
 {
@@ -88,6 +89,10 @@ namespace API.Infrastructure.Data
 
             // OrderStadiumModel
             modelBuilder.Entity<OrderStadiumModel>()
+                        .Property(x => x.OrderStatus)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            modelBuilder.Entity<OrderStadiumModel>()
                         .HasOne<MstStadiumModel>()
                         .WithMany()
                         .HasForeignKey(o => o.StadiumCode)
@@ -105,9 +110,17 @@ namespace API.Infrastructure.Data
 
             // OrderStadiumStatusLogModel
             modelBuilder.Entity<OrderStadiumStatusLogModel>()
+                        .Property(x => x.Status)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            modelBuilder.Entity<OrderStadiumStatusLogModel>()
+                        .Property(x => x.PreviousStatus)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            modelBuilder.Entity<OrderStadiumStatusLogModel>()
                         .HasOne<OrderStadiumModel>()
                         .WithMany()
-                        .HasForeignKey(o => o.OrderStadiumCode)
+                        .HasForeignKey(o => o.OrderId)
                         .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<OrderStadiumStatusLogModel>()
                         .HasOne<AppUser>()
