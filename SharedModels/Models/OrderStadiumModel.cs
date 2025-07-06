@@ -8,7 +8,7 @@ namespace SharedModels.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int OrderId { get; set; }
+        public int OrderStadiumId { get; set; }
         [Required]
         public string OrderStadiumCode { get; set; } = string.Empty; // Mã hóa đơn
         [ForeignKey("StadiumCode")]
@@ -32,6 +32,7 @@ namespace SharedModels.Models
         public decimal SalePercent {get; set; } // % Giảm giá
         public decimal DebtMoney {get; set; } // Nếu còn nợ => Tiền nợ (thanh toán thiếu)
         public string Remark { get; set; } = string.Empty; // Ghi chú
+        [Column(TypeName = "varchar(20)")]
         public EOrderStatus OrderStatus { get; set; } // Trạng thái order
         public string VoucherCode { get; set; } = string.Empty; // Mã phần thưởng nếu có 
     } 

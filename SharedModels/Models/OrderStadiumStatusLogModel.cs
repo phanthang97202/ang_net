@@ -1,6 +1,6 @@
 ﻿using SharedModels.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; 
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SharedModels.Models
 {
@@ -9,9 +9,9 @@ namespace SharedModels.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderStadiumStatusLogId { get; set; } // ID của bản ghi log
-        [ForeignKey("OrderId")]
+        [ForeignKey("OrderStadiumId")]
         [Required]
-        public int OrderId { get; set; } // FK đến OrderStadiums
+        public int OrderStadiumId { get; set; } // FK đến OrderStadiums
         [ForeignKey("UserId")]
         [Required]
         public string UserId { get; set; } = string.Empty; // Ai thực hiện thay đổi (Admin/User)

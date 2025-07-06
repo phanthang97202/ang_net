@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SharedModels.Enums;
 
 namespace SharedModels.Models
 {
@@ -21,5 +22,7 @@ namespace SharedModels.Models
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích
         public double AvgPoint { get; set; } // Trung bình lượt đánh giá * (thang điểm 10)
+        [Column(TypeName = "varchar(20)")]
+        public EWhoCanSee WhoCanSee { get; set; } // Loại chính sách (ví dụ: Chỉ tenant, Chỉ mình tôi, Public, v.v.) 
     }
 }

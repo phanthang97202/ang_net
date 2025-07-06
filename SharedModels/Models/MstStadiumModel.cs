@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; 
 
 namespace SharedModels.Models
 {
@@ -18,6 +14,7 @@ namespace SharedModels.Models
         public string StadiumStatusCode { get; set; } = string.Empty; // Mã tình trạng sân
         [ForeignKey("DistrictCode")]
         public string DistrictCode { get; set; } = string.Empty; // Mã quận/huyện sân
+        public string TenantId { get; set; } = string.Empty; // Mã Tenant (ví dụ: "tenant1", "tenant2")
         public bool FlagStadiumRent { get; set; } // Sân đã được thuê chưa 
         public string StadiumName { get; set; } = string.Empty; // Tên sân bóng
         public decimal StadiumPrice { get; set; }  // Giá thuê sân bóng

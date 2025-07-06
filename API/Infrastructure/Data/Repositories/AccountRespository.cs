@@ -436,7 +436,7 @@ namespace API.Infrastructure.Data.Repositories
             }
             else
             {
-                if (!user.FlagActive)
+                if (!userExist.FlagActive)
                 {
                     apiResponse.CatchException(false, "Account.UserIsNotActived", requestClient);
                     return apiResponse;

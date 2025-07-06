@@ -15,10 +15,13 @@ namespace API.Infrastructure.Data
         }
 
         // 
+        public DbSet<TenantModel> Tenants { get; set; }
+        public DbSet<MstTenantContactModel> MstTenantContacts { get; set; }
+
+        //
         public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
 
         //
-
         public DbSet<MstProvinceModel> MstProvinces { get; set; }
         public DbSet<MstDistrictModel> MstDistricts { get; set; }
         public DbSet<MstStadiumStatusModel> MstStadiumStatuses { get; set; }
@@ -39,6 +42,16 @@ namespace API.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // TenantModel
+            modelBuilder.Entity<TenantModel>();
+
+            // MstTenantContactModel
+            modelBuilder.Entity<MstTenantContactModel>()
+                        .HasOne<TenantModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.TenantId)
+                        .OnDelete(DeleteBehavior.Cascade); 
 
             // RefreshTokenModel
             modelBuilder.Entity<RefreshTokenModel>()
@@ -120,7 +133,7 @@ namespace API.Infrastructure.Data
             modelBuilder.Entity<OrderStadiumStatusLogModel>()
                         .HasOne<OrderStadiumModel>()
                         .WithMany()
-                        .HasForeignKey(o => o.OrderId)
+                        .HasForeignKey(o => o.OrderStadiumId)
                         .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<OrderStadiumStatusLogModel>()
                         .HasOne<AppUser>()

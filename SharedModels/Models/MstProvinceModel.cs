@@ -10,5 +10,6 @@ namespace SharedModels.Models
         public string ProvinceCode { get; set; } = string.Empty; // Mã tỉnh/thành phố
         [Required]
         public string ProvinceName { get; set; } = string.Empty; // Tên tỉnh/thành phố 
+        public string TenantId { get; set; } = string.Empty; // Mã tenant (ví dụ: "tenant1", "tenant2")
     }
 }

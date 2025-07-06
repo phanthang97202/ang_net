@@ -1,14 +1,15 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SharedModels.Models
 {
-    public class RefreshTokenModel
+    public class RefreshTokenModel : BaseModel
     {
         [Key]
-        public string RefreshToken { get; set; }
-        public string UserId { get; set; } 
+        [Required]
+        public required string RefreshToken { get; set; }
+        public string TenantId { get; set; } = string.Empty; // Tenant ID (ví dụ: "tenant1", "tenant2")
+        [Required]
+        public required string UserId { get; set; }
         public DateTime ExpiryDate { get; set; }
         public bool IsRevoked { get; set; } = false;
     }

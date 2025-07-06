@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace SharedModels.Enums
 {
     public enum ETenantStatus
-    {
+    { 
         Active, // Đang hoạt động
         InActive, // Tạm dừng
         LockedOut // Buộc dừng
     }
-}
+} 

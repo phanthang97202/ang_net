@@ -13,6 +13,7 @@
         <th nzColumnKey="email" [nzSortFn]="true">Email</th>
         <th nzColumnKey="fullName" [nzFilterFn]="true">Name</th>
         <th nzColumnKey="roles" [nzSortFn]="true">Role(s)</th>
+        <th nzColumnKey="flagActive" [nzSortFn]="true">FlagActive</th>
       </tr>
     </thead>
     <tbody>
@@ -34,6 +35,9 @@
           </td>
           <td>{{ data.FullName }}</td>
           <td>{{ data.Roles.join(', ') }}</td>
+          <td>
+            <app-tag-status [boolData]="data.FlagActive"></app-tag-status>
+          </td>
         </tr>
 
         <ng-template #normal__text>

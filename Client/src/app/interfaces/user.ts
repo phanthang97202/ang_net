@@ -12,6 +12,7 @@ export interface IUser {
   TwoFacotrEnabled: boolean;
   PhoneNumberConfirmed: boolean;
   AccessFailedCount: number;
+  FlagActive: boolean;
 }
 // dashboard
 export interface IUserInfo {
