@@ -19,6 +19,7 @@ namespace API.API.Controllers
             _newsCategoryService = newsCategoryService;
         }
 
+        [AllowAnonymous]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<NewsCategoryDto>> GetAllActive()

@@ -261,7 +261,7 @@ namespace API.Infrastructure.Data.Repositories
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
             // Check user is existed and actived ?
-            if (user is null || !user.FlagActive)
+            if (user is null)
             {
                 apiResponse.CatchException(false, "Account.EmailIsNotExist", requestClient);
                 _logger.LogWarning($"========LOGIN FAILED: Account.EmailIsNotExist=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}");

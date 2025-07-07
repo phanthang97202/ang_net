@@ -22,6 +22,7 @@ namespace API.API.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpGet("Search")]
         public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
         {
@@ -36,6 +37,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("Detail")]
         [SkipLogging]
         public async Task<ActionResult<RPNewsDto>> Detail(string newsId)
@@ -70,6 +72,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("Like")]
         public async Task<IActionResult> Like(string newsId)
         {
@@ -87,6 +90,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("Point")]
         public async Task<IActionResult> Point(string newsId, double point)
         {

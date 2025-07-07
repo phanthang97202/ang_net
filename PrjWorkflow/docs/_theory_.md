@@ -3678,7 +3678,14 @@ Dưới đây là danh sách các câu hỏi phỏng vấn **C#, C# OOP**, và *
 				Service2: 8a5b6c4d-1d5e-4a2b-9b5c-3a5d2f6e5c1d
 
 ### 🔹 **28. Action Filter trong .NET Core API là gì?**  
-	Là một middleware cho phép chạy trước và sau 1 action trong controller
+	Có 5 loại Filter
+	Tên Filter						Mục đích chính							Có dùng DI?								Injection params?					Dùng cho
+	ActionFilterAttribute			Logic trước/sau khi chạy action			Không (nếu không kế thừa ServiceFilter)	Không								Action
+	ResultFilterAttribute			Logic trước/sau khi trả kết quả			Không									Không								Output
+	ExceptionFilterAttribute		Xử lý exception toàn cục/action			Không									Không								Error
+	FormatFilterAttribute			Chọn định dạng response theo URL		Không									Không								REST
+	ServiceFilterAttribute			Dùng filter có DI (đã đăng ký)			Có										Không								Advanced
+	TypeFilterAttribute				Dùng filter có DI + truyền tham số		Có (runtime resolve)					Có									Advanced
 	Giúp:
 		Xử lý logic chung trước khi vào action
 		Thay đổi or kiểm tra dữ liệu đầu vào/đầu ra

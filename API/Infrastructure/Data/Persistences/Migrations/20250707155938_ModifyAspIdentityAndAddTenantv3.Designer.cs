@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Infrastructure.Data.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250705173137_ModifyAspIdentityAndAddTenantv2")]
-    partial class ModifyAspIdentityAndAddTenantv2
+    [Migration("20250707155938_ModifyAspIdentityAndAddTenantv3")]
+    partial class ModifyAspIdentityAndAddTenantv3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

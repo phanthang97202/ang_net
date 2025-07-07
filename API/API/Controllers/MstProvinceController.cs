@@ -20,6 +20,9 @@ namespace API.API.Controllers
             _mstProvinceService = mstProvinceService;
             _logger = logger;
         }
+
+        [AllowAnonymous]
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("Search")]
         public ActionResult<MstProvinceModel> Search(int pageIndex, int pageSize, string keyword)
         {
@@ -46,7 +49,8 @@ namespace API.API.Controllers
                 throw;
             }
         }
-        
+
+        [AllowAnonymous]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<MstProvinceModel>> GetAllActive()
@@ -118,6 +122,8 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("ExportExcel")]
         public async Task<IActionResult> ExportExcel()
         {
@@ -133,6 +139,8 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("ExportTemplate")]
         public IActionResult ExportTemplate()
         {

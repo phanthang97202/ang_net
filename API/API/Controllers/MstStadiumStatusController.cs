@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using API.Infrastructure.Data.Services;
 using API.Application.Interfaces.Services;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.API.Controllers
 {
@@ -34,6 +35,8 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<MstStadiumStatusModel>> GetAllActive()
         {

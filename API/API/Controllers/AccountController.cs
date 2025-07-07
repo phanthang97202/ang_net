@@ -29,6 +29,7 @@ namespace API.API.Controllers
             _accountRespository = accountRespository;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         [EnableRateLimitingAttribute("API")]
         public async Task<ActionResult<RegisterDto>> Register(RegisterDto registerDto)
@@ -44,6 +45,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         [EnableRateLimitingAttribute("API")]
         // login 
@@ -60,6 +62,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("login-google")]
         public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginDto loginGoogleDto)
         {
@@ -74,6 +77,7 @@ namespace API.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("refreshtoken")]
         public async Task<ActionResult<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
@@ -88,7 +92,7 @@ namespace API.API.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("logoutalldevice")]
         public async Task<ActionResult<string>> LogoutAllDevice(string userId)
         {

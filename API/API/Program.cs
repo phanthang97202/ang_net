@@ -25,6 +25,10 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
+using API.API.Authorization_Policy;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Options;
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
@@ -162,6 +166,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 // config jwt 
 builder.Services
+        .AddAuthorization(op =>
+        {
+            op.AddPolicy("IsActiveUser", policy => policy.Requirements.Add(new IsActiveRequirement())); // checking Account is inactive
+        })
        .AddAuthentication(opt =>
         {
             opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -183,6 +191,9 @@ builder.Services
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSetting.GetSection("securityKey").Value!)) // Đây là khóa bí mật được dùng để ký token và đảm bảo tính toàn vẹn của nó. Khóa này được tạo bằng cách sử dụng SymmetricSecurityKey với giá trị chuỗi bảo mật (securityKey) được mã hóa dưới dạng UTF-8
             };
         });
+//If an authorization handler requires services with scoped lifetimes
+//(such as a database context or UserManager), register the handler using AddScoped.
+builder.Services.AddScoped<IAuthorizationHandler, IsActiveUserHandler>();
 
 
 builder.Services.AddCors(options =>
@@ -280,7 +291,19 @@ builder.Services.Configure<RequestTimeoutOptions>(options =>
 //});
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    var policyBuilder = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser();
+
+    policyBuilder.Requirements.Add(new IsActiveRequirement());
+
+    var policy = policyBuilder.Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
+
+
 
 // Config Logs  
 Log.Logger = new LoggerConfiguration()

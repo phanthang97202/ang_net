@@ -3,6 +3,7 @@ using SharedModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using API.Application.Interfaces.Repositories;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.API.Controllers
 {
@@ -17,6 +18,8 @@ namespace API.API.Controllers
             _hashTagNewsRespository = hashTagNewsRespository;
         }
 
+        [AllowAnonymous]
+        [EnableRateLimitingAttribute("API")]
         [HttpGet("GetTopHashTag")]
         public async Task<ActionResult<HashTagNewsModel>> GetTopHashTag()
         {
