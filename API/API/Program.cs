@@ -124,6 +124,10 @@ builder.Services.AddScoped<MstStadiumService>();
 builder.Services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
 builder.Services.AddScoped<IMstDistrictService, MstDistrictService>();
 
+builder.Services.AddScoped<IAuditTrailRespository, AuditTrailRespository>();
+builder.Services.AddScoped<IAuditTrailService, AuditTrailService>();
+
+
 // inject AppDbContext
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(database["PostgresqlDb"]));

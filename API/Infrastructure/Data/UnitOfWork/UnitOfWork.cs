@@ -26,6 +26,7 @@ namespace API.Infrastructure.Data.UnitOfWork
         public IMstStadiumRespository MstStadiumRespository { get; }
         public IMstDistrictRespository MstDistrictRespository { get; }
         public INewsCategoryRespository NewsCategoryRespository { get; }
+        public IAuditTrailRespository AuditTrailRespository { get; }
 
         public UnitOfWork
             (
@@ -36,6 +37,8 @@ namespace API.Infrastructure.Data.UnitOfWork
                 , IMstStadiumRespository mstStadiumRespository
                 , IMstDistrictRespository mstDistrictRespository
                 , INewsCategoryRespository newsCategoryRespository
+                , IAuditTrailRespository auditTrailRespository
+
             )
         {
             _appDbContext = appDbContext;
@@ -46,6 +49,7 @@ namespace API.Infrastructure.Data.UnitOfWork
             MstStadiumRespository = mstStadiumRespository;
             MstDistrictRespository = mstDistrictRespository;
             NewsCategoryRespository = newsCategoryRespository;
+            AuditTrailRespository = auditTrailRespository; 
         }
 
         // ====================================
