@@ -88,10 +88,10 @@
         <nz-form-label nzLabelAlign="left" nzSpan="8">{{
           'T_LSTREFFILENEWS' | translate
         }}</nz-form-label>
-        <nz-form-control formControlName="LstRefFileNews">
+        <nz-form-control>
           <nz-upload
             nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            [nzFileList]="lstRefFileNews">
+            [(nzFileList)]="lstRefFileNews">
             <button nz-button>
               <span nz-icon nzType="upload"></span>
               {{ 'T_UPLOAD' | translate }}
@@ -105,7 +105,6 @@
       <nz-form-item>
         <nz-form-control nzValidatingTip="Validating...">
           <app-text-editor
-            formControlName="ContentBody"
             (onContentChanged)="handleContentChangedEditor($event)" />
         </nz-form-control>
       </nz-form-item>

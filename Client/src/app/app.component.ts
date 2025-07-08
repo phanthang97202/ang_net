@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
   LoadingService,

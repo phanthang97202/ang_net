@@ -13,7 +13,11 @@ import {
 } from '../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { INewsCategory, INewsCategoryNode } from '../../../interfaces';
+import {
+  INewsCategory,
+  INewsCategoryNode,
+  IRefFileNews,
+} from '../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import { Util } from '../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
@@ -34,7 +38,7 @@ export class BlogsComponent implements OnInit {
 
   nodes: NzTreeNodeOptions[] | NzTreeNode[] = [];
 
-  lstRefFileNews: any;
+  lstRefFileNews: IRefFileNews[] & NzUploadFile[] = [];
   contentBody = '';
 
   previewVisible = false;
@@ -45,8 +49,8 @@ export class BlogsComponent implements OnInit {
     ContentBody: FormControl<string>;
     ShortTitle: FormControl<string>;
     ShortDescription: FormControl<string>;
-    LstHashTagNews: FormControl<any>;
-    LstRefFileNews: FormControl<any>;
+    LstHashTagNews: FormControl<string>;
+    LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
   }>;
 
@@ -58,7 +62,7 @@ export class BlogsComponent implements OnInit {
       ShortTitle: ['', [Validators.required]],
       ShortDescription: ['', [Validators.required]],
       LstHashTagNews: [''],
-      LstRefFileNews: [''],
+      LstRefFileNews: [[{ FileUrl: '' }]],
     });
   }
 
@@ -149,13 +153,13 @@ export class BlogsComponent implements OnInit {
           ShortDescription: this.validateForm.value.ShortDescription ?? '',
           ContentBody: this.validateForm.value.ContentBody ?? '',
           FlagActive: true,
-          LstHashTagNews: this.validateForm.value.LstHashTagNews.split(' ').map(
-            (item: string) => {
+          LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
+            .split(' ')
+            .map((item: string) => {
               return {
                 HashTagNewsName: item,
               };
-            }
-          ),
+            }),
           LstRefFileNews: [
             // {
             //   FileUrl:

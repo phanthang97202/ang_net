@@ -17,38 +17,18 @@ import Quill from 'quill';
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss',
 })
-export class TextEditorComponent implements OnInit {
-  editorModules = {
-    blotFormatter: {
-      actions: {
-        alignLeft: true,
-        alignCenter: true,
-        alignRight: true,
-        // delete: true,
-        resize: true,
-      },
-      overlay: {
-        className: 'blot-formatter__overlay',
-        style: {
-          position: 'absolute',
-          boxSizing: 'border-box',
-          border: '1px dashed #444',
-        },
-      },
-      resize: {
-        handleStyle: {
-          position: 'absolute',
-          height: '12px',
-          width: '12px',
-          backgroundColor: 'white',
-          border: '1px solid #777',
-          boxSizing: 'border-box',
-          opacity: '0.80',
-        },
-      },
-    },
-  };
 
+// 1. Component khởi tạo → blotFormatterReady = false
+// 2. Hiển thị loading → *ngIf="!blotFormatterReady"
+// 3. ngOnInit() chạy → load và register BlotFormatter
+// 4. Sau khi register xong → blotFormatterReady = true
+// 5. Editor được render → *ngIf="blotFormatterReady"
+// 6. Lúc này module đã sẵn sàng → không còn lỗi
+export class TextEditorComponent implements OnInit {
+  editorModules: any;
+
+  // Flag để track module registration
+  blotFormatterReady = false;
   editorContent = '';
   content = '';
   apiService = inject(ApiService);
@@ -69,8 +49,48 @@ export class TextEditorComponent implements OnInit {
 
       Quill.register('modules/blotFormatter', BlotFormatter);
       console.log('BlotFormatter module registered successfully');
+
+      // Sau khi register xong, mới set up modules
+      this.setupEditorModules(true);
+      this.blotFormatterReady = true;
     } catch (error) {
       console.error('Error registering BlotFormatter module:', error);
+      // Fallback: setup editor without blotFormatter
+      this.setupEditorModules(false);
+    }
+  }
+
+  private setupEditorModules(includeBlotFormatter = true) {
+    if (includeBlotFormatter) {
+      this.editorModules = {
+        blotFormatter: {
+          actions: {
+            alignLeft: true,
+            alignCenter: true,
+            alignRight: true,
+            resize: true,
+          },
+          overlay: {
+            className: 'blot-formatter__overlay',
+            style: {
+              position: 'absolute',
+              boxSizing: 'border-box',
+              border: '1px dashed #444',
+            },
+          },
+          resize: {
+            handleStyle: {
+              position: 'absolute',
+              height: '12px',
+              width: '12px',
+              backgroundColor: 'white',
+              border: '1px solid #777',
+              boxSizing: 'border-box',
+              opacity: '0.80',
+            },
+          },
+        },
+      };
     }
   }
 

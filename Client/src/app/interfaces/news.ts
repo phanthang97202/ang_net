@@ -31,7 +31,7 @@ export interface INews {
 interface IHashTagNews {
   HashTagNewsName: string;
 }
-interface IRefFileNews {
+export interface IRefFileNews {
   FileUrl: string;
 }
 

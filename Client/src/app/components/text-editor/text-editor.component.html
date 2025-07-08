@@ -1,5 +1,11 @@
 <div>
-  <div class="editor-container">
+  <!-- Loading state -->
+  <div *ngIf="!blotFormatterReady" class="loading">
+    <p>Đang tải editor...</p>
+  </div>
+
+  <!-- Editor state -->
+  <div *ngIf="blotFormatterReady" class="editor-container">
     <quill-editor
       format="html"
       [modules]="editorModules"
@@ -7,8 +13,7 @@
       [(ngModel)]="content"
       (onEditorChanged)="handleonEditorChanged($event)"
       (onContentChanged)="handleContentChanged($event)"
-      (onEditorCreated)="onEditorCreated($event)"></quill-editor>
+      (onEditorCreated)="onEditorCreated($event)">
+    </quill-editor>
   </div>
 </div>
-
-<div *ngIf="!editorModules" class="loading">Đang tải editor...</div>
