@@ -2,14 +2,14 @@
     background: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 10px;
+    margin: 0 14px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .toc-title {
     margin: 0 0 15px 0;
-    font-size: 1.2em;
+    font-size: 12px;
     font-weight: 600;
     color: #495057;
     border-bottom: 2px solid #007bff;
@@ -20,10 +20,11 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    font-size: 12px;
 }
 
 .toc-item {
-    margin: 8px 0;
+    margin: 2px 0;
     border-left: 3px solid transparent;
     transition: all 0.3s ease;
 }
@@ -35,7 +36,7 @@
 
 .toc-link {
     display: block;
-    padding: 8px 12px;
+    padding: 4px 12px;
     text-decoration: none;
     color: #495057;
     border-radius: 4px;

@@ -24,6 +24,7 @@ export class DetailNewsComponent implements OnInit {
   apiService = inject(ApiService);
   router = inject(ActivatedRoute);
   loadingService = inject(LoadingService);
+  isLoading$ = this.loadingService.getLoading();
 
   newsId = '';
   detailNews!: IDetailNews;

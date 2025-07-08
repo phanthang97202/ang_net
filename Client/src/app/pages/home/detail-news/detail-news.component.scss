@@ -1,25 +1,50 @@
 .news_container {
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
+
 .detail_thumbnail {
     height: 360px;
     position: relative;
+
     &_border {
-        position: absolute; 
+        position: absolute;
         border: 2px solid #fff;
         top: 4px;
         left: 4px;
         bottom: 4px;
-        right: 4px; 
+        right: 4px;
     }
 
     &_img {
         width: 100%;
         height: 100%;
-        img{
+
+        img {
             object-fit: cover;
             width: 100%;
             height: 100%;
+        }
+    }
+}
+
+::ng-deep.detail__news-skeleton {
+    display: block !important;
+    width: 100% !important;
+    height: 360px !important;
+    margin-bottom: 20px;
+
+    .ant-skeleton-image {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+
+        svg {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            display: block !important;
+            text-align: center !important;
+            margin: auto !important;
         }
     }
 }

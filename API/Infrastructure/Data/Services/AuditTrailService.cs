@@ -52,7 +52,7 @@ namespace API.Infrastructure.Data.Services
                 RecordId = data.RecordId,
                 IPAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
                 RequestUrl = _httpContextAccessor.HttpContext.Request.Path.Value ?? "Unknown",
-                TrailType = _httpContextAccessor.HttpContext.Request.Method.ToUpper() ,
+                //TrailType = _httpContextAccessor.HttpContext.Request.Method.ToUpper() ,
                 Description = data.Description,
                 ChangedColumns = data.ChangedColumns,
                 OldValues = data.OldValues,
