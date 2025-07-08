@@ -1,0 +1,16 @@
+<div class="toc-container" *ngIf="tocItems.length > 0">
+  <h3 class="toc-title">📋{{ 'T_MUCLUC' | translate }}</h3>
+  <ul class="toc-list">
+    <li
+      *ngFor="let item of tocItems"
+      [class]="'toc-item toc-level-' + item.level"
+      (click)="scrollToElement(item.id)">
+      <a href="javascript:void(0)" class="toc-link">
+        {{ item.text }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- FIX IT IF YOU HAVE TIME -->
+<!-- [class.active]="activeId === item.id" -->

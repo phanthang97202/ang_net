@@ -1,7 +1,14 @@
 <div>
-    <div class="editor-container">
-        <quill-editor format="html" [styles]="{height: '500px'}" [(ngModel)]="content"
-            (onEditorChanged)="handleonEditorChanged($event)"
-            (onContentChanged)="handleContentChanged($event)"></quill-editor>
-    </div>
+  <div class="editor-container">
+    <quill-editor
+      format="html"
+      [modules]="editorModules"
+      [styles]="{ height: '500px' }"
+      [(ngModel)]="content"
+      (onEditorChanged)="handleonEditorChanged($event)"
+      (onContentChanged)="handleContentChanged($event)"
+      (onEditorCreated)="onEditorCreated($event)"></quill-editor>
+  </div>
 </div>
+
+<div *ngIf="!editorModules" class="loading">Đang tải editor...</div>

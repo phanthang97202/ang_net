@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "quill-image-resize-module": "^3.0.0",
+    "quill-image-resize-module-ts": "^3.0.3"
+  }
+}

@@ -85,3 +85,49 @@ html {
 
     }
   }
+
+
+// css text editor => code insert
+// Global styling for code blocks
+.ql-editor {
+  pre {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    padding: 1rem !important;
+    border-radius: 0.375rem !important;
+    font-family: 'Courier New', monospace !important;
+    overflow-x: auto !important;
+    margin: 1rem 0 !important;
+    border: 1px solid #4a5568 !important;
+  }
+  
+  code {
+    background-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    font-family: 'Courier New', monospace !important;
+  }
+}
+
+// Styling khi hiển thị content (không phải trong editor)
+.content-display {
+  pre {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    padding: 1rem !important;
+    border-radius: 0.375rem !important;
+    font-family: 'Courier New', monospace !important;
+    overflow-x: auto !important;
+    margin: 1rem 0 !important;
+    border: 1px solid #4a5568 !important;
+  }
+  
+  code {
+    background-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    font-family: 'Courier New', monospace !important;
+  }
+}

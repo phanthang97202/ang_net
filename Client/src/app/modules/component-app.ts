@@ -20,6 +20,8 @@ import {
   ErrorPopupComponent,
   SwitchLangComponent,
   TagStatusComponent,
+  NewsContentComponent,
+  NewsTocListComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
@@ -53,6 +55,8 @@ export const REUSE_COMPONENT_MODULES = [
   ErrorPopupComponent,
   SwitchLangComponent,
   TagStatusComponent,
+  NewsContentComponent,
+  NewsTocListComponent,
   // Một số module đặc biệt của antd
   NzSpinModule,
   NzCardModule,

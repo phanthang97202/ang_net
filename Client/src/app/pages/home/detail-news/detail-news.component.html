@@ -51,8 +51,11 @@
     </div>
   </div>
   <div class="w-full px-[10px] py-[0px] xl:px-[35px] xl:py-[0px]">
-    <div
-      class="ql-editor px-[0] py-[15px] xl:px-[15px] xl:py-[12px]"
-      [innerHTML]="byPassHTML(detailNews.ContentBody)"></div>
+    <app-news-content [content]="detailNews.ContentBody" [showToc]="true">
+    </app-news-content>
+    <!-- <div
+      id="content-container"
+      class="content-display ql-editor px-[0] py-[15px] xl:px-[15px] xl:py-[12px]"
+      [innerHTML]="byPassHTML(detailNews.ContentBody)"></div> -->
   </div>
 </div>

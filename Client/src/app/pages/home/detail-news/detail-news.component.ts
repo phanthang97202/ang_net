@@ -12,7 +12,6 @@ import {
   AntdModule,
   REUSE_PIPE_MODULE,
 } from '../../../modules';
-
 @Component({
   selector: 'app-detail-news-page',
   standalone: true,

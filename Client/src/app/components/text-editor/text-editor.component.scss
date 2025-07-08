@@ -1,0 +1,187 @@
+/* Styles cho BlotFormatter */
+
+// Overlay styles
+.blot-formatter__overlay {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed #007cff;
+  border-radius: 4px;
+  background: rgba(0, 124, 255, 0.1);
+  
+  &:hover {
+    border-color: #0056b3;
+  }
+}
+
+// Resize handles styles
+.blot-formatter__resize-handle {
+  position: absolute;
+  height: 12px;
+  width: 12px;
+  background-color: #007cff;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-sizing: border-box;
+  opacity: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+  }
+  
+  // Các vị trí handle
+  &--nw {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+  }
+  
+  &--ne {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+  }
+  
+  &--sw {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+  }
+  
+  &--se {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+  }
+}
+
+// Toolbar styles
+.blot-formatter__toolbar {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  background: #333;
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 10px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+  }
+}
+
+.blot-formatter__toolbar-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 6px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  &:active {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  // Icons cho các button (có thể dùng font-awesome)
+  &[data-action="alignLeft"]::before {
+    content: '⬅';
+  }
+  
+  &[data-action="alignCenter"]::before {
+    content: '⬢';
+  }
+  
+  &[data-action="alignRight"]::before {
+    content: '➡';
+  }
+  
+  &[data-action="delete"]::before {
+    content: '🗑';
+  }
+}
+
+// Styles cho image khi được format
+.ql-editor {
+  img {
+    &.ql-align-left {
+      float: left;
+      margin: 0 15px 15px 0;
+    }
+    
+    &.ql-align-center {
+      display: block;
+      margin: 15px auto;
+    }
+    
+    &.ql-align-right {
+      float: right;
+      margin: 0 0 15px 15px;
+    }
+  }
+  
+  // Video styles
+  video {
+    &.ql-align-left {
+      float: left;
+      margin: 0 15px 15px 0;
+    }
+    
+    &.ql-align-center {
+      display: block;
+      margin: 15px auto;
+    }
+    
+    &.ql-align-right {
+      float: right;
+      margin: 0 0 15px 15px;
+    }
+  }
+}
+
+// Animation cho smooth transitions
+.blot-formatter__overlay,
+.blot-formatter__resize-handle,
+.blot-formatter__toolbar {
+  transition: all 0.2s ease;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .blot-formatter__toolbar {
+    top: -35px;
+    padding: 4px;
+  }
+  
+  .blot-formatter__toolbar-button {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  
+  .blot-formatter__resize-handle {
+    height: 16px;
+    width: 16px;
+    
+    &--nw, &--ne, &--sw, &--se {
+      margin: -8px;
+    }
+  }
+}

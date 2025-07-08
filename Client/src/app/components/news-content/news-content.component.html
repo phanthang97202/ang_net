@@ -1,0 +1,14 @@
+<div class="article-container">
+  <!-- Mục lục -->
+  <app-news-toc-list
+    [content]="content"
+    [containerId]="'content-container'"
+    *ngIf="showToc && content">
+  </app-news-toc-list>
+
+  <!-- Nội dung bài viết -->
+  <div
+    id="content-container"
+    class="content-display ql-editor px-[0] py-[15px] xl:px-[15px] xl:py-[12px]"
+    [innerHTML]="sanitizedContent"></div>
+</div>

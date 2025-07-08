@@ -1,0 +1,119 @@
+.toc-container {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toc-title {
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 8px;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-item {
+    margin: 8px 0;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.toc-item:hover {
+    border-left-color: #007bff;
+    background-color: #e7f3ff;
+}
+
+.toc-link {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #495057;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.toc-link:hover {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.toc-link.active {
+    color: #007bff;
+    font-weight: 600;
+    background-color: #e7f3ff;
+}
+
+/* Styling cho các cấp độ heading */
+.toc-level-1 .toc-link {
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-left: 12px;
+}
+
+.toc-level-2 .toc-link {
+    font-size: 1.05em;
+    padding-left: 24px;
+}
+
+.toc-level-3 .toc-link {
+    font-size: 1em;
+    padding-left: 36px;
+}
+
+.toc-level-4 .toc-link {
+    font-size: 0.95em;
+    padding-left: 48px;
+}
+
+.toc-level-5 .toc-link {
+    font-size: 0.9em;
+    padding-left: 60px;
+}
+
+.toc-level-6 .toc-link {
+    font-size: 0.85em;
+    padding-left: 72px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toc-container {
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .toc-level-1 .toc-link {
+        padding-left: 8px;
+    }
+
+    .toc-level-2 .toc-link {
+        padding-left: 16px;
+    }
+
+    .toc-level-3 .toc-link {
+        padding-left: 24px;
+    }
+
+    .toc-level-4 .toc-link {
+        padding-left: 32px;
+    }
+
+    .toc-level-5 .toc-link {
+        padding-left: 40px;
+    }
+
+    .toc-level-6 .toc-link {
+        padding-left: 48px;
+    }
+}
