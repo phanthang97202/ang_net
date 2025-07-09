@@ -69,25 +69,17 @@ namespace API.Infrastructure.Data.Repositories
 
             //🔄 BƯỚC 4: .Take(N)
             //Lấy tối đa TConstValue.MAX_TOP_HASHTAGNEWS bản ghi(ví dụ: 3).
-            var data = await _dbContext.HashTagNews
+            var grouped = await _dbContext.HashTagNews
                         .AsNoTracking()
+                        .ToListAsync();
+
+            var data = grouped
                         .GroupBy(x => x.HashTagNewsName)
-                        .Select(g => g
-                            .OrderByDescending(x => x.Count)
-                            .Select(x => new HashTagNewsModel
-                            {
-                                HashTagNewsId = x.HashTagNewsId,
-                                HashTagNewsName = x.HashTagNewsName,
-                                NewsId = x.NewsId,
-                                Count = x.Count,
-                                CreatedDTime = x.CreatedDTime,
-                                UpdatedDTime = x.UpdatedDTime,
-                            })
-                            .First()
-                        )
+                        .Select(g => g.OrderByDescending(x => x.Count).First())
                         .OrderByDescending(x => x.Count)
                         .Take(TConstValue.MAX_TOP_HASHTAGNEWS)
-                        .ToListAsync();
+                        .ToList();
+
 
             apiResponse.DataList = data;
 
