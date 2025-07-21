@@ -67,11 +67,11 @@ namespace API.API.Controllers
             }
         }
         [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] MstProvinceModel province)
+        public async Task<IActionResult> Create([FromBody] MstProvinceTestDto province)
         {
             try
             {
-                ApiResponse<MstProvinceModel> response = await _mstProvinceService.Create(province);
+                ApiResponse<MstProvinceTestDto> response = await _mstProvinceService.Create(province);
                 return Ok(response);
             }
             catch (Exception)

@@ -74,9 +74,9 @@ namespace API.Infrastructure.Data.Services
             return apiResponse;
         }
 
-        public async Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data)
+        public async Task<ApiResponse<MstProvinceTestDto>> Create(MstProvinceTestDto data)
         {
-            ApiResponse<MstProvinceModel> apiResponse = new ApiResponse<MstProvinceModel>();
+            ApiResponse<MstProvinceTestDto> apiResponse = new ApiResponse<MstProvinceTestDto>();
 
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
@@ -106,12 +106,10 @@ namespace API.Infrastructure.Data.Services
             }
 
             //MstProvinceModel _data = new MstProvinceModel();
-            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+            var (isExistRecord, _data) = await _unitOfWork.MstProvinceRespository
                                             .CheckRecordExist<MstProvinceModel>(
                                                                 x => x.ProvinceCode == data.ProvinceCode
                                                             );
-
-
 
             if (isExistRecord == true)
             {
@@ -132,7 +130,19 @@ namespace API.Infrastructure.Data.Services
             data.CreatedDTime = TCommonUtils.DTimeNow();
             data.UpdatedDTime = TCommonUtils.DTimeNow();
 
-            await _unitOfWork.MstProvinceRespository.Create(data);
+            MstProvinceModel modelData = new MstProvinceModel
+            {
+                CreatedBy = data.CreatedBy,
+                UpdatedBy = data.UpdatedBy,
+                ProvinceCode = data.ProvinceCode,
+                ProvinceName = data.ProvinceName,
+                CreatedDTime = data.CreatedDTime,
+                UpdatedDTime = data.UpdatedDTime,
+                FlagActive = data.FlagActive,
+                TenantId = data.TenantId
+            };
+
+            await _unitOfWork.MstProvinceRespository.Create(modelData);
             await _dbContext.SaveChangesAsync();
 
             apiResponse.Data = data;

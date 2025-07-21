@@ -7,7 +7,7 @@ namespace API.Application.Interfaces.Services
     {
         public ApiResponse<MstProvinceModel> Search(int pageIndex, int pageSize, string keyword);
         public Task<ApiResponse<MstProvinceModel>> Detail(string key);
-        public Task<ApiResponse<MstProvinceModel>> Create(MstProvinceModel data);
+        public Task<ApiResponse<MstProvinceTestDto>> Create(MstProvinceTestDto data);
         public Task<ApiResponse<MstProvinceModel>> Update(MstProvinceModel data);
         public Task<ApiResponse<MstProvinceModel>> Delete(string ProvinceCode);
         public Task<ApiResponse<MstProvinceModel>> GetAllActive();
