@@ -1,15 +1,24 @@
-/API/appsettings.json
-/API/appsettings.Production.json
-/API/bin/
-/API/obj/
-/API/Publish/
-/API/RuntimeData/
+/API/src/angnet.WebApi/appsettings.json
+/API/src/angnet.WebApi/appsettings.Production.json
+/API/src/angnet.WebApi/bin/
+/API/src/angnet.WebApi/obj/
+/API/src/angnet.WebApi/Publish/
+/API/src/angnet.WebApi/RuntimeData/
 # =================
-/CommonUtils/bin/
-/CommonUtils/obj/
+/API/src/angnet.Application/bin/
+/API/src/angnet.Application/obj/
 # =================
-/SharedModels/bin/
-/SharedModels/obj/
+/API/src/angnet.Domain/bin/
+/API/src/angnet.Domain/obj/
+# =================
+/API/src/angnet.Infrastructure/bin/
+/API/src/angnet.Infrastructure/obj/
+
+/API/test/angnet.InfrastructureTests/bin/
+/API/test/angnet.InfrastructureTests/obj/
+# =================
+/API/src/angnet.Utility/bin/
+/API/src/angnet.Utility/obj/
 # =================
 /Mobile/bin/
 /Mobile/obj/

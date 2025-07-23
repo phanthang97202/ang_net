@@ -1,0 +1,19 @@
+﻿using angnet.Domain.Models;
+using angnet.Domain.Dtos;
+using Microsoft.AspNetCore.Http;
+
+namespace angnet.Application.Interfaces.Services
+{
+    public interface IMstDistrictService
+    {
+        public ApiResponse<MstDistrictModel> Search(int pageIndex, int pageSize, string keyword);
+        public Task<ApiResponse<MstDistrictModel>> Detail(string key);
+        public Task<ApiResponse<MstDistrictModel>> Create(MstDistrictModel data);
+        public Task<ApiResponse<MstDistrictModel>> Update(MstDistrictModel data);
+        public Task<ApiResponse<MstDistrictModel>> Delete(string ProvinceCode);
+        public Task<ApiResponse<MstDistrictModel>> GetAllActive();
+        public Task<ApiResponse<MstDistrictModel>> ImportExcel(IFormFile file);
+        public Task<byte[]> ExportExcel();
+        public Task<byte[]> ExportTemplate();
+    }
+}

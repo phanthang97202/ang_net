@@ -1,0 +1,6 @@
+# @angnet.WebApi_HostAddress = http://localhost:5121
+
+# GET {{angnet.WebApi_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+# ###
