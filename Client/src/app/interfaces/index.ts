@@ -9,3 +9,4 @@ export * from './news-category';
 export * from './province';
 export * from './role';
 export * from './user';
+export * from './audit-trail';

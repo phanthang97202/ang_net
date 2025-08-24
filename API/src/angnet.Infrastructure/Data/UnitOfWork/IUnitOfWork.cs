@@ -1,6 +1,6 @@
-﻿using angnet.Application.Interfaces.Repositories;
+﻿using angnet.Application.Interfaces.Repositories; 
 
-namespace angnet.Application.Interfaces.Persistences
+namespace angnet.Infrastructure.Data.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {

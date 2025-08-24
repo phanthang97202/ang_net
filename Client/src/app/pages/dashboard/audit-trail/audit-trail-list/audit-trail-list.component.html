@@ -1,11 +1,6 @@
 <div class="master__container">
-  <app-breadcrumb [buttons]="listButtonsHeader" />
-  <app-button-common
-    class=" "
-    [iconType]="'search'"
-    [nzType]="'text'"></app-button-common>
   <nz-layout>
-    <nz-sider
+    <!-- <nz-sider
       [nzCollapsed]="true"
       [nzCollapsedWidth]="0"
       [nzCollapsible]="false"
@@ -42,7 +37,7 @@
             [text]="'Search'"></app-button-common>
         </div>
       </div>
-    </nz-sider>
+    </nz-sider> -->
 
     <!-- <app-sidebar-search /> -->
 
@@ -50,65 +45,64 @@
       <nz-table
         nzShowSizeChanger
         [nzData]="dataSource"
+        [nzScroll]="{ x: 'w-full' }"
         [nzFrontPagination]="false"
         [nzLoading]="false">
         <thead>
           <tr>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true"></th>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">Idx</th>
-            <th nzColumnKey="ProvinceCode" [nzSortFn]="true">ProvinceCode</th>
-            <th nzColumnKey="ProvinceName" [nzFilterFn]="true">ProvinceName</th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+            <th nzColumnKey="Idx" [nzSortFn]="true" [nzWidth]="'10px'">#</th>
+            <th nzColumnKey="RecordId" [nzSortFn]="true" [nzWidth]="'10px'">
+              Record ID
+            </th>
+            <th nzColumnKey="Level" [nzSortFn]="true" [nzWidth]="'15px'">
+              Level
+            </th>
+            <th nzColumnKey="IPAddress" [nzSortFn]="true" [nzWidth]="'10px'">
+              IP Address
+            </th>
+            <th nzColumnKey="Description" [nzSortFn]="true" [nzWidth]="'30px'">
+              Description
+            </th>
+            <th nzColumnKey="RequestUrl" [nzSortFn]="true" [nzWidth]="'20px'">
+              Request URL
+            </th>
+            <th nzColumnKey="TrailType" [nzSortFn]="true" [nzWidth]="'15px'">
+              Trail Type
+            </th>
+            <th nzColumnKey="ChangedDTime" [nzSortFn]="true" [nzWidth]="'20px'">
+              Changed Time
+            </th>
+            <th nzColumnKey="ChangedBy" [nzSortFn]="true" [nzWidth]="'20px'">
+              Changed By
+            </th>
+            <th nzColumnKey="IsRevoked" [nzSortFn]="true" [nzWidth]="'20px'">
+              IsRevoked
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
             <td>
-              <app-button-common
-                [iconType]="'edit'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDetail(data)"></app-button-common>
-              <app-button-common
-                [isShowConfirm]="true"
-                [iconType]="'delete'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDelete(data)"></app-button-common>
-            </td>
-            <td>
               {{ i + 1 }}
             </td>
             <td>
-              {{ data.ProvinceCode }}
+              {{ data.RecordId }}
             </td>
-            <td>{{ data.ProvinceName }}</td>
             <td>
-              <app-tag-status
-                [sttValue]="
-                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
-                "></app-tag-status>
+              <app-tag-status [sttValue]="data.Level"></app-tag-status>
             </td>
+            <td>{{ data.IPAddress }}</td>
+            <td>{{ data.Description }}</td>
+            <td>{{ data.RequestUrl }}</td>
+            <td>
+              <app-tag-status [sttValue]="data.TrailType"></app-tag-status>
+            </td>
+            <td>{{ data.ChangedDTime | localeDTime }}</td>
+            <td>{{ data.ChangedBy }}</td>
+            <td>{{ data.IsRevoked }}</td>
           </tr>
         </tbody>
       </nz-table>
     </nz-content>
   </nz-layout>
 </div>
-<app-save-province-popup
-  [titlePopup]="titlePopup"
-  [formDataSource]="formDataSource"
-  [(isOpenPopup)]="_isOpenPopup"
-  [titlePopup]="titlePopup"
-  (_onSave)="handleSaveForm($event)" />
-<app-import-excel-popup
-  [(isOpenPopup)]="_isOpenImportExcelPopup"
-  (_onUploadFile)="handleUploadFile($event)"
-  (_onExportTemplateFile)="handleExportTemplateFile()" />
-
-<ng-template #rezoTriggerTemplate>
-  <app-button-common
-    [isShowConfirm]="true"
-    [iconType]="'search'"
-    [nzType]="'text'"></app-button-common>
-</ng-template>

@@ -23,7 +23,7 @@ namespace angnet.WebApi.Controllers
 
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
-        public async Task<ActionResult<MstDistrictModel>> GetAllActive()
+        public async Task<ActionResult<AuditTrailModel>> GetAllActive()
         {
             try
             {

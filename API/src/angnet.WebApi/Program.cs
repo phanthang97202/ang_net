@@ -8,26 +8,16 @@ using Serilog;
 using System.Text;
 using StackExchange.Redis;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
-using angnet.Application.Interfaces.Repositories;
 using angnet.WebApi.MIddlewares;
-using angnet.Infrastructure.Data;
-using angnet.Infrastructure.Data.Repositories;
-using angnet.Application.Interfaces.Persistences;
-using angnet.Infrastructure.Data.Services;
-using angnet.Infrastructure.Data.UnitOfWork;
+using angnet.Infrastructure.Data; 
 using angnet.Utility.CommonUtils;
-using angnet.Application.Interfaces.Services;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.Http.Timeouts;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
-using DocumentFormat.OpenXml.Spreadsheet;
-using System;
+using Microsoft.AspNetCore.Http.Timeouts; 
 using angnet.WebApi.Authorization_Policy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.Options;
 using angnet.Domain.Models;
+using angnet.Infrastructure;
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
@@ -63,70 +53,8 @@ string RedisUser = (redisCloudEnv.GetSection("RedisUser").Value);
 string RedisPassword = (redisCloudEnv.GetSection("RedisPassword").Value);
 var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 
-// Add services to the container.
-//AddTransient: Tạo mới mỗi khi được yêu cầu.
-//AddScoped: Tạo một instance cho mỗi HTTP request.
-//AddSingleton: Tạo một instance duy nhất cho toàn bộ ứng dụng.
-builder.Services.AddScoped<IChatRepository, ChatRespository>();
-builder.Services.AddScoped<INewsRespository, NewsRespository>();
-builder.Services.AddScoped<IAccountRespository, AccountRespository>();
-builder.Services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
-
-// ============ Unit Of Work Pattern ============ 
-//          +------------------------+
-//          | Controller |  ⬅️ Inject Service
-//          +------------------------+
-//          			⬇
-//          +------------------------+
-//          |      Service Layer     |  ⬅️ Inject IUnitOfWork
-//          +------------------------+
-//          			⬇
-//          +------------------------+
-//          |    UnitOfWork Layer    |  ⬅️ Inject Repositories
-//          | - NewsRepository       |
-//          | - CategoryNewsRepo     |
-//          | - SaveChangesAsync()   |
-//          | - Dispose()           |
-//          +------------------------+
-//          			⬇
-//          +------------------------+
-//          |   Repository Layer     |  ⬅️ Inject AppDbContext
-//          | - Chỉ thao tác DB      |
-//          | - Không gọi SaveChanges|
-//          +------------------------+
-//          			⬇
-//          +------------------------+
-//          |       Database         |
-//          +------------------------+
-// dùng AddScoped để: 
-//      Đảm bảo DbContext dùng chung trong 1 request,
-//      Tránh xung đột dữ liệu nếu có nhiều thao tác db trong cùng 1 request,
-//      Quản lý transaction dễ dàng khi gọi SaveChangesAsync() trong 1 lần duy nhất,
-//      Hiệu suất tốt
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddScoped<IAuditTrailRespository, AuditTrailRespository>();
-builder.Services.AddScoped<IAuditTrailService, AuditTrailService>();
-
-builder.Services.AddScoped<INewsCategoryRespository, NewsCategoryRespository>();
-builder.Services.AddScoped<INewsCategoryService, NewsCategoryService>();
-
-builder.Services.AddScoped<IMstProvinceRespository, MstProvinceRespository>();
-builder.Services.AddScoped<IMstProvinceService, MstProvinceService>();
-
-builder.Services.AddScoped<IMstStadiumStatusRespository, MstStadiumStatusRespository>();
-builder.Services.AddScoped<IMstStadiumStatusService, MstStadiumStatusService>();
-
-builder.Services.AddScoped<IMstStadiumTypeRespository, MstStadiumTypeRespository>();
-builder.Services.AddScoped<IMstStadiumTypeService, MstStadiumTypeService>();
-
-builder.Services.AddScoped<IMstStadiumRespository, MstStadiumRespository>();
-builder.Services.AddScoped<MstStadiumService>();
-
-builder.Services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
-builder.Services.AddScoped<IMstDistrictService, MstDistrictService>();
-
- 
+// register infrastructure 
+builder.Services.AddInfrastructure();
 
 // inject AppDbContext
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));

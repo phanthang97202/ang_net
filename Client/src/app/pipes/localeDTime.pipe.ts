@@ -27,16 +27,34 @@ export class LocalDTime implements PipeTransform {
     });
   }
 
-  transform(value: any): string {
+  transform(value: any, format: string = 'dd-mm-yy hh:mm:ss'): string {
     if (!value) return '';
 
     const date = new Date(value);
     const localeTypeDTime = this.currentLang === 'vi' ? 'vi-VN' : 'en-US';
 
-    return date.toLocaleDateString(localeTypeDTime, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
+    const options: Intl.DateTimeFormatOptions = {};
+
+    // Kiểm tra format có chứa thành phần nào thì add vào options
+    if (format.includes('dd')) {
+      options.day = 'numeric';
+    }
+    if (format.includes('mm')) {
+      options.month = 'short'; // hoặc '2-digit' nếu bạn muốn dạng số
+    }
+    if (format.includes('yy')) {
+      options.year = 'numeric';
+    }
+    if (format.includes('hh')) {
+      options.hour = '2-digit';
+    }
+    if (format.includes('mm') && format.includes('hh')) {
+      options.minute = '2-digit';
+    }
+    if (format.includes('ss')) {
+      options.second = '2-digit';
+    }
+
+    return date.toLocaleDateString(localeTypeDTime, options);
   }
 }

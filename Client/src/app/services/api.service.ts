@@ -11,6 +11,7 @@ import {
   ICreateNews,
   IDetailNewsResponse,
   INewsResponse,
+  IAuditTrailResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -131,6 +132,13 @@ export class ApiService {
   GetAllActiveNewsCategory(): Observable<INewsCategoryResponse> {
     return this.http.get<INewsCategoryResponse>(
       `${this.apiUrl}newscategory/getallactive`
+    );
+  }
+
+  // AuditTrail
+  GetAllActiveAuditTrail(): Observable<IAuditTrailResponse> {
+    return this.http.get<IAuditTrailResponse>(
+      `${this.apiUrl}audittrail/getallactive`
     );
   }
 }

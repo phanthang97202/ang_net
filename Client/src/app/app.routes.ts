@@ -112,6 +112,15 @@ export const routes: Routes = [
           ),
         canActivate: [canActiveForAdmin],
       },
+
+      {
+        path: 'audittrail',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component'
+          ).then(p => p.AuditTrailComponent),
+        canActivate: [canActiveForAdmin],
+      },
     ],
   },
 ];

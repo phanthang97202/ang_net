@@ -22,6 +22,7 @@ import {
   TagStatusComponent,
   NewsContentComponent,
   NewsTocListComponent,
+  FooterComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
@@ -32,6 +33,12 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { RouterLink } from '@angular/router';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import {
+  NzContentComponent,
+  NzFooterComponent,
+  NzHeaderComponent,
+  NzSiderComponent,
+} from 'ng-zorro-antd/layout';
 
 export const REUSE_COMPONENT_MODULES = [
   TextEditorComponent,
@@ -68,4 +75,11 @@ export const REUSE_COMPONENT_MODULES = [
   NzAvatarModule,
   //
   RouterLink,
+
+  //
+  NzHeaderComponent,
+  NzContentComponent,
+  NzFooterComponent,
+  FooterComponent,
+  NzSiderComponent,
 ];

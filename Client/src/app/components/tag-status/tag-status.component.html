@@ -1,9 +1,9 @@
 <nz-tag
   [nzMode]="mode"
-  [nzColor]="boolData ? 'green' : 'red'"
+  [nzColor]="color"
   [nzBordered]="bordered"
   (nzOnClose)="handleClose($event)"
   (nzCheckedChange)="handleCheckedChange($event)">
-  {{ boolData ? 'Active' : 'Inactive' }}
+  {{ sttValue }}
   <ng-content></ng-content>
 </nz-tag>

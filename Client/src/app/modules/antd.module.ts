@@ -21,11 +21,11 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import {
-  NzContentComponent,
-  NzFooterComponent,
-  NzHeaderComponent,
+  // NzContentComponent,
+  // NzFooterComponent,
+  // NzHeaderComponent,
   NzLayoutModule,
-  NzSiderComponent,
+  // NzSiderComponent,
 } from 'ng-zorro-antd/layout';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzGridModule } from 'ng-zorro-antd/grid';
@@ -34,7 +34,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { FooterComponent } from '../components/footer/footer.component';
+// import { FooterComponent } from '../components/footer/footer.component';
 // ... import tất cả module bạn cần
 
 const ZORRO_MODULES = [
@@ -63,12 +63,12 @@ const ZORRO_MODULES = [
   NzListModule,
   NzCheckboxModule,
   NzAlertModule,
-  NzHeaderComponent,
-  NzContentComponent,
+  // NzHeaderComponent,
+  //   NzContentComponent,
   NzBreadCrumbModule,
-  NzFooterComponent,
-  FooterComponent,
-  NzSiderComponent,
+  // NzFooterComponent,
+  // FooterComponent,
+  // NzSiderComponent,
 ];
 
 const ROUTE_MODULES = [RouterOutlet, RouterModule];

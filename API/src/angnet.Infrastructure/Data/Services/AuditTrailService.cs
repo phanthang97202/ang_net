@@ -1,5 +1,6 @@
 ﻿using angnet.Application.Interfaces.Services;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
+using TMappingData = angnet.Utility.CommonUtils.MappingData;
 using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using GuardAuth = angnet.Utility.CommonUtils.CheckAuthorized;
@@ -9,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using angnet.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using angnet.Infrastructure.Data.UnitOfWork;
 
 namespace angnet.Infrastructure.Data.Services
 {
@@ -47,7 +49,7 @@ namespace angnet.Infrastructure.Data.Services
 
             List<AuditTrailModel> data = await _unitOfWork.AuditTrailRespository.GetAll<AuditTrailModel>();
 
-            apiResponse.DataList = data;
+            apiResponse.DataList = data.OrderByDescending(i => i.ChangedDTime).ToList();
 
             return apiResponse;
         }

@@ -64,8 +64,18 @@
           </li>
         </ul>
       </li>
+      <li nz-submenu nzTitle="System" nzIcon="setting">
+        <ul>
+          <li nz-menu-item>
+            <a routerLink="/dashboard/audittrail"> Audit Trail </a>
+          </li>
+        </ul>
+      </li>
     </ul>
     <div class="logo absolute bottom-[50px] w-full">
+      <div class="flex justify-center">
+        <app-switch-lang />
+      </div>
       <button
         class="w-full bg-transparent border-none"
         (click)="handleLogout()"

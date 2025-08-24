@@ -1,19 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using angnet.Domain.Enums;
+﻿using angnet.Domain.Enums;
+using System;
 using System.Text.Json.Serialization;
-
-namespace angnet.Domain.Models
+namespace angnet.Domain.Dtos
 {
-    public class AuditTrailModel
+    public class AuditTrailGetAllActiveDto
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AuditTrailId { get; set; }
+        public string AuditTrailId { get; set; } = string.Empty;
         public string RecordId { get; set; } = string.Empty; // ID bản ghi bị ảnh hưởng
         public string IPAddress { get; set; } = string.Empty; // Địa chỉ IP của người dùng thực hiện hành động
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public EAuditTrailLevel Level { get; set; } = EAuditTrailLevel.INFORMATION; // Mức độ
+        public EAuditTrailLevel Level { get; set; } // Mức độ
         public string RequestUrl { get; set; } = string.Empty; // URL được gọi
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public EAuditTrailType TrailType { get; set; }  // Loại hành động (POST, PUT, DELETE, GET, PATCH)

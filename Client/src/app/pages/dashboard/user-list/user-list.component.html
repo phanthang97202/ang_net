@@ -36,7 +36,10 @@
           <td>{{ data.FullName }}</td>
           <td>{{ data.Roles.join(', ') }}</td>
           <td>
-            <app-tag-status [boolData]="data.FlagActive"></app-tag-status>
+            <app-tag-status
+              [sttValue]="
+                data.FlagActive ? 'ACTIVE' : 'INACTIVE'
+              "></app-tag-status>
           </td>
         </tr>
 

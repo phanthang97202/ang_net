@@ -29,6 +29,7 @@ namespace angnet.Domain.Models
         [Required]
         public decimal PreMoney {get; set; } // Tiền thanh toán trước
         public decimal RefundMoney { get; set; } // Tiền hoàn lại (nếu có) // Áp dụng cho các trường hợp hủy đơn hoặc hoàn tiền nhưng đã cọc tiền
+        public decimal VAT { get; set; } // VAT (%)
         public decimal SalePercent {get; set; } // % Giảm giá
         public decimal DebtMoney {get; set; } // Nếu còn nợ => Tiền nợ (thanh toán thiếu)
         public string Remark { get; set; } = string.Empty; // Ghi chú
