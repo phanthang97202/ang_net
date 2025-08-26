@@ -28,17 +28,15 @@ namespace angnet.Infrastructure.Mail.Consumer
             _emailSenderService = emailSenderService;
             _config = config;
             _logger = logger;
-
-            InitializeRabbitMQ();
         }
 
-        private async void InitializeRabbitMQ()
+        private async Task InitializeRabbitMQAsync()
         {
             try
             {
                 var factory = new ConnectionFactory
                 {
-                    Uri = new Uri(_config.GetConnectionString("RabbitMQ"))
+                    Uri = new Uri(_config.GetSection("CloudAMQP")["AMQPConnectionString"] ?? "")
                 };
 
                 _connection = await factory.CreateConnectionAsync();
@@ -65,8 +63,18 @@ namespace angnet.Infrastructure.Mail.Consumer
         {
             try
             {
+                // Khởi tạo rbmg connection trước khi sử dụng
+                await InitializeRabbitMQAsync();
+
                 // Cách khác cho RabbitMQ.Client v7
                 await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+
+                // Đảm bảo _channel không null
+                if (_channel == null)
+                {
+                    _logger.LogError("Channel is null after initialization");
+                    return;
+                }
 
                 while (!stoppingToken.IsCancellationRequested)
                 {

@@ -8,6 +8,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using angnet.Application.Interfaces.Repositories;
 
 using Microsoft.AspNetCore.RateLimiting;
+using angnet.Infrastructure.Mail.Service;
 
 namespace angnet.WebApi.Controllers
 {
@@ -21,7 +22,11 @@ namespace angnet.WebApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAccountRespository _accountRespository;
 
-        public AccountController(IAccountRespository accountRespository, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountController(
+            IAccountRespository accountRespository
+            , UserManager<AppUser> userManager
+            , RoleManager<IdentityRole> roleManager
+            , IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;

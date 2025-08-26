@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using angnet.Infrastructure.Data.Services;
 using angnet.Application.Interfaces.Services;
+using angnet.Infrastructure.Mail.Service;
 
 
 namespace angnet.Infrastructure.Data.Repositories
@@ -30,8 +31,10 @@ namespace angnet.Infrastructure.Data.Repositories
         private readonly IConfiguration _configuration;
         private readonly WriteLog _logger;
         private readonly IAuditTrailService _auditTrailService;
+        private readonly EmailSenderService _emailSenderService;
 
         public AccountRespository(UserManager<AppUser> userManager
+                                    , EmailSenderService emailSenderService
                                     , RoleManager<IdentityRole> roleManager
                                     , IHttpContextAccessor httpContextAccessor
                                     , IConfiguration configuration
@@ -40,6 +43,7 @@ namespace angnet.Infrastructure.Data.Repositories
                                     , IAuditTrailService auditTrailService  
                                  )
         {
+            _emailSenderService = emailSenderService;
             _userManager = userManager;
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
@@ -623,6 +627,20 @@ namespace angnet.Infrastructure.Data.Repositories
                 ChangedColumns = "",
                 OldValues = ""
             });
+
+            var email = new EmailMessageModel
+            {
+                From = "phanthang97202@gmail.com",
+                To = "anhduongcute97@gmail.com",
+                Subject = "Welcome to AngNet System",
+                Body = "<h3>Hello Anh Duong!</h3><p>Your account has been created successfully.</p>",
+                FromHtml = "phanthang97202@gmail.com",
+                ToHtml = "anhduongcute97@gmail.com"
+            };
+
+
+            await _emailSenderService.SendEmailAsync(email);
+
             return apiResponse;
         }
 
