@@ -5,6 +5,7 @@ using angnet.Infrastructure.Data.Repositories;
 using angnet.Infrastructure.Data.Services;
 using angnet.Infrastructure.Data.UnitOfWork;
 using angnet.Infrastructure.Mail.Consumer;
+using angnet.Infrastructure.Mail.Factory;
 using angnet.Infrastructure.Mail.Producer;
 using angnet.Infrastructure.Mail.Service;
 using Microsoft.Extensions.DependencyInjection; 
@@ -61,6 +62,7 @@ namespace angnet.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register services
+            //services.AddSingleton<RabbitMqConnectionFactory>();
             services.AddSingleton<EmailSenderService>();
             services.AddSingleton<RabbitMqEmailProducer>();
             services.AddHostedService<RabbitMqEmailConsumer>();

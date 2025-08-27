@@ -60,4 +60,4 @@ namespace angnet.Infrastructure.Mail.Producer
 
         }
     }
-}
+} 

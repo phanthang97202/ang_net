@@ -15,10 +15,10 @@ namespace angnet.Utility.CommonUtils
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogInformation(string title, object req, object res)
+        public void LogInformation(string title, object req = null, object res = null)
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
-            var ipAddressClient = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+            var ipAddressClient = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "UNKNOW IP";
             string strLog = @"
                         ------------------------------------------------
                                         {title}
@@ -32,18 +32,18 @@ namespace angnet.Utility.CommonUtils
                         ";
             _logger.LogInformation(strLog,
                                     title,
-                                    httpContext.Request.Method,
-                                    httpContext.Request.Path,
+                                    httpContext?.Request?.Method ?? "UNKNOW METHOD",
+                                    httpContext?.Request?.Path ?? "/UNKNOW PATH",
                                     ipAddressClient,
                                     JsonSerializer.Serialize(req),
                                     JsonSerializer.Serialize(res)
                                     );
         }
 
-        public void LogError(string title, object req, Exception errMsg)
+        public void LogError(string title, object req = null, Exception errMsg = null)
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
-            var ipAddressClient = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+            var ipAddressClient = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "UNKNOW IP";
             string strLog = @"
                         ------------------------------------------------
                                         {title}
@@ -57,8 +57,8 @@ namespace angnet.Utility.CommonUtils
                         ";
             _logger.LogError(strLog,
                                     title,
-                                    httpContext.Request.Method,
-                                    httpContext.Request.Path,
+                                    httpContext?.Request?.Method ?? "UNKNOW METHOD",
+                                    httpContext?.Request?.Path ?? "/UNKNOW PATH",
                                     ipAddressClient,
                                     JsonSerializer.Serialize(req),
                                     errMsg
@@ -68,7 +68,7 @@ namespace angnet.Utility.CommonUtils
         public void LogWarning(string title, object req = null, Exception errMsg = null)
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
-            var ipAddressClient = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+            var ipAddressClient = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "UNKNOW IP";
             string strLog = @"
                         ------------------------------------------------
                                         {title}
@@ -82,8 +82,8 @@ namespace angnet.Utility.CommonUtils
                         ";
             _logger.LogWarning(strLog,
                                     title,
-                                    httpContext.Request.Method,
-                                    httpContext.Request.Path,
+                                    httpContext?.Request?.Method ?? "UNKNOW METHOD",
+                                    httpContext?.Request?.Path ?? "/UNKNOW PATH",
                                     ipAddressClient,
                                     JsonSerializer.Serialize(req),
                                     errMsg

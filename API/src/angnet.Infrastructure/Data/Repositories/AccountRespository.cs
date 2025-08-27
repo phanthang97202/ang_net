@@ -628,16 +628,96 @@ namespace angnet.Infrastructure.Data.Repositories
                 OldValues = ""
             });
 
+            // send mail notification
+            var bodyMail = @"
+                            <!DOCTYPE html>
+                            <html lang='en'>
+                            <head>
+                              <meta charset='UTF-8' />
+                              <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+                              <style>
+                                body {
+                                  font-family: Arial, sans-serif;
+                                  background-color: #f9fafb;
+                                  margin: 0;
+                                  padding: 0;
+                                }
+                                .container {
+                                  max-width: 600px;
+                                  margin: 40px auto;
+                                  background: #ffffff;
+                                  border-radius: 8px;
+                                  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                                  overflow: hidden;
+                                }
+                                .header {
+                                  background: #2563eb;
+                                  color: white;
+                                  padding: 20px;
+                                  text-align: center;
+                                }
+                                .header h1 {
+                                  margin: 0;
+                                  font-size: 22px;
+                                }
+                                .content {
+                                  padding: 30px;
+                                  color: #374151;
+                                  line-height: 1.6;
+                                }
+                                .btn {
+                                  display: inline-block;
+                                  margin-top: 20px;
+                                  padding: 12px 20px;
+                                  background: #2563eb;
+                                  color: white;
+                                  text-decoration: none;
+                                  border-radius: 6px;
+                                  font-weight: bold;
+                                }
+                                .footer {
+                                  text-align: center;
+                                  font-size: 12px;
+                                  color: #6b7280;
+                                  padding: 20px;
+                                  background: #f3f4f6;
+                                }
+                              </style>
+                            </head>
+                            <body>
+                              <div class='container'>
+                                <div class='header'>
+                                  <h1>Welcome to AngNet System 🚀</h1>
+                                </div>
+                                <div class='content'>
+                                  <p>Hi <strong>Anh Duong</strong>,</p>
+                                  <p>We’re excited to have you on board! Your account has been created successfully. 
+                                     From now on, you can log in and start exploring our platform.</p>
+                                  <p>To get started, simply click the button below:</p>
+                                  <p>
+                                    <a href='https://angnet.example.com/login' class='btn'>Login to Your Account</a>
+                                  </p>
+                                  <p>If you did not create this account, please ignore this email.</p>
+                                  <p>Best regards,<br/>The AngNet Team</p>
+                                </div>
+                                <div class='footer'>
+                                  © 2025 AngNet. All rights reserved.<br/>
+                                  This is an automated message, please do not reply.
+                                </div>
+                              </div>
+                            </body>
+                            </html>
+                                ";
+
             var email = new EmailMessageModel
             {
                 From = "phanthang97202@gmail.com",
-                To = "anhduongcute97@gmail.com",
+                To = registerDto.Email,
                 Subject = "Welcome to AngNet System",
-                Body = "<h3>Hello Anh Duong!</h3><p>Your account has been created successfully.</p>",
+                Body = bodyMail,
                 FromHtml = "phanthang97202@gmail.com",
-                ToHtml = "anhduongcute97@gmail.com"
+                ToHtml = registerDto.Email
             };
-
 
             await _emailSenderService.SendEmailAsync(email);
 

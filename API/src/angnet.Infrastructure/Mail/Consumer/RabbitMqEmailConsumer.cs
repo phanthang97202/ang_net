@@ -1,33 +1,35 @@
-﻿using angnet.Infrastructure.Mail.Service;
+﻿using angnet.Application.Interfaces.Services;
+using angnet.Domain.Dtos;
+using angnet.Infrastructure.Mail.Service;
+using angnet.Utility.CommonUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace angnet.Infrastructure.Mail.Consumer
 {
     public class RabbitMqEmailConsumer : BackgroundService
     {
         private readonly EmailSenderService _emailSenderService;
+        //private readonly IAuditTrailService _auditTrailService;
+        private readonly WriteLog _logger;
         private readonly IConfiguration _config;
-        private readonly ILogger<RabbitMqEmailConsumer> _logger;
-        private IConnection _connection;
-        private IChannel _channel;
+        private IConnection? _connection;
+        private IChannel? _channel;
 
         public RabbitMqEmailConsumer(
             EmailSenderService emailSenderService,
-            IConfiguration config,
-            ILogger<RabbitMqEmailConsumer> logger)
+            //IAuditTrailService auditTrailService,
+            WriteLog logger,
+            IConfiguration config)
         {
             _emailSenderService = emailSenderService;
-            _config = config;
+            //_auditTrailService = auditTrailService;
             _logger = logger;
+            _config = config;
         }
 
         private async Task InitializeRabbitMQAsync()
@@ -50,82 +52,94 @@ namespace angnet.Infrastructure.Mail.Consumer
                     arguments: null
                 );
 
+                // đảm bảo không nhận quá nhiều message một lúc
+                await _channel.BasicQosAsync(0, 1, false);
+
                 _logger.LogInformation("RabbitMQ connection established successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to initialize RabbitMQ connection");
+                await LogAuditAsync("InitRabbitMQ", $"Init error: {ex.Message}");
+                _logger.LogError("Failed to initialize RabbitMQ connection: " + ex.Message);
                 throw;
             }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await InitializeRabbitMQAsync();
+
+            if (_channel == null)
+            {
+                _logger.LogError("RabbitMQ channel is null. Consumer not started.");
+                return;
+            }
+
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+
+            consumer.ReceivedAsync += async (ch, ea) =>
+            {
+                EmailMessageModel? message = null;
+
+                try
+                {
+                    var body = ea.Body.ToArray();
+                    var json = Encoding.UTF8.GetString(body);
+                    message = JsonConvert.DeserializeObject<EmailMessageModel>(json);
+
+                    if (message == null)
+                    {
+                        await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
+                        return;
+                    }
+
+                    await _emailSenderService.SendEmailAsync(message);
+                    await _channel.BasicAckAsync(ea.DeliveryTag, false);
+
+                    _logger.LogInformation($"Email sent successfully to {message.To}");
+
+                    await LogAuditAsync(message.Id, $"{message.Subject}\n{message.Body}");
+                }
+                catch (Exception ex)
+                {
+                    // nack để message quay lại queue (có thể retry)
+                    await _channel!.BasicNackAsync(ea.DeliveryTag, false, true);
+
+                    await LogAuditAsync(message?.Id ?? Guid.NewGuid().ToString(),
+                        $"Error sending mail: {ex.Message}");
+
+                    _logger.LogError($"Error processing email: {ex.Message}");
+                }
+            };
+
+            // Bắt đầu consume
+            await _channel.BasicConsumeAsync("send_email", autoAck: false, consumer: consumer);
+
+            _logger.LogInformation("RabbitMQ email consumer started.");
+            await Task.CompletedTask; // giữ service chạy
+        }
+
+        private async Task LogAuditAsync(string recordId, string description)
+        {
             try
             {
-                // Khởi tạo rbmg connection trước khi sử dụng
-                await InitializeRabbitMQAsync();
-
-                // Cách khác cho RabbitMQ.Client v7
-                await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-
-                // Đảm bảo _channel không null
-                if (_channel == null)
-                {
-                    _logger.LogError("Channel is null after initialization");
-                    return;
-                }
-
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var result = await _channel.BasicGetAsync(queue: "send_email", autoAck: false);
-
-                        if (result != null)
-                        {
-                            var body = result.Body.ToArray();
-                            var json = Encoding.UTF8.GetString(body);
-                            var message = JsonConvert.DeserializeObject<EmailMessageModel>(json);
-
-                            if (message != null)
-                            {
-                                await _emailSenderService.SendEmailAsync(message);
-                                _logger.LogInformation("Email sent successfully to {To}", message.To);
-
-                                // Acknowledge the message
-                                await _channel.BasicAckAsync(result.DeliveryTag, multiple: false);
-                            }
-                            else
-                            {
-                                await _channel.BasicNackAsync(result.DeliveryTag, multiple: false, requeue: false);
-                            }
-                        }
-                        else
-                        {
-                            // No message available, wait a bit
-                            await Task.Delay(1000, stoppingToken);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error processing email message");
-                        await Task.Delay(5000, stoppingToken); // Wait before retry
-                    }
-                }
-
-                _logger.LogInformation("Email consumer started");
+                //await _auditTrailService.Create(new AuditTrailDto
+                //{
+                //    RecordId = recordId,
+                //    Description = description,
+                //    ChangedColumns = "",
+                //    OldValues = ""
+                //});
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in ExecuteAsync");
-                throw;
+                _logger.LogWarning($"Audit log failed: {ex.Message}");
             }
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Email consumer is stopping");
+            _logger.LogInformation("Email consumer is stopping...");
 
             if (_channel != null)
             {

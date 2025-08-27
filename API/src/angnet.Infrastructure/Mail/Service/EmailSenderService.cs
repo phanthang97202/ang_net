@@ -8,6 +8,19 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
+//  🎯 Điểm khác nhau
+//  Vai trò	                    Producer (RabbitMqEmailProducer)	                                Consumer (RabbitMqEmailConsumer)
+//  Nhiệm vụ	        Serialize EmailMessageModel và gửi message vào queue.	        Lấy message từ queue, deserialize, rồi gọi EmailSenderService.SendEmailAsync.
+//  Hành động chính	    BasicPublishAsync (gửi message)	                                BasicConsume hoặc BasicGet (nhận message)
+//  Thời gian chạy	    Chỉ chạy khi bạn gọi Publish(email)	                            Chạy nền liên tục (BackgroundService) để xử lý message đến.
+//  Logic xử lý	        Không quan tâm email có gửi được không.	                        Có retry, log lỗi, gọi SMTP, ghi AuditTrail…
+
+//  📌 Tại sao lại có code lặp?
+//      Vì cả hai đều là client của RabbitMQ, nên việc kết nối, tạo channel, khai báo queue là bắt buộc và giống nhau.
+//  Sự khác biệt chỉ ở:
+//      Producer = push message vào queue.
+//      Consumer = nhận message từ queue và xử lý.
+
 namespace angnet.Infrastructure.Mail.Service
 {
     public class EmailSenderService
@@ -16,14 +29,6 @@ namespace angnet.Infrastructure.Mail.Service
         public EmailSenderService(IConfiguration configuration)
         {
             _configuration = configuration;
-            //// Tự nạp file cấu hình
-            //var config = new ConfigurationBuilder()
-            //    .SetBasePath(Directory.GetCurrentDirectory()) // EF sẽ dùng thư mục WebApi làm working dir
-            //    .AddJsonFile("appsettings.json", optional: false)
-            //    .Build();
-
-            //// Lấy chuỗi kết nối
-            //var connectionString = config.GetConnectionString("PostgresqlDb");
         }
 
         public async Task SendEmailAsync(EmailMessageModel  emailMessage)
