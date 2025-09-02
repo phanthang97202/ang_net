@@ -234,6 +234,11 @@ namespace angnet.Utility.CommonUtils
             return DateTime.UtcNow.AddDays(days);
         }
 
+        public static DateTime DTimeAddMinute(double m)
+        {
+            return DateTime.UtcNow.AddMinutes(m);
+        }
+
         // HttpClient
         public static StringContent GetContent(object dado)
         {
@@ -268,5 +273,22 @@ namespace angnet.Utility.CommonUtils
 
             return (minutes, wordCount);
         }
+
+        // Email
+        public static bool IsValidEmailStrict(string email)
+        {
+            string StrictEmailPattern = @"^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$";
+
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            // Kiểm tra độ dài
+            if (email.Length > 254)
+                return false;
+            var regex = new Regex(StrictEmailPattern, RegexOptions.IgnoreCase);
+            bool isValid = regex.IsMatch(email);
+            return isValid;
+        }
+
     }
 }

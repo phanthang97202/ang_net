@@ -15,5 +15,8 @@ namespace angnet.Application.Interfaces.Repositories
         public Task<ApiResponse<UserDetailDto>> GetUserDetail(ClaimsPrincipal User);
         public Task<ApiResponse<UserDetailDto>> GetAllUser(ClaimsPrincipal User);
         public Task<ApiResponse<string>> LogoutAllDevice(string userId);
+        public Task<ApiResponse<string>> ForgotPassword(string userEmail);
+        // if not old password => using code forgot password
+        public Task<ApiResponse<string>> ChangePassword(ChangePassDto changePass);
     }
 }

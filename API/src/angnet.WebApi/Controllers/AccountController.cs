@@ -143,5 +143,50 @@ namespace angnet.WebApi.Controllers
                 throw;
             }
         }
+
+        [AllowAnonymous]
+        [HttpGet("forgotpassword")]
+        public async Task<ActionResult<string>> ForgotPassword(string username)
+        {
+            try
+            {
+                ApiResponse<string> response = await _accountRespository.ForgotPassword(username);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("changepassword")]
+        public async Task<ActionResult<string>> ChangePassword(ChangePassDto model)
+        {
+            try
+            {
+                string token = model.Token;
+                string userEmail = model.Email;
+                string newPassword = model.NewPassword;
+                string oldPassword = model.OldPassword;
+
+                var changePass = new ChangePassDto { 
+                    OldPassword = oldPassword,
+                    NewPassword = newPassword,
+                    Email = userEmail,
+                    Token = token
+                };
+
+
+                ApiResponse<string> response = await _accountRespository.ChangePassword(changePass);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
     }
 }

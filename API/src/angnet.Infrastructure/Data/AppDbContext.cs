@@ -39,6 +39,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<LikeNewsModel> LikeNews { get; set; }
         public DbSet<NewsModel> News { get; set; }
         public DbSet<AuditTrailModel> AuditTrail { get; set; }
+        public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -208,6 +209,10 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<AuditTrailModel>()
                 .Property(x => x.Level)
                 .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer;
+
+            // GenerationAuthCode
+            modelBuilder.Entity<GenerationAuthCode>()
+                .HasKey(p => new { p.Id }); // gen code 
         }
     }
 }

@@ -17,6 +17,12 @@ using Microsoft.AspNetCore.Http;
 using angnet.Infrastructure.Data.Services;
 using angnet.Application.Interfaces.Services;
 using angnet.Infrastructure.Mail.Service;
+using angnet.Infrastructure.Mail.Producer;
+using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using System.Security.Cryptography;
 
 
 namespace angnet.Infrastructure.Data.Repositories
@@ -31,10 +37,10 @@ namespace angnet.Infrastructure.Data.Repositories
         private readonly IConfiguration _configuration;
         private readonly WriteLog _logger;
         private readonly IAuditTrailService _auditTrailService;
-        private readonly EmailSenderService _emailSenderService;
+        private readonly RabbitMqEmailProducer _rbmqEmailProducer;
 
         public AccountRespository(UserManager<AppUser> userManager
-                                    , EmailSenderService emailSenderService
+                                    , RabbitMqEmailProducer rbmqEmailProducer
                                     , RoleManager<IdentityRole> roleManager
                                     , IHttpContextAccessor httpContextAccessor
                                     , IConfiguration configuration
@@ -43,7 +49,7 @@ namespace angnet.Infrastructure.Data.Repositories
                                     , IAuditTrailService auditTrailService  
                                  )
         {
-            _emailSenderService = emailSenderService;
+            _rbmqEmailProducer = rbmqEmailProducer;
             _userManager = userManager;
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
@@ -581,6 +587,15 @@ namespace angnet.Infrastructure.Data.Repositories
                 UpdatedDTime = TCommonUtils.DTimeNow()
             };
 
+            // validate password
+            var validateResult = await ValidatePasswordAsync(user, registerDto.Password);
+            if (!validateResult.Succeeded)
+            {
+                string errors = string.Join(", ", validateResult.Errors.Select(e => e.Description));
+                apiResponse.CatchException(false, errors, requestClient);
+                return apiResponse;
+            }
+
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (!result.Succeeded)
@@ -712,14 +727,14 @@ namespace angnet.Infrastructure.Data.Repositories
             var email = new EmailMessageModel
             {
                 From = "phanthang97202@gmail.com",
-                To = registerDto.Email,
+                To = "anhduongcute97@gmail.com", // registerDto.Email,
                 Subject = "Welcome to AngNet System",
                 Body = bodyMail,
                 FromHtml = "phanthang97202@gmail.com",
-                ToHtml = registerDto.Email
+                ToHtml = "anhduongcute97@gmail.com", // registerDto.Email
             };
 
-            await _emailSenderService.SendEmailAsync(email);
+            await _rbmqEmailProducer.Publish(email);
 
             return apiResponse;
         }
@@ -747,5 +762,253 @@ namespace angnet.Infrastructure.Data.Repositories
             apiResponse.Data = "LogoutFromAllDeviceSuccessfully!";
             return apiResponse;
         }
+
+        public async Task<ApiResponse<string>> ForgotPassword(string userEmail)
+        {
+            ApiResponse<string> apiResponse = new ApiResponse<string>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            if(TCommonUtils.IsNullOrEmpty(userEmail))
+            {
+                apiResponse.CatchException(false, "ForgotPassword.EmailEmpty", requestClient);
+                return apiResponse;
+            }
+
+            if (!TCommonUtils.IsValidEmailStrict(userEmail))
+            {
+                apiResponse.CatchException(false, "ForgotPassword.EmailIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            var user = await _userManager.FindByEmailAsync(userEmail);
+
+            if (user == null)
+            {
+                apiResponse.CatchException(false, "ForgotPassword.UserNotFound", requestClient);
+                return apiResponse;
+            }
+
+            // Thừa
+            if (user.Email != userEmail)
+            {
+                apiResponse.CatchException(false, "ForgotPassword.AreYouSureYourAccount :)))", requestClient);
+                return apiResponse;
+            }
+
+            // disable tất cả token cũ
+            await _dbContext.GenerationAuthCode
+                    .Where(x => x.UserId == userEmail && x.Type == ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD && !x.IsUsed)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(p => p.IsUsed, true)
+                        .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow()));
+
+            //var token = Guid.NewGuid().ToString("N").Substring(0, 6); // OTP 6 ký tự
+            var (tokenRaw, token, salt) = GenerateResetToken();
+            var resetToken = new GenerationAuthCode
+            {
+                UserId = userEmail,
+                Type = ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD,
+                Token = token,
+                FlagActive = true,
+                IsUsed = false,
+                Salt = salt,
+                ExpiredAt = TCommonUtils.DTimeAddMinute(5), // 5 phút
+
+                CreatedBy = userEmail,
+                CreatedDTime = TCommonUtils.DTimeNow(),
+                UpdatedBy = "",
+                UpdatedDTime = TCommonUtils.DTimeNow(),
+            };
+
+            await _dbContext.GenerationAuthCode.AddAsync(resetToken);
+            await _dbContext.SaveChangesAsync();
+
+            // Publish RabbitMQ event
+            var email = new EmailMessageModel
+            {
+                To = userEmail,
+                Subject = "Angnet | Reset your password",
+                Body = $"Your reset code is: <b>{tokenRaw}</b>",
+                From = "no-reply@yourapp.com"
+            };
+            await _rbmqEmailProducer.Publish(email);
+            
+            // log
+            await _auditTrailService.Create(new AuditTrailDto
+            {
+                RecordId = "",
+                Description = $"{userEmail} has just sent mail get code to change password",
+                ChangedColumns = "",
+                OldValues = ""
+            });
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<string>> ChangePassword(ChangePassDto changePass)
+        {
+            ApiResponse<string> apiResponse = new ApiResponse<string>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            string token = changePass.Token;
+            string userEmail = changePass.Email;
+            string newPassword = changePass.NewPassword;
+            string oldPassword = changePass.OldPassword;
+
+            GenerationAuthCode? generationAuthCode = await VerifyResetToken(token, userEmail, ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD);
+
+            if (generationAuthCode == null)
+            {
+                apiResponse.CatchException(false, "ChangePassword.TokenIsNotValidOrExpired", requestClient);
+                return apiResponse;
+            }
+
+            if(generationAuthCode.UserId != userEmail)
+            {
+                apiResponse.CatchException(false, "ChangePassword.DoYouSureYourAccount^^", requestClient);
+                return apiResponse;
+            }
+
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            if (user == null)
+            {
+                apiResponse.CatchException(false, "ChangePassword.UserIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            var result = await _userManager.RemovePasswordAsync(user);
+
+            if (result.Succeeded)
+            {
+                var changedPass = await _userManager.AddPasswordAsync(user, newPassword);
+
+                if (!changedPass.Succeeded)
+                {
+                    string msg = string.Join(", ", changedPass.Errors.Select(x => x.Description));
+                    apiResponse.CatchException(false, $"ChangePassword. {msg}", requestClient);
+                    return apiResponse;
+                } 
+
+                generationAuthCode.IsUsed = true;
+                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
+                generationAuthCode.UpdatedBy = userEmail;
+
+                var code = _dbContext.GenerationAuthCode.Update(generationAuthCode);
+
+                // logout all device
+                await LogoutAllDevice(user.Id);
+
+                await _dbContext.SaveChangesAsync();
+
+                // log
+                await _auditTrailService.Create(new AuditTrailDto
+                {
+                    RecordId = "",
+                    Description = $"{userEmail}: changed password successfully | ({userEmail}, {ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD})",
+                    ChangedColumns = "",
+                    OldValues = ""
+                });
+            }
+
+            return apiResponse;
+
+        }
+        
+        public async Task<GenerationAuthCode?> VerifyResetToken(string token, string userEmail, string type)
+        {
+            if(TCommonUtils.IsNullOrEmpty(token) || TCommonUtils.IsNullOrEmpty(userEmail))
+            {
+                return null;
+            }
+
+            var generationAuthCode = await _dbContext.GenerationAuthCode
+                .FirstOrDefaultAsync(x => x.UserId == userEmail && x.IsUsed == false && x.Type == type);
+
+            if (generationAuthCode == null || generationAuthCode.ExpiredAt < TCommonUtils.DTimeNow())
+            {
+                // log
+                await _auditTrailService.Create(new AuditTrailDto
+                {
+                    Level = Domain.Enums.EAuditTrailLevel.ERROR,
+                    RecordId = "",
+                    Description = $"{userEmail}: token is not valid | ({token}, {userEmail}, {type})",
+                    ChangedColumns = "",
+                    OldValues = ""
+                });
+                return null;
+            }
+
+            if (generationAuthCode.AttemptCount >= 5)
+            {
+                generationAuthCode.IsUsed = true; // block luôn token này
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
+
+            string hash = ComputeSha256(token + generationAuthCode.Salt);
+
+            if (!CryptographicEquals(hash, generationAuthCode.Token))
+            {
+                // tăng AttemptCount để rate limit
+                generationAuthCode.AttemptCount += 1;
+                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
+
+            // log
+            await _auditTrailService.Create(new AuditTrailDto
+            {
+                RecordId = "",
+                Description = $"{userEmail}: verify token successfully | ({userEmail}, {ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD})",
+                ChangedColumns = "",
+                OldValues = ""
+            });
+
+            return generationAuthCode;
+        }
+
+        private bool CryptographicEquals(string a, string b)
+        {
+            var ba = Encoding.UTF8.GetBytes(a);
+            var bb = Encoding.UTF8.GetBytes(b);
+
+            uint diff = (uint)ba.Length ^ (uint)bb.Length;
+            for (int i = 0; i < ba.Length && i < bb.Length; i++)
+                diff |= (uint)(ba[i] ^ bb[i]);
+
+            return diff == 0;
+        }
+
+        public (string TokenRaw, string TokenHash, string Salt) GenerateResetToken()
+        {
+            string tokenRaw = RandomNumberGenerator.GetInt32(100000, 999999).ToString(); // 6 số
+            string salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+            string tokenHash = ComputeSha256(tokenRaw + salt);
+
+            return (tokenRaw, tokenHash, salt);
+        }
+
+        private string ComputeSha256(string rawData)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+            return Convert.ToBase64String(bytes);
+        }
+
+
+        private async Task<IdentityResult> ValidatePasswordAsync(AppUser user, string password)
+        {
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                var result = await validator.ValidateAsync(_userManager, user, password);
+                if (!result.Succeeded)
+                {
+                    return result;
+                }
+            }
+            return IdentityResult.Success;
+        }
+
     }
 }

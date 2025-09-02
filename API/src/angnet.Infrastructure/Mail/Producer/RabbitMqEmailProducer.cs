@@ -18,45 +18,59 @@ namespace angnet.Infrastructure.Mail.Producer
 
         public async Task Publish(EmailMessageModel emailMessage)
         {
-            var rbmq = _configuration.GetSection("CloudAMQP");
-
-            string conStr = rbmq["AMQPConnectionString"] ?? "";
-
-            var factory = new ConnectionFactory
+            try
             {
-                Uri = new Uri(conStr)
-            };
+                var rbmq = _configuration.GetSection("CloudAMQP");
 
-            // Sử dụng API mới của RabbitMQ.Client v6+
-            using var connection = await factory.CreateConnectionAsync();
-            using var channel = await connection.CreateChannelAsync();
+                string conStr = rbmq["AMQPConnectionString"] ?? "";
 
-            // Khai báo queue
-            await channel.QueueDeclareAsync(
-                queue: "send_email",
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null
-            );
+                var factory = new ConnectionFactory
+                {
+                    Uri = new Uri(conStr)
+                };
 
-            // Serialize và publish message
-            var json = JsonConvert.SerializeObject(emailMessage);
-            var body = Encoding.UTF8.GetBytes(json);
+                //Queue Lưu trữ messages Hộp thư
+                //ExchangeĐịnh tuyến messagesBưu điện phân loại
+                //BindingRule định tuyến
+                //Địa chỉ trên thư
+                //ConsumerXử lý messagesNgười nhận thư
 
-            // Tạo BasicProperties với cách mới
-            var properties = new BasicProperties
+                // Sử dụng API mới của RabbitMQ.Client v7+
+                using var connection = await factory.CreateConnectionAsync();
+                using var channel = await connection.CreateChannelAsync();
+
+                // Khai báo queue
+                // Type => Default exchange (1 queue duy nhất)
+                await channel.QueueDeclareAsync(
+                    queue: "send_email",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+                // Serialize và publish message
+                var json = JsonConvert.SerializeObject(emailMessage);
+                var body = Encoding.UTF8.GetBytes(json);
+
+                // Tạo BasicProperties với cách mới
+                var properties = new BasicProperties
+                {
+                    Persistent = true // Message sẽ được lưu trữ persistent
+                };
+
+                await channel.BasicPublishAsync(
+                    exchange: "",
+                    routingKey: "send_email",
+                    mandatory: false,
+                    basicProperties: properties,
+                    body: body
+                );
+            }
+            catch
             {
-                Persistent = true // Message sẽ được lưu trữ persistent
-            };
-
-            await channel.BasicPublishAsync(
-                exchange: "",
-                routingKey: "send_email",
-                mandatory: false,
-                basicProperties: properties,
-                body: body
-            );
+                throw;
+            }
 
         }
     }

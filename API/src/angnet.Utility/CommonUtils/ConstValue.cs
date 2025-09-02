@@ -7,5 +7,8 @@
        public const double MIN_POINT_NEWS = 0.0; // Điểm tối thiểu chấm cho bài viết
         // HashTagNews 
        public const int MAX_TOP_HASHTAGNEWS = 6; //  
+
+        // Mail
+        public const string TYPE_AUTH_CODE_FORGOT_PASSWORD = "FORGOT PASSWORD";
     }
 }

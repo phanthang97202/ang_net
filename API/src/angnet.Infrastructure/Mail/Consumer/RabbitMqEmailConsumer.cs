@@ -42,7 +42,14 @@ namespace angnet.Infrastructure.Mail.Consumer
                 };
 
                 _connection = await factory.CreateConnectionAsync();
-                _channel = await _connection.CreateChannelAsync();
+
+                // Channel giống như "làn đường" trên một "con đường chính"(Connection):
+                // Connection = Con đường chính từ nhà bạn đến RabbitMQ(tốn kém setup)
+                // Channel = Các làn đường trên con đường đó(rẻ, setup nhanh)
+                // Nhiều xe(messages) có thể đi song song trên các làn khác nhau
+                // Nếu 1 làn bị kẹt / hỏng, các làn khác vẫn hoạt động bình thường
+                // Mục đích: Tối ưu hóa hiệu năng và tài nguyên network khi làm việc với message broker!
+                _channel = await _connection.CreateChannelAsync(); // tiết kiệm tài nguyên khi dùng channel
 
                 await _channel.QueueDeclareAsync(
                     queue: "send_email",
@@ -67,56 +74,74 @@ namespace angnet.Infrastructure.Mail.Consumer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await InitializeRabbitMQAsync();
-
-            if (_channel == null)
+            try
             {
-                _logger.LogError("RabbitMQ channel is null. Consumer not started.");
-                return;
-            }
+                await InitializeRabbitMQAsync();
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-
-            consumer.ReceivedAsync += async (ch, ea) =>
-            {
-                EmailMessageModel? message = null;
-
-                try
+                if (_channel == null)
                 {
-                    var body = ea.Body.ToArray();
-                    var json = Encoding.UTF8.GetString(body);
-                    message = JsonConvert.DeserializeObject<EmailMessageModel>(json);
+                    _logger.LogError("RabbitMQ channel is null. Consumer not started.");
+                    return;
+                }
 
-                    if (message == null)
+                var consumer = new AsyncEventingBasicConsumer(_channel);
+
+                consumer.ReceivedAsync += async (ch, ea) =>
+                {
+                    EmailMessageModel? message = null;
+
+                    try
                     {
-                        await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
-                        return;
+                        var body = ea.Body.ToArray();
+                        var json = Encoding.UTF8.GetString(body);
+                        message = JsonConvert.DeserializeObject<EmailMessageModel>(json);
+
+                        if (message == null)
+                        {
+                            await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
+                            return;
+                        }
+
+                        await _emailSenderService.SendEmailAsync(message);
+                        await _channel.BasicAckAsync(ea.DeliveryTag, false);
+
+                        _logger.LogInformation($"Email sent successfully to {message.To}");
+
+                        await LogAuditAsync(message.Id, $"{message.Subject}\n{message.Body}");
                     }
+                    catch (Exception ex)
+                    {
+                        // nack để message quay lại queue (có thể retry)
+                        await _channel!.BasicNackAsync(ea.DeliveryTag, false, true);
 
-                    await _emailSenderService.SendEmailAsync(message);
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false);
+                        await LogAuditAsync(message?.Id ?? Guid.NewGuid().ToString(),
+                            $"Error sending mail: {ex.Message}");
 
-                    _logger.LogInformation($"Email sent successfully to {message.To}");
+                        _logger.LogError($"Error processing email: {ex.Message}");
+                    }
+                };
 
-                    await LogAuditAsync(message.Id, $"{message.Subject}\n{message.Body}");
-                }
-                catch (Exception ex)
-                {
-                    // nack để message quay lại queue (có thể retry)
-                    await _channel!.BasicNackAsync(ea.DeliveryTag, false, true);
+                // Bắt đầu consume
+                await _channel.BasicConsumeAsync("send_email", autoAck: false, consumer: consumer);
 
-                    await LogAuditAsync(message?.Id ?? Guid.NewGuid().ToString(),
-                        $"Error sending mail: {ex.Message}");
+                _logger.LogInformation("RabbitMQ email consumer started.");
 
-                    _logger.LogError($"Error processing email: {ex.Message}");
-                }
-            };
+                // ======
+                //await Task.CompletedTask; // giữ service chạy
 
-            // Bắt đầu consume
-            await _channel.BasicConsumeAsync("send_email", autoAck: false, consumer: consumer);
+                // ======
+                // Tạo TaskCompletionSource để giữ service chạy
+                var tcs = new TaskCompletionSource<bool>();
+                stoppingToken.Register(() => tcs.SetResult(true));
 
-            _logger.LogInformation("RabbitMQ email consumer started.");
-            await Task.CompletedTask; // giữ service chạy
+                // Chờ cho đến khi cancellation token được trigger
+                await tcs.Task;
+
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         private async Task LogAuditAsync(string recordId, string description)
