@@ -10,5 +10,6 @@
 
         // Mail
         public const string TYPE_AUTH_CODE_FORGOT_PASSWORD = "FORGOT PASSWORD";
+        public const string TYPE_AUTH_CODE_REGISTER = "REGISTER";
     }
 }

@@ -35,6 +35,38 @@ namespace angnet.WebApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("getregistercode")]
+        [EnableRateLimitingAttribute("API")]
+        public async Task<ActionResult<RegisterDto>> GetRegisterCode(string email)
+        {
+            try
+            {
+                ApiResponse<string> response = await _accountRespository.GetRegisterCode(email);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpDelete("deleteuser")]
+        [EnableRateLimitingAttribute("API")]
+        public async Task<ActionResult<RegisterDto>> DeleteUser(string id)
+        {
+            try
+            {
+                ApiResponse<string> response = await _accountRespository.DeleteUser(id);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost("register")]
         [EnableRateLimitingAttribute("API")]
         public async Task<ActionResult<RegisterDto>> Register(RegisterDto registerDto)

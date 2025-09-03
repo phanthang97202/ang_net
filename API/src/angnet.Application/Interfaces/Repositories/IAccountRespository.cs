@@ -6,6 +6,7 @@ namespace angnet.Application.Interfaces.Repositories
 {
     public interface IAccountRespository
     {
+        public Task<ApiResponse<string>> GetRegisterCode(string userEmail);
         public Task<ApiResponse<RegisterDto>> Register(RegisterDto registerDto);
         public Task<ApiResponse<AuthResponseDto>> Login(LoginDto loginDto);
         public Task<ApiResponse<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto);
@@ -18,5 +19,6 @@ namespace angnet.Application.Interfaces.Repositories
         public Task<ApiResponse<string>> ForgotPassword(string userEmail);
         // if not old password => using code forgot password
         public Task<ApiResponse<string>> ChangePassword(ChangePassDto changePass);
+        public Task<ApiResponse<string>> DeleteUser(string id);
     }
 }

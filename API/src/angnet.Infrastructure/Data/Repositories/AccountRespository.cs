@@ -10,19 +10,16 @@ using GuardAuth = angnet.Utility.CommonUtils.CheckAuthorized;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 using Google.Apis.Auth;
 using angnet.Application.Interfaces.Repositories;
-using angnet.Infrastructure.Data;
 using angnet.Utility.CommonUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
-using angnet.Infrastructure.Data.Services;
 using angnet.Application.Interfaces.Services;
 using angnet.Infrastructure.Mail.Service;
-using angnet.Infrastructure.Mail.Producer;
-using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using DocumentFormat.OpenXml.Office2010.Excel;
+using angnet.Infrastructure.Mail.Producer; 
 using System.Security.Cryptography;
+using Irony.Parsing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DnsClient;
 
 
 namespace angnet.Infrastructure.Data.Repositories
@@ -572,6 +569,63 @@ namespace angnet.Infrastructure.Data.Repositories
             }
         }
 
+        public async Task<ApiResponse<string>> DeleteUser(string id)
+        {
+            ApiResponse<string> apiResponse = new ApiResponse<string>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            await _userManager.DeleteAsync(user); 
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<string>> GetRegisterCode(string userEmail)
+        {
+            ApiResponse<string> apiResponse = new ApiResponse<string>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            if (TCommonUtils.IsNullOrEmpty(userEmail))
+            {
+                apiResponse.CatchException(false, "GetRegisterCode.EmailEmpty", requestClient);
+                return apiResponse;
+            }
+
+            if (!TCommonUtils.IsValidEmailStrict(userEmail))
+            {
+                apiResponse.CatchException(false, "GetRegisterCode.EmailIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            // check domain email valid
+            bool checkIsDomainEmailValid = await DomainHasMxRecord(userEmail);
+
+            if (!checkIsDomainEmailValid)
+            {
+                apiResponse.CatchException(false, "GetRegisterCode.DomainEmailIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            // check is account existed
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            if (user != null)
+            {
+                apiResponse.CatchException(false, "GetRegisterCode.AccountHasBeenAlreadyExisted", requestClient);
+                return apiResponse;
+            }
+
+            ///
+            await SendTokenMail(
+                userEmail,
+                ConstValue.TYPE_AUTH_CODE_REGISTER,
+                "Angnet | Your register code",
+                $"Your register code is: ",
+                "no-reply@yourapp.com"
+                );
+            ///
+            return apiResponse;
+        }
+
         public async Task<ApiResponse<RegisterDto>> Register(RegisterDto registerDto)
         {
             ApiResponse<RegisterDto> apiResponse = new ApiResponse<RegisterDto>();
@@ -596,6 +650,22 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            // verify
+            GenerationAuthCode? generationAuthCode = await VerifyResetToken(registerDto.Token, registerDto.Email, ConstValue.TYPE_AUTH_CODE_REGISTER);
+
+            if (generationAuthCode == null)
+            {
+                apiResponse.CatchException(false, "Register.TokenIsNotValidOrExpired", requestClient);
+                return apiResponse;
+            }
+
+            generationAuthCode.IsUsed = true;
+            generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
+            generationAuthCode.UpdatedBy = registerDto.Email;
+
+            var code = _dbContext.GenerationAuthCode.Update(generationAuthCode);
+
+            // create new user
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (!result.Succeeded)
@@ -644,43 +714,43 @@ namespace angnet.Infrastructure.Data.Repositories
             });
 
             // send mail notification
-            var bodyMail = @"
+            var bodyMail = $@"
                             <!DOCTYPE html>
                             <html lang='en'>
                             <head>
                               <meta charset='UTF-8' />
                               <meta name='viewport' content='width=device-width, initial-scale=1.0' />
                               <style>
-                                body {
+                                body {{
                                   font-family: Arial, sans-serif;
                                   background-color: #f9fafb;
                                   margin: 0;
                                   padding: 0;
-                                }
-                                .container {
+                                }}
+                                .container {{
                                   max-width: 600px;
                                   margin: 40px auto;
                                   background: #ffffff;
                                   border-radius: 8px;
                                   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
                                   overflow: hidden;
-                                }
-                                .header {
+                                }}
+                                .header {{
                                   background: #2563eb;
                                   color: white;
                                   padding: 20px;
                                   text-align: center;
-                                }
-                                .header h1 {
+                                }}
+                                .header h1 {{
                                   margin: 0;
                                   font-size: 22px;
-                                }
-                                .content {
+                                }}
+                                .content {{
                                   padding: 30px;
                                   color: #374151;
                                   line-height: 1.6;
-                                }
-                                .btn {
+                                }}
+                                .btn {{
                                   display: inline-block;
                                   margin-top: 20px;
                                   padding: 12px 20px;
@@ -689,14 +759,14 @@ namespace angnet.Infrastructure.Data.Repositories
                                   text-decoration: none;
                                   border-radius: 6px;
                                   font-weight: bold;
-                                }
-                                .footer {
+                                }}
+                                .footer {{
                                   text-align: center;
                                   font-size: 12px;
                                   color: #6b7280;
                                   padding: 20px;
                                   background: #f3f4f6;
-                                }
+                                }}
                               </style>
                             </head>
                             <body>
@@ -705,7 +775,7 @@ namespace angnet.Infrastructure.Data.Repositories
                                   <h1>Welcome to AngNet System 🚀</h1>
                                 </div>
                                 <div class='content'>
-                                  <p>Hi <strong>Anh Duong</strong>,</p>
+                                  <p>Hi <strong>{registerDto.FullName}</strong>,</p>
                                   <p>We’re excited to have you on board! Your account has been created successfully. 
                                      From now on, you can log in and start exploring our platform.</p>
                                   <p>To get started, simply click the button below:</p>
@@ -727,11 +797,11 @@ namespace angnet.Infrastructure.Data.Repositories
             var email = new EmailMessageModel
             {
                 From = "phanthang97202@gmail.com",
-                To = "anhduongcute97@gmail.com", // registerDto.Email,
+                To = registerDto.Email,
                 Subject = "Welcome to AngNet System",
                 Body = bodyMail,
                 FromHtml = "phanthang97202@gmail.com",
-                ToHtml = "anhduongcute97@gmail.com", // registerDto.Email
+                ToHtml = registerDto.Email
             };
 
             await _rbmqEmailProducer.Publish(email);
@@ -780,6 +850,15 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            // check domain email valid
+            bool checkIsDomainEmailValid = await DomainHasMxRecord(userEmail);
+
+            if (!checkIsDomainEmailValid)
+            {
+                apiResponse.CatchException(false, "GetRegisterCode.DomainEmailIsNotValid", requestClient);
+                return apiResponse;
+            }
+
             var user = await _userManager.FindByEmailAsync(userEmail);
 
             if (user == null)
@@ -795,19 +874,32 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            ///
+            await SendTokenMail(
+                userEmail,
+                ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD,
+                "Angnet | Reset your password",
+                $"Your reset code is: ",
+                "no-reply@yourapp.com"
+                );
+            ///
+            return apiResponse;
+        }
+
+        public async Task SendTokenMail(string userEmail, string type, string subject, string body, string from)
+        {
             // disable tất cả token cũ
             await _dbContext.GenerationAuthCode
-                    .Where(x => x.UserId == userEmail && x.Type == ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD && !x.IsUsed)
+                    .Where(x => x.UserId == userEmail && x.Type == type && !x.IsUsed)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(p => p.IsUsed, true)
                         .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow()));
 
-            //var token = Guid.NewGuid().ToString("N").Substring(0, 6); // OTP 6 ký tự
             var (tokenRaw, token, salt) = GenerateResetToken();
             var resetToken = new GenerationAuthCode
             {
                 UserId = userEmail,
-                Type = ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD,
+                Type = type,
                 Token = token,
                 FlagActive = true,
                 IsUsed = false,
@@ -827,22 +919,20 @@ namespace angnet.Infrastructure.Data.Repositories
             var email = new EmailMessageModel
             {
                 To = userEmail,
-                Subject = "Angnet | Reset your password",
-                Body = $"Your reset code is: <b>{tokenRaw}</b>",
-                From = "no-reply@yourapp.com"
+                Subject = subject,
+                Body =$"{body} <b>{ tokenRaw }</b>",
+                From = from
             };
             await _rbmqEmailProducer.Publish(email);
-            
+
             // log
             await _auditTrailService.Create(new AuditTrailDto
             {
                 RecordId = "",
-                Description = $"{userEmail} has just sent mail get code to change password",
+                Description = $"Type: {type} - {userEmail} has just sent code to your gmail",
                 ChangedColumns = "",
                 OldValues = ""
             });
-
-            return apiResponse;
         }
 
         public async Task<ApiResponse<string>> ChangePassword(ChangePassDto changePass)
@@ -913,7 +1003,16 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
 
         }
-        
+
+        // check MX record của domain để loại những email giả
+        public async Task<bool> DomainHasMxRecord(string email)
+        {
+            var domain = email.Split('@').Last();
+            var lookup = new LookupClient();
+            var result = await lookup.QueryAsync(domain, QueryType.MX);
+            return result.Answers.MxRecords().Any();
+        }
+
         public async Task<GenerationAuthCode?> VerifyResetToken(string token, string userEmail, string type)
         {
             if(TCommonUtils.IsNullOrEmpty(token) || TCommonUtils.IsNullOrEmpty(userEmail))
@@ -995,7 +1094,6 @@ namespace angnet.Infrastructure.Data.Repositories
             var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
             return Convert.ToBase64String(bytes);
         }
-
 
         private async Task<IdentityResult> ValidatePasswordAsync(AppUser user, string password)
         {
