@@ -20,6 +20,7 @@ using System.Security.Cryptography;
 using Irony.Parsing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DnsClient;
+using System.Runtime.InteropServices;
 
 
 namespace angnet.Infrastructure.Data.Repositories
@@ -391,6 +392,10 @@ namespace angnet.Infrastructure.Data.Repositories
             };
 
             _dbContext.RefreshTokens.Add(dtRefreshToken);
+
+            // xóa hết token nếu user tự nhiên nhớ ra mật khẩu trong khi đã gửi code reset password xong không dùng
+            await DisableAllTokenNotUse(user.Email, ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD);
+
             await _dbContext.SaveChangesAsync();
 
             AuthResponseDto data = new AuthResponseDto
@@ -532,6 +537,10 @@ namespace angnet.Infrastructure.Data.Repositories
             };
 
             _dbContext.RefreshTokens.Add(dtRefreshToken);
+
+            // xóa hết token nếu user tự nhiên nhớ ra mật khẩu trong khi đã gửi code reset password xong không dùng
+            await DisableAllTokenNotUse(user.Email, ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD);
+
             await _dbContext.SaveChangesAsync();
 
             AuthResponseDto data = new AuthResponseDto
@@ -658,12 +667,6 @@ namespace angnet.Infrastructure.Data.Repositories
                 apiResponse.CatchException(false, "Register.TokenIsNotValidOrExpired", requestClient);
                 return apiResponse;
             }
-
-            generationAuthCode.IsUsed = true;
-            generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
-            generationAuthCode.UpdatedBy = registerDto.Email;
-
-            var code = _dbContext.GenerationAuthCode.Update(generationAuthCode);
 
             // create new user
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -886,14 +889,21 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
-        public async Task SendTokenMail(string userEmail, string type, string subject, string body, string from)
+        public async Task DisableAllTokenNotUse(string userEmail, string type)
         {
             // disable tất cả token cũ
             await _dbContext.GenerationAuthCode
                     .Where(x => x.UserId == userEmail && x.Type == type && !x.IsUsed)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(p => p.IsUsed, true)
-                        .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow()));
+                        .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow())
+                        .SetProperty(p => p.UpdatedBy, userEmail)
+                        );
+        }
+
+        public async Task SendTokenMail(string userEmail, string type, string subject, string body, string from)
+        {
+            await DisableAllTokenNotUse(userEmail, type);
 
             var (tokenRaw, token, salt) = GenerateResetToken();
             var resetToken = new GenerationAuthCode
@@ -979,12 +989,6 @@ namespace angnet.Infrastructure.Data.Repositories
                     return apiResponse;
                 } 
 
-                generationAuthCode.IsUsed = true;
-                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
-                generationAuthCode.UpdatedBy = userEmail;
-
-                var code = _dbContext.GenerationAuthCode.Update(generationAuthCode);
-
                 // logout all device
                 await LogoutAllDevice(user.Id);
 
@@ -1015,22 +1019,22 @@ namespace angnet.Infrastructure.Data.Repositories
 
         public async Task<GenerationAuthCode?> VerifyResetToken(string token, string userEmail, string type)
         {
-            if(TCommonUtils.IsNullOrEmpty(token) || TCommonUtils.IsNullOrEmpty(userEmail))
+            if (TCommonUtils.IsNullOrEmpty(token) || TCommonUtils.IsNullOrEmpty(userEmail))
             {
                 return null;
             }
 
+            // Lấy token đang còn hiệu lực
             var generationAuthCode = await _dbContext.GenerationAuthCode
                 .FirstOrDefaultAsync(x => x.UserId == userEmail && x.IsUsed == false && x.Type == type);
 
             if (generationAuthCode == null || generationAuthCode.ExpiredAt < TCommonUtils.DTimeNow())
             {
-                // log
                 await _auditTrailService.Create(new AuditTrailDto
                 {
                     Level = Domain.Enums.EAuditTrailLevel.ERROR,
                     RecordId = "",
-                    Description = $"{userEmail}: token is not valid | ({token}, {userEmail}, {type})",
+                    Description = $"{userEmail}: token is not valid or expired | ({token}, {userEmail}, {type})",
                     ChangedColumns = "",
                     OldValues = ""
                 });
@@ -1039,7 +1043,8 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (generationAuthCode.AttemptCount >= 5)
             {
-                generationAuthCode.IsUsed = true; // block luôn token này
+                generationAuthCode.IsUsed = true; // block luôn
+                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
@@ -1048,24 +1053,38 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (!CryptographicEquals(hash, generationAuthCode.Token))
             {
-                // tăng AttemptCount để rate limit
                 generationAuthCode.AttemptCount += 1;
                 generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
 
-            // log
+            // chống được race condition (khi >= 2 request cùng gửi dữ liệu cùng lúc)
+            // 🔑 Atomic update: chỉ request này mới đánh dấu được IsUsed = true
+            int rows = await _dbContext.GenerationAuthCode
+                .Where(x => x.Id == generationAuthCode.Id && x.IsUsed == false)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.IsUsed, true)
+                    .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow())
+                    .SetProperty(p => p.UpdatedBy, userEmail));
+
+            if (rows == 0)
+            {
+                // Nghĩa là request khác đã update trước đó
+                return null;
+            }
+
             await _auditTrailService.Create(new AuditTrailDto
             {
                 RecordId = "",
-                Description = $"{userEmail}: verify token successfully | ({userEmail}, {ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD})",
+                Description = $"{userEmail}: verify token successfully | ({userEmail}, {type})",
                 ChangedColumns = "",
                 OldValues = ""
             });
 
             return generationAuthCode;
         }
+
 
         private bool CryptographicEquals(string a, string b)
         {

@@ -61,15 +61,6 @@ namespace angnet.Infrastructure.Data.Services
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
 
-            PropertyInfo[] properties = data.GetType().GetProperties();
-            foreach (PropertyInfo p in properties)
-            {
-                string key = p.Name;
-                object value = p.GetValue(data);
-                RequestClient rc = new RequestClient(key, value);
-                requestClient.Add(rc);
-            }
-
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             bool isAuthorized = GuardAuth.IsAuthorized(token);
