@@ -104,4 +104,17 @@
     ## 📎 Tài nguyên hữu ích
         * EF Core CLI Docs: [https://learn.microsoft.com/en-us/ef/core/cli/dotnet](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
         * EF Design-time DbContext: [https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation](https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation)
-    
+
+## Order stadium
+     [Pending] ---Nhân viên xác nhận---> [Confirmed]
+     |                                   |
+     | Khách thanh toán cọc              | Khách thanh toán full
+     v                                   v
+ [Cancelled] <--- Hủy đơn --- [Deposited] ---> [Paid]
+                                |                |
+                                | Khách trả nốt  |
+                                v                v
+                           [Refunded]       [Playing]
+                                                |
+                                                v
+                                            [Completed]

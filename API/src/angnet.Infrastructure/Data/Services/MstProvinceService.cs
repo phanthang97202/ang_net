@@ -430,7 +430,7 @@ namespace angnet.Infrastructure.Data.Services
             }
 
             //MstProvinceModel _data = new MstProvinceModel();
-            var (isExistRecord, _data) = await _unitOfWork.MstDistrictRespository
+            var (isExistRecord, _data) = await _unitOfWork.MstProvinceRespository
                                 .CheckRecordExist<MstProvinceModel>(
                                                     x => x.ProvinceCode == data.ProvinceCode
                                                 );

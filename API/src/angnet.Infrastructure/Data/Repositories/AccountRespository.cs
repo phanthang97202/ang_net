@@ -1085,7 +1085,6 @@ namespace angnet.Infrastructure.Data.Repositories
             return generationAuthCode;
         }
 
-
         private bool CryptographicEquals(string a, string b)
         {
             var ba = Encoding.UTF8.GetBytes(a);
@@ -1126,6 +1125,5 @@ namespace angnet.Infrastructure.Data.Repositories
             }
             return IdentityResult.Success;
         }
-
     }
 }

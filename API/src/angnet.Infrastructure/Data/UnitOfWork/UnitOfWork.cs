@@ -27,6 +27,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         public IMstDistrictRespository MstDistrictRespository { get; }
         public INewsCategoryRespository NewsCategoryRespository { get; }
         public IAuditTrailRespository AuditTrailRespository { get; }
+        public ITenantRepository TenantRepository { get; }
 
         public UnitOfWork
             (
@@ -38,6 +39,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
                 , IMstDistrictRespository mstDistrictRespository
                 , INewsCategoryRespository newsCategoryRespository
                 , IAuditTrailRespository auditTrailRespository
+                , ITenantRepository tenantRepository
 
             )
         {
@@ -49,7 +51,8 @@ namespace angnet.Infrastructure.Data.UnitOfWork
             MstStadiumRespository = mstStadiumRespository;
             MstDistrictRespository = mstDistrictRespository;
             NewsCategoryRespository = newsCategoryRespository;
-            AuditTrailRespository = auditTrailRespository; 
+            AuditTrailRespository = auditTrailRespository;
+            TenantRepository = tenantRepository;
         }
 
         // ====================================

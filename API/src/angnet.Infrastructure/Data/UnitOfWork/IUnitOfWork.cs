@@ -11,6 +11,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         IMstDistrictRespository MstDistrictRespository { get; }
         INewsCategoryRespository NewsCategoryRespository { get; }
         IAuditTrailRespository AuditTrailRespository { get; }
+        ITenantRepository TenantRepository { get; }
         Task<int> SaveChangesAsync(); // commit all changes into db
     }
 }

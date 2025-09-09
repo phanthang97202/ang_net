@@ -59,6 +59,9 @@ namespace angnet.Infrastructure
             services.AddScoped<IMstDistrictRespository, MstDistrictRespository>();
             services.AddScoped<IMstDistrictService, MstDistrictService>();
 
+            services.AddScoped<ITenantRepository, TenantRepository>();
+            services.AddScoped<ITenantService, TenantService>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register services
