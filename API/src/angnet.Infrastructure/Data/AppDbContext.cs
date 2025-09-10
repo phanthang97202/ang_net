@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using angnet.Domain.Enums;
+using System.Text.Json;
 
 namespace angnet.Infrastructure.Data
 {
@@ -46,7 +47,21 @@ namespace angnet.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             // TenantModel
-            modelBuilder.Entity<TenantModel>();
+            modelBuilder.Entity<TenantModel>(
+                e =>
+                {
+                    e.Property(e => e.TenantAddress)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                      v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                      v => JsonSerializer.Deserialize<TenantAddressModel>(v, (JsonSerializerOptions?)null)!
+                  );
+                });
+
+            modelBuilder.Entity<TenantModel>()
+                .Property(x => x.TenantStatus)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
 
             // MstTenantContactModel
             modelBuilder.Entity<MstTenantContactModel>()

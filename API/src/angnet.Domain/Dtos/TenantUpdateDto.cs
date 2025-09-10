@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using angnet.Domain.Models;
 
 namespace angnet.Domain.Dtos
 {
@@ -21,7 +22,7 @@ namespace angnet.Domain.Dtos
         public string TenantDatabaseName { get; set; } = string.Empty; // Tên cơ sở dữ liệu của tenant
         public string TenantLogo { get; set; } = string.Empty; // Logo của tenant
         public string TenantDescription { get; set; } = string.Empty; // Mô tả về tenant
-        public JsonDocument TenantAddress { get; set; } // Địa chỉ của tenant (có thể nhiều địa chỉ)
+        public TenantAddressModel TenantAddress { get; set; } // Địa chỉ của tenant (có thể nhiều địa chỉ)
         public ETenantStatus TenantStatus { get; set; } // Trạng thái 
         public string Remark { get; set; } = string.Empty; // Ghi chú
         public bool FlagActive { get; set; } // Trạng thái

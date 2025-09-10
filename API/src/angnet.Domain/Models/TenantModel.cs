@@ -22,7 +22,7 @@ namespace angnet.Domain.Models
         public string TenantLogo { get; set; } = string.Empty; // Logo của tenant
         public string TenantDescription { get; set; } = string.Empty; // Mô tả về tenant
         [Required]
-        public required JsonDocument TenantAddress { get; set; } // Địa chỉ của tenant (có thể nhiều địa chỉ)
+        public required TenantAddressModel TenantAddress { get; set; } // Địa chỉ của tenant (có thể nhiều địa chỉ)
         [Required]
         [Column(TypeName = "varchar(20)")]
         public ETenantStatus TenantStatus { get; set; } // Trạng thái 
