@@ -1,20 +1,27 @@
-# Use the official .NET SDK 8.0 image for building
+# ==============================NEW STRUCTURE======================================
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
 WORKDIR /src
 
+# Copy csproj and restore (to leverage Docker cache)
+COPY API/src/angnet.WebApi/angnet.WebApi.csproj API/src/angnet.WebApi/
+WORKDIR /src/API/src/angnet.WebApi
+RUN dotnet restore "angnet.WebApi.csproj"
+
+# Copy toàn bộ solution
+WORKDIR /src
 COPY . .
 
-WORKDIR /src/API
+# Build & Publish
+WORKDIR /src/API/src/angnet.WebApi
+RUN dotnet publish "angnet.WebApi.csproj" -c Release -o /app/publish
 
-RUN dotnet restore "API.csproj"
-RUN dotnet build "API.csproj" -c Release -o /app/build
-RUN dotnet publish "API.csproj" -c Release -o /app/publish
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 EXPOSE 80
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "API.dll"]
+ENTRYPOINT ["dotnet", "angnet.WebApi.dll"]
+

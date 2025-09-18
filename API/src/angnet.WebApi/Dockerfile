@@ -1,30 +1,27 @@
-# Use the official .NET SDK 8.0 image for building the application
+﻿# ==============================NEW STRUCTURE======================================
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
-# Set the working directory inside the container to /src
 WORKDIR /src
 
-# Copy the .csproj file and restore the dependencies
-COPY API.csproj ./
-RUN dotnet restore "./API.csproj"
+# Copy csproj and restore (to leverage Docker cache)
+COPY API/src/angnet.WebApi/angnet.WebApi.csproj API/src/angnet.WebApi/
+WORKDIR /src/API/src/angnet.WebApi
+RUN dotnet restore "angnet.WebApi.csproj"
 
-# Copy the rest of your application files
+# Copy toàn bộ solution
+WORKDIR /src
 COPY . .
 
-# Build the application in Release mode and output to /app/build
-WORKDIR "/src"
-RUN dotnet build "API.csproj" -c Release -o /app/build
+# Build & Publish
+WORKDIR /src/API/src/angnet.WebApi
+RUN dotnet publish "angnet.WebApi.csproj" -c Release -o /app/publish
 
-# Publish the application to the /app/publish directory
-RUN dotnet publish "API.csproj" -c Release -o /app/publish
-
-# Use the official .NET ASP.NET Core runtime image for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 EXPOSE 80
 
-# Copy the published files from the build stage
 COPY --from=build /app/publish .
 
-# Set the entry point for the application to run the API
-ENTRYPOINT ["dotnet", "API.dll"]
+ENTRYPOINT ["dotnet", "angnet.WebApi.dll"]
+
