@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace angnet.Infrastructure.Data.Persistences.Migrations
 {
     /// <inheritdoc />
-    public partial class InitAngNet : Migration
+    public partial class ChangeTenantStatusFieldInTenant : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,9 +32,9 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     TenantId = table.Column<int>(type: "integer", nullable: false),
-                    FullName = table.Column<string>(type: "text", nullable: true),
-                    Avatar = table.Column<string>(type: "text", nullable: true),
-                    Address = table.Column<string>(type: "text", nullable: true),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    Avatar = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
                     FlagActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -60,6 +59,30 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuditTrail",
+                columns: table => new
+                {
+                    AuditTrailId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RecordId = table.Column<string>(type: "text", nullable: false),
+                    IPAddress = table.Column<string>(type: "text", nullable: false),
+                    Level = table.Column<string>(type: "text", nullable: false),
+                    RequestUrl = table.Column<string>(type: "text", nullable: false),
+                    TrailType = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    ChangedColumns = table.Column<string>(type: "text", nullable: false),
+                    OldValues = table.Column<string>(type: "text", nullable: false),
+                    NewValues = table.Column<string>(type: "text", nullable: false),
+                    ChangedBy = table.Column<string>(type: "text", nullable: false),
+                    ChangedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditTrail", x => x.AuditTrailId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Chat",
                 columns: table => new
                 {
@@ -76,6 +99,29 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Chat", x => x.MessageId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GenerationAuthCode",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Token = table.Column<string>(type: "text", nullable: false),
+                    Salt = table.Column<string>(type: "text", nullable: false),
+                    AttemptCount = table.Column<int>(type: "integer", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ExpiredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsUsed = table.Column<bool>(type: "boolean", nullable: false),
+                    FlagActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: false),
+                    CreatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GenerationAuthCode", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,7 +231,7 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                     TenantDatabaseName = table.Column<string>(type: "text", nullable: false),
                     TenantLogo = table.Column<string>(type: "text", nullable: false),
                     TenantDescription = table.Column<string>(type: "text", nullable: false),
-                    TenantAddress = table.Column<JsonDocument>(type: "jsonb", nullable: false),
+                    TenantAddress = table.Column<string>(type: "jsonb", nullable: false),
                     TenantStatus = table.Column<string>(type: "varchar(20)", nullable: false),
                     Remark = table.Column<string>(type: "text", nullable: false),
                     FlagActive = table.Column<bool>(type: "boolean", nullable: false),
@@ -613,6 +659,7 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                     PaymentTypeCode = table.Column<string>(type: "text", nullable: false),
                     PreMoney = table.Column<decimal>(type: "numeric", nullable: false),
                     RefundMoney = table.Column<decimal>(type: "numeric", nullable: false),
+                    VAT = table.Column<decimal>(type: "numeric", nullable: false),
                     SalePercent = table.Column<decimal>(type: "numeric", nullable: false),
                     DebtMoney = table.Column<decimal>(type: "numeric", nullable: false),
                     Remark = table.Column<string>(type: "text", nullable: false),
@@ -835,7 +882,13 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "AuditTrail");
+
+            migrationBuilder.DropTable(
                 name: "Chat");
+
+            migrationBuilder.DropTable(
+                name: "GenerationAuthCode");
 
             migrationBuilder.DropTable(
                 name: "HashTagNews");
