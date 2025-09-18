@@ -39,4 +39,8 @@
     <ProjectReference Include="..\angnet.Utility\angnet.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Persistences\Migrations\" />
+  </ItemGroup>
+
 </Project>
