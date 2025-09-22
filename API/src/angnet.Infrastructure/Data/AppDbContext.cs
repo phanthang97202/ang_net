@@ -33,12 +33,19 @@ namespace angnet.Infrastructure.Data
         public DbSet<ChatModel> Chat { get; set; }
 
         //
+
         public DbSet<PointNewsModel> PointNews { get; set; }
         public DbSet<NewsCategoryModel> NewsCategory { get; set; }
         public DbSet<HashTagNewsModel> HashTagNews { get; set; }
         public DbSet<RefFileNewsModel> RefFileNews { get; set; }
         public DbSet<LikeNewsModel> LikeNews { get; set; }
         public DbSet<NewsModel> News { get; set; }
+        public DbSet<NewsCommentModel> NewsComment { get; set; }
+        public DbSet<NewsCommentReactionModel> NewsCommentReaction { get; set; }
+        public DbSet<NewsReportCommentModel> NewsReportComment { get; set; }
+        public DbSet<NewsCommentMediaModel> NewsCommentMedia { get; set; }
+        
+        
         public DbSet<AuditTrailModel> AuditTrail { get; set; }
         public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
 
@@ -214,6 +221,78 @@ namespace angnet.Infrastructure.Data
                         .HasOne<NewsCategoryModel>()
                         .WithMany()
                         .HasForeignKey(p => p.CategoryNewsId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // NewsCommentModel
+            modelBuilder.Entity<NewsCommentModel>()
+                        .HasOne<NewsModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.NewsId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsCommentModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsCommentModel>() // Quan hệ cha con trong cùng một bảng
+                        .HasOne<NewsCommentModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.ParentCommentId)
+                        .OnDelete(DeleteBehavior.Cascade); // Nếu xóa comment cha thì xóa cả con
+
+
+            modelBuilder.Entity<NewsCommentModel>()
+                        .Property(x => x.Status)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            // NewsCommentReactionModel
+            modelBuilder.Entity<NewsCommentReactionModel>()
+                        .HasKey(p => new { p.CommentId, p.UserId });
+
+            modelBuilder.Entity<NewsCommentReactionModel>()
+                        .HasOne<NewsCommentModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.CommentId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsCommentReactionModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsCommentReactionModel>()
+                        .Property(x => x.ReactionType)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            // NewsReportCommentModel
+            modelBuilder.Entity<NewsReportCommentModel>()
+                        .HasOne<NewsCommentModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.CommentId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsReportCommentModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<NewsReportCommentModel>()
+                        .Property(x => x.Reason)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+            
+            modelBuilder.Entity<NewsReportCommentModel>()
+                        .Property(x => x.Status)
+                        .HasConversion<string>(); // cấu hình lưu enum dạng chuỗi => Fix lỗi migrate :42804: column "OrderStatus" cannot be cast automatically to type integer
+
+            // NewsCommentMediaModel
+            modelBuilder.Entity<NewsCommentMediaModel>()
+                        .HasOne<NewsCommentModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.CommentId)
                         .OnDelete(DeleteBehavior.Cascade);
 
             // AuditTrail
