@@ -45,6 +45,8 @@ export class AppComponent implements OnInit {
 
   // router = inject(Router);
 
+  lstRouteLayoutNone = ['/login', '/forgot-password'];
+
   constructor(
     public router: Router,
     private translate: TranslateService
@@ -86,9 +88,11 @@ export class AppComponent implements OnInit {
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
 
+        const isLayoutNone = this.lstRouteLayoutNone.includes(url);
+
         if (url.startsWith('/dashboard')) {
           this.layoutType = 'admin';
-        } else if (url.startsWith('/login')) {
+        } else if (isLayoutNone) {
           this.layoutType = 'none';
         } else {
           this.layoutType = 'user';

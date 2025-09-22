@@ -24,5 +24,15 @@
     "T_RECENTNEWS": "Recent news",
     "T_TAGNEWS": "Hot tags",
     "T_MINUTESREAD": "minute(s) read",
-    "T_MUCLUC": "List content"
+    "T_MUCLUC": "List content",
+    "T_ENTERYOUREMAIL": "Enter your email",
+    "T_SENDMAIL": "Send",
+    "T_INVALIDFORMATEMAIL": "Email format is invalid! Try again!",
+    "T_BACK": "Back",
+    "T_PLEASEENTERYOUREMAILTOGETTOKENCODE": "Please enter your email to get token code!",
+    "T_ENTERYOUREMAILWHICHYOULOGINACCOUNTBEFORE": "Enter your email which you login account before!",
+    "T_ENTERTOKENCODE": "Please enter your token code",
+    "T_VERIFY": "Verify",
+    "T_ENTERTOKENCODEJUSTSENDTOYOUREMAILBOX": "Enter token code that just sent to your email box!",
+    "T_GETNEWTOKENCODE": "Get new code"
 }

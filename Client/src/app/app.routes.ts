@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { canActive, canActiveForAdmin } from './middlewares';
+import { canActiveForAdmin } from './middlewares';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -36,6 +36,15 @@ export const routes: Routes = [
     loadComponent() {
       return import('./pages/login/login.component').then(
         p => p.LoginComponent
+      );
+    },
+  },
+  {
+    title: 'Forgot password',
+    path: 'forgot-password',
+    loadComponent() {
+      return import('./pages/forgot-password/forgot-password.component').then(
+        p => p.ForgotPasswordComponent
       );
     },
   },

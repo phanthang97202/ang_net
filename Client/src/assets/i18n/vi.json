@@ -24,5 +24,15 @@
     "T_RECENTNEWS": "Bài viết gần đây",
     "T_TAGNEWS": "Thẻ nổi bật",
     "T_MINUTESREAD": "phút đọc",
-    "T_MUCLUC": "Mục lục"
+    "T_MUCLUC": "Mục lục",
+    "T_ENTERYOUREMAIL": "Nhập email của bạn",
+    "T_SENDMAIL": "Gửi",
+    "T_INVALIDFORMATEMAIL": "Định dạng email không hợp lệ!",
+    "T_BACK": "Quay lại",
+    "T_PLEASEENTERYOUREMAILTOGETTOKENCODE": "Vui lòng điền email để nhận mã code!",
+    "T_ENTERYOUREMAILWHICHYOULOGINACCOUNTBEFORE": "Nhập email mà bạn đã đăng kí tài khoản khi đăng nhập hệ thống trước đây!",
+    "T_ENTERTOKENCODE": "Vui lòng nhập mã code",
+    "T_VERIFY": "Xác minh",
+    "T_ENTERTOKENCODEJUSTSENDTOYOUREMAILBOX": "Nhập mã code vừa được gửi về hộp thư email của bạn!",
+    "T_GETNEWTOKENCODE": "Lấy lại mã mới"
 }

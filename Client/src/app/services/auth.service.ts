@@ -7,6 +7,7 @@ import {
   RefreshTokenRequest,
   AuthResponse,
   IUserResponse,
+  IForgotPasswordResponse,
 } from '../interfaces';
 import { jwtDecode } from 'jwt-decode';
 import { isBefore } from 'date-fns';
@@ -188,6 +189,12 @@ export class AuthService {
     return this.http.post<IUnasignRoleResponse>(
       `${this.apiUrl}roles/unassign`,
       param
+    );
+  }
+
+  forgotPassword(email: string) {
+    return this.http.get<IForgotPasswordResponse>(
+      `${this.apiUrl}account/forgotpassword?username=${email}`
     );
   }
 }

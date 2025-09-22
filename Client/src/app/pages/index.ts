@@ -15,4 +15,5 @@ export * from './home/detail-news/detail-news.component';
 export * from './home/news/news.component';
 //
 export * from './login/login.component';
+export * from './forgot-password/forgot-password.component';
 // export * from './register'

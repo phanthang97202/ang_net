@@ -35,7 +35,8 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize()]
+        //[Authorize()]
+        [AllowAnonymous]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] NewsCategoryModel news)
         {
