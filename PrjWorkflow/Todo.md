@@ -12,3 +12,11 @@
         https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0
         Ex: 
             https://viblo.asia/p/policy-based-authorization-trong-asp-net-core-1VgZvQq1KAw
+
+## Forgot password
+    Continue complete forgot password for client page (angular)
+
+## Comment on news blog
+    Continue developing feature comment on blog
+
+## Initialize e-com web using Nextjs 15
