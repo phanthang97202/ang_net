@@ -221,6 +221,7 @@ export class BlogsComponent implements OnInit {
   };
 
   onSelectedCategoryNews(event: string): void {
+    // debugger;
     this.validateForm.patchValue({
       CategoryNewsId: event,
     });
