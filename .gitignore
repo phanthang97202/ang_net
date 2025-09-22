@@ -1,5 +1,6 @@
 /API/src/angnet.WebApi/appsettings.json
 /API/src/angnet.WebApi/appsettings.Production.json
+/API/src/angnet.WebApi/appsettings.Development.json
 /API/src/angnet.WebApi/bin/
 /API/src/angnet.WebApi/obj/
 /API/src/angnet.WebApi/Publish/
