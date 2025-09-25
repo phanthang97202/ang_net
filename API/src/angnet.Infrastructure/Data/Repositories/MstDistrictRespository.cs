@@ -33,7 +33,7 @@ namespace angnet.Infrastructure.Data.Repositories
         { 
             List<MstDistrictModel> dataResult = new List<MstDistrictModel>();
 
-            IQueryable<MstDistrictModel> query = _dbContext.MstDistricts
+            IQueryable<MstDistrictModel> query = _dbContext.MstDistrict
                                     .Where(p => !TCommonUtils.IsNullOrEmpty(keyword) ? p.DistrictName.Contains(keyword) || p.DistrictCode == keyword : true);
 
             int itemCount = query.ToList().Count;

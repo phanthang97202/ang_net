@@ -187,7 +187,7 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            //int countRowEffected = await _dbContext.MstProvinces.Where(p => p.ProvinceCode == ProvinceCode).ExecuteDeleteAsync();
+            //int countRowEffected = await _dbContext.MstProvince.Where(p => p.ProvinceCode == ProvinceCode).ExecuteDeleteAsync();
 
             await _unitOfWork.MstProvinceRespository.Delete(ProvinceCode);
             await _dbContext.SaveChangesAsync();
@@ -394,7 +394,7 @@ namespace angnet.Infrastructure.Data.Services
                 }
 
                 // Thực hiện lưu dữ liệu sau khi toàn bộ dữ liệu đã hợp lệ 
-                await _dbContext.MstProvinces.AddRangeAsync(lstDataPreparing);
+                await _dbContext.MstProvince.AddRangeAsync(lstDataPreparing);
                 await _dbContext.SaveChangesAsync();
 
                 // Xóa file khỏi thư mục lưu trữ trên server
@@ -525,7 +525,7 @@ namespace angnet.Infrastructure.Data.Services
             tb.Columns.Add("ProvinceName", typeof(string));
             tb.Columns.Add("FlagActive", typeof(bool));
 
-            List<MstProvinceModel> provinces = await _dbContext.MstProvinces.Select(p => new MstProvinceModel
+            List<MstProvinceModel> provinces = await _dbContext.MstProvince.Select(p => new MstProvinceModel
             {
                 ProvinceCode = p.ProvinceCode,
                 ProvinceName = p.ProvinceName,

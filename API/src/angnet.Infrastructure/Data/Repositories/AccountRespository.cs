@@ -114,7 +114,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 return false;
             }
 
-            RefreshTokenModel dtRefreshToken = await _dbContext.RefreshTokens
+            RefreshTokenModel dtRefreshToken = await _dbContext.RefreshToken
                                                         .FirstOrDefaultAsync(rt =>
                                                             rt.RefreshToken == refreshToken
                                                             && rt.UserId == userId
@@ -145,7 +145,7 @@ namespace angnet.Infrastructure.Data.Repositories
                     return false;
                 }
 
-                await _dbContext.RefreshTokens
+                await _dbContext.RefreshToken
                                     .Where(rt => rt.RefreshToken == refreshToken && rt.UserId == userId)
                                     .ExecuteUpdateAsync(setter =>
                                                                             setter.SetProperty(r => r.IsRevoked, true)
@@ -391,7 +391,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 IsRevoked = false,
             };
 
-            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            _dbContext.RefreshToken.Add(dtRefreshToken);
 
             // xóa hết token nếu user tự nhiên nhớ ra mật khẩu trong khi đã gửi code reset password xong không dùng
             await DisableAllTokenNotUse(user.Email, ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD);
@@ -462,7 +462,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 IsRevoked = false,
             };
 
-            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            _dbContext.RefreshToken.Add(dtRefreshToken);
             await RevokeRefreshToken(refreshTokenDto.RefreshToken, refreshTokenDto.UserId);
             await _dbContext.SaveChangesAsync();
 
@@ -536,7 +536,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 IsRevoked = false,
             };
 
-            _dbContext.RefreshTokens.Add(dtRefreshToken);
+            _dbContext.RefreshToken.Add(dtRefreshToken);
 
             // xóa hết token nếu user tự nhiên nhớ ra mật khẩu trong khi đã gửi code reset password xong không dùng
             await DisableAllTokenNotUse(user.Email, ConstValue.TYPE_AUTH_CODE_FORGOT_PASSWORD);
@@ -825,7 +825,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            await _dbContext.RefreshTokens
+            await _dbContext.RefreshToken
                                 .Where(rt => rt.UserId == userId)
                                 .ExecuteUpdateAsync(setter =>
                                                                         setter.SetProperty(r => r.IsRevoked, true)

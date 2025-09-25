@@ -1,9 +1,6 @@
-﻿using angnet.Domain.Dtos;
-using angnet.Domain.Models;
+﻿using angnet.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
-using angnet.Domain.Enums;
 using System.Text.Json;
 
 namespace angnet.Infrastructure.Data
@@ -16,24 +13,28 @@ namespace angnet.Infrastructure.Data
         }
 
         // 
-        public DbSet<TenantModel> Tenants { get; set; }
-        public DbSet<MstTenantContactModel> MstTenantContacts { get; set; }
+        public DbSet<TenantModel> Tenant { get; set; }
+        public DbSet<MstTenantContactModel> MstTenantContact { get; set; }
 
         //
-        public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
+        public DbSet<RefreshTokenModel> RefreshToken { get; set; }
 
         //
-        public DbSet<MstProvinceModel> MstProvinces { get; set; }
-        public DbSet<MstDistrictModel> MstDistricts { get; set; }
-        public DbSet<MstStadiumStatusModel> MstStadiumStatuses { get; set; }
-        public DbSet<MstStadiumTypeModel> MstStadiumTypes { get; set; }
-        public DbSet<MstStadiumModel> MstStadiums { get; set; }
-        public DbSet<MstPaymentTypeModel> MstPaymentTypes { get; set; }
-        public DbSet<OrderStadiumModel> OrderStadiums { get; set; }
+        public DbSet<MstProvinceModel> MstProvince { get; set; }
+        public DbSet<MstDistrictModel> MstDistrict { get; set; }
+        
+        //
+        public DbSet<MstStadiumModel> MstStadium { get; set; }
+        public DbSet<MstStadiumStatusModel> MstStadiumStatus { get; set; }
+        public DbSet<MstStadiumTypeModel> MstStadiumType { get; set; }
+        public DbSet<MstPaymentTypeModel> MstPaymentType { get; set; }
+        public DbSet<OrderStadiumModel> OrderStadium { get; set; }
+        public DbSet<AmenityStadiumModel> AmenityStadium { get; set; }
+
+        //
         public DbSet<ChatModel> Chat { get; set; }
 
         //
-
         public DbSet<PointNewsModel> PointNews { get; set; }
         public DbSet<NewsCategoryModel> NewsCategory { get; set; }
         public DbSet<HashTagNewsModel> HashTagNews { get; set; }
@@ -45,10 +46,13 @@ namespace angnet.Infrastructure.Data
         public DbSet<NewsReportCommentModel> NewsReportComment { get; set; }
         public DbSet<NewsCommentMediaModel> NewsCommentMedia { get; set; }
         
-        
+        //
         public DbSet<AuditTrailModel> AuditTrail { get; set; }
+
+        //
         public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
 
+        // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -106,6 +110,9 @@ namespace angnet.Infrastructure.Data
                         .HasForeignKey(s => s.StadiumTypeCode)
                         .OnDelete(DeleteBehavior.Restrict);
 
+            // MstPaymentTypeModel
+            //modelBuilder.Entity<MstPaymentTypeModel>();
+
             // MstStadiumFileModel
             modelBuilder.Entity<MstStadiumFileModel>()
                         .HasOne<MstStadiumModel>()
@@ -122,7 +129,6 @@ namespace angnet.Infrastructure.Data
                         .WithMany()
                         .HasForeignKey(d => d.DistrictCode)
                         .OnDelete(DeleteBehavior.Cascade);
-
 
             // OrderStadiumModel
             modelBuilder.Entity<OrderStadiumModel>()

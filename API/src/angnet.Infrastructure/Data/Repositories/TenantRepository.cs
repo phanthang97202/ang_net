@@ -29,7 +29,7 @@ namespace angnet.Infrastructure.Data.Repositories
         )
         {
             List<TenantModel> dataResult = new List<TenantModel>();
-            IQueryable<TenantModel> query = _dbContext.Tenants
+            IQueryable<TenantModel> query = _dbContext.Tenant
                                     .Where(p => !TCommonUtils.IsNullOrEmpty(keyword) ? p.TenantName.Contains(keyword) 
                                     || p.TenantCode == keyword : true);
 

@@ -34,7 +34,7 @@ namespace angnet.Infrastructure.Data.Repositories
         { 
             List<MstProvinceModel> dataResult = new List<MstProvinceModel>();
 
-            IQueryable<MstProvinceModel> query = _dbContext.MstProvinces
+            IQueryable<MstProvinceModel> query = _dbContext.MstProvince
                                     .Where(p => !TCommonUtils.IsNullOrEmpty(keyword) ? p.ProvinceName.Contains(keyword) || p.ProvinceCode == keyword : true);
             
             int itemCount = query.ToList().Count;
