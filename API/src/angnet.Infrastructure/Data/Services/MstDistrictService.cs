@@ -4,8 +4,6 @@ using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using GuardAuth = angnet.Utility.CommonUtils.CheckAuthorized;
 using System.Reflection;
-using angnet.Application.Interfaces.Persistences;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using angnet.Infrastructure.Data.UnitOfWork;
 
