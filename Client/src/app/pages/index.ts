@@ -17,3 +17,6 @@ export * from './home/news/news.component';
 export * from './login/login.component';
 export * from './forgot-password/forgot-password.component';
 // export * from './register'
+//
+export * from './tools/caculating-hotel-fee/calculating-hotel-fee.component';
+export * from './tools/tax-diff-calculator/tax-diff-calculator.component';

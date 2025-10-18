@@ -1,0 +1,47 @@
+<nz-card nzTitle="Tính Thuế Chênh (VAT + TNDN)">
+  <div nz-row [nzGutter]="16">
+    <div nz-col nzSpan="12">
+      <p>Giá thực tế (gross, đã VAT):</p>
+      <input
+        nz-input
+        [(ngModel)]="realGross"
+        (ngModelChange)="calculate()"
+        style="width: 100%" />
+    </div>
+
+    <div nz-col nzSpan="12">
+      <p>Giá xuất HĐ (gross, đã VAT):</p>
+      <input
+        nz-input
+        [(ngModel)]="invoiceGross"
+        (ngModelChange)="calculate()"
+        style="width: 100%" />
+    </div>
+
+    <div nz-col nzSpan="12">
+      <p>Thuế suất VAT (%):</p>
+      <input
+        nz-input
+        [(ngModel)]="vatRate"
+        (ngModelChange)="calculate()"
+        style="width: 100%" />
+    </div>
+
+    <div nz-col nzSpan="12">
+      <p>Thuế suất TNDN (%):</p>
+      <input
+        nz-input
+        [(ngModel)]="corpRate"
+        (ngModelChange)="calculate()"
+        style="width: 100%" />
+    </div>
+  </div>
+
+  <div class="mt-4 text-center">
+    <button nz-button nzType="primary" (click)="calculate()">Tính toán</button>
+  </div>
+</nz-card>
+
+<nz-card class="mt-3" *ngIf="result">
+  <pre>{{ result }}</pre>
+</nz-card>

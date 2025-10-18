@@ -34,6 +34,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 // import { FooterComponent } from '../components/footer/footer.component';
 // ... import tất cả module bạn cần
 
@@ -42,6 +43,7 @@ const ZORRO_MODULES = [
   NzButtonModule,
   NzUploadModule,
   NzIconModule,
+  NzDatePickerModule,
   NzModalModule,
   CommonModule,
   ReactiveFormsModule,

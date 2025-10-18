@@ -31,6 +31,20 @@ export const routes: Routes = [
     ],
   },
   {
+    title: 'Tools',
+    path: 'tools',
+    // canActivate: [canActive],
+    children: [
+      {
+        path: 'calculating-hotel-fee',
+        loadComponent: () =>
+          import(
+            './pages/tools/caculating-hotel-fee/calculating-hotel-fee.component'
+          ).then(p => p.CalculatingHotelFeeComponent),
+      },
+    ],
+  },
+  {
     title: 'Login',
     path: 'login',
     loadComponent() {

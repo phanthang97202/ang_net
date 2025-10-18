@@ -1,0 +1,92 @@
+<div
+  class="flex justify-between gap-4 flex-col sm:flex-col md:flex-col lg:flex-row">
+  <div class="w-full sm:w-full md:w-full lg:w-[60%]">
+    <nz-card nzTitle="Tối ưu chi phí đặt phòng" class="w-full">
+      <form
+        nz-form
+        class="flex gap-4 flex-col sm:flex-row md:flex-row lg:flex-row items-center">
+        <div
+          nz-form-item
+          class="flex items-center flex-col sm:flex-row md:flex-row lg:flex-row">
+          <div class="mr-2">
+            <p>Giờ check-in từ</p>
+          </div>
+          <div
+            class="flex items-center flex-col sm:flex-row md:flex-row lg:flex-row">
+            <div class="flex-1">
+              <nz-date-picker
+                nzShowTime
+                nzFormat="yyyy-MM-dd HH:mm"
+                [(ngModel)]="checkin"
+                name="checkin"
+                nzInputMode="datetime"></nz-date-picker>
+            </div>
+            <div class="mx-2">đến</div>
+            <div class="flex-1">
+              <nz-date-picker
+                nzShowTime
+                nzFormat="yyyy-MM-dd HH:mm"
+                [(ngModel)]="checkout"
+                name="checkout"
+                nzInputMode="datetime"></nz-date-picker>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button nz-button nzType="primary" (click)="calculate()">
+            Tính chi phí
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-4 text-sm text-gray-600">
+        Ghi chú: giá hiển thị là <strong>nghìn VND</strong> (ví dụ 230 = 230 000
+        VND).<br />
+        Quy tắc thuê theo giờ: <strong>giá gốc áp dụng cho 2 giờ đầu</strong>.
+        Nếu ở quá 2 giờ thì tính phụ thu theo giờ (mức extra của từng phòng).
+        Phần phút vượt > 10 phút được làm tròn lên 1 giờ.<br />
+        Check-in/Check-out sớm/muộn tính theo extra từng phòng.
+      </div>
+
+      <ng-container *ngIf="results.length">
+        <hr class="my-4" />
+        <div class="text-center font-semibold">Dự toán chi phí</div>
+        <hr class="mb-4" />
+
+        <div *ngFor="let r of results" class="mb-6">
+          <h3>{{ r.roomName }}</h3>
+          <nz-table
+            nzBordered
+            [nzData]="r.details"
+            [nzFrontPagination]="false"
+            nzSize="small">
+            <thead>
+              <tr>
+                <th>Kiểu thuê</th>
+                <th>Chi phí (nghìn)</th>
+                <th>Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let d of r.details"
+                [class.bg-green-100]="d.cost === r.minCost">
+                <td>{{ d.type }}</td>
+                <td>{{ d.cost | number: '1.0-0' | slice: 0 : -3 }}</td>
+                <td>{{ d.note }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </ng-container>
+
+      <div class="text-xs italic text-gray-500" *ngIf="results.length">
+        Ghi chú: Thuật toán so sánh kịch bản “thuê theo giờ (2h + phụ thu giờ
+        phần vượt)”, “thuê theo ngày”, “thuê theo đêm” và bổ sung “đêm→ngày”.
+      </div>
+    </nz-card>
+  </div>
+  <div class="flex-1">
+    <app-tax-diff-calculator></app-tax-diff-calculator>
+  </div>
+</div>

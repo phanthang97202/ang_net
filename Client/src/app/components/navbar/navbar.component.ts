@@ -8,7 +8,7 @@ import {
 } from '@angular/router';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzMenuItemComponent, NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { AuthService } from '../../services';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
@@ -18,20 +18,19 @@ import { TranslateModule } from '@ngx-translate/core';
   selector: 'app-navbar',
   standalone: true,
   imports: [
-    NzPopoverModule,
-    NzAvatarModule,
     CommonModule,
     RouterLink,
     RouterLinkActive,
-    NzMenuModule,
-    NzMenuItemComponent,
+    NzMenuModule, // ✅ chỉ cần cái này
     NzIconModule,
     NzButtonComponent,
+    NzPopoverModule,
+    NzAvatarModule,
     SwitchLangComponent,
     TranslateModule,
   ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
@@ -44,6 +43,19 @@ export class NavbarComponent implements OnInit {
 
   listRoute = [
     { path: '/', title: 'Home', icon: 'home', isActive: false },
+    {
+      // path: '/tools',
+      title: 'Tools',
+      icon: 'tool',
+      children: [
+        {
+          path: '/tools/calculating-hotel-fee',
+          title: 'CalculatingHotelFee',
+          icon: 'calculator',
+          isActive: false,
+        },
+      ],
+    },
     { path: '/about', title: 'AboutMe', icon: 'user', isActive: false },
   ];
 
@@ -56,7 +68,7 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  handleNavigateLogin(event: MouseEvent) {
+  handleNavigateLogin() {
     this.router.navigate(['/login']);
   }
 

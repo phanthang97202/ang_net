@@ -1,82 +1,76 @@
 <ul class="navbar sticky top-0 z-[10] bg-[#fff]" nz-menu nzMode="horizontal">
-  <li
-    *ngFor="let route of listRoute"
-    nz-menu-item
-    [routerLink]="route.path"
-    [nzSelected]="route.isActive">
-    <span nz-icon [nzType]="route.icon"></span>
-    {{ 'T_' + route.title | uppercase | translate }}
-  </li>
+  <ng-container *ngFor="let route of listRoute">
+    <!-- 🟩 Nếu KHÔNG có submenu -->
+    <li
+      *ngIf="!route.children"
+      nz-menu-item
+      [routerLink]="route.path"
+      [routerLink]="route.path">
+      <span nz-icon [nzType]="route.icon"></span>
+      {{ 'T_' + route.title | uppercase | translate }}
+    </li>
 
+    <!-- 🟦 Nếu CÓ submenu -->
+    <li
+      *ngIf="route.children"
+      nz-submenu
+      [nzTitle]="'T_' + route.title | uppercase | translate">
+      <ul>
+        <li
+          nz-menu-item
+          *ngFor="let child of route.children"
+          [routerLink]="child.path"
+          routerLinkActive="ant-menu-item-selected">
+          <span nz-icon [nzType]="child.icon"></span>
+          {{ 'T_' + child.title | uppercase | translate }}
+        </li>
+      </ul>
+    </li>
+  </ng-container>
+
+  <!-- 🟨 Nút login -->
   <li *ngIf="!authService.isLoggedIn()" nz-menu-item class="navbar_item-login">
-    <button nz-button nzType="primary" (click)="handleNavigateLogin($event)">
+    <button nz-button nzType="primary" (click)="handleNavigateLogin()">
       {{ 'T_LOGIN' | translate }}
     </button>
   </li>
-  <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">
-    <div class="">
-      <div>
-        <nz-avatar
-          nz-popover
-          nzPopoverTrigger="click"
-          [nzPopoverContent]="contentTemplate"
-          nzPopoverPlacement="bottomRight"
-          [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
-          [nzText]="authService.getAccountInfo().shortname"></nz-avatar>
-      </div>
 
-      <ng-template #contentTemplate>
-        <div class="">
-          <div>
-            <a routerLink="/userinfor">
-              {{ 'T_USERNAME' | translate }}:
-              <b>
-                <u>
-                  {{ authService.getAccountInfo().email }}
-                </u>
-              </b>
-            </a>
-          </div>
-          <div>
-            <p>
-              {{ 'T_ROLE' | translate }}:
-              <b>
-                {{
-                  authService
-                    .getAccountInfo()
-                    .role.toString()
-                    .replace(',', ', ')
-                }}
-              </b>
-            </p>
-          </div>
-          <div>
-            <div class="flex items-center">
-              <div>
-                <p>{{ 'T_LANGUAGE' | translate }}:</p>
-              </div>
-              <div>
-                <app-switch-lang />
-              </div>
-            </div>
-          </div>
-          <div *ngIf="authService.isLoggedIn()" nz-menu-item class="p-0">
-            <button nz-button nzType="primary" (click)="handleLogout()">
-              <span
-                class="contents"
-                nz-icon
-                nzType="logout"
-                nzTheme="outline"></span>
-              Logout
-            </button>
-          </div>
+  <!-- 🟧 Avatar + popover -->
+  <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">
+    <nz-avatar
+      nz-popover
+      nzPopoverTrigger="click"
+      [nzPopoverContent]="contentTemplate"
+      nzPopoverPlacement="bottomRight"
+      [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
+      [nzText]="authService.getAccountInfo().shortname">
+    </nz-avatar>
+
+    <ng-template #contentTemplate>
+      <div>
+        <a routerLink="/userinfor">
+          {{ 'T_USERNAME' | translate }}:
+          <b
+            ><u>{{ authService.getAccountInfo().email }}</u></b
+          >
+        </a>
+
+        <p>
+          {{ 'T_ROLE' | translate }}:
+          <b>{{
+            authService.getAccountInfo().role.toString().replace(',', ', ')
+          }}</b>
+        </p>
+
+        <div class="flex items-center">
+          <p>{{ 'T_LANGUAGE' | translate }}:</p>
+          <app-switch-lang />
         </div>
-      </ng-template>
-    </div>
+
+        <button nz-button nzType="primary" (click)="handleLogout()">
+          <span nz-icon nzType="logout"></span> Logout
+        </button>
+      </div>
+    </ng-template>
   </li>
-  <!-- <li nz-menu-item class="navbar_item-info">
-    <div class="xxx">
-      
-    </div>
-  </li> -->
 </ul>

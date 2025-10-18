@@ -34,5 +34,7 @@
     "T_ENTERTOKENCODE": "Please enter your token code",
     "T_VERIFY": "Verify",
     "T_ENTERTOKENCODEJUSTSENDTOYOUREMAILBOX": "Enter token code that just sent to your email box!",
-    "T_GETNEWTOKENCODE": "Get new code"
+    "T_GETNEWTOKENCODE": "Get new code",
+    "T_CALCULATINGHOTELFEE": "Calculating Hotel Fee",
+    "T_TOOLS": "Tools"
 }
