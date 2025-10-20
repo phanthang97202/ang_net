@@ -42,6 +42,13 @@ export const routes: Routes = [
             './pages/tools/caculating-hotel-fee/calculating-hotel-fee.component'
           ).then(p => p.CalculatingHotelFeeComponent),
       },
+      {
+        path: 'shift-report',
+        loadChildren: () =>
+          import('./pages/tools/shift-report/shift-report.module').then(
+            p => p.ShiftReportModule
+          ),
+      },
     ],
   },
   {

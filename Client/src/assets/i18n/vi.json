@@ -36,5 +36,6 @@
     "T_ENTERTOKENCODEJUSTSENDTOYOUREMAILBOX": "Nhập mã code vừa được gửi về hộp thư email của bạn!",
     "T_GETNEWTOKENCODE": "Lấy lại mã mới",
     "T_CALCULATINGHOTELFEE": "Tính phí khách sạn",
-    "T_TOOLS": "Công cụ"
+    "T_TOOLS": "Công cụ",
+    "T_SHIFTREPORT": "Báo cáo ca trực"
 }

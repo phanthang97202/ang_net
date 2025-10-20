@@ -54,6 +54,12 @@ export class NavbarComponent implements OnInit {
           icon: 'calculator',
           isActive: false,
         },
+        {
+          path: '/tools/shift-report',
+          title: 'ShiftReport',
+          icon: 'file-text',
+          isActive: false,
+        },
       ],
     },
     { path: '/about', title: 'AboutMe', icon: 'user', isActive: false },

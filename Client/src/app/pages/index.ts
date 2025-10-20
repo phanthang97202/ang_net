@@ -20,3 +20,4 @@ export * from './forgot-password/forgot-password.component';
 //
 export * from './tools/caculating-hotel-fee/calculating-hotel-fee.component';
 export * from './tools/tax-diff-calculator/tax-diff-calculator.component';
+export * from './tools/shift-report/shift-report.component';

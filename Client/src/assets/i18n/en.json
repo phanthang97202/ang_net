@@ -36,5 +36,6 @@
     "T_ENTERTOKENCODEJUSTSENDTOYOUREMAILBOX": "Enter token code that just sent to your email box!",
     "T_GETNEWTOKENCODE": "Get new code",
     "T_CALCULATINGHOTELFEE": "Calculating Hotel Fee",
-    "T_TOOLS": "Tools"
+    "T_TOOLS": "Tools",
+    "T_SHIFTREPORT": "Shift report"
 }
