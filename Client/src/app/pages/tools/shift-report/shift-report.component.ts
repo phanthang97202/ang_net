@@ -8,6 +8,7 @@ import {
 } from './types/shift-report-type';
 import { ShiftReportMockService } from './services/shift-report-mock.service';
 import { ExcelExportService } from './services/excel-report.service';
+import { PrintService } from './services/print.service';
 
 @Component({
   selector: 'app-shift-report',
@@ -40,6 +41,7 @@ export class ShiftReportComponent implements OnInit {
     private fb: FormBuilder,
     private shiftReportService: ShiftReportMockService, // Đổi từ ShiftReportService -> ShiftReportMockService
     private excelService: ExcelExportService,
+    private printService: PrintService,
     private message: NzMessageService,
     private modal: NzModalService
   ) {}
@@ -303,6 +305,22 @@ export class ShiftReportComponent implements OnInit {
       },
       error: error => {
         this.message.error('Không thể xuất Excel');
+        this.isLoading = false;
+        console.error(error);
+      },
+    });
+  }
+
+  printReport(id: number): void {
+    this.isLoading = true;
+    this.shiftReportService.getById(id).subscribe({
+      next: report => {
+        this.printService.printShiftReport(report);
+        this.message.success('Đang mở cửa sổ in...');
+        this.isLoading = false;
+      },
+      error: error => {
+        this.message.error('Không thể in báo cáo');
         this.isLoading = false;
         console.error(error);
       },

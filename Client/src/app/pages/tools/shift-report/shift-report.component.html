@@ -99,6 +99,15 @@
               nz-button
               nzType="default"
               nzSize="small"
+              (click)="printReport(item.id)"
+              nz-tooltip="In báo cáo"
+              style="margin-right: 8px">
+              <span nz-icon nzType="printer" nzTheme="outline"></span>
+            </button>
+            <button
+              nz-button
+              nzType="default"
+              nzSize="small"
               (click)="exportToExcel(item.id)"
               nz-tooltip="Xuất Excel"
               style="margin-right: 8px">
