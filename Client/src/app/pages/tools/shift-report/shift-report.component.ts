@@ -159,22 +159,23 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getById(id).subscribe({
       next: report => {
+        debugger;
         this.reportForm.patchValue({
-          shiftDate: new Date(report.shiftDate),
-          shiftType: report.shiftType,
-          startTime: report.startTime,
-          endTime: report.endTime,
-          receptionistName: report.receptionistName,
-          receiverName: report.receiverName,
+          shiftDate: new Date(report.ShiftDate),
+          shiftType: report.ShiftType,
+          startTime: report.StartTime,
+          endTime: report.EndTime,
+          receptionistName: report.ReceptionistName,
+          receiverName: report.ReceiverName,
         });
 
         this.transactions.clear();
-        report.transactions.forEach(txn => {
+        report.Transactions.forEach(txn => {
           this.transactions.push(this.fb.group(txn));
         });
 
         this.roomSales.clear();
-        report.roomSales.forEach(sale => {
+        report.RoomSales.forEach(sale => {
           this.roomSales.push(this.fb.group(sale));
         });
 
@@ -209,14 +210,14 @@ export class ShiftReportComponent implements OnInit {
     const formValue = this.reportForm.value;
 
     const dto: CreateShiftReportDto = {
-      shiftDate: this.formatDate(formValue.shiftDate),
-      shiftType: formValue.shiftType,
-      startTime: formValue.startTime,
-      endTime: formValue.endTime,
-      receptionistName: formValue.receptionistName,
-      receiverName: formValue.receiverName,
-      transactions: formValue.transactions,
-      roomSales: formValue.roomSales,
+      ShiftDate: this.formatDate(formValue.shiftDate),
+      ShiftType: formValue.shiftType,
+      StartTime: formValue.startTime,
+      EndTime: formValue.endTime,
+      ReceptionistName: formValue.receptionistName,
+      ReceiverName: formValue.receiverName,
+      Transactions: formValue.transactions,
+      RoomSales: formValue.roomSales,
     };
 
     const request = this.editingId
@@ -263,8 +264,10 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getAll(params).subscribe({
       next: result => {
-        this.reports = result.items;
-        this.totalRecords = result.totalCount;
+        // debugger;
+
+        this.reports = result.Items;
+        this.totalRecords = result.TotalCount;
         this.isLoading = false;
       },
       error: error => {

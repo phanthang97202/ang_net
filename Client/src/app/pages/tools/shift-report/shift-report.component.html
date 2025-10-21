@@ -82,24 +82,24 @@
       <tbody>
         <tr *ngFor="let item of basicTable.data; let i = index">
           <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
-          <td>{{ item.shiftDate | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ item.ShiftDate | date: 'dd/MM/yyyy' }}</td>
           <td>
             <nz-tag
-              [nzColor]="item.shiftType === 'Ca ngày' ? 'blue' : 'purple'">
-              {{ item.shiftType }}
+              [nzColor]="item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'">
+              {{ item.ShiftType }}
             </nz-tag>
           </td>
-          <td>{{ item.receptionistName }}</td>
-          <td nzAlign="right">{{ item.totalCash | number: '1.0-0' }}</td>
-          <td nzAlign="right">{{ item.totalTransfer | number: '1.0-0' }}</td>
-          <td nzAlign="right">{{ item.handoverAmount | number: '1.0-0' }}</td>
-          <td>{{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ item.ReceptionistName }}</td>
+          <td nzAlign="right">{{ item.TotalCash | number: '1.0-0' }}</td>
+          <td nzAlign="right">{{ item.TotalTransfer | number: '1.0-0' }}</td>
+          <td nzAlign="right">{{ item.HandoverAmount | number: '1.0-0' }}</td>
+          <td>{{ item.CreatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td nzAlign="center">
             <button
               nz-button
               nzType="default"
               nzSize="small"
-              (click)="exportToExcel(item.id)"
+              (click)="exportToExcel(item.Id)"
               nz-tooltip="Xuất Excel"
               style="margin-right: 8px">
               <span nz-icon nzType="file-excel" nzTheme="outline"></span>
@@ -108,7 +108,7 @@
               nz-button
               nzType="primary"
               nzSize="small"
-              (click)="showEditModal(item.id)"
+              (click)="showEditModal(item.Id)"
               nz-tooltip="Chỉnh sửa"
               style="margin-right: 8px">
               <span nz-icon nzType="edit"></span>
@@ -118,7 +118,7 @@
               nzType="primary"
               nzDanger
               nzSize="small"
-              (click)="deleteReport(item.id)"
+              (click)="deleteReport(item.Id)"
               nz-tooltip="Xóa">
               <span nz-icon nzType="delete"></span>
             </button>

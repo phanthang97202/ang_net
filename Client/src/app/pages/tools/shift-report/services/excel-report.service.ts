@@ -15,7 +15,7 @@ export class ExcelExportService {
     // Title
     data.push(['BÁO CÁO THU TIỀN VÀ BÀN GIAO CA']);
     data.push([
-      `CA ${report.shiftType.toUpperCase()} ${this.formatDateTime(report.shiftDate, report.startTime, report.endTime)}`,
+      `CA ${report.ShiftType.toUpperCase()} ${this.formatDateTime(report.ShiftDate, report.StartTime, report.EndTime)}`,
     ]);
     data.push([]);
 
@@ -35,35 +35,35 @@ export class ExcelExportService {
     ]);
 
     // First row with receptionist name and opening balance
-    const firstTransaction = report.transactions[0] || {};
+    const firstTransaction = report.Transactions[0] || {};
     data.push([
-      report.receptionistName,
-      firstTransaction.orderNumber || '',
-      firstTransaction.roomNumber || '',
-      firstTransaction.invoiceCode || '',
-      firstTransaction.customerType || '',
-      firstTransaction.cashAmount || '',
-      firstTransaction.transferAmount || '',
-      firstTransaction.prepaidNote || '',
-      firstTransaction.expenseDescription || '',
-      firstTransaction.expenseAmount || '',
+      report.ReceptionistName,
+      firstTransaction.OrderNumber || '',
+      firstTransaction.RoomNumber || '',
+      firstTransaction.InvoiceCode || '',
+      firstTransaction.CustomerType || '',
+      firstTransaction.CashAmount || '',
+      firstTransaction.TransferAmount || '',
+      firstTransaction.PrepaidNote || '',
+      firstTransaction.ExpenseDescription || '',
+      firstTransaction.ExpenseAmount || '',
       '',
     ]);
 
     // Rest of transactions
-    for (let i = 1; i < report.transactions.length; i++) {
-      const txn = report.transactions[i];
+    for (let i = 1; i < report.Transactions.length; i++) {
+      const txn = report.Transactions[i];
       data.push([
         '',
-        txn.orderNumber,
-        txn.roomNumber || '',
-        txn.invoiceCode || '',
-        txn.customerType || '',
-        txn.cashAmount || '',
-        txn.transferAmount || '',
-        txn.prepaidNote || '',
-        txn.expenseDescription || '',
-        txn.expenseAmount || '',
+        txn.OrderNumber,
+        txn.RoomNumber || '',
+        txn.InvoiceCode || '',
+        txn.CustomerType || '',
+        txn.CashAmount || '',
+        txn.TransferAmount || '',
+        txn.PrepaidNote || '',
+        txn.ExpenseDescription || '',
+        txn.ExpenseAmount || '',
         '',
       ]);
     }
@@ -75,16 +75,16 @@ export class ExcelExportService {
       '',
       '',
       '',
-      report.totalCash,
-      report.totalTransfer,
+      report.TotalCash,
+      report.TotalTransfer,
       '',
       '',
-      report.totalExpense,
-      report.handoverAmount,
+      report.TotalExpense,
+      report.HandoverAmount,
     ]);
 
     data.push([]);
-    data.push([`Bàn phòng ngày ${this.formatDate(report.shiftDate)}`]);
+    data.push([`Bàn phòng ngày ${this.formatDate(report.ShiftDate)}`]);
     data.push([]);
 
     // Room sales table header
@@ -92,14 +92,14 @@ export class ExcelExportService {
     data.push(['', 'PHÒNG', 'ĐƠN GIÁ', 'PHÒNG', 'ĐƠN GIÁ', 'PHÒNG', 'ĐƠN GIÁ']);
 
     // Group room sales by category
-    const hourlyRooms = report.roomSales.filter(
-      r => r.roomCategory === 'KHÁCH GIỜ'
+    const hourlyRooms = report.RoomSales.filter(
+      r => r.RoomCategory === 'KHÁCH GIỜ'
     );
-    const nightRooms = report.roomSales.filter(
-      r => r.roomCategory === 'KHÁCH ĐÊM'
+    const nightRooms = report.RoomSales.filter(
+      r => r.RoomCategory === 'KHÁCH ĐÊM'
     );
-    const dailyRooms = report.roomSales.filter(
-      r => r.roomCategory === 'KHÁCH NGÀY'
+    const dailyRooms = report.RoomSales.filter(
+      r => r.RoomCategory === 'KHÁCH NGÀY'
     );
 
     const maxRows = Math.max(
@@ -111,21 +111,21 @@ export class ExcelExportService {
     for (let i = 0; i < maxRows; i++) {
       data.push([
         i + 1,
-        hourlyRooms[i]?.roomNumber || '',
-        hourlyRooms[i]?.unitPrice || '',
-        nightRooms[i]?.roomNumber || '',
-        nightRooms[i]?.unitPrice || '',
-        dailyRooms[i]?.roomNumber || '',
-        dailyRooms[i]?.unitPrice || '',
+        hourlyRooms[i]?.RoomNumber || '',
+        hourlyRooms[i]?.UnitPrice || '',
+        nightRooms[i]?.RoomNumber || '',
+        nightRooms[i]?.UnitPrice || '',
+        dailyRooms[i]?.RoomNumber || '',
+        dailyRooms[i]?.UnitPrice || '',
       ]);
     }
 
     data.push([]);
     data.push(['NGƯỜI GIAO']);
-    data.push([report.receptionistName]);
+    data.push([report.ReceptionistName]);
     data.push([]);
     data.push(['NGƯỜI NHẬN']);
-    data.push([report.receiverName || '']);
+    data.push([report.ReceiverName || '']);
 
     // Create worksheet
     const ws = XLSX.utils.aoa_to_sheet(data);
@@ -155,7 +155,7 @@ export class ExcelExportService {
     XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo ca');
 
     // Generate filename
-    const fileName = `BaoCaoCa_${this.formatDate(report.shiftDate)}_${report.shiftType}.xlsx`;
+    const fileName = `BaoCaoCa_${this.formatDate(report.ShiftDate)}_${report.ShiftType}.xlsx`;
 
     // Save file
     XLSX.writeFile(wb, fileName);
