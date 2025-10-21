@@ -29,7 +29,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<MstStadiumTypeModel> MstStadiumType { get; set; }
         public DbSet<MstPaymentTypeModel> MstPaymentType { get; set; }
         public DbSet<OrderStadiumModel> OrderStadium { get; set; }
-        public DbSet<AmenityStadiumModel> AmenityStadium { get; set; }
+        //public DbSet<AmenityStadiumModel> AmenityStadium { get; set; } // Dang dở
 
         //
         public DbSet<ChatModel> Chat { get; set; }
@@ -51,6 +51,11 @@ namespace angnet.Infrastructure.Data
 
         //
         public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
+
+        // Extension: Shift Report 
+        public DbSet<ShiftReportModel> ShiftReport { get; set; }
+        public DbSet<ShiftReportTransactionModel> ShiftReportTransaction { get; set; }
+        public DbSet<ShiftReportRoomSaleModel> ShiftReportRoomSale { get; set; }
 
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -313,6 +318,50 @@ namespace angnet.Infrastructure.Data
             // GenerationAuthCode
             modelBuilder.Entity<GenerationAuthCode>()
                 .HasKey(p => new { p.Id }); // gen code 
+
+            // Extension: Shift report
+            // ShiftReport configuration
+            modelBuilder.Entity<ShiftReportModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+
+                entity.HasIndex(e => e.ShiftDate);
+                entity.HasIndex(e => e.ReceptionistName);
+
+                entity.Property(e => e.TotalCash).HasDefaultValue(0);
+                entity.Property(e => e.TotalTransfer).HasDefaultValue(0);
+                entity.Property(e => e.TotalExpense).HasDefaultValue(0);
+                entity.Property(e => e.HandoverAmount).HasDefaultValue(0);
+            });
+
+            // ShiftReportTransaction configuration
+            modelBuilder.Entity<ShiftReportTransactionModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+
+                entity.HasOne(e => e.ShiftReport)
+                    .WithMany(e => e.Transactions)
+                    .HasForeignKey(e => e.ShiftReportId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.ShiftReportId);
+            });
+
+            // ShiftReportRoomSale configuration
+            modelBuilder.Entity<ShiftReportRoomSaleModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+
+                entity.HasOne(e => e.ShiftReport)
+                    .WithMany(e => e.RoomSales)
+                    .HasForeignKey(e => e.ShiftReportId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.ShiftReportId);
+            });
         }
     }
 }

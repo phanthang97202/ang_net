@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Persistences\Migrations\" />
+    <Folder Include="Data\Persistences\Migrations\" />
   </ItemGroup>
 
 </Project>
