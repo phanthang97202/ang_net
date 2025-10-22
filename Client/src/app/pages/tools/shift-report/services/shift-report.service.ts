@@ -24,20 +24,20 @@ export class ShiftReportService {
     let httpParams = new HttpParams();
 
     if (params) {
-      if (params.FromDate)
-        httpParams = httpParams.set('fromDate', params.FromDate);
-      if (params.ToDate) httpParams = httpParams.set('toDate', params.ToDate);
-      if (params.ReceptionistName)
+      if (params.fromDate)
+        httpParams = httpParams.set('fromDate', params.fromDate);
+      if (params.toDate) httpParams = httpParams.set('toDate', params.toDate);
+      if (params.receptionistName)
         httpParams = httpParams.set(
-          'receptionistName',
-          params.ReceptionistName
+          'ReceptionistName',
+          params.receptionistName
         );
-      if (params.ShiftType)
-        httpParams = httpParams.set('shiftType', params.ShiftType);
-      if (params.PageNumber)
-        httpParams = httpParams.set('pageNumber', params.PageNumber.toString());
-      if (params.PageSize)
-        httpParams = httpParams.set('pageSize', params.PageSize.toString());
+      if (params.shiftType)
+        httpParams = httpParams.set('shiftType', params.shiftType);
+      if (params.pageNumber)
+        httpParams = httpParams.set('pageNumber', params.pageNumber.toString());
+      if (params.pageSize)
+        httpParams = httpParams.set('pageSize', params.pageSize.toString());
     }
 
     return this.http.get<PagedResult<ShiftReportListItem>>(

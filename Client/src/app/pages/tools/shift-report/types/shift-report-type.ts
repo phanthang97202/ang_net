@@ -77,10 +77,10 @@ export interface PagedResult<T> {
 }
 
 export interface ShiftReportQueryParams {
-  FromDate?: string;
-  ToDate?: string;
-  ReceptionistName?: string;
-  ShiftType?: string;
-  PageNumber?: number;
-  PageSize?: number;
+  fromDate?: string;
+  toDate?: string;
+  receptionistName?: string;
+  shiftType?: string;
+  pageNumber?: number;
+  pageSize?: number;
 }

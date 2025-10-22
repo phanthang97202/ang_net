@@ -244,7 +244,6 @@ export class ShiftReportComponent implements OnInit {
     this.isLoading = true;
     const formValue = this.reportForm.value;
 
-    console.log('formValue.shiftDate', formValue.shiftDate);
     const dto: CreateShiftReportDto = {
       // ShiftDate: this.formatDate(formValue.shiftDate),
       ShiftDate: format(formValue.shiftDate, 'yyyy-MM-dd'),
@@ -269,8 +268,6 @@ export class ShiftReportComponent implements OnInit {
 
       RoomSales: formValue.roomSales,
     };
-
-    console.log('formValue.transactions', formValue.transactions);
 
     const request = this.editingId
       ? this.shiftReportService.update(this.editingId, dto)
