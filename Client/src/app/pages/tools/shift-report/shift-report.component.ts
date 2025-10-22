@@ -64,8 +64,8 @@ export class ShiftReportComponent implements OnInit {
     this.reportForm = this.fb.group({
       shiftDate: [new Date(), Validators.required],
       shiftType: ['Ca ngày', Validators.required],
-      startTime: ['07:00', Validators.required],
-      endTime: ['19:00', Validators.required],
+      startTime: [new Date(), Validators.required],
+      endTime: [new Date(), Validators.required],
       receptionistName: ['', Validators.required],
       receiverName: [''],
       transactions: this.fb.array([]),
@@ -152,8 +152,8 @@ export class ShiftReportComponent implements OnInit {
     this.reportForm.reset({
       shiftDate: new Date(),
       shiftType: 'Ca ngày',
-      startTime: '07:00',
-      endTime: '19:00',
+      startTime: new Date(),
+      endTime: new Date(),
       receptionistName: '',
       receiverName: '',
     });

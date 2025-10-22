@@ -157,7 +157,7 @@
               <nz-form-control nzErrorTip="Vui lòng chọn ngày!">
                 <nz-date-picker
                   formControlName="shiftDate"
-                  nzFormat="dd/MM/yyyy"
+                  nzFormat="yyyy-MM-dd"
                   style="width: 100%"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
@@ -182,8 +182,10 @@
               <nz-form-label nzRequired>Giờ bắt đầu</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập giờ bắt đầu!">
                 <nz-date-picker
+                  nzShowTime
                   formControlName="startTime"
-                  nzFormat="dd/MM/yyyy HH:mm"
+                  nzFormat="yyyy-MM-dd HH:mm"
+                  nzInputMode="datetime"
                   style="width: 100%"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
@@ -194,8 +196,10 @@
               <nz-form-label nzRequired>Giờ kết thúc</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập giờ kết thúc!">
                 <nz-date-picker
+                  nzShowTime
                   formControlName="endTime"
-                  nzFormat="dd/MM/yyyy HH:mm"
+                  nzFormat="yyyy-MM-dd HH:mm"
+                  nzInputMode="datetime"
                   style="width: 100%"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
