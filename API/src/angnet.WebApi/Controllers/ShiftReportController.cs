@@ -42,7 +42,8 @@ namespace angnet.WebApi.Controllers
         /// <summary>
         /// Get shift report by ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("GetById/{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ShiftReportResponseDto>> GetById(int id)
         {
             try
@@ -86,7 +87,7 @@ namespace angnet.WebApi.Controllers
         /// <summary>
         /// Update existing shift report
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPut("Update/{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ShiftReportResponseDto>> Update(int id, [FromBody] UpdateShiftReportDto dto)
         {
@@ -115,7 +116,7 @@ namespace angnet.WebApi.Controllers
         /// <summary>
         /// Delete shift report
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -136,8 +137,9 @@ namespace angnet.WebApi.Controllers
         /// <summary>
         /// Get shift report summary by date range
         /// </summary>
-        [HttpGet("summary")]
-        public async Task<ActionResult> GetSummary([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        [HttpGet("GetSummary")]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetSummary([FromQuery] DateOnly? fromDate, [FromQuery] DateOnly? toDate)
         {
             try
             {

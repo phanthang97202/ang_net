@@ -16,17 +16,17 @@ namespace angnet.Domain.Models
         public int Id { get; set; }
 
         [Required]
-        public DateTime ShiftDate { get; set; }
+        public DateOnly ShiftDate { get; set; }
 
         [Required]
         [MaxLength(50)]
         public string ShiftType { get; set; } = string.Empty; // "Ca ngày", "Ca đêm"
 
         [Required]
-        public TimeSpan StartTime { get; set; }
+        public DateTime StartTime { get; set; }
 
         [Required]
-        public TimeSpan EndTime { get; set; }
+        public DateTime EndTime { get; set; }
 
         [Required]
         [MaxLength(100)]

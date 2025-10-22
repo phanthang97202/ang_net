@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { ShiftReportResponse } from './../types/shift-report-type';
+import { format } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
@@ -72,8 +73,8 @@ export class ExcelExportService {
 
     // ========== SET COLUMN WIDTHS ==========
     worksheet.columns = [
-      { width: 15 }, // A: Lễ tân
-      { width: 6 }, // B: STT
+      { width: 10 }, // A: Lễ tân
+      { width: 10 }, // B: STT
       { width: 10 }, // C: Số phòng
       { width: 10 }, // D: Mã phòng
       { width: 15 }, // E: Loại khách
@@ -93,7 +94,9 @@ export class ExcelExportService {
 
     worksheet.mergeCells('A2:K2');
     const subtitleCell = worksheet.getCell('A2');
-    subtitleCell.value = `CA ${report.ShiftType.toUpperCase()} ${this.formatDateTime(report.ShiftDate, report.StartTime, report.EndTime)}`;
+    const _stTime = format(new Date(report.StartTime), 'HH:mm').toString();
+    const _eTime = format(new Date(report.EndTime), 'HH:mm').toString();
+    subtitleCell.value = `${report.ShiftType.toUpperCase()} ${this.formatDateTime(report.ShiftDate, _stTime, _eTime)}`;
     subtitleCell.style = subtitleStyle;
 
     // Row 3: Empty
