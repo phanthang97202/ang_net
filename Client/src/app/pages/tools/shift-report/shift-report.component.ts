@@ -253,9 +253,24 @@ export class ShiftReportComponent implements OnInit {
       EndTime: formValue.endTime,
       ReceptionistName: formValue.receptionistName,
       ReceiverName: formValue.receiverName,
-      Transactions: formValue.transactions,
+      Transactions: formValue.transactions.map((i: any) => {
+        return {
+          CashAmount: i.cashAmount,
+          CustomerType: i.customerType ?? '', // fix prevent null => error be
+          ExpenseAmount: i.expenseAmount,
+          ExpenseDescription: i.expenseDescription,
+          InvoiceCode: i.invoiceCode,
+          OrderNumber: i.orderNumber,
+          PrepaidNote: i.prepaidNote,
+          RoomNumber: i.roomNumber,
+          TransferAmount: i.transferAmount,
+        };
+      }),
+
       RoomSales: formValue.roomSales,
     };
+
+    console.log('formValue.transactions', formValue.transactions);
 
     const request = this.editingId
       ? this.shiftReportService.update(this.editingId, dto)
