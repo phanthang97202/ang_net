@@ -40,25 +40,51 @@ export class TextEditorComponent implements OnInit {
 
   constructor(private sanitizer: DomSanitizer) {}
 
+  // ==================Bản fix
   async ngOnInit() {
+    if (typeof window === 'undefined') {
+      console.warn('BlotFormatter not loaded (SSR)');
+      this.setupEditorModules(false);
+      return;
+    }
+
     try {
-      // Dynamic import để tránh lỗi Vite cache
-      const BlotFormatter = await import('quill-blot-formatter').then(
-        m => m.default
-      );
+      const module = await import('quill-blot-formatter');
+      const BlotFormatter = module.default || module; // ✅ fix cho cả ESM & CJS
 
       Quill.register('modules/blotFormatter', BlotFormatter);
-      console.log('BlotFormatter module registered successfully');
+      console.log('✅ BlotFormatter module registered successfully');
 
-      // Sau khi register xong, mới set up modules
       this.setupEditorModules(true);
       this.blotFormatterReady = true;
     } catch (error) {
-      console.error('Error registering BlotFormatter module:', error);
-      // Fallback: setup editor without blotFormatter
+      console.error('❌ Error registering BlotFormatter module:', error);
       this.setupEditorModules(false);
     }
   }
+  // ==========================================
+
+  // ================Bản cũ: chạy local được mà production lỗi
+  // async ngOnInit() {
+  //   try {
+  //     // Dynamic import để tránh lỗi Vite cache
+  //     const BlotFormatter = await import('quill-blot-formatter').then(
+  //       m => m.default
+  //     );
+
+  //     Quill.register('modules/blotFormatter', BlotFormatter);
+  //     console.log('BlotFormatter module registered successfully');
+
+  //     // Sau khi register xong, mới set up modules
+  //     this.setupEditorModules(true);
+  //     this.blotFormatterReady = true;
+  //   } catch (error) {
+  //     console.error('Error registering BlotFormatter module:', error);
+  //     // Fallback: setup editor without blotFormatter
+  //     this.setupEditorModules(false);
+  //   }
+  // }
+  // ==========================================
 
   private setupEditorModules(includeBlotFormatter = true) {
     if (includeBlotFormatter) {
