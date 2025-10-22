@@ -49,23 +49,19 @@ export class TextEditorComponent implements OnInit {
     }
 
     try {
-      const mod = await import('quill-blot-formatter');
-      const RealBlotFormatter = mod.default || mod;
+      const module = await import('quill-blot-formatter');
+      const BlotFormatter = module.default || module; // ✅ fix cho cả ESM & CJS
 
-      // ✅ Bọc lại để ngăn lỗi "not a constructor" khi build production
-      const SafeBlotFormatter = class extends RealBlotFormatter {};
-
-      Quill.register('modules/blotFormatter', SafeBlotFormatter);
-      console.log('✅ BlotFormatter registered safely');
+      Quill.register('modules/blotFormatter', BlotFormatter);
+      console.log('✅ BlotFormatter module registered successfully');
 
       this.setupEditorModules(true);
       this.blotFormatterReady = true;
     } catch (error) {
-      console.error('❌ Error registering BlotFormatter:', error);
+      console.error('❌ Error registering BlotFormatter module:', error);
       this.setupEditorModules(false);
     }
   }
-
   // ==========================================
 
   // ================Bản cũ: chạy local được mà production lỗi
