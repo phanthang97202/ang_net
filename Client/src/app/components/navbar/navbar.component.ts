@@ -41,6 +41,16 @@ export class NavbarComponent implements OnInit {
     private activatedRoute: ActivatedRoute
   ) {}
 
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+  }
+
   listRoute = [
     { path: '/', title: 'Home', icon: 'home', isActive: false },
     {

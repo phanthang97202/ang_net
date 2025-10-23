@@ -1,17 +1,80 @@
 .navbar_item-login {
     float: right;
+
     .ant-menu-title-content {
 
         .ant-btn {
-            .anticon { 
-                    display: inline-flex !important;
+            .anticon {
+                display: inline-flex !important;
             }
         }
     }
 }
 
-.navbar_item-info{
+.navbar_item-info {
     float: right;
     padding-right: 20px;
     cursor: pointer;
+}
+
+// responsive
+// Component SCSS
+.navbar-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.navbar {
+    height: 64px;
+
+    // Fix ng-zorro menu horizontal
+    &.ant-menu-horizontal {
+        border-bottom: none;
+        line-height: 64px;
+    }
+}
+
+// Mobile menu dropdown
+.mobile-menu {
+    max-height: calc(100vh - 64px);
+    animation: slideDown 0.2s ease-out;
+
+    .ant-menu {
+        background: white;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Mobile overlay
+.mobile-overlay {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Đảm bảo avatar clickable
+.navbar_item-info,
+.navbar_item-login {
+    display: flex;
+    align-items: center;
 }

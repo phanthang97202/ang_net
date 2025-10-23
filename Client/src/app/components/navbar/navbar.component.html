@@ -1,76 +1,170 @@
-<ul class="navbar sticky top-0 z-[10] bg-[#fff]" nz-menu nzMode="horizontal">
-  <ng-container *ngFor="let route of listRoute">
-    <!-- 🟩 Nếu KHÔNG có submenu -->
-    <li
-      *ngIf="!route.children"
-      nz-menu-item
-      [routerLink]="route.path"
-      [routerLink]="route.path">
-      <span nz-icon [nzType]="route.icon"></span>
-      {{ 'T_' + route.title | uppercase | translate }}
+<!-- Navbar Container -->
+<div class="navbar-wrapper sticky top-0 z-[10] bg-white shadow-sm">
+  <!-- Desktop Navbar -->
+  <ul
+    class="navbar hidden md:flex items-center h-16 px-4"
+    nz-menu
+    nzMode="horizontal">
+    <ng-container *ngFor="let route of listRoute">
+      <!-- 🟩 Menu item không có submenu -->
+      <li *ngIf="!route.children" nz-menu-item [routerLink]="route.path">
+        <span nz-icon [nzType]="route.icon"></span>
+        {{ 'T_' + route.title | uppercase | translate }}
+      </li>
+
+      <!-- 🟦 Menu item có submenu -->
+      <li
+        *ngIf="route.children"
+        nz-submenu
+        [nzTitle]="'T_' + route.title | uppercase | translate">
+        <ul>
+          <li
+            nz-menu-item
+            *ngFor="let child of route.children"
+            [routerLink]="child.path"
+            routerLinkActive="ant-menu-item-selected">
+            <span nz-icon [nzType]="child.icon"></span>
+            {{ 'T_' + child.title | uppercase | translate }}
+          </li>
+        </ul>
+      </li>
+    </ng-container>
+
+    <!-- Spacer -->
+    <li class="flex-grow"></li>
+
+    <!-- 🟨 Nút Login Desktop -->
+    <li *ngIf="!authService.isLoggedIn()" class="navbar_item-login">
+      <button nz-button nzType="primary" (click)="handleNavigateLogin()">
+        {{ 'T_LOGIN' | translate }}
+      </button>
     </li>
 
-    <!-- 🟦 Nếu CÓ submenu -->
-    <li
-      *ngIf="route.children"
-      nz-submenu
-      [nzTitle]="'T_' + route.title | uppercase | translate">
-      <ul>
-        <li
-          nz-menu-item
-          *ngFor="let child of route.children"
-          [routerLink]="child.path"
-          routerLinkActive="ant-menu-item-selected">
-          <span nz-icon [nzType]="child.icon"></span>
-          {{ 'T_' + child.title | uppercase | translate }}
-        </li>
-      </ul>
+    <!-- 🟧 Avatar Desktop -->
+    <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">
+      <nz-avatar
+        nz-popover
+        nzPopoverTrigger="click"
+        [nzPopoverContent]="contentTemplate"
+        nzPopoverPlacement="bottomRight"
+        [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
+        [nzText]="authService.getAccountInfo().shortname"
+        class="cursor-pointer">
+      </nz-avatar>
     </li>
-  </ng-container>
+  </ul>
 
-  <!-- 🟨 Nút login -->
-  <li *ngIf="!authService.isLoggedIn()" nz-menu-item class="navbar_item-login">
-    <button nz-button nzType="primary" (click)="handleNavigateLogin()">
+  <!-- Mobile Navbar (chỉ có hamburger + avatar/login) -->
+  <div
+    class="mobile-navbar md:hidden flex items-center justify-between h-16 px-4 bg-white">
+    <!-- 🍔 Hamburger Button -->
+    <button nz-button nzType="text" (click)="toggleMobileMenu()">
+      <span
+        nz-icon
+        [nzType]="isMobileMenuOpen ? 'close' : 'menu'"
+        class="text-xl"></span>
+    </button>
+
+    <!-- Logo/Brand (optional) -->
+    <div class="flex-grow"></div>
+
+    <!-- 🟨 Login Button Mobile -->
+    <button
+      *ngIf="!authService.isLoggedIn()"
+      nz-button
+      nzType="primary"
+      (click)="handleNavigateLogin()">
       {{ 'T_LOGIN' | translate }}
     </button>
-  </li>
 
-  <!-- 🟧 Avatar + popover -->
-  <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">
+    <!-- 🟧 Avatar Mobile -->
     <nz-avatar
+      *ngIf="authService.isLoggedIn()"
       nz-popover
       nzPopoverTrigger="click"
       [nzPopoverContent]="contentTemplate"
-      nzPopoverPlacement="bottomRight"
+      nzPopoverPlacement="bottomLeft"
       [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
-      [nzText]="authService.getAccountInfo().shortname">
+      [nzText]="authService.getAccountInfo().shortname"
+      class="cursor-pointer">
     </nz-avatar>
+  </div>
 
-    <ng-template #contentTemplate>
-      <div>
-        <a routerLink="/userinfor">
-          {{ 'T_USERNAME' | translate }}:
-          <b
-            ><u>{{ authService.getAccountInfo().email }}</u></b
-          >
-        </a>
+  <!-- 📱 Mobile Menu Dropdown -->
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="mobile-menu md:hidden bg-white border-t shadow-lg absolute left-0 right-0 w-full">
+    <ul nz-menu nzMode="inline" class="border-none w-full">
+      <ng-container *ngFor="let route of listRoute">
+        <!-- Menu item không có submenu -->
+        <li
+          *ngIf="!route.children"
+          nz-menu-item
+          [routerLink]="route.path"
+          (click)="closeMobileMenu()"
+          routerLinkActive="ant-menu-item-selected">
+          <span nz-icon [nzType]="route.icon"></span>
+          {{ 'T_' + route.title | uppercase | translate }}
+        </li>
 
-        <p>
-          {{ 'T_ROLE' | translate }}:
-          <b>{{
-            authService.getAccountInfo().role.toString().replace(',', ', ')
-          }}</b>
-        </p>
+        <!-- Menu item có submenu -->
+        <li *ngIf="route.children" nz-submenu [nzTitle]="subMenuTitle">
+          <ng-template #subMenuTitle>
+            <span nz-icon [nzType]="route.icon"></span>
+            <span>{{ 'T_' + route.title | uppercase | translate }}</span>
+          </ng-template>
+          <ul>
+            <li
+              nz-menu-item
+              *ngFor="let child of route.children"
+              [routerLink]="child.path"
+              (click)="closeMobileMenu()"
+              routerLinkActive="ant-menu-item-selected">
+              <span nz-icon [nzType]="child.icon"></span>
+              {{ 'T_' + child.title | uppercase | translate }}
+            </li>
+          </ul>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</div>
 
-        <div class="flex items-center">
-          <p>{{ 'T_LANGUAGE' | translate }}:</p>
-          <app-switch-lang />
-        </div>
+<!-- Overlay -->
+<div
+  *ngIf="isMobileMenuOpen"
+  class="mobile-overlay fixed inset-0 bg-black/30 z-[5] md:hidden"
+  (click)="closeMobileMenu()"></div>
 
-        <button nz-button nzType="primary" (click)="handleLogout()">
-          <span nz-icon nzType="logout"></span> Logout
-        </button>
-      </div>
-    </ng-template>
-  </li>
-</ul>
+<!-- Avatar Popover Template -->
+<ng-template #contentTemplate>
+  <div class="min-w-[220px] p-2">
+    <a routerLink="/userinfor" class="block mb-3 hover:text-blue-500">
+      <div class="text-sm text-gray-600">{{ 'T_USERNAME' | translate }}:</div>
+      <b
+        ><u>{{ authService.getAccountInfo().email }}</u></b
+      >
+    </a>
+
+    <div class="mb-3">
+      <div class="text-sm text-gray-600">{{ 'T_ROLE' | translate }}:</div>
+      <b>{{
+        authService.getAccountInfo().role.toString().replace(',', ', ')
+      }}</b>
+    </div>
+
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-sm text-gray-600">{{ 'T_LANGUAGE' | translate }}:</span>
+      <app-switch-lang />
+    </div>
+
+    <button
+      nz-button
+      nzType="primary"
+      nzBlock
+      nzDanger
+      (click)="handleLogout()">
+      <span nz-icon nzType="logout"></span> Logout
+    </button>
+  </div>
+</ng-template>
