@@ -250,7 +250,7 @@ export class PrintService {
       <!-- Room Sales Table -->
       <div class="room-sales-table">
         <div class="subtitle" style="text-align: left; margin-bottom: 10px;">
-          Bàn phòng ngày ${this.formatDate(report.ShiftDate)}
+          Bán phòng ${report.ShiftType.toLowerCase()}
         </div>
         
         <table>

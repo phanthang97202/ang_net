@@ -216,7 +216,7 @@ export class ExcelExportService {
     // ========== ROOM SALES SECTION ==========
     worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
     const roomTitleCell = worksheet.getCell(`A${currentRow}`);
-    roomTitleCell.value = `Bàn phòng ngày ${this.formatDate(report.ShiftDate)}`;
+    roomTitleCell.value = `Bán phòng ${report.ShiftType.toLowerCase()}`;
     roomTitleCell.style = subtitleStyle;
 
     currentRow += 2;
