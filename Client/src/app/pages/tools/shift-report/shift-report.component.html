@@ -2,8 +2,9 @@
   <nz-card nzTitle="Quản lý báo cáo ca">
     <!-- Filter Section -->
     <div class="filter-section">
-      <div nz-row [nzGutter]="16">
-        <div nz-col [nzSpan]="6">
+      <div nz-row [nzGutter]="[16, 16]">
+        <!-- Search Input -->
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
           <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
             <input
               type="text"
@@ -19,7 +20,8 @@
           </ng-template>
         </div>
 
-        <div nz-col [nzSpan]="6">
+        <!-- Shift Type Select -->
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
           <nz-select
             nzShowSearch
             nzAllowClear
@@ -34,23 +36,27 @@
           </nz-select>
         </div>
 
-        <div nz-col [nzSpan]="6">
+        <!-- Date Range Picker -->
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
           <nz-range-picker
             [(ngModel)]="searchDateRange"
             (ngModelChange)="onSearch()"
-            nzFormat="dd/MM/yyyy"
+            nzFormat="yyyy-MM-dd"
             style="width: 100%"></nz-range-picker>
         </div>
 
-        <div nz-col [nzSpan]="6">
-          <button nz-button (click)="resetSearch()" style="margin-right: 8px">
-            <span nz-icon nzType="reload"></span>
-            Làm mới
-          </button>
-          <button nz-button nzType="primary" (click)="showCreateModal()">
-            <span nz-icon nzType="plus"></span>
-            Tạo báo cáo
-          </button>
+        <!-- Action Buttons -->
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="24" [nzLg]="6">
+          <div class="action-buttons">
+            <button nz-button (click)="resetSearch()" style="margin-right: 8px">
+              <span nz-icon nzType="reload"></span>
+              Làm mới
+            </button>
+            <button nz-button nzType="primary" (click)="showCreateModal()">
+              <span nz-icon nzType="plus"></span>
+              Tạo báo cáo
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -82,7 +88,7 @@
       <tbody>
         <tr *ngFor="let item of basicTable.data; let i = index">
           <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
-          <td>{{ item.ShiftDate | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ item.ShiftDate | date: 'yyyy-MM-dd' }}</td>
           <td>
             <nz-tag
               [nzColor]="item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'">
@@ -93,7 +99,7 @@
           <td nzAlign="right">{{ item.TotalCash | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.TotalTransfer | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.HandoverAmount | number: '1.0-0' }}</td>
-          <td>{{ item.CreatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ item.CreatedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
           <td nzAlign="center">
             <button
               nz-button
@@ -136,22 +142,21 @@
       </tbody>
     </nz-table>
   </nz-card>
-
   <!-- Modal Form -->
   <nz-modal
     [(nzVisible)]="isModalVisible"
     [nzTitle]="modalTitle"
     [nzCentered]="true"
-    [nzWidth]="'98%'"
-    [nzStyle]="{ top: '5px', height: '95vh' }"
-    [nzBodyStyle]="{ 'max-height': 'calc(95vh - 110px)', 'overflow-y': 'auto' }"
+    [nzWidth]="modalWidth"
+    [nzStyle]="modalStyle"
+    [nzBodyStyle]="modalBodyStyle"
     (nzOnCancel)="handleCancel()"
     [nzFooter]="modalFooter">
     <ng-container *nzModalContent>
       <form nz-form [formGroup]="reportForm" [nzLayout]="'vertical'">
         <!-- Basic Info -->
-        <div nz-row [nzGutter]="16">
-          <div nz-col [nzSpan]="6">
+        <div nz-row [nzGutter]="[16, 16]">
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
             <nz-form-item>
               <nz-form-label nzRequired>Ngày ca</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng chọn ngày!">
@@ -163,7 +168,7 @@
             </nz-form-item>
           </div>
 
-          <div nz-col [nzSpan]="6">
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
             <nz-form-item>
               <nz-form-label nzRequired>Loại ca</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng chọn loại ca!">
@@ -177,7 +182,7 @@
             </nz-form-item>
           </div>
 
-          <div nz-col [nzSpan]="6">
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
             <nz-form-item>
               <nz-form-label nzRequired>Giờ bắt đầu</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập giờ bắt đầu!">
@@ -185,13 +190,12 @@
                   nzShowTime
                   formControlName="startTime"
                   nzFormat="yyyy-MM-dd HH:mm"
-                  nzInputMode="datetime"
                   style="width: 100%"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
           </div>
 
-          <div nz-col [nzSpan]="6">
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
             <nz-form-item>
               <nz-form-label nzRequired>Giờ kết thúc</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập giờ kết thúc!">
@@ -199,15 +203,14 @@
                   nzShowTime
                   formControlName="endTime"
                   nzFormat="yyyy-MM-dd HH:mm"
-                  nzInputMode="datetime"
                   style="width: 100%"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
           </div>
         </div>
 
-        <div nz-row [nzGutter]="16">
-          <div nz-col [nzSpan]="12">
+        <div nz-row [nzGutter]="[16, 16]">
+          <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Lễ tân (Người giao)</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập tên lễ tân!">
@@ -219,7 +222,7 @@
             </nz-form-item>
           </div>
 
-          <div nz-col [nzSpan]="12">
+          <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-form-item>
               <nz-form-label>Người nhận</nz-form-label>
               <nz-form-control>
@@ -248,11 +251,11 @@
                   <th nzWidth="100px">Số phòng</th>
                   <th nzWidth="100px">Mã phòng</th>
                   <th nzWidth="120px">Loại khách</th>
-                  <th nzWidth="120px">Tiền mặt</th>
-                  <th nzWidth="120px">Chuyển khoản</th>
+                  <th nzWidth="140px">Tiền mặt</th>
+                  <th nzWidth="140px">Chuyển khoản</th>
                   <th nzWidth="150px">Đặt cọc/TT trước</th>
                   <th nzWidth="200px">ND chi tiêu</th>
-                  <th nzWidth="120px">Tiền chi tiêu</th>
+                  <th nzWidth="140px">Tiền chi tiêu</th>
                   <th nzWidth="80px">Xóa</th>
                 </tr>
               </thead>
@@ -347,28 +350,28 @@
 
         <!-- Summary -->
         <nz-card nzTitle="Tổng kết" style="margin-top: 16px" nzSize="small">
-          <div nz-row [nzGutter]="16">
-            <div nz-col [nzSpan]="6">
+          <div nz-row [nzGutter]="[16, 16]">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
               <nz-statistic
-                [nzValue]="calculateTotals().totalCash"
+                [nzValue]="formatCurrency(calculateTotals().totalCash)"
                 [nzTitle]="'Tổng tiền mặt'"
                 [nzSuffix]="'đ'"></nz-statistic>
             </div>
-            <div nz-col [nzSpan]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
               <nz-statistic
-                [nzValue]="calculateTotals().totalTransfer"
+                [nzValue]="formatCurrency(calculateTotals().totalTransfer)"
                 [nzTitle]="'Tổng chuyển khoản'"
                 [nzSuffix]="'đ'"></nz-statistic>
             </div>
-            <div nz-col [nzSpan]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
               <nz-statistic
-                [nzValue]="calculateTotals().totalExpense"
+                [nzValue]="formatCurrency(calculateTotals().totalExpense)"
                 [nzTitle]="'Tổng chi tiêu'"
                 [nzSuffix]="'đ'"></nz-statistic>
             </div>
-            <div nz-col [nzSpan]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
               <nz-statistic
-                [nzValue]="calculateTotals().handoverAmount"
+                [nzValue]="formatCurrency(calculateTotals().handoverAmount)"
                 [nzTitle]="'Số tiền bàn giao'"
                 [nzSuffix]="'đ'"
                 [nzValueStyle]="{ color: '#3f8600' }"></nz-statistic>
@@ -380,57 +383,63 @@
         <nz-divider nzText="Bàn phòng ngày"></nz-divider>
 
         <div formArrayName="roomSales">
-          <nz-table
-            [nzData]="roomSales.controls"
-            [nzShowPagination]="false"
-            nzSize="small">
-            <thead>
-              <tr>
-                <th nzWidth="80px">STT</th>
-                <th nzWidth="200px">Số phòng</th>
-                <th nzWidth="200px">Loại khách</th>
-                <th nzWidth="200px">Đơn giá</th>
-                <th nzWidth="80px">Xóa</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                *ngFor="let sale of roomSales.controls; let i = index"
-                [formGroupName]="i">
-                <td>{{ i + 1 }}</td>
-                <td>
-                  <input
-                    nz-input
-                    formControlName="roomNumber"
-                    placeholder="501" />
-                </td>
-                <td>
-                  <nz-select formControlName="roomCategory" style="width: 100%">
-                    <nz-option
-                      *ngFor="let cat of roomCategories"
-                      [nzLabel]="cat"
-                      [nzValue]="cat"></nz-option>
-                  </nz-select>
-                </td>
-                <td>
-                  <nz-input-number
-                    formControlName="unitPrice"
-                    [nzMin]="0"
-                    [nzStep]="10000"
-                    style="width: 100%"></nz-input-number>
-                </td>
-                <td>
-                  <button
-                    nz-button
-                    nzType="text"
-                    nzDanger
-                    (click)="removeRoomSale(i)">
-                    <span nz-icon nzType="delete"></span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </nz-table>
+          <div class="table-responsive">
+            <nz-table
+              [nzData]="roomSales.controls"
+              [nzShowPagination]="false"
+              [nzNoResult]="' '"
+              [nzScroll]="{ x: '660px' }"
+              nzSize="small">
+              <thead>
+                <tr>
+                  <th nzWidth="60px">STT</th>
+                  <th nzWidth="150px">Số phòng</th>
+                  <th nzWidth="200px">Loại khách</th>
+                  <th nzWidth="170px">Đơn giá</th>
+                  <th nzWidth="80px">Xóa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let sale of roomSales.controls; let i = index"
+                  [formGroupName]="i">
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <input
+                      nz-input
+                      formControlName="roomNumber"
+                      placeholder="501" />
+                  </td>
+                  <td>
+                    <nz-select
+                      formControlName="roomCategory"
+                      style="width: 100%">
+                      <nz-option
+                        *ngFor="let cat of roomCategories"
+                        [nzLabel]="cat"
+                        [nzValue]="cat"></nz-option>
+                    </nz-select>
+                  </td>
+                  <td>
+                    <nz-input-number
+                      formControlName="unitPrice"
+                      [nzMin]="0"
+                      [nzStep]="10000"
+                      style="width: 100%"></nz-input-number>
+                  </td>
+                  <td>
+                    <button
+                      nz-button
+                      nzType="text"
+                      nzDanger
+                      (click)="removeRoomSale(i)">
+                      <span nz-icon nzType="delete"></span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
 
           <button
             nz-button
@@ -445,14 +454,16 @@
     </ng-container>
 
     <ng-template #modalFooter>
-      <button nz-button nzType="default" (click)="handleCancel()">Hủy</button>
-      <button
-        nz-button
-        nzType="primary"
-        (click)="handleSubmit()"
-        [nzLoading]="isLoading">
-        {{ editingId ? 'Cập nhật' : 'Tạo mới' }}
-      </button>
+      <div class="modal-footer-responsive">
+        <button nz-button nzType="default" (click)="handleCancel()">Hủy</button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="handleSubmit()"
+          [nzLoading]="isLoading">
+          {{ editingId ? 'Cập nhật' : 'Tạo mới' }}
+        </button>
+      </div>
     </ng-template>
   </nz-modal>
 </div>

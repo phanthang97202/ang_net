@@ -60,6 +60,48 @@ export class ShiftReportComponent implements OnInit {
     this.loadReports();
   }
 
+  // Responsive modal properties
+  get modalWidth(): string {
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth;
+      if (width < 576) return '100%'; // Mobile
+      if (width < 768) return '95%'; // Small tablet
+      if (width < 992) return '90%'; // Tablet
+      return '98%'; // Desktop
+    }
+    return '98%';
+  }
+
+  get modalStyle(): any {
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth;
+      if (width < 576) {
+        return { top: '0', height: '100vh', padding: '0' };
+      }
+      return { top: '5px', height: '95vh' };
+    }
+    return { top: '5px', height: '95vh' };
+  }
+
+  get modalBodyStyle(): any {
+    if (typeof window !== 'undefined') {
+      const width = window.innerWidth;
+      if (width < 576) {
+        return {
+          'max-height': 'calc(100vh - 110px)',
+          'overflow-y': 'auto',
+          padding: '16px 12px',
+        };
+      }
+      return {
+        'max-height': 'calc(95vh - 110px)',
+        'overflow-y': 'auto',
+      };
+    }
+    return { 'max-height': 'calc(95vh - 110px)', 'overflow-y': 'auto' };
+  }
+  // ====================
+
   initForm(): void {
     this.reportForm = this.fb.group({
       shiftDate: [new Date(), Validators.required],
@@ -402,5 +444,17 @@ export class ShiftReportComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
+  }
+
+  formatter = (value: number): string =>
+    value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+
+  parser = (value: string): string =>
+    value ? Number(value.toString().replace(/\./g, '')).toString() : '0';
+
+  formatCurrency(value: number): string {
+    if (value == null || isNaN(value)) return '0';
+    // return (+value.toLocaleString('vi-VN') * 1000).toString();
+    return value.toLocaleString('en-Us');
   }
 }
