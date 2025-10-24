@@ -295,36 +295,52 @@
                       nz-input
                       (keydown.enter)="$event.preventDefault()"
                       formControlName="roomNumber"
-                      placeholder="201" />
+                      placeholder="Số phòng" />
                   </td>
                   <td>
                     <input
                       nz-input
                       (keydown.enter)="$event.preventDefault()"
                       formControlName="invoiceCode"
-                      placeholder="6786" />
+                      placeholder="Mã hóa đơn của phòng" />
                   </td>
                   <td>
                     <nz-select
                       formControlName="customerType"
                       style="width: 100%"
-                      nzAllowClear>
+                      nzAllowClear
+                      placeholder="Loại phòng thuê">
                       <nz-option
                         *ngFor="let type of customerTypes"
                         [nzLabel]="type"
                         [nzValue]="type"></nz-option>
                     </nz-select>
                   </td>
-                  <td>
+                  <td style="position: relative; width: 100%">
                     <nz-input-number
+                      placeholder="Tiền mặt"
                       (keydown.enter)="$event.preventDefault()"
                       formControlName="cashAmount"
                       [nzMin]="0"
                       [nzStep]="1000"
                       style="width: 100%"></nz-input-number>
+
+                    <!-- <span
+                      *ngIf="!reportForm.get('cashAmount')?.value"
+                      style="
+                        position: absolute;
+                        left: 12px;
+                        top: 6px;
+                        color: #bfbfbf;
+                        pointer-events: none;
+                        font-size: 13px;
+                      ">
+                      Tiền mặt
+                    </span> -->
                   </td>
                   <td>
                     <nz-input-number
+                      placeholder="Chuyển khoản"
                       (keydown.enter)="$event.preventDefault()"
                       formControlName="transferAmount"
                       [nzMin]="0"
@@ -336,17 +352,18 @@
                       (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="prepaidNote"
-                      placeholder="đtt ca trước" />
+                      placeholder="Đtt ca trước, free, ..." />
                   </td>
                   <td>
                     <input
                       (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="expenseDescription"
-                      placeholder="Mô tả" />
+                      placeholder="ND chi tiêu" />
                   </td>
                   <td>
                     <nz-input-number
+                      placeholder="Số tiền chi tiêu"
                       (keydown.enter)="$event.preventDefault()"
                       formControlName="expenseAmount"
                       [nzMin]="0"
@@ -439,7 +456,7 @@
                       (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="roomNumber"
-                      placeholder="501" />
+                      placeholder="Số phòng" />
                   </td>
                   <td>
                     <nz-select
