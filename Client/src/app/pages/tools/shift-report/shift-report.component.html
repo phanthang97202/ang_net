@@ -74,15 +74,15 @@
       [nzScroll]="{ x: '1200px' }">
       <thead>
         <tr>
-          <th nzWidth="80px">STT</th>
-          <th nzWidth="120px">Ngày ca</th>
+          <th nzWidth="50px">STT</th>
+          <th nzWidth="100px">Ngày ca</th>
           <th nzWidth="100px">Loại ca</th>
-          <th nzWidth="150px">Lễ tân</th>
-          <th nzWidth="120px" nzAlign="right">Tiền mặt</th>
-          <th nzWidth="120px" nzAlign="right">Chuyển khoản</th>
-          <th nzWidth="120px" nzAlign="right">Bàn giao</th>
-          <th nzWidth="150px">Ngày tạo</th>
-          <th nzWidth="180px" nzAlign="center">Thao tác</th>
+          <th nzWidth="80px">Lễ tân</th>
+          <th nzWidth="80px" nzAlign="right">Tiền mặt</th>
+          <th nzWidth="80px" nzAlign="right">C.khoản</th>
+          <th nzWidth="80px" nzAlign="right">Bàn giao</th>
+          <!-- <th nzWidth="150px">Ngày tạo</th> -->
+          <th nzWidth="120px" nzAlign="center">Lệnh</th>
         </tr>
       </thead>
       <tbody>
@@ -99,7 +99,7 @@
           <td nzAlign="right">{{ item.TotalCash | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.TotalTransfer | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.HandoverAmount | number: '1.0-0' }}</td>
-          <td>{{ item.CreatedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+          <!-- <td>{{ item.CreatedAt | date: 'yyyy-MM-dd HH:mm' }}</td> -->
           <td nzAlign="center">
             <button
               nz-button
@@ -214,10 +214,22 @@
             <nz-form-item>
               <nz-form-label nzRequired>Lễ tân (Người giao)</nz-form-label>
               <nz-form-control nzErrorTip="Vui lòng nhập tên lễ tân!">
-                <input
+                <!-- <input
                   nz-input
                   formControlName="receptionistName"
-                  placeholder="Nhập tên lễ tân" />
+                  placeholder="Nhập tên lễ tân" /> -->
+
+                <nz-select
+                  nzShowSearch
+                  nzAllowClear
+                  formControlName="receptionistName"
+                  nzPlaceHolder="Chọn lễ tân trực ca"
+                  style="width: 100%">
+                  <nz-option
+                    *ngFor="let type of receiptors"
+                    [nzLabel]="type"
+                    [nzValue]="type"></nz-option>
+                </nz-select>
               </nz-form-control>
             </nz-form-item>
           </div>
@@ -226,10 +238,21 @@
             <nz-form-item>
               <nz-form-label>Người nhận</nz-form-label>
               <nz-form-control>
-                <input
+                <!-- <input
                   nz-input
                   formControlName="receiverName"
-                  placeholder="Nhập tên người nhận" />
+                  placeholder="Nhập tên người nhận" /> -->
+                <nz-select
+                  nzShowSearch
+                  nzAllowClear
+                  formControlName="receiverName"
+                  nzPlaceHolder="Chọn lễ tân nhận bàn giao ca"
+                  style="width: 100%">
+                  <nz-option
+                    *ngFor="let type of receiptors"
+                    [nzLabel]="type"
+                    [nzValue]="type"></nz-option>
+                </nz-select>
               </nz-form-control>
             </nz-form-item>
           </div>
@@ -270,12 +293,14 @@
                   <td>
                     <input
                       nz-input
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="roomNumber"
                       placeholder="201" />
                   </td>
                   <td>
                     <input
                       nz-input
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="invoiceCode"
                       placeholder="6786" />
                   </td>
@@ -292,6 +317,7 @@
                   </td>
                   <td>
                     <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="cashAmount"
                       [nzMin]="0"
                       [nzStep]="1000"
@@ -299,6 +325,7 @@
                   </td>
                   <td>
                     <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="transferAmount"
                       [nzMin]="0"
                       [nzStep]="1000"
@@ -306,18 +333,21 @@
                   </td>
                   <td>
                     <input
+                      (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="prepaidNote"
                       placeholder="đtt ca trước" />
                   </td>
                   <td>
                     <input
+                      (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="expenseDescription"
                       placeholder="Mô tả" />
                   </td>
                   <td>
                     <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="expenseAmount"
                       [nzMin]="0"
                       [nzStep]="1000"
@@ -406,6 +436,7 @@
                   <td>{{ i + 1 }}</td>
                   <td>
                     <input
+                      (keydown.enter)="$event.preventDefault()"
                       nz-input
                       formControlName="roomNumber"
                       placeholder="501" />
@@ -422,6 +453,7 @@
                   </td>
                   <td>
                     <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
                       formControlName="unitPrice"
                       [nzMin]="0"
                       [nzStep]="10000"

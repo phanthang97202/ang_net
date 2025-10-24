@@ -36,6 +36,8 @@ export class ShiftReportComponent implements OnInit {
   searchDateRange: Date[] = [];
 
   shiftTypes = ['Ca ngày', 'Ca đêm'];
+  receiptors = ['Thăng', 'Huy', 'Long'];
+
   customerTypes = [
     'k.ngày',
     'k.ngày/out',
