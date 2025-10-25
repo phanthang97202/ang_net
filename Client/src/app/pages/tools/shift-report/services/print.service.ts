@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ShiftReportResponse } from './../types/shift-report-type';
+import { format } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
@@ -78,6 +79,9 @@ export class PrintService {
         </tr>
       `;
     }
+
+    const _stTime = format(new Date(report.StartTime), 'HH:mm').toString();
+    const _eTime = format(new Date(report.EndTime), 'HH:mm').toString();
 
     return `
 <!DOCTYPE html>
@@ -208,7 +212,7 @@ export class PrintService {
   <div class="container">
     <!-- Title -->
     <div class="title">BÁO CÁO THU TIỀN VÀ BÀN GIAO CA</div>
-    <div class="subtitle">CA ${report.ShiftType.toUpperCase()} ${this.formatDateTime(report.ShiftDate, report.StartTime, report.EndTime)}</div>
+    <div class="subtitle">${report.ShiftType.toUpperCase()} ${this.formatDateTime(report.ShiftDate, _stTime, _eTime)}</div>
     
     <!-- Transaction Table -->
     <table>

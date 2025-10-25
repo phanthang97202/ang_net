@@ -6,9 +6,11 @@ import {
   CreateShiftReportDto,
   ShiftReportListItem,
 } from './types/shift-report-type';
-import { ShiftReportMockService } from './services/shift-report-mock.service';
+// import { ShiftReportMockService } from './services/shift-report-mock.service';
 import { ExcelExportService } from './services/excel-report.service';
 import { PrintService } from './services/print.service';
+import { ShiftReportService } from './services/shift-report.service';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-shift-report',
@@ -34,12 +36,19 @@ export class ShiftReportComponent implements OnInit {
   searchDateRange: Date[] = [];
 
   shiftTypes = ['Ca ngày', 'Ca đêm'];
-  customerTypes = ['k.ngày', 'k.đêm', 'k.ngày/out', 'k.giờ'];
+  customerTypes = [
+    'k.ngày',
+    'k.ngày/out',
+    'k.đêm',
+    'k.đêm/out',
+    'k.giờ',
+    'k.giờ/out',
+  ];
   roomCategories = ['KHÁCH GIỜ', 'KHÁCH ĐÊM', 'KHÁCH NGÀY'];
 
   constructor(
     private fb: FormBuilder,
-    private shiftReportService: ShiftReportMockService, // Đổi từ ShiftReportService -> ShiftReportMockService
+    private shiftReportService: ShiftReportService, // Đổi từ ShiftReportService -> ShiftReportMockService
     private excelService: ExcelExportService,
     private printService: PrintService,
     private message: NzMessageService,
@@ -235,8 +244,10 @@ export class ShiftReportComponent implements OnInit {
     this.isLoading = true;
     const formValue = this.reportForm.value;
 
+    console.log('formValue.shiftDate', formValue.shiftDate);
     const dto: CreateShiftReportDto = {
-      ShiftDate: this.formatDate(formValue.shiftDate),
+      // ShiftDate: this.formatDate(formValue.shiftDate),
+      ShiftDate: format(formValue.shiftDate, 'yyyy-MM-dd'),
       ShiftType: formValue.shiftType,
       StartTime: formValue.startTime,
       EndTime: formValue.endTime,
@@ -269,6 +280,7 @@ export class ShiftReportComponent implements OnInit {
 
   loadReports(): void {
     this.isLoading = true;
+    debugger;
 
     const params: any = {
       pageNumber: this.pageIndex,
@@ -290,7 +302,7 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getAll(params).subscribe({
       next: result => {
-        // debugger;
+        debugger;
 
         this.reports = result.Items;
         this.totalRecords = result.TotalCount;

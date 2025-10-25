@@ -222,10 +222,10 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    ShiftDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ShiftDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ShiftType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ReceptionistName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     TotalCash = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false, defaultValue: 0m),
                     TotalTransfer = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false, defaultValue: 0m),

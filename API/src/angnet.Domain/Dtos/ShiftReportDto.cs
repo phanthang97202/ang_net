@@ -6,17 +6,17 @@ namespace angnet.Domain.Dtos
     public class CreateShiftReportDto
     {
         [Required]
-        public DateTime ShiftDate { get; set; }
+        public DateOnly ShiftDate { get; set; }
 
         [Required]
         [MaxLength(50)]
         public string ShiftType { get; set; } = string.Empty;
 
         [Required]
-        public TimeSpan StartTime { get; set; }
+        public DateTime StartTime { get; set; }
 
         [Required]
-        public TimeSpan EndTime { get; set; }
+        public DateTime EndTime { get; set; }
 
         [Required]
         [MaxLength(100)]
@@ -67,10 +67,10 @@ namespace angnet.Domain.Dtos
     public class ShiftReportResponseDto
     {
         public int Id { get; set; }
-        public DateTime ShiftDate { get; set; }
+        public DateOnly ShiftDate { get; set; }
         public string ShiftType { get; set; } = string.Empty;
-        public TimeSpan StartTime { get; set; }
-        public TimeSpan EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public string ReceptionistName { get; set; } = string.Empty;
         public decimal TotalCash { get; set; }
         public decimal TotalTransfer { get; set; }
@@ -87,7 +87,7 @@ namespace angnet.Domain.Dtos
     public class ShiftReportListDto
     {
         public int Id { get; set; }
-        public DateTime ShiftDate { get; set; }
+        public DateOnly ShiftDate { get; set; }
         public string ShiftType { get; set; } = string.Empty;
         public string ReceptionistName { get; set; } = string.Empty;
         public decimal TotalCash { get; set; }
@@ -99,8 +99,8 @@ namespace angnet.Domain.Dtos
     // Query parameters
     public class ShiftReportQueryParams
     {
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
+        public DateOnly? FromDate { get; set; }
+        public DateOnly? ToDate { get; set; }
         public string ReceptionistName { get; set; } = string.Empty;
         public string ShiftType { get; set; } = string.Empty;
         public int PageNumber { get; set; } = 1;

@@ -1366,8 +1366,8 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                     b.Property<DateTime>("CreatedDTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("interval");
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("FlagActive")
                         .HasColumnType("boolean");
@@ -1388,16 +1388,16 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime>("ShiftDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("ShiftDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("ShiftType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("interval");
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("TotalCash")
                         .ValueGeneratedOnAdd()

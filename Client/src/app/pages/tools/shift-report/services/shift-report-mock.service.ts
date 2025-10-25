@@ -7,6 +7,7 @@ import {
   ShiftReportQueryParams,
   CreateShiftReportDto,
 } from './../types/shift-report-type';
+import { format, parseISO } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,9 @@ export class ShiftReportMockService {
       Id: 1,
       ShiftDate: '2025-10-18',
       ShiftType: 'Ca ngày',
-      StartTime: '07:00:00',
-      EndTime: '19:00:00',
+      // StartTime: '07:00:00',
+      StartTime: parseISO('2025-10-18T07:00:00').toString(),
+      EndTime: parseISO('2025-11-18T19:00:00').toString(),
       ReceptionistName: 'Huy',
       TotalCash: 5577000,
       TotalTransfer: 3980000,
@@ -122,18 +124,6 @@ export class ShiftReportMockService {
           PrepaidNote: '',
           ExpenseDescription: '',
           ExpenseAmount: undefined,
-        },
-        {
-          Id: 9,
-          OrderNumber: 9,
-          RoomNumber: '',
-          InvoiceCode: '',
-          CustomerType: '',
-          CashAmount: undefined,
-          TransferAmount: 2000000,
-          PrepaidNote: '',
-          ExpenseDescription: '',
-          ExpenseAmount: 2000000,
         },
       ],
       RoomSales: [
