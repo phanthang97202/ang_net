@@ -44,32 +44,38 @@ namespace angnet.Infrastructure.Data.Services
                 query = query.Where(x => x.ShiftType == queryParams.ShiftType);
 
             if (!string.IsNullOrWhiteSpace(queryParams.RoomNumber))
-                query = query.Where(x => x.Transactions.Any(t => t.RoomNumber == queryParams.RoomNumber));
+                query = query.Where(x => x.Transactions.Any(t => t.RoomNumber == queryParams.RoomNumber && !string.IsNullOrWhiteSpace(t.InvoiceCode)));
 
             var shifts = await query.ToListAsync();
 
-            // Calculate summary
+            // Filter transactions: Only include those with InvoiceCode
+            var validTransactions = shifts
+                .SelectMany(x => x.Transactions)
+                .Where(t => !string.IsNullOrWhiteSpace(t.InvoiceCode))
+                .ToList();
+
+            // Calculate summary from valid transactions only
             var summary = new RevenueReportSummary
             {
-                TotalCash = shifts.Sum(x => x.TotalCash),
-                TotalTransfer = shifts.Sum(x => x.TotalTransfer),
-                TotalExpense = shifts.Sum(x => x.TotalExpense),
+                TotalCash = validTransactions.Sum(t => t.CashAmount ?? 0),
+                TotalTransfer = validTransactions.Sum(t => t.TransferAmount ?? 0),
+                TotalExpense = validTransactions.Sum(t => t.ExpenseAmount ?? 0),
                 TotalShifts = shifts.Count,
-                TotalTransactions = shifts.Sum(x => x.Transactions.Count)
+                TotalTransactions = validTransactions.Count
             };
             summary.TotalRevenue = summary.TotalCash + summary.TotalTransfer;
             summary.NetRevenue = summary.TotalRevenue - summary.TotalExpense;
 
-            // Revenue by date
-            var revenueByDate = shifts
-                .GroupBy(x => x.ShiftDate)
+            // Revenue by date - only from valid transactions
+            var revenueByDate = validTransactions
+                .GroupBy(t => t.ShiftReport.ShiftDate)
                 .Select(g => new RevenueByDateDto
                 {
                     Date = g.Key,
-                    TotalCash = g.Sum(x => x.TotalCash),
-                    TotalTransfer = g.Sum(x => x.TotalTransfer),
-                    TotalExpense = g.Sum(x => x.TotalExpense),
-                    ShiftCount = g.Count()
+                    TotalCash = g.Sum(t => t.CashAmount ?? 0),
+                    TotalTransfer = g.Sum(t => t.TransferAmount ?? 0),
+                    TotalExpense = g.Sum(t => t.ExpenseAmount ?? 0),
+                    ShiftCount = g.Select(t => t.ShiftReportId).Distinct().Count()
                 })
                 .OrderBy(x => x.Date)
                 .ToList();
@@ -79,15 +85,15 @@ namespace angnet.Infrastructure.Data.Services
                 item.TotalRevenue = item.TotalCash + item.TotalTransfer;
             }
 
-            // Revenue by shift type
-            var revenueByShiftType = shifts
-                .GroupBy(x => x.ShiftType)
+            // Revenue by shift type - only from valid transactions
+            var revenueByShiftType = validTransactions
+                .GroupBy(t => t.ShiftReport.ShiftType)
                 .Select(g => new RevenueByShiftTypeDto
                 {
                     ShiftType = g.Key,
-                    TotalCash = g.Sum(x => x.TotalCash),
-                    TotalTransfer = g.Sum(x => x.TotalTransfer),
-                    ShiftCount = g.Count()
+                    TotalCash = g.Sum(t => t.CashAmount ?? 0),
+                    TotalTransfer = g.Sum(t => t.TransferAmount ?? 0),
+                    ShiftCount = g.Select(t => t.ShiftReportId).Distinct().Count()
                 })
                 .ToList();
 
@@ -96,15 +102,15 @@ namespace angnet.Infrastructure.Data.Services
                 item.TotalRevenue = item.TotalCash + item.TotalTransfer;
             }
 
-            // Revenue by receptionist
-            var revenueByReceptionist = shifts
-                .GroupBy(x => x.ReceptionistName)
+            // Revenue by receptionist - only from valid transactions
+            var revenueByReceptionist = validTransactions
+                .GroupBy(t => t.ShiftReport.ReceptionistName)
                 .Select(g => new RevenueByReceptionistDto
                 {
                     ReceptionistName = g.Key,
-                    TotalCash = g.Sum(x => x.TotalCash),
-                    TotalTransfer = g.Sum(x => x.TotalTransfer),
-                    ShiftCount = g.Count()
+                    TotalCash = g.Sum(t => t.CashAmount ?? 0),
+                    TotalTransfer = g.Sum(t => t.TransferAmount ?? 0),
+                    ShiftCount = g.Select(t => t.ShiftReportId).Distinct().Count()
                 })
                 .OrderByDescending(x => x.TotalCash + x.TotalTransfer)
                 .ToList();
@@ -114,16 +120,15 @@ namespace angnet.Infrastructure.Data.Services
                 item.TotalRevenue = item.TotalCash + item.TotalTransfer;
             }
 
-            // Revenue by room
-            var transactions = shifts.SelectMany(x => x.Transactions).ToList();
-            var revenueByRoom = transactions
-                .Where(x => !string.IsNullOrWhiteSpace(x.RoomNumber))
-                .GroupBy(x => x.RoomNumber)
+            // Revenue by room - only from valid transactions
+            var revenueByRoom = validTransactions
+                .Where(t => !string.IsNullOrWhiteSpace(t.RoomNumber))
+                .GroupBy(t => t.RoomNumber)
                 .Select(g => new RevenueByRoomDto
                 {
                     RoomNumber = g.Key,
-                    TotalCash = g.Sum(x => x.CashAmount ?? 0),
-                    TotalTransfer = g.Sum(x => x.TransferAmount ?? 0),
+                    TotalCash = g.Sum(t => t.CashAmount ?? 0),
+                    TotalTransfer = g.Sum(t => t.TransferAmount ?? 0),
                     TransactionCount = g.Count()
                 })
                 .OrderByDescending(x => x.TotalCash + x.TotalTransfer)
@@ -134,21 +139,26 @@ namespace angnet.Infrastructure.Data.Services
                 item.TotalRevenue = item.TotalCash + item.TotalTransfer;
             }
 
-            // Details list
-            var details = shifts
-                .OrderByDescending(x => x.ShiftDate)
-                .Select(x => new ShiftReportListDto
+            // Details list - calculate totals from valid transactions only
+            var shiftDetails = shifts.Select(shift => {
+                var shiftValidTransactions = shift.Transactions
+                    .Where(t => !string.IsNullOrWhiteSpace(t.InvoiceCode))
+                    .ToList();
+
+                return new ShiftReportListDto
                 {
-                    Id = x.Id,
-                    ShiftDate = x.ShiftDate,
-                    ShiftType = x.ShiftType,
-                    ReceptionistName = x.ReceptionistName,
-                    TotalCash = x.TotalCash,
-                    TotalTransfer = x.TotalTransfer,
-                    HandoverAmount = x.HandoverAmount,
-                    CreatedDTime = x.CreatedDTime
-                })
-                .ToList();
+                    Id = shift.Id,
+                    ShiftDate = shift.ShiftDate,
+                    ShiftType = shift.ShiftType,
+                    ReceptionistName = shift.ReceptionistName,
+                    TotalCash = shiftValidTransactions.Sum(t => t.CashAmount ?? 0),
+                    TotalTransfer = shiftValidTransactions.Sum(t => t.TransferAmount ?? 0),
+                    HandoverAmount = shift.HandoverAmount,
+                    CreatedDTime = shift.CreatedDTime
+                };
+            })
+            .OrderByDescending(x => x.ShiftDate)
+            .ToList();
 
             return new RevenueReportResponse
             {
@@ -157,7 +167,7 @@ namespace angnet.Infrastructure.Data.Services
                 RevenueByShiftType = revenueByShiftType,
                 RevenueByReceptionist = revenueByReceptionist,
                 RevenueByRoom = revenueByRoom,
-                Details = details
+                Details = shiftDetails
             };
         }
     }

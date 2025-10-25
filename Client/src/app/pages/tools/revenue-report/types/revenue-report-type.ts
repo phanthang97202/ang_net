@@ -7,64 +7,64 @@ export interface RevenueReportQueryParams {
 }
 
 export interface RevenueReportSummary {
-  totalRevenue: number;
-  totalCash: number;
-  totalTransfer: number;
-  totalExpense: number;
-  netRevenue: number;
-  totalShifts: number;
-  totalTransactions: number;
+  TotalRevenue: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  TotalExpense: number;
+  NetRevenue: number;
+  TotalShifts: number;
+  TotalTransactions: number;
 }
 
 export interface RevenueByDateDto {
-  date: string;
-  totalRevenue: number;
-  totalCash: number;
-  totalTransfer: number;
-  totalExpense: number;
-  shiftCount: number;
+  Date: string;
+  TotalRevenue: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  TotalExpense: number;
+  ShiftCount: number;
 }
 
 export interface RevenueByShiftTypeDto {
-  shiftType: string;
-  totalRevenue: number;
-  totalCash: number;
-  totalTransfer: number;
-  shiftCount: number;
+  ShiftType: string;
+  TotalRevenue: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  ShiftCount: number;
 }
 
 export interface RevenueByReceptionistDto {
-  receptionistName: string;
-  totalRevenue: number;
-  totalCash: number;
-  totalTransfer: number;
-  shiftCount: number;
+  ReceptionistName: string;
+  TotalRevenue: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  ShiftCount: number;
 }
 
 export interface RevenueByRoomDto {
-  roomNumber: string;
-  totalRevenue: number;
-  totalCash: number;
-  totalTransfer: number;
-  transactionCount: number;
+  RoomNumber: string;
+  TotalRevenue: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  TransactionCount: number;
 }
 
 export interface ShiftReportListDto {
-  id: number;
-  shiftDate: string;
-  shiftType: string;
-  receptionistName: string;
-  totalCash: number;
-  totalTransfer: number;
-  handoverAmount: number;
-  createdAt: string;
+  Id: number;
+  ShiftDate: string;
+  ShiftType: string;
+  ReceptionistName: string;
+  TotalCash: number;
+  TotalTransfer: number;
+  HandoverAmount: number;
+  CreatedDTime: string;
 }
 
 export interface RevenueReportResponse {
-  summary: RevenueReportSummary;
-  revenueByDate: RevenueByDateDto[];
-  revenueByShiftType: RevenueByShiftTypeDto[];
-  revenueByReceptionist: RevenueByReceptionistDto[];
-  revenueByRoom: RevenueByRoomDto[];
-  details: ShiftReportListDto[];
+  Summary: RevenueReportSummary;
+  RevenueByDate: RevenueByDateDto[];
+  RevenueByShiftType: RevenueByShiftTypeDto[];
+  RevenueByReceptionist: RevenueByReceptionistDto[];
+  RevenueByRoom: RevenueByRoomDto[];
+  Details: ShiftReportListDto[];
 }

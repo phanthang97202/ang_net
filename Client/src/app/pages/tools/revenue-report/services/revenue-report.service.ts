@@ -11,7 +11,7 @@ import {
   providedIn: 'root',
 })
 export class RevenueReportService {
-  private apiUrl = `${environment.apiUrl}/api/RevenueReports`;
+  private apiUrl = `${environment.apiUrl}RevenueReports`;
 
   constructor(private http: HttpClient) {}
 

@@ -73,7 +73,7 @@ export class NavbarComponent implements OnInit {
         {
           path: '/tools/revenue-report',
           title: 'RevenueShiftReport',
-          icon: 'file-text',
+          icon: 'dollar',
           isActive: false,
         },
       ],

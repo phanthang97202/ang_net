@@ -86,35 +86,35 @@ export class RevenueReportComponent implements OnInit {
 
   // Chart data for revenue by date
   get chartDataByDate(): any[] {
-    if (!this.reportData?.revenueByDate) return [];
+    if (!this.reportData?.RevenueByDate) return [];
 
-    return this.reportData.revenueByDate.map(item => ({
-      name: this.formatDateDisplay(item.date),
+    return this.reportData.RevenueByDate.map(item => ({
+      name: this.formatDateDisplay(item.Date),
       series: [
-        { name: 'Tiền mặt', value: item.totalCash },
-        { name: 'Chuyển khoản', value: item.totalTransfer },
-        { name: 'Chi tiêu', value: item.totalExpense },
+        { name: 'Tiền mặt', value: item.TotalCash },
+        { name: 'Chuyển khoản', value: item.TotalTransfer },
+        { name: 'Chi tiêu', value: item.TotalExpense },
       ],
     }));
   }
 
   // Chart data for revenue by shift type
   get chartDataByShiftType(): any[] {
-    if (!this.reportData?.revenueByShiftType) return [];
+    if (!this.reportData?.RevenueByShiftType) return [];
 
-    return this.reportData.revenueByShiftType.map(item => ({
-      name: item.shiftType,
-      value: item.totalRevenue,
+    return this.reportData.RevenueByShiftType.map(item => ({
+      name: item.ShiftType,
+      value: item.TotalRevenue,
     }));
   }
 
   // Chart data for revenue by receptionist
   get chartDataByReceptionist(): any[] {
-    if (!this.reportData?.revenueByReceptionist) return [];
+    if (!this.reportData?.RevenueByReceptionist) return [];
 
-    return this.reportData.revenueByReceptionist.map(item => ({
-      name: item.receptionistName,
-      value: item.totalRevenue,
+    return this.reportData.RevenueByReceptionist.map(item => ({
+      name: item.ReceptionistName,
+      value: item.TotalRevenue,
     }));
   }
 
@@ -128,11 +128,20 @@ export class RevenueReportComponent implements OnInit {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private formatDateDisplay(dateStr: string): string {
     const date = new Date(dateStr);
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+  }
+
+  formatCurrency(value: number): string {
+    if (value == null || isNaN(value)) return '0';
+    // return (+value.toLocaleString('vi-VN') * 1000).toString();
+    return value.toLocaleString('en-Us');
   }
 }
