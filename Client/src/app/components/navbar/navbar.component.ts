@@ -70,6 +70,12 @@ export class NavbarComponent implements OnInit {
           icon: 'file-text',
           isActive: false,
         },
+        {
+          path: '/tools/revenue-report',
+          title: 'RevenueShiftReport',
+          icon: 'file-text',
+          isActive: false,
+        },
       ],
     },
     { path: '/about', title: 'AboutMe', icon: 'user', isActive: false },

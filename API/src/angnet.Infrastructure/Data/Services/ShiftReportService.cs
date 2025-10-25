@@ -196,7 +196,7 @@ namespace angnet.Infrastructure.Data.Services
                     TotalCash = x.TotalCash,
                     TotalTransfer = x.TotalTransfer,
                     HandoverAmount = x.HandoverAmount,
-                    CreatedAt = x.CreatedDTime
+                    CreatedDTime = x.CreatedDTime
                 })
                 .ToListAsync();
 
