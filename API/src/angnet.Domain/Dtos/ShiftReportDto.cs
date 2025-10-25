@@ -93,7 +93,7 @@ namespace angnet.Domain.Dtos
         public decimal TotalCash { get; set; }
         public decimal TotalTransfer { get; set; }
         public decimal HandoverAmount { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedDTime { get; set; }
     }
 
     // Query parameters
@@ -119,5 +119,77 @@ namespace angnet.Domain.Dtos
         public bool HasNext => PageNumber < TotalPages;
     }
 
+    // ==================== dto for report statistic ====================
+    public class RevenueReportQueryParams
+    {
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public string ReceptionistName { get; set; }
+        public string ShiftType { get; set; }
+        public string RoomNumber { get; set; }
+    }
 
+    // Main revenue report response
+    public class RevenueReportResponse
+    {
+        public RevenueReportSummary Summary { get; set; }
+        public List<RevenueByDateDto> RevenueByDate { get; set; }
+        public List<RevenueByShiftTypeDto> RevenueByShiftType { get; set; }
+        public List<RevenueByReceptionistDto> RevenueByReceptionist { get; set; }
+        public List<RevenueByRoomDto> RevenueByRoom { get; set; }
+        public List<ShiftReportListDto> Details { get; set; }
+    }
+
+    // Summary totals
+    public class RevenueReportSummary
+    {
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCash { get; set; }
+        public decimal TotalTransfer { get; set; }
+        public decimal TotalExpense { get; set; }
+        public decimal NetRevenue { get; set; }
+        public int TotalShifts { get; set; }
+        public int TotalTransactions { get; set; }
+    }
+
+    // Revenue by date
+    public class RevenueByDateDto
+    {
+        public DateTime Date { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCash { get; set; }
+        public decimal TotalTransfer { get; set; }
+        public decimal TotalExpense { get; set; }
+        public int ShiftCount { get; set; }
+    }
+
+    // Revenue by shift type
+    public class RevenueByShiftTypeDto
+    {
+        public string ShiftType { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCash { get; set; }
+        public decimal TotalTransfer { get; set; }
+        public int ShiftCount { get; set; }
+    }
+
+    // Revenue by receptionist
+    public class RevenueByReceptionistDto
+    {
+        public string ReceptionistName { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCash { get; set; }
+        public decimal TotalTransfer { get; set; }
+        public int ShiftCount { get; set; }
+    }
+
+    // Revenue by room
+    public class RevenueByRoomDto
+    {
+        public string RoomNumber { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCash { get; set; }
+        public decimal TotalTransfer { get; set; }
+        public int TransactionCount { get; set; }
+    }
 } 

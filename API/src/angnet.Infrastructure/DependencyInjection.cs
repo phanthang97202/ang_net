@@ -64,6 +64,7 @@ namespace angnet.Infrastructure
 
             // Extension: Shift report
             services.AddScoped<IShiftReportService, ShiftReportService>();
+            services.AddScoped<IRevenueReportService, RevenueReportService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

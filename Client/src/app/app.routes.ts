@@ -49,6 +49,13 @@ export const routes: Routes = [
             p => p.ShiftReportModule
           ),
       },
+      {
+        path: 'revenue-report',
+        loadChildren: () =>
+          import(
+            './pages/tools/revenue-report/revenue-report-routing.module'
+          ).then(p => p.RevenueReportRoutingModule),
+      },
     ],
   },
   {
