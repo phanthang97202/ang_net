@@ -52,9 +52,9 @@ export const routes: Routes = [
       {
         path: 'revenue-report',
         loadChildren: () =>
-          import(
-            './pages/tools/revenue-report/revenue-report-routing.module'
-          ).then(p => p.RevenueReportRoutingModule),
+          import('./pages/tools/revenue-report/revenue-report.module').then(
+            p => p.RevenueReportModule
+          ),
       },
     ],
   },

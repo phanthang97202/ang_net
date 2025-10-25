@@ -62,7 +62,7 @@ namespace angnet.Infrastructure.Data.Services
 
             // Revenue by date
             var revenueByDate = shifts
-                .GroupBy(x => x.ShiftDate.Date)
+                .GroupBy(x => x.ShiftDate)
                 .Select(g => new RevenueByDateDto
                 {
                     Date = g.Key,

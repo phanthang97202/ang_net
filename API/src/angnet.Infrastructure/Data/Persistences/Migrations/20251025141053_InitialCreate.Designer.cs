@@ -12,7 +12,7 @@ using angnet.Infrastructure.Data;
 namespace angnet.Infrastructure.Data.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251022022200_InitialCreate")]
+    [Migration("20251025141053_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

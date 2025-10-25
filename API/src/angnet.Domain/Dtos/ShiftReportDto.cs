@@ -122,8 +122,8 @@ namespace angnet.Domain.Dtos
     // ==================== dto for report statistic ====================
     public class RevenueReportQueryParams
     {
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
+        public DateOnly? FromDate { get; set; }
+        public DateOnly? ToDate { get; set; }
         public string ReceptionistName { get; set; }
         public string ShiftType { get; set; }
         public string RoomNumber { get; set; }
@@ -155,7 +155,7 @@ namespace angnet.Domain.Dtos
     // Revenue by date
     public class RevenueByDateDto
     {
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal TotalCash { get; set; }
         public decimal TotalTransfer { get; set; }
