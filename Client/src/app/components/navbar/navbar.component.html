@@ -13,10 +13,12 @@
       </li>
 
       <!-- 🟦 Menu item có submenu -->
-      <li
-        *ngIf="route.children"
-        nz-submenu
-        [nzTitle]="'T_' + route.title | uppercase | translate">
+      <li *ngIf="route.children" nz-submenu>
+        <span title>
+          <span nz-icon [nzType]="route.icon"></span>
+          {{ 'T_' + route.title | uppercase | translate }}
+        </span>
+
         <ul>
           <li
             nz-menu-item

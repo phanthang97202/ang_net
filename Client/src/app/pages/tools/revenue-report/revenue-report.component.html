@@ -208,161 +208,168 @@
 
         <nz-tab nzTitle="Theo loại ca">
           <nz-card nzTitle="Doanh thu theo loại ca">
-            <nz-table
-              [nzData]="reportData.RevenueByShiftType"
-              [nzShowPagination]="false"
-              nzSize="small">
-              <thead>
-                <tr>
-                  <th>Loại ca</th>
-                  <th nzAlign="right">Tiền mặt</th>
-                  <th nzAlign="right">Chuyển khoản</th>
-                  <th nzAlign="right">Tổng doanh thu</th>
-                  <th nzAlign="center">Số ca</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of reportData.RevenueByShiftType">
-                  <td>
-                    <nz-tag
-                      [nzColor]="
-                        item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'
-                      ">
-                      {{ item.ShiftType }}
-                    </nz-tag>
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalCash | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalTransfer | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
-                  </td>
-                  <td nzAlign="center">{{ item.ShiftCount }}</td>
-                </tr>
-              </tbody>
-            </nz-table>
+            <div class="table-container">
+              <nz-table
+                [nzData]="reportData.RevenueByShiftType"
+                [nzShowPagination]="false"
+                nzSize="small">
+                <thead>
+                  <tr>
+                    <th>Loại ca</th>
+                    <th nzAlign="right">Tiền mặt</th>
+                    <th nzAlign="right">Chuyển khoản</th>
+                    <th nzAlign="right">Tổng doanh thu</th>
+                    <th nzAlign="center">Số ca</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of reportData.RevenueByShiftType">
+                    <td>
+                      <nz-tag
+                        [nzColor]="
+                          item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'
+                        ">
+                        {{ item.ShiftType }}
+                      </nz-tag>
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalCash | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalTransfer | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
+                    </td>
+                    <td nzAlign="center">{{ item.ShiftCount }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
           </nz-card>
         </nz-tab>
 
         <nz-tab nzTitle="Theo lễ tân">
           <nz-card nzTitle="Doanh thu theo lễ tân">
-            <nz-table
-              [nzData]="reportData.RevenueByReceptionist"
-              [nzShowPagination]="false"
-              nzSize="small">
-              <thead>
-                <tr>
-                  <th>Lễ tân</th>
-                  <th nzAlign="right">Tiền mặt</th>
-                  <th nzAlign="right">Chuyển khoản</th>
-                  <th nzAlign="right">Tổng doanh thu</th>
-                  <th nzAlign="center">Số ca</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of reportData.RevenueByReceptionist">
-                  <td>
-                    <strong>{{ item.ReceptionistName }}</strong>
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalCash | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalTransfer | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
-                  </td>
-                  <td nzAlign="center">{{ item.ShiftCount }}</td>
-                </tr>
-              </tbody>
-            </nz-table>
+            <div class="table-container">
+              <nz-table
+                [nzData]="reportData.RevenueByReceptionist"
+                [nzShowPagination]="false"
+                nzSize="small">
+                <thead>
+                  <tr>
+                    <th>Lễ tân</th>
+                    <th nzAlign="right">Tiền mặt</th>
+                    <th nzAlign="right">Chuyển khoản</th>
+                    <th nzAlign="right">Tổng doanh thu</th>
+                    <th nzAlign="center">Số ca</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of reportData.RevenueByReceptionist">
+                    <td>
+                      <strong>{{ item.ReceptionistName }}</strong>
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalCash | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalTransfer | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
+                    </td>
+                    <td nzAlign="center">{{ item.ShiftCount }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
           </nz-card>
         </nz-tab>
 
         <nz-tab nzTitle="Theo phòng">
           <nz-card nzTitle="Doanh thu theo phòng">
-            <nz-table
-              [nzData]="reportData.RevenueByRoom"
-              [nzShowPagination]="false"
-              nzSize="small"
-              [nzScroll]="{ y: '400px' }">
-              <thead>
-                <tr>
-                  <th>Số phòng</th>
-                  <th nzAlign="right">Tiền mặt</th>
-                  <th nzAlign="right">Chuyển khoản</th>
-                  <th nzAlign="right">Tổng doanh thu</th>
-                  <th nzAlign="center">Số giao dịch</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of reportData.RevenueByRoom">
-                  <td>
-                    <nz-tag nzColor="green">{{ item.RoomNumber }}</nz-tag>
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalCash | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalTransfer | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
-                  </td>
-                  <td nzAlign="center">{{ item.TransactionCount }}</td>
-                </tr>
-              </tbody>
-            </nz-table>
+            <div class="table-container">
+              <nz-table
+                [nzData]="reportData.RevenueByRoom"
+                [nzShowPagination]="false"
+                nzSize="small">
+                <thead>
+                  <tr>
+                    <th>Số phòng</th>
+                    <th nzAlign="right">Tiền mặt</th>
+                    <th nzAlign="right">Chuyển khoản</th>
+                    <th nzAlign="right">Tổng doanh thu</th>
+                    <th nzAlign="center">Số giao dịch</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of reportData.RevenueByRoom">
+                    <td>
+                      <nz-tag nzColor="green">{{ item.RoomNumber }}</nz-tag>
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalCash | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalTransfer | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      <strong>{{ item.TotalRevenue | number: '1.0-0' }}</strong>
+                    </td>
+                    <td nzAlign="center">{{ item.TransactionCount }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
           </nz-card>
         </nz-tab>
 
         <nz-tab nzTitle="Chi tiết các ca">
           <nz-card nzTitle="Chi tiết các ca làm việc">
-            <nz-table
-              [nzData]="reportData.Details"
-              [nzShowPagination]="true"
-              [nzPageSize]="10"
-              nzSize="small">
-              <thead>
-                <tr>
-                  <th>Ngày ca</th>
-                  <th>Loại ca</th>
-                  <th>Lễ tân</th>
-                  <th nzAlign="right">Tiền mặt</th>
-                  <th nzAlign="right">Chuyển khoản</th>
-                  <th nzAlign="right">Bàn giao</th>
-                  <th>Ngày tạo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of reportData.Details">
-                  <td>{{ item.ShiftDate | date: 'yyyy-MM-dd' }}</td>
-                  <td>
-                    <nz-tag
-                      [nzColor]="
-                        item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'
-                      ">
-                      {{ item.ShiftType }}
-                    </nz-tag>
-                  </td>
-                  <td>{{ item.ReceptionistName }}</td>
-                  <td nzAlign="right">
-                    {{ item.TotalCash | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.TotalTransfer | number: '1.0-0' }}
-                  </td>
-                  <td nzAlign="right">
-                    {{ item.HandoverAmount | number: '1.0-0' }}
-                  </td>
-                  <td>{{ item.CreatedDTime | date: 'yyyy-MM-dd HH:mm' }}</td>
-                </tr>
-              </tbody>
-            </nz-table>
+            <div class="table-container">
+              <nz-table
+                [nzData]="reportData.Details"
+                [nzShowPagination]="true"
+                [nzPageSize]="10"
+                nzSize="small">
+                <thead>
+                  <tr>
+                    <th>Ngày ca</th>
+                    <th>Loại ca</th>
+                    <th>Lễ tân</th>
+                    <th nzAlign="right">Tiền mặt</th>
+                    <th nzAlign="right">Chuyển khoản</th>
+                    <th nzAlign="right">Bàn giao</th>
+                    <th>Ngày tạo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of reportData.Details">
+                    <td>{{ item.ShiftDate | date: 'yyyy-MM-dd' }}</td>
+                    <td>
+                      <nz-tag
+                        [nzColor]="
+                          item.ShiftType === 'Ca ngày' ? 'blue' : 'purple'
+                        ">
+                        {{ item.ShiftType }}
+                      </nz-tag>
+                    </td>
+                    <td>{{ item.ReceptionistName }}</td>
+                    <td nzAlign="right">
+                      {{ item.TotalCash | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.TotalTransfer | number: '1.0-0' }}
+                    </td>
+                    <td nzAlign="right">
+                      {{ item.HandoverAmount | number: '1.0-0' }}
+                    </td>
+                    <td>{{ item.CreatedDTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
           </nz-card>
         </nz-tab>
       </nz-tabset>

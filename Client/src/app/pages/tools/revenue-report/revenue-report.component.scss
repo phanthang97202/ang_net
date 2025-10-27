@@ -12,9 +12,14 @@
             text-align: center;
         }
 
+
         ::ng-deep {
+            .ant-card-body {
+                padding: 10px;
+            }
+
             .ant-statistic-content {
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: 600;
             }
 
@@ -26,10 +31,10 @@
     }
 
     .charts-section {
-        margin-top: 24px;
+        margin-top: 4px;
 
         .table-container {
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
         }
     }

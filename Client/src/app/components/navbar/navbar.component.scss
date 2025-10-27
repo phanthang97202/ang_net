@@ -28,6 +28,10 @@
 .navbar {
     height: 64px;
 
+    li:first-child {
+        padding-left: 0;
+    }
+
     // Fix ng-zorro menu horizontal
     &.ant-menu-horizontal {
         border-bottom: none;
