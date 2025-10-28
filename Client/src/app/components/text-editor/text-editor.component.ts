@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, Output, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+  OnInit,
+  isDevMode,
+} from '@angular/core';
 import {
   ContentChange,
   EditorChangeContent,
@@ -42,24 +49,26 @@ export class TextEditorComponent implements OnInit {
 
   // ==================Bản fix
   async ngOnInit() {
-    if (typeof window === 'undefined') {
-      console.warn('BlotFormatter not loaded (SSR)');
-      this.setupEditorModules(false);
-      return;
-    }
+    if (isDevMode()) {
+      if (typeof window === 'undefined') {
+        console.warn('BlotFormatter not loaded (SSR)');
+        this.setupEditorModules(false);
+        return;
+      }
 
-    try {
-      const module = await import('quill-blot-formatter');
-      const BlotFormatter = module.default || module; // ✅ fix cho cả ESM & CJS
+      try {
+        const module = await import('quill-blot-formatter');
+        const BlotFormatter = module.default || module; // ✅ fix cho cả ESM & CJS
 
-      Quill.register('modules/blotFormatter', BlotFormatter);
-      console.log('✅ BlotFormatter module registered successfully');
+        Quill.register('modules/blotFormatter', BlotFormatter);
+        console.log('✅ BlotFormatter module registered successfully');
 
-      this.setupEditorModules(true);
-      this.blotFormatterReady = true;
-    } catch (error) {
-      console.error('❌ Error registering BlotFormatter module:', error);
-      this.setupEditorModules(false);
+        this.setupEditorModules(true);
+        this.blotFormatterReady = true;
+      } catch (error) {
+        console.error('❌ Error registering BlotFormatter module:', error);
+        this.setupEditorModules(false);
+      }
     }
   }
   // ==========================================
@@ -121,10 +130,12 @@ export class TextEditorComponent implements OnInit {
   }
 
   onEditorCreated(editor: any) {
-    if (editor.getModule('blotFormatter')) {
-      console.log('BlotFormatter module is active');
-    } else {
-      console.log('BlotFormatter module is NOT active');
+    if (isDevMode()) {
+      if (editor.getModule('blotFormatter')) {
+        console.log('BlotFormatter module is active');
+      } else {
+        console.log('BlotFormatter module is NOT active');
+      }
     }
   }
 
