@@ -69,6 +69,8 @@ export class TextEditorComponent implements OnInit {
         console.error('❌ Error registering BlotFormatter module:', error);
         this.setupEditorModules(false);
       }
+    } else {
+      this.blotFormatterReady = true;
     }
   }
   // ==========================================
