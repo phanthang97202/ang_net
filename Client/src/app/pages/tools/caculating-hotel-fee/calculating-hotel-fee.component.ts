@@ -55,13 +55,13 @@ export class CalculatingHotelFeeComponent implements OnInit {
 
   readonly UNIT = 1000;
   readonly roomTypes: Record<string, RoomType> = {
-    'Đơn thường': { hour: 230, night: 440, day: 490, extra: 50 },
-    'Đơn VIP': { hour: 260, night: 500, day: 590, extra: 50 },
-    'Đôi thường': { hour: 260, night: 500, day: 590, extra: 50 },
-    'Đôi VIP': { hour: 330, night: 550, day: 700, extra: 50 },
-    'Phòng 3': { hour: 350, night: 650, day: 800, extra: 60 },
-    'Phòng 301': { hour: 500, night: 800, day: 950, extra: 50 },
-    '901 (Family)': { hour: 350, night: 770, day: 1200, extra: 80 },
+    'Đơn thường': { hour: 230, night: 500, day: 550, extra: 50 },
+    'Đơn VIP': { hour: 260, night: 550, day: 650, extra: 50 },
+    'Đôi thường': { hour: 260, night: 550, day: 650, extra: 50 },
+    'Đôi VIP': { hour: 350, night: 600, day: 700, extra: 50 },
+    'Phòng 3': { hour: 350, night: 700, day: 900, extra: 60 },
+    'Phòng 301': { hour: 400, night: 800, day: 1200, extra: 60 },
+    '901 (Family)': { hour: 450, night: 1000, day: 1600, extra: 80 },
   };
 
   ngOnInit() {

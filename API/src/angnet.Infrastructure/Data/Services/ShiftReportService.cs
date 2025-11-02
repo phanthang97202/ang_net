@@ -88,6 +88,14 @@ namespace angnet.Infrastructure.Data.Services
             if (shiftReport == null)
                 throw new KeyNotFoundException($"ShiftReport with ID {dto.Id} not found");
 
+            var hoursDiff = (TCommonUtils.DTimeNow() - shiftReport.CreatedDTime).TotalHours;
+            if (hoursDiff > 12)
+            {
+                throw new InvalidOperationException(
+                    $"Không thể chỉnh sửa báo cáo ca đã được tạo hơn {Math.Floor(hoursDiff)} giờ trước."
+                );
+            }
+
             // Update basic info
             shiftReport.ShiftDate = dto.ShiftDate;
             shiftReport.ShiftType = dto.ShiftType;

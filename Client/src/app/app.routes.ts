@@ -36,6 +36,7 @@ export const routes: Routes = [
     // canActivate: [canActive],
     children: [
       {
+        title: 'Calculating hotel fee',
         path: 'calculating-hotel-fee',
         loadComponent: () =>
           import(
@@ -43,6 +44,7 @@ export const routes: Routes = [
           ).then(p => p.CalculatingHotelFeeComponent),
       },
       {
+        title: 'Shift report',
         path: 'shift-report',
         loadChildren: () =>
           import('./pages/tools/shift-report/shift-report.module').then(
@@ -50,6 +52,7 @@ export const routes: Routes = [
           ),
       },
       {
+        title: 'Revenue report',
         path: 'revenue-report',
         loadChildren: () =>
           import('./pages/tools/revenue-report/revenue-report.module').then(

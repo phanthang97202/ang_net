@@ -214,7 +214,7 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getById(id).subscribe({
       next: report => {
-        debugger;
+        // debugger;
         this.reportForm.patchValue({
           shiftDate: new Date(report.ShiftDate),
           shiftType: report.ShiftType,
@@ -298,7 +298,7 @@ export class ShiftReportComponent implements OnInit {
       ReceiverName: formValue.receiverName,
       Transactions: formValue.transactions.map((i: any) => {
         return {
-          CashAmount: i.cashAmount,
+          CashAmount: i.cashAmount || null,
           CustomerType: i.customerType ?? '', // fix prevent null => error be
           ExpenseAmount: i.expenseAmount,
           ExpenseDescription: i.expenseDescription,
@@ -306,7 +306,7 @@ export class ShiftReportComponent implements OnInit {
           OrderNumber: i.orderNumber,
           PrepaidNote: i.prepaidNote,
           RoomNumber: i.roomNumber,
-          TransferAmount: i.transferAmount,
+          TransferAmount: i.transferAmount || null,
         };
       }),
 
@@ -336,7 +336,7 @@ export class ShiftReportComponent implements OnInit {
 
   loadReports(): void {
     this.isLoading = true;
-    debugger;
+    // debugger;
 
     const params: any = {
       pageNumber: this.pageIndex,
@@ -358,7 +358,7 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getAll(params).subscribe({
       next: result => {
-        debugger;
+        // debugger;
 
         this.reports = result.Items;
         this.totalRecords = result.TotalCount;
