@@ -89,7 +89,7 @@ namespace angnet.Infrastructure.Data.Services
                 throw new KeyNotFoundException($"ShiftReport with ID {dto.Id} not found");
 
             var hoursDiff = (TCommonUtils.DTimeNow() - shiftReport.CreatedDTime).TotalHours;
-            if (hoursDiff > 12)
+            if (hoursDiff > 36)
             {
                 throw new InvalidOperationException(
                     $"Không thể chỉnh sửa báo cáo ca đã được tạo hơn {Math.Floor(hoursDiff)} giờ trước."
