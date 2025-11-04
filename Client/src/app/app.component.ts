@@ -27,7 +27,6 @@ import {
 })
 export class AppComponent implements OnInit {
   title = 'client';
-  // tracking pageview
   navigationEnd: Observable<NavigationEnd>;
 
   isChatOpen = false;
@@ -37,14 +36,13 @@ export class AppComponent implements OnInit {
     icon: '',
     message: '',
   };
+  isShowErrorModal = false; // THÊM DÒNG NÀY
   layoutType: LayoutType = 'user';
 
   loadingService = inject(LoadingService);
   langService = inject(LangService);
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
-
-  // router = inject(Router);
 
   lstRouteLayoutNone = ['/login', '/forgot-password'];
 
@@ -56,8 +54,8 @@ export class AppComponent implements OnInit {
     this.translate.setDefaultLang(curLang);
     this.translate.use(curLang);
 
-    // Subscribe to the loading state from the LoadingService
     this.isLoading$ = this.loadingService.getLoading();
+    // Subscribe đơn giản
     this.errorInfoService.getErrorInfo().subscribe({
       next: value => {
         this.errorInfo = value;
@@ -68,13 +66,8 @@ export class AppComponent implements OnInit {
       filter((event: Event) => event instanceof NavigationEnd)
     ) as Observable<NavigationEnd>;
 
-    // auto scroll to top when navigate route
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // Scroll to top khi route thay đổi
-        window.scrollTo(0, 0);
-
-        // Hoặc mượt hơn với behavior smooth
         window.scrollTo({
           top: 0,
           behavior: 'smooth',
@@ -88,7 +81,6 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
-
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
 
         if (url.startsWith('/dashboard')) {
@@ -100,24 +92,18 @@ export class AppComponent implements OnInit {
         }
       });
 
-    this.navigationEnd.subscribe(() =>
-      // event: NavigationEnd
-      {
-        posthog.capture('$pageview');
-      }
-    );
+    this.navigationEnd.subscribe(() => {
+      posthog.capture('$pageview');
+    });
   }
 
-  // dùng cách này không thể lấy được router chính xác
-  // router = inject(Router);
-  // ngOnInit() {
-  //   const url = this.router.url;
-  // }
+  // THÊM METHOD NÀY
+  closeErrorModal() {
+    this.isShowErrorModal = false;
+    this.errorInfoService.clearError();
+  }
 
   handleLogout() {
-    // có thời gian thì làm thêm popup lựa chọn: Đăng xuất hay Đăng xuất khỏi tất cả thiết bị
-    // this.authService.logout();
-
     const { nameid: userid } = this.authService.getAccountInfo();
 
     this.loadingService.setLoading(true);
@@ -144,8 +130,6 @@ export class AppComponent implements OnInit {
       complete: () => this.loadingService.setLoading(false),
     });
   }
-
-  // ====================
 
   toggleChat() {
     this.isChatOpen = !this.isChatOpen;

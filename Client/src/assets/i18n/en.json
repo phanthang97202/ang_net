@@ -38,5 +38,6 @@
     "T_CALCULATINGHOTELFEE": "Calculating Hotel Fee",
     "T_TOOLS": "Tools",
     "T_SHIFTREPORT": "Shift report",
-    "T_REVENUESHIFTREPORT": "Revenue hotel report"
+    "T_REVENUESHIFTREPORT": "Revenue hotel report",
+    "T_CONTINUEREAD": "Continue read"
 }
