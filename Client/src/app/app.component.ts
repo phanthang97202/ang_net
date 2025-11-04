@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
   // tracking pageview
   navigationEnd: Observable<NavigationEnd>;
 
+  isChatOpen = false;
   isLoading$: Observable<boolean>;
   errorInfo: IErrorInfo = {
     title: '',
@@ -142,5 +143,11 @@ export class AppComponent implements OnInit {
       },
       complete: () => this.loadingService.setLoading(false),
     });
+  }
+
+  // ====================
+
+  toggleChat() {
+    this.isChatOpen = !this.isChatOpen;
   }
 }

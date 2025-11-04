@@ -90,3 +90,17 @@
     <router-outlet></router-outlet>
   </nz-content>
 </nz-layout>
+
+<!-- Nút Chat -->
+<button
+  nz-button
+  nzShape="circle"
+  (click)="toggleChat()"
+  class="chat-toggle-btn">
+  <span nz-icon nzType="message" nzTheme="outline"></span>
+</button>
+
+<!-- Chat Box -->
+<div class="chat-box-container" *ngIf="isChatOpen">
+  <app-chat-box></app-chat-box>
+</div>

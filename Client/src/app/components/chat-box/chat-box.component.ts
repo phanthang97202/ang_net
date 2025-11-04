@@ -24,7 +24,7 @@ import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 @Component({
-  selector: 'chat-box',
+  selector: 'app-chat-box',
   standalone: true,
   imports: [
     CommonModule,
