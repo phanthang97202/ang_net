@@ -70,12 +70,11 @@ nz-footer {
     bottom: 80px; // cách nút một chút
     right: 24px;
     width: 400px;
-    height: 450px;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    z-index: 1049;
+    z-index: 10;
     animation: slideUp 0.3s ease;
 }
 

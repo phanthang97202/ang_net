@@ -1,34 +1,305 @@
 .chat__container {
-    border: 1px solid red;
-    position: relative;
-    scroll-behavior: "smooth";
+    width: 100%;
+    max-width: 600px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    // overflow: hidden;
+    margin: 0 auto;
+}
 
-    .comment__container {
-        .ant-comment-inner {
-            padding: 0px 0px !important;
-        } 
-    } 
-    
-    .myMessage {
-        background-color: blue;
-        color: white;
-        padding: 6px 8px;
-        border-radius: 20px;
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    background: #f5f5f5;
+    font-size: 12px;
+    color: #595959;
+}
+
+.chat-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+        width: 6px;
     }
 
-    .form__send {
-        height: max-content;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #d9d9d9;
+        border-radius: 3px;
+
+        &:hover {
+            background: #bfbfbf;
+        }
     }
 }
-::ng-deep .uploadfile__container {
-    .ant-upload.ant-upload-select-picture-card {
-        margin: 0 !important;
-        width: fit-content !important;
-        height: fit-content !important;
+
+.message-wrapper {
+    margin-bottom: 12px;
+    display: flex;
+    animation: fadeIn 0.3s ease-in;
+
+    &.message-own {
+        justify-content: flex-end;
+
+        .message-content {
+            flex-direction: row-reverse;
+        }
+
+        .message-body {
+            align-items: flex-end;
+        }
+
+        .message-time {
+            text-align: right;
+        }
+    }
+
+    &.message-other {
+        justify-content: flex-start;
+
+        .message-body {
+            align-items: flex-start;
+        }
+
+        .message-time {
+            text-align: left;
+        }
     }
 }
- 
+
+.message-content {
+    display: flex;
+    gap: 8px;
+    max-width: 75%;
+}
+
+.message-avatar {
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+.message-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.message-username {
+    font-size: 12px;
+    color: #8c8c8c;
+    font-weight: 500;
+    padding: 0 4px;
+}
+
+.message-bubble {
+    border-radius: 12px;
+    padding: 10px 14px;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+
+    &.bubble-own {
+        background: #1890ff;
+        color: #ffffff;
+        border-bottom-right-radius: 4px;
+    }
+
+    &.bubble-other {
+        background: #ffffff;
+        color: #262626;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+}
+
+.message-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.message-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.message-time {
+    font-size: 11px;
+    color: #8c8c8c;
+    padding: 0 4px;
+    margin-top: 2px;
+}
+
+.chat-input-area {
+    // flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #ffffff;
+    border-top: 1px solid #f0f0f0;
+
+    .upload-section {}
+
+    .input-section {
+        flex: 1;
+    }
+}
+
+.upload-btn {
+    flex-shrink: 0;
+
+    ::ng-deep {
+        .ant-upload-select {
+            width: 40px !important;
+            height: 40px !important;
+            margin: 0 !important;
+            border-radius: 8px !important;
+            border: 1px solid #d9d9d9 !important;
+            background: #fafafa !important;
+            transition: all 0.3s ease !important;
+
+            &:hover {
+                border-color: #1890ff !important;
+                background: #e6f7ff !important;
+            }
+        }
+    }
+
+    .upload-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-size: 18px;
+        color: #8c8c8c;
+    }
+}
+
+.input-wrapper {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.message-input {
+    flex: 1;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid #d9d9d9;
+    padding: 8px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+
+    &:hover,
+    &:focus {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        outline: none;
+    }
+
+    &::placeholder {
+        color: #bfbfbf;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        background: #f5f5f5;
+    }
+}
+
+.send-btn {
+    flex-shrink: 0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    ::ng-deep {
+        span {
+            font-size: 16px;
+        }
+    }
+}
+
+.preview-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+// Animation
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .chat__container {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .message-content {
+        max-width: 85%;
+    }
+}
+
+.image__preview__modal {
+    // z-index: 100000000000;
+}

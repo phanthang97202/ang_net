@@ -1,48 +1,113 @@
-<div class="chat__container w-[400px] h-[400px] ">
-    <div #chatContainer (scroll)="onScroll()" [scrollTop]="chatContainer.scrollHeight"
-        class="overflow-y-auto flex flex-col h-[84%] ">
-        <div *ngFor="let msg of messages">
-            <nz-comment class="comment__container" [class.float-right]="msg.UserId === userId"
-                [class.float-left]="msg.UserId !== userId" [nzAuthor]='msg.UserId !== userId ? msg.UserId : ""'
-                [nzDatetime]="">
-
-                <nz-avatar *ngIf="msg.UserId !== userId" nz-comment-avatar
-                    nzSrc="https://en.anmosugoi.com/wp-content/uploads/2024/05/Date-a-Live-Kurumi-Tokisaki-min-4.webp"></nz-avatar>
-
-                <nz-comment-content [class.myMessage]="msg.UserId === userId">
-                    <img width="100" height="100" class="object-contain" *ngIf="msg.Type === 'jpg'" [src]="msg.Message"
-                        [alt]="msg.MessageId">
-                    <p *ngIf="msg.Type === 'string'">{{msg.Message}}</p>
-                </nz-comment-content>
-            </nz-comment>
-        </div>
+<div class="chat-wrapper">
+  <div class="chat__container">
+    <!-- Loading indicator for older messages -->
+    <div *ngIf="loadingMessages" class="loading-indicator">
+      <nz-spin nzSimple [nzSize]="'small'"></nz-spin>
+      <span>Loading messages...</span>
     </div>
 
-    <div class="form__send flex w-full items-end">
-        <div class="w-[30%]">
-            <nz-upload class="uploadfile__container" nzListType="picture-card" [(nzFileList)]="fileList"
-                [nzShowButton]="fileList.length < 8" [nzPreview]="handlePreview" [nzBeforeUpload]="handleUploadFile">
-                <div>
-                    <span nz-icon nzType="file-jpg" nzTheme="outline"></span>
-                </div>
-            </nz-upload>
-        </div>
-        <div class="flex-1">
-            <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-                <input [(ngModel)]="newMessage" type="text" nz-input placeholder="your message...."
-                    (keyup.enter)="sendMessage()" />
-            </nz-input-group>
-            <ng-template #suffixIconButton>
-                <button nz-button nzType="primary" (click)="sendMessage()" nzSearch><span nz-icon nzType="send"
-                        nzTheme="outline"></span></button>
-            </ng-template>
-        </div>
+    <!-- Chat messages container -->
+    <div #chatContainer (scroll)="onScroll()" class="chat-messages-container">
+      <div
+        *ngFor="let msg of messages; trackBy: trackByMessageId"
+        class="message-wrapper"
+        [class.message-own]="msg.UserId === userId"
+        [class.message-other]="msg.UserId !== userId">
+        <nz-comment
+          class="message-item"
+          [nzAuthor]="msg.UserId !== userId ? msg.UserId : ''"
+          [nzDatetime]="(msg.CreatedDTime | date: 'short') || ''">
+          <!-- Avatar for other users -->
+          <nz-avatar
+            *ngIf="msg.UserId !== userId"
+            nz-comment-avatar
+            [nzSize]="36"
+            nzSrc="https://en.anmosugoi.com/wp-content/uploads/2024/05/Date-a-Live-Kurumi-Tokisaki-min-4.webp">
+          </nz-avatar>
+
+          <!-- Message content -->
+          <nz-comment-content>
+            <div
+              class="message-bubble"
+              [class.bubble-own]="msg.UserId === userId"
+              [class.bubble-other]="msg.UserId !== userId">
+              <!-- Image message -->
+              <img
+                *ngIf="msg.Type === 'jpg'"
+                [src]="msg.Message"
+                [alt]="msg.MessageId"
+                class="message-image"
+                (click)="previewImage = msg.Message; previewVisible = true" />
+
+              <!-- Text message -->
+              <p *ngIf="msg.Type === 'string'" class="message-text">
+                {{ msg.Message }}
+              </p>
+            </div>
+          </nz-comment-content>
+        </nz-comment>
+      </div>
     </div>
 
+    <!-- Input area -->
+    <div class="chat-input-area">
+      <!-- Upload button -->
+      <div class="upload-section">
+        <nz-upload
+          class="upload-btn"
+          nzListType="picture-card"
+          [(nzFileList)]="fileList"
+          [nzShowButton]="fileList.length < 1 && !isUploading"
+          [nzPreview]="handlePreview"
+          [nzBeforeUpload]="handleUploadFile"
+          [nzShowUploadList]="false">
+          <div class="upload-icon-wrapper">
+            <span
+              nz-icon
+              [nzType]="isUploading ? 'loading' : 'picture'"
+              nzTheme="outline">
+            </span>
+          </div>
+        </nz-upload>
+      </div>
+
+      <!-- Message input -->
+      <div class="input-section">
+        <nz-input-group [nzSuffix]="suffixIconButton">
+          <input
+            [(ngModel)]="newMessage"
+            type="text"
+            nz-input
+            placeholder="Type a message..."
+            (keyup.enter)="sendMessage()"
+            [disabled]="isUploading"
+            class="message-input" />
+        </nz-input-group>
+
+        <ng-template #suffixIconButton>
+          <button
+            nz-button
+            nzType="primary"
+            (click)="sendMessage()"
+            [disabled]="!newMessage.trim() || isUploading"
+            class="send-btn">
+            <span nz-icon nzType="send" nzTheme="outline"></span>
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
 </div>
 
-<nz-modal [nzVisible]="previewVisible" [nzContent]="modalContent" (nzOnCancel)="previewVisible = false">
-    <ng-template #modalContent>
-        <img [src]="previewImage" [ngStyle]="{ width: '100%' }" />
-    </ng-template>
+<!-- Image preview modal -->
+<nz-modal
+  class="image__preview__modal"
+  [nzVisible]="previewVisible"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  (nzOnCancel)="previewVisible = false"
+  nzWidth="80%">
+  <ng-template #modalContent>
+    <img [src]="previewImage" class="preview-image" />
+  </ng-template>
 </nz-modal>
