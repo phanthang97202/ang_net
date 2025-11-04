@@ -42,6 +42,7 @@ namespace angnet.Domain.Models
 
         [Precision(18, 2)]
         public decimal? ExpenseAmount { get; set; }
+        public bool IsUseExpenseForReportRevenue { get; set; } = true;
 
         [ForeignKey("ShiftReportId")]
         public virtual ShiftReportModel ShiftReport { get; set; }

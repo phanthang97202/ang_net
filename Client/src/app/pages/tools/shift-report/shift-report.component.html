@@ -362,13 +362,23 @@
                       placeholder="ND chi tiêu" />
                   </td>
                   <td>
-                    <nz-input-number
-                      placeholder="Số tiền chi tiêu"
-                      (keydown.enter)="$event.preventDefault()"
-                      formControlName="expenseAmount"
-                      [nzMin]="0"
-                      [nzStep]="1000"
-                      style="width: 100%"></nz-input-number>
+                    <div class="flex items-center">
+                      <nz-input-number
+                        placeholder="Số tiền chi tiêu"
+                        (keydown.enter)="$event.preventDefault()"
+                        formControlName="expenseAmount"
+                        [nzMin]="0"
+                        [nzStep]="1000"
+                        style="width: 100%"></nz-input-number>
+                      <div
+                        class="ml-[4px]"
+                        nz-checkbox
+                        nz-tooltip
+                        nzTooltipTitle="Có cho phép tính vào báo cáo lợi nhuận không?"
+                        [nzDisabled]="i + 1 === 1"
+                        nzTooltipPlacement="top"
+                        formControlName="isUseExpenseForReportRevenue"></div>
+                    </div>
                   </td>
                   <td>
                     <button

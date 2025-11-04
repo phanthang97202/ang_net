@@ -47,6 +47,7 @@ namespace angnet.Domain.Dtos
         public string PrepaidNote { get; set; } = string.Empty;
         public string ExpenseDescription { get; set; } = string.Empty;
         public decimal? ExpenseAmount { get; set; }
+        public bool IsUseExpenseForReportRevenue { get; set; }
     }
 
     public class RoomSaleDto

@@ -24,6 +24,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 import { ShiftReportComponent } from './shift-report.component';
 import { ShiftReportRoutingModule } from './shift-report-routing.module';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 @NgModule({
   declarations: [ShiftReportComponent],
@@ -52,6 +53,8 @@ import { ShiftReportRoutingModule } from './shift-report-routing.module';
     NzTagModule,
     NzToolTipModule,
     NzStatisticModule,
+    NzCheckboxModule,
+    NzToolTipModule,
   ],
 })
 export class ShiftReportModule {}

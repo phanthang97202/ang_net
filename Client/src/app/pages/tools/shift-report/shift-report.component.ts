@@ -136,6 +136,7 @@ export class ShiftReportComponent implements OnInit {
       prepaidNote: [''],
       expenseDescription: [''],
       expenseAmount: [null],
+      isUseExpenseForReportRevenue: true,
     });
   }
 
@@ -214,6 +215,10 @@ export class ShiftReportComponent implements OnInit {
 
     this.shiftReportService.getById(id).subscribe({
       next: report => {
+        console.log(
+          '🚀 ~ ShiftReportComponent ~ showEditModal ~ report:',
+          report
+        );
         // debugger;
         this.reportForm.patchValue({
           shiftDate: new Date(report.ShiftDate),
@@ -237,6 +242,7 @@ export class ShiftReportComponent implements OnInit {
               prepaidNote: [txn.PrepaidNote || ''],
               expenseDescription: [txn.ExpenseDescription || ''],
               expenseAmount: [txn.ExpenseAmount || null],
+              isUseExpenseForReportRevenue: [txn.IsUseExpenseForReportRevenue],
             })
           );
         });
@@ -307,6 +313,7 @@ export class ShiftReportComponent implements OnInit {
           PrepaidNote: i.prepaidNote,
           RoomNumber: i.roomNumber,
           TransferAmount: i.transferAmount || null,
+          IsUseExpenseForReportRevenue: i.isUseExpenseForReportRevenue,
         };
       }),
 

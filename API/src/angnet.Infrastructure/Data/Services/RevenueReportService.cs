@@ -59,7 +59,7 @@ namespace angnet.Infrastructure.Data.Services
             {
                 TotalCash = validTransactions.Sum(t => t.CashAmount ?? 0),
                 TotalTransfer = validTransactions.Sum(t => t.TransferAmount ?? 0),
-                TotalExpense = validTransactions.Sum(t => t.ExpenseAmount ?? 0),
+                TotalExpense = validTransactions.Where(t => t.IsUseExpenseForReportRevenue == true).Sum(t => t.ExpenseAmount ?? 0), // Tính tổng và chỉ tính tổng những row được phép cho vào báo cáo doanh thu
                 TotalShifts = shifts.Count,
                 TotalTransactions = validTransactions.Count
             };
