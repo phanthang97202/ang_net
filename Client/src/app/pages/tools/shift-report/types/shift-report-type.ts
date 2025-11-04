@@ -17,6 +17,7 @@ export interface ShiftReportTransaction extends BaseModel {
   PrepaidNote?: string;
   ExpenseDescription?: string;
   ExpenseAmount?: number;
+  IsUseExpenseForReportRevenue: boolean;
 }
 
 export interface ShiftReportRoomSale extends BaseModel {

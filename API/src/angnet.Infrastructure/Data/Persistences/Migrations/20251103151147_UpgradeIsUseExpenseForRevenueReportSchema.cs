@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace angnet.Infrastructure.Data.Persistences.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpgradeIsUseExpenseForRevenueReportSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -511,6 +511,7 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                     PrepaidNote = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     ExpenseDescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ExpenseAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    IsUseExpenseForReportRevenue = table.Column<bool>(type: "boolean", nullable: false),
                     FlagActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: false),
                     UpdatedBy = table.Column<string>(type: "text", nullable: false),

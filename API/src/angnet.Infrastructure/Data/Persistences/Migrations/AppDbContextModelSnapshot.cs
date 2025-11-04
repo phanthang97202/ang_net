@@ -1523,6 +1523,9 @@ namespace angnet.Infrastructure.Data.Persistences.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<bool>("IsUseExpenseForReportRevenue")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer");
 

@@ -54,7 +54,8 @@ namespace angnet.Infrastructure.Data.Services
                     TransferAmount = txnDto.TransferAmount,
                     PrepaidNote = txnDto.PrepaidNote,
                     ExpenseDescription = txnDto.ExpenseDescription,
-                    ExpenseAmount = txnDto.ExpenseAmount
+                    ExpenseAmount = txnDto.ExpenseAmount,
+                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue
                 });
             }
 
@@ -121,7 +122,8 @@ namespace angnet.Infrastructure.Data.Services
                     TransferAmount = txnDto.TransferAmount,
                     PrepaidNote = txnDto.PrepaidNote,
                     ExpenseDescription = txnDto.ExpenseDescription,
-                    ExpenseAmount = txnDto.ExpenseAmount
+                    ExpenseAmount = txnDto.ExpenseAmount,
+                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue
                 });
             }
 
@@ -262,7 +264,8 @@ namespace angnet.Infrastructure.Data.Services
                     TransferAmount = t.TransferAmount,
                     PrepaidNote = t.PrepaidNote,
                     ExpenseDescription = t.ExpenseDescription,
-                    ExpenseAmount = t.ExpenseAmount
+                    ExpenseAmount = t.ExpenseAmount,
+                    IsUseExpenseForReportRevenue = t.IsUseExpenseForReportRevenue
                 }).ToList(),
                 RoomSales = entity.RoomSales.Select(s => new RoomSaleDto
                 {
