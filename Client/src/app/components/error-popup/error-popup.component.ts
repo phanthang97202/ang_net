@@ -6,14 +6,14 @@ import {
   SimpleChanges,
   OnDestroy,
 } from '@angular/core';
-import { NzButtonComponent } from 'ng-zorro-antd/button';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalModule, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { ShowErrorService, IErrorInfoWithId } from '../../services';
 
 @Component({
   standalone: true,
   selector: 'app-error-popup',
-  imports: [NzButtonComponent, NzModalModule],
+  imports: [NzButtonModule, NzModalModule],
   template: ``,
 })
 export class ErrorPopupComponent implements OnChanges, OnDestroy {
