@@ -38,6 +38,7 @@ namespace angnet.Infrastructure.Data.Services
                 EndTime = dto.EndTime,
                 ReceptionistName = dto.ReceptionistName,
                 ReceiverName = dto.ReceiverName,
+                CreatedBy = dto.ReceptionistName, // sau này sửa thành người đăng nhập
                 CreatedDTime = TCommonUtils.DTimeNow()
             };
 
@@ -55,7 +56,9 @@ namespace angnet.Infrastructure.Data.Services
                     PrepaidNote = txnDto.PrepaidNote,
                     ExpenseDescription = txnDto.ExpenseDescription,
                     ExpenseAmount = txnDto.ExpenseAmount,
-                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue
+                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue,
+                    CreatedBy = shiftReport.ReceptionistName, // sau này sửa thành người đăng nhập
+                    CreatedDTime = TCommonUtils.DTimeNow()
                 });
             }
 
@@ -66,7 +69,9 @@ namespace angnet.Infrastructure.Data.Services
                 {
                     RoomNumber = saleDto.RoomNumber,
                     RoomCategory = saleDto.RoomCategory,
-                    UnitPrice = saleDto.UnitPrice
+                    UnitPrice = saleDto.UnitPrice,
+                    CreatedBy = shiftReport.ReceptionistName, // sau này sửa thành người đăng nhập
+                    CreatedDTime = TCommonUtils.DTimeNow()
                 });
             }
 
@@ -104,6 +109,7 @@ namespace angnet.Infrastructure.Data.Services
             shiftReport.EndTime = dto.EndTime;
             shiftReport.ReceptionistName = dto.ReceptionistName;
             shiftReport.ReceiverName = dto.ReceiverName;
+            shiftReport.UpdatedBy = dto.ReceptionistName; // sau này sửa thành người đăng nhập
             shiftReport.UpdatedDTime = TCommonUtils.DTimeNow();
 
             // Update transactions
@@ -123,7 +129,9 @@ namespace angnet.Infrastructure.Data.Services
                     PrepaidNote = txnDto.PrepaidNote,
                     ExpenseDescription = txnDto.ExpenseDescription,
                     ExpenseAmount = txnDto.ExpenseAmount,
-                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue
+                    IsUseExpenseForReportRevenue = txnDto.IsUseExpenseForReportRevenue,
+                    UpdatedBy = shiftReport.ReceptionistName, // sau này sửa thành người đăng nhập
+                    UpdatedDTime = TCommonUtils.DTimeNow()
                 });
             }
 
@@ -137,7 +145,9 @@ namespace angnet.Infrastructure.Data.Services
                 {
                     RoomNumber = saleDto.RoomNumber,
                     RoomCategory = saleDto.RoomCategory,
-                    UnitPrice = saleDto.UnitPrice
+                    UnitPrice = saleDto.UnitPrice,
+                    UpdatedBy = shiftReport.ReceptionistName, // sau này sửa thành người đăng nhập
+                    UpdatedDTime = TCommonUtils.DTimeNow()
                 });
             }
 
