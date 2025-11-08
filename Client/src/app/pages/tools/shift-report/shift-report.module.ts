@@ -25,6 +25,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { ShiftReportComponent } from './shift-report.component';
 import { ShiftReportRoutingModule } from './shift-report-routing.module';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { ShowWarningComponent } from '../../../components/show-warning/show-warning.component';
 
 @NgModule({
   declarations: [ShiftReportComponent],
@@ -34,6 +35,7 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     ReactiveFormsModule,
     HttpClientModule,
     ShiftReportRoutingModule,
+    ShowWarningComponent,
 
     // Ant Design
     NzCardModule,

@@ -61,8 +61,7 @@ export class PrintService {
     const maxRoomRows = Math.max(
       hourlyRooms.length,
       nightRooms.length,
-      dailyRooms.length,
-      5
+      dailyRooms.length
     );
 
     let roomSalesRows = '';

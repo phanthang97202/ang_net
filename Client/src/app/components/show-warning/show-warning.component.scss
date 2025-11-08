@@ -1,0 +1,141 @@
+/* Banner cảnh báo chính - Sticky top */
+.warning-banner {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    width: calc(100% - 40px);
+    margin: auto;
+    color: white;
+    padding: 4px 4px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+    border-left: 6px solid #c92a2a;
+    animation: slideDown 0.5s ease-out, pulse 2s ease-in-out infinite;
+}
+
+.warning-banner h2 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.warning-banner p {
+    font-weight: 500;
+}
+
+.warning-banner::before {
+    content: '⚠️';
+    display: block;
+    margin-bottom: 0px;
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes neonFlicker {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 10px #ff0000,
+            0 0 20px #ff0000,
+            0 0 30px #ff0000,
+            0 0 40px #ff0000;
+    }
+
+    50% {
+        text-shadow:
+            0 0 5px #ff0000,
+            0 0 10px #ff0000,
+            0 0 15px #ff0000,
+            0 0 20px #ff0000;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .warning-banner h2 {
+        font-size: 1.2em;
+    }
+
+    .warning-banner p {
+        font-size: 1em;
+    }
+
+    .warning-modal {
+        margin: 0 10px 30px;
+    }
+}

@@ -39,5 +39,7 @@
     "T_TOOLS": "Công cụ",
     "T_SHIFTREPORT": "Báo cáo ca trực",
     "T_REVENUESHIFTREPORT": "Báo cáo doanh thu",
-    "T_CONTINUEREAD": "Đọc tiếp"
+    "T_CONTINUEREAD": "Đọc tiếp",
+    "T_WARNING": "Cảnh báo",
+    "T_THISISPUBLICAPIPLEASEDONTEDITCHAOS": "Đây là Public API - Vui lòng không sửa dữ liệu linh tinh. Xin cảm ơn!"
 }

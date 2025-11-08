@@ -39,5 +39,7 @@
     "T_TOOLS": "Tools",
     "T_SHIFTREPORT": "Shift report",
     "T_REVENUESHIFTREPORT": "Revenue hotel report",
-    "T_CONTINUEREAD": "Continue read"
+    "T_CONTINUEREAD": "Continue read",
+    "T_WARNING": "WARNING",
+    "T_THISISPUBLICAPIPLEASEDONTEDITCHAOS": "This is public API. Please don't edit anything if you are not belong my company!"
 }
