@@ -363,6 +363,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/api/health", () => Results.Ok("Alive")); // simple health check endpoint for Render, trigger Render dont cold sleep
+app.MapMethods("/api/health", new[] { "HEAD" }, () => Results.Ok("Alive")); // simple health check endpoint for Render, trigger Render dont cold sleep
+
 
 //app.MapPost("broadcast", async (string message, IHubContext<NotificationHub, INotificationClient> context) =>
 //{
