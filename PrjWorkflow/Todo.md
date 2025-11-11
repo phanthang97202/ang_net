@@ -36,3 +36,7 @@
     VD: MHĐ: 7008: Checkin 2025-10-31 22:10 : Chưa thanh toán
                 Checkout 2025-11-01 12:00: Thanh toán 550k
             => Sẽ có sự chênh lệch số liệu giữa tháng 10 và 11 của 2 hệ thống Angnet và EzCloud
+
+## 2025-11-10
+    https://dashboard.uptimerobot.com/monitors/801764142
+    Đã thêm 1 api/health để trigger cho Render server biết không ngủ đông (Cold sleep) sau 15p
