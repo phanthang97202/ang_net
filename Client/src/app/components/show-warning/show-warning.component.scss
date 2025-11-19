@@ -1,14 +1,14 @@
 /* Banner cảnh báo chính - Sticky top */
 .warning-banner {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    width: calc(100% - 40px);
+    width: calc(100%);
     margin: auto;
     color: white;
     padding: 4px 4px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
     border-left: 6px solid #c92a2a;
-    animation: slideDown 0.5s ease-out, pulse 2s ease-in-out infinite;
+    // animation: slideDown 0.5s ease-out, pulse 2s ease-in-out infinite;
 }
 
 .warning-banner h2 {
