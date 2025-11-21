@@ -22,7 +22,7 @@ namespace angnet.Domain.Models
 
         [Required]
         public string Content { get; set; } = string.Empty; // Nội dung bình luận
-
+        public int AllowReplyNumber { get; set; } = 1; // Cho phép phản hồi mấy cấp, sau khi có comment khác phản hồi thì comment đó = this.AllowReplyNumber - 1, = 0 thì prevent reply 
         public int ReplyCount { get; set; } = 0; // Số lượt thích
         public int ReactionCount { get; set; } = 0; // Số lượt không thích
 

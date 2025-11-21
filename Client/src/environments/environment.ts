@@ -3,11 +3,11 @@ export const environment = {
   tokenKey: 'tokenKey',
   langKey: 'langKey',
   refreshTokenKey: 'refreshTokenKey',
-  // apiUrl: 'https://localhost:44303/api/',
-  // wsUrl: 'https://localhost:44303/',
+  apiUrl: 'https://localhost:44303/api/',
+  wsUrl: 'https://localhost:44303/',
 
-  apiUrl: 'https://ang-net.onrender.com/api/',
-  wsUrl: 'https://ang-net.onrender.com/',
+  // apiUrl: 'https://ang-net.onrender.com/api/',
+  // wsUrl: 'https://ang-net.onrender.com/',
 
   // anhduongcute97@gmail.com // AnhDuong09072002!??? => fromt to 2024/11/26
 
