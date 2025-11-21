@@ -10,17 +10,18 @@ import {
   ShowErrorService,
   CloudinaryService,
   LoadingService,
-} from '../../../services';
+} from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   INewsCategory,
   INewsCategoryNode,
   IRefFileNews,
-} from '../../../interfaces';
+} from '../../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
-import { Util } from '../../../helpers';
-import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
+import { Util } from '../../../../helpers';
+import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-blogs',
@@ -35,6 +36,9 @@ export class BlogsComponent implements OnInit {
   cloudinary = inject(CloudinaryService);
   loadingService = inject(LoadingService);
   private message = inject(NzMessageService);
+  private route = inject(ActivatedRoute);
+
+  mode: 'create' | 'edit' = 'create';
 
   nodes: NzTreeNodeOptions[] | NzTreeNode[] = [];
 
@@ -67,7 +71,47 @@ export class BlogsComponent implements OnInit {
   }
 
   ngOnInit() {
+    const queryModeParamUrl = this.route.snapshot.data['mode'];
+    const newsId = this.route.snapshot.params['id'];
+    this.mode = queryModeParamUrl;
+
+    if (queryModeParamUrl === 'edit') {
+      this.handleBindingUpdateData(newsId);
+    }
+
     this.fetchDataInit();
+  }
+
+  handleBindingUpdateData(newsId: string) {
+    this.loadingService.setLoading(true);
+    this.apiService
+      .GetNewsByKey(newsId)
+      .pipe()
+      .subscribe({
+        next: data => {
+          this.validateForm.patchValue({
+            CategoryNewsId: data.Data.CategoryNewsId,
+            ContentBody: data.Data.ContentBody,
+            ShortTitle: data.Data.ShortTitle,
+            ShortDescription: data.Data.ShortDescription,
+            // LstHashTagNews: [...data.Data.LstHashTagNews],
+            Thumbnail: data.Data.Thumbnail,
+            LstRefFileNews: data.Data.LstRefFileNews,
+          });
+          this.loadingService.setLoading(false);
+        },
+        error: err => {
+          this.loadingService.setLoading(false);
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
+        },
+        complete: () => {
+          this.loadingService.setLoading(false);
+        },
+      });
   }
 
   fetchDataInit() {

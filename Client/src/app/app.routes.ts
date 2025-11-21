@@ -147,10 +147,29 @@ export const routes: Routes = [
       {
         path: 'blog',
         loadComponent: () =>
-          import('./pages/dashboard/blogs/blogs.component').then(
+          import('./pages/dashboard/blogs/blog-list/blog-list.component').then(
+            p => p.BlogListComponent
+          ),
+        canActivate: [canActiveForAdmin],
+      },
+
+      {
+        path: 'blog/create',
+        loadComponent: () =>
+          import('./pages/dashboard/blogs/modify-blog/blogs.component').then(
             p => p.BlogsComponent
           ),
         canActivate: [canActiveForAdmin],
+        data: { mode: 'create' },
+      },
+
+      {
+        path: 'blog/edit/:id',
+        loadComponent: () =>
+          import('./pages/dashboard/blogs/modify-blog/blogs.component').then(
+            p => p.BlogsComponent
+          ),
+        data: { mode: 'edit' },
       },
 
       {

@@ -1,0 +1,61 @@
+<div class="master__container">
+  <app-breadcrumb [buttons]="listButtonsHeader" />
+
+  <nz-layout>
+    <nz-content>
+      <nz-table
+        nzShowSizeChanger
+        [nzData]="dataSource"
+        [nzFrontPagination]="false"
+        [nzLoading]="false">
+        <thead>
+          <tr>
+            <th nzColumnKey="NewsId" [nzSortFn]="true"></th>
+            <th nzColumnKey="NewsId" [nzSortFn]="true">Idx</th>
+            <th nzColumnKey="ShortTitle" [nzSortFn]="true">ShortTitle</th>
+            <th nzColumnKey="FullName" [nzFilterFn]="true">FullName</th>
+            <th nzColumnKey="ViewCount" [nzFilterFn]="true">ViewCount</th>
+            <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of dataSource; let i = index">
+            <td>
+              <app-button-common
+                [iconType]="'edit'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDetail(data)"></app-button-common>
+              <app-button-common
+                [isShowConfirm]="true"
+                [iconType]="'delete'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDelete(data)"></app-button-common>
+            </td>
+            <td>
+              {{ i + 1 }}
+            </td>
+            <td>
+              {{ data.ShortTitle }}
+            </td>
+            <td>
+              {{ data.FullName }}
+            </td>
+            <td>
+              {{ data.ViewCount }}
+            </td>
+            <td>{{ data.CreatedDTime }}</td>
+            <td>
+              <app-tag-status
+                [sttValue]="
+                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
+                "></app-tag-status>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+</div>

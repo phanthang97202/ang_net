@@ -1,6 +1,6 @@
 export * from './about/about.component';
 //
-export * from './dashboard/blogs/blogs.component';
+export * from './dashboard/blogs/modify-blog/blogs.component';
 export * from './dashboard/dashboard/dashboard.component';
 export * from './dashboard/mst-province/mst-province-list/mst-province-list.component';
 export * from './dashboard/mst-province/save-province-popup/save-province-popup.component';
