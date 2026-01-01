@@ -72,6 +72,25 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize()]
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromBody] UpdateNewsDto news)
+        {
+            try
+            {
+                ApiResponse<NewsModel> response = await _newsRespository.Update(User, news);
+
+                _logger.LogInformation("NewsRespository.Update", news, response);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("NewsRespository.Update", news, ex);
+                throw;
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost("Like")]
         public async Task<IActionResult> Like(string newsId)

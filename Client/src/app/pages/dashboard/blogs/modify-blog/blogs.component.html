@@ -101,11 +101,20 @@
       </nz-form-item>
     </div>
 
+    <!-- Thay đổi phần app-text-editor -->
     <div nz-col [nzSpan]="16" [nzXs]="24" [nzMd]="16">
       <nz-form-item>
         <nz-form-control nzValidatingTip="Validating...">
+          <!-- ✅ Chỉ render editor khi data đã load xong -->
           <app-text-editor
+            *ngIf="isDataLoaded"
+            [initContentBody]="contentBody"
             (onContentChanged)="handleContentChangedEditor($event)" />
+
+          <!-- ✅ Hiển thị loading khi chưa có data -->
+          <div *ngIf="!isDataLoaded" class="loading-editor">
+            <nz-spin nzSimple></nz-spin>
+          </div>
         </nz-form-control>
       </nz-form-item>
     </div>

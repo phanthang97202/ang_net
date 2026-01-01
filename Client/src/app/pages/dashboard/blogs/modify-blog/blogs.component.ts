@@ -39,11 +39,13 @@ export class BlogsComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   mode: 'create' | 'edit' = 'create';
+  isDataLoaded = false; // ✅ Thêm flag để track data loading
+  newsId: string = ''; // ✅ Store newsId
 
   nodes: NzTreeNodeOptions[] | NzTreeNode[] = [];
 
   lstRefFileNews: IRefFileNews[] & NzUploadFile[] = [];
-  contentBody = '';
+  contentBody = ''; // ✅ Store content để binding vào editor
 
   previewVisible = false;
   previewImage: ArrayBuffer | string | null = null;
@@ -72,14 +74,16 @@ export class BlogsComponent implements OnInit {
 
   ngOnInit() {
     const queryModeParamUrl = this.route.snapshot.data['mode'];
-    const newsId = this.route.snapshot.params['id'];
+    this.newsId = this.route.snapshot.params['id'];
     this.mode = queryModeParamUrl;
 
-    if (queryModeParamUrl === 'edit') {
-      this.handleBindingUpdateData(newsId);
-    }
-
     this.fetchDataInit();
+
+    if (queryModeParamUrl === 'edit' && this.newsId) {
+      this.handleBindingUpdateData(this.newsId);
+    } else {
+      this.isDataLoaded = true; // ✅ Cho phép render editor ngay khi create mode
+    }
   }
 
   handleBindingUpdateData(newsId: string) {
@@ -89,19 +93,34 @@ export class BlogsComponent implements OnInit {
       .pipe()
       .subscribe({
         next: data => {
+          // ✅ Set contentBody trước khi patch form
+          this.contentBody = data.Data.ContentBody || '';
+
           this.validateForm.patchValue({
             CategoryNewsId: data.Data.CategoryNewsId,
             ContentBody: data.Data.ContentBody,
             ShortTitle: data.Data.ShortTitle,
             ShortDescription: data.Data.ShortDescription,
-            // LstHashTagNews: [...data.Data.LstHashTagNews],
             Thumbnail: data.Data.Thumbnail,
             LstRefFileNews: data.Data.LstRefFileNews,
           });
+
+          // ✅ Format hashtags nếu cần
+          if (data.Data.LstHashTagNews && data.Data.LstHashTagNews.length > 0) {
+            const hashtagString = data.Data.LstHashTagNews.map(
+              (tag: any) => tag.HashTagNewsName
+            ).join(' ');
+            this.validateForm.patchValue({
+              LstHashTagNews: hashtagString,
+            });
+          }
+
+          this.isDataLoaded = true; // ✅ Đánh dấu data đã load xong
           this.loadingService.setLoading(false);
         },
         error: err => {
           this.loadingService.setLoading(false);
+          this.isDataLoaded = true; // ✅ Vẫn cho render editor dù có lỗi
           this.showErrorService.setShowError({
             icon: 'warning',
             message: JSON.stringify(err, null, 2),
@@ -132,10 +151,8 @@ export class BlogsComponent implements OnInit {
               };
 
               if (!cur.NewsCategoryParentId) {
-                // Root-level node
                 prev.push(newNode);
               } else {
-                // Find parent node recursively and add the current node as a child
                 const addNodeToParent = (
                   nodes: Partial<INewsCategoryNode>[]
                 ): boolean => {
@@ -172,8 +189,6 @@ export class BlogsComponent implements OnInit {
       });
   }
 
-  // onChanges(values: string[] | null): void {}
-
   handleUploadFile = (file: any) => {
     this.cloudinary.uploadImage(file).subscribe({
       next: (res: any) => {
@@ -183,72 +198,96 @@ export class BlogsComponent implements OnInit {
       },
       error: err => {},
     });
-    return true; // Prevent default behavior
+    return true;
   };
 
   submitForm() {
-    if (this.validateForm.valid) {
-      this.loadingService.setLoading(true);
-      this.apiService
-        .CreateNews({
-          Thumbnail: this.validateForm.value.Thumbnail ?? '',
-          CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
-          ShortTitle: this.validateForm.value.ShortTitle ?? '',
-          ShortDescription: this.validateForm.value.ShortDescription ?? '',
-          ContentBody: this.validateForm.value.ContentBody ?? '',
-          FlagActive: true,
-          LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
-            .split(' ')
-            .map((item: string) => {
-              return {
-                HashTagNewsName: item,
-              };
-            }),
-          LstRefFileNews: [
-            // {
-            //   FileUrl:
-            //     'https://pbs.twimg.com/profile_images/1800983169547808768/mV1Emqsi_400x400.jpg',
-            // },
-          ],
-        })
-        .subscribe({
-          next: res => {
-            if (res.Success) {
-              this.loadingService.setLoading(false);
-              this.message.create('success', 'Create successfully');
-            }
-          },
-          error: err => {
-            this.loadingService.setLoading(false);
-            this.showErrorService.setShowError({
-              icon: 'warning',
-              message: JSON.stringify(err, null, 2),
-              title: err.message,
-            });
-            throw new Error(err);
-          },
-          complete: () => {
-            this.loadingService.setLoading(false);
-          },
-        });
-    } else {
-      Object.values(this.validateForm.controls).forEach(control => {
-        if (control.invalid) {
-          control.markAsDirty();
-          control.updateValueAndValidity({ onlySelf: true });
-        }
-      });
-    }
+    const data = {
+      Thumbnail: this.validateForm.value.Thumbnail ?? '',
+      CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
+      ShortTitle: this.validateForm.value.ShortTitle ?? '',
+      ShortDescription: this.validateForm.value.ShortDescription ?? '',
+      ContentBody: this.validateForm.value.ContentBody ?? '',
+      FlagActive: true,
+      LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
+        .split(' ')
+        .filter(item => item.trim())
+        .map((item: string) => ({
+          HashTagNewsName: item.trim(),
+        })),
+      LstRefFileNews: [],
+    };
+    console.log('===update data', data);
+    // if (this.validateForm.valid) {
+    //   this.loadingService.setLoading(true);
+    //   const apiCall =
+    //     this.mode === 'edit'
+    //       ? this.apiService.UpdateNews(this.newsId, {
+    //           Thumbnail: this.validateForm.value.Thumbnail ?? '',
+    //           CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
+    //           ShortTitle: this.validateForm.value.ShortTitle ?? '',
+    //           ShortDescription: this.validateForm.value.ShortDescription ?? '',
+    //           ContentBody: this.validateForm.value.ContentBody ?? '',
+    //           FlagActive: true,
+    //           LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
+    //             .split(' ')
+    //             .filter(item => item.trim())
+    //             .map((item: string) => ({
+    //               HashTagNewsName: item.trim(),
+    //             })),
+    //           LstRefFileNews: [],
+    //         })
+    //       : this.apiService.CreateNews({
+    //           Thumbnail: this.validateForm.value.Thumbnail ?? '',
+    //           CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
+    //           ShortTitle: this.validateForm.value.ShortTitle ?? '',
+    //           ShortDescription: this.validateForm.value.ShortDescription ?? '',
+    //           ContentBody: this.validateForm.value.ContentBody ?? '',
+    //           FlagActive: true,
+    //           LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
+    //             .split(' ')
+    //             .filter(item => item.trim())
+    //             .map((item: string) => ({
+    //               HashTagNewsName: item.trim(),
+    //             })),
+    //           LstRefFileNews: [],
+    //         });
+    //   apiCall.subscribe({
+    //     next: res => {
+    //       if (res.Success) {
+    //         this.loadingService.setLoading(false);
+    //         const action = this.mode === 'edit' ? 'Updated' : 'Created';
+    //         this.message.create('success', `${action} successfully`);
+    //       }
+    //     },
+    //     error: err => {
+    //       this.loadingService.setLoading(false);
+    //       this.showErrorService.setShowError({
+    //         icon: 'warning',
+    //         message: JSON.stringify(err, null, 2),
+    //         title: err.message,
+    //       });
+    //     },
+    //     complete: () => {
+    //       this.loadingService.setLoading(false);
+    //     },
+    //   });
+    // } else {
+    //   Object.values(this.validateForm.controls).forEach(control => {
+    //     if (control.invalid) {
+    //       control.markAsDirty();
+    //       control.updateValueAndValidity({ onlySelf: true });
+    //     }
+    //   });
+    // }
   }
 
   handleContentChangedEditor({ content }: { content: string }) {
-    // this.contentBody = content;
     this.validateForm.patchValue({
       ContentBody: content,
     });
   }
 
-  // Preview ảnh
   handlePreview = async (file: NzUploadFile): Promise<void> => {
     const extendedFile = file as NzUploadFile & {
       url: string;
@@ -265,7 +304,6 @@ export class BlogsComponent implements OnInit {
   };
 
   onSelectedCategoryNews(event: string): void {
-    // debugger;
     this.validateForm.patchValue({
       CategoryNewsId: event,
     });
@@ -273,7 +311,6 @@ export class BlogsComponent implements OnInit {
 
   handleResetForm() {
     this.validateForm.reset();
-    this.validateForm.value.ContentBody = '';
-    this.validateForm.value.Thumbnail = '';
+    this.contentBody = ''; // ✅ Reset content body
   }
 }

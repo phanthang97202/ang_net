@@ -5,6 +5,9 @@ import {
   Output,
   OnInit,
   isDevMode,
+  Input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import {
   ContentChange,
@@ -17,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import Quill from 'quill';
+
 @Component({
   selector: 'app-text-editor',
   standalone: true,
@@ -24,20 +28,14 @@ import Quill from 'quill';
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss',
 })
+export class TextEditorComponent implements OnInit, OnChanges {
+  @Input() initContentBody: string = '';
 
-// 1. Component khởi tạo → blotFormatterReady = false
-// 2. Hiển thị loading → *ngIf="!blotFormatterReady"
-// 3. ngOnInit() chạy → load và register BlotFormatter
-// 4. Sau khi register xong → blotFormatterReady = true
-// 5. Editor được render → *ngIf="blotFormatterReady"
-// 6. Lúc này module đã sẵn sàng → không còn lỗi
-export class TextEditorComponent implements OnInit {
   editorModules: any;
-
-  // Flag để track module registration
   blotFormatterReady = false;
   editorContent = '';
   content = '';
+
   apiService = inject(ApiService);
   showErrorService = inject(ShowErrorService);
 
@@ -47,18 +45,24 @@ export class TextEditorComponent implements OnInit {
 
   constructor(private sanitizer: DomSanitizer) {}
 
-  // ==================Bản fix
   async ngOnInit() {
+    // ✅ Khởi tạo content từ input
+    if (this.initContentBody) {
+      this.content = this.initContentBody;
+      this.editorContent = this.initContentBody;
+    }
+
     if (isDevMode()) {
       if (typeof window === 'undefined') {
         console.warn('BlotFormatter not loaded (SSR)');
         this.setupEditorModules(false);
+        this.blotFormatterReady = true;
         return;
       }
 
       try {
         const module = await import('quill-blot-formatter');
-        const BlotFormatter = module.default || module; // ✅ fix cho cả ESM & CJS
+        const BlotFormatter = module.default || module;
 
         Quill.register('modules/blotFormatter', BlotFormatter);
         console.log('✅ BlotFormatter module registered successfully');
@@ -68,63 +72,70 @@ export class TextEditorComponent implements OnInit {
       } catch (error) {
         console.error('❌ Error registering BlotFormatter module:', error);
         this.setupEditorModules(false);
+        this.blotFormatterReady = true;
       }
     } else {
+      this.setupEditorModules(true);
       this.blotFormatterReady = true;
     }
   }
-  // ==========================================
 
-  // ================Bản cũ: chạy local được mà production lỗi
-  // async ngOnInit() {
-  //   try {
-  //     // Dynamic import để tránh lỗi Vite cache
-  //     const BlotFormatter = await import('quill-blot-formatter').then(
-  //       m => m.default
-  //     );
-
-  //     Quill.register('modules/blotFormatter', BlotFormatter);
-  //     console.log('BlotFormatter module registered successfully');
-
-  //     // Sau khi register xong, mới set up modules
-  //     this.setupEditorModules(true);
-  //     this.blotFormatterReady = true;
-  //   } catch (error) {
-  //     console.error('Error registering BlotFormatter module:', error);
-  //     // Fallback: setup editor without blotFormatter
-  //     this.setupEditorModules(false);
-  //   }
-  // }
-  // ==========================================
+  // ✅ Handle changes khi parent component update input
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initContentBody'] && !changes['initContentBody'].firstChange) {
+      const newContent = changes['initContentBody'].currentValue;
+      if (newContent !== this.content) {
+        this.content = newContent;
+        this.editorContent = newContent;
+      }
+    }
+  }
 
   private setupEditorModules(includeBlotFormatter = true) {
+    this.editorModules = {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ header: 1 }, { header: 2 }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ script: 'sub' }, { script: 'super' }],
+        [{ indent: '-1' }, { indent: '+1' }],
+        [{ direction: 'rtl' }],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [{ color: [] }, { background: [] }],
+        [{ font: [] }],
+        [{ align: [] }],
+        ['clean'],
+        ['link', 'image', 'video'],
+      ],
+    };
+
     if (includeBlotFormatter) {
-      this.editorModules = {
-        blotFormatter: {
-          actions: {
-            alignLeft: true,
-            alignCenter: true,
-            alignRight: true,
-            resize: true,
+      this.editorModules.blotFormatter = {
+        actions: {
+          alignLeft: true,
+          alignCenter: true,
+          alignRight: true,
+          resize: true,
+        },
+        overlay: {
+          className: 'blot-formatter__overlay',
+          style: {
+            position: 'absolute',
+            boxSizing: 'border-box',
+            border: '1px dashed #444',
           },
-          overlay: {
-            className: 'blot-formatter__overlay',
-            style: {
-              position: 'absolute',
-              boxSizing: 'border-box',
-              border: '1px dashed #444',
-            },
-          },
-          resize: {
-            handleStyle: {
-              position: 'absolute',
-              height: '12px',
-              width: '12px',
-              backgroundColor: 'white',
-              border: '1px solid #777',
-              boxSizing: 'border-box',
-              opacity: '0.80',
-            },
+        },
+        resize: {
+          handleStyle: {
+            position: 'absolute',
+            height: '12px',
+            width: '12px',
+            backgroundColor: 'white',
+            border: '1px solid #777',
+            boxSizing: 'border-box',
+            opacity: '0.80',
           },
         },
       };
@@ -134,9 +145,9 @@ export class TextEditorComponent implements OnInit {
   onEditorCreated(editor: any) {
     if (isDevMode()) {
       if (editor.getModule('blotFormatter')) {
-        console.log('BlotFormatter module is active');
+        console.log('✅ BlotFormatter module is active');
       } else {
-        console.log('BlotFormatter module is NOT active');
+        console.log('⚠️ BlotFormatter module is NOT active');
       }
     }
   }
@@ -145,7 +156,9 @@ export class TextEditorComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  handleonEditorChanged(ev: EditorChangeContent | EditorChangeSelection) {}
+  handleonEditorChanged(ev: EditorChangeContent | EditorChangeSelection) {
+    // Handle editor change if needed
+  }
 
   handleContentChanged(ev: ContentChange) {
     this.onContentChanged.emit({ ev, content: this.content });

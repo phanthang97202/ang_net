@@ -1,18 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using angnet.Application.Interfaces.Repositories;
+using angnet.Domain.Dtos;
+using angnet.Domain.Models;
+using angnet.Infrastructure.Data;
+using Dapper;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System.Security.Claims;
 using GuardAuth = angnet.Utility.CommonUtils.CheckAuthorized;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 using TConstValue = angnet.Utility.CommonUtils.ConstValue;
-using angnet.Domain.Dtos;
-using angnet.Domain.Models;
-using Dapper;
-using Microsoft.Data.Sqlite;
-using StackExchange.Redis;
-using angnet.Application.Interfaces.Repositories;
-using angnet.Infrastructure.Data;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 
 
 namespace angnet.Infrastructure.Data.Repositories
@@ -712,6 +713,217 @@ namespace angnet.Infrastructure.Data.Repositories
                 string keyStoreManager = TConstValue.NewsRespository_Search;
                 await DeleteCachedAsync(keyStoreManager);
 
+            }
+            #endregion
+
+            return apiResponse;
+        }
+
+        public async Task<ApiResponse<NewsModel>> Update(ClaimsPrincipal User, UpdateNewsDto data)
+        {
+            #region // Preparing 
+            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
+
+            // Get current user
+            string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (TCommonUtils.IsNullOrEmpty(currentUserId))
+            {
+                apiResponse.CatchException(false, "News_Update.UserNotFound", requestClient);
+                return apiResponse;
+            }
+
+            // Parse input data
+            string newsId = TCommonUtils.PureString(data.NewsId);
+            string CategoryNewsId = TCommonUtils.PureString(data.CategoryNewsId);
+            string Slug = TCommonUtils.GenerateSlug(data.ShortTitle);
+            string Thumbnail = TCommonUtils.PureString(data.Thumbnail);
+            string ShortTitle = TCommonUtils.PureString(data.ShortTitle);
+            string ShortDescription = TCommonUtils.PureString(data.ShortDescription);
+            string ContentBody = data.ContentBody;
+            DateTime UpdatedDTime = TCommonUtils.DTimeNow();
+            #endregion
+
+            #region // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Validate input
+            if (TCommonUtils.IsNullOrEmpty(newsId))
+            {
+                apiResponse.CatchException(false, "News_Update.NewsIdIsRequired", requestClient);
+                return apiResponse;
+            }
+
+            if (TCommonUtils.IsNullOrEmpty(ShortTitle))
+            {
+                apiResponse.CatchException(false, "News_Update.ShortTitleIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            if (TCommonUtils.IsNullOrEmpty(ShortDescription))
+            {
+                apiResponse.CatchException(false, "News_Update.ShortDescriptionIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            if (TCommonUtils.IsNullOrEmpty(ContentBody))
+            {
+                apiResponse.CatchException(false, "News_Update.ContentBodyIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            // Check if category exists
+            NewsCategoryModel objNewsCategory = new NewsCategoryModel();
+            bool isExistRecordNewsCategory = CheckNewsCategoryExist(CategoryNewsId, ref objNewsCategory);
+            if (!isExistRecordNewsCategory)
+            {
+                apiResponse.CatchException(false, "News_Update.NewsCategoryIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            // ✅ Check if news exists and get existing record
+            NewsModel existingNews = await _dbContext.News.FirstOrDefaultAsync(n => n.NewsId == newsId);
+
+            if (existingNews == null)
+            {
+                apiResponse.CatchException(false, "News_Update.NewsWasNotExisted", requestClient);
+                return apiResponse;
+            }
+
+            // ✅ Check if user owns this news (optional security check)
+            if (existingNews.UserId != currentUserId)
+            {
+                apiResponse.CatchException(false, "News_Update.UnauthorizedToEditThisNews", requestClient);
+                return apiResponse;
+            }
+            #endregion
+
+            #region // Update News Record
+            existingNews.CategoryNewsId = CategoryNewsId;
+            existingNews.Slug = Slug;
+            existingNews.Thumbnail = Thumbnail;
+            existingNews.ShortTitle = ShortTitle;
+            existingNews.ShortDescription = ShortDescription;
+            existingNews.ContentBody = ContentBody;
+            existingNews.UpdatedDTime = UpdatedDTime;
+            existingNews.FlagActive = data.FlagActive;
+
+            _dbContext.News.Update(existingNews);
+            #endregion
+
+            #region // Update HashTagNews
+
+            // ✅ Remove old hashtags
+            var oldHashTags = await _dbContext.HashTagNews
+                .Where(h => h.NewsId == newsId)
+                .ToListAsync();
+
+            if (oldHashTags.Any())
+            {
+                _dbContext.HashTagNews.RemoveRange(oldHashTags);
+            }
+
+            // ✅ Add new hashtags (remove duplicates)
+            List<HashTagNewsDto> lstHashTagNews = data.LstHashTagNews
+                .GroupBy(i => i.HashTagNewsName)
+                .Select(g => g.First())
+                .ToList();
+
+            List<HashTagNewsModel> newHashTags = new List<HashTagNewsModel>();
+
+            foreach (var hashTag in lstHashTagNews)
+            {
+                string hashTagId = TCommonUtils.PureString(hashTag.HashTagNewsName);
+
+                if (!string.IsNullOrEmpty(hashTagId))
+                {
+                    HashTagNewsModel newHashTag = new HashTagNewsModel()
+                    {
+                        HashTagNewsId = hashTagId,
+                        HashTagNewsName = hashTagId,
+                        NewsId = newsId,
+                        FlagActive = true,
+                        CreatedDTime = TCommonUtils.DTimeNow(),
+                        UpdatedDTime = TCommonUtils.DTimeNow(),
+                        Count = 1 // or increment if exists globally
+                    };
+
+                    newHashTags.Add(newHashTag);
+                }
+            }
+
+            if (newHashTags.Any())
+            {
+                await _dbContext.HashTagNews.AddRangeAsync(newHashTags);
+            }
+            #endregion
+
+            #region // Update RefFileNews
+
+            // ✅ Remove old files
+            var oldRefFiles = await _dbContext.RefFileNews
+                .Where(r => r.NewsId == newsId)
+                .ToListAsync();
+
+            if (oldRefFiles.Any())
+            {
+                _dbContext.RefFileNews.RemoveRange(oldRefFiles);
+            }
+
+            // ✅ Add new files
+            List<RefFileNewsDto> lstRefFileNews = data.LstRefFileNews ?? new List<RefFileNewsDto>();
+            List<RefFileNewsModel> newRefFiles = new List<RefFileNewsModel>();
+
+            foreach (var refFile in lstRefFileNews)
+            {
+                if (!string.IsNullOrEmpty(refFile.FileUrl))
+                {
+                    string refFileNewsId = TCommonUtils.GenUniqueId();
+
+                    RefFileNewsModel newRefFile = new RefFileNewsModel()
+                    {
+                        RefFileNewsId = refFileNewsId,
+                        NewsId = newsId,
+                        FileUrl = refFile.FileUrl,
+                        FlagActive = true,
+                        CreatedDTime = TCommonUtils.DTimeNow(),
+                        UpdatedDTime = TCommonUtils.DTimeNow(),
+                    };
+
+                    newRefFiles.Add(newRefFile);
+                }
+            }
+
+            if (newRefFiles.Any())
+            {
+                await _dbContext.RefFileNews.AddRangeAsync(newRefFiles);
+            }
+            #endregion
+
+            #region // Save changes and clear cache
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+
+                // Clear cached search results
+                string keyStoreManager = TConstValue.NewsRespository_Search;
+                await DeleteCachedAsync(keyStoreManager);
+
+                // ✅ Return updated news
+                apiResponse.Success = true;
+                apiResponse.Data = existingNews;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.CatchException(false, $"News_Update.Error: {ex.Message}", requestClient);
             }
             #endregion
 
