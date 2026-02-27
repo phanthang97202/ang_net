@@ -1,129 +1,138 @@
-<!-- Navbar Container -->
-<div class="navbar-wrapper sticky top-0 z-[10] bg-white shadow-sm">
+<!-- Navbar Wrapper -->
+<div class="navbar-wrapper">
   <!-- Desktop Navbar -->
-  <ul
-    class="navbar hidden md:flex items-center h-16 px-4"
-    nz-menu
-    nzMode="horizontal">
-    <ng-container *ngFor="let route of listRoute">
-      <!-- 🟩 Menu item không có submenu -->
-      <li *ngIf="!route.children" nz-menu-item [routerLink]="route.path">
-        <span nz-icon [nzType]="route.icon"></span>
-        {{ 'T_' + route.title | uppercase | translate }}
-      </li>
+  <nav class="navbar-desktop">
+    <!-- Logo -->
+    <a routerLink="/" class="navbar-logo"> Phan<span>Thang</span> </a>
 
-      <!-- 🟦 Menu item có submenu -->
-      <li *ngIf="route.children" nz-submenu>
-        <span title>
-          <span nz-icon [nzType]="route.icon"></span>
-          {{ 'T_' + route.title | uppercase | translate }}
-        </span>
+    <!-- Nav Links -->
+    <ul class="navbar-links">
+      <ng-container *ngFor="let route of listRoute">
+        <!-- No children -->
+        <li *ngIf="!route.children" class="nav-item">
+          <a
+            [routerLink]="route.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            {{ 'T_' + route.title | uppercase | translate }}
+          </a>
+        </li>
 
-        <ul>
-          <li
-            nz-menu-item
-            *ngFor="let child of route.children"
-            [routerLink]="child.path"
-            routerLinkActive="ant-menu-item-selected">
-            <span nz-icon [nzType]="child.icon"></span>
-            {{ 'T_' + child.title | uppercase | translate }}
-          </li>
-        </ul>
-      </li>
-    </ng-container>
+        <!-- Has children (dropdown) -->
+        <li
+          *ngIf="route.children"
+          class="nav-item nav-dropdown"
+          (mouseenter)="openDropdown(route)"
+          (mouseleave)="closeDropdown(route)">
+          <span
+            class="nav-dropdown-trigger"
+            [class.active]="isRouteActive(route)">
+            {{ 'T_' + route.title | uppercase | translate }}
+            <span class="dropdown-arrow">▾</span>
+          </span>
+          <ul class="dropdown-menu" [class.visible]="route['_open']">
+            <li *ngFor="let child of route.children">
+              <a
+                [routerLink]="child.path"
+                routerLinkActive="active"
+                (click)="closeDropdown(route)">
+                <span nz-icon [nzType]="child.icon" class="mr-1"></span>
+                {{ 'T_' + child.title | uppercase | translate }}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ng-container>
+    </ul>
 
-    <!-- Spacer -->
-    <li class="flex-grow"></li>
-
-    <!-- 🟨 Nút Login Desktop -->
-    <li *ngIf="!authService.isLoggedIn()" class="navbar_item-login">
-      <button nz-button nzType="primary" (click)="handleNavigateLogin()">
+    <!-- Right Actions -->
+    <div class="navbar-actions">
+      <!-- Login Button -->
+      <button
+        *ngIf="!authService.isLoggedIn()"
+        class="btn-follow"
+        (click)="handleNavigateLogin()">
         {{ 'T_LOGIN' | translate }}
       </button>
-    </li>
 
-    <!-- 🟧 Avatar Desktop -->
-    <li *ngIf="authService.isLoggedIn()" class="navbar_item-info">
+      <!-- Avatar with popover -->
+      <div *ngIf="authService.isLoggedIn()" class="avatar-wrapper">
+        <nz-avatar
+          nz-popover
+          nzPopoverTrigger="click"
+          [nzPopoverContent]="contentTemplate"
+          nzPopoverPlacement="bottomRight"
+          [nzPopoverTitle]="authService.getAccountInfo().name"
+          [nzText]="authService.getAccountInfo().shortname"
+          class="cursor-pointer">
+        </nz-avatar>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Navbar -->
+  <nav class="navbar-mobile">
+    <a routerLink="/" class="navbar-logo">Lữ<span>Hành</span></a>
+
+    <div class="mobile-right">
+      <button
+        *ngIf="!authService.isLoggedIn()"
+        class="btn-follow btn-follow--sm"
+        (click)="handleNavigateLogin()">
+        {{ 'T_LOGIN' | translate }}
+      </button>
       <nz-avatar
+        *ngIf="authService.isLoggedIn()"
         nz-popover
         nzPopoverTrigger="click"
         [nzPopoverContent]="contentTemplate"
-        nzPopoverPlacement="bottomRight"
-        [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
+        nzPopoverPlacement="bottomLeft"
+        [nzPopoverTitle]="authService.getAccountInfo().name"
         [nzText]="authService.getAccountInfo().shortname"
         class="cursor-pointer">
       </nz-avatar>
-    </li>
-  </ul>
 
-  <!-- Mobile Navbar (chỉ có hamburger + avatar/login) -->
-  <div
-    class="mobile-navbar md:hidden flex items-center justify-between h-16 px-4 bg-white">
-    <!-- 🍔 Hamburger Button -->
-    <button nz-button nzType="text" (click)="toggleMobileMenu()">
-      <span
-        nz-icon
-        [nzType]="isMobileMenuOpen ? 'close' : 'menu'"
-        class="text-xl"></span>
-    </button>
+      <button
+        class="hamburger-btn"
+        (click)="toggleMobileMenu()"
+        [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'">
+        <span class="hamburger-icon" [class.open]="isMobileMenuOpen">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
+    </div>
+  </nav>
 
-    <!-- Logo/Brand (optional) -->
-    <div class="flex-grow"></div>
-
-    <!-- 🟨 Login Button Mobile -->
-    <button
-      *ngIf="!authService.isLoggedIn()"
-      nz-button
-      nzType="primary"
-      (click)="handleNavigateLogin()">
-      {{ 'T_LOGIN' | translate }}
-    </button>
-
-    <!-- 🟧 Avatar Mobile -->
-    <nz-avatar
-      *ngIf="authService.isLoggedIn()"
-      nz-popover
-      nzPopoverTrigger="click"
-      [nzPopoverContent]="contentTemplate"
-      nzPopoverPlacement="bottomLeft"
-      [nzPopoverTitle]="'Name: ' + authService.getAccountInfo().name"
-      [nzText]="authService.getAccountInfo().shortname"
-      class="cursor-pointer">
-    </nz-avatar>
-  </div>
-
-  <!-- 📱 Mobile Menu Dropdown -->
-  <div
-    *ngIf="isMobileMenuOpen"
-    class="mobile-menu md:hidden bg-white border-t shadow-lg absolute left-0 right-0 w-full">
-    <ul nz-menu nzMode="inline" class="border-none w-full">
+  <!-- Mobile Menu Dropdown -->
+  <div class="mobile-menu" [class.visible]="isMobileMenuOpen">
+    <ul class="mobile-nav-list">
       <ng-container *ngFor="let route of listRoute">
-        <!-- Menu item không có submenu -->
-        <li
-          *ngIf="!route.children"
-          nz-menu-item
-          [routerLink]="route.path"
-          (click)="closeMobileMenu()"
-          routerLinkActive="ant-menu-item-selected">
-          <span nz-icon [nzType]="route.icon"></span>
-          {{ 'T_' + route.title | uppercase | translate }}
-        </li>
-
-        <!-- Menu item có submenu -->
-        <li *ngIf="route.children" nz-submenu [nzTitle]="subMenuTitle">
-          <ng-template #subMenuTitle>
+        <li *ngIf="!route.children" class="mobile-nav-item">
+          <a
+            [routerLink]="route.path"
+            routerLinkActive="active"
+            (click)="closeMobileMenu()">
             <span nz-icon [nzType]="route.icon"></span>
-            <span>{{ 'T_' + route.title | uppercase | translate }}</span>
-          </ng-template>
-          <ul>
-            <li
-              nz-menu-item
-              *ngFor="let child of route.children"
-              [routerLink]="child.path"
-              (click)="closeMobileMenu()"
-              routerLinkActive="ant-menu-item-selected">
-              <span nz-icon [nzType]="child.icon"></span>
-              {{ 'T_' + child.title | uppercase | translate }}
+            {{ 'T_' + route.title | uppercase | translate }}
+          </a>
+        </li>
+        <li *ngIf="route.children" class="mobile-nav-item mobile-nav-group">
+          <span
+            class="mobile-nav-group-title"
+            (click)="toggleMobileSubmenu(route)">
+            <span nz-icon [nzType]="route.icon"></span>
+            {{ 'T_' + route.title | uppercase | translate }}
+            <span class="ml-auto">{{ route['_mobileOpen'] ? '−' : '+' }}</span>
+          </span>
+          <ul class="mobile-submenu" [class.visible]="route['_mobileOpen']">
+            <li *ngFor="let child of route.children">
+              <a
+                [routerLink]="child.path"
+                routerLinkActive="active"
+                (click)="closeMobileMenu()">
+                <span nz-icon [nzType]="child.icon"></span>
+                {{ 'T_' + child.title | uppercase | translate }}
+              </a>
             </li>
           </ul>
         </li>
@@ -132,40 +141,32 @@
   </div>
 </div>
 
-<!-- Overlay -->
+<!-- Mobile Overlay -->
 <div
   *ngIf="isMobileMenuOpen"
-  class="mobile-overlay fixed inset-0 bg-black/30 z-[5] md:hidden"
+  class="mobile-overlay"
   (click)="closeMobileMenu()"></div>
 
-<!-- Avatar Popover Template -->
+<!-- Avatar Popover Content -->
 <ng-template #contentTemplate>
-  <div class="min-w-[220px] p-2">
-    <a routerLink="/userinfor" class="block mb-3 hover:text-blue-500">
-      <div class="text-sm text-gray-600">{{ 'T_USERNAME' | translate }}:</div>
-      <b
-        ><u>{{ authService.getAccountInfo().email }}</u></b
+  <div class="popover-content">
+    <a routerLink="/userinfor" class="popover-user-link">
+      <span class="popover-label">{{ 'T_USERNAME' | translate }}</span>
+      <strong
+        ><u>{{ authService.getAccountInfo().email }}</u></strong
       >
     </a>
-
-    <div class="mb-3">
-      <div class="text-sm text-gray-600">{{ 'T_ROLE' | translate }}:</div>
-      <b>{{
+    <div class="popover-row">
+      <span class="popover-label">{{ 'T_ROLE' | translate }}</span>
+      <strong>{{
         authService.getAccountInfo().role.toString().replace(',', ', ')
-      }}</b>
+      }}</strong>
     </div>
-
-    <div class="flex items-center justify-between mb-3">
-      <span class="text-sm text-gray-600">{{ 'T_LANGUAGE' | translate }}:</span>
+    <div class="popover-row popover-lang">
+      <span class="popover-label">{{ 'T_LANGUAGE' | translate }}</span>
       <app-switch-lang />
     </div>
-
-    <button
-      nz-button
-      nzType="primary"
-      nzBlock
-      nzDanger
-      (click)="handleLogout()">
+    <button class="btn-logout" (click)="handleLogout()">
       <span nz-icon nzType="logout"></span> Logout
     </button>
   </div>

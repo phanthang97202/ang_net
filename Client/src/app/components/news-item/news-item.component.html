@@ -12,7 +12,7 @@
       <div>
         <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
           <h2
-            class="hover:underline text-[20px] xl:text-[38px] text-[#454360] font-josefin leading-[1.2] font-bold">
+            class="hover:underline text-[20px] xl:text-[38px] text-[#454360] leading-[1.2] font-bold">
             {{ item.ShortTitle }}
           </h2>
         </a>
@@ -75,7 +75,7 @@
             [nzText]="item.FullName.substring(0, 1)"
             [nzSrc]="item.Avatar"></nz-avatar>
         </div>
-        <p class="text-[#596172] text-[15px] font-medium font-josefin">
+        <p class="text-[#596172] text-[15px] font-medium">
           {{ item.FullName }}
         </p>
       </div>
@@ -89,7 +89,7 @@
       class="hover:translate-x-[-4px] hover:translate-y-[-4px] transition-transform block"
       href="">
       <button
-        class="hover:bg-[#4b4870] hover:text-[#fff] rounded-none bg-[#4b4870] px-[25px] py-[8px] font-josefin text-[15px] text-[#fff] border-none"
+        class="hover:bg-[#4b4870] hover:text-[#fff] rounded-none bg-[#4b4870] px-[25px] py-[8px] text-[15px] text-[#fff] border-none"
         nz-button
         nzSize="large">
         {{ 'T_CONTINUEREAD' | translate }}

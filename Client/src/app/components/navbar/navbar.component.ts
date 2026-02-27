@@ -9,11 +9,22 @@ import {
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
-import { AuthService } from '../../services';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
-import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../../services';
+import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
+
+interface RouteItem {
+  path?: string;
+  title: string;
+  icon: string;
+  isActive?: boolean;
+  children?: RouteItem[];
+  _open?: boolean; // desktop hover dropdown
+  _mobileOpen?: boolean; // mobile accordion
+}
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -21,7 +32,7 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     RouterLink,
     RouterLinkActive,
-    NzMenuModule, // ✅ chỉ cần cái này
+    NzMenuModule,
     NzIconModule,
     NzButtonComponent,
     NzPopoverModule,
@@ -34,27 +45,11 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
-  activeRoute = false;
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {}
-
   isMobileMenuOpen = false;
 
-  toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-
-  closeMobileMenu() {
-    this.isMobileMenuOpen = false;
-  }
-
-  listRoute = [
-    { path: '/', title: 'Home', icon: 'home', isActive: false },
+  listRoute: RouteItem[] = [
+    { path: '/', title: 'Home', icon: 'home' },
     {
-      // path: '/tools',
       title: 'Tools',
       icon: 'tool',
       children: [
@@ -62,39 +57,72 @@ export class NavbarComponent implements OnInit {
           path: '/tools/calculating-hotel-fee',
           title: 'CalculatingHotelFee',
           icon: 'calculator',
-          isActive: false,
         },
         {
           path: '/tools/shift-report',
           title: 'ShiftReport',
           icon: 'file-text',
-          isActive: false,
         },
         {
           path: '/tools/revenue-report',
           title: 'RevenueShiftReport',
           icon: 'dollar',
-          isActive: false,
         },
       ],
     },
-    { path: '/about', title: 'AboutMe', icon: 'user', isActive: false },
+    { path: '/about', title: 'AboutMe', icon: 'user' },
   ];
 
-  ngOnInit() {
-    this.listRoute.map(item => {
-      return {
-        ...item,
-        isActive: item.path === this.activatedRoute.snapshot.url.join('/'),
-      };
-    });
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    // mark active based on current url (optional enhancement)
+    const currentPath = '/' + this.activatedRoute.snapshot.url.join('/');
+    this.listRoute = this.listRoute.map(route => ({
+      ...route,
+      isActive: route.path === currentPath,
+    }));
   }
 
-  handleNavigateLogin() {
+  // ── Mobile menu ──────────────────────────────────────
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+  }
+
+  toggleMobileSubmenu(route: RouteItem): void {
+    route._mobileOpen = !route._mobileOpen;
+  }
+
+  // ── Desktop dropdown (hover) ─────────────────────────
+  openDropdown(route: RouteItem): void {
+    route._open = true;
+  }
+
+  closeDropdown(route: RouteItem): void {
+    route._open = false;
+  }
+
+  // Check if any child route is active (for parent highlight)
+  isRouteActive(route: RouteItem): boolean {
+    if (!route.children) return false;
+    return route.children.some(child =>
+      child.path ? this.router.isActive(child.path, false) : false
+    );
+  }
+
+  // ── Auth ─────────────────────────────────────────────
+  handleNavigateLogin(): void {
     this.router.navigate(['/login']);
   }
 
-  handleLogout() {
+  handleLogout(): void {
     this.authService.logout();
   }
 }

@@ -1,71 +1,411 @@
-.navbar_item-login {
-    float: right;
+// ── Variables ──────────────────────────────────────────
+$font-serif: 'Playfair Display', serif;
+$font-sans: 'Raleway', sans-serif;
+$color-bg: #ffffff;
+$color-dark: #1a1a1a;
+$color-accent: #c9622f;
+$color-muted: #888;
+$color-border: rgba(0, 0, 0, 0.08);
+$nav-height: 64px;
 
-    .ant-menu-title-content {
+// ── Host ───────────────────────────────────────────────
+:host {
+    display: block;
+}
 
-        .ant-btn {
-            .anticon {
-                display: inline-flex !important;
-            }
+// ── Wrapper ────────────────────────────────────────────
+.navbar-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: $color-bg;
+    border-bottom: 1px solid $color-border;
+}
+
+// ── Logo ───────────────────────────────────────────────
+.navbar-logo {
+    font-family: $font-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: $color-dark;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    span {
+        color: $color-accent;
+        font-style: italic;
+    }
+}
+
+// ── Desktop Navbar ─────────────────────────────────────
+.navbar-desktop {
+    display: none;
+
+    @media (min-width: 768px) {
+        display: flex;
+        align-items: center;
+        height: $nav-height;
+        padding: 0 2.5rem;
+        gap: 2.5rem;
+    }
+}
+
+// Nav links list
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+}
+
+// Individual nav item
+.nav-item {
+    position: relative;
+
+    a,
+    .nav-dropdown-trigger {
+        display: block;
+        padding: 0.4rem 0.75rem;
+        font-family: $font-sans;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: $color-dark;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.2s;
+        white-space: nowrap;
+        user-select: none;
+
+        &:hover,
+        &.active {
+            color: $color-accent;
+        }
+    }
+
+    .dropdown-arrow {
+        font-size: 0.65rem;
+        margin-left: 0.2rem;
+        opacity: 0.6;
+    }
+}
+
+// Dropdown menu
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    min-width: 200px;
+    background: $color-bg;
+    border: 1px solid $color-border;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    li a {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 1.25rem;
+        font-family: $font-sans;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: $color-dark;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+
+        &:hover {
+            background: rgba($color-accent, 0.06);
+            color: $color-accent;
+        }
+
+        &.active {
+            color: $color-accent;
+            font-weight: 600;
         }
     }
 }
 
-.navbar_item-info {
-    float: right;
-    padding-right: 20px;
+// Right actions
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+// ── Follow / Login Button ──────────────────────────────
+.btn-follow {
+    font-family: $font-sans;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.55rem 1.4rem;
+    background: $color-dark;
+    color: #fff;
+    border: none;
     cursor: pointer;
-}
+    transition: background 0.2s;
+    white-space: nowrap;
 
-// responsive
-// Component SCSS
-.navbar-wrapper {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.navbar {
-    height: 64px;
-
-    li:first-child {
-        padding-left: 0;
+    &:hover {
+        background: lighten($color-dark, 15%);
     }
 
-    // Fix ng-zorro menu horizontal
-    &.ant-menu-horizontal {
-        border-bottom: none;
-        line-height: 64px;
+    &--sm {
+        padding: 0.45rem 1rem;
+        font-size: 0.65rem;
     }
 }
 
-// Mobile menu dropdown
+// ── Avatar ─────────────────────────────────────────────
+.avatar-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+// ── Mobile Navbar ──────────────────────────────────────
+.navbar-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: $nav-height;
+    padding: 0 1.25rem;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
+}
+
+.mobile-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+// Hamburger button
+.hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 22px;
+
+    span {
+        display: block;
+        height: 1.5px;
+        background: $color-dark;
+        transition: transform 0.25s, opacity 0.25s;
+        transform-origin: center;
+    }
+
+    &.open {
+        span:nth-child(1) {
+            transform: translateY(6.5px) rotate(45deg);
+        }
+
+        span:nth-child(2) {
+            opacity: 0;
+        }
+
+        span:nth-child(3) {
+            transform: translateY(-6.5px) rotate(-45deg);
+        }
+    }
+}
+
+// ── Mobile Menu ────────────────────────────────────────
 .mobile-menu {
-    max-height: calc(100vh - 64px);
-    animation: slideDown 0.2s ease-out;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: $color-bg;
+    border-top: 1px solid $color-border;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
 
-    .ant-menu {
-        background: white;
+    &.visible {
+        max-height: calc(100vh - #{$nav-height});
+        overflow-y: auto;
     }
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
+.mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0 1rem;
+}
+
+.mobile-nav-item {
+
+    a,
+    .mobile-nav-group-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem 1.5rem;
+        font-family: $font-sans;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: $color-dark;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.2s, background 0.2s;
+
+        &:hover {
+            color: $color-accent;
+            background: rgba($color-accent, 0.04);
+        }
+
+        &.active {
+            color: $color-accent;
+        }
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .mobile-nav-group-title {
+        display: flex;
+        width: 100%;
     }
 }
 
-// Mobile overlay
+.mobile-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    background: rgba(0, 0, 0, 0.02);
+
+    &.visible {
+        max-height: 400px;
+    }
+
+    li a {
+        padding-left: 3rem;
+        font-size: 0.72rem;
+        font-weight: 500;
+    }
+}
+
+// ── Overlay ────────────────────────────────────────────
 .mobile-overlay {
-    animation: fadeIn 0.2s ease-out;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 99;
+    animation: fadeIn 0.2s ease;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
 }
 
+// ── Popover Content ────────────────────────────────────
+.popover-content {
+    min-width: 220px;
+    padding: 0.25rem 0;
+    font-family: $font-sans;
+}
+
+.popover-user-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    color: $color-dark;
+    border-bottom: 1px solid $color-border;
+    transition: color 0.2s;
+
+    &:hover {
+        color: $color-accent;
+    }
+}
+
+.popover-label {
+    font-size: 0.7rem;
+    color: $color-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.popover-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.4rem 0;
+    font-size: 0.85rem;
+}
+
+.popover-lang {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid $color-border;
+    border-bottom: 1px solid $color-border;
+    margin: 0.25rem 0;
+    padding: 0.5rem 0;
+}
+
+.btn-logout {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.55rem;
+    font-family: $font-sans;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: $color-dark;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #c0392b;
+    }
+}
+
+// ── Animations ─────────────────────────────────────────
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -74,11 +414,4 @@
     to {
         opacity: 1;
     }
-}
-
-// Đảm bảo avatar clickable
-.navbar_item-info,
-.navbar_item-login {
-    display: flex;
-    align-items: center;
 }

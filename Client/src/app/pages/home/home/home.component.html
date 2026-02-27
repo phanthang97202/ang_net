@@ -1,9 +1,14 @@
-<div class="news__container">
-  <div class="news__content">
-    <router-outlet></router-outlet>
+<div class="">
+  <div class="mb-4">
+    <app-discovery-banner></app-discovery-banner>
   </div>
+  <div class="news__container">
+    <div class="news__content">
+      <router-outlet></router-outlet>
+    </div>
 
-  <div class="news__aside">
-    <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
+    <div class="news__aside">
+      <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
+    </div>
   </div>
 </div>

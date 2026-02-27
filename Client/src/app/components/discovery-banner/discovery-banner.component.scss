@@ -1,0 +1,368 @@
+// Variables
+$color-bg: #f0ebe4;
+$color-accent: #c9622f;
+$color-dark: #1a1a1a;
+$color-brown-cover: #7a5540;
+$color-white: #fff;
+$font-serif: 'Playfair Display', serif;
+$font-sans: 'DM Sans', sans-serif;
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.discovery-banner {
+    display: flex;
+    min-height: 100vh;
+    background-color: $color-bg;
+    overflow: hidden;
+    position: relative;
+
+    // ==================== LEFT PANEL ====================
+    .banner-left {
+        flex: 0 0 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem 3rem 3rem 4rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    // Label
+    .label-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .label-line {
+        display: block;
+        width: 2.5rem;
+        height: 2px;
+        background-color: $color-accent;
+        flex-shrink: 0;
+    }
+
+    .label-text {
+        font-family: $font-sans;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: $color-dark;
+        text-transform: uppercase;
+    }
+
+    // Heading
+    .main-heading {
+        font-family: $font-serif;
+        font-size: clamp(2.8rem, 5vw, 5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+    }
+
+    .heading-black {
+        color: $color-dark;
+        display: block;
+    }
+
+    .heading-accent {
+        color: $color-accent;
+        font-style: italic;
+        display: block;
+    }
+
+    // Description
+    .description {
+        font-family: $font-sans;
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.75;
+        max-width: 380px;
+        margin-bottom: 2.5rem;
+    }
+
+    // CTA
+    .cta-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: auto;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        background-color: $color-accent;
+        color: $color-white;
+        font-family: $font-sans;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 1rem 1.75rem;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: darken($color-accent, 8%);
+        }
+    }
+
+    .btn-link {
+        font-family: $font-sans;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: $color-dark;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $color-accent;
+        }
+    }
+
+    // Stats
+    .stats-wrapper {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .stat-number {
+        font-family: $font-serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: $color-dark;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-family: $font-sans;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: #888;
+        text-transform: uppercase;
+    }
+
+    // ==================== RIGHT PANEL ====================
+    .banner-right {
+        flex: 0 0 50%;
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .cover-image-wrapper {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        background: linear-gradient(160deg, #a0714f 0%, #5c3b22 100%);
+        overflow: hidden;
+    }
+
+    .cover-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .cover-placeholder-text {
+        font-family: $font-serif;
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 1.1rem;
+        letter-spacing: 0.05em;
+    }
+
+    // Latest post card
+    .latest-post-card {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background: $color-white;
+        padding: 1.25rem 1.5rem;
+        width: 56%;
+        min-width: 220px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .latest-post-label {
+        font-family: $font-sans;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: $color-accent;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .latest-post-title {
+        font-family: $font-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: $color-dark;
+        margin: 0 0 0.5rem;
+        line-height: 1.35;
+    }
+
+    .latest-post-meta {
+        font-family: $font-sans;
+        font-size: 0.72rem;
+        color: $color-accent;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        .dot {
+            color: #aaa;
+        }
+    }
+
+    // Scroll indicator
+    .scroll-indicator {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 3;
+
+        span {
+            font-family: $font-sans;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            color: rgba(255, 255, 255, 0.55);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+    }
+
+    .scroll-line {
+        width: 1px;
+        height: 4rem;
+        background: rgba(255, 255, 255, 0.35);
+    }
+}
+
+// ==================== RESPONSIVE ====================
+
+// Tablet
+@media (max-width: 1024px) {
+    .discovery-banner {
+        .banner-left {
+            padding: 3rem 2rem 2rem 2.5rem;
+        }
+
+        .main-heading {
+            font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+        }
+
+        .stats-wrapper {
+            gap: 1.5rem;
+        }
+    }
+}
+
+// Mobile landscape / small tablet
+@media (max-width: 768px) {
+    .discovery-banner {
+        flex-direction: column;
+        min-height: unset;
+
+        .banner-left {
+            flex: none;
+            padding: 3rem 1.5rem 2rem;
+            order: 2;
+        }
+
+        .banner-right {
+            flex: none;
+            order: 1;
+        }
+
+        .cover-image-wrapper {
+            min-height: 55vw;
+            max-height: 420px;
+        }
+
+        .cover-placeholder {
+            min-height: 55vw;
+        }
+
+        .main-heading {
+            font-size: clamp(2.4rem, 8vw, 3.5rem);
+        }
+
+        .description {
+            max-width: 100%;
+        }
+
+        .stats-wrapper {
+            margin-top: 2rem;
+            gap: 2rem;
+        }
+
+        .latest-post-card {
+            width: 65%;
+        }
+
+        .scroll-indicator {
+            display: none;
+        }
+    }
+}
+
+// Mobile portrait
+@media (max-width: 480px) {
+    .discovery-banner {
+        .banner-left {
+            padding: 2rem 1.25rem 1.5rem;
+        }
+
+        .main-heading {
+            font-size: 2.3rem;
+        }
+
+        .cta-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .stats-wrapper {
+            gap: 1.25rem;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+        }
+
+        .latest-post-card {
+            width: 80%;
+        }
+    }
+}

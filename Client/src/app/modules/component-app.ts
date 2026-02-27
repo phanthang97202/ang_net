@@ -23,6 +23,7 @@ import {
   NewsContentComponent,
   NewsTocListComponent,
   FooterComponent,
+  DiscoveryBannerComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
@@ -64,6 +65,7 @@ export const REUSE_COMPONENT_MODULES = [
   TagStatusComponent,
   NewsContentComponent,
   NewsTocListComponent,
+  DiscoveryBannerComponent,
   // Một số module đặc biệt của antd
   NzSpinModule,
   NzCardModule,
