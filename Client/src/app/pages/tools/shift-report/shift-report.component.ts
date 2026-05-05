@@ -10,7 +10,7 @@ import {
 import { ExcelExportService } from './services/excel-report.service';
 import { PrintService } from './services/print.service';
 import { ShiftReportService } from './services/shift-report.service';
-import { format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 
 @Component({
   selector: 'app-shift-report',
@@ -33,7 +33,10 @@ export class ShiftReportComponent implements OnInit {
   // Filter
   searchReceptionist = '';
   searchShiftType = '';
-  searchDateRange: Date[] = [];
+  searchDateRange: Date[] = [
+    startOfMonth(new Date()), // ngày đầu tháng
+    new Date(), // ngày hiện tại
+  ];
 
   shiftTypes = ['Ca ngày', 'Ca đêm'];
   receiptors = ['Thăng', 'Huy', 'Long'];
@@ -392,7 +395,10 @@ export class ShiftReportComponent implements OnInit {
   resetSearch(): void {
     this.searchReceptionist = '';
     this.searchShiftType = '';
-    this.searchDateRange = [];
+    this.searchDateRange = [
+      startOfMonth(new Date()), // ngày đầu tháng
+      new Date(), // ngày hiện tại
+    ];
     this.pageIndex = 1;
     this.loadReports();
   }

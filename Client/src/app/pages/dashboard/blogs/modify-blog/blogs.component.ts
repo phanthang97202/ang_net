@@ -217,69 +217,59 @@ export class BlogsComponent implements OnInit {
         })),
       LstRefFileNews: [],
     };
-    console.log('===update data', data);
-    // if (this.validateForm.valid) {
-    //   this.loadingService.setLoading(true);
-    //   const apiCall =
-    //     this.mode === 'edit'
-    //       ? this.apiService.UpdateNews(this.newsId, {
-    //           Thumbnail: this.validateForm.value.Thumbnail ?? '',
-    //           CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
-    //           ShortTitle: this.validateForm.value.ShortTitle ?? '',
-    //           ShortDescription: this.validateForm.value.ShortDescription ?? '',
-    //           ContentBody: this.validateForm.value.ContentBody ?? '',
-    //           FlagActive: true,
-    //           LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
-    //             .split(' ')
-    //             .filter(item => item.trim())
-    //             .map((item: string) => ({
-    //               HashTagNewsName: item.trim(),
-    //             })),
-    //           LstRefFileNews: [],
-    //         })
-    //       : this.apiService.CreateNews({
-    //           Thumbnail: this.validateForm.value.Thumbnail ?? '',
-    //           CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
-    //           ShortTitle: this.validateForm.value.ShortTitle ?? '',
-    //           ShortDescription: this.validateForm.value.ShortDescription ?? '',
-    //           ContentBody: this.validateForm.value.ContentBody ?? '',
-    //           FlagActive: true,
-    //           LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
-    //             .split(' ')
-    //             .filter(item => item.trim())
-    //             .map((item: string) => ({
-    //               HashTagNewsName: item.trim(),
-    //             })),
-    //           LstRefFileNews: [],
-    //         });
-    //   apiCall.subscribe({
-    //     next: res => {
-    //       if (res.Success) {
-    //         this.loadingService.setLoading(false);
-    //         const action = this.mode === 'edit' ? 'Updated' : 'Created';
-    //         this.message.create('success', `${action} successfully`);
-    //       }
-    //     },
-    //     error: err => {
-    //       this.loadingService.setLoading(false);
-    //       this.showErrorService.setShowError({
-    //         icon: 'warning',
-    //         message: JSON.stringify(err, null, 2),
-    //         title: err.message,
-    //       });
-    //     },
-    //     complete: () => {
-    //       this.loadingService.setLoading(false);
-    //     },
-    //   });
-    // } else {
-    //   Object.values(this.validateForm.controls).forEach(control => {
-    //     if (control.invalid) {
-    //       control.markAsDirty();
-    //       control.updateValueAndValidity({ onlySelf: true });
-    //     }
-    //   });
-    // }
+    console.log('===update data', this.mode, data);
+    if (this.validateForm.valid) {
+      this.loadingService.setLoading(true);
+      const apiCall =
+        this.mode === 'edit'
+          ? this.apiService.UpdateNews(this.newsId, {
+              Thumbnail: data.Thumbnail ?? '',
+              CategoryNewsId: data.CategoryNewsId ?? '',
+              ShortTitle: data.ShortTitle ?? '',
+              ShortDescription: data.ShortDescription ?? '',
+              ContentBody: data.ContentBody ?? '',
+              FlagActive: true,
+              LstHashTagNews: data.LstHashTagNews ?? '',
+              LstRefFileNews: [],
+            })
+          : this.apiService.CreateNews({
+              Thumbnail: data.Thumbnail ?? '',
+              CategoryNewsId: data.CategoryNewsId ?? '',
+              ShortTitle: data.ShortTitle ?? '',
+              ShortDescription: data.ShortDescription ?? '',
+              ContentBody: data.ContentBody ?? '',
+              FlagActive: true,
+              LstHashTagNews: data.LstHashTagNews ?? '',
+              LstRefFileNews: [],
+            });
+      apiCall.subscribe({
+        next: res => {
+          if (res.Success) {
+            this.loadingService.setLoading(false);
+            const action = this.mode === 'edit' ? 'Updated' : 'Created';
+            this.message.create('success', `${action} successfully`);
+          }
+        },
+        error: err => {
+          this.loadingService.setLoading(false);
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
+        },
+        complete: () => {
+          this.loadingService.setLoading(false);
+        },
+      });
+    } else {
+      Object.values(this.validateForm.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+    }
   }
 
   handleContentChangedEditor({ content }: { content: string }) {

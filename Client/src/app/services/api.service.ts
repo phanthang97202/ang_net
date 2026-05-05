@@ -121,6 +121,23 @@ export class ApiService {
     });
   }
 
+  UpdateNews(
+    newsId: string,
+    obj: ICreateNews
+  ): Observable<IDetailNewsResponse> {
+    return this.http.post<IDetailNewsResponse>(`${this.apiUrl}news/update`, {
+      NewsId: newsId,
+      Thumbnail: obj.Thumbnail,
+      CategoryNewsId: obj.CategoryNewsId,
+      ShortTitle: obj.ShortTitle,
+      ShortDescription: obj.ShortDescription,
+      ContentBody: obj.ContentBody,
+      FlagActive: obj.FlagActive,
+      LstHashTagNews: obj.LstHashTagNews,
+      LstRefFileNews: obj.LstRefFileNews,
+    });
+  }
+
   // HashTagNews
   GetTopHashTag(): Observable<IHashTagNewsResponse> {
     return this.http.get<IHashTagNewsResponse>(

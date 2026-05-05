@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { ApiService, LoadingService, ShowErrorService } from '../../services';
+import { IDetailNews } from '../../interfaces';
 
 // ── Model ──────────────────────────────────────────────
 export interface Topic {
@@ -27,7 +28,8 @@ export class TopicNavComponent implements OnInit {
   apiService = inject(ApiService);
   loadingService = inject(LoadingService);
   topics: Topic[] = [];
-
+  lstNews: IDetailNews[] = [];
+  isLoading = false;
   ngOnInit(): void {
     this.loadTopics();
   }
