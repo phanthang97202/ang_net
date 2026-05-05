@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Raleway:wght@400;500;600;700&display=swap');
+
+// Chỉ giữ những gì Tailwind không handle được
+
+:host {
+    display: block;
+}
+
+// Mobile: stack tất cả thành 1 cột, mỗi card full width
+@media (max-width: 767px) {
+    .grid>a {
+        min-height: 260px !important;
+    }
+}

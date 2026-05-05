@@ -1,0 +1,85 @@
+<section class="bg-[#f0ebe4] px-4 md:px-8 py-6">
+  <div class="relative overflow-hidden bg-[#1a1209] rounded-none">
+
+    <!-- Background glow -->
+    <div class="absolute top-0 right-0 w-96 h-96 rounded-full
+                bg-[#7a3a1a] opacity-30 blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/4"></div>
+    <div class="absolute bottom-0 right-1/3 w-64 h-64 rounded-full
+                bg-[#c9622f] opacity-15 blur-[80px] pointer-events-none"></div>
+
+    <!-- Inner content -->
+    <div class="relative z-10 flex flex-col md:flex-row items-center gap-10 px-8 md:px-14 py-14">
+
+      <!-- Left: copy -->
+      <div class="flex-1 min-w-0">
+        <h2 class="font-['Playfair_Display'] leading-tight mb-5">
+          <span class="block text-3xl md:text-4xl font-700 text-white">Đừng bỏ</span>
+          <span class="block text-3xl md:text-4xl font-700 italic text-[#c9622f]">lỡ chuyến đi</span>
+          <span class="block text-3xl md:text-4xl font-700 text-white">tiếp theo</span>
+        </h2>
+        <p class="font-['Raleway'] text-sm text-white/50 leading-relaxed max-w-sm">
+          Mỗi tuần một bài viết, một điểm đến, một câu chuyện nhỏ.
+          Không spam, chỉ có nội dung thật.
+        </p>
+      </div>
+
+      <!-- Right: form -->
+      <div class="flex-1 w-full max-w-md flex flex-col gap-3">
+
+        <!-- Success state -->
+        <div *ngIf="isSuccess"
+             class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+          <span class="text-4xl">🎉</span>
+          <p class="font-['Playfair_Display'] text-white text-xl font-700">Đăng ký thành công!</p>
+          <p class="font-['Raleway'] text-white/50 text-sm">Cảm ơn bạn. Mình sẽ gửi thư sớm nhé.</p>
+        </div>
+
+        <!-- Form -->
+        <ng-container *ngIf="!isSuccess">
+          <input
+            type="text"
+            placeholder="Tên của bạn"
+            [(ngModel)]="form.name"
+            [disabled]="isLoading"
+            class="w-full bg-white/10 border border-white/15 text-white placeholder-white/35
+                   font-['Raleway'] text-sm px-5 py-4 outline-none
+                   focus:border-[#c9622f] focus:bg-white/15 transition-colors duration-200
+                   disabled:opacity-50" />
+
+          <input
+            type="email"
+            placeholder="Email của bạn"
+            [(ngModel)]="form.email"
+            [disabled]="isLoading"
+            class="w-full bg-white/10 border border-white/15 text-white placeholder-white/35
+                   font-['Raleway'] text-sm px-5 py-4 outline-none
+                   focus:border-[#c9622f] focus:bg-white/15 transition-colors duration-200
+                   disabled:opacity-50" />
+
+          <!-- Error message -->
+          <p *ngIf="errorMsg" class="font-['Raleway'] text-[#ff7f60] text-xs">{{ errorMsg }}</p>
+
+          <button
+            (click)="handleSubmit()"
+            [disabled]="isLoading"
+            class="w-max bg-[#c9622f] text-white
+                   font-['Raleway'] text-[0.7rem] font-700 tracking-[0.15em] uppercase
+                   px-10 py-4 cursor-pointer
+                   hover:bg-[#b0521f] active:scale-95
+                   transition-all duration-200
+                   disabled:opacity-60 disabled:cursor-not-allowed">
+            <span *ngIf="!isLoading">ĐĂNG KÝ NGAY</span>
+            <span *ngIf="isLoading" class="flex items-center gap-2">
+              <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+                <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              Đang gửi...
+            </span>
+          </button>
+        </ng-container>
+
+      </div>
+    </div>
+  </div>
+</section>

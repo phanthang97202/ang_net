@@ -1,0 +1,122 @@
+<section class="py-10 px-4 md:px-8 bg-[#f0ebe4]">
+  <!-- Section Label -->
+  <div class="flex items-center gap-4 mb-8">
+    <span
+      class="text-[#c9622f] font-['Raleway'] text-[0.65rem] font-700 tracking-[0.2em] uppercase whitespace-nowrap">
+      NỔI BẬT TUẦN NÀY
+    </span>
+    <div class="flex-1 h-px bg-[#c9622f] opacity-40"></div>
+  </div>
+
+  <!-- Grid Layout -->
+  <ng-container *ngIf="featuredPosts.length > 0">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-[3px]">
+      <!-- ========== MAIN POST (left, spans 2 rows) ========== -->
+      <a
+        *ngIf="mainPost"
+        [routerLink]="['/post', mainPost.Slug]"
+        class="relative md:row-span-2 overflow-hidden group cursor-pointer block min-h-[420px]">
+        <!-- Background Image -->
+        <div
+          class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+          [style.background-image]="
+            mainPost.Thumbnail ? 'url(' + mainPost.Thumbnail + ')' : 'none'
+          "
+          [class.bg-[#4a7c6f]]="!mainPost.Thumbnail"></div>
+
+        <!-- Placeholder khi không có ảnh -->
+        <span
+          *ngIf="!mainPost.Thumbnail"
+          class="absolute inset-0 flex items-center justify-center font-['Playfair_Display'] italic text-white/40 text-base pointer-events-none">
+          Ảnh chính
+        </span>
+
+        <!-- Gradient overlay mạnh hơn: từ đen đậm lên trong suốt -->
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5"></div>
+
+        <!-- Content -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+          <!-- Category — chỉ hiện 1 lần, có badge mờ -->
+          <span
+            *ngIf="mainPost.CategoryNewsName"
+            class="inline-block font-['Raleway'] text-[0.62rem] font-600 tracking-[0.15em] uppercase text-white/90 bg-white/15 backdrop-blur-sm px-2 py-0.5 rounded mb-3">
+            {{ mainPost.CategoryNewsName }}
+          </span>
+
+          <!-- Tiêu đề với text-shadow để dễ đọc -->
+          <h2
+            class="font-['Playfair_Display'] text-2xl md:text-3xl font-700 leading-snug mb-3 text-white"
+            style="text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7)">
+            {{ mainPost.ShortTitle }}
+          </h2>
+
+          <!-- Meta: ngày đẹp + thời gian đọc -->
+          <p
+            class="font-['Raleway'] text-[0.7rem] text-white/70 flex items-center gap-1.5">
+            <span>{{ mainPost.CreatedDTime | date: 'dd/MM/yyyy' }}</span>
+            <span class="opacity-50">·</span>
+            <span>{{ mainPost.EstimatedReadingTime }} phút đọc</span>
+          </p>
+        </div>
+      </a>
+
+      <!-- ========== SUB POSTS (2x2 bên phải) ========== -->
+      <ng-container *ngFor="let post of subPosts; trackBy: trackById">
+        <a
+          [routerLink]="['/post', post.Slug]"
+          class="relative overflow-hidden group cursor-pointer block min-h-[200px]">
+          <!-- Background Image -->
+          <div
+            class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            [style.background-image]="
+              post.Thumbnail ? 'url(' + post.Thumbnail + ')' : 'none'
+            "
+            [class.bg-[#6b7f74]]="!post.Thumbnail"></div>
+
+          <!-- Placeholder khi không có ảnh -->
+          <span
+            *ngIf="!post.Thumbnail"
+            class="absolute top-4 right-4 font-['Playfair_Display'] italic text-white/35 text-xs pointer-events-none">
+            Ảnh bài
+          </span>
+
+          <!-- Gradient overlay: mạnh ở dưới + lớp tối nhẹ trên cùng để badge dễ đọc -->
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30"></div>
+
+          <!-- Content -->
+          <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <!-- Category badge -->
+            <span
+              *ngIf="post.CategoryNewsName"
+              class="inline-block font-['Raleway'] text-[0.58rem] font-600 tracking-[0.13em] uppercase text-white/90 bg-white/15 backdrop-blur-sm px-2 py-0.5 rounded mb-2">
+              {{ post.CategoryNewsName }}
+            </span>
+
+            <!-- Tiêu đề -->
+            <h3
+              class="font-['Playfair_Display'] text-base font-700 leading-snug mb-2 text-white"
+              style="text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8)">
+              {{ post.ShortTitle }}
+            </h3>
+
+            <!-- Thời gian đọc -->
+            <p class="font-['Raleway'] text-[0.65rem] text-white/70">
+              {{ post.EstimatedReadingTime }} phút đọc
+            </p>
+          </div>
+        </a>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- Empty state -->
+  <ng-container *ngIf="featuredPosts.length === 0">
+    <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <span class="font-['Raleway'] text-sm tracking-widest uppercase"
+        >Chưa có bài viết nổi bật</span
+      >
+    </div>
+  </ng-container>
+</section>
