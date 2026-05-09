@@ -272,10 +272,12 @@ export class BlogsComponent implements OnInit {
     }
   }
 
+  // ✅ Chỉ update form khi user thực sự type, không trigger ngược lại editor
   handleContentChangedEditor({ content }: { content: string }) {
-    this.validateForm.patchValue({
-      ContentBody: content,
-    });
+    // Guard: chỉ patch nếu giá trị thực sự khác
+    if (this.validateForm.value.ContentBody !== content) {
+      this.validateForm.patchValue({ ContentBody: content });
+    }
   }
 
   handlePreview = async (file: NzUploadFile): Promise<void> => {

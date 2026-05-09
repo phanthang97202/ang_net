@@ -39,7 +39,9 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "quill-delta"
+              "quill-delta",
+              "quill",
+              "quill-blot-formatter"
             ]
           },
           "configurations": {

@@ -46,36 +46,27 @@ export class TextEditorComponent implements OnInit, OnChanges {
   constructor(private sanitizer: DomSanitizer) {}
 
   async ngOnInit() {
-    // ✅ Khởi tạo content từ input
     if (this.initContentBody) {
       this.content = this.initContentBody;
       this.editorContent = this.initContentBody;
     }
 
-    if (isDevMode()) {
-      if (typeof window === 'undefined') {
-        console.warn('BlotFormatter not loaded (SSR)');
-        this.setupEditorModules(false);
-        this.blotFormatterReady = true;
-        return;
-      }
+    if (typeof window === 'undefined') {
+      // SSR
+      this.setupEditorModules(false);
+      this.blotFormatterReady = true;
+      return;
+    }
 
-      try {
-        const module = await import('quill-blot-formatter');
-        const BlotFormatter = module.default || module;
-
-        Quill.register('modules/blotFormatter', BlotFormatter);
-        console.log('✅ BlotFormatter module registered successfully');
-
-        this.setupEditorModules(true);
-        this.blotFormatterReady = true;
-      } catch (error) {
-        console.error('❌ Error registering BlotFormatter module:', error);
-        this.setupEditorModules(false);
-        this.blotFormatterReady = true;
-      }
-    } else {
+    try {
+      const module = await import('quill-blot-formatter');
+      const BlotFormatter = module.default || module;
+      Quill.register('modules/blotFormatter', BlotFormatter, true); // true = overwrite
       this.setupEditorModules(true);
+    } catch (error) {
+      console.error('BlotFormatter failed:', error);
+      this.setupEditorModules(false); // fallback gracefully
+    } finally {
       this.blotFormatterReady = true;
     }
   }
