@@ -19,7 +19,6 @@ import { ApiService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import Quill from 'quill';
 
 @Component({
   selector: 'app-text-editor',
@@ -45,33 +44,17 @@ export class TextEditorComponent implements OnInit, OnChanges {
 
   constructor(private sanitizer: DomSanitizer) {}
 
+  // text-editor.component.ts
   async ngOnInit() {
     if (this.initContentBody) {
       this.content = this.initContentBody;
       this.editorContent = this.initContentBody;
     }
 
-    if (typeof window === 'undefined') {
-      // SSR
-      this.setupEditorModules(false);
-      this.blotFormatterReady = true;
-      return;
-    }
-
-    try {
-      const module = await import('quill-blot-formatter');
-      const BlotFormatter = module.default || module;
-      Quill.register('modules/blotFormatter', BlotFormatter, true); // true = overwrite
-      this.setupEditorModules(true);
-    } catch (error) {
-      console.error('BlotFormatter failed:', error);
-      this.setupEditorModules(false); // fallback gracefully
-    } finally {
-      this.blotFormatterReady = true;
-    }
+    this.setupEditorModules();
+    this.blotFormatterReady = true;
   }
 
-  // ✅ Handle changes khi parent component update input
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['initContentBody'] && !changes['initContentBody'].firstChange) {
       const newContent = changes['initContentBody'].currentValue;
@@ -82,7 +65,7 @@ export class TextEditorComponent implements OnInit, OnChanges {
     }
   }
 
-  private setupEditorModules(includeBlotFormatter = true) {
+  private setupEditorModules() {
     this.editorModules = {
       toolbar: [
         ['bold', 'italic', 'underline', 'strike'],
@@ -100,37 +83,8 @@ export class TextEditorComponent implements OnInit, OnChanges {
         ['clean'],
         ['link', 'image', 'video'],
       ],
+      // Không có blotFormatter
     };
-
-    if (includeBlotFormatter) {
-      this.editorModules.blotFormatter = {
-        actions: {
-          alignLeft: true,
-          alignCenter: true,
-          alignRight: true,
-          resize: true,
-        },
-        overlay: {
-          className: 'blot-formatter__overlay',
-          style: {
-            position: 'absolute',
-            boxSizing: 'border-box',
-            border: '1px dashed #444',
-          },
-        },
-        resize: {
-          handleStyle: {
-            position: 'absolute',
-            height: '12px',
-            width: '12px',
-            backgroundColor: 'white',
-            border: '1px solid #777',
-            boxSizing: 'border-box',
-            opacity: '0.80',
-          },
-        },
-      };
-    }
   }
 
   onEditorCreated(editor: any) {
