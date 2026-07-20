@@ -1,22 +1,16 @@
 """
-MCP server đọc-only cho hệ thống báo cáo ca trực khách sạn, dùng PostgreSQL.
+MCP server đọc-only cho module quản lý báo cáo ca trực khách sạn (reporthotel).
+Khớp đúng schema: ShiftReport, ShiftReportRoomSale, ShiftReportTransaction.
 
 Cài đặt:
     pip install "mcp[cli]" psycopg2-binary
 
-Chạy (đặt biến môi trường kết nối trước):
-    export HOTEL_DB_HOST=localhost
-    export HOTEL_DB_PORT=5432
-    export HOTEL_DB_NAME=hotel_db
-    export HOTEL_DB_USER=readonly_user
-    export HOTEL_DB_PASSWORD=your_password
+Chạy (đặt biến môi trường trước, KHÔNG hardcode connection string vào code):
+    export REPORTHOTEL_DB_URL="postgresql://user:password@host/dbname"
     python3 reporthotel_mcp.py
 
-LƯU Ý QUAN TRỌNG:
-- Server này CHỈ ĐỌC (SELECT). Không có tool ghi/xóa - đúng với yêu cầu bạn chọn.
-- Nên tạo một user Postgres riêng chỉ có quyền SELECT (không phải superuser),
-  để dù có lỗi trong code cũng không thể vô tình ghi/xóa dữ liệu thật.
-- Đổi tên bảng/cột trong phần SCHEMA bên dưới cho khớp với database thật của bạn.
+Server này CHỈ ĐỌC (SELECT) - không có tool ghi/sửa/xóa, đúng theo yêu cầu ban đầu.
+Mọi câu query đều lọc "FlagActive" = true để chỉ lấy dữ liệu chưa bị soft-delete.
 """
 
 import os
@@ -26,47 +20,53 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("reporthotel")
 
-# ---- SCHEMA: đổi cho khớp với database thật của bạn ----
-TABLE_NAME = "shift_reports"
-# Giả định các cột: id, room_number, issue, status, shift_date, created_at
-# Nếu bảng bạn đặt tên cột khác, sửa lại các câu SQL bên dưới cho khớp.
-
 
 def get_connection():
-    """Mở kết nối tới Postgres bằng thông tin lấy từ biến môi trường."""
-    return psycopg2.connect(
-        host=os.environ["HOTEL_DB_HOST"],
-        port=os.environ.get("HOTEL_DB_PORT", "5432"),
-        dbname=os.environ["HOTEL_DB_NAME"],
-        user=os.environ["HOTEL_DB_USER"],
-        password=os.environ["HOTEL_DB_PASSWORD"],
-    )
+    """Mở kết nối Postgres từ biến môi trường REPORTHOTEL_DB_URL."""
+    db_url = os.environ.get("postgresql://angnet0726_user:nh3Bf3hEcIIYFUHHzgEPYrZumsiK42Gc@dpg-d92h70eq1p3s73fpr0jg-a.oregon-postgres.render.com/angnet0726")
+    if not db_url:
+        raise RuntimeError("Chưa đặt biến môi trường REPORTHOTEL_DB_URL")
+    return psycopg2.connect(db_url)
 
 
 @mcp.tool()
-def search_reports(room: str = "", keyword: str = "", limit: int = 20) -> str:
-    """Tìm báo cáo ca trực theo số phòng và/hoặc từ khóa trong nội dung sự cố.
+def search_shift_reports(
+    date_from: str = "",
+    date_to: str = "",
+    receptionist_name: str = "",
+    shift_type: str = "",
+    limit: int = 20,
+) -> str:
+    """Tìm các báo cáo ca trực theo khoảng ngày, tên lễ tân, hoặc loại ca.
 
     Args:
-        room: số phòng cần lọc (để trống nếu không lọc theo phòng)
-        keyword: từ khóa tìm trong mô tả sự cố (để trống nếu không lọc)
-        limit: số kết quả tối đa trả về (mặc định 20)
+        date_from: ngày bắt đầu lọc, định dạng YYYY-MM-DD (để trống nếu không lọc)
+        date_to: ngày kết thúc lọc, định dạng YYYY-MM-DD (để trống nếu không lọc)
+        receptionist_name: tên lễ tân trực ca, tìm gần đúng (để trống nếu không lọc)
+        shift_type: loại ca, ví dụ 'Sáng', 'Chiều', 'Đêm' (để trống nếu không lọc)
+        limit: số kết quả tối đa (mặc định 20)
     """
-    conditions = []
+    conditions = ['"FlagActive" = true']
     params = []
-    if room:
-        conditions.append("room_number = %s")
-        params.append(room)
-    if keyword:
-        conditions.append("issue ILIKE %s")
-        params.append(f"%{keyword}%")
+    if date_from:
+        conditions.append('"ShiftDate" >= %s')
+        params.append(date_from)
+    if date_to:
+        conditions.append('"ShiftDate" <= %s')
+        params.append(date_to)
+    if receptionist_name:
+        conditions.append('"ReceptionistName" ILIKE %s')
+        params.append(f"%{receptionist_name}%")
+    if shift_type:
+        conditions.append('"ShiftType" = %s')
+        params.append(shift_type)
 
-    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
     query = f"""
-        SELECT id, room_number, issue, status, shift_date, created_at
-        FROM {TABLE_NAME}
-        {where_clause}
-        ORDER BY created_at DESC
+        SELECT id, "ShiftDate", "ShiftType", "ReceptionistName", "ReceiverName",
+               "TotalCash", "TotalTransfer", "TotalExpense", "HandoverAmount"
+        FROM public."ShiftReport"
+        WHERE {' AND '.join(conditions)}
+        ORDER BY "ShiftDate" DESC, "StartTime" DESC
         LIMIT %s
     """
     params.append(limit)
@@ -77,64 +77,123 @@ def search_reports(room: str = "", keyword: str = "", limit: int = 20) -> str:
             rows = cur.fetchall()
 
     if not rows:
-        return "Không tìm thấy báo cáo nào khớp."
+        return "Không tìm thấy báo cáo ca trực nào khớp điều kiện."
     return "\n".join(
-        f"#{r['id']} | Phòng {r['room_number']} | {r['issue']} | "
-        f"trạng thái: {r['status']} | {r['shift_date']}"
+        f"#{r['id']} | {r['ShiftDate']} | Ca {r['ShiftType']} | "
+        f"Lễ tân: {r['ReceptionistName']} → bàn giao: {r['ReceiverName']} | "
+        f"Tiền mặt: {r['TotalCash']:,.0f} | Chuyển khoản: {r['TotalTransfer']:,.0f} | "
+        f"Chi phí: {r['TotalExpense']:,.0f} | Bàn giao: {r['HandoverAmount']:,.0f}"
         for r in rows
     )
 
 
 @mcp.tool()
-def get_report_by_id(report_id: int) -> str:
-    """Lấy chi tiết đầy đủ một báo cáo theo ID.
+def get_shift_report_detail(report_id: int) -> str:
+    """Lấy chi tiết đầy đủ một báo cáo ca trực, gồm cả danh sách phòng bán và giao dịch.
 
     Args:
-        report_id: ID của báo cáo cần xem
-    """
-    query = f"""
-        SELECT id, room_number, issue, status, shift_date, created_at
-        FROM {TABLE_NAME}
-        WHERE id = %s
+        report_id: ID của báo cáo ca trực cần xem
     """
     with get_connection() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(query, (report_id,))
-            row = cur.fetchone()
+            cur.execute(
+                '''SELECT * FROM public."ShiftReport"
+                   WHERE id = %s AND "FlagActive" = true''',
+                (report_id,),
+            )
+            report = cur.fetchone()
+            if not report:
+                return f"Không tìm thấy báo cáo #{report_id}."
 
-    if not row:
-        return f"Không tìm thấy báo cáo #{report_id}."
-    return (
-        f"Báo cáo #{row['id']}\n"
-        f"Phòng: {row['room_number']}\n"
-        f"Sự cố: {row['issue']}\n"
-        f"Trạng thái: {row['status']}\n"
-        f"Ca: {row['shift_date']}\n"
-        f"Tạo lúc: {row['created_at']}"
-    )
+            cur.execute(
+                '''SELECT "RoomNumber", "RoomCategory", "UnitPrice"
+                   FROM public."ShiftReportRoomSale"
+                   WHERE "ShiftReportId" = %s AND "FlagActive" = true
+                   ORDER BY "RoomNumber"''',
+                (report_id,),
+            )
+            room_sales = cur.fetchall()
+
+            cur.execute(
+                '''SELECT "OrderNumber", "RoomNumber", "InvoiceCode", "CustomerType",
+                          "CashAmount", "TransferAmount", "PrepaidNote",
+                          "ExpenseDescription", "ExpenseAmount"
+                   FROM public."ShiftReportTransaction"
+                   WHERE "ShiftReportId" = %s AND "FlagActive" = true
+                   ORDER BY "OrderNumber"''',
+                (report_id,),
+            )
+            transactions = cur.fetchall()
+
+    lines = [
+        f"Báo cáo ca trực #{report['id']} - {report['ShiftDate']} (ca {report['ShiftType']})",
+        f"Thời gian: {report['StartTime']} → {report['EndTime']}",
+        f"Lễ tân: {report['ReceptionistName']} | Người nhận bàn giao: {report['ReceiverName']}",
+        f"Tổng tiền mặt: {report['TotalCash']:,.0f} | Tổng chuyển khoản: {report['TotalTransfer']:,.0f}",
+        f"Tổng chi phí: {report['TotalExpense']:,.0f} | Số tiền bàn giao: {report['HandoverAmount']:,.0f}",
+        "",
+        f"Phòng đã bán ({len(room_sales)}):",
+    ]
+    lines += [
+        f"  - Phòng {r['RoomNumber']} ({r['RoomCategory']}): {r['UnitPrice']:,.0f}"
+        for r in room_sales
+    ] or ["  (không có)"]
+
+    lines.append("")
+    lines.append(f"Giao dịch ({len(transactions)}):")
+    for t in transactions:
+        parts = [f"  #{t['OrderNumber']} phòng {t['RoomNumber']} ({t['InvoiceCode']}, {t['CustomerType']})"]
+        if t["CashAmount"]:
+            parts.append(f"tiền mặt {t['CashAmount']:,.0f}")
+        if t["TransferAmount"]:
+            parts.append(f"chuyển khoản {t['TransferAmount']:,.0f}")
+        if t["ExpenseAmount"]:
+            parts.append(f"chi phí {t['ExpenseAmount']:,.0f} ({t['ExpenseDescription']})")
+        if t["PrepaidNote"]:
+            parts.append(f"ghi chú: {t['PrepaidNote']}")
+        lines.append(" | ".join(parts))
+
+    return "\n".join(lines)
 
 
 @mcp.tool()
-def summarize_pending_reports() -> str:
-    """Tóm tắt các báo cáo chưa xử lý xong (dùng để bàn giao ca)."""
-    query = f"""
-        SELECT id, room_number, issue, status
-        FROM {TABLE_NAME}
-        WHERE status NOT IN ('đã xử lý', 'đã đóng')
-        ORDER BY created_at DESC
+def summarize_revenue_by_date(date: str) -> str:
+    """Tổng hợp doanh thu tất cả các ca trực trong một ngày cụ thể.
+
+    Args:
+        date: ngày cần tổng hợp, định dạng YYYY-MM-DD
     """
+    query = '''
+        SELECT "ShiftType", "ReceptionistName",
+               "TotalCash", "TotalTransfer", "TotalExpense", "HandoverAmount"
+        FROM public."ShiftReport"
+        WHERE "ShiftDate" = %s AND "FlagActive" = true
+        ORDER BY "StartTime"
+    '''
     with get_connection() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(query)
+            cur.execute(query, (date,))
             rows = cur.fetchall()
 
     if not rows:
-        return "Không có báo cáo nào đang tồn đọng."
-    lines = [f"Có {len(rows)} báo cáo chưa xử lý xong:"]
+        return f"Không có báo cáo ca trực nào ngày {date}."
+
+    total_cash = sum(r["TotalCash"] for r in rows)
+    total_transfer = sum(r["TotalTransfer"] for r in rows)
+    total_expense = sum(r["TotalExpense"] for r in rows)
+
+    lines = [f"Tổng hợp ngày {date} ({len(rows)} ca):"]
     lines += [
-        f"- #{r['id']} Phòng {r['room_number']}: {r['issue']} (trạng thái: {r['status']})"
+        f"  - Ca {r['ShiftType']} ({r['ReceptionistName']}): "
+        f"tiền mặt {r['TotalCash']:,.0f}, chuyển khoản {r['TotalTransfer']:,.0f}, "
+        f"chi phí {r['TotalExpense']:,.0f}"
         for r in rows
     ]
+    lines.append("")
+    lines.append(
+        f"TỔNG: tiền mặt {total_cash:,.0f} | chuyển khoản {total_transfer:,.0f} | "
+        f"chi phí {total_expense:,.0f} | doanh thu ròng {total_cash + total_transfer - total_expense:,.0f}"
+    )
     return "\n".join(lines)
 
 
