@@ -125,6 +125,18 @@ export class ApiService {
     newsId: string,
     obj: ICreateNews
   ): Observable<IDetailNewsResponse> {
+    const data = {
+      NewsId: newsId,
+      Thumbnail: obj.Thumbnail,
+      CategoryNewsId: obj.CategoryNewsId,
+      ShortTitle: obj.ShortTitle,
+      ShortDescription: obj.ShortDescription,
+      ContentBody: obj.ContentBody,
+      FlagActive: obj.FlagActive,
+      LstHashTagNews: obj.LstHashTagNews,
+      LstRefFileNews: obj.LstRefFileNews,
+    };
+    console.log('====data', data);
     return this.http.post<IDetailNewsResponse>(`${this.apiUrl}news/update`, {
       NewsId: newsId,
       Thumbnail: obj.Thumbnail,
