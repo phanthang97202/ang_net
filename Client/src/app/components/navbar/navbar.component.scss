@@ -1,9 +1,9 @@
 // ── Variables ──────────────────────────────────────────
 $font-serif: 'Playfair Display', serif;
-$font-sans: 'Raleway', sans-serif;
+$font-sans: 'Montserrat', sans-serif;
 $color-bg: #ffffff;
 $color-dark: #1a1a1a;
-$color-accent: #c9622f;
+$color-accent: #5b4fe9;
 $color-muted: #888;
 $color-border: rgba(0, 0, 0, 0.08);
 $nav-height: 64px;
@@ -70,22 +70,23 @@ $nav-height: 64px;
     a,
     .nav-dropdown-trigger {
         display: block;
-        padding: 0.4rem 0.75rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
         font-family: $font-sans;
         font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
+        letter-spacing: 0.06em;
         color: $color-dark;
         text-decoration: none;
         cursor: pointer;
-        transition: color 0.2s;
+        transition: color 0.2s, background 0.2s;
         white-space: nowrap;
         user-select: none;
 
         &:hover,
         &.active {
             color: $color-accent;
+            background: rgba($color-accent, 0.08);
         }
     }
 
@@ -160,20 +161,134 @@ $nav-height: 64px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     padding: 0.55rem 1.4rem;
-    background: $color-dark;
+    background: $color-accent;
     color: #fff;
     border: none;
+    border-radius: 999px;
     cursor: pointer;
     transition: background 0.2s;
     white-space: nowrap;
 
     &:hover {
-        background: lighten($color-dark, 15%);
+        background: darken($color-accent, 8%);
     }
 
     &--sm {
         padding: 0.45rem 1rem;
         font-size: 0.65rem;
+    }
+}
+
+// ── Search button ──────────────────────────────────────
+.btn-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid $color-border;
+    color: $color-dark;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba($color-accent, 0.08);
+        border-color: $color-accent;
+        color: $color-accent;
+    }
+}
+
+// ── Search popup ───────────────────────────────────────
+.search-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 199;
+    animation: fadeIn 0.2s ease;
+}
+
+.search-popup {
+    position: fixed;
+    top: calc(#{$nav-height} + 0.75rem);
+    right: 1.25rem;
+    left: 1.25rem;
+    z-index: 200;
+    max-width: 480px;
+    margin-left: auto;
+    background: $color-bg;
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+    padding: 1.25rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+
+.search-popup-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: $color-muted;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+
+    &:hover {
+        color: $color-dark;
+    }
+}
+
+.search-popup-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.search-popup-input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.65rem 1rem;
+    font-family: $font-sans;
+    font-size: 0.85rem;
+    border: 1px solid $color-border;
+    border-radius: 999px;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+        border-color: $color-accent;
+    }
+}
+
+.search-popup-btn {
+    flex-shrink: 0;
+    padding: 0.65rem 1.4rem;
+    font-family: $font-sans;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: $color-accent;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: darken($color-accent, 8%);
     }
 }
 

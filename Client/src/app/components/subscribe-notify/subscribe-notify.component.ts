@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
 interface SubscribeForm {
-  name: string;
   email: string;
 }
 
@@ -23,7 +22,7 @@ interface SubscribeForm {
 export class SubscribeNotifyComponent {
   private http = inject(HttpClient);
 
-  form: SubscribeForm = { name: '', email: '' };
+  form: SubscribeForm = { email: '' };
   isLoading = false;
   isSuccess = false;
   errorMsg = '';
@@ -32,10 +31,6 @@ export class SubscribeNotifyComponent {
     this.errorMsg = '';
 
     // ── Validate client-side ────────────────────────────
-    if (!this.form.name.trim()) {
-      this.errorMsg = 'Vui lòng nhập tên của bạn.';
-      return;
-    }
     if (!this.isValidEmail(this.form.email)) {
       this.errorMsg = 'Vui lòng nhập email hợp lệ.';
       return;

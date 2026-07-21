@@ -1,5 +1,6 @@
 {
     "T_LOGIN": "Login",
+    "T_SEARCH": "Search",
     "T_ENTERUSERNAME": "Enter your username",
     "T_ENTERPASSWORD": "Enter your password",
     "T_REGISTERNOW": "Register account",

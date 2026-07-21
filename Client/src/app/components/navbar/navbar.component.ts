@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   ActivatedRoute,
   Router,
@@ -30,6 +31,7 @@ interface RouteItem {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     RouterLinkActive,
     NzMenuModule,
@@ -46,6 +48,8 @@ interface RouteItem {
 export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
   isMobileMenuOpen = false;
+  isSearchOpen = false;
+  searchKeyword = '';
 
   listRoute: RouteItem[] = [
     { path: '/', title: 'Home', icon: 'home' },
@@ -115,6 +119,25 @@ export class NavbarComponent implements OnInit {
     return route.children.some(child =>
       child.path ? this.router.isActive(child.path, false) : false
     );
+  }
+
+  // ── Search popup ─────────────────────────────────────
+  toggleSearch(): void {
+    this.isSearchOpen = !this.isSearchOpen;
+  }
+
+  closeSearch(): void {
+    this.isSearchOpen = false;
+  }
+
+  handleSearch(): void {
+    const keyword = this.searchKeyword.trim();
+    if (!keyword) {
+      return;
+    }
+    this.router.navigate(['/news'], { queryParams: { keyword } });
+    this.searchKeyword = '';
+    this.isSearchOpen = false;
   }
 
   // ── Auth ─────────────────────────────────────────────

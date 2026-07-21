@@ -1,27 +1,18 @@
 <div class="">
-  <div class="mb-4">
-    <app-discovery-banner></app-discovery-banner>
+  <app-discovery-banner></app-discovery-banner>
+
+  <app-topic-nav></app-topic-nav>
+
+  <div class="home__container">
+    <div class="home__content">
+      <app-new-news></app-new-news>
+    </div>
+    <div class="home__aside">
+      <app-home-sidebar class="sticky top-[46.8px] block"></app-home-sidebar>
+    </div>
   </div>
-  <div class="mb-4">
-    <app-featured-news></app-featured-news>
-  </div>
-  <div class="mb-4">
-    <app-topic-nav></app-topic-nav>
-  </div>
-  <div class="mb-4">
-    <app-new-news></app-new-news>
-  </div>
-  <div class="mb-4">
+
+  <div class="mb-4 mt-8">
     <app-subscribe-notify></app-subscribe-notify>
-  </div>
-
-  <div class="news__container">
-    <div class="news__content">
-      <router-outlet></router-outlet>
-    </div>
-
-    <div class="news__aside">
-      <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
-    </div>
   </div>
 </div>

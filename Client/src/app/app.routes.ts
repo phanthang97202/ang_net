@@ -10,25 +10,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/home/home/home.component').then(p => p.HomeComponent),
     // canActivate: [canActive],
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./pages/home/news/news.component').then(p => p.NewsComponent),
-      },
-      {
-        path: 'news',
-        loadComponent: () =>
-          import('./pages/home/news/news.component').then(p => p.NewsComponent),
-      },
-      {
-        path: 'news/:categoryId/:newsId',
-        loadComponent: () =>
-          import('./pages/home/detail-news/detail-news.component').then(
-            p => p.DetailNewsComponent
-          ),
-      },
-    ],
+  },
+  {
+    title: 'News',
+    path: 'news',
+    loadComponent: () =>
+      import('./pages/home/news/news.component').then(p => p.NewsComponent),
+  },
+  {
+    title: 'News detail',
+    path: 'news/:categoryId/:newsId',
+    loadComponent: () =>
+      import('./pages/home/detail-news/detail-news.component').then(
+        p => p.DetailNewsComponent
+      ),
   },
   {
     title: 'Tools',

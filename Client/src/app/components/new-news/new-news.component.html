@@ -1,92 +1,80 @@
-<section class="bg-[#f0ebe4] py-12 px-4 md:px-8">
-
-  <!-- Header row -->
-  <div class="flex items-end justify-between mb-8">
-    <h2 class="font-['Playfair_Display'] leading-tight">
-      <span class="block text-3xl md:text-4xl font-700 text-[#1a1a1a]">Bài Viết</span>
-      <span class="block text-3xl md:text-4xl font-700 italic text-[#c9622f]">Mới Nhất</span>
-    </h2>
-    <a routerLink="/blog"
-       class="font-['Raleway'] text-[0.7rem] font-700 tracking-[0.18em] uppercase text-[#1a1a1a]
-              hover:text-[#c9622f] transition-colors duration-200 whitespace-nowrap pb-1">
-      XEM TẤT CẢ →
-    </a>
-  </div>
-
+<section class="post-list">
   <!-- Loading skeleton -->
   <ng-container *ngIf="isLoading">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div *ngFor="let i of [1,2,3]" class="flex flex-col gap-3 animate-pulse">
-        <div class="w-full aspect-[4/3] bg-gray-300 rounded-none"></div>
-        <div class="h-3 w-32 bg-gray-300 rounded"></div>
-        <div class="h-5 w-full bg-gray-300 rounded"></div>
-        <div class="h-5 w-3/4 bg-gray-300 rounded"></div>
-        <div class="h-3 w-full bg-gray-200 rounded"></div>
-        <div class="h-3 w-5/6 bg-gray-200 rounded"></div>
+    <div class="post-card post-card--skeleton" *ngFor="let i of [1, 2, 3]">
+      <div class="post-card-thumb post-card-thumb--skeleton"></div>
+      <div class="post-card-body">
+        <div class="skeleton-line" style="width: 40%"></div>
+        <div class="skeleton-line" style="width: 80%; height: 1.4rem"></div>
+        <div class="skeleton-line" style="width: 100%"></div>
+        <div class="skeleton-line" style="width: 60%"></div>
       </div>
     </div>
   </ng-container>
 
-  <!-- Post Cards -->
+  <!-- Post cards -->
   <ng-container *ngIf="!isLoading && posts.length > 0">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+    <article class="post-card" *ngFor="let post of posts; trackBy: trackById">
       <a
-        *ngFor="let post of posts; trackBy: trackById"
-        [routerLink]="['/post', post.slug]"
-        class="group flex flex-col cursor-pointer">
+        [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+        class="post-card-thumb">
+        <img
+          *ngIf="post.Thumbnail"
+          [src]="post.Thumbnail"
+          [alt]="post.ShortTitle" />
+        <div
+          *ngIf="!post.Thumbnail"
+          class="post-card-thumb-placeholder"
+          [style.background-color]="post._placeholderColor"></div>
 
-        <!-- Thumbnail -->
-        <div class="relative w-full aspect-[4/3] overflow-hidden mb-4">
-          <!-- Category badge -->
-          <span class="absolute top-4 left-4 z-10
-                       bg-[#c9622f] text-white
-                       font-['Raleway'] text-[0.6rem] font-700 tracking-[0.12em] uppercase
-                       px-3 py-1">
-            {{ post.category }}
-          </span>
-
-          <!-- Image -->
-          <img
-            *ngIf="post.thumbnail"
-            [src]="post.thumbnail"
-            [alt]="post.title"
-            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-
-          <!-- Placeholder -->
-          <div
-            *ngIf="!post.thumbnail"
-            class="w-full h-full flex items-center justify-center transition-transform duration-700 group-hover:scale-105"
-            [style.background-color]="post._placeholderColor">
-            <span class="font-['Playfair_Display'] italic text-white/35 text-sm">Ảnh bài</span>
-          </div>
+        <div class="post-card-badges">
+          <span *ngIf="post.CategoryNewsName" class="post-badge">{{
+            post.CategoryNewsName
+          }}</span>
+          <span
+            *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0"
+            class="post-badge"
+            >{{ post.LstHashTagNews[0].HashTagNewsName }}</span
+          >
         </div>
-
-        <!-- Meta: date · read time -->
-        <p class="font-['Raleway'] text-[0.7rem] text-[#888] mb-2 tracking-wide">
-          {{ post.date }} · {{ post.readTime }} phút đọc
-        </p>
-
-        <!-- Title -->
-        <h3 class="font-['Playfair_Display'] text-lg font-700 text-[#1a1a1a] leading-snug mb-3
-                   group-hover:text-[#c9622f] transition-colors duration-200">
-          {{ post.title }}
-        </h3>
-
-        <!-- Excerpt -->
-        <p class="font-['Raleway'] text-sm text-[#666] leading-relaxed line-clamp-3">
-          {{ post.excerpt }}
-        </p>
+        <span class="post-card-readtime">
+          {{ post.EstimatedReadingTime }} Min Read
+        </span>
       </a>
+
+      <div class="post-card-body">
+        <p class="post-card-meta">
+          <span class="post-card-author">{{ post.FullName }}</span>
+          on {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+        </p>
+
+        <a
+          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+          class="post-card-title">
+          {{ post.ShortTitle }}
+        </a>
+
+        <p class="post-card-excerpt">{{ post.ShortDescription }}</p>
+
+        <a
+          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+          class="post-card-btn">
+          Discover More
+        </a>
+      </div>
+    </article>
+
+    <div class="post-list-pagination">
+      <pagination
+        [pageIndex]="currentPage + 1"
+        [itemCount]="itemCount"
+        (onPageIndexChange)="handlePageIndexChange($event)"
+        [size]="'small'" />
     </div>
   </ng-container>
 
   <!-- Empty state -->
   <ng-container *ngIf="!isLoading && posts.length === 0">
-    <div class="flex items-center justify-center py-20">
-      <span class="font-['Raleway'] text-sm tracking-widest uppercase text-[#aaa]">
-        Chưa có bài viết nào
-      </span>
-    </div>
+    <div class="post-list-empty">Chưa có bài viết nào</div>
   </ng-container>
-
 </section>

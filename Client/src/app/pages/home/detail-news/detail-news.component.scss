@@ -2,6 +2,34 @@
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
+.news__container {
+    display: flex;
+    gap: 70px;
+
+    .news__content {
+        width: 60%;
+    }
+
+    .news__aside {
+        flex: 1;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .news__container {
+        flex-direction: column;
+        gap: 0;
+
+        >.news__content {
+            width: 100%;
+        }
+
+        >.news__aside {
+            width: 100%;
+        }
+    }
+}
+
 .detail_thumbnail {
     height: 360px;
     position: relative;

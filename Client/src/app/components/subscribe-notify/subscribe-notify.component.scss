@@ -1,3 +1,126 @@
 :host {
   display: block;
 }
+
+.newsletter {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.newsletter-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: #1a1a2e;
+  margin: 0 0 1.1rem;
+
+  .accent {
+    color: #5b4fe9;
+    font-style: italic;
+  }
+}
+
+.newsletter-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  color: #6b6b7b;
+  line-height: 1.6;
+  margin: 0 0 2rem;
+}
+
+.newsletter-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 0.4rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(20, 15, 60, 0.06);
+}
+
+.newsletter-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 1rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  color: #1a1a2e;
+
+  &::placeholder {
+    color: #a3a2b3;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.newsletter-btn {
+  flex-shrink: 0;
+  padding: 0.75rem 1.6rem;
+  border: none;
+  border-radius: 999px;
+  background: #5b4fe9;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: darken(#5b4fe9, 8%);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.newsletter-error {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  color: #e0524a;
+  margin: 0.75rem 0 0;
+}
+
+.newsletter-tagline {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 1.25rem 0 0;
+}
+
+.newsletter-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.newsletter-success-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.newsletter-success-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  color: #6b6b7b;
+  margin: 0;
+}

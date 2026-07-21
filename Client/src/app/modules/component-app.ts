@@ -28,6 +28,7 @@ import {
   FeaturedNewsComponent,
   NewNewsComponent,
   SubscribeNotifyComponent,
+  HomeSidebarComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
@@ -74,6 +75,7 @@ export const REUSE_COMPONENT_MODULES = [
   TopicNavComponent,
   NewNewsComponent,
   SubscribeNotifyComponent,
+  HomeSidebarComponent,
   // Một số module đặc biệt của antd
   NzSpinModule,
   NzCardModule,

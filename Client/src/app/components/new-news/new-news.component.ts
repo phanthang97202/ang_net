@@ -1,104 +1,87 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { PaginationComponent } from '../pagination/pagination.component';
+import { ApiService, LoadingService, ShowErrorService } from '../../services';
+import { IDetailNews } from '../../interfaces';
+import { CONSTANTS_APP } from '../../helpers';
 
-// ── Model ──────────────────────────────────────────────
-export interface NewPost {
-  id: number | string;
-  slug: string;
-  title: string;
-  category: string;
-  thumbnail?: string;
-  date: string;
-  readTime: number;
-  excerpt: string;
-  _placeholderColor?: string; // tự gen client-side
+export interface INewsWithPlaceholder extends IDetailNews {
+  _placeholderColor?: string;
 }
 
 const PLACEHOLDER_COLORS = [
-  '#4a7c6f', // xanh rêu
+  '#5b4fe9', // indigo
+  '#e95f9c', // hồng
+  '#3fb2a6', // xanh ngọc
+  '#f2994a', // cam
   '#7a6b8a', // tím
-  '#7a7a4a', // vàng olive
-  '#4a6b7a', // xanh xám
-  '#7a4a5a', // đỏ nâu
-  '#5a6a7a', // xám xanh
+  '#4a90d9', // xanh dương
 ];
 
 @Component({
   selector: 'app-new-news',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PaginationComponent],
   templateUrl: './new-news.component.html',
   styleUrls: ['./new-news.component.scss'],
 })
 export class NewNewsComponent implements OnInit {
-  private http = inject(HttpClient);
+  showErrorService = inject(ShowErrorService);
+  apiService = inject(ApiService);
+  loadingService = inject(LoadingService);
+  router = inject(Router);
+  activedRouter = inject(ActivatedRoute);
 
   isLoading = true;
-  posts: NewPost[] = [];
+  posts: INewsWithPlaceholder[] = [];
+  currentPage = 0;
+  pageSize = CONSTANTS_APP.PAGE_SIZE;
+  itemCount = 0;
 
   ngOnInit(): void {
-    this.loadPosts();
+    this.activedRouter.queryParams.subscribe(p => {
+      const pageIndex = p['pageIndex'] || 0;
+      this.loadPosts(pageIndex);
+    });
   }
 
-  loadPosts(): void {
+  loadPosts(pageIndex: number): void {
     this.isLoading = true;
-
-    // ── Gọi API thật ──────────────────────────────────────
-    // this.http.get<NewPost[]>('/api/posts/latest')
-    //   .pipe(finalize(() => (this.isLoading = false)))
-    //   .subscribe({
-    //     next: (data) => (this.posts = this.assignPlaceholders(data)),
-    //     error: (err) => console.error('Failed to load latest posts', err),
-    //   });
-
-    // ── Mock data (xóa khi dùng API thật) ─────────────────
-    setTimeout(() => {
-      this.posts = this.assignPlaceholders([
-        {
-          id: 1,
-          slug: 'trekking-ta-nang-phan-dung',
-          title: 'Trekking Tà Năng — Phan Dũng: cung đường đẹp nhất Việt Nam',
-          category: 'Du lịch',
-          thumbnail: '',
-          date: '20 tháng 9, 2024',
-          readTime: 8,
-          excerpt:
-            'Hành trình 3 ngày 2 đêm xuyên qua những thảo nguyên xanh mướt và đồi cỏ tranh vàng óng...',
+    this.apiService
+      .SearchNews(pageIndex, this.pageSize, '', '', '')
+      .pipe()
+      .subscribe({
+        next: res => {
+          const { DataList, PageIndex, ItemCount } = res.objResult;
+          this.posts = this.assignPlaceholders(DataList);
+          this.currentPage = PageIndex;
+          this.itemCount = ItemCount;
+          this.isLoading = false;
         },
-        {
-          id: 2,
-          slug: 'review-tui-ngu-naturehike',
-          title: 'Review túi ngủ Naturehike dưới 1 triệu — có đáng mua không?',
-          category: 'Review',
-          thumbnail: '',
-          date: '18 tháng 9, 2024',
-          readTime: 5,
-          excerpt:
-            'Sau 3 chuyến cắm trại với cái giá rét Tây Bắc, đây là những gì mình thực sự nghĩ...',
+        error: err => {
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
+          this.isLoading = false;
+          throw new Error(err);
         },
-        {
-          id: 3,
-          slug: 'sang-thu-hai-ly-do-khong-so',
-          title: 'Sáng thứ hai và lý do mình không còn sợ tuần mới nữa',
-          category: 'Life Slice',
-          thumbnail: '',
-          date: '15 tháng 9, 2024',
-          readTime: 6,
-          excerpt:
-            'Không phải bí kíp năng suất, chỉ là một vài thói quen nhỏ thay đổi cách mình nhìn ngày mới...',
-        },
-      ]);
-      this.isLoading = false;
-    }, 600);
+      });
   }
 
-  trackById(_: number, post: NewPost): number | string {
-    return post.id;
+  handlePageIndexChange(pageIndex: number): void {
+    this.router.navigate(['/'], { queryParams: { pageIndex } });
   }
 
-  private assignPlaceholders(posts: NewPost[]): NewPost[] {
+  trackById(_: number, post: IDetailNews): string {
+    return post.NewsId;
+  }
+
+  private assignPlaceholders(
+    posts: IDetailNews[]
+  ): INewsWithPlaceholder[] {
     return posts.map((post, i) => ({
       ...post,
       _placeholderColor: PLACEHOLDER_COLORS[i % PLACEHOLDER_COLORS.length],

@@ -1,13 +1,21 @@
-<div class="w-full flex flex-col gap-[30px]">
-  @for (item of lstNews; track item) {
-    <app-news-item [item]="item" />
-  }
-</div>
+<div class="news__container">
+  <div class="news__content">
+    <div class="w-full flex flex-col gap-[30px]">
+      @for (item of lstNews; track item) {
+        <app-news-item [item]="item" />
+      }
+    </div>
 
-<div class="text-center my-[30px]">
-  <pagination
-    [pageIndex]="currentPage + 1"
-    [itemCount]="itemCount"
-    (onPageIndexChange)="handlePageIndexChange($event)"
-    [size]="'small'" />
+    <div class="text-center my-[30px]">
+      <pagination
+        [pageIndex]="currentPage + 1"
+        [itemCount]="itemCount"
+        (onPageIndexChange)="handlePageIndexChange($event)"
+        [size]="'small'" />
+    </div>
+  </div>
+
+  <div class="news__aside">
+    <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
+  </div>
 </div>

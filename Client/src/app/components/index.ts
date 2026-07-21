@@ -21,3 +21,4 @@ export * from './topic-nav/topic-nav.component';
 export * from './featured-news/featured-news.component';
 export * from './new-news/new-news.component';
 export * from './subscribe-notify/subscribe-notify.component';
+export * from './home-sidebar/home-sidebar.component';

@@ -59,6 +59,7 @@ export class DetailNewsComponent implements OnInit {
           message: JSON.stringify(err, null, 2),
           title: err.message,
         });
+        this.loadingService.setLoading(false);
         throw new Error(err);
       },
       complete: () => {

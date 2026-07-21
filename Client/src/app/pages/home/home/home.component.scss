@@ -1,27 +1,27 @@
-.news__container {
+.home__container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
   display: flex;
-  gap: 70px;
+  gap: 2.5rem;
 
-  .news__content {
-    width: 60%;
+  .home__content {
+    width: 62%;
   }
 
-  .news__aside {
+  .home__aside {
     flex: 1;
+    min-width: 0;
   }
 }
 
-@media screen and (max-width: 768px) {
-  .news__container {
+@media screen and (max-width: 900px) {
+  .home__container {
     flex-direction: column;
-    gap: 0;
-    /* Optional, adjust as needed */
+    gap: 1.5rem;
 
-    >.news__content {
-      width: 100%;
-    }
-
-    >.news__aside {
+    > .home__content,
+    > .home__aside {
       width: 100%;
     }
   }

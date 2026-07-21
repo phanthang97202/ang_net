@@ -1,3 +1,200 @@
 :host {
   display: block;
 }
+
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.post-card {
+  display: flex;
+  gap: 1.5rem;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(20, 15, 60, 0.06);
+  padding: 1rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
+}
+
+.post-card-thumb {
+  position: relative;
+  flex: 0 0 220px;
+  width: 220px;
+  height: 160px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: block;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    height: 200px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.post-card-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.post-card-badges {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 4.5rem;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.post-badge {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a1a2e;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-card-readtime {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  background: rgba(26, 26, 46, 0.55);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.post-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.post-card-meta {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  color: #8a8a99;
+  margin: 0;
+}
+
+.post-card-author {
+  color: #5b4fe9;
+  font-weight: 700;
+}
+
+.post-card-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  text-decoration: none;
+  line-height: 1.35;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #5b4fe9;
+  }
+}
+
+.post-card-excerpt {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  color: #6b6b7b;
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-card-btn {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  padding: 0.55rem 1.3rem;
+  border-radius: 999px;
+  background: #5b4fe9;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+
+  &:hover {
+    background: darken(#5b4fe9, 8%);
+  }
+}
+
+// ── Skeleton ─────────────────────────────────────────────
+.post-card--skeleton {
+  align-items: center;
+}
+
+.post-card-thumb--skeleton {
+  background: #eee;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 0.9rem;
+  border-radius: 6px;
+  background: #eee;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.post-list-pagination {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.post-list-empty {
+  text-align: center;
+  padding: 3rem 0;
+  font-family: 'Montserrat', sans-serif;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+}

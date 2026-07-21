@@ -47,6 +47,14 @@
 
     <!-- Right Actions -->
     <div class="navbar-actions">
+      <!-- Search -->
+      <button
+        class="btn-search"
+        (click)="toggleSearch()"
+        aria-label="Search">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+      </button>
+
       <!-- Login Button -->
       <button
         *ngIf="!authService.isLoggedIn()"
@@ -75,6 +83,13 @@
     <a routerLink="/" class="navbar-logo">Phan<span>Thang</span></a>
 
     <div class="mobile-right">
+      <button
+        class="btn-search"
+        (click)="toggleSearch()"
+        aria-label="Search">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+      </button>
+
       <button
         *ngIf="!authService.isLoggedIn()"
         class="btn-follow btn-follow--sm"
@@ -146,6 +161,29 @@
   *ngIf="isMobileMenuOpen"
   class="mobile-overlay"
   (click)="closeMobileMenu()"></div>
+
+<!-- Search Popup -->
+<div
+  *ngIf="isSearchOpen"
+  class="search-overlay"
+  (click)="closeSearch()"></div>
+
+<div class="search-popup" [class.visible]="isSearchOpen">
+  <button class="search-popup-close" (click)="closeSearch()" aria-label="Close">
+    <span nz-icon nzType="close"></span>
+  </button>
+  <div class="search-popup-row">
+    <input
+      type="text"
+      class="search-popup-input"
+      placeholder="Nhập từ khóa tìm kiếm..."
+      [(ngModel)]="searchKeyword"
+      (keyup.enter)="handleSearch()" />
+    <button class="search-popup-btn" (click)="handleSearch()">
+      {{ 'T_SEARCH' | translate }}
+    </button>
+  </div>
+</div>
 
 <!-- Avatar Popover Content -->
 <ng-template #contentTemplate>

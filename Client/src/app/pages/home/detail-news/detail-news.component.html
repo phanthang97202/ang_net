@@ -10,70 +10,78 @@
   [nzParagraph]="{ rows: 10 }">
 </nz-skeleton>
 
-<div *ngIf="(isLoading$ | async) === false" class="news_container">
-  <div class="text-center">
-    <div class="detail_thumbnail">
-      <div class="detail_thumbnail_border"></div>
-      <div class="detail_thumbnail_img">
-        <img
-          src="{{
-            detailNews.Thumbnail ||
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsBGOs2225fFqTfnl5EKlrEUBn5-drby1x3Q&s'
-          }}"
-          alt="{{ detailNews.ShortTitle }}"
-          srcset="" />
-      </div>
-    </div>
+<div class="news__container">
+  <div class="news__content">
+    <div *ngIf="(isLoading$ | async) === false" class="news_container">
+      <div class="text-center">
+        <div class="detail_thumbnail">
+          <div class="detail_thumbnail_border"></div>
+          <div class="detail_thumbnail_img">
+            <img
+              src="{{
+                detailNews.Thumbnail ||
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsBGOs2225fFqTfnl5EKlrEUBn5-drby1x3Q&s'
+              }}"
+              alt="{{ detailNews.ShortTitle }}"
+              srcset="" />
+          </div>
+        </div>
 
-    <div class="my-[10px] px-[10px] xl:my-[30px] xl:px-[35px]">
-      <h1
-        class="hover:underline text-[30px] text-[#454360] leading-[1.2] font-bold">
-        {{ detailNews.ShortTitle }}
-      </h1>
-    </div>
+        <div class="my-[10px] px-[10px] xl:my-[30px] xl:px-[35px]">
+          <h1
+            class="hover:underline text-[30px] text-[#454360] leading-[1.2] font-bold">
+            {{ detailNews.ShortTitle }}
+          </h1>
+        </div>
 
-    <div class="w-full flex justify-center mb-[18px]">
-      <div class="flex gap-8">
-        <div class="flex-1">
-          <div class="flex gap-4 text-[15px] text-[#596172]">
-            <div>
-              <p class="font-sourceSerif">
-                {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
-              </p>
-            </div>
-            <div>
-              <span nz-icon nzType="line" nzTheme="outline"></span>
-            </div>
-            <div>
-              <p>
-                <span class="pr-[4px] font-sourceSerif">
-                  {{ detailNews.EstimatedReadingTime }}
-                </span>
-                <span class="font-sourceSerif"> mins read </span>
-              </p>
-            </div>
+        <div class="w-full flex justify-center mb-[18px]">
+          <div class="flex gap-8">
+            <div class="flex-1">
+              <div class="flex gap-4 text-[15px] text-[#596172]">
+                <div>
+                  <p class="font-sourceSerif">
+                    {{
+                      detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm'
+                    }}
+                  </p>
+                </div>
+                <div>
+                  <span nz-icon nzType="line" nzTheme="outline"></span>
+                </div>
+                <div>
+                  <p>
+                    <span class="pr-[4px] font-sourceSerif">
+                      {{ detailNews.EstimatedReadingTime }}
+                    </span>
+                    <span class="font-sourceSerif"> mins read </span>
+                  </p>
+                </div>
 
-            <div>
-              <p>
-                <span
-                  class="pr-[6px] font-sourceSerif"
-                  nz-icon
-                  nzType="eye"
-                  nzTheme="outline"></span>
-                <span class="font-sourceSerif">{{ detailNews.ViewCount }}</span>
-              </p>
+                <div>
+                  <p>
+                    <span
+                      class="pr-[6px] font-sourceSerif"
+                      nz-icon
+                      nzType="eye"
+                      nzTheme="outline"></span>
+                    <span class="font-sourceSerif">{{
+                      detailNews.ViewCount
+                    }}</span>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="w-full px-[10px] py-[0px]">
+        <app-news-content [content]="detailNews.ContentBody" [showToc]="true">
+        </app-news-content>
+      </div>
     </div>
   </div>
-  <div class="w-full px-[10px] py-[0px]">
-    <app-news-content [content]="detailNews.ContentBody" [showToc]="true">
-    </app-news-content>
-    <!-- <div
-      id="content-container"
-      class="content-display ql-editor px-[0] py-[15px] xl:px-[15px] xl:py-[12px]"
-      [innerHTML]="byPassHTML(detailNews.ContentBody)"></div> -->
+
+  <div class="news__aside">
+    <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
   </div>
 </div>

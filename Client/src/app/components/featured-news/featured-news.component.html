@@ -14,7 +14,7 @@
       <!-- ========== MAIN POST (left, spans 2 rows) ========== -->
       <a
         *ngIf="mainPost"
-        [routerLink]="['/post', mainPost.Slug]"
+        [routerLink]="['/news', mainPost.CategoryNewsId, mainPost.NewsId]"
         class="relative md:row-span-2 overflow-hidden group cursor-pointer block min-h-[420px]">
         <!-- Background Image -->
         <div
@@ -64,7 +64,7 @@
       <!-- ========== SUB POSTS (2x2 bên phải) ========== -->
       <ng-container *ngFor="let post of subPosts; trackBy: trackById">
         <a
-          [routerLink]="['/post', post.Slug]"
+          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
           class="relative overflow-hidden group cursor-pointer block min-h-[200px]">
           <!-- Background Image -->
           <div
