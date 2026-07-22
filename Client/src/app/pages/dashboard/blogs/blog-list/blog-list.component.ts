@@ -13,6 +13,7 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../../modules';
 import { Router } from '@angular/router';
+import { NzTableQueryParams } from 'ng-zorro-antd/table';
 @Component({
   selector: 'app-blog-list',
   standalone: true,
@@ -28,6 +29,11 @@ export class BlogListComponent implements OnInit {
   private loadingService = inject(LoadingService);
 
   dataSource: IDetailNews[] = [];
+  pageIndex = 1;
+  pageSize = 10;
+  total = 0;
+  tableLoading = false;
+
   listButtonsHeader = [
     {
       text: 'Create',
@@ -40,23 +46,36 @@ export class BlogListComponent implements OnInit {
     this.fetchData();
   }
 
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    this.pageIndex = params.pageIndex;
+    this.pageSize = params.pageSize;
+    this.fetchData();
+  }
+
   private fetchData(): void {
+    this.tableLoading = true;
     this.setLoading(true);
-    this.api.SearchNews(0, 10, '', '', '', false).subscribe({
-      next: response => {
-        if (response?.Success) {
-          this.dataSource = response.objResult?.DataList || [];
-        } else {
-          this.showErrorService.setShowError({
-            icon: 'warning',
-            message: JSON.stringify(response, null, 2),
-            title: response?.ErrorMessage || 'Error',
-          });
-        }
-      },
-      error: err => this.handleApiError(err),
-      complete: () => this.setLoading(false),
-    });
+    this.api
+      .SearchNews(this.pageIndex - 1, this.pageSize, '', '', '', false)
+      .subscribe({
+        next: response => {
+          if (response?.Success) {
+            this.dataSource = response.objResult?.DataList || [];
+            this.total = response.objResult?.ItemCount || 0;
+          } else {
+            this.showErrorService.setShowError({
+              icon: 'warning',
+              message: JSON.stringify(response, null, 2),
+              title: response?.ErrorMessage || 'Error',
+            });
+          }
+        },
+        error: err => this.handleApiError(err),
+        complete: () => {
+          this.tableLoading = false;
+          this.setLoading(false);
+        },
+      });
   }
 
   handleDetail(data: IDetailNews): void {
@@ -88,6 +107,7 @@ export class BlogListComponent implements OnInit {
   }
 
   private handleApiError(err: any): void {
+    this.tableLoading = false;
     this.setLoading(false);
     this.showErrorService.setShowError({
       icon: 'warning',

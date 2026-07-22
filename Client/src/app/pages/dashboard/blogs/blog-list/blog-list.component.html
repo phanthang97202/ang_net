@@ -7,7 +7,11 @@
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzFrontPagination]="false"
-        [nzLoading]="false">
+        [nzTotal]="total"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzLoading]="tableLoading"
+        (nzQueryParams)="onQueryParamsChange($event)">
         <thead>
           <tr>
             <th nzColumnKey="NewsId" [nzSortFn]="true"></th>
@@ -35,7 +39,7 @@
                 (_onClick)="handleDelete(data)"></app-button-common>
             </td>
             <td>
-              {{ i + 1 }}
+              {{ (pageIndex - 1) * pageSize + i + 1 }}
             </td>
             <td>
               {{ data.ShortTitle }}
