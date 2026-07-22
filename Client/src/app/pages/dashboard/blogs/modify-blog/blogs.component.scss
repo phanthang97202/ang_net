@@ -1,3 +1,28 @@
 .blogpost__container {
-  margin: 40px 0px 0px !important;
+    margin: 0 !important;
+}
+
+.blogpost__panel {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.blogpost__editor-panel {
+    min-height: 600px;
+}
+
+.status-toggle {
+    ::ng-deep .ant-form-item-control-input-content {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.loading-editor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
 }

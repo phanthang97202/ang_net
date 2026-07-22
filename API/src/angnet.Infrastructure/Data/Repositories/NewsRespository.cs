@@ -176,7 +176,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true)
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -240,15 +240,20 @@ namespace angnet.Infrastructure.Data.Repositories
                                      .Where(i => true);
             }
 
+            if (onlyPublished)
+            {
+                query = query.Where(i => i.FlagActive);
+            }
+
             int itemCount = query.ToList().Count;
 
             //
             List<RPNewsDto> dataResponse = new List<RPNewsDto>();
             List<string> excludeFields = new List<string>() { "ContentBody" };
 
-            // Starting cache data in RedisCloud 
+            // Starting cache data in RedisCloud
             //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
-            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId})";
+            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -376,7 +381,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string ContentBody = data.ContentBody;
             DateTime CreatedDTime = TCommonUtils.DTimeNow();
             DateTime UpdatedDTime = TCommonUtils.DTimeNow();
-            bool FlagActive = true;
+            bool FlagActive = data.FlagActive;
             int ViewCount = 0;
             int ShareCount = 0;
             int LikeCount = 0;

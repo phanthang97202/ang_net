@@ -15,14 +15,14 @@
   [nzPopconfirmTitle]="titleConfirm"
   (nzOnConfirm)="isShowConfirm && confirm()"
   (nzOnCancel)="cancel()">
-  <p>
+  <span class="button-common__content">
     <app-icon-common
       *ngIf="iconType"
       [iconType]="iconType"
       [iconTheme]="iconTheme"
       [iconRotate]="iconRotate"></app-icon-common>
-    {{ text }}
-  </p>
+    <span *ngIf="text">{{ text }}</span>
+  </span>
 </button>
 
 <!-- (nzOnConfirm)="isShowConfirm && confirm()"  /* chặn việc call 2 lần onClick */ -->

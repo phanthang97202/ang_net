@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -26,5 +26,12 @@ import { ButtonCommonComponent } from '../../component-ui-common';
   styleUrls: ['./breadcrumb.component.scss'],
 })
 export class BreadcrumbComponent {
+  private location = inject(Location);
+
   @Input() buttons: IButtonBreadcrumb[] = [];
+  @Input() title = '';
+
+  handleBack(): void {
+    this.location.back();
+  }
 }

@@ -24,11 +24,11 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("Search")]
-        public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId)
+        public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true)
         {
             try
             {
-                ApiResponse<RPNewsDto> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId);
+                ApiResponse<RPNewsDto> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId, onlyPublished);
                 return Ok(response);
             }
             catch (Exception)

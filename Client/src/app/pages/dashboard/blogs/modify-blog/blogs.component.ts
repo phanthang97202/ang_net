@@ -22,6 +22,7 @@ import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import { Util } from '../../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-blogs',
@@ -37,6 +38,7 @@ export class BlogsComponent implements OnInit {
   loadingService = inject(LoadingService);
   private message = inject(NzMessageService);
   private route = inject(ActivatedRoute);
+  private translate = inject(TranslateService);
 
   mode: 'create' | 'edit' = 'create';
   isDataLoaded = false; // ✅ Thêm flag để track data loading
@@ -58,7 +60,14 @@ export class BlogsComponent implements OnInit {
     LstHashTagNews: FormControl<string>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
+    FlagActive: FormControl<boolean>;
   }>;
+
+  listButtonsHeader: {
+    text: string;
+    iconType: string;
+    onClick: () => void;
+  }[] = [];
 
   constructor(private fb: NonNullableFormBuilder) {
     this.validateForm = this.fb.group({
@@ -69,6 +78,7 @@ export class BlogsComponent implements OnInit {
       ShortDescription: ['', [Validators.required]],
       LstHashTagNews: [''],
       LstRefFileNews: [[{ FileUrl: '' }]],
+      FlagActive: [true],
     });
   }
 
@@ -76,6 +86,16 @@ export class BlogsComponent implements OnInit {
     const queryModeParamUrl = this.route.snapshot.data['mode'];
     this.newsId = this.route.snapshot.params['id'];
     this.mode = queryModeParamUrl;
+
+    this.listButtonsHeader = [
+      {
+        text: this.translate.instant(
+          this.mode === 'edit' ? 'T_UPDATE' : 'T_POST'
+        ),
+        iconType: 'upload',
+        onClick: () => this.submitForm(),
+      },
+    ];
 
     this.fetchDataInit();
 
@@ -103,6 +123,7 @@ export class BlogsComponent implements OnInit {
             ShortDescription: data.Data.ShortDescription,
             Thumbnail: data.Data.Thumbnail,
             LstRefFileNews: data.Data.LstRefFileNews,
+            FlagActive: data.Data.FlagActive,
           });
 
           // ✅ Format hashtags nếu cần
@@ -208,7 +229,7 @@ export class BlogsComponent implements OnInit {
       ShortTitle: this.validateForm.value.ShortTitle ?? '',
       ShortDescription: this.validateForm.value.ShortDescription ?? '',
       ContentBody: this.validateForm.value.ContentBody ?? '',
-      FlagActive: true,
+      FlagActive: this.validateForm.value.FlagActive ?? true,
       LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
         .split(' ')
         .filter(item => item.trim())
@@ -228,7 +249,7 @@ export class BlogsComponent implements OnInit {
               ShortTitle: data.ShortTitle ?? '',
               ShortDescription: data.ShortDescription ?? '',
               ContentBody: data.ContentBody ?? '',
-              FlagActive: true,
+              FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstRefFileNews: [],
             })
@@ -238,7 +259,7 @@ export class BlogsComponent implements OnInit {
               ShortTitle: data.ShortTitle ?? '',
               ShortDescription: data.ShortDescription ?? '',
               ContentBody: data.ContentBody ?? '',
-              FlagActive: true,
+              FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstRefFileNews: [],
             });

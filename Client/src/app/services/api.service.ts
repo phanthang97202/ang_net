@@ -94,10 +94,11 @@ export class ApiService {
     pageSize: number,
     keyword: string,
     userId: string,
-    categoryId: string
+    categoryId: string,
+    onlyPublished = true
   ): Observable<INewsResponse> {
     return this.http.get<INewsResponse>(
-      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}`
+      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}`
     );
   }
 

@@ -1,7 +1,34 @@
-::ng-deep .importexcel__container {
-    z-index: 10000000000 !important;
+.breadcrumb__container {
+    padding: 16px 24px;
+    margin-bottom: 16px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 8px;
+
+    ::ng-deep {
+        .ant-page-header-back {
+            margin-right: 12px;
+        }
+
+        .ant-page-header-back-button {
+            color: #595959;
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: #1677ff;
+            }
+        }
+
+        .ant-page-header-heading-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f1f1f;
+        }
+    }
 }
-.importexcel__footer {
+
+.breadcrumb__actions {
     display: flex;
-    justify-content: space-between;;
+    align-items: center;
+    gap: 8px;
 }

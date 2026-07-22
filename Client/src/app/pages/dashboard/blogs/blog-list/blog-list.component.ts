@@ -42,7 +42,7 @@ export class BlogListComponent implements OnInit {
 
   private fetchData(): void {
     this.setLoading(true);
-    this.api.SearchNews(0, 10, '', '', '').subscribe({
+    this.api.SearchNews(0, 10, '', '', '', false).subscribe({
       next: response => {
         if (response?.Success) {
           this.dataSource = response.objResult?.DataList || [];
