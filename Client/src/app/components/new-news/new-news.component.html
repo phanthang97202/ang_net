@@ -31,11 +31,6 @@
           <span *ngIf="post.CategoryNewsName" class="post-badge">{{
             post.CategoryNewsName
           }}</span>
-          <span
-            *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0"
-            class="post-badge"
-            >{{ post.LstHashTagNews[0].HashTagNewsName }}</span
-          >
         </div>
         <span class="post-card-readtime">
           {{ post.EstimatedReadingTime }} Min Read
@@ -56,11 +51,13 @@
 
         <p class="post-card-excerpt">{{ post.ShortDescription }}</p>
 
-        <a
-          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-          class="post-card-btn">
-          Discover More
-        </a>
+        <div
+          class="post-card-hashtags"
+          *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0">
+          <span *ngFor="let ht of post.LstHashTagNews" class="post-hashtag"
+            >{{ ht.HashTagNewsName }}</span
+          >
+        </div>
       </div>
     </article>
 

@@ -21,14 +21,16 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { ShiftReportComponent } from './shift-report.component';
 import { ShiftReportRoutingModule } from './shift-report-routing.module';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { ShowWarningComponent } from '../../../components/show-warning/show-warning.component';
+import { AiAssistantComponent } from './ai-assistant/ai-assistant.component';
 
 @NgModule({
-  declarations: [ShiftReportComponent],
+  declarations: [ShiftReportComponent, AiAssistantComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -57,6 +59,7 @@ import { ShowWarningComponent } from '../../../components/show-warning/show-warn
     NzStatisticModule,
     NzCheckboxModule,
     NzToolTipModule,
+    NzSpinModule,
   ],
 })
 export class ShiftReportModule {}

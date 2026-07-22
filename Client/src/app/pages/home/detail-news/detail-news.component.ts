@@ -6,7 +6,7 @@ import {
 } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, Title } from '@angular/platform-browser';
 import {
   REUSE_COMPONENT_MODULES,
   AntdModule,
@@ -29,7 +29,10 @@ export class DetailNewsComponent implements OnInit {
   newsId = '';
   detailNews!: IDetailNews;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(
+    private sanitizer: DomSanitizer,
+    private titleService: Title
+  ) {}
 
   ngOnInit() {
     // Subscribe to paramMap to react to changes in the route parameters
@@ -52,6 +55,7 @@ export class DetailNewsComponent implements OnInit {
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
+        this.titleService.setTitle(this.detailNews.ShortTitle);
       },
       error: err => {
         this.showErrorService.setShowError({

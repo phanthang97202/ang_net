@@ -12,6 +12,9 @@ export const environment = {
   POSTHOG_HOST: 'https://us.i.posthog.com',
   gg_client_id:
     '202020211023-c70kb86dn19s9q0tvotv94f04no8r1ct.apps.googleusercontent.com',
+  // Key thật (GROQ_API_KEY) nằm ở Environment Variables trên Vercel, được dùng
+  // bởi serverless function api/groq-chat.js - không cấu hình ở đây nữa.
+  groqModel: 'llama-3.3-70b-versatile',
 };
 
 // npm install cloudinary-angular @cloudinary/base @cloudinary/angular

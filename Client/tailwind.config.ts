@@ -7,6 +7,7 @@ module.exports = {
         poppins: ['Poppins', 'sans-serif'],
         josefin: ["'Josefin Sans'", 'sans-serif'],
         sourceSerif: ["'Source Serif 4'", 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
       },
     },
   },

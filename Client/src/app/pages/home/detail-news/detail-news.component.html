@@ -12,73 +12,60 @@
 
 <div class="news__container">
   <div class="news__content">
-    <div *ngIf="(isLoading$ | async) === false" class="news_container">
-      <div class="text-center">
-        <div class="detail_thumbnail">
-          <div class="detail_thumbnail_border"></div>
-          <div class="detail_thumbnail_img">
-            <img
-              src="{{
-                detailNews.Thumbnail ||
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsBGOs2225fFqTfnl5EKlrEUBn5-drby1x3Q&s'
-              }}"
-              alt="{{ detailNews.ShortTitle }}"
-              srcset="" />
-          </div>
+    <article
+      *ngIf="(isLoading$ | async) === false"
+      class="detail-card">
+      <div class="detail-thumb">
+        <img
+          [src]="
+            detailNews.Thumbnail ||
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsBGOs2225fFqTfnl5EKlrEUBn5-drby1x3Q&s'
+          "
+          [alt]="detailNews.ShortTitle" />
+
+        <div class="detail-badges">
+          <span *ngIf="detailNews.CategoryNewsName" class="detail-badge">{{
+            detailNews.CategoryNewsName
+          }}</span>
+        </div>
+        <span class="detail-readtime">
+          {{ detailNews.EstimatedReadingTime }} Min Read
+        </span>
+      </div>
+
+      <div class="detail-body">
+        <h1 class="detail-title">{{ detailNews.ShortTitle }}</h1>
+
+        <p class="detail-meta">
+          <span class="detail-author">{{ detailNews.FullName }}</span>
+          on {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+          <span class="detail-meta-sep">—</span>
+          {{ detailNews.EstimatedReadingTime }} mins read
+          <span class="detail-meta-sep">—</span>
+          <span nz-icon nzType="eye" nzTheme="outline"></span>
+          {{ detailNews.ViewCount }}
+        </p>
+
+        <div
+          class="detail-hashtags"
+          *ngIf="
+            detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
+          ">
+          <span
+            *ngFor="let ht of detailNews.LstHashTagNews"
+            class="detail-hashtag"
+            >{{ ht.HashTagNewsName }}</span
+          >
         </div>
 
-        <div class="my-[10px] px-[10px] xl:my-[30px] xl:px-[35px]">
-          <h1
-            class="hover:underline text-[30px] text-[#454360] leading-[1.2] font-bold">
-            {{ detailNews.ShortTitle }}
-          </h1>
-        </div>
-
-        <div class="w-full flex justify-center mb-[18px]">
-          <div class="flex gap-8">
-            <div class="flex-1">
-              <div class="flex gap-4 text-[15px] text-[#596172]">
-                <div>
-                  <p class="font-sourceSerif">
-                    {{
-                      detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm'
-                    }}
-                  </p>
-                </div>
-                <div>
-                  <span nz-icon nzType="line" nzTheme="outline"></span>
-                </div>
-                <div>
-                  <p>
-                    <span class="pr-[4px] font-sourceSerif">
-                      {{ detailNews.EstimatedReadingTime }}
-                    </span>
-                    <span class="font-sourceSerif"> mins read </span>
-                  </p>
-                </div>
-
-                <div>
-                  <p>
-                    <span
-                      class="pr-[6px] font-sourceSerif"
-                      nz-icon
-                      nzType="eye"
-                      nzTheme="outline"></span>
-                    <span class="font-sourceSerif">{{
-                      detailNews.ViewCount
-                    }}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="detail-content">
+          <app-news-content
+            [content]="detailNews.ContentBody"
+            [showToc]="true">
+          </app-news-content>
         </div>
       </div>
-      <div class="w-full px-[10px] py-[0px]">
-        <app-news-content [content]="detailNews.ContentBody" [showToc]="true">
-        </app-news-content>
-      </div>
-    </div>
+    </article>
   </div>
 
   <div class="news__aside">

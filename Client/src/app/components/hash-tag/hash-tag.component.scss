@@ -1,6 +1,18 @@
- .hash__tag{
-    font: #4b4870;
-    font-size: 14px;
-    font-weight: 500; 
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+ .hash__tag {
+    display: inline-block;
+    background: #f2f0fd;
+    color: #5b4fe9;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+        background: #5b4fe9;
+        color: #fff;
+    }
  }

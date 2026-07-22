@@ -58,8 +58,8 @@
 }
 
 .post-badge {
-  background: rgba(255, 255, 255, 0.92);
-  color: #1a1a2e;
+  background: #f2f0fd;
+  color: #5b4fe9;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
@@ -137,23 +137,27 @@
   overflow: hidden;
 }
 
-.post-card-btn {
-  display: inline-flex;
-  align-self: flex-start;
+.post-card-hashtags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
   margin-top: 0.35rem;
-  padding: 0.55rem 1.3rem;
-  border-radius: 999px;
-  background: #5b4fe9;
-  color: #fff;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.2s;
+}
 
-  &:hover {
-    background: darken(#5b4fe9, 8%);
-  }
+.post-hashtag {
+  background: #f2f0fd;
+  color: #5b4fe9;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // ── Skeleton ─────────────────────────────────────────────

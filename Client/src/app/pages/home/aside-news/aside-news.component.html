@@ -1,35 +1,33 @@
-<div class="w-full">
-  <div class="mb-[50px]">
-    <div class="mb-[26px]">
+<div class="w-full flex flex-col gap-[24px]">
+  <div class="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(20,15,60,0.06)] p-[24px]">
+    <div class="mb-[20px]">
       <p
-        class="flex items-center gap-[20px] text-[24px] text-[#454360] tracking-[.25px] font-bold">
+        class="flex items-center gap-[16px] font-montserrat text-[20px] text-[#1a1a2e] tracking-[.15px] font-extrabold">
         {{ 'T_RECENTNEWS' | translate }}
-        <span class="block h-[2px] bg-[#454360] flex-1"></span>
+        <span class="block h-[2px] bg-[#5b4fe9] flex-1 rounded-full"></span>
       </p>
     </div>
-    <div class="flex flex-col gap-[20px]">
+    <div class="flex flex-col gap-[18px]">
       @for (item of lstNews | slice: 0 : 4; track item) {
         <app-news-item-sm [item]="item" />
       }
     </div>
   </div>
 
-  <div class="mb-[50px]">
-    <div class="mb-[26px]">
+  <div class="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(20,15,60,0.06)] p-[24px]">
+    <div class="mb-[20px]">
       <p
-        class="flex items-center gap-[20px] text-[24px] text-[#454360] tracking-[.25px] font-bold">
+        class="flex items-center gap-[16px] font-montserrat text-[20px] text-[#1a1a2e] tracking-[.15px] font-extrabold">
         {{ 'T_TAGNEWS' | translate }}
-        <span class="block h-[2px] bg-[#454360] flex-1"></span>
+        <span class="block h-[2px] bg-[#5b4fe9] flex-1 rounded-full"></span>
       </p>
     </div>
-    <div class="flex flex-col gap-[20px]">
-      <ul class="news_tag flex items-center flex-wrap justify-start">
-        @for (item of lstTopHashTag; track item) {
-          <li class="m-[4px]">
-            <app-hash-tag [title]="item.HashTagNewsName" />
-          </li>
-        }
-      </ul>
-    </div>
+    <ul class="news_tag flex items-center flex-wrap gap-[8px]">
+      @for (item of lstTopHashTag; track item) {
+        <li>
+          <app-hash-tag [title]="item.HashTagNewsName" />
+        </li>
+      }
+    </ul>
   </div>
 </div>

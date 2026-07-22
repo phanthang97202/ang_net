@@ -531,4 +531,27 @@
       </div>
     </ng-template>
   </nz-modal>
+
+  <!-- Floating button mở trợ lý AI - chỉ hiện với Admin -->
+  <button
+    *ngIf="isAdmin"
+    class="ai-assistant-fab"
+    nz-tooltip
+    nzTooltipTitle="Hỏi trợ lý AI"
+    nzTooltipPlacement="left"
+    (click)="showAiAssistant()">
+    <span nz-icon nzType="robot" nzTheme="outline"></span>
+  </button>
+
+  <!-- AI Assistant Modal -->
+  <nz-modal
+    [(nzVisible)]="isAiAssistantVisible"
+    nzTitle="Trợ lý AI - Ca trực"
+    [nzWidth]="480"
+    (nzOnCancel)="handleAiAssistantCancel()"
+    [nzFooter]="null">
+    <ng-container *nzModalContent>
+      <app-ai-assistant></app-ai-assistant>
+    </ng-container>
+  </nz-modal>
 </div>

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { Subscription } from 'rxjs';
 import {
   CreateShiftReportDto,
   ShiftReportListItem,
@@ -10,6 +11,8 @@ import {
 import { ExcelExportService } from './services/excel-report.service';
 import { PrintService } from './services/print.service';
 import { ShiftReportService } from './services/shift-report.service';
+import { AiAssistantService } from './services/ai-assistant.service';
+import { AuthService } from '../../../services';
 import { format, startOfMonth } from 'date-fns';
 
 @Component({
@@ -17,12 +20,16 @@ import { format, startOfMonth } from 'date-fns';
   templateUrl: './shift-report.component.html',
   styleUrls: ['./shift-report.component.scss'],
 })
-export class ShiftReportComponent implements OnInit {
+export class ShiftReportComponent implements OnInit, OnDestroy {
   reportForm!: FormGroup;
   isLoading = false;
   isModalVisible = false;
   modalTitle = 'Tạo báo cáo ca mới';
   editingId: number | null = null;
+
+  isAiAssistantVisible = false;
+  isAdmin = false;
+  private aiShiftCreatedSub!: Subscription;
 
   // List view
   reports: ShiftReportListItem[] = [];
@@ -39,7 +46,7 @@ export class ShiftReportComponent implements OnInit {
   ];
 
   shiftTypes = ['Ca ngày', 'Ca đêm'];
-  receiptors = ['Thăng', 'Huy', 'Long'];
+  receiptors = ['Thăng', 'Huy', 'Long', 'Chi'];
 
   customerTypes = [
     'k.ngày',
@@ -57,12 +64,23 @@ export class ShiftReportComponent implements OnInit {
     private excelService: ExcelExportService,
     private printService: PrintService,
     private message: NzMessageService,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private aiAssistantService: AiAssistantService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.loadReports();
+    this.isAdmin = this.authService.isAdminPermission();
+
+    this.aiShiftCreatedSub = this.aiAssistantService.shiftCreated$.subscribe(
+      () => this.loadReports()
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.aiShiftCreatedSub?.unsubscribe();
   }
 
   // Responsive modal properties
@@ -280,6 +298,18 @@ export class ShiftReportComponent implements OnInit {
 
   handleCancel(): void {
     this.isModalVisible = false;
+  }
+
+  showAiAssistant(): void {
+    if (!this.isAdmin) {
+      this.message.warning('Bạn cần đăng nhập với quyền Admin để dùng trợ lý AI');
+      return;
+    }
+    this.isAiAssistantVisible = true;
+  }
+
+  handleAiAssistantCancel(): void {
+    this.isAiAssistantVisible = false;
   }
 
   handleSubmit(): void {

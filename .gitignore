@@ -35,6 +35,10 @@
 /Client/.vs/
 # Node
 /Client/node_modules/
+# Vercel env files (vercel env pull) - chứa secret, không commit
+/Client/.env
+/Client/.env.local
+/Client/.vercel
 # System files
 .DS_Store
 Thumbs.db
