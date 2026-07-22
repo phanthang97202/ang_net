@@ -5,6 +5,7 @@ import {
   ShowErrorService,
   AuthService,
   LangService,
+  VisitTrackingService,
 } from './services';
 import { filter, Observable } from 'rxjs';
 import { IErrorInfo } from './interfaces';
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
   langService = inject(LangService);
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
+  visitTrackingService = inject(VisitTrackingService);
 
   lstRouteLayoutNone = ['/login', '/forgot-password'];
 
@@ -77,6 +79,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.visitTrackingService.init();
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {

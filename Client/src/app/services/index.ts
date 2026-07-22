@@ -7,3 +7,4 @@ export * from './loading-service.service';
 export * from './posthog.service';
 export * from './show-error.service';
 export * from './ws-chat.service';
+export * from './visit-tracking.service';

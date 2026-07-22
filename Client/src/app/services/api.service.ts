@@ -12,6 +12,8 @@ import {
   IDetailNewsResponse,
   INewsResponse,
   IAuditTrailResponse,
+  IBaseResponse,
+  IVisitStats,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -162,6 +164,17 @@ export class ApiService {
   GetAllActiveNewsCategory(): Observable<INewsCategoryResponse> {
     return this.http.get<INewsCategoryResponse>(
       `${this.apiUrl}newscategory/getallactive`
+    );
+  }
+
+  // VisitStats
+  Ping(
+    visitorId: string,
+    isNewVisit: boolean
+  ): Observable<IBaseResponse<IVisitStats>> {
+    return this.http.post<IBaseResponse<IVisitStats>>(
+      `${this.apiUrl}visitstats/ping?visitorId=${visitorId}&isNewVisit=${isNewVisit}`,
+      {}
     );
   }
 

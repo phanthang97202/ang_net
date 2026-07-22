@@ -62,6 +62,8 @@ namespace angnet.Infrastructure
             services.AddScoped<ITenantRepository, TenantRepository>();
             services.AddScoped<ITenantService, TenantService>();
 
+            services.AddScoped<IVisitStatsRespository, VisitStatsRespository>();
+
             // Extension: Shift report
             services.AddScoped<IShiftReportService, ShiftReportService>();
             services.AddScoped<IRevenueReportService, RevenueReportService>();

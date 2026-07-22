@@ -12,7 +12,8 @@ using angnet.WebApi.MIddlewares;
 using angnet.Infrastructure.Data; 
 using angnet.Utility.CommonUtils;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.Http.Timeouts; 
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Http.Timeouts;
 using angnet.WebApi.Authorization_Policy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -170,6 +171,19 @@ builder.Services.AddRateLimiter(options =>
 
         //limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
+
+    // Riêng cho VisitStats/Ping (heartbeat gọi định kỳ) - giới hạn theo từng IP,
+    // tách biệt với bucket "API" dùng chung để traffic heartbeat không ăn vào
+    // quota của các endpoint nội dung khác (News/Search, MstProvince, ...)
+    options.AddPolicy("VisitPing", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromSeconds(60),
+                PermitLimit = 4,
+                QueueLimit = 0
+            }));
 
     // Tùy chọn: thay vì trả 503, trả 429 Too Many Requests
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

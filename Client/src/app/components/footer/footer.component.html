@@ -52,6 +52,22 @@
 
   <div class="footer-divider"></div>
 
+  <div class="footer-stats" *ngIf="stats$ | async as stats">
+    <div class="footer-stat">
+      <span class="footer-stat-dot"></span>
+      <span class="footer-stat-value">{{ stats.OnlineCount }}</span>
+      <span class="footer-stat-label">đang online</span>
+    </div>
+    <div class="footer-stat">
+      <span class="footer-stat-value">{{ stats.MonthCount }}</span>
+      <span class="footer-stat-label">lượt truy cập tháng này</span>
+    </div>
+    <div class="footer-stat">
+      <span class="footer-stat-value">{{ stats.TotalCount }}</span>
+      <span class="footer-stat-label">tổng lượt truy cập</span>
+    </div>
+  </div>
+
   <p class="footer-copyright">
     © {{ currentYear }} — Phan Thang. All Rights Reserved.
   </p>
