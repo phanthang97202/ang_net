@@ -39,14 +39,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #5b4fe9;
-  color: #fff;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
+  object-fit: cover;
 }
 
 .about-name {
@@ -121,34 +114,24 @@
 .featured-post-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #5b4fe9 0%, #221c5c 100%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.featured-post-badge {
+.featured-post-overlay {
   position: absolute;
-  top: 0.9rem;
-  left: 0.9rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a1a2e;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 0.28rem 0.6rem;
-  border-radius: 999px;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0) 60%
+  );
 }
 
 .featured-post-content {
   position: relative;
   padding: 1rem 1rem 2rem;
-}
-
-.featured-post-meta {
-  margin: 0 0 0.35rem;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.7);
 }
 
 .featured-post-title {
@@ -173,6 +156,8 @@
   height: 6px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.2s;
 
   &.active {
     background: #fff;

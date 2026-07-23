@@ -113,9 +113,7 @@ export class AppComponent implements OnInit {
     this.loadingService.setLoading(true);
     this.authService.logoutFromAllDevice(userid).subscribe({
       next: response => {
-        if (response?.Success) {
-          this.authService.logout();
-        } else {
+        if (!response?.Success) {
           this.errorInfoService.setShowError({
             icon: 'warning',
             message: JSON.stringify(response, null, 2),
@@ -130,8 +128,14 @@ export class AppComponent implements OnInit {
           message: JSON.stringify(err, null, 2),
           title: err.message || 'Error',
         });
+        // Vẫn phải xóa phiên đăng nhập ở máy này dù API logout-all-device lỗi,
+        // tránh việc localStorage giữ lại token cũ trong khi user tưởng đã logout
+        this.authService.logout();
       },
-      complete: () => this.loadingService.setLoading(false),
+      complete: () => {
+        this.loadingService.setLoading(false);
+        this.authService.logout();
+      },
     });
   }
 

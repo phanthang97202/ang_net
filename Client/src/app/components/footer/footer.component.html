@@ -36,37 +36,57 @@
     </div>
 
     <div class="footer-col">
-      <span class="footer-col-title">ĐIỀU HƯỚNG</span>
-      <a routerLink="/">Trang chủ</a>
-      <a routerLink="/news">Bài viết</a>
-      <a routerLink="/about">Giới thiệu</a>
-    </div>
-
-    <div class="footer-col">
       <span class="footer-col-title">CÔNG CỤ</span>
       <a routerLink="/tools/calculating-hotel-fee">Tính phí khách sạn</a>
       <a routerLink="/tools/shift-report">Báo cáo ca</a>
       <a routerLink="/tools/revenue-report">Báo cáo doanh thu</a>
     </div>
+
+    <div class="footer-col" *ngIf="stats$ | async as stats">
+      <span class="footer-col-title">THỐNG KÊ</span>
+      <div class="footer-stat">
+        <span class="footer-stat-dot"></span>
+        <span class="footer-stat-value">{{ stats.OnlineCount }}</span>
+        <span class="footer-stat-label">đang online</span>
+      </div>
+      <div class="footer-stat">
+        <svg
+          class="footer-stat-icon"
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+        <span class="footer-stat-value">{{ stats.MonthCount }}</span>
+        <span class="footer-stat-label">lượt truy cập tháng này</span>
+      </div>
+      <div class="footer-stat">
+        <svg
+          class="footer-stat-icon"
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        <span class="footer-stat-value">{{ stats.TotalCount }}</span>
+        <span class="footer-stat-label">tổng lượt truy cập</span>
+      </div>
+    </div>
   </div>
 
   <div class="footer-divider"></div>
-
-  <div class="footer-stats" *ngIf="stats$ | async as stats">
-    <div class="footer-stat">
-      <span class="footer-stat-dot"></span>
-      <span class="footer-stat-value">{{ stats.OnlineCount }}</span>
-      <span class="footer-stat-label">đang online</span>
-    </div>
-    <div class="footer-stat">
-      <span class="footer-stat-value">{{ stats.MonthCount }}</span>
-      <span class="footer-stat-label">lượt truy cập tháng này</span>
-    </div>
-    <div class="footer-stat">
-      <span class="footer-stat-value">{{ stats.TotalCount }}</span>
-      <span class="footer-stat-label">tổng lượt truy cập</span>
-    </div>
-  </div>
 
   <p class="footer-copyright">
     © {{ currentYear }} — Phan Thang. All Rights Reserved.

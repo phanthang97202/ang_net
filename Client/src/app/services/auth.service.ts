@@ -137,16 +137,12 @@ export class AuthService {
 
     const decodedToken = jwtDecode(token);
 
-    const isTokenExpried = isBefore(
+    const isTokenStillValid = isBefore(
       new Date(Date.now()),
       new Date((decodedToken['exp'] as number) * 1000)
     );
 
-    // if (!isTokenExpried) {
-    //   this.logout();
-    // }
-
-    return isTokenExpried;
+    return isTokenStillValid;
   }
 
   isAdminPermission(): boolean {

@@ -1,13 +1,16 @@
 <aside class="sidebar">
   <!-- About -->
   <div class="sidebar-card">
-    <span class="sidebar-label">ABOUT</span>
+    <span class="sidebar-label">GIỚI THIỆU</span>
 
     <div class="about-head">
-      <div class="about-avatar">PT</div>
+      <img
+        class="about-avatar"
+        src="https://res.cloudinary.com/dumdpgmgs/image/upload/v1784814350/IMG_20230128_191009_apuscf.jpg"
+        alt="Phan Thang" />
       <div>
         <p class="about-name">Phan Thang</p>
-        <p class="about-role">REFLECTIVE BLOGGER</p>
+        <p class="about-role">09h53 09-07-2002</p>
       </div>
     </div>
 
@@ -16,7 +19,7 @@
       nhân về công việc, sáng tạo và sự trưởng thành mỗi ngày.
     </p>
 
-    <p class="about-location"><span class="about-icon">📍</span> Việt Nam</p>
+    <p class="about-location"><span class="about-icon">📍</span> Hà Nam City</p>
 
     <div class="about-socials">
       <a href="#" class="social-btn" aria-label="X / Twitter">
@@ -48,19 +51,25 @@
 
   <!-- Featured Posts -->
   <div class="sidebar-card">
-    <span class="sidebar-label">FEATURED POSTS</span>
+    <span class="sidebar-label">ẢNH NỔI BẬT</span>
 
     <div class="featured-post">
-      <div class="featured-post-bg"></div>
-      <span class="featured-post-badge">MANAGEMENT</span>
+      <img
+        class="featured-post-bg"
+        [src]="featuredImages[activeIndex].imageUrl"
+        alt="" />
+      <div class="featured-post-overlay"></div>
       <div class="featured-post-content">
-        <p class="featured-post-meta">Phan Thang · 7 phút đọc</p>
-        <p class="featured-post-title">Bài viết nổi bật sẽ hiển thị ở đây</p>
+        <p class="featured-post-title">
+          {{ featuredImages[activeIndex].caption }}
+        </p>
       </div>
       <div class="featured-post-dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+        <span
+          *ngFor="let img of featuredImages; let i = index"
+          class="dot"
+          [class.active]="i === activeIndex"
+          (click)="setActive(i)"></span>
       </div>
     </div>
   </div>

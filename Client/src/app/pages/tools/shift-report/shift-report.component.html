@@ -277,7 +277,7 @@
               nzSize="small">
               <thead>
                 <tr>
-                  <th nzWidth="60px">STT</th>
+                  <th nzWidth="60px" nzLeft>STT</th>
                   <th nzWidth="100px">Số phòng</th>
                   <th nzWidth="100px">Mã phòng</th>
                   <th nzWidth="120px">Loại khách</th>
@@ -286,7 +286,7 @@
                   <th nzWidth="150px">Đặt cọc/TT trước</th>
                   <th nzWidth="200px">ND chi tiêu</th>
                   <th nzWidth="140px">Tiền chi tiêu</th>
-                  <th nzWidth="80px">Xóa</th>
+                  <th nzWidth="80px" nzRight>Xóa</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,7 +296,7 @@
                     let i = index
                   "
                   [formGroupName]="i">
-                  <td>{{ i + 1 }}</td>
+                  <td nzLeft>{{ i + 1 }}</td>
                   <td>
                     <input
                       nz-input
@@ -387,7 +387,7 @@
                         formControlName="isUseExpenseForReportRevenue"></div>
                     </div>
                   </td>
-                  <td>
+                  <td nzRight>
                     <button
                       nz-button
                       nzType="text"
@@ -452,21 +452,22 @@
               [nzData]="roomSales.controls"
               [nzShowPagination]="false"
               [nzNoResult]="' '"
+              [nzScroll]="{ x: '660px' }"
               nzSize="small">
               <thead>
                 <tr>
-                  <th nzWidth="60px">STT</th>
+                  <th nzWidth="60px" nzLeft>STT</th>
                   <th nzWidth="150px">Số phòng</th>
                   <th nzWidth="200px">Loại khách</th>
                   <th nzWidth="170px">Đơn giá</th>
-                  <th nzWidth="80px">Xóa</th>
+                  <th nzWidth="80px" nzRight>Xóa</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   *ngFor="let sale of roomSales.controls; let i = index"
                   [formGroupName]="i">
-                  <td>{{ i + 1 }}</td>
+                  <td nzLeft>{{ i + 1 }}</td>
                   <td>
                     <input
                       (keydown.enter)="$event.preventDefault()"
@@ -492,7 +493,7 @@
                       [nzStep]="10000"
                       style="width: 100%"></nz-input-number>
                   </td>
-                  <td>
+                  <td nzRight>
                     <button
                       nz-button
                       nzType="text"

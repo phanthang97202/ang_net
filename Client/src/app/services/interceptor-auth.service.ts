@@ -91,7 +91,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const refreshToken = localStorage.getItem(this.refreshTokenKey) ?? '';
 
     if (!refreshToken) {
-      this.handleCatchExpiredToken({
+      return this.handleCatchExpiredToken({
         message: 'RefreshTokenIsMissing',
       });
     }

@@ -3,9 +3,7 @@
 }
 
 .footer {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
+  padding: 2rem 0 3rem;
 }
 
 .footer-top {
@@ -100,18 +98,12 @@
   background: rgba(0, 0, 0, 0.08);
 }
 
-.footer-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  padding-top: 1.25rem;
-}
-
 .footer-stat {
   display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.4rem;
   font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
 }
 
 .footer-stat-dot {
@@ -119,18 +111,21 @@
   height: 7px;
   border-radius: 50%;
   background: #2ecc71;
-  align-self: center;
+  flex-shrink: 0;
+}
+
+.footer-stat-icon {
+  color: #5b4fe9;
+  flex-shrink: 0;
 }
 
 .footer-stat-value {
-  font-size: 0.9rem;
   font-weight: 700;
   color: #1a1a2e;
 }
 
 .footer-stat-label {
-  font-size: 0.75rem;
-  color: #9291a5;
+  color: #6b6b7b;
 }
 
 .footer-copyright {

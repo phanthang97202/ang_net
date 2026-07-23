@@ -6,12 +6,36 @@
 
     .table-responsive {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     nz-table {
         ::ng-deep {
             .ant-table-cell {
                 padding: 8px;
+            }
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-responsive {
+            nz-table {
+                ::ng-deep {
+                    .ant-table-cell {
+                        padding: 4px 6px;
+                        font-size: 12px;
+                    }
+
+                    .ant-input,
+                    .ant-input-number,
+                    .ant-select {
+                        font-size: 12px;
+                    }
+
+                    .ant-input-number-input {
+                        height: 26px;
+                    }
+                }
             }
         }
     }
@@ -53,7 +77,8 @@
 
 @media (max-width: 640px) {
     .ai-assistant-fab {
-        bottom: 78px;
+        bottom: 68px;
+        right: 16px;
         width: 44px;
         height: 44px;
         font-size: 18px;
