@@ -79,6 +79,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.authService.tryRefreshOnInit();
     this.visitTrackingService.init();
 
     this.router.events

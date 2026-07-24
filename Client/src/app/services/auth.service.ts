@@ -118,8 +118,7 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
+    this.clearTokens();
     this.router.navigate(['/login']);
   }
 
@@ -128,6 +127,41 @@ export class AuthService {
       `${this.apiUrl}account/logoutalldevice?userId=${userId}`,
       {}
     );
+  }
+
+  // gọi lúc app khởi động: nếu access token hết hạn nhưng còn refresh token thì chủ động refresh
+  // để menu hiển thị đúng trạng thái đăng nhập ngay cả khi trang đầu tiên chỉ gọi API public
+  tryRefreshOnInit(): void {
+    const refreshTokenValue = localStorage.getItem(this.refreshTokenKey);
+
+    if (this.isLoggedIn() || !refreshTokenValue) return;
+
+    const { nameid: userid } = this.getAccountInfo();
+
+    this.refreshToken({
+      UserId: userid,
+      RefreshToken: refreshTokenValue,
+    }).subscribe({
+      next: response => {
+        if (response?.Success) {
+          localStorage.setItem(this.tokenKey, response.Data.AccessToken);
+          localStorage.setItem(
+            this.refreshTokenKey,
+            response.Data.RefreshToken
+          );
+        } else {
+          this.clearTokens();
+        }
+      },
+      error: () => this.clearTokens(),
+    });
+  }
+
+  // xóa token hết hạn/invalid mà không ép điều hướng sang /login,
+  // vì lúc init user có thể chỉ đang xem trang public
+  private clearTokens(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
   }
 
   isLoggedIn(): boolean {
