@@ -15,19 +15,17 @@
 // trải nghiệm SPA không đổi - chỉ có phần <meta> trong <head> là được thay
 // bằng nội dung bài viết trước khi HTML rời server.
 //
-// File dùng đuôi .mjs (thay vì .js) để luôn được parse là ES module, tránh
-// ảnh hưởng tới api/groq-chat.js (CommonJS, package.json không có
-// "type": "module").
+// Vercel chỉ tự nhận diện Routing Middleware qua đúng tên file
+// "middleware.js"/"middleware.ts" ở gốc project - bản .mjs trước đó không
+// được build (build log không hề nhắc tới "middleware"). Viết theo cú pháp
+// CommonJS (module.exports) giống hệt api/groq-chat.js đã chạy được, để
+// không phải thêm "type": "module" vào package.json (tránh ảnh hưởng build
+// Angular/ESLint đang mặc định CommonJS).
 
 const API_BASE = 'https://ang-net.onrender.com/api/';
 const SITE_NAME = 'Phan Thang - Blog cá nhân';
 
-export const config = {
-  matcher: '/news/:categoryId/:newsId',
-  runtime: 'nodejs',
-};
-
-export default async function middleware(request) {
+module.exports = async function middleware(request) {
   const url = new URL(request.url);
   // /news/:categoryId/:newsId -> ['', 'news', categoryId, newsId]
   const segments = url.pathname.split('/').filter(Boolean);
@@ -87,7 +85,12 @@ export default async function middleware(request) {
     // thật vì lỗi ở bước làm giàu meta tag.
     return fetchOrigin(url);
   }
-}
+};
+
+module.exports.config = {
+  matcher: '/news/:categoryId/:newsId',
+  runtime: 'nodejs',
+};
 
 function fetchOrigin(url) {
   return fetch(new URL('/index.html', url.origin));
