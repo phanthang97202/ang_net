@@ -140,6 +140,7 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/news'], { queryParams: { keyword } });
     this.searchKeyword = '';
     this.isSearchOpen = false;
+    this.isMobileMenuOpen = false;
   }
 
   // ── Auth ─────────────────────────────────────────────

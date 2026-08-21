@@ -89,16 +89,7 @@
     <a routerLink="/" class="navbar-logo">Phan<span>Thang</span></a>
 
     <div class="mobile-right">
-      <button
-        class="navbar-icon-btn"
-        (click)="toggleSearch()"
-        aria-label="Search">
-        <span nz-icon nzType="search" nzTheme="outline"></span>
-      </button>
-
       <app-theme-toggle></app-theme-toggle>
-
-      <app-switch-lang></app-switch-lang>
 
       <button
         *ngIf="!authService.isLoggedIn()"
@@ -130,6 +121,25 @@
 
   <!-- Mobile Menu Dropdown -->
   <div class="mobile-menu" [class.visible]="isMobileMenuOpen">
+    <!-- Inline search -->
+    <div class="mobile-menu-search">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      <input
+        type="text"
+        class="mobile-menu-search-input"
+        placeholder="Nhập từ khóa tìm kiếm..."
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="handleSearch()" />
+      <button
+        *ngIf="searchKeyword"
+        type="button"
+        class="mobile-menu-search-submit"
+        (click)="handleSearch()"
+        aria-label="Search">
+        <span nz-icon nzType="arrow-right"></span>
+      </button>
+    </div>
+
     <ul class="mobile-nav-list">
       <ng-container *ngFor="let route of listRoute">
         <li *ngIf="!route.children" class="mobile-nav-item">
@@ -163,6 +173,12 @@
         </li>
       </ng-container>
     </ul>
+
+    <!-- Language switcher -->
+    <div class="mobile-menu-lang">
+      <span class="mobile-menu-lang-label">{{ 'T_LANGUAGE' | translate }}</span>
+      <app-switch-lang></app-switch-lang>
+    </div>
   </div>
 </div>
 

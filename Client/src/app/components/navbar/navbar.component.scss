@@ -348,6 +348,49 @@ $nav-height: 64px;
     }
 }
 
+// ── Search trong mobile menu (thay cho icon riêng ở hàng trên) ─────────
+.mobile-menu-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.75rem 1.25rem 0.25rem;
+    padding: 0.55rem 1rem;
+    background: var(--color-bg-page);
+    border: 1px solid $color-border;
+    border-radius: 999px;
+    color: $color-muted;
+    font-size: 0.85rem;
+
+    input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: $font-sans;
+        font-size: 0.85rem;
+        color: $color-dark;
+
+        &::placeholder {
+            color: $color-muted;
+        }
+    }
+}
+
+.mobile-menu-search-submit {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: none;
+    border-radius: 50%;
+    background: $color-accent;
+    color: #fff;
+    cursor: pointer;
+}
+
 .mobile-nav-list {
     list-style: none;
     margin: 0;
@@ -406,6 +449,25 @@ $nav-height: 64px;
         font-size: 0.72rem;
         font-weight: 500;
     }
+}
+
+// ── Ngôn ngữ trong mobile menu (thay cho icon riêng ở hàng trên) ───────
+.mobile-menu-lang {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 1.25rem;
+    padding: 0.75rem 0 1rem;
+    border-top: 1px solid $color-border;
+}
+
+.mobile-menu-lang-label {
+    font-family: $font-sans;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $color-muted;
 }
 
 // ── Overlay ────────────────────────────────────────────
