@@ -68,7 +68,11 @@ html[data-theme='dark'] {
   .ant-select-item {
     color: var(--color-text);
 
-    &:hover {
+    // "-active" là trạng thái hover/di chuyển bằng bàn phím (khác với
+    // "-selected" là item đang được chọn) - NG-ZORRO tự tô nền xám nhạt
+    // riêng cho active, không đi qua :hover nên phải override riêng.
+    &:hover,
+    &-option-active {
       background-color: var(--color-accent-bg);
     }
 
@@ -91,6 +95,14 @@ html[data-theme='dark'] {
 
   .ant-picker-cell-in-view {
     color: var(--color-text);
+  }
+
+  // Dải màu nối giữa ngày bắt đầu/kết thúc trong date-range-picker - NG-ZORRO
+  // vẽ bằng ::before nền xanh nhạt cố định (#e6f7ff), không đi qua biến màu.
+  .ant-picker-cell-in-range::before,
+  .ant-picker-cell-range-start::before,
+  .ant-picker-cell-range-end::before {
+    background: var(--color-accent-bg);
   }
 
   .ant-modal-header {
@@ -255,6 +267,15 @@ html[data-theme='dark'] {
 
   .ant-table-tbody > tr:hover > td {
     background-color: var(--color-accent-bg);
+  }
+
+  // Cột ghim trái/phải (nzLeft/nzRight, vd cột STT/Xóa trong bảng giao
+  // dịch của báo cáo ca) - NG-ZORRO set nền riêng cho các cột này để luôn
+  // che được nội dung cuộn ngang bên dưới, tách biệt với nền ô bình
+  // thường ở trên nên cần override thêm.
+  .ant-table-cell-fix-left,
+  .ant-table-cell-fix-right {
+    background-color: var(--color-bg-card);
   }
 
   .ant-table-placeholder,
