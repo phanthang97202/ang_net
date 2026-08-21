@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /userinfor
+
+Sitemap: https://www.phanthang.site/sitemap.xml

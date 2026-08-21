@@ -1,6 +1,9 @@
-// Vercel Routing Middleware: chèn động các thẻ meta (og:*, twitter:*, title)
-// cho từng trang chi tiết bài viết, thay cho bộ meta tĩnh/dùng chung trong
-// index.html.
+// Vercel Routing Middleware:
+// 1) chèn động các thẻ meta (og:*, twitter:*, title) cho từng trang chi
+//    tiết bài viết, thay cho bộ meta tĩnh/dùng chung trong index.html.
+// 2) sinh /sitemap.xml động từ danh sách bài viết thật lấy qua API, vì
+//    site dùng CMS/API riêng - sitemap tạo lúc build sẽ lập tức lỗi thời
+//    mỗi khi có bài viết mới.
 //
 // Vì sao cần: đây là Angular SPA render phía client. Zalo/Facebook/Telegram...
 // không chạy JavaScript khi tạo preview link - chúng chỉ đọc thẳng HTML gốc
@@ -28,6 +31,11 @@ const SITE_NAME = 'Phan Thang - Blog cá nhân';
 
 module.exports = async function middleware(request) {
   const url = new URL(request.url);
+
+  if (url.pathname === '/sitemap.xml') {
+    return handleSitemap(url);
+  }
+
   // /news/:categoryId/:newsId -> ['', 'news', categoryId, newsId]
   const segments = url.pathname.split('/').filter(Boolean);
   const newsId = segments[2];
@@ -96,6 +104,71 @@ module.exports.config = {
 
 function fetchOrigin(url) {
   return fetch(new URL('/index.html', url.origin));
+}
+
+async function handleSitemap(url) {
+  const staticEntries = [
+    { loc: `${url.origin}/`, changefreq: 'daily', priority: '1.0' },
+    { loc: `${url.origin}/news`, changefreq: 'daily', priority: '0.8' },
+    { loc: `${url.origin}/about`, changefreq: 'monthly', priority: '0.3' },
+  ];
+
+  let articleEntries = [];
+
+  try {
+    const res = await fetch(
+      `${API_BASE}news/search?pageIndex=0&pageSize=1000&keyword=&userid=&categoryid=&onlyPublished=true`
+    );
+
+    if (res.ok) {
+      const body = await res.json();
+      const list = (body && body.objResult && body.objResult.DataList) || [];
+
+      articleEntries = list
+        .filter(item => item.NewsId && item.CategoryNewsId)
+        .map(item => ({
+          loc: `${url.origin}/news/${encodeURIComponent(item.CategoryNewsId)}/${encodeURIComponent(item.NewsId)}`,
+          lastmod: toDateOnly(item.UpdatedDTime || item.CreatedDTime),
+          changefreq: 'weekly',
+          priority: '0.7',
+        }));
+    }
+  } catch {
+    // API lỗi -> vẫn trả sitemap với các trang tĩnh, không chặn crawl hoàn
+    // toàn chỉ vì backend tạm thời không phản hồi.
+  }
+
+  const xml = buildSitemapXml([...staticEntries, ...articleEntries]);
+
+  return new Response(xml, {
+    status: 200,
+    headers: {
+      'content-type': 'application/xml; charset=utf-8',
+      // Cache ngắn hơn trang bài viết vì đây là danh sách tổng hợp, muốn
+      // bài mới xuất hiện trong sitemap tương đối sớm.
+      'cache-control': 'public, max-age=300, s-maxage=3600',
+    },
+  });
+}
+
+function toDateOnly(dateStr) {
+  if (!dateStr) return undefined;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toISOString().slice(0, 10);
+}
+
+function buildSitemapXml(entries) {
+  const urlTags = entries
+    .map(entry => {
+      const lastmodTag = entry.lastmod
+        ? `<lastmod>${entry.lastmod}</lastmod>`
+        : '';
+      return `  <url><loc>${escapeHtml(entry.loc)}</loc>${lastmodTag}<changefreq>${entry.changefreq}</changefreq><priority>${entry.priority}</priority></url>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlTags}\n</urlset>\n`;
 }
 
 function injectMetaTags(html, { title, description, image, pageUrl }) {

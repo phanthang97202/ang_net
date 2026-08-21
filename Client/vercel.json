@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "proxy": {
     "entrypoint": "middleware.js",
-    "matcher": "/news/:categoryId/:newsId"
+    "matcher": ["/news/:categoryId/:newsId", "/sitemap.xml"]
   }
 }
