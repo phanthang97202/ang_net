@@ -92,6 +92,32 @@
   flex-shrink: 0;
 }
 
+// ── Dark mode: làm tối ảnh banner + lớp phủ tối + chữ sáng ──
+// (data-theme nằm trên <html> nên dùng :host-context để bắt)
+:host-context(html[data-theme='dark']) {
+  .hero-bg {
+    filter: brightness(0.55) saturate(1.05);
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      100deg,
+      rgba(14, 14, 22, 0.92) 0%,
+      rgba(14, 14, 22, 0.6) 32%,
+      rgba(14, 14, 22, 0.12) 55%,
+      rgba(14, 14, 22, 0) 72%
+    );
+  }
+
+  .hero-title {
+    color: #ededf2;
+  }
+
+  .hero-subtitle {
+    color: #c2c2d0;
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     min-height: 0;
@@ -100,6 +126,10 @@
 
   .hero-overlay {
     background: rgba(255, 255, 255, 0.82);
+  }
+
+  :host-context(html[data-theme='dark']) .hero-overlay {
+    background: rgba(14, 14, 22, 0.86);
   }
 
   .hero-content {

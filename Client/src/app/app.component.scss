@@ -33,11 +33,10 @@ nz-layout {
     );
 }
 
-// Nội dung trang nổi lên trên lớp glow
-.layout--user > app-navbar,
-.layout--user > router-outlet,
-.layout--user > router-outlet ~ *,
-.layout--user > app-footer {
+// Nội dung trang (routed page + footer) nổi lên trên lớp glow.
+// KHÔNG đụng app-navbar: navbar tự có position:sticky + z-index:100, nếu
+// ghi đè position:relative ở đây sẽ làm mất tính năng dính khi cuộn.
+.layout--user > router-outlet ~ * {
     position: relative;
     z-index: 1;
 }
