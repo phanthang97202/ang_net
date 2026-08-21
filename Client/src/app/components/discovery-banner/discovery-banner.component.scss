@@ -3,18 +3,56 @@
 }
 
 .hero {
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 3.5rem 1.5rem 2rem;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/images/bg_banner.avif');
+  background-size: cover;
+  background-position: center bottom;
+}
+
+// Lớp phủ trắng mờ bên trái để chữ luôn đọc rõ, bất kể ảnh nền sáng/tối
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(255, 255, 255, 0.6) 32%,
+    rgba(255, 255, 255, 0.1) 55%,
+    rgba(255, 255, 255, 0) 70%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 3.5rem 3rem;
+}
+
+.hero-text {
+  max-width: 480px;
 }
 
 .hero-title {
   font-family: 'Montserrat', sans-serif;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 800;
-  line-height: 1.25;
-  color: var(--color-text);
+  line-height: 1.2;
+  color: #1a1a2e;
   margin: 0 0 1rem;
 
   .accent {
@@ -25,7 +63,59 @@
 .hero-subtitle {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
-  color: var(--color-text-muted);
+  color: #4a4a5a;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 1.75rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(91, 79, 233, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(91, 79, 233, 0.4);
+  }
+}
+
+.hero-music {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 0;
+    border-radius: 16px;
+  }
+
+  .hero-overlay {
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .hero-content {
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hero-music {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
 }

@@ -1,9 +1,25 @@
-<section class="hero">
-  <h1 class="hero-title">
-    Nhật Ký <span class="accent">Sở Thích</span> Và Đời Thường
-  </h1>
-  <p class="hero-subtitle">
-    Đây là góc nhỏ của Phan Thang — nơi lưu lại những sở thích, suy nghĩ và trải
-    nghiệm cá nhân trong cuộc sống hằng ngày.
-  </p>
+<section class="hero" appScrollReveal>
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        Nhật Ký <span class="accent">Sở Thích</span> Và Đời Thường
+      </h1>
+      <p class="hero-subtitle">
+        Đây là góc nhỏ của Phan Thang — nơi lưu lại những sở thích, suy nghĩ và
+        trải nghiệm cá nhân trong cuộc sống hằng ngày.
+      </p>
+      <a routerLink="/news" class="hero-cta">Khám phá bài viết</a>
+    </div>
+
+    <app-music-player
+      class="hero-music"
+      title="Mối duyên vàng"
+      artist="Tuấn Cry, Võ Thu Hà"
+      albumArt="assets/images/moi_duyen_vang.webp"
+      audioSrc="assets/music/moi_duyen_vang.mp3">
+    </app-music-player>
+  </div>
 </section>

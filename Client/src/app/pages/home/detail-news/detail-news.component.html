@@ -14,7 +14,8 @@
   <div class="news__content">
     <article
       *ngIf="(isLoading$ | async) === false"
-      class="detail-card">
+      class="detail-card"
+      appScrollReveal>
       <div class="detail-thumb">
         <img
           [src]="

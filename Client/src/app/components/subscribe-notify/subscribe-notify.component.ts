@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ScrollRevealDirective } from '../../directives';
 
 interface SubscribeForm {
   email: string;
@@ -15,7 +16,7 @@ interface SubscribeForm {
 @Component({
   selector: 'app-subscribe-notify',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ScrollRevealDirective],
   templateUrl: './subscribe-notify.component.html',
   styleUrls: ['./subscribe-notify.component.scss'],
 })

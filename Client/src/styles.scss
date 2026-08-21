@@ -25,6 +25,9 @@
   --color-accent-bg: #f2f0fd;
   --color-border: rgba(0, 0, 0, 0.08);
   --color-card-shadow: rgba(20, 15, 60, 0.06);
+  // Ánh sáng nền ở 2 rìa trang (trái ấm - phải tím) tạo chiều sâu
+  --glow-left: rgba(242, 153, 74, 0.3);
+  --glow-right: rgba(91, 79, 233, 0.26);
 }
 
 html[data-theme='dark'] {
@@ -36,6 +39,8 @@ html[data-theme='dark'] {
   --color-accent-bg: rgba(131, 120, 245, 0.16);
   --color-border: rgba(255, 255, 255, 0.1);
   --color-card-shadow: rgba(0, 0, 0, 0.45);
+  --glow-left: rgba(242, 153, 74, 0.16);
+  --glow-right: rgba(131, 120, 245, 0.22);
 
   // nz-popover (menu tài khoản ở navbar) render qua CDK overlay ra ngoài
   // DOM component, nền của nó không đi qua các biến theme ở trên nên phải
@@ -356,6 +361,29 @@ body {
 *::after {
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
+}
+
+// ── Scroll-reveal (dùng chung, gắn qua directive [appScrollReveal]) ──
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--scroll-reveal-delay, 0s);
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 ul {

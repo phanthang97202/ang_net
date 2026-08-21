@@ -15,7 +15,8 @@
       <a
         *ngIf="mainPost"
         [routerLink]="['/news', mainPost.CategoryNewsId, mainPost.NewsId]"
-        class="relative md:row-span-2 overflow-hidden group cursor-pointer block min-h-[420px]">
+        class="relative md:row-span-2 overflow-hidden group cursor-pointer block min-h-[420px]"
+        appScrollReveal>
         <!-- Background Image -->
         <div
           class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
@@ -62,10 +63,13 @@
       </a>
 
       <!-- ========== SUB POSTS (2x2 bên phải) ========== -->
-      <ng-container *ngFor="let post of subPosts; trackBy: trackById">
+      <ng-container
+        *ngFor="let post of subPosts; trackBy: trackById; let i = index">
         <a
           [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-          class="relative overflow-hidden group cursor-pointer block min-h-[200px]">
+          class="relative overflow-hidden group cursor-pointer block min-h-[200px]"
+          appScrollReveal
+          [appScrollRevealDelay]="i * 90">
           <!-- Background Image -->
           <div
             class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"

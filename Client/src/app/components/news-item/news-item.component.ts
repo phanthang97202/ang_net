@@ -7,6 +7,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { IDetailNews } from '../../interfaces';
 import { HashTagComponent } from '../hash-tag/hash-tag.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ScrollRevealDirective } from '../../directives';
 
 @Component({
   selector: 'app-news-item',
@@ -21,6 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
     HashTagComponent,
     SizeImgCloudinary,
     TranslateModule,
+    ScrollRevealDirective,
   ],
   templateUrl: './news-item.component.html',
   styleUrl: './news-item.component.scss',

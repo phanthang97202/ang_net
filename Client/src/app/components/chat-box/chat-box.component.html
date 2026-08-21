@@ -1,5 +1,20 @@
 <div class="chat-wrapper">
   <div class="chat__container">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <span nz-icon nzType="message" nzTheme="fill" class="chat-header-icon"></span>
+        <span class="chat-header-title">Trò chuyện</span>
+      </div>
+      <button
+        type="button"
+        class="chat-close-btn"
+        (click)="closeChat.emit()"
+        aria-label="Close chat">
+        <span nz-icon nzType="close" nzTheme="outline"></span>
+      </button>
+    </div>
+
     <!-- Loading indicator for older messages -->
     <div *ngIf="loadingMessages" class="loading-indicator">
       <nz-spin nzSimple [nzSize]="'small'"></nz-spin>

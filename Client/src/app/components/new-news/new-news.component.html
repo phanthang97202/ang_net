@@ -14,7 +14,11 @@
 
   <!-- Post cards -->
   <ng-container *ngIf="!isLoading && posts.length > 0">
-    <article class="post-card" *ngFor="let post of posts; trackBy: trackById">
+    <article
+      class="post-card"
+      *ngFor="let post of posts; trackBy: trackById; let i = index"
+      appScrollReveal
+      [appScrollRevealDelay]="(i % 3) * 90">
       <a
         [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
         class="post-card-thumb">

@@ -2,8 +2,10 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   inject,
   OnInit,
+  Output,
   ViewChild,
   OnDestroy,
 } from '@angular/core';
@@ -50,6 +52,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   showErrorService = inject(ShowErrorService);
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
+  @Output() closeChat = new EventEmitter<void>();
 
   pageIndex: number = 0;
   pageSize: number = 20;

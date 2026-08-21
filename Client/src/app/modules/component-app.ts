@@ -31,6 +31,7 @@ import {
   HomeSidebarComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
+import { ScrollRevealDirective } from '../directives';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
@@ -94,4 +95,6 @@ export const REUSE_COMPONENT_MODULES = [
   NzFooterComponent,
   FooterComponent,
   NzSiderComponent,
+  //
+  ScrollRevealDirective,
 ];

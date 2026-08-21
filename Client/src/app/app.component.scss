@@ -2,6 +2,46 @@ nz-layout {
     height: 100%;
 }
 
+// ── Ánh sáng nền ở 2 rìa trang (chỉ trang user-facing) ──
+// 2 dải fixed, nằm sau nội dung (z-index âm, trên nền body), tỏa mềm
+// vào giữa để trang có chiều sâu & sức sống hơn.
+.ambient-glow {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 28vw;
+    max-width: 460px;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.ambient-glow--left {
+    left: 0;
+    background: radial-gradient(
+        50% 70% at 0% 42%,
+        var(--glow-left) 0%,
+        transparent 78%
+    );
+}
+
+.ambient-glow--right {
+    right: 0;
+    background: radial-gradient(
+        50% 70% at 100% 58%,
+        var(--glow-right) 0%,
+        transparent 78%
+    );
+}
+
+// Nội dung trang nổi lên trên lớp glow
+.layout--user > app-navbar,
+.layout--user > router-outlet,
+.layout--user > router-outlet ~ *,
+.layout--user > app-footer {
+    position: relative;
+    z-index: 1;
+}
+
 nz-header {
     position: fixed;
     width: 100%;
@@ -56,27 +96,25 @@ nz-footer {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 1050;
+    z-index: 1051;
     width: 50px;
     height: 50px;
-    font-size: 22px;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 4px 16px var(--color-card-shadow);
 }
 
 .chat-box-container {
     position: fixed;
-    bottom: 80px; // cách nút một chút
+    bottom: 86px; // cách nút một chút
     right: 24px;
     width: 400px;
     max-width: calc(100vw - 32px);
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    z-index: 10;
+    z-index: 1050;
     animation: slideUp 0.3s ease;
 }
 

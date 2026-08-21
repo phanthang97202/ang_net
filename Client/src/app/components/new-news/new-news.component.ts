@@ -5,6 +5,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
 import { ApiService, LoadingService, ShowErrorService } from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { CONSTANTS_APP } from '../../helpers';
+import { ScrollRevealDirective } from '../../directives';
 
 export interface INewsWithPlaceholder extends IDetailNews {
   _placeholderColor?: string;
@@ -22,7 +23,7 @@ const PLACEHOLDER_COLORS = [
 @Component({
   selector: 'app-new-news',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, ScrollRevealDirective],
   templateUrl: './new-news.component.html',
   styleUrls: ['./new-news.component.scss'],
 })
