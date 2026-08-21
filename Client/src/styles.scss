@@ -49,11 +49,14 @@ html[data-theme='dark'] {
     background-color: var(--color-bg-card);
   }
 
-  // ── NG-ZORRO overlay portals (CDK overlay, không nằm trong DOM của
-  // .app-theme-scope nên phải override toàn cục) ─────────────────────
-  // Dùng cho các trang "Công cụ" (báo cáo ca, báo cáo doanh thu...) - đây
-  // là những trang người dùng thao tác thật (bảng/form), không phải trang
-  // trang trí, nên vẫn cần theme dù dùng nhiều component gốc NG-ZORRO.
+  // ── NG-ZORRO components (dùng cho các trang "Công cụ": báo cáo ca, báo
+  // cáo doanh thu...) ──────────────────────────────────────────────────
+  // Không scope theo layout 'user': nz-select-dropdown/nz-modal/... đều
+  // render qua CDK overlay ra thẳng <body>, ngoài DOM của component gốc,
+  // nên style scoped theo 1 wrapper class sẽ không bao giờ chạm tới được.
+  // Trang dashboard/admin dùng chung các class NG-ZORRO này nhưng không có
+  // nút bật dark mode nên data-theme luôn ở 'light' khi ở đó (xem
+  // ThemeService.applyForLayout) - không lo bị dính theme ngoài ý muốn.
   .ant-select-dropdown,
   .ant-picker-dropdown .ant-picker-panel-container,
   .ant-modal-content,
@@ -107,11 +110,8 @@ html[data-theme='dark'] {
     background-color: var(--color-bg-card);
   }
 
-  // Input/select/date-picker/button/label cũng cần override toàn cục (dù
-  // đa số nằm trong trang "Công cụ" ở .app-theme-scope) vì các form này
-  // còn được nz-modal render lại bên trong CDK overlay (vd modal "Tạo báo
-  // cáo") - nằm ngoài DOM của .app-theme-scope nên style scoped riêng sẽ
-  // không tới được.
+  // Input/select/date-picker/button/label bên trong trang lẫn bên trong
+  // modal (vd form "Tạo báo cáo").
   .ant-input,
   .ant-input-affix-wrapper,
   .ant-select-selector,
@@ -159,7 +159,8 @@ html[data-theme='dark'] {
     color: var(--color-text-muted);
   }
 
-  .ant-btn-default {
+  .ant-btn-default,
+  .ant-btn-dashed {
     background-color: var(--color-bg-page);
     border-color: var(--color-border);
     color: var(--color-text);
@@ -185,13 +186,41 @@ html[data-theme='dark'] {
   .ant-divider {
     border-color: var(--color-border);
   }
-}
 
-// ── Phạm vi NG-ZORRO in-flow (nz-card/table/pagination trong bảng...) -
-// các phần tử này vẫn nằm trong DOM của layout 'user' nên scope theo
-// .app-theme-scope, tránh ảnh hưởng sang trang dashboard/admin (dùng
-// chung các class NG-ZORRO này nhưng không tham gia dark mode). ─────────
-html[data-theme='dark'] .app-theme-scope {
+  .ant-divider-inner-text {
+    color: var(--color-text-muted);
+  }
+
+  // Checkbox (vd cột "isUseExpenseForReportRevenue" trong bảng giao dịch
+  // báo cáo ca) - NG-ZORRO mặc định vẽ ô vuông nền trắng viền xám.
+  .ant-checkbox-inner {
+    background-color: var(--color-bg-page);
+    border-color: var(--color-border);
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .ant-checkbox-disabled .ant-checkbox-inner {
+    background-color: var(--color-border);
+  }
+
+  // Trạng thái disabled của input/select/picker - NG-ZORRO tự set nền xám
+  // nhạt riêng cho disabled, tách biệt với style input bình thường ở trên.
+  .ant-input-disabled,
+  .ant-input-number-disabled,
+  .ant-picker-disabled,
+  .ant-select-disabled .ant-select-selector {
+    background-color: var(--color-border) !important;
+    color: var(--color-text-muted) !important;
+  }
+
+  // ── nz-card / nz-table / pagination ─────────────────────────────────
+  // Các trang "Công cụ" render lại nz-card/nz-table BÊN TRONG nz-modal (vd
+  // "Tổng kết", "Bàn phòng ngày" trong form tạo/sửa báo cáo ca), nên cũng
+  // để toàn cục như input/select ở trên thay vì scope theo layout.
   .ant-card {
     background-color: var(--color-bg-card);
     border-color: var(--color-border);
