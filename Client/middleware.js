@@ -27,7 +27,7 @@
 // CommonJS).
 
 const API_BASE = 'https://ang-net.onrender.com/api/';
-const SITE_NAME = 'Phan Thang - Blog cá nhân';
+const SITE_NAME = 'Phan Thang Blog';
 
 module.exports = async function middleware(request) {
   const url = new URL(request.url);

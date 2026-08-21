@@ -5,7 +5,8 @@ export const routes: Routes = [
   { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
 
   {
-    title: 'Home',
+    // Không set title: AppTitleStrategy sẽ fallback về đúng "Phan Thang Blog"
+    // thay vì lặp lại thành "Home - Phan Thang Blog".
     path: '',
     loadComponent: () =>
       import('./pages/home/home/home.component').then(p => p.HomeComponent),

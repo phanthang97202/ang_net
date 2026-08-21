@@ -1,4 +1,5 @@
 export * from './api.service';
+export * from './app-title-strategy.service';
 export * from './auth.service';
 export * from './cloudinary.service';
 export * from './interceptor-auth.service';

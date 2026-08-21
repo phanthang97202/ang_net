@@ -3,6 +3,7 @@ import {
   ApiService,
   ShowErrorService,
   LoadingService,
+  SITE_TITLE,
 } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
@@ -55,7 +56,9 @@ export class DetailNewsComponent implements OnInit {
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
-        this.titleService.setTitle(this.detailNews.ShortTitle);
+        this.titleService.setTitle(
+          `${this.detailNews.ShortTitle} - ${SITE_TITLE}`
+        );
       },
       error: err => {
         this.showErrorService.setShowError({
