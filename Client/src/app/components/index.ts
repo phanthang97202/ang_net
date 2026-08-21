@@ -13,6 +13,7 @@ export * from './pagination/pagination.component';
 export * from './sidebar-search/sidebar-search.component';
 export * from './switch-lang/switch-lang.component';
 export * from './tag-status/tag-status.component';
+export * from './theme-toggle/theme-toggle.component';
 export * from './text-editor/text-editor.component';
 export * from './news-content/news-content.component';
 export * from './news-toc-list/news-toc-list.component';

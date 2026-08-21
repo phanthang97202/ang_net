@@ -49,11 +49,17 @@
     <div class="navbar-actions">
       <!-- Search -->
       <button
-        class="btn-search"
+        class="navbar-icon-btn"
         (click)="toggleSearch()"
         aria-label="Search">
         <span nz-icon nzType="search" nzTheme="outline"></span>
       </button>
+
+      <!-- Dark mode toggle -->
+      <app-theme-toggle></app-theme-toggle>
+
+      <!-- Switch language -->
+      <app-switch-lang></app-switch-lang>
 
       <!-- Login Button -->
       <button
@@ -84,11 +90,15 @@
 
     <div class="mobile-right">
       <button
-        class="btn-search"
+        class="navbar-icon-btn"
         (click)="toggleSearch()"
         aria-label="Search">
         <span nz-icon nzType="search" nzTheme="outline"></span>
       </button>
+
+      <app-theme-toggle></app-theme-toggle>
+
+      <app-switch-lang></app-switch-lang>
 
       <button
         *ngIf="!authService.isLoggedIn()"
@@ -196,10 +206,6 @@
       <strong>{{
         authService.getAccountInfo().role.toString().replace(',', ', ')
       }}</strong>
-    </div>
-    <div class="popover-row popover-lang">
-      <span class="popover-label">{{ 'T_LANGUAGE' | translate }}</span>
-      <app-switch-lang />
     </div>
     <button class="btn-logout" (click)="handleLogout()">
       <span nz-icon nzType="logout"></span> Logout

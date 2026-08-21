@@ -7,7 +7,7 @@
 .content-display {
     line-height: 1.8;
     font-size: 16px;
-    color: #333;
+    color: var(--color-text);
 }
 
 /* Styling cho headings */
@@ -28,36 +28,36 @@
 
 .content-display :global(h1) {
     font-size: 2.5em;
-    color: #2c3e50;
+    color: var(--color-text);
     border-bottom: 3px solid #3498db;
     padding-bottom: 10px;
 }
 
 .content-display :global(h2) {
     font-size: 2em;
-    color: #34495e;
+    color: var(--color-text);
     border-bottom: 2px solid #95a5a6;
     padding-bottom: 8px;
 }
 
 .content-display :global(h3) {
     font-size: 1.6em;
-    color: #2c3e50;
+    color: var(--color-text);
 }
 
 .content-display :global(h4) {
     font-size: 1.3em;
-    color: #34495e;
+    color: var(--color-text);
 }
 
 .content-display :global(h5) {
     font-size: 1.1em;
-    color: #2c3e50;
+    color: var(--color-text);
 }
 
 .content-display :global(h6) {
     font-size: 1em;
-    color: #34495e;
+    color: var(--color-text);
 }
 
 /* Highlight effect khi click từ mục lục */
@@ -92,8 +92,8 @@
     padding-left: 1.5em;
     margin: 1.5em 0;
     font-style: italic;
-    color: #555;
-    background-color: #f8f9fa;
+    color: var(--color-text-muted);
+    background-color: var(--color-accent-bg);
     padding: 1em 1.5em;
     border-radius: 4px;
 }

@@ -1,16 +1,31 @@
-<div class="toc-container" *ngIf="tocItems.length > 0">
-  <h3 class="toc-title">📋 {{ 'T_MUCLUC' | translate }}</h3>
-  <ul class="toc-list">
-    <li
-      *ngFor="let item of tocItems"
-      [class]="'toc-item toc-level-' + item.level"
-      (click)="scrollToElement(item.id)">
-      <a href="javascript:void(0)" class="toc-link">
-        {{ item.text }}
-      </a>
-    </li>
-  </ul>
-</div>
+<button
+  type="button"
+  class="toc-toggle-btn"
+  *ngIf="tocItems.length > 0"
+  [class.is-open]="isOpen"
+  (click)="toggleOpen()"
+  [attr.aria-label]="'T_MUCLUC' | translate">
+  <span
+    nz-icon
+    [nzType]="isOpen ? 'close' : 'unordered-list'"
+    nzTheme="outline"></span>
+</button>
 
-<!-- FIX IT IF YOU HAVE TIME -->
-<!-- [class.active]="activeId === item.id" -->
+<div class="toc-backdrop" *ngIf="isOpen" (click)="close()"></div>
+
+<aside class="toc-panel" *ngIf="tocItems.length > 0" [class.is-open]="isOpen">
+  <h3 class="toc-title">{{ 'T_MUCLUC' | translate }}</h3>
+  <div class="toc-scroll">
+    <ul class="toc-list">
+      <li
+        *ngFor="let item of tocItems"
+        [class]="'toc-item toc-level-' + item.level"
+        [class.active]="activeId === item.id"
+        (click)="onItemClick(item.id)">
+        <a href="javascript:void(0)" class="toc-link">
+          {{ item.text }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>

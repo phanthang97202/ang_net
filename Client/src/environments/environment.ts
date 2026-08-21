@@ -3,6 +3,7 @@ export const environment = {
   tokenKey: 'tokenKey',
   langKey: 'langKey',
   refreshTokenKey: 'refreshTokenKey',
+  themeKey: 'themeKey',
   // apiUrl: 'https://localhost:44303/api/',
   // wsUrl: 'https://localhost:44303/',
 

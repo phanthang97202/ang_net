@@ -10,11 +10,11 @@
   <div class="flex-1 min-w-0">
     <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
       <h5
-        class="hover:text-[#5b4fe9] transition-colors font-montserrat text-[14px] text-[#1a1a2e] leading-[1.35] font-bold mb-[4px]">
+        class="hover:text-[var(--color-accent)] transition-colors font-montserrat text-[14px] text-[var(--color-text)] leading-[1.35] font-bold mb-[4px]">
         {{ item.ShortTitle }}
       </h5>
     </a>
-    <p class="font-montserrat text-[#8a8a99] text-[11.5px]">
+    <p class="font-montserrat text-[var(--color-text-muted)] text-[11.5px]">
       {{ item.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
     </p>
   </div>

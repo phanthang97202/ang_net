@@ -9,9 +9,9 @@
 }
 
 .sidebar-card {
-  background: #fff;
+  background: var(--color-bg-card);
   border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(20, 15, 60, 0.06);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
   padding: 1.5rem;
 }
 
@@ -22,7 +22,7 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #a3a2b3;
+  color: var(--color-text-muted);
   margin-bottom: 1rem;
 }
 
@@ -47,7 +47,7 @@
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
   font-size: 0.95rem;
-  color: #1a1a2e;
+  color: var(--color-text);
 }
 
 .about-role {
@@ -56,14 +56,14 @@
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #a3a2b3;
+  color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
 .about-bio {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.82rem;
-  color: #6b6b7b;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0 0 1rem;
 }
@@ -74,7 +74,7 @@
   gap: 0.4rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.8rem;
-  color: #6b6b7b;
+  color: var(--color-text-muted);
   margin: 0 0 1.1rem;
 }
 
@@ -90,12 +90,12 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f4f3fb;
-  color: #5b4fe9;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   transition: background 0.2s, color 0.2s;
 
   &:hover {
-    background: #5b4fe9;
+    background: var(--color-accent);
     color: #fff;
   }
 }

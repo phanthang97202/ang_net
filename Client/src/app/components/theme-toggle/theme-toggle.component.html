@@ -1,0 +1,10 @@
+<button
+  type="button"
+  class="navbar-icon-btn"
+  (click)="toggle()"
+  aria-label="Toggle dark mode">
+  <span
+    nz-icon
+    nzType="bulb"
+    [nzTheme]="(theme$ | async) === 'dark' ? 'fill' : 'outline'"></span>
+</button>

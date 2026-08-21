@@ -11,9 +11,9 @@
 .post-card {
   display: flex;
   gap: 1.5rem;
-  background: #fff;
+  background: var(--color-bg-card);
   border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(20, 15, 60, 0.06);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
   padding: 1rem;
 
   @media (max-width: 640px) {
@@ -58,8 +58,8 @@
 }
 
 .post-badge {
-  background: #f2f0fd;
-  color: #5b4fe9;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   font-family: 'Montserrat', sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
@@ -102,12 +102,12 @@
 .post-card-meta {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
-  color: #8a8a99;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .post-card-author {
-  color: #5b4fe9;
+  color: var(--color-accent);
   font-weight: 700;
 }
 
@@ -115,20 +115,20 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 1.15rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--color-text);
   text-decoration: none;
   line-height: 1.35;
   transition: color 0.2s;
 
   &:hover {
-    color: #5b4fe9;
+    color: var(--color-accent);
   }
 }
 
 .post-card-excerpt {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.85rem;
-  color: #6b6b7b;
+  color: var(--color-text-muted);
   line-height: 1.55;
   margin: 0;
   display: -webkit-box;
@@ -145,8 +145,8 @@
 }
 
 .post-hashtag {
-  background: #f2f0fd;
-  color: #5b4fe9;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   font-family: 'Montserrat', sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
@@ -166,14 +166,14 @@
 }
 
 .post-card-thumb--skeleton {
-  background: #eee;
+  background: var(--color-accent-bg);
   animation: pulse 1.4s ease-in-out infinite;
 }
 
 .skeleton-line {
   height: 0.9rem;
   border-radius: 6px;
-  background: #eee;
+  background: var(--color-accent-bg);
   animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -197,7 +197,7 @@
   text-align: center;
   padding: 3rem 0;
   font-family: 'Montserrat', sans-serif;
-  color: #aaa;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.85rem;

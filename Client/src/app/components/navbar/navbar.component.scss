@@ -1,23 +1,30 @@
 // ── Variables ──────────────────────────────────────────
 $font-serif: 'Playfair Display', serif;
 $font-sans: 'Montserrat', sans-serif;
-$color-bg: #ffffff;
-$color-dark: #1a1a1a;
-$color-accent: #5b4fe9;
-$color-muted: #888;
-$color-border: rgba(0, 0, 0, 0.08);
+// Sass rgba() không nhận var() làm màu đầu vào để pha alpha, nên các chỗ
+// hover accent-tint (rgba($color-accent, N)) được thay trực tiếp bằng
+// var(--color-accent-bg) thay vì tính rgba từ $color-accent lúc build.
+$color-bg: var(--color-bg-card);
+$color-dark: var(--color-text);
+$color-accent: var(--color-accent);
+$color-muted: var(--color-text-muted);
+$color-border: var(--color-border);
 $nav-height: 64px;
 
 // ── Host ───────────────────────────────────────────────
+// Sticky đặt ở :host (thẻ <app-navbar>) chứ không phải .navbar-wrapper,
+// vì cha trực tiếp của .navbar-wrapper chính là <app-navbar> và nó chỉ
+// cao đúng bằng navbar-wrapper (0px dư) nên sticky trên .navbar-wrapper
+// sẽ không có "khoảng trống" nào để dính khi cuộn trang.
 :host {
     display: block;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 // ── Wrapper ────────────────────────────────────────────
 .navbar-wrapper {
-    position: sticky;
-    top: 0;
-    z-index: 100;
     background: $color-bg;
     border-bottom: 1px solid $color-border;
 }
@@ -85,7 +92,7 @@ $nav-height: 64px;
         &:hover,
         &.active {
             color: $color-accent;
-            background: rgba($color-accent, 0.08);
+            background: var(--color-accent-bg);
         }
     }
 
@@ -133,7 +140,7 @@ $nav-height: 64px;
         transition: background 0.15s, color 0.15s;
 
         &:hover {
-            background: rgba($color-accent, 0.06);
+            background: var(--color-accent-bg);
             color: $color-accent;
         }
 
@@ -165,11 +172,11 @@ $nav-height: 64px;
     border: none;
     border-radius: 999px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, opacity 0.2s;
     white-space: nowrap;
 
     &:hover {
-        background: darken($color-accent, 8%);
+        opacity: 0.88;
     }
 
     &--sm {
@@ -178,27 +185,10 @@ $nav-height: 64px;
     }
 }
 
-// ── Search button ──────────────────────────────────────
-.btn-search {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 50%;
-    background: transparent;
-    border: 1px solid $color-border;
-    color: $color-dark;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
-    flex-shrink: 0;
-
-    &:hover {
-        background: rgba($color-accent, 0.08);
-        border-color: $color-accent;
-        color: $color-accent;
-    }
-}
+// Nút search giờ dùng class dùng chung .navbar-icon-btn (global styles.scss)
+// vì cùng style cần áp cho cả app-theme-toggle/app-switch-lang - những
+// component con có view encapsulation riêng, không nhận được style scoped
+// ở đây.
 
 // ── Search popup ───────────────────────────────────────
 .search-overlay {
@@ -268,10 +258,10 @@ $nav-height: 64px;
     border: none;
     border-radius: 999px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, opacity 0.2s;
 
     &:hover {
-        background: darken($color-accent, 8%);
+        opacity: 0.88;
     }
 }
 
@@ -344,6 +334,7 @@ $nav-height: 64px;
     position: absolute;
     left: 0;
     right: 0;
+    z-index: 100;
     background: $color-bg;
     border-top: 1px solid $color-border;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -383,7 +374,7 @@ $nav-height: 64px;
 
         &:hover {
             color: $color-accent;
-            background: rgba($color-accent, 0.04);
+            background: var(--color-accent-bg);
         }
 
         &.active {
@@ -468,16 +459,6 @@ $nav-height: 64px;
     font-size: 0.85rem;
 }
 
-.popover-lang {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid $color-border;
-    border-bottom: 1px solid $color-border;
-    margin: 0.25rem 0;
-    padding: 0.5rem 0;
-}
-
 .btn-logout {
     width: 100%;
     margin-top: 0.5rem;
@@ -487,7 +468,10 @@ $nav-height: 64px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    background: $color-dark;
+    // Nền tối cố định, không dùng $color-dark: đây là vai trò "nút đậm
+    // tương phản" chứ không phải text-color đảo theo theme - nếu dùng
+    // $color-dark thì ở dark mode nó sẽ hoá sáng, mất tương phản với chữ trắng.
+    background: #2a2a3a;
     color: #fff;
     border: none;
     cursor: pointer;

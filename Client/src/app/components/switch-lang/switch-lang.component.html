@@ -1,13 +1,7 @@
-<div (click)="toggleLanguage()">
-  <div class="flex items-center cursor-pointer">
-    <!-- <div>
-      <img width="30" src="assets/images/switchlang.jpg" alt="" />
-    </div> -->
-    <div>
-      <img
-        [src]="'assets/images/' + currentLang + '.jpg'"
-        alt="flag"
-        width="30" />
-    </div>
-  </div>
-</div>
+<button
+  type="button"
+  class="navbar-icon-btn"
+  (click)="toggleLanguage()"
+  aria-label="Switch language">
+  <img [src]="'assets/images/' + currentLang + '.jpg'" alt="flag" />
+</button>

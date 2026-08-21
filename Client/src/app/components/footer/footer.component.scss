@@ -22,12 +22,12 @@
   font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--color-text);
   text-decoration: none;
   letter-spacing: 0.01em;
 
   span {
-    color: #5b4fe9;
+    color: var(--color-accent);
     font-style: italic;
   }
 }
@@ -35,7 +35,7 @@
 .footer-tagline {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.85rem;
-  color: #6b6b7b;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0.9rem 0 1.1rem;
   max-width: 320px;
@@ -53,12 +53,12 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f4f3fb;
-  color: #5b4fe9;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   transition: background 0.2s, color 0.2s;
 
   &:hover {
-    background: #5b4fe9;
+    background: var(--color-accent);
     color: #fff;
   }
 }
@@ -76,7 +76,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #a3a2b3;
+  color: var(--color-text-muted);
   margin-bottom: 0.25rem;
 }
 
@@ -84,18 +84,18 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--color-text);
   text-decoration: none;
   transition: color 0.2s;
 
   &:hover {
-    color: #5b4fe9;
+    color: var(--color-accent);
   }
 }
 
 .footer-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--color-border);
 }
 
 .footer-stat {
@@ -115,22 +115,22 @@
 }
 
 .footer-stat-icon {
-  color: #5b4fe9;
+  color: var(--color-accent);
   flex-shrink: 0;
 }
 
 .footer-stat-value {
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--color-text);
 }
 
 .footer-stat-label {
-  color: #6b6b7b;
+  color: var(--color-text-muted);
 }
 
 .footer-copyright {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
-  color: #9291a5;
+  color: var(--color-text-muted);
   margin: 1.5rem 0 0;
 }

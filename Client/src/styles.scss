@@ -12,12 +12,293 @@
 @tailwind components;
 @tailwind utilities;
 
-html {}
+// ── Theme tokens (dùng cho các trang user-facing: navbar, footer, trang
+// chủ, danh sách/chi tiết bài viết...) ─────────────────────────────────
+// Đổi theme bằng cách set [data-theme="dark"] lên <html> (xem ThemeService).
+// Trang dashboard/admin dùng màu cứng riêng nên không bị ảnh hưởng.
+:root {
+  --color-bg-page: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-text: #1a1a2e;
+  --color-text-muted: #8a8a99;
+  --color-accent: #5b4fe9;
+  --color-accent-bg: #f2f0fd;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-card-shadow: rgba(20, 15, 60, 0.06);
+}
+
+html[data-theme='dark'] {
+  --color-bg-page: #0e0e16;
+  --color-bg-card: #191927;
+  --color-text: #ededf2;
+  --color-text-muted: #9a98ad;
+  --color-accent: #8378f5;
+  --color-accent-bg: rgba(131, 120, 245, 0.16);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-card-shadow: rgba(0, 0, 0, 0.45);
+
+  // nz-popover (menu tài khoản ở navbar) render qua CDK overlay ra ngoài
+  // DOM component, nền của nó không đi qua các biến theme ở trên nên phải
+  // override riêng ở đây - nếu không chữ (đã theo theme) sẽ rơi vào nền
+  // trắng mặc định của NG-ZORRO.
+  .ant-popover-inner {
+    background-color: var(--color-bg-card);
+  }
+
+  .ant-popover-arrow-content {
+    background-color: var(--color-bg-card);
+  }
+
+  // ── NG-ZORRO overlay portals (CDK overlay, không nằm trong DOM của
+  // .app-theme-scope nên phải override toàn cục) ─────────────────────
+  // Dùng cho các trang "Công cụ" (báo cáo ca, báo cáo doanh thu...) - đây
+  // là những trang người dùng thao tác thật (bảng/form), không phải trang
+  // trang trí, nên vẫn cần theme dù dùng nhiều component gốc NG-ZORRO.
+  .ant-select-dropdown,
+  .ant-picker-dropdown .ant-picker-panel-container,
+  .ant-modal-content,
+  .ant-tooltip-inner {
+    background-color: var(--color-bg-card);
+    color: var(--color-text);
+  }
+
+  .ant-select-item {
+    color: var(--color-text);
+
+    &:hover {
+      background-color: var(--color-accent-bg);
+    }
+
+    &-option-selected {
+      background-color: var(--color-accent-bg);
+      color: var(--color-accent);
+    }
+  }
+
+  .ant-picker-panel,
+  .ant-picker-header,
+  .ant-picker-cell,
+  .ant-picker-decade-panel,
+  .ant-picker-year-panel,
+  .ant-picker-month-panel,
+  .ant-picker-date-panel {
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .ant-picker-cell-in-view {
+    color: var(--color-text);
+  }
+
+  .ant-modal-header {
+    background-color: var(--color-bg-card);
+    border-bottom-color: var(--color-border);
+  }
+
+  .ant-modal-title {
+    color: var(--color-text);
+  }
+
+  .ant-modal-close {
+    color: var(--color-text-muted);
+  }
+
+  .ant-tooltip-arrow-content {
+    background-color: var(--color-bg-card);
+  }
+
+  // Input/select/date-picker/button/label cũng cần override toàn cục (dù
+  // đa số nằm trong trang "Công cụ" ở .app-theme-scope) vì các form này
+  // còn được nz-modal render lại bên trong CDK overlay (vd modal "Tạo báo
+  // cáo") - nằm ngoài DOM của .app-theme-scope nên style scoped riêng sẽ
+  // không tới được.
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-select-selector,
+  .ant-picker,
+  .ant-input-number,
+  .ant-input-number-input {
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  // background-color riêng với !important: NG-ZORRO tự set nền của select/
+  // picker/input-number qua selector ghép nhiều :not(...) (độ đặc hiệu cao
+  // hơn 1 class thường), nên override thường bị thua dù color vẫn thắng -
+  // gây ra chữ sáng trên nền trắng gần như vô hình.
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-select-selector,
+  .ant-picker,
+  .ant-input-number,
+  .ant-input-number-input {
+    background-color: var(--color-bg-page) !important;
+  }
+
+  .ant-input::placeholder,
+  .ant-select-selection-placeholder,
+  .ant-picker-input > input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .ant-select-selection-item,
+  .ant-picker-input > input {
+    color: var(--color-text);
+  }
+
+  .ant-input-group-addon {
+    background-color: var(--color-bg-card);
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+  }
+
+  .ant-picker-suffix,
+  .ant-picker-separator,
+  .ant-select-arrow,
+  .ant-input-number-handler-wrap {
+    color: var(--color-text-muted);
+  }
+
+  .ant-btn-default {
+    background-color: var(--color-bg-page);
+    border-color: var(--color-border);
+    color: var(--color-text);
+
+    &:hover {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+    }
+  }
+
+  .ant-form-item-label > label {
+    color: var(--color-text);
+  }
+
+  .ant-statistic-title {
+    color: var(--color-text-muted);
+  }
+
+  .ant-statistic-content {
+    color: var(--color-text);
+  }
+
+  .ant-divider {
+    border-color: var(--color-border);
+  }
+}
+
+// ── Phạm vi NG-ZORRO in-flow (nz-card/table/pagination trong bảng...) -
+// các phần tử này vẫn nằm trong DOM của layout 'user' nên scope theo
+// .app-theme-scope, tránh ảnh hưởng sang trang dashboard/admin (dùng
+// chung các class NG-ZORRO này nhưng không tham gia dark mode). ─────────
+html[data-theme='dark'] .app-theme-scope {
+  .ant-card {
+    background-color: var(--color-bg-card);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .ant-card-head {
+    background-color: transparent;
+    border-bottom-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .ant-card-head-title {
+    color: var(--color-text);
+  }
+
+  .ant-table {
+    background-color: var(--color-bg-card);
+    color: var(--color-text);
+  }
+
+  .ant-table-thead > tr > th {
+    background-color: var(--color-bg-page);
+    border-bottom-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background-color: var(--color-accent-bg);
+  }
+
+  .ant-table-placeholder,
+  .ant-empty-description {
+    color: var(--color-text-muted);
+  }
+
+  .ant-pagination-item {
+    background-color: var(--color-bg-page);
+    border-color: var(--color-border);
+
+    a {
+      color: var(--color-text);
+    }
+
+    &-active {
+      border-color: var(--color-accent);
+
+      a {
+        color: var(--color-accent);
+      }
+    }
+  }
+
+  .ant-pagination-prev .ant-pagination-item-link,
+  .ant-pagination-next .ant-pagination-item-link {
+    background-color: var(--color-bg-page);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+}
 
 body {
   font-family: "DM Sans", sans-serif;
   font-weight: 400;
   margin: 0;
+  background: var(--color-bg-page);
+  color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// ── Icon button dùng chung cho navbar (search, theme toggle, switch lang) ──
+// Đặt ở global thay vì trong navbar.component.scss vì các nút này nằm rải
+// rác ở nhiều component con khác nhau (app-theme-toggle, app-switch-lang) -
+// style scoped theo view encapsulation của navbar sẽ không áp được vào
+// template của component con dù cùng tên class.
+.navbar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: var(--color-accent-bg);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 *,

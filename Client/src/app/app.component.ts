@@ -6,6 +6,7 @@ import {
   AuthService,
   LangService,
   VisitTrackingService,
+  ThemeService,
 } from './services';
 import { filter, Observable } from 'rxjs';
 import { IErrorInfo } from './interfaces';
@@ -45,6 +46,7 @@ export class AppComponent implements OnInit {
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
   visitTrackingService = inject(VisitTrackingService);
+  themeService = inject(ThemeService);
 
   lstRouteLayoutNone = ['/login', '/forgot-password'];
 
@@ -55,6 +57,7 @@ export class AppComponent implements OnInit {
     const curLang = this.langService.getLang();
     this.translate.setDefaultLang(curLang);
     this.translate.use(curLang);
+    this.themeService.init();
 
     this.isLoading$ = this.loadingService.getLoading();
     // Subscribe đơn giản
@@ -95,6 +98,8 @@ export class AppComponent implements OnInit {
         } else {
           this.layoutType = 'user';
         }
+
+        this.themeService.applyForLayout(this.layoutType === 'user');
       });
 
     this.navigationEnd.subscribe(() => {

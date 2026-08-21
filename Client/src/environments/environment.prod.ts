@@ -3,6 +3,7 @@ export const environment = {
   tokenKey: 'tokenKey',
   langKey: 'langKey',
   refreshTokenKey: 'refreshTokenKey',
+  themeKey: 'themeKey',
   apiUrl: 'https://ang-net.onrender.com/api/',
   wsUrl: 'https://ang-net.onrender.com/',
   // anhduongcute97@gmail.com // AnhDuong09072002!??? => fromt to 2024/11/26

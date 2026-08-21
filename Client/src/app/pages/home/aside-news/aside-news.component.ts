@@ -50,6 +50,7 @@ export class AsideNewsComponent implements OnInit {
           throw new Error(err);
         },
       });
+    this.loadingService.setLoading(true);
     this.apiService
       .GetTopHashTag()
       .pipe()

@@ -37,6 +37,17 @@
   </head>
 
   <body>
+    <script>
+      // Set data-theme trước khi Angular bootstrap để tránh nháy sáng/tối
+      // (localStorage key phải khớp environment.themeKey = 'themeKey')
+      (function () {
+        var theme = localStorage.getItem('themeKey');
+        document.documentElement.setAttribute(
+          'data-theme',
+          theme === 'dark' ? 'dark' : 'light'
+        );
+      })();
+    </script>
     <app-root></app-root>
   </body>
   <script src="https://accounts.google.com/gsi/client" async defer></script>

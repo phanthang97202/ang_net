@@ -37,28 +37,28 @@
     transition: background 0.2s, color 0.2s;
 
     a {
-      color: #1a1a2e;
+      color: var(--color-text);
       transition: color 0.2s;
     }
 
     &:hover {
-      background: rgba(91, 79, 233, 0.08);
+      background: var(--color-accent-bg);
 
       a {
-        color: #5b4fe9;
+        color: var(--color-accent);
       }
     }
 
     &-active {
-      background: #fff;
-      box-shadow: 0 2px 10px rgba(20, 15, 60, 0.1);
+      background: var(--color-bg-card);
+      box-shadow: 0 2px 10px var(--color-card-shadow);
 
       a {
-        color: #5b4fe9;
+        color: var(--color-accent);
       }
 
       &:hover {
-        background: #fff;
+        background: var(--color-bg-card);
       }
     }
   }
@@ -81,21 +81,21 @@
       background: transparent;
       border: none;
       border-radius: 10px;
-      color: #1a1a2e;
+      color: var(--color-text);
       transition: background 0.2s, color 0.2s;
 
       &:hover {
-        background: rgba(91, 79, 233, 0.08);
-        color: #5b4fe9;
+        background: var(--color-accent-bg);
+        color: var(--color-accent);
       }
     }
 
     &.ant-pagination-disabled .ant-pagination-item-link {
-      color: #c7c6d4;
+      color: var(--color-text-muted);
 
       &:hover {
         background: transparent;
-        color: #c7c6d4;
+        color: var(--color-text-muted);
       }
     }
   }
@@ -115,7 +115,7 @@
 
     .ant-pagination-item-ellipsis {
       display: inline-block;
-      color: #9291a5;
+      color: var(--color-text-muted);
       letter-spacing: 0.1em;
     }
   }

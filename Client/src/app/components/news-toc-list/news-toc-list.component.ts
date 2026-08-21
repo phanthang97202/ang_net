@@ -27,6 +27,7 @@ export class NewsTocListComponent implements OnInit, OnChanges {
 
   tocItems: TocItem[] = [];
   activeId = '';
+  isOpen = false;
 
   ngOnInit() {
     this.generateToc();
@@ -94,6 +95,19 @@ export class NewsTocListComponent implements OnInit, OnChanges {
         }
       }
     }, 50);
+  }
+
+  toggleOpen() {
+    this.isOpen = !this.isOpen;
+  }
+
+  close() {
+    this.isOpen = false;
+  }
+
+  onItemClick(id: string) {
+    this.scrollToElement(id);
+    this.close();
   }
 
   scrollToElement(id: string) {

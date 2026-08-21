@@ -15,6 +15,7 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 interface RouteItem {
   path?: string;
@@ -40,6 +41,7 @@ interface RouteItem {
     NzPopoverModule,
     NzAvatarModule,
     SwitchLangComponent,
+    ThemeToggleComponent,
     TranslateModule,
   ],
   templateUrl: './navbar.component.html',
