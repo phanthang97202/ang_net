@@ -15,12 +15,13 @@
 // trải nghiệm SPA không đổi - chỉ có phần <meta> trong <head> là được thay
 // bằng nội dung bài viết trước khi HTML rời server.
 //
-// Vercel chỉ tự nhận diện Routing Middleware qua đúng tên file
-// "middleware.js"/"middleware.ts" ở gốc project - bản .mjs trước đó không
-// được build (build log không hề nhắc tới "middleware"). Viết theo cú pháp
-// CommonJS (module.exports) giống hệt api/groq-chat.js đã chạy được, để
-// không phải thêm "type": "module" vào package.json (tránh ảnh hưởng build
-// Angular/ESLint đang mặc định CommonJS).
+// Đổi từ .mjs sang .js + đổi tên đúng quy ước "middleware.js" trước đó vẫn
+// không được Vercel build (build log không hề nhắc tới "middleware"), nên
+// giờ khai báo tường minh qua vercel.json (proxy.entrypoint) thay vì dựa
+// vào auto-detect. Viết theo cú pháp CommonJS (module.exports) giống hệt
+// api/groq-chat.js đã chạy được, để không phải thêm "type": "module" vào
+// package.json (tránh ảnh hưởng build Angular/ESLint đang mặc định
+// CommonJS).
 
 const API_BASE = 'https://ang-net.onrender.com/api/';
 const SITE_NAME = 'Phan Thang - Blog cá nhân';
@@ -87,8 +88,9 @@ module.exports = async function middleware(request) {
   }
 };
 
+// matcher khai báo ở vercel.json (proxy.matcher) để tránh 2 nguồn khai báo
+// khác nhau; ở đây chỉ còn runtime.
 module.exports.config = {
-  matcher: '/news/:categoryId/:newsId',
   runtime: 'nodejs',
 };
 
