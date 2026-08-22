@@ -28,6 +28,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         public INewsCategoryRespository NewsCategoryRespository { get; }
         public IAuditTrailRespository AuditTrailRespository { get; }
         public ITenantRepository TenantRepository { get; }
+        public ISysParameterRespository SysParameterRespository { get; }
 
         public UnitOfWork
             (
@@ -40,6 +41,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
                 , INewsCategoryRespository newsCategoryRespository
                 , IAuditTrailRespository auditTrailRespository
                 , ITenantRepository tenantRepository
+                , ISysParameterRespository sysParameterRespository
 
             )
         {
@@ -53,6 +55,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
             NewsCategoryRespository = newsCategoryRespository;
             AuditTrailRespository = auditTrailRespository;
             TenantRepository = tenantRepository;
+            SysParameterRespository = sysParameterRespository;
         }
 
         // ====================================

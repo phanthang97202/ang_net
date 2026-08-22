@@ -12,6 +12,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         INewsCategoryRespository NewsCategoryRespository { get; }
         IAuditTrailRespository AuditTrailRespository { get; }
         ITenantRepository TenantRepository { get; }
+        ISysParameterRespository SysParameterRespository { get; }
         Task<int> SaveChangesAsync(); // commit all changes into db
     }
 }

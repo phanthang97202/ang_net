@@ -57,6 +57,9 @@ namespace angnet.Infrastructure.Data
         public DbSet<ShiftReportTransactionModel> ShiftReportTransaction { get; set; }
         public DbSet<ShiftReportRoomSaleModel> ShiftReportRoomSale { get; set; }
 
+        // Tham số hệ thống
+        public DbSet<SysParameterModel> SysParameter { get; set; }
+
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
