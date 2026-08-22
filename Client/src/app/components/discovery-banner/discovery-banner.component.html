@@ -1,30 +1,40 @@
 <section class="hero" appScrollReveal>
-  <div
-    class="hero-bg"
-    [style.background-image]="'url(' + activeBanner.image + ')'"></div>
+  <!-- Các layer ảnh nền xếp chồng, crossfade opacity khi đổi slide -->
+  <div class="hero-bg-layers">
+    <div
+      *ngFor="let b of banners; let i = index"
+      class="hero-bg"
+      [class.is-active]="i === activeIndex"
+      [style.background-image]="'url(' + b.image + ')'"></div>
+  </div>
   <div class="hero-overlay"></div>
 
   <div class="hero-content">
     <div class="hero-text">
-      <h1 class="hero-title" [innerHTML]="activeBanner.title"></h1>
-      <p class="hero-subtitle">{{ activeBanner.description }}</p>
+      <div
+        *ngFor="let idx of [activeIndex]; trackBy: trackByActiveIndex"
+        class="hero-text-inner hero-text-anim">
+        <h1 class="hero-title" [innerHTML]="activeBanner.title"></h1>
+        <p class="hero-subtitle">{{ activeBanner.description }}</p>
 
-      <ng-container *ngIf="activeBanner.buttonText && activeBanner.buttonLink">
-        <a
-          *ngIf="!isExternal(activeBanner.buttonLink)"
-          [routerLink]="activeBanner.buttonLink"
-          class="hero-cta"
-          >{{ activeBanner.buttonText }}</a
-        >
-        <a
-          *ngIf="isExternal(activeBanner.buttonLink)"
-          [href]="activeBanner.buttonLink"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hero-cta"
-          >{{ activeBanner.buttonText }}</a
-        >
-      </ng-container>
+        <ng-container
+          *ngIf="activeBanner.buttonText && activeBanner.buttonLink">
+          <a
+            *ngIf="!isExternal(activeBanner.buttonLink)"
+            [routerLink]="activeBanner.buttonLink"
+            class="hero-cta"
+            >{{ activeBanner.buttonText }}</a
+          >
+          <a
+            *ngIf="isExternal(activeBanner.buttonLink)"
+            [href]="activeBanner.buttonLink"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hero-cta"
+            >{{ activeBanner.buttonText }}</a
+          >
+        </ng-container>
+      </div>
 
       <div class="hero-dots" *ngIf="banners.length > 1">
         <span

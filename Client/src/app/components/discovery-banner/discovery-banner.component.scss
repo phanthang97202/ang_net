@@ -11,12 +11,23 @@
   align-items: center;
 }
 
+.hero-bg-layers {
+  position: absolute;
+  inset: 0;
+}
+
 .hero-bg {
   position: absolute;
   inset: 0;
-  // background-image được gán inline theo banner đang hiển thị (slideshow)
+  // background-image được gán inline theo từng banner (crossfade opacity)
   background-size: cover;
   background-position: center bottom;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+
+  &.is-active {
+    opacity: 1;
+  }
 }
 
 // Lớp phủ trắng mờ bên trái để chữ luôn đọc rõ, bất kể ảnh nền sáng/tối
@@ -45,6 +56,28 @@
 
 .hero-text {
   max-width: 480px;
+}
+
+// Khối chữ được tạo lại mỗi lần đổi slide -> keyframe chạy lại (fade + trượt lên)
+.hero-text-anim {
+  animation: heroTextIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes heroTextIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-text-anim {
+    animation: none;
+  }
 }
 
 .hero-title {

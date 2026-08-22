@@ -13,3 +13,18 @@
 .sysparam__search-category {
   width: 200px;
 }
+
+// Ô giá trị JSON dài: giới hạn 3 dòng + ellipsis, hover để xem full (title).
+.sysparam__cell {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #595959;
+  cursor: help;
+}

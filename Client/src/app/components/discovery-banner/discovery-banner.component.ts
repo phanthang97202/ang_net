@@ -63,6 +63,12 @@ export class DiscoveryBannerComponent implements OnInit, OnDestroy {
     this.activeIndex = index;
   }
 
+  // trackBy trả về chính activeIndex: khi đổi slide, key đổi -> Angular tạo lại
+  // khối chữ -> CSS keyframe (.hero-text-anim) chạy lại tạo hiệu ứng fade/trượt.
+  trackByActiveIndex(_: number, value: number): number {
+    return value;
+  }
+
   isExternal(link?: string): boolean {
     return /^https?:\/\//i.test(link || '');
   }

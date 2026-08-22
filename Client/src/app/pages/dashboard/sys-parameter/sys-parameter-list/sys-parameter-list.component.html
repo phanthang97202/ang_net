@@ -61,8 +61,8 @@
             <th nzWidth="60px">#</th>
             <th nzColumnKey="ParameterCode" [nzSortFn]="true">Code</th>
             <th nzColumnKey="ParameterNameVi" [nzSortFn]="true">Name (VI)</th>
-            <th nzColumnKey="ParameterValueVi">Value (VI)</th>
-            <th nzColumnKey="DefaultValueVi">Default (VI)</th>
+            <th nzColumnKey="ParameterValueVi" nzWidth="320px">Value (VI)</th>
+            <th nzColumnKey="DefaultValueVi" nzWidth="200px">Default (VI)</th>
             <th nzColumnKey="DataType" [nzSortFn]="true">Data Type</th>
             <th nzColumnKey="Category" [nzSortFn]="true">Category</th>
             <th nzColumnKey="SortOrder" [nzSortFn]="true" nzWidth="80px">
@@ -93,8 +93,16 @@
               <strong>{{ data.ParameterCode }}</strong>
             </td>
             <td>{{ data.ParameterNameVi }}</td>
-            <td>{{ data.ParameterValueVi }}</td>
-            <td>{{ data.DefaultValueVi }}</td>
+            <td>
+              <div class="sysparam__cell" [title]="data.ParameterValueVi">
+                {{ data.ParameterValueVi }}
+              </div>
+            </td>
+            <td>
+              <div class="sysparam__cell" [title]="data.DefaultValueVi">
+                {{ data.DefaultValueVi }}
+              </div>
+            </td>
             <td>
               <nz-tag [nzColor]="'geekblue'">{{ data.DataType }}</nz-tag>
             </td>

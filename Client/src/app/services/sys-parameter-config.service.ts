@@ -11,6 +11,7 @@ export const SYS_PARAM_CODE = {
   HOME_INTRO: 'HOME_INTRO',
   SOCIAL_LINKS: 'SOCIAL_LINKS',
   HOME_FEATURED_IMAGES: 'HOME_FEATURED_IMAGES',
+  WARNING_BANNER: 'WARNING_BANNER',
 } as const;
 
 @Injectable({
@@ -24,9 +25,29 @@ export class SysParameterConfigService {
   // sidebar + footer) share chung 1 request.
   private cache = new Map<string, Observable<IResponseSysParameterCreate | null>>();
 
-  // Trả về giá trị JSON đã parse (theo ngôn ngữ hiện tại), null nếu chưa cấu
-  // hình / lỗi parse -> component tự dùng giá trị mặc định.
+  // Giá trị text thuần (theo ngôn ngữ hiện tại), null nếu chưa cấu hình.
+  getText(code: string): Observable<string | null> {
+    return this.getRaw(code);
+  }
+
+  // Giá trị JSON đã parse, null nếu chưa cấu hình / lỗi parse -> component tự
+  // dùng giá trị mặc định.
   getJson<T>(code: string): Observable<T | null> {
+    return this.getRaw(code).pipe(
+      map(raw => {
+        if (!raw) {
+          return null;
+        }
+        try {
+          return JSON.parse(raw) as T;
+        } catch {
+          return null;
+        }
+      })
+    );
+  }
+
+  private getRaw(code: string): Observable<string | null> {
     if (!this.cache.has(code)) {
       const request$ = this.api.SysParameterDetail(code).pipe(
         catchError(() => of(null)),
@@ -35,10 +56,10 @@ export class SysParameterConfigService {
       this.cache.set(code, request$);
     }
 
-    return this.cache.get(code)!.pipe(map(res => this.parse<T>(res)));
+    return this.cache.get(code)!.pipe(map(res => this.readValue(res)));
   }
 
-  private parse<T>(res: IResponseSysParameterCreate | null): T | null {
+  private readValue(res: IResponseSysParameterCreate | null): string | null {
     const data = res?.Data;
     if (!res?.Success || !data) {
       return null;
@@ -50,14 +71,6 @@ export class SysParameterConfigService {
         ? data.ParameterValueEn || data.ParameterValueVi
         : data.ParameterValueVi || data.ParameterValueEn;
 
-    if (!raw) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(raw) as T;
-    } catch {
-      return null;
-    }
+    return raw || null;
   }
 }
