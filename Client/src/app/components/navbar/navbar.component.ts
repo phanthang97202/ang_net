@@ -76,6 +76,7 @@ export class NavbarComponent implements OnInit {
         },
       ],
     },
+    { path: '/reels', title: 'Reels', icon: 'play-circle' },
     { path: '/about', title: 'AboutMe', icon: 'user' },
   ];
 

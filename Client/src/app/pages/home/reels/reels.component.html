@@ -1,20 +1,58 @@
-<div class="reels__viewport">
-  @for (reel of lstReels; track reel.ReelId; let i = $index) {
-    <div class="reels__slide" #reelHost [attr.data-index]="i">
-      <app-reel-item
-        [reel]="reel"
-        [isActive]="i === activeIndex"
-        [isMuted]="isMuted"
-        [isMounted]="isMounted(i)"
-      />
-    </div>
-  }
-</div>
+<div class="reels">
+  <div class="reels__viewport" #viewport>
+    @for (reel of lstReels; track reel.ReelId; let i = $index) {
+      <div class="reels__slide" #reelHost [attr.data-index]="i">
+        <app-reel-item
+          [reel]="reel"
+          [isActive]="i === activeIndex"
+          [isMuted]="isMuted"
+          [isMounted]="isMounted(i)"
+          (likeToggled)="onLikeToggled($event)" />
+      </div>
+    }
 
-<button
-  type="button"
-  class="reels__mute-toggle"
-  (click)="toggleMute()"
->
-  {{ isMuted ? 'Unmute' : 'Mute' }}
-</button>
+    @if (!isLoading && lstReels.length === 0) {
+      <div class="reels__empty">Chưa có reel nào.</div>
+    }
+  </div>
+
+  <!-- Điều khiển nổi -->
+  <button
+    type="button"
+    class="reels__btn reels__btn--back"
+    (click)="goBack()"
+    aria-label="Back">
+    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+  </button>
+
+  <button
+    type="button"
+    class="reels__btn reels__btn--mute"
+    (click)="toggleMute()"
+    [attr.aria-label]="isMuted ? 'Unmute' : 'Mute'">
+    <span
+      nz-icon
+      [nzType]="isMuted ? 'sound' : 'notification'"
+      nzTheme="outline"></span>
+  </button>
+
+  <!-- Nút lên/xuống kiểu TikTok web, ẩn trên màn hình hẹp -->
+  <div class="reels__nav">
+    <button
+      type="button"
+      class="reels__btn"
+      [disabled]="activeIndex === 0"
+      (click)="scrollToIndex(activeIndex - 1)"
+      aria-label="Previous reel">
+      <span nz-icon nzType="up" nzTheme="outline"></span>
+    </button>
+    <button
+      type="button"
+      class="reels__btn"
+      [disabled]="activeIndex >= lstReels.length - 1"
+      (click)="scrollToIndex(activeIndex + 1)"
+      aria-label="Next reel">
+      <span nz-icon nzType="down" nzTheme="outline"></span>
+    </button>
+  </div>
+</div>

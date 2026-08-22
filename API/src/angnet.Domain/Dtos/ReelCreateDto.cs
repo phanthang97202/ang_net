@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using angnet.Domain.Enums;
 
 namespace angnet.Domain.Dtos
@@ -5,6 +6,8 @@ namespace angnet.Domain.Dtos
     public class ReelCreateDto
     {
         public string Caption { get; set; } = string.Empty;
+        // Cho phép client gửi "Video"/"Image" thay vì số thứ tự enum
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public EReelMediaType MediaType { get; set; }
         public string CoverUrl { get; set; } = string.Empty;
         public List<ReelMediaCreateDto> Media { get; set; } = new List<ReelMediaCreateDto>();

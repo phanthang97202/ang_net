@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using angnet.Application.Interfaces.Repositories;
 using angnet.Domain.Dtos;
 using angnet.Domain.Models;
@@ -13,6 +14,44 @@ namespace angnet.Infrastructure.Data.Repositories
         public ReelRespository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor) : base(appDbContext, httpContextAccessor)
         {
             _dbContext = appDbContext;
+        }
+
+        /// <summary>
+        /// Một chỗ duy nhất dựng ReelDto, dùng chung cho Feed và Detail.
+        /// Feed cũng cần Media (không chỉ CoverUrl) vì nó là màn hình phát video trực tiếp:
+        /// thiếu Media thì client phải gọi thêm Detail cho từng reel lúc cuộn tới, hỏng preload.
+        /// </summary>
+        private Expression<Func<ReelModel, ReelDto>> ToReelDto(string currentUserId)
+        {
+            return r => new ReelDto
+            {
+                ReelId = r.ReelId,
+                UserId = r.UserId,
+                UserFullName = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.FullName).FirstOrDefault(),
+                UserAvatar = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.Avatar).FirstOrDefault(),
+                Caption = r.Caption,
+                MediaType = r.MediaType,
+                CoverUrl = r.CoverUrl,
+                ViewCount = r.ViewCount,
+                LikeCount = r.LikeCount,
+                CommentCount = r.CommentCount,
+                IsLikedByMe = currentUserId != null && _dbContext.LikeReel.Any(l => l.ReelId == r.ReelId && l.UserId == currentUserId),
+                IsOwnedByMe = currentUserId != null && r.UserId == currentUserId,
+                CreatedDTime = r.CreatedDTime,
+                Media = _dbContext.ReelMedia
+                    .Where(m => m.ReelId == r.ReelId && m.FlagActive)
+                    .OrderBy(m => m.SortOrder)
+                    .Select(m => new ReelMediaDto
+                    {
+                        ReelMediaId = m.ReelMediaId,
+                        MediaUrl = m.MediaUrl,
+                        SortOrder = m.SortOrder,
+                        DurationSeconds = m.DurationSeconds,
+                        Width = m.Width,
+                        Height = m.Height,
+                    })
+                    .ToList(),
+            };
         }
 
         public async Task<(List<ReelDto> Data, string NextCursor, bool HasMore)> GetFeed(int pageSize, string cursor, string currentUserId)
@@ -32,37 +71,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 .OrderByDescending(r => r.CreatedDTime)
                 .ThenByDescending(r => r.ReelId)
                 .Take(pageSize + 1) // lấy dư 1 để biết còn trang sau hay không
-                .Select(r => new ReelDto
-                {
-                    ReelId = r.ReelId,
-                    UserId = r.UserId,
-                    UserFullName = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.FullName).FirstOrDefault(),
-                    UserAvatar = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.Avatar).FirstOrDefault(),
-                    Caption = r.Caption,
-                    MediaType = r.MediaType,
-                    CoverUrl = r.CoverUrl,
-                    ViewCount = r.ViewCount,
-                    LikeCount = r.LikeCount,
-                    CommentCount = r.CommentCount,
-                    IsLikedByMe = currentUserId != null && _dbContext.LikeReel.Any(l => l.ReelId == r.ReelId && l.UserId == currentUserId),
-                    IsOwnedByMe = currentUserId != null && r.UserId == currentUserId,
-                    CreatedDTime = r.CreatedDTime,
-                    // Feed là màn hình phát video trực tiếp (không phải lưới thumbnail), nên phải có Media
-                    // ngay từ đây - nếu không FE phải gọi thêm Detail cho từng reel lúc cuộn tới, phá preload.
-                    Media = _dbContext.ReelMedia
-                        .Where(m => m.ReelId == r.ReelId && m.FlagActive)
-                        .OrderBy(m => m.SortOrder)
-                        .Select(m => new ReelMediaDto
-                        {
-                            ReelMediaId = m.ReelMediaId,
-                            MediaUrl = m.MediaUrl,
-                            SortOrder = m.SortOrder,
-                            DurationSeconds = m.DurationSeconds,
-                            Width = m.Width,
-                            Height = m.Height,
-                        })
-                        .ToList(),
-                })
+                .Select(ToReelDto(currentUserId))
                 .ToListAsync();
 
             bool hasMore = dataResult.Count > pageSize;
@@ -80,40 +89,10 @@ namespace angnet.Infrastructure.Data.Repositories
 
         public async Task<ReelDto> GetDetail(string reelId, string currentUserId)
         {
-            ReelDto reel = await _dbContext.Reel.AsNoTracking()
+            return await _dbContext.Reel.AsNoTracking()
                 .Where(r => r.ReelId == reelId && r.FlagActive)
-                .Select(r => new ReelDto
-                {
-                    ReelId = r.ReelId,
-                    UserId = r.UserId,
-                    UserFullName = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.FullName).FirstOrDefault(),
-                    UserAvatar = _dbContext.Users.Where(u => u.Id == r.UserId).Select(u => u.Avatar).FirstOrDefault(),
-                    Caption = r.Caption,
-                    MediaType = r.MediaType,
-                    CoverUrl = r.CoverUrl,
-                    ViewCount = r.ViewCount,
-                    LikeCount = r.LikeCount,
-                    CommentCount = r.CommentCount,
-                    IsLikedByMe = currentUserId != null && _dbContext.LikeReel.Any(l => l.ReelId == r.ReelId && l.UserId == currentUserId),
-                    IsOwnedByMe = currentUserId != null && r.UserId == currentUserId,
-                    CreatedDTime = r.CreatedDTime,
-                    Media = _dbContext.ReelMedia
-                        .Where(m => m.ReelId == r.ReelId && m.FlagActive)
-                        .OrderBy(m => m.SortOrder)
-                        .Select(m => new ReelMediaDto
-                        {
-                            ReelMediaId = m.ReelMediaId,
-                            MediaUrl = m.MediaUrl,
-                            SortOrder = m.SortOrder,
-                            DurationSeconds = m.DurationSeconds,
-                            Width = m.Width,
-                            Height = m.Height,
-                        })
-                        .ToList(),
-                })
+                .Select(ToReelDto(currentUserId))
                 .FirstOrDefaultAsync();
-
-            return reel;
         }
 
         public async Task CreateWithMedia(ReelModel reel, List<ReelMediaModel> media)

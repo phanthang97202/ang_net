@@ -1,3 +1,5 @@
+import { IBaseResponse } from './common';
+
 export type EReelMediaType = 'Video' | 'Image';
 
 export interface IReelMediaDto {
@@ -32,15 +34,18 @@ export interface ICursorPageInfo<T> {
   HasMore: boolean;
 }
 
-// Không extend IBaseResponse<T>: objResult ở đây là cursor-based (ICursorPageInfo),
-// khác hẳn IPageInfo offset-based mà IBaseResponse đang giả định.
-export interface IReelFeedResponse {
-  Success: boolean;
-  ErrorMessage: string;
-  Data: IReelDto;
-  DataList: IReelDto[];
-  objResult: ICursorPageInfo<IReelDto>;
-  RequestDTimeAt: Date;
-  /*ignore-ts*/
-  RequestClients: any;
+export interface IReelLikeResult {
+  ReelId: string;
+  Liked: boolean;
+  LikeCount: number;
 }
+
+// Giữ nguyên phần envelope của IBaseResponse, chỉ thay objResult: ở đây là cursor-based
+// (ICursorPageInfo) chứ không phải IPageInfo offset-based mà IBaseResponse giả định.
+export type IReelFeedResponse = Omit<IBaseResponse<IReelDto>, 'objResult'> & {
+  objResult: ICursorPageInfo<IReelDto>;
+};
+
+export type IReelLikeResponse = Omit<IBaseResponse<IReelDto>, 'objResult'> & {
+  objResult: IReelLikeResult;
+};

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using angnet.Domain.Enums;
 
 namespace angnet.Domain.Dtos
@@ -9,6 +10,8 @@ namespace angnet.Domain.Dtos
         public string UserFullName { get; set; } = string.Empty;
         public string UserAvatar { get; set; } = string.Empty;
         public string Caption { get; set; } = string.Empty;
+        // Không có converter thì enum ra JSON dạng số, client đọc 'Video'/'Image' sẽ luôn sai
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public EReelMediaType MediaType { get; set; }
         public string CoverUrl { get; set; } = string.Empty;
         public int ViewCount { get; set; }

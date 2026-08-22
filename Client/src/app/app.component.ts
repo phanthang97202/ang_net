@@ -48,7 +48,8 @@ export class AppComponent implements OnInit {
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
 
-  lstRouteLayoutNone = ['/login', '/forgot-password'];
+  // /reels chiếm trọn màn hình kiểu TikTok: không navbar/footer, không margin ngoài
+  lstRouteLayoutNone = ['/login', '/forgot-password', '/reels'];
 
   constructor(
     public router: Router,

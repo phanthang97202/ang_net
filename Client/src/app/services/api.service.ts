@@ -19,6 +19,7 @@ import {
   IResponseSysParameterCreate,
   IResponseSysParameterSearch,
   IReelFeedResponse,
+  IReelLikeResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -241,6 +242,13 @@ export class ApiService {
     const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
     return this.http.get<IReelFeedResponse>(
       `${this.apiUrl}reel/feed?pageSize=${pageSize}${cursorParam}`
+    );
+  }
+
+  ReelLike(reelId: string): Observable<IReelLikeResponse> {
+    return this.http.post<IReelLikeResponse>(
+      `${this.apiUrl}reel/like?reelId=${encodeURIComponent(reelId)}`,
+      {}
     );
   }
 }

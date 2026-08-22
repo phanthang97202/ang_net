@@ -1,10 +1,30 @@
 :host {
-  position: relative;
   display: block;
   width: 100%;
   height: 100%;
-  background: #000;
+}
+
+.reel-item {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+}
+
+// Khung dọc 9:16, cao tối đa theo màn hình - giống video card của TikTok web
+.reel-item__stage {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  border-radius: 12px;
   overflow: hidden;
+  background: #111;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .reel-item__media {
@@ -14,14 +34,30 @@
   display: block;
 }
 
-.reel-item__overlay {
+.reel-item__media--placeholder {
+  background: linear-gradient(135deg, #1f1f1f, #111);
+}
+
+.reel-item__play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  color: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.reel-item__info {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 16px 16px 28px;
+  padding: 16px 16px 20px;
   color: #fff;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent 70%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 75%);
   pointer-events: none;
 }
 
@@ -33,21 +69,109 @@
 }
 
 .reel-item__avatar {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
-  background: #333;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.reel-item__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4b5563;
+  font-weight: 600;
+  font-size: 15px;
 }
 
 .reel-item__username {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .reel-item__caption {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.4;
-  max-width: 80%;
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 90%;
+}
+
+// Cột nút bên phải khung video
+.reel-item__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 28px;
+  color: #fff;
+}
+
+.reel-item__action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+button.reel-item__action {
+  cursor: pointer;
+}
+
+.reel-item__action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 22px;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+button.reel-item__action:hover .reel-item__action-icon {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+button.reel-item__action:active .reel-item__action-icon {
+  transform: scale(0.92);
+}
+
+.reel-item__action.is-liked .reel-item__action-icon {
+  color: #fe2c55; // đỏ TikTok
+}
+
+// Màn hình hẹp: video tràn viền, nút hành động nổi đè lên video
+@media (max-width: 640px) {
+  .reel-item {
+    padding: 0;
+    gap: 0;
+  }
+
+  .reel-item__stage {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  .reel-item__actions {
+    position: absolute;
+    right: 8px;
+    bottom: 90px;
+    z-index: 2;
+  }
+
+  .reel-item__info {
+    padding-right: 76px;
+  }
 }

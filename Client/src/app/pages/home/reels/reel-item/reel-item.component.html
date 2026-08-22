@@ -1,29 +1,97 @@
-@if (isMounted) {
-  @if (isVideo) {
-    <video
-      #videoRef
-      class="reel-item__media"
-      [src]="mediaUrl"
-      [muted]="isMuted"
-      [poster]="reel.CoverUrl"
-      [preload]="isActive ? 'auto' : 'metadata'"
-      loop
-      playsinline
-      (canplay)="onCanPlay()"
-    ></video>
-  } @else {
-    <img class="reel-item__media" [src]="mediaUrl" [alt]="reel.Caption" />
-  }
-} @else {
-  <img class="reel-item__media" [src]="reel.CoverUrl" [alt]="reel.Caption" />
-}
+<div class="reel-item">
+  <!-- Khung video dọc 9:16 căn giữa, giống layout TikTok web -->
+  <div
+    class="reel-item__stage"
+    role="button"
+    tabindex="0"
+    (click)="togglePlay()"
+    (keydown.enter)="togglePlay()"
+    (keydown.space)="togglePlay()">
+    @if (isMounted) {
+      @if (isVideo) {
+        <video
+          #videoRef
+          class="reel-item__media"
+          [src]="mediaUrl"
+          [muted]="isMuted"
+          [poster]="coverUrl"
+          [preload]="isActive ? 'auto' : 'metadata'"
+          loop
+          playsinline
+          (canplay)="onCanPlay()"
+          (play)="onPlay()"
+          (pause)="onPause()"></video>
 
-<div class="reel-item__overlay">
-  <div class="reel-item__author">
-    <img class="reel-item__avatar" [src]="reel.UserAvatar" alt="" />
-    <span class="reel-item__username">{{ reel.UserFullName }}</span>
+        @if (!isPlaying) {
+          <span class="reel-item__play-overlay">
+            <span nz-icon nzType="caret-right" nzTheme="fill"></span>
+          </span>
+        }
+      } @else {
+        <img class="reel-item__media" [src]="mediaUrl" [alt]="reel.Caption" />
+      }
+    } @else if (coverUrl) {
+      <img class="reel-item__media" [src]="coverUrl" [alt]="reel.Caption" />
+    } @else {
+      <div class="reel-item__media reel-item__media--placeholder"></div>
+    }
+
+    <!-- Thông tin tác giả + caption -->
+    <div class="reel-item__info">
+      <div class="reel-item__author">
+        @if (avatarUrl) {
+          <img class="reel-item__avatar" [src]="avatarUrl" alt="" />
+        } @else {
+          <span class="reel-item__avatar reel-item__avatar--fallback">{{
+            authorInitial
+          }}</span>
+        }
+        <span class="reel-item__username">{{ reel.UserFullName }}</span>
+      </div>
+      @if (reel.Caption) {
+        <p class="reel-item__caption">{{ reel.Caption }}</p>
+      }
+    </div>
   </div>
-  @if (reel.Caption) {
-    <p class="reel-item__caption">{{ reel.Caption }}</p>
-  }
+
+  <!-- Thanh hành động dọc bên phải -->
+  <div class="reel-item__actions">
+    <button
+      type="button"
+      class="reel-item__action"
+      [class.is-liked]="reel.IsLikedByMe"
+      (click)="onLike()"
+      aria-label="Like">
+      <span
+        class="reel-item__action-icon"
+        nz-icon
+        nzType="heart"
+        [nzTheme]="reel.IsLikedByMe ? 'fill' : 'outline'"></span>
+      <span class="reel-item__action-count">{{
+        formatCount(reel.LikeCount)
+      }}</span>
+    </button>
+
+    <div class="reel-item__action" aria-label="Comments">
+      <span
+        class="reel-item__action-icon"
+        nz-icon
+        nzType="message"
+        nzTheme="fill"></span>
+      <span class="reel-item__action-count">{{
+        formatCount(reel.CommentCount)
+      }}</span>
+    </div>
+
+    <div class="reel-item__action" aria-label="Views">
+      <span
+        class="reel-item__action-icon"
+        nz-icon
+        nzType="eye"
+        nzTheme="fill"></span>
+      <span class="reel-item__action-count">{{
+        formatCount(reel.ViewCount)
+      }}</span>
+    </div>
+  </div>
 </div>
