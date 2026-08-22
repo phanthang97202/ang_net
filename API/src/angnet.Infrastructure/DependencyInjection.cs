@@ -67,6 +67,10 @@ namespace angnet.Infrastructure
             services.AddScoped<ISysParameterRespository, SysParameterRespository>();
             services.AddScoped<ISysParameterService, SysParameterService>();
 
+            services.AddScoped<IReelRespository, ReelRespository>();
+            services.AddScoped<IReelCommentRespository, ReelCommentRespository>();
+            services.AddScoped<IReelService, ReelService>();
+
             // Extension: Shift report
             services.AddScoped<IShiftReportService, ShiftReportService>();
             services.AddScoped<IRevenueReportService, RevenueReportService>();

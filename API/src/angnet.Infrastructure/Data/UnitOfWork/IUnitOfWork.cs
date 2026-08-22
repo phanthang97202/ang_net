@@ -13,6 +13,8 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         IAuditTrailRespository AuditTrailRespository { get; }
         ITenantRepository TenantRepository { get; }
         ISysParameterRespository SysParameterRespository { get; }
+        IReelRespository ReelRespository { get; }
+        IReelCommentRespository ReelCommentRespository { get; }
         Task<int> SaveChangesAsync(); // commit all changes into db
     }
 }

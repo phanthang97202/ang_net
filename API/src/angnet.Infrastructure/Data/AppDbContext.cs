@@ -60,6 +60,12 @@ namespace angnet.Infrastructure.Data
         // Tham số hệ thống
         public DbSet<SysParameterModel> SysParameter { get; set; }
 
+        // Reels
+        public DbSet<ReelModel> Reel { get; set; }
+        public DbSet<ReelMediaModel> ReelMedia { get; set; }
+        public DbSet<LikeReelModel> LikeReel { get; set; }
+        public DbSet<ReelCommentModel> ReelComment { get; set; }
+
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -307,6 +313,51 @@ namespace angnet.Infrastructure.Data
                         .HasOne<NewsCommentModel>()
                         .WithMany()
                         .HasForeignKey(p => p.CommentId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // ReelModel
+            modelBuilder.Entity<ReelModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // ReelMediaModel
+            modelBuilder.Entity<ReelMediaModel>()
+                        .HasOne<ReelModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.ReelId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // LikeReelModel
+            modelBuilder.Entity<LikeReelModel>()
+                        .HasOne<ReelModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.ReelId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<LikeReelModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            // ReelCommentModel
+            modelBuilder.Entity<ReelCommentModel>()
+                        .HasOne<ReelModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.ReelId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReelCommentModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReelCommentModel>() // Quan hệ cha con trong cùng một bảng (reply)
+                        .HasOne<ReelCommentModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.ParentCommentId)
                         .OnDelete(DeleteBehavior.Cascade);
 
             // AuditTrail

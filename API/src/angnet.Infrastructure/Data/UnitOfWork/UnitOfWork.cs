@@ -29,6 +29,8 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         public IAuditTrailRespository AuditTrailRespository { get; }
         public ITenantRepository TenantRepository { get; }
         public ISysParameterRespository SysParameterRespository { get; }
+        public IReelRespository ReelRespository { get; }
+        public IReelCommentRespository ReelCommentRespository { get; }
 
         public UnitOfWork
             (
@@ -42,6 +44,8 @@ namespace angnet.Infrastructure.Data.UnitOfWork
                 , IAuditTrailRespository auditTrailRespository
                 , ITenantRepository tenantRepository
                 , ISysParameterRespository sysParameterRespository
+                , IReelRespository reelRespository
+                , IReelCommentRespository reelCommentRespository
 
             )
         {
@@ -56,6 +60,8 @@ namespace angnet.Infrastructure.Data.UnitOfWork
             AuditTrailRespository = auditTrailRespository;
             TenantRepository = tenantRepository;
             SysParameterRespository = sysParameterRespository;
+            ReelRespository = reelRespository;
+            ReelCommentRespository = reelCommentRespository;
         }
 
         // ====================================
