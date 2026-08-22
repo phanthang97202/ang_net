@@ -18,6 +18,7 @@ import {
   IRequestSysParameterCreate,
   IResponseSysParameterCreate,
   IResponseSysParameterSearch,
+  IReelFeedResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -229,6 +230,17 @@ export class ApiService {
   GetAllActiveAuditTrail(): Observable<IAuditTrailResponse> {
     return this.http.get<IAuditTrailResponse>(
       `${this.apiUrl}audittrail/getallactive`
+    );
+  }
+
+  // Reel
+  ReelFeed(
+    pageSize: number,
+    cursor: string | null
+  ): Observable<IReelFeedResponse> {
+    const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+    return this.http.get<IReelFeedResponse>(
+      `${this.apiUrl}reel/feed?pageSize=${pageSize}${cursorParam}`
     );
   }
 }

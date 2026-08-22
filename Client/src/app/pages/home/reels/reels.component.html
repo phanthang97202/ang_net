@@ -1,0 +1,20 @@
+<div class="reels__viewport">
+  @for (reel of lstReels; track reel.ReelId; let i = $index) {
+    <div class="reels__slide" #reelHost [attr.data-index]="i">
+      <app-reel-item
+        [reel]="reel"
+        [isActive]="i === activeIndex"
+        [isMuted]="isMuted"
+        [isMounted]="isMounted(i)"
+      />
+    </div>
+  }
+</div>
+
+<button
+  type="button"
+  class="reels__mute-toggle"
+  (click)="toggleMute()"
+>
+  {{ isMuted ? 'Unmute' : 'Mute' }}
+</button>

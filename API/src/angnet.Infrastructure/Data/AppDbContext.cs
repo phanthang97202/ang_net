@@ -322,6 +322,10 @@ namespace angnet.Infrastructure.Data
                         .HasForeignKey(p => p.UserId)
                         .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ReelModel>()
+                        .Property(x => x.MediaType)
+                        .HasConversion<string>(); // Không convert thì EF ghi enum dạng số vào cột varchar(20), lỗi khi Create
+
             // ReelMediaModel
             modelBuilder.Entity<ReelMediaModel>()
                         .HasOne<ReelModel>()

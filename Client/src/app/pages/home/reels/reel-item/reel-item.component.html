@@ -1,0 +1,29 @@
+@if (isMounted) {
+  @if (isVideo) {
+    <video
+      #videoRef
+      class="reel-item__media"
+      [src]="mediaUrl"
+      [muted]="isMuted"
+      [poster]="reel.CoverUrl"
+      [preload]="isActive ? 'auto' : 'metadata'"
+      loop
+      playsinline
+      (canplay)="onCanPlay()"
+    ></video>
+  } @else {
+    <img class="reel-item__media" [src]="mediaUrl" [alt]="reel.Caption" />
+  }
+} @else {
+  <img class="reel-item__media" [src]="reel.CoverUrl" [alt]="reel.Caption" />
+}
+
+<div class="reel-item__overlay">
+  <div class="reel-item__author">
+    <img class="reel-item__avatar" [src]="reel.UserAvatar" alt="" />
+    <span class="reel-item__username">{{ reel.UserFullName }}</span>
+  </div>
+  @if (reel.Caption) {
+    <p class="reel-item__caption">{{ reel.Caption }}</p>
+  }
+</div>

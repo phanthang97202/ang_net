@@ -13,3 +13,4 @@ export * from './role';
 export * from './user';
 export * from './audit-trail';
 export * from './visit-stats';
+export * from './reel';

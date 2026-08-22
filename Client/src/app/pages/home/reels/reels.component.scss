@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  background: #000;
+}
+
+.reels__viewport {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+
+  // Ẩn scrollbar (feed vuốt dọc không cần thanh cuộn hiển thị)
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.reels__slide {
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+}
+
+.reels__mute-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.65);
+  }
+}

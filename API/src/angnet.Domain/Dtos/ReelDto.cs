@@ -18,7 +18,8 @@ namespace angnet.Domain.Dtos
         public bool IsOwnedByMe { get; set; }
         public DateTime CreatedDTime { get; set; }
 
-        // Chỉ populate ở Detail. Feed dùng CoverUrl để tránh join media cho từng item.
+        // Populate ở cả Feed lẫn Detail: Feed là màn hình phát video trực tiếp, cần Media
+        // ngay để FE tự phát/preload, không thể chờ thêm 1 lượt gọi Detail cho từng reel.
         public List<ReelMediaDto> Media { get; set; } = new List<ReelMediaDto>();
     }
 

@@ -27,6 +27,14 @@ export const routes: Routes = [
       ),
   },
   {
+    title: 'Reels',
+    path: 'reels',
+    loadComponent: () =>
+      import('./pages/home/reels/reels.component').then(
+        p => p.ReelsComponent
+      ),
+  },
+  {
     title: 'Tools',
     path: 'tools',
     // canActivate: [canActive],

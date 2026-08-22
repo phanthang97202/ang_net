@@ -47,6 +47,21 @@ namespace angnet.Infrastructure.Data.Repositories
                     IsLikedByMe = currentUserId != null && _dbContext.LikeReel.Any(l => l.ReelId == r.ReelId && l.UserId == currentUserId),
                     IsOwnedByMe = currentUserId != null && r.UserId == currentUserId,
                     CreatedDTime = r.CreatedDTime,
+                    // Feed là màn hình phát video trực tiếp (không phải lưới thumbnail), nên phải có Media
+                    // ngay từ đây - nếu không FE phải gọi thêm Detail cho từng reel lúc cuộn tới, phá preload.
+                    Media = _dbContext.ReelMedia
+                        .Where(m => m.ReelId == r.ReelId && m.FlagActive)
+                        .OrderBy(m => m.SortOrder)
+                        .Select(m => new ReelMediaDto
+                        {
+                            ReelMediaId = m.ReelMediaId,
+                            MediaUrl = m.MediaUrl,
+                            SortOrder = m.SortOrder,
+                            DurationSeconds = m.DurationSeconds,
+                            Width = m.Width,
+                            Height = m.Height,
+                        })
+                        .ToList(),
                 })
                 .ToListAsync();
 
