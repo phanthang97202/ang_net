@@ -176,6 +176,14 @@ export const routes: Routes = [
           ).then(p => p.AuditTrailComponent),
         canActivate: [canActiveForAdmin],
       },
+      {
+        path: 'sysparameter',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component'
+          ).then(p => p.SysParameterComponent),
+        canActivate: [canActiveForAdmin],
+      },
     ],
   },
 ];

@@ -14,6 +14,10 @@ import {
   IAuditTrailResponse,
   IBaseResponse,
   IVisitStats,
+  ISearchSysParameterRequest,
+  IRequestSysParameterCreate,
+  IResponseSysParameterCreate,
+  IResponseSysParameterSearch,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -87,6 +91,49 @@ export class ApiService {
   MstProvinceDelete(key: string): Observable<IResponseProvinceCreate> {
     return this.http.delete<IResponseProvinceCreate>(
       `${this.apiUrl}MstProvince/Delete?ProvinceCode=${key}`
+    );
+  }
+
+  // SysParameter (tham số hệ thống)
+  SysParameterSearch(
+    request: ISearchSysParameterRequest
+  ): Observable<IResponseSysParameterSearch> {
+    // api/SysParameter/Search?pageIndex=0&pageSize=100&keyword=&category=
+    return this.http.get<IResponseSysParameterSearch>(
+      `${this.apiUrl}SysParameter/Search?pageIndex=${request.pageIndex}&pageSize=${request.pageSize}&keyword=${encodeURIComponent(
+        request.keyword
+      )}&category=${encodeURIComponent(request.category)}`
+    );
+  }
+
+  SysParameterCreate(
+    request: IRequestSysParameterCreate
+  ): Observable<IResponseSysParameterCreate> {
+    return this.http.post<IResponseSysParameterCreate>(
+      `${this.apiUrl}SysParameter/Create`,
+      { ...request }
+    );
+  }
+
+  SysParameterUpdate(
+    request: IRequestSysParameterCreate
+  ): Observable<IResponseSysParameterCreate> {
+    return this.http.patch<IResponseSysParameterCreate>(
+      `${this.apiUrl}SysParameter/Update`,
+      { ...request }
+    );
+  }
+
+  SysParameterDelete(key: string): Observable<IResponseSysParameterCreate> {
+    return this.http.delete<IResponseSysParameterCreate>(
+      `${this.apiUrl}SysParameter/Delete?ParameterCode=${encodeURIComponent(key)}`
+    );
+  }
+
+  // AllowAnonymous: web client public đọc 1 tham số theo mã
+  SysParameterDetail(key: string): Observable<IResponseSysParameterCreate> {
+    return this.http.get<IResponseSysParameterCreate>(
+      `${this.apiUrl}SysParameter/Detail?key=${encodeURIComponent(key)}`
     );
   }
 

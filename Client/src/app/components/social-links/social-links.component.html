@@ -1,0 +1,11 @@
+<a
+  *ngFor="let s of items"
+  class="social-btn"
+  [href]="s.link"
+  target="_blank"
+  rel="noopener noreferrer"
+  [attr.aria-label]="s.icon">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path [attr.d]="iconPath(s.icon)"></path>
+  </svg>
+</a>

@@ -7,6 +7,8 @@ export * from './login';
 export * from './news';
 export * from './news-category';
 export * from './province';
+export * from './sys-parameter';
+export * from './home-config';
 export * from './role';
 export * from './user';
 export * from './audit-trail';
