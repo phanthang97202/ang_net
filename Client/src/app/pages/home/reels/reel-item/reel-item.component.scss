@@ -22,7 +22,7 @@
   max-width: 100%;
   border-radius: 12px;
   overflow: hidden;
-  background: #111;
+  background: #000;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -30,7 +30,10 @@
 .reel-item__media {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  // contain (không phải cover): video người dùng tải lên không phải lúc nào cũng đúng
+  // tỉ lệ 9:16, cover sẽ crop mất khung hình gốc. Viền đen 2 bên/trên-dưới còn hơn mất nội dung.
+  object-fit: contain;
+  background: #000;
   display: block;
 }
 
@@ -48,6 +51,81 @@
   color: rgba(255, 255, 255, 0.85);
   pointer-events: none;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+// Tim bay khi nháy đúp vào video
+.reel-item__heart-burst {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  color: #fe2c55;
+  pointer-events: none;
+  animation: reel-heart-burst 0.8s ease-out forwards;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes reel-heart-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  45% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3) translateY(-24px);
+  }
+}
+
+// Nút tiếng nằm ĐÈ LÊN video nên giữ nền tối/chữ trắng cố định (không theo theme),
+// khác với rail bên ngoài vốn nằm trên nền trang.
+.reel-item__mute {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    background: rgba(17, 17, 17, 0.75);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+}
+
+// Chỉ ẩn-hiện theo hover trên thiết bị thật sự có chuột; trên cảm ứng luôn hiện.
+@media (hover: hover) {
+  .reel-item__mute {
+    opacity: 0;
+  }
+
+  .reel-item__stage:hover .reel-item__mute,
+  .reel-item__mute:focus-visible {
+    opacity: 1;
+  }
 }
 
 .reel-item__info {
@@ -97,27 +175,27 @@
   max-width: 90%;
 }
 
-// Cột nút bên phải khung video
+// ── Rail bên phải: nằm trên NỀN TRANG nên theo theme (nút xám nhạt + icon đậm,
+// đúng kiểu TikTok web), không phải chip tối trôi nổi.
 .reel-item__actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   padding-bottom: 28px;
-  color: #fff;
 }
 
 .reel-item__action {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   border: none;
   background: transparent;
-  color: inherit;
   padding: 0;
-  font-size: 12px;
-  font-weight: 600;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 button.reel-item__action {
@@ -128,10 +206,11 @@ button.reel-item__action {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--color-control-bg);
+  color: var(--color-text);
   font-size: 22px;
   transition:
     background 0.15s ease,
@@ -139,7 +218,7 @@ button.reel-item__action {
 }
 
 button.reel-item__action:hover .reel-item__action-icon {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--color-control-bg-hover);
 }
 
 button.reel-item__action:active .reel-item__action-icon {
@@ -148,9 +227,29 @@ button.reel-item__action:active .reel-item__action-icon {
 
 .reel-item__action.is-liked .reel-item__action-icon {
   color: #fe2c55; // đỏ TikTok
+  animation: reel-like-pop 0.3s ease-out;
 }
 
-// Màn hình hẹp: video tràn viền, nút hành động nổi đè lên video
+@keyframes reel-like-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-item__action.is-liked .reel-item__action-icon {
+    animation: none;
+  }
+}
+
+// Màn hình hẹp: video tràn viền, rail nổi ĐÈ LÊN video -> phải đảo về
+// icon trắng có nền tối, vì lúc này nền phía sau là video chứ không phải nền trang.
 @media (max-width: 640px) {
   .reel-item {
     padding: 0;
@@ -169,6 +268,21 @@ button.reel-item__action:active .reel-item__action-icon {
     right: 8px;
     bottom: 90px;
     z-index: 2;
+    color: #fff;
+  }
+
+  .reel-item__action {
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .reel-item__action-icon {
+    background: rgba(17, 17, 17, 0.45);
+    color: #fff;
+  }
+
+  button.reel-item__action:hover .reel-item__action-icon {
+    background: rgba(17, 17, 17, 0.65);
   }
 
   .reel-item__info {

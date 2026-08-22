@@ -1,0 +1,134 @@
+<div class="create-reel">
+  <h1 class="create-reel__title">Tải video lên</h1>
+
+  <input
+    #fileInput
+    type="file"
+    hidden
+    accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+    (change)="onFileInputChange($event)" />
+
+  @if (status === 'idle') {
+    <div
+      class="create-reel__dropzone"
+      [class.is-dragover]="isDragOver"
+      role="button"
+      tabindex="0"
+      (click)="openFilePicker()"
+      (keydown.enter)="openFilePicker()"
+      (keydown.space)="openFilePicker()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      <span
+        class="create-reel__dropzone-icon"
+        nz-icon
+        nzType="cloud-upload"
+        nzTheme="outline"></span>
+      <p class="create-reel__dropzone-title">Chọn video để tải lên</p>
+      <p class="create-reel__dropzone-hint">Hoặc kéo thả vào đây</p>
+      <span class="create-reel__btn create-reel__btn--primary">Chọn video</span>
+    </div>
+
+    <div class="create-reel__specs">
+      <div class="create-reel__spec">
+        <span nz-icon nzType="database" nzTheme="outline"></span>
+        <div>
+          <p class="create-reel__spec-label">Dung lượng</p>
+          <p class="create-reel__spec-value">Tối đa 50MB</p>
+        </div>
+      </div>
+      <div class="create-reel__spec">
+        <span nz-icon nzType="file" nzTheme="outline"></span>
+        <div>
+          <p class="create-reel__spec-label">Định dạng</p>
+          <p class="create-reel__spec-value">mp4, mov, webm</p>
+        </div>
+      </div>
+      <div class="create-reel__spec">
+        <span nz-icon nzType="mobile" nzTheme="outline"></span>
+        <div>
+          <p class="create-reel__spec-label">Tỉ lệ khung hình</p>
+          <p class="create-reel__spec-value">Khuyến nghị 9:16</p>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="create-reel__file">
+      <div class="create-reel__file-info">
+        <span nz-icon nzType="video-camera" nzTheme="outline"></span>
+        <div class="create-reel__file-text">
+          <p class="create-reel__file-name">{{ selectedFile?.name }}</p>
+          <p class="create-reel__file-size">
+            {{ formatSize(selectedFile?.size ?? 0) }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="create-reel__btn create-reel__btn--ghost"
+        [disabled]="isBusy"
+        (click)="clearFile()">
+        Thay video khác
+      </button>
+    </div>
+
+    @if (isBusy) {
+      <div class="create-reel__progress">
+        <div class="create-reel__progress-track">
+          <div
+            class="create-reel__progress-fill"
+            [style.width.%]="uploadPercent"></div>
+        </div>
+        <p class="create-reel__progress-label">{{ progressLabel }}</p>
+      </div>
+    }
+
+    <form class="create-reel__body" [formGroup]="validateForm">
+      <div class="create-reel__details">
+        <h2 class="create-reel__section-title">Chi tiết</h2>
+
+        <label class="create-reel__label" for="caption">Mô tả</label>
+        <textarea
+          id="caption"
+          class="create-reel__textarea"
+          formControlName="Caption"
+          rows="6"
+          [maxlength]="maxCaption"
+          placeholder="Mô tả reel của bạn..."></textarea>
+        <p class="create-reel__counter">{{ captionLength }}/{{ maxCaption }}</p>
+      </div>
+
+      <div class="create-reel__preview">
+        <p class="create-reel__label">Xem trước</p>
+        <div class="create-reel__preview-frame">
+          @if (previewUrl) {
+            <video
+              class="create-reel__preview-video"
+              [src]="previewUrl"
+              controls
+              muted
+              playsinline></video>
+          }
+        </div>
+      </div>
+    </form>
+
+    <div class="create-reel__actions">
+      <button
+        type="button"
+        class="create-reel__btn create-reel__btn--ghost"
+        [disabled]="isBusy"
+        (click)="cancel()">
+        Hủy
+      </button>
+      <button
+        type="button"
+        class="create-reel__btn create-reel__btn--primary"
+        [disabled]="isBusy || !selectedFile"
+        (click)="submitForm()">
+        {{ isBusy ? 'Đang đăng...' : 'Đăng' }}
+      </button>
+    </div>
+  }
+</div>

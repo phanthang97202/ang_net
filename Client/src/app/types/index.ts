@@ -1,4 +1,4 @@
-export type LayoutType = 'user' | 'admin' | 'none';
+export type LayoutType = 'user' | 'admin' | 'none' | 'immersive';
 export type AuditTrailLevelType =
   | 'TRACE'
   | 'DEBUG'

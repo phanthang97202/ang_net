@@ -49,3 +49,58 @@ export type IReelFeedResponse = Omit<IBaseResponse<IReelDto>, 'objResult'> & {
 export type IReelLikeResponse = Omit<IBaseResponse<IReelDto>, 'objResult'> & {
   objResult: IReelLikeResult;
 };
+
+export interface IReelMediaCreateDto {
+  MediaUrl: string;
+  SortOrder: number;
+  DurationSeconds: number | null;
+  Width: number | null;
+  Height: number | null;
+}
+
+export interface IReelCreateRequest {
+  Caption: string;
+  MediaType: EReelMediaType;
+  CoverUrl: string;
+  Media: IReelMediaCreateDto[];
+}
+
+export type IReelCreateResponse = IBaseResponse<IReelDto>;
+
+export interface IReelViewResult {
+  ReelId: string;
+  ViewCount: number;
+}
+
+export type IReelViewResponse = Omit<IBaseResponse<IReelDto>, 'objResult'> & {
+  objResult: IReelViewResult;
+};
+
+export interface IReelCommentDto {
+  CommentId: string;
+  ReelId: string;
+  UserId: string;
+  UserFullName: string;
+  UserAvatar: string;
+  ParentCommentId: string | null;
+  Content: string;
+  ReplyCount: number;
+  IsOwnedByMe: boolean;
+  CreatedDTime: string;
+  Replies: IReelCommentDto[];
+}
+
+export interface IReelCommentCreateRequest {
+  ReelId: string;
+  ParentCommentId: string | null;
+  Content: string;
+}
+
+export type IReelCommentsResponse = Omit<
+  IBaseResponse<IReelCommentDto>,
+  'objResult'
+> & {
+  objResult: ICursorPageInfo<IReelCommentDto>;
+};
+
+export type IReelCommentCreateResponse = IBaseResponse<IReelCommentDto>;

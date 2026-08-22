@@ -58,6 +58,15 @@ namespace angnet.WebApi.Controllers
             return Ok(response);
         }
 
+        // Khách chưa đăng nhập xem cũng phải được tính lượt xem
+        [AllowAnonymous]
+        [HttpPost("View")]
+        public async Task<IActionResult> View(string reelId)
+        {
+            ApiResponse<ReelDto> response = await _reelService.IncrementView(User, reelId);
+            return Ok(response);
+        }
+
         [AllowAnonymous]
         [HttpGet("Comments")]
         public async Task<IActionResult> Comments(string reelId, int pageSize, string cursor)

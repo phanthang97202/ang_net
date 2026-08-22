@@ -9,6 +9,9 @@
   </nz-content>
 </nz-layout>
 
+<!-- Không có nz-layout/nz-content: tránh margin:64.8px 0 mà nz-content áp cho layout 'none' -->
+<router-outlet *ngIf="layoutType === 'immersive'"></router-outlet>
+
 <div
   *ngIf="layoutType === 'user'"
   class="layout layout--user mx-[4%] xl:mx-[4%]">

@@ -9,5 +9,6 @@ namespace angnet.Application.Interfaces.Repositories
         Task<ReelDto> GetDetail(string reelId, string currentUserId);
         Task CreateWithMedia(ReelModel reel, List<ReelMediaModel> media);
         Task<(bool liked, int likeCount)> ToggleLike(string reelId, string userId, DateTime now);
+        Task<int> IncrementView(string reelId);
     }
 }

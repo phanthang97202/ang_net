@@ -70,7 +70,10 @@ namespace angnet.Infrastructure.Data.Repositories
                 new (JwtRegisteredClaimNames.Email, user.Email ?? "") ,
                 new (JwtRegisteredClaimNames.Name, user.FullName ?? "") ,
                 new (JwtRegisteredClaimNames.NameId, user.Id ?? "") ,
-                //new (JwtRegisteredClaimNames., user.Avatar ?? "") ,
+                // Không có claim chuẩn nào trong JwtRegisteredClaimNames cho avatar nên dùng
+                // tên riêng "avatar" khớp với AppUser.Avatar. Thiếu claim này thì client chỉ
+                // hiển thị được chữ cái đầu dù DB đã có sẵn ảnh.
+                new ("avatar", user.Avatar ?? "") ,
                 new (
                     JwtRegisteredClaimNames.Aud,
                     validAudience

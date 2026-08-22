@@ -20,6 +20,12 @@ import {
   IResponseSysParameterSearch,
   IReelFeedResponse,
   IReelLikeResponse,
+  IReelCreateRequest,
+  IReelCreateResponse,
+  IReelViewResponse,
+  IReelCommentsResponse,
+  IReelCommentCreateRequest,
+  IReelCommentCreateResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -249,6 +255,51 @@ export class ApiService {
     return this.http.post<IReelLikeResponse>(
       `${this.apiUrl}reel/like?reelId=${encodeURIComponent(reelId)}`,
       {}
+    );
+  }
+
+  ReelCreate(request: IReelCreateRequest): Observable<IReelCreateResponse> {
+    return this.http.post<IReelCreateResponse>(
+      `${this.apiUrl}reel/create`,
+      request
+    );
+  }
+
+  ReelView(reelId: string): Observable<IReelViewResponse> {
+    return this.http.post<IReelViewResponse>(
+      `${this.apiUrl}reel/view?reelId=${encodeURIComponent(reelId)}`,
+      {}
+    );
+  }
+
+  ReelComments(
+    reelId: string,
+    pageSize: number,
+    cursor: string | null
+  ): Observable<IReelCommentsResponse> {
+    const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+    return this.http.get<IReelCommentsResponse>(
+      `${this.apiUrl}reel/comments?reelId=${encodeURIComponent(reelId)}&pageSize=${pageSize}${cursorParam}`
+    );
+  }
+
+  ReelReplies(
+    commentId: string,
+    pageSize: number,
+    cursor: string | null
+  ): Observable<IReelCommentsResponse> {
+    const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+    return this.http.get<IReelCommentsResponse>(
+      `${this.apiUrl}reel/replies?commentId=${encodeURIComponent(commentId)}&pageSize=${pageSize}${cursorParam}`
+    );
+  }
+
+  ReelAddComment(
+    request: IReelCommentCreateRequest
+  ): Observable<IReelCommentCreateResponse> {
+    return this.http.post<IReelCommentCreateResponse>(
+      `${this.apiUrl}reel/comment`,
+      request
     );
   }
 }

@@ -219,6 +219,34 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        public async Task<ApiResponse<ReelDto>> IncrementView(ClaimsPrincipal user, string reelId)
+        {
+            ApiResponse<ReelDto> apiResponse = new ApiResponse<ReelDto>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(reelId, ref requestClient);
+
+            if (TCommonUtils.IsNullOrEmpty(reelId))
+            {
+                apiResponse.CatchException(false, "Reel_View.ReelIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            var (isExistRecord, _data) = await _unitOfWork.ReelRespository
+                                            .CheckRecordExist<ReelModel>(x => x.ReelId == reelId && x.FlagActive);
+
+            if (isExistRecord == false)
+            {
+                apiResponse.CatchException(false, "Reel_View.ReelIsNotExists", requestClient);
+                return apiResponse;
+            }
+
+            int viewCount = await _unitOfWork.ReelRespository.IncrementView(reelId);
+
+            apiResponse.objResult = new { ReelId = reelId, ViewCount = viewCount };
+
+            return apiResponse;
+        }
+
         public async Task<ApiResponse<ReelCommentDto>> GetComments(ClaimsPrincipal user, string reelId, int pageSize, string cursor)
         {
             ApiResponse<ReelCommentDto> apiResponse = new ApiResponse<ReelCommentDto>();

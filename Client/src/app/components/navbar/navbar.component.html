@@ -77,6 +77,7 @@
           [nzPopoverContent]="contentTemplate"
           nzPopoverPlacement="bottomRight"
           [nzPopoverTitle]="authService.getAccountInfo().name"
+          [nzSrc]="authService.getAccountInfo().avatar || null"
           [nzText]="authService.getAccountInfo().shortname"
           class="cursor-pointer">
         </nz-avatar>
@@ -104,6 +105,7 @@
         [nzPopoverContent]="contentTemplate"
         nzPopoverPlacement="bottomLeft"
         [nzPopoverTitle]="authService.getAccountInfo().name"
+        [nzSrc]="authService.getAccountInfo().avatar || null"
         [nzText]="authService.getAccountInfo().shortname"
         class="cursor-pointer">
       </nz-avatar>

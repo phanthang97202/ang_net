@@ -25,6 +25,10 @@
   --color-accent-bg: #f2f0fd;
   --color-border: rgba(0, 0, 0, 0.08);
   --color-card-shadow: rgba(20, 15, 60, 0.06);
+  // Nút tròn điều khiển đặt trên nền trang (rail reels, nút lên/xuống...):
+  // nền xám nhạt + icon lấy màu --color-text, kiểu nút của TikTok web.
+  --color-control-bg: rgba(0, 0, 0, 0.06);
+  --color-control-bg-hover: rgba(0, 0, 0, 0.12);
   // Ánh sáng nền ở 2 rìa trang (trái ấm - phải tím) tạo chiều sâu
   --glow-left: rgba(242, 153, 74, 0.3);
   --glow-right: rgba(91, 79, 233, 0.26);
@@ -39,6 +43,8 @@ html[data-theme='dark'] {
   --color-accent-bg: rgba(131, 120, 245, 0.16);
   --color-border: rgba(255, 255, 255, 0.1);
   --color-card-shadow: rgba(0, 0, 0, 0.45);
+  --color-control-bg: rgba(255, 255, 255, 0.12);
+  --color-control-bg-hover: rgba(255, 255, 255, 0.22);
   --glow-left: rgba(242, 153, 74, 0.16);
   --glow-right: rgba(131, 120, 245, 0.22);
 

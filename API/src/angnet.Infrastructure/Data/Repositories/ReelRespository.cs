@@ -149,5 +149,20 @@ namespace angnet.Infrastructure.Data.Repositories
 
             return (liked, likeCount);
         }
+
+        /// <summary>
+        /// Tăng lượt xem. Chỉ 1 câu lệnh nên không cần transaction (khác ToggleLike/AddComment
+        /// vốn ghép nhiều câu). Dùng SetProperty dạng cộng dồn thay vì đọc-sửa-ghi để không mất
+        /// lượt xem khi nhiều người xem cùng lúc.
+        /// </summary>
+        public async Task<int> IncrementView(string reelId)
+        {
+            await _dbContext.Reel.Where(r => r.ReelId == reelId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(r => r.ViewCount, r => r.ViewCount + 1));
+
+            return await _dbContext.Reel.Where(r => r.ReelId == reelId)
+                    .Select(r => r.ViewCount)
+                    .FirstOrDefaultAsync();
+        }
     }
 }

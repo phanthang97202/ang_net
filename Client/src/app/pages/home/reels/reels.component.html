@@ -1,58 +1,108 @@
 <div class="reels">
-  <div class="reels__viewport" #viewport>
-    @for (reel of lstReels; track reel.ReelId; let i = $index) {
-      <div class="reels__slide" #reelHost [attr.data-index]="i">
-        <app-reel-item
-          [reel]="reel"
-          [isActive]="i === activeIndex"
-          [isMuted]="isMuted"
-          [isMounted]="isMounted(i)"
-          (likeToggled)="onLikeToggled($event)" />
+  <!-- Sidebar kiểu TikTok. Hầu hết mục chưa có trang thật -> báo đang phát triển. -->
+  <aside class="reels__sidebar">
+    <a class="reels__logo" routerLink="/">Phan<span>Thang</span></a>
+
+    <nav class="reels__menu">
+      @for (item of menuItems; track item.label) {
+        <button
+          type="button"
+          class="reels__menu-item"
+          [class.is-active]="item.active"
+          (click)="onMenuClick(item)">
+          <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+          <span class="reels__menu-label">{{ item.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <p class="reels__sidebar-note">
+      Một số mục đang được phát triển và sẽ sớm có mặt.
+    </p>
+  </aside>
+
+  <div class="reels__main" [class.has-comments]="commentsReel">
+    <!-- Bọc riêng vùng video: topbar/nav định vị tuyệt đối theo khối này, nếu để
+         chung với panel thì khi mở bình luận chúng sẽ nhảy ra đè lên panel -->
+    <div class="reels__stage-area">
+    <div class="reels__viewport" #viewport>
+      @for (reel of lstReels; track reel.ReelId; let i = $index) {
+        <div class="reels__slide" #reelHost [attr.data-index]="i">
+          <app-reel-item
+            [reel]="reel"
+            [isActive]="i === activeIndex"
+            [isMuted]="isMuted"
+            [isMounted]="isMounted(i)"
+            (likeToggled)="onLikeToggled($event)"
+            (doubleTapLiked)="onDoubleTapLiked($event)"
+            (commentsOpened)="openComments($event)"
+            (muteToggled)="toggleMute()" />
+        </div>
+      }
+
+      @if (!isLoading && lstReels.length === 0) {
+        <div class="reels__empty">Chưa có reel nào.</div>
+      }
+    </div>
+
+    <!-- Cụm tài khoản + tải lên góc phải trên -->
+    <div class="reels__topbar">
+      <button type="button" class="reels__upload" (click)="goCreate()">
+        <span nz-icon nzType="plus" nzTheme="outline"></span>
+        <span class="reels__upload-text">Tải lên</span>
+      </button>
+
+      <span class="reels__topbar-divider"></span>
+
+      @if (accountName) {
+        <span class="reels__account" [title]="accountName">
+          @if (accountAvatar) {
+            <img class="reels__account-avatar" [src]="accountAvatar" alt="" />
+          } @else {
+            <span
+              class="reels__account-avatar reels__account-avatar--fallback"
+              >{{ accountInitial }}</span
+            >
+          }
+          <span class="reels__account-name">{{ accountName }}</span>
+        </span>
+      } @else {
+        <button type="button" class="reels__login" (click)="goLogin()">
+          Đăng nhập
+        </button>
+      }
+    </div>
+
+    <!-- Nút lên/xuống kiểu TikTok web, ẩn trên màn hình hẹp -->
+    <div class="reels__nav">
+      <button
+        type="button"
+        class="reels__btn"
+        [disabled]="activeIndex === 0"
+        (click)="scrollToIndex(activeIndex - 1)"
+        aria-label="Reel trước">
+        <span nz-icon nzType="up" nzTheme="outline"></span>
+      </button>
+      <button
+        type="button"
+        class="reels__btn"
+        [disabled]="activeIndex >= lstReels.length - 1"
+        (click)="scrollToIndex(activeIndex + 1)"
+        aria-label="Reel tiếp theo">
+        <span nz-icon nzType="down" nzTheme="outline"></span>
+      </button>
+    </div>
+    </div>
+
+    @if (commentsReel) {
+      <div class="reels__comments">
+        <app-reel-comments
+          [reel]="commentsReel"
+          [currentUserAvatar]="accountAvatar"
+          [currentUserInitial]="accountInitial"
+          (closed)="closeComments()"
+          (commentAdded)="onCommentAdded()" />
       </div>
     }
-
-    @if (!isLoading && lstReels.length === 0) {
-      <div class="reels__empty">Chưa có reel nào.</div>
-    }
-  </div>
-
-  <!-- Điều khiển nổi -->
-  <button
-    type="button"
-    class="reels__btn reels__btn--back"
-    (click)="goBack()"
-    aria-label="Back">
-    <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-  </button>
-
-  <button
-    type="button"
-    class="reels__btn reels__btn--mute"
-    (click)="toggleMute()"
-    [attr.aria-label]="isMuted ? 'Unmute' : 'Mute'">
-    <span
-      nz-icon
-      [nzType]="isMuted ? 'sound' : 'notification'"
-      nzTheme="outline"></span>
-  </button>
-
-  <!-- Nút lên/xuống kiểu TikTok web, ẩn trên màn hình hẹp -->
-  <div class="reels__nav">
-    <button
-      type="button"
-      class="reels__btn"
-      [disabled]="activeIndex === 0"
-      (click)="scrollToIndex(activeIndex - 1)"
-      aria-label="Previous reel">
-      <span nz-icon nzType="up" nzTheme="outline"></span>
-    </button>
-    <button
-      type="button"
-      class="reels__btn"
-      [disabled]="activeIndex >= lstReels.length - 1"
-      (click)="scrollToIndex(activeIndex + 1)"
-      aria-label="Next reel">
-      <span nz-icon nzType="down" nzTheme="outline"></span>
-    </button>
   </div>
 </div>

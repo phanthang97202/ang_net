@@ -3,12 +3,106 @@
 }
 
 .reels {
-  position: relative;
+  display: flex;
   // dvh theo vùng nhìn thật của mobile (thanh URL co lại), fallback vh cho trình duyệt cũ
   height: 100vh;
   height: 100dvh;
-  background: #000;
+  background: var(--color-bg-page);
   overflow: hidden;
+}
+
+// ── Sidebar trái ──────────────────────────────────────────────────────
+.reels__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  flex-shrink: 0;
+  padding: 18px 12px;
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+.reels__logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  padding: 0 10px;
+  margin-bottom: 18px;
+
+  span {
+    color: var(--color-accent);
+    font-style: italic;
+  }
+}
+
+.reels__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reels__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  [nz-icon] {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--color-control-bg);
+  }
+
+  &.is-active {
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+    cursor: default;
+  }
+}
+
+.reels__sidebar-note {
+  margin: auto 10px 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+// ── Vùng feed ─────────────────────────────────────────────────────────
+.reels__main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+// Chứa video + các nút nổi. position:relative ở đây (không phải ở __main) để
+// topbar/nav luôn bám theo vùng video kể cả khi panel bình luận mở.
+.reels__stage-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.reels__comments {
+  width: 380px;
+  flex-shrink: 0;
 }
 
 .reels__viewport {
@@ -37,26 +131,33 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--color-text-muted);
   font-size: 15px;
 }
 
+// Nút tròn trên nền trang: xám nhạt + icon đậm theo theme, giống TikTok web
 .reels__btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+  background: var(--color-control-bg);
+  color: var(--color-text);
   font-size: 18px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.26);
+    background: var(--color-control-bg-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
   }
 
   &:disabled {
@@ -65,18 +166,79 @@
   }
 }
 
-.reels__btn--back {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 5;
-}
-
-.reels__btn--mute {
+// ── Thanh trên cùng bên phải: tải lên + tài khoản ─────────────────────
+.reels__topbar {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+}
+
+.reels__upload,
+.reels__login {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-control-bg);
+  }
+}
+
+.reels__topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+}
+
+.reels__account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 160px;
+}
+
+.reels__account-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.reels__account-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reels__account-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reels__nav {
@@ -90,8 +252,64 @@
   gap: 12px;
 }
 
+// Màn hình vừa: thu gọn sidebar còn icon
+@media (max-width: 1100px) {
+  .reels__sidebar {
+    width: 68px;
+    align-items: center;
+    padding: 18px 8px;
+  }
+
+  .reels__logo {
+    font-size: 1.1rem;
+    padding: 0;
+
+    span {
+      display: none; // chỉ còn "Phan" cho vừa cột hẹp
+    }
+  }
+
+  .reels__menu-item {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .reels__menu-label,
+  .reels__sidebar-note {
+    display: none;
+  }
+}
+
+// Màn hình hẹp: panel trượt đè toàn màn hình thay vì chia đôi (video sẽ quá bé)
+@media (max-width: 900px) {
+  .reels__comments {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    z-index: 10;
+  }
+
+  .reels__main {
+    position: relative;
+  }
+}
+
 @media (max-width: 640px) {
+  .reels__sidebar {
+    display: none; // mobile: nhường toàn bộ màn hình cho video
+  }
+
   .reels__nav {
-    display: none; // trên mobile đã vuốt được, không cần nút
+    display: none; // đã vuốt được, không cần nút
+  }
+
+  .reels__account-name,
+  .reels__upload-text {
+    display: none; // chỉ còn icon + avatar cho gọn
+  }
+
+  .reels__topbar {
+    padding: 6px;
+    gap: 6px;
   }
 }

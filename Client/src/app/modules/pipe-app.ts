@@ -4,6 +4,7 @@ import {
   ShowNullishValue,
   SizeImgCloudinary,
   SubString,
+  TimeAgo,
 } from '../pipes';
 // toàn bộ những pipe standalone
 export const REUSE_PIPE_MODULE = [
@@ -12,4 +13,5 @@ export const REUSE_PIPE_MODULE = [
   ShowNullishValue,
   IsViewDirective,
   SizeImgCloudinary,
+  TimeAgo,
 ];

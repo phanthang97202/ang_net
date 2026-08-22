@@ -1,0 +1,286 @@
+.create-reel {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 0 64px;
+  color: var(--color-text);
+}
+
+.create-reel__title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+
+// ── Trạng thái chưa chọn file ─────────────────────────────────────────
+.create-reel__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 340px;
+  padding: 32px;
+  border: 2px dashed var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg-card);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover,
+  &.is-dragover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+  }
+}
+
+.create-reel__dropzone-icon {
+  font-size: 48px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.create-reel__dropzone-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.create-reel__dropzone-hint {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.create-reel__specs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.create-reel__spec {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-card);
+
+  [nz-icon] {
+    font-size: 18px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+  }
+}
+
+.create-reel__spec-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.create-reel__spec-value {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+// ── Trạng thái đã chọn file ───────────────────────────────────────────
+.create-reel__file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-card);
+}
+
+.create-reel__file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+
+  [nz-icon] {
+    font-size: 22px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+}
+
+.create-reel__file-text {
+  min-width: 0;
+}
+
+.create-reel__file-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.create-reel__file-size {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.create-reel__progress {
+  margin-top: 12px;
+}
+
+.create-reel__progress-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.create-reel__progress-fill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.2s ease;
+}
+
+.create-reel__progress-label {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.create-reel__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.create-reel__details {
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-card);
+}
+
+.create-reel__section-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.create-reel__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.create-reel__textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-page);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+}
+
+.create-reel__counter {
+  margin: 6px 0 0;
+  text-align: right;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.create-reel__preview-frame {
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000; // khung xem trước luôn nền đen như lúc phát thật ở feed
+  border: 1px solid var(--color-border);
+}
+
+.create-reel__preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.create-reel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+// ── Nút ───────────────────────────────────────────────────────────────
+.create-reel__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.create-reel__btn--primary {
+  background: var(--color-accent);
+  color: #fff; // không có token màu chữ trên nền accent, dùng trắng cố định
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+}
+
+.create-reel__btn--ghost {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-bg);
+  }
+}
+
+@media (max-width: 768px) {
+  .create-reel__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .create-reel__specs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .create-reel__preview-frame {
+    max-width: 260px;
+  }
+}

@@ -1,0 +1,154 @@
+<div class="reel-comments">
+  <header class="reel-comments__header">
+    <span class="reel-comments__title">
+      Bình luận
+      <span class="reel-comments__count">{{ reel.CommentCount }}</span>
+    </span>
+    <button
+      type="button"
+      class="reel-comments__close"
+      (click)="close()"
+      aria-label="Đóng">
+      <span nz-icon nzType="close" nzTheme="outline"></span>
+    </button>
+  </header>
+
+  <div class="reel-comments__body" #scrollBody>
+    @for (comment of comments; track trackByCommentId($index, comment)) {
+      <article class="reel-comments__item">
+        @if (comment.UserAvatar) {
+          <img class="reel-comments__avatar" [src]="comment.UserAvatar" alt="" />
+        } @else {
+          <span class="reel-comments__avatar reel-comments__avatar--fallback">{{
+            authorInitial(comment)
+          }}</span>
+        }
+
+        <div class="reel-comments__content">
+          <p class="reel-comments__author">{{ comment.UserFullName }}</p>
+          <p class="reel-comments__text">{{ comment.Content }}</p>
+          <div class="reel-comments__meta">
+            <span>{{ comment.CreatedDTime | timeAgo }}</span>
+            <button
+              type="button"
+              class="reel-comments__reply-btn"
+              (click)="startReply(comment)">
+              Trả lời
+            </button>
+          </div>
+
+          @if (comment.ReplyCount > 0) {
+            <button
+              type="button"
+              class="reel-comments__toggle-replies"
+              (click)="toggleReplies(comment)">
+              @if (expandedReplies.has(comment.CommentId)) {
+                Ẩn câu trả lời
+              } @else {
+                Xem {{ comment.ReplyCount }} câu trả lời
+              }
+            </button>
+          }
+
+          @if (loadingRepliesFor === comment.CommentId) {
+            <p class="reel-comments__loading">Đang tải...</p>
+          }
+
+          @if (expandedReplies.has(comment.CommentId)) {
+            <div class="reel-comments__replies">
+              @for (reply of comment.Replies; track trackByCommentId($index, reply)) {
+                <article class="reel-comments__item reel-comments__item--reply">
+                  @if (reply.UserAvatar) {
+                    <img
+                      class="reel-comments__avatar reel-comments__avatar--sm"
+                      [src]="reply.UserAvatar"
+                      alt="" />
+                  } @else {
+                    <span
+                      class="reel-comments__avatar reel-comments__avatar--sm reel-comments__avatar--fallback"
+                      >{{ authorInitial(reply) }}</span
+                    >
+                  }
+                  <div class="reel-comments__content">
+                    <p class="reel-comments__author">{{ reply.UserFullName }}</p>
+                    <p class="reel-comments__text">{{ reply.Content }}</p>
+                    <div class="reel-comments__meta">
+                      <span>{{ reply.CreatedDTime | timeAgo }}</span>
+                      <button
+                        type="button"
+                        class="reel-comments__reply-btn"
+                        (click)="startReply(reply)">
+                        Trả lời
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </article>
+    }
+
+    @if (!isLoading && comments.length === 0) {
+      <p class="reel-comments__empty">
+        Chưa có bình luận nào. Hãy là người đầu tiên!
+      </p>
+    }
+
+    @if (isLoading) {
+      <p class="reel-comments__loading">Đang tải bình luận...</p>
+    }
+
+    <!-- Sentinel để tự tải trang tiếp theo khi cuộn tới cuối -->
+    <div #sentinel class="reel-comments__sentinel"></div>
+  </div>
+
+  <footer class="reel-comments__footer">
+    @if (isLoggedIn) {
+      @if (replyTo) {
+        <div class="reel-comments__replying">
+          <span
+            >Đang trả lời <strong>{{ replyTo.UserFullName }}</strong></span
+          >
+          <button type="button" (click)="cancelReply()">Hủy</button>
+        </div>
+      }
+
+      <div class="reel-comments__input-row">
+        @if (currentUserAvatar) {
+          <img
+            class="reel-comments__avatar reel-comments__avatar--sm"
+            [src]="currentUserAvatar"
+            alt="" />
+        } @else {
+          <span
+            class="reel-comments__avatar reel-comments__avatar--sm reel-comments__avatar--fallback"
+            >{{ currentUserInitial }}</span
+          >
+        }
+
+        <input
+          class="reel-comments__input"
+          type="text"
+          [(ngModel)]="draft"
+          [disabled]="isSending"
+          placeholder="Thêm bình luận..."
+          (keydown.enter)="send()" />
+
+        <button
+          type="button"
+          class="reel-comments__send"
+          [disabled]="!draft.trim() || isSending"
+          (click)="send()"
+          aria-label="Gửi">
+          <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+        </button>
+      </div>
+    } @else {
+      <button type="button" class="reel-comments__login" (click)="goLogin()">
+        Đăng nhập để bình luận
+      </button>
+    }
+  </footer>
+</div>

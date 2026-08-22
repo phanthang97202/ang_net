@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { canActiveForAdmin } from './middlewares';
+import { canActive, canActiveForAdmin } from './middlewares';
 
 export const routes: Routes = [
   { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
@@ -33,6 +33,15 @@ export const routes: Routes = [
       import('./pages/home/reels/reels.component').then(
         p => p.ReelsComponent
       ),
+  },
+  {
+    title: 'Create reel',
+    path: 'reels/create',
+    loadComponent: () =>
+      import('./pages/home/reels/create-reel/create-reel.component').then(
+        p => p.CreateReelComponent
+      ),
+    canActivate: [canActive],
   },
   {
     title: 'Tools',

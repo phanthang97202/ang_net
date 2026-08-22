@@ -10,6 +10,7 @@ namespace angnet.Application.Interfaces.Services
         public Task<ApiResponse<ReelDto>> Create(ClaimsPrincipal user, ReelCreateDto data);
         public Task<ApiResponse<ReelDto>> Delete(ClaimsPrincipal user, string reelId);
         public Task<ApiResponse<ReelDto>> ToggleLike(ClaimsPrincipal user, string reelId);
+        public Task<ApiResponse<ReelDto>> IncrementView(ClaimsPrincipal user, string reelId);
         public Task<ApiResponse<ReelCommentDto>> GetComments(ClaimsPrincipal user, string reelId, int pageSize, string cursor);
         public Task<ApiResponse<ReelCommentDto>> GetReplies(ClaimsPrincipal user, string commentId, int pageSize, string cursor);
         public Task<ApiResponse<ReelCommentDto>> AddComment(ClaimsPrincipal user, ReelCommentCreateDto data);
