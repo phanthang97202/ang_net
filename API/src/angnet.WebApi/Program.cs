@@ -9,7 +9,8 @@ using System.Text;
 using StackExchange.Redis;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 using angnet.WebApi.MIddlewares;
-using angnet.Infrastructure.Data; 
+using angnet.Infrastructure.Data;
+using angnet.Infrastructure.Data.Persistences;
 using angnet.Utility.CommonUtils;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
@@ -396,10 +397,17 @@ if (app.Environment.IsProduction())
     app.Urls.Add($"http://*:{port}");
 }
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//    db.Database.Migrate();
-//}
+// -----------Chay SQL migration scripts truoc khi nhan request----------------------
+try
+{
+    var appliedScripts = DatabaseMigrator.Run(builder.Configuration.GetConnectionString("PostgresqlDb")!);
+    Log.Information("Database migration OK, da chay {Count} script moi: {Scripts}", appliedScripts.Count, appliedScripts);
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Database migration that bai, dung ung dung.");
+    Log.CloseAndFlush();
+    throw;
+}
 
 app.Run();
