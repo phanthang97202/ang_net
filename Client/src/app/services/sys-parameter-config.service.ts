@@ -12,6 +12,7 @@ export const SYS_PARAM_CODE = {
   SOCIAL_LINKS: 'SOCIAL_LINKS',
   HOME_FEATURED_IMAGES: 'HOME_FEATURED_IMAGES',
   WARNING_BANNER: 'WARNING_BANNER',
+  HOME_MUSIC: 'HOME_MUSIC',
 } as const;
 
 @Injectable({
@@ -47,7 +48,33 @@ export class SysParameterConfigService {
     );
   }
 
+  // Giá trị ở cột DefaultValueVi/En. Dùng cho tham số cần trỏ tới một phần tử
+  // nằm trong chính JSON của nó - vd HOME_MUSIC: id của bài hát mặc định.
+  getDefaultText(code: string): Observable<string | null> {
+    return this.getResponse(code).pipe(
+      map(res => {
+        const data = res?.Data;
+        if (!res?.Success || !data) {
+          return null;
+        }
+        const lang = this.langService.getLang();
+        const raw =
+          lang === 'en'
+            ? data.DefaultValueEn || data.DefaultValueVi
+            : data.DefaultValueVi || data.DefaultValueEn;
+
+        return raw || null;
+      })
+    );
+  }
+
   private getRaw(code: string): Observable<string | null> {
+    return this.getResponse(code).pipe(map(res => this.readValue(res)));
+  }
+
+  private getResponse(
+    code: string
+  ): Observable<IResponseSysParameterCreate | null> {
     if (!this.cache.has(code)) {
       const request$ = this.api.SysParameterDetail(code).pipe(
         catchError(() => of(null)),
@@ -56,7 +83,7 @@ export class SysParameterConfigService {
       this.cache.set(code, request$);
     }
 
-    return this.cache.get(code)!.pipe(map(res => this.readValue(res)));
+    return this.cache.get(code)!;
   }
 
   private readValue(res: IResponseSysParameterCreate | null): string | null {
