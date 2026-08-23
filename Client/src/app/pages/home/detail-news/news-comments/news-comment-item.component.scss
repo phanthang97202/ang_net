@@ -1,0 +1,137 @@
+.cmt {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+}
+
+.cmt--reply {
+  padding: 10px 0;
+
+  .cmt__avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
+
+.cmt__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.cmt__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.cmt__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cmt__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cmt__author {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cmt__time {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.cmt__text {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-text);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.cmt__mention {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.cmt__tombstone {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--color-control-bg);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.cmt__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.cmt__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &.is-active {
+    color: var(--color-accent);
+  }
+}
+
+.cmt__action--danger:hover {
+  color: #c0392b;
+}
+
+.cmt__toggle-replies {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.cmt__loading {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}

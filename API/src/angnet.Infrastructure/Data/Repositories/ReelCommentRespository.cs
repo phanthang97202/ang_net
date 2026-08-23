@@ -118,7 +118,13 @@ namespace angnet.Infrastructure.Data.Repositories
 
         private IQueryable<ReelCommentDto> Project(IQueryable<ReelCommentModel> query, string currentUserId)
         {
-            return query.Select(c => new ReelCommentDto
+            // Ẩn bình luận của tài khoản đã bị vô hiệu hoá. Cả Page() lẫn vòng lấy reply
+            // preview đều đi qua đây nên chỉ cần lọc một chỗ.
+            // Lưu ý: ReelComment.ReplyCount và Reel.CommentCount là cột đếm lưu sẵn nên sẽ
+            // dôi hơn số thực tế khi có tác giả bị vô hiệu hoá - chấp nhận ở đợt này.
+            return query
+                .Where(c => _dbContext.Users.Any(u => u.Id == c.UserId && u.FlagActive))
+                .Select(c => new ReelCommentDto
             {
                 CommentId = c.CommentId,
                 ReelId = c.ReelId,

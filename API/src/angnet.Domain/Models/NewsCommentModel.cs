@@ -23,8 +23,11 @@ namespace angnet.Domain.Models
         [Required]
         public string Content { get; set; } = string.Empty; // Nội dung bình luận
         public int AllowReplyNumber { get; set; } = 1; // Cho phép phản hồi mấy cấp, sau khi có comment khác phản hồi thì comment đó = this.AllowReplyNumber - 1, = 0 thì prevent reply 
-        public int ReplyCount { get; set; } = 0; // Số lượt thích
-        public int ReactionCount { get; set; } = 0; // Số lượt không thích
+        // 2 cột đếm dưới đây hiện KHÔNG được dùng: số trả lời và số tim đều tính lại lúc đọc
+        // (xem NewsCommentRepository.Project), vì các quy tắc ẩn có tính hồi tố nên cột đếm
+        // ghi sẵn chắc chắn sẽ lệch.
+        public int ReplyCount { get; set; } = 0; // Số lượt trả lời
+        public int ReactionCount { get; set; } = 0; // Số lượt thả cảm xúc
 
         [Column(TypeName = "varchar(20)")]
         public ENewsCommentStatus Status { get; set; } = ENewsCommentStatus.Pending;

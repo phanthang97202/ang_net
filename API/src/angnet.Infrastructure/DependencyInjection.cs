@@ -71,6 +71,9 @@ namespace angnet.Infrastructure
             services.AddScoped<IReelCommentRespository, ReelCommentRespository>();
             services.AddScoped<IReelService, ReelService>();
 
+            services.AddScoped<INewsCommentRepository, NewsCommentRepository>();
+            services.AddScoped<INewsCommentService, NewsCommentService>();
+
             // Extension: Shift report
             services.AddScoped<IShiftReportService, ShiftReportService>();
             services.AddScoped<IRevenueReportService, RevenueReportService>();

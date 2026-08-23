@@ -1,0 +1,36 @@
+<div class="composer">
+  @if (avatarUrl) {
+    <img class="composer__avatar" [src]="avatarUrl" alt="" />
+  } @else {
+    <span class="composer__avatar composer__avatar--fallback">{{
+      initial
+    }}</span>
+  }
+
+  <div class="composer__box">
+    <textarea
+      #input
+      class="composer__input"
+      rows="2"
+      [(ngModel)]="draft"
+      [disabled]="isSending"
+      [placeholder]="placeholder"
+      (keydown)="onKeydown($event)"></textarea>
+
+    <div class="composer__actions">
+      @if (prefillToken > 0) {
+        <button type="button" class="composer__cancel" (click)="cancel()">
+          Hủy
+        </button>
+      }
+      <button
+        type="button"
+        class="composer__send"
+        [disabled]="!canSend"
+        (click)="send()"
+        aria-label="Gửi bình luận">
+        <span nz-icon nzType="send" nzTheme="outline"></span>
+      </button>
+    </div>
+  </div>
+</div>

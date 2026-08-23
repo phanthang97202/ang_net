@@ -56,7 +56,10 @@ namespace angnet.Infrastructure.Data.Repositories
 
         public async Task<(List<ReelDto> Data, string NextCursor, bool HasMore)> GetFeed(int pageSize, string cursor, string currentUserId)
         {
-            IQueryable<ReelModel> query = _dbContext.Reel.AsNoTracking().Where(r => r.FlagActive);
+            // Ẩn reel của tài khoản đã bị vô hiệu hoá (áp dụng chung với bình luận)
+            IQueryable<ReelModel> query = _dbContext.Reel.AsNoTracking()
+                                            .Where(r => r.FlagActive)
+                                            .Where(r => _dbContext.Users.Any(u => u.Id == r.UserId && u.FlagActive));
 
             var _cursor = ReelCursor.Decode(cursor);
             if (_cursor != null)
@@ -91,6 +94,7 @@ namespace angnet.Infrastructure.Data.Repositories
         {
             return await _dbContext.Reel.AsNoTracking()
                 .Where(r => r.ReelId == reelId && r.FlagActive)
+                .Where(r => _dbContext.Users.Any(u => u.Id == r.UserId && u.FlagActive))
                 .Select(ToReelDto(currentUserId))
                 .FirstOrDefaultAsync();
         }

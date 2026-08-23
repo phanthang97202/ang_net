@@ -30,6 +30,13 @@ import {
   IReelCommentsResponse,
   IReelCommentCreateRequest,
   IReelCommentCreateResponse,
+  ENewsCommentSort,
+  INewsCommentsResponse,
+  INewsCommentCreateRequest,
+  INewsCommentCreateResponse,
+  INewsCommentLikeResponse,
+  INewsCommentReportRequest,
+  INewsCommentReportResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -216,6 +223,67 @@ export class ApiService {
   GetTopHashTag(): Observable<IHashTagNewsResponse> {
     return this.http.get<IHashTagNewsResponse>(
       `${this.apiUrl}hashtagnews/gettophashtag`
+    );
+  }
+
+  // News comment
+  NewsComments(
+    newsId: string,
+    pageIndex: number,
+    pageSize: number,
+    sort: ENewsCommentSort,
+    snapshot: string | null
+  ): Observable<INewsCommentsResponse> {
+    // snapshot cố định mốc thời gian của lần tải đầu để phân trang offset không bị
+    // lệch dòng khi có người bình luận mới trong lúc đang đọc
+    const snapshotParam = snapshot
+      ? `&snapshot=${encodeURIComponent(snapshot)}`
+      : '';
+    return this.http.get<INewsCommentsResponse>(
+      `${this.apiUrl}newscomment/comments?newsId=${encodeURIComponent(newsId)}&pageIndex=${pageIndex}&pageSize=${pageSize}&sort=${sort}${snapshotParam}`
+    );
+  }
+
+  NewsCommentReplies(
+    commentId: string,
+    pageIndex: number,
+    pageSize: number
+  ): Observable<INewsCommentsResponse> {
+    return this.http.get<INewsCommentsResponse>(
+      `${this.apiUrl}newscomment/replies?commentId=${encodeURIComponent(commentId)}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+  }
+
+  NewsAddComment(
+    request: INewsCommentCreateRequest
+  ): Observable<INewsCommentCreateResponse> {
+    return this.http.post<INewsCommentCreateResponse>(
+      `${this.apiUrl}newscomment/comment`,
+      request
+    );
+  }
+
+  NewsCommentLike(commentId: string): Observable<INewsCommentLikeResponse> {
+    return this.http.post<INewsCommentLikeResponse>(
+      `${this.apiUrl}newscomment/like?commentId=${encodeURIComponent(commentId)}`,
+      {}
+    );
+  }
+
+  NewsCommentReport(
+    request: INewsCommentReportRequest
+  ): Observable<INewsCommentReportResponse> {
+    return this.http.post<INewsCommentReportResponse>(
+      `${this.apiUrl}newscomment/report`,
+      request
+    );
+  }
+
+  NewsCommentDelete(
+    commentId: string
+  ): Observable<INewsCommentCreateResponse> {
+    return this.http.delete<INewsCommentCreateResponse>(
+      `${this.apiUrl}newscomment/delete?commentId=${encodeURIComponent(commentId)}`
     );
   }
 

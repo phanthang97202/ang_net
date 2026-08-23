@@ -1,0 +1,33 @@
+<nz-modal
+  [nzVisible]="isOpen"
+  nzTitle="Báo cáo bình luận"
+  nzOkText="Gửi báo cáo"
+  nzCancelText="Hủy"
+  [nzOkLoading]="isSending"
+  (nzOnOk)="send()"
+  (nzOnCancel)="cancel()">
+  <div *nzModalContent class="report">
+    <p class="report__hint">
+      Chọn lý do bạn cho rằng bình luận này vi phạm tiêu chuẩn cộng đồng.
+    </p>
+
+    <nz-radio-group [(ngModel)]="reason" class="report__reasons">
+      @for (item of reasons; track item.value) {
+        <!-- span thay vì label: nz-radio là attribute directive và tự render
+             <input type="radio"> bên trong, dùng label sẽ vi phạm rule a11y -->
+        <span nz-radio [nzValue]="item.value">{{ item.label }}</span>
+      }
+    </nz-radio-group>
+
+    <label class="report__label" for="report-description">
+      Mô tả thêm (không bắt buộc)
+    </label>
+    <textarea
+      id="report-description"
+      class="report__description"
+      rows="3"
+      maxlength="500"
+      [(ngModel)]="description"
+      placeholder="Nêu rõ hơn nếu cần..."></textarea>
+  </div>
+</nz-modal>

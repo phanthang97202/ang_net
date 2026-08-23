@@ -1,0 +1,108 @@
+<section class="comments">
+  <header class="comments__head">
+    <h2 class="comments__title">
+      Bình luận
+      <span class="comments__count">({{ totalCount }})</span>
+    </h2>
+
+    <div class="comments__sort">
+      <button
+        type="button"
+        class="comments__sort-btn"
+        [class.is-active]="sort === 'Popular'"
+        (click)="setSort('Popular')">
+        <span nz-icon nzType="rise" nzTheme="outline"></span>
+        Nổi bật
+      </button>
+      <button
+        type="button"
+        class="comments__sort-btn"
+        [class.is-active]="sort === 'Newest'"
+        (click)="setSort('Newest')">
+        <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+        Mới nhất
+      </button>
+    </div>
+  </header>
+
+  @if (isLoggedIn) {
+    @if (replyTarget) {
+      <p class="comments__replying">
+        Đang trả lời <strong>{{ replyTarget.UserFullName }}</strong>
+      </p>
+    }
+    <app-news-comment-composer
+      [avatarUrl]="accountAvatar"
+      [initial]="accountInitial"
+      [isSending]="isSending"
+      [prefill]="replyPrefill"
+      [prefillToken]="replyToken"
+      (submitted)="submitComment($event)"
+      (cancelled)="cancelReply()" />
+  } @else {
+    <!-- Đăng nhập ngay tại chỗ, không đẩy người đọc rời khỏi bài viết -->
+    <div class="comments__signin">
+      <p class="comments__signin-text">
+        Đăng nhập để tham gia bình luận về bài viết này.
+      </p>
+      <app-google-signin-button (credential)="onGoogleCredential($event)" />
+    </div>
+  }
+
+  <div class="comments__list">
+    @for (comment of comments; track trackByCommentId($index, comment)) {
+      <div class="comments__thread">
+        <app-news-comment-item
+          [comment]="comment"
+          [isExpanded]="expandedReplies.has(comment.CommentId)"
+          [isLoadingReplies]="loadingRepliesFor === comment.CommentId"
+          (liked)="toggleLike($event)"
+          (replied)="startReply($event)"
+          (reported)="openReport($event)"
+          (deleted)="deleteComment($event)"
+          (toggledReplies)="toggleReplies($event)" />
+
+        @if (expandedReplies.has(comment.CommentId)) {
+          <div class="comments__replies">
+            @for (reply of comment.Replies; track trackByCommentId($index, reply)) {
+              <app-news-comment-item
+                [comment]="reply"
+                [isReply]="true"
+                (liked)="toggleLike($event)"
+                (replied)="startReply($event)"
+                (reported)="openReport($event)"
+                (deleted)="deleteComment($event)" />
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (!isLoading && comments.length === 0) {
+      <p class="comments__empty">
+        Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến!
+      </p>
+    }
+
+    @if (isLoading) {
+      <p class="comments__loading">Đang tải bình luận...</p>
+    }
+  </div>
+
+  @if (hasMore) {
+    <button
+      type="button"
+      class="comments__more"
+      [disabled]="isLoading"
+      (click)="loadMore()">
+      Xem thêm bình luận
+    </button>
+  }
+</section>
+
+<app-news-comment-report-modal
+  [isOpen]="isReportOpen"
+  [isSending]="isReporting"
+  [commentId]="reportTargetId"
+  (closed)="closeReport()"
+  (submitted)="submitReport($event)" />

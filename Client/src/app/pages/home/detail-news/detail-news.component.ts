@@ -13,10 +13,16 @@ import {
   AntdModule,
   REUSE_PIPE_MODULE,
 } from '../../../modules';
+import { NewsCommentsComponent } from './news-comments/news-comments.component';
 @Component({
   selector: 'app-detail-news-page',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    ...REUSE_COMPONENT_MODULES,
+    ...REUSE_PIPE_MODULE,
+    NewsCommentsComponent,
+  ],
   templateUrl: './detail-news.component.html',
   styleUrl: './detail-news.component.scss',
 })

@@ -1,0 +1,92 @@
+<article class="cmt" [class.cmt--reply]="isReply">
+  @if (avatarUrl) {
+    <img class="cmt__avatar" [src]="avatarUrl" alt="" />
+  } @else {
+    <span class="cmt__avatar cmt__avatar--fallback">{{ authorInitial }}</span>
+  }
+
+  <div class="cmt__body">
+    @if (comment.IsHidden) {
+      <!-- Giữ lại dòng để nhánh trả lời bên dưới không bị mồ côi -->
+      <p class="cmt__tombstone">
+        <span nz-icon nzType="eye-invisible" nzTheme="outline"></span>
+        Bình luận này đã bị ẩn do vi phạm tiêu chuẩn cộng đồng.
+      </p>
+    } @else {
+      <div class="cmt__head">
+        <span class="cmt__author">{{ comment.UserFullName }}</span>
+        <span class="cmt__time">{{ comment.CreatedDTime | timeAgo }}</span>
+      </div>
+
+      <p class="cmt__text">
+        @if (mention) {
+          <span class="cmt__mention">{{ mention }}</span>
+        }
+        {{ bodyWithoutMention }}
+      </p>
+
+      <div class="cmt__actions">
+        <button
+          type="button"
+          class="cmt__action"
+          [class.is-active]="comment.IsLikedByMe"
+          (click)="liked.emit(comment)">
+          <span
+            nz-icon
+            nzType="like"
+            [nzTheme]="comment.IsLikedByMe ? 'fill' : 'outline'"></span>
+          @if (comment.LikeCount > 0) {
+            <span>{{ formatCount(comment.LikeCount) }}</span>
+          }
+        </button>
+
+        <button
+          type="button"
+          class="cmt__action"
+          (click)="replied.emit(comment)">
+          <span nz-icon nzType="message" nzTheme="outline"></span>
+          Trả lời
+        </button>
+
+        @if (comment.IsOwnedByMe) {
+          <button
+            type="button"
+            class="cmt__action cmt__action--danger"
+            (click)="deleted.emit(comment)">
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+            Xóa
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="cmt__action"
+            (click)="reported.emit(comment)">
+            <span nz-icon nzType="flag" nzTheme="outline"></span>
+            Báo cáo
+          </button>
+        }
+      </div>
+    }
+
+    @if (!isReply && comment.ReplyCount > 0) {
+      <button
+        type="button"
+        class="cmt__toggle-replies"
+        (click)="toggledReplies.emit(comment)">
+        <span
+          nz-icon
+          [nzType]="isExpanded ? 'up' : 'down'"
+          nzTheme="outline"></span>
+        @if (isExpanded) {
+          Ẩn {{ comment.ReplyCount }} phản hồi
+        } @else {
+          Xem {{ comment.ReplyCount }} phản hồi
+        }
+      </button>
+    }
+
+    @if (isLoadingReplies) {
+      <p class="cmt__loading">Đang tải phản hồi...</p>
+    }
+  </div>
+</article>

@@ -15,6 +15,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         ISysParameterRespository SysParameterRespository { get; }
         IReelRespository ReelRespository { get; }
         IReelCommentRespository ReelCommentRespository { get; }
+        INewsCommentRepository NewsCommentRepository { get; }
         Task<int> SaveChangesAsync(); // commit all changes into db
     }
 }

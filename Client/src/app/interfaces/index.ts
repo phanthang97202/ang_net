@@ -14,3 +14,4 @@ export * from './user';
 export * from './audit-trail';
 export * from './visit-stats';
 export * from './reel';
+export * from './news-comment';

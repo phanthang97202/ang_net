@@ -24,3 +24,4 @@ export * from './new-news/new-news.component';
 export * from './subscribe-notify/subscribe-notify.component';
 export * from './home-sidebar/home-sidebar.component';
 export * from './social-links/social-links.component';
+export * from './google-signin-button/google-signin-button.component';
