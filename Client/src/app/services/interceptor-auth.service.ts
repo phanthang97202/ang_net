@@ -48,8 +48,10 @@ export class AuthInterceptor implements HttpInterceptor {
       'account/register',
       'account/refreshtoken',
       // ----
-      'news/search',
-      'news/detail',
+      // news/search và news/detail ĐÃ TỪNG nằm ở đây, nhưng bỏ qua interceptor
+      // đồng nghĩa không bao giờ gắn token - server luôn thấy request ẩn danh nên
+      // admin không xem được bài chưa xuất bản. Cả 2 endpoint đều [AllowAnonymous]
+      // nên khách vãng lai vẫn gọi bình thường (header chỉ gắn khi đã đăng nhập).
       'news/like',
       'news/point',
       // ----
@@ -58,7 +60,7 @@ export class AuthInterceptor implements HttpInterceptor {
       'posthog.com',
     ];
 
-    // Don't attach Authorization header for Cloudinary requests
+    // Các endpoint public / tự xử lý auth riêng: đi thẳng, không gắn token
     if (listIgnore.some(x => req.url.includes(x))) {
       return next.handle(req);
     }
