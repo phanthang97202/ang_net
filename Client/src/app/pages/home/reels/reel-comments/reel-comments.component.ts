@@ -56,9 +56,11 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
 
   @ViewChild('scrollBody') scrollBody?: ElementRef<HTMLElement>;
   @ViewChild('sentinel') sentinel?: ElementRef<HTMLElement>;
+  @ViewChild('commentInput') commentInput?: ElementRef<HTMLInputElement>;
 
   private observer?: IntersectionObserver;
   private subs: Subscription[] = [];
+  private focusTimer?: ReturnType<typeof setTimeout>;
 
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -72,11 +74,14 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
 
   ngAfterViewInit(): void {
     this.setupObserver();
+    // Mở panel là gõ được ngay, không phải bấm thêm vào ô nhập
+    this.focusInput();
   }
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
     this.subs.forEach(s => s.unsubscribe());
+    clearTimeout(this.focusTimer);
   }
 
   close(): void {
@@ -100,6 +105,20 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
     this.replyTo = comment.ParentCommentId
       ? (this.comments.find(c => c.CommentId === comment.ParentCommentId) ?? comment)
       : comment;
+
+    this.focusInput();
+  }
+
+  /**
+   * Hoãn một nhịp để Angular vẽ xong ô nhập rồi mới focus: lúc panel vừa mở
+   * hoặc khi bấm Trả lời (thanh "đang trả lời" chèn thêm vào DOM), phần tử
+   * chưa chắc đã sẵn sàng ngay tại thời điểm gọi.
+   */
+  private focusInput(): void {
+    clearTimeout(this.focusTimer);
+    this.focusTimer = setTimeout(() => {
+      this.commentInput?.nativeElement.focus();
+    });
   }
 
   cancelReply(): void {
