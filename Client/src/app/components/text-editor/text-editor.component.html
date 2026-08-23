@@ -1,14 +1,9 @@
 <div>
-  <!-- Loading state -->
-  <div *ngIf="!blotFormatterReady" class="loading">
-    <p>Đang tải editor...</p>
-  </div>
-
-  <!-- Editor state -->
-  <div *ngIf="blotFormatterReady" class="editor-container">
+  <div class="editor-container">
     <quill-editor
       format="html"
       [modules]="editorModules"
+      [customModules]="customModules"
       [styles]="{ height: '500px' }"
       [(ngModel)]="content"
       (onEditorChanged)="handleonEditorChanged($event)"
