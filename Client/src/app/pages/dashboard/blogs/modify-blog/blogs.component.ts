@@ -13,11 +13,7 @@ import {
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import {
-  INewsCategory,
-  INewsCategoryNode,
-  IRefFileNews,
-} from '../../../../interfaces';
+import { INewsCategory, IRefFileNews } from '../../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import { Util } from '../../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
@@ -49,6 +45,8 @@ export class BlogsComponent implements OnInit {
   lstRefFileNews: IRefFileNews[] & NzUploadFile[] = [];
   contentBody = ''; // ✅ Store content để binding vào editor
 
+  hashtagSuggestions: string[] = [];
+
   previewVisible = false;
   previewImage: ArrayBuffer | string | null = null;
 
@@ -57,7 +55,7 @@ export class BlogsComponent implements OnInit {
     ContentBody: FormControl<string>;
     ShortTitle: FormControl<string>;
     ShortDescription: FormControl<string>;
-    LstHashTagNews: FormControl<string>;
+    LstHashTagNews: FormControl<string[]>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
     FlagActive: FormControl<boolean>;
@@ -76,7 +74,7 @@ export class BlogsComponent implements OnInit {
       ContentBody: ['', [Validators.required]],
       ShortTitle: ['', [Validators.required]],
       ShortDescription: ['', [Validators.required]],
-      LstHashTagNews: [''],
+      LstHashTagNews: [[] as string[]],
       LstRefFileNews: [[{ FileUrl: '' }]],
       FlagActive: [true],
     });
@@ -98,6 +96,7 @@ export class BlogsComponent implements OnInit {
     ];
 
     this.fetchDataInit();
+    this.fetchHashtagSuggestions();
 
     if (queryModeParamUrl === 'edit' && this.newsId) {
       this.handleBindingUpdateData(this.newsId);
@@ -126,15 +125,11 @@ export class BlogsComponent implements OnInit {
             FlagActive: data.Data.FlagActive,
           });
 
-          // ✅ Format hashtags nếu cần
-          if (data.Data.LstHashTagNews && data.Data.LstHashTagNews.length > 0) {
-            const hashtagString = data.Data.LstHashTagNews.map(
-              (tag: any) => tag.HashTagNewsName
-            ).join(' ');
-            this.validateForm.patchValue({
-              LstHashTagNews: hashtagString,
-            });
-          }
+          this.validateForm.patchValue({
+            LstHashTagNews: this.normalizeHashtags(
+              (data.Data.LstHashTagNews ?? []).map(tag => tag.HashTagNewsName)
+            ),
+          });
 
           this.isDataLoaded = true; // ✅ Đánh dấu data đã load xong
           this.loadingService.setLoading(false);
@@ -161,39 +156,7 @@ export class BlogsComponent implements OnInit {
       .pipe()
       .subscribe({
         next: data => {
-          this.nodes = data.DataList.reduce(
-            (prev: Partial<INewsCategoryNode>[], cur: INewsCategory) => {
-              const newNode = {
-                title: cur.NewsCategoryName,
-                NewsCategoryIndex: cur.NewsCategoryIndex,
-                key: cur.NewsCategoryId,
-                NewsCategoryParentId: cur.NewsCategoryParentId,
-                children: [],
-              };
-
-              if (!cur.NewsCategoryParentId) {
-                prev.push(newNode);
-              } else {
-                const addNodeToParent = (
-                  nodes: Partial<INewsCategoryNode>[]
-                ): boolean => {
-                  for (const node of nodes) {
-                    if (node.key === cur.NewsCategoryParentId) {
-                      node.children.push(newNode);
-                      return true;
-                    }
-                    if (addNodeToParent(node.children)) {
-                      return true;
-                    }
-                  }
-                  return false;
-                };
-                addNodeToParent(prev);
-              }
-              return prev;
-            },
-            []
-          ) as NzTreeNodeOptions[] | NzTreeNode[];
+          this.nodes = this.buildCategoryTree(data.DataList);
           this.loadingService.setLoading(false);
         },
         error: err => {
@@ -208,6 +171,66 @@ export class BlogsComponent implements OnInit {
           this.loadingService.setLoading(false);
         },
       });
+  }
+
+  // API trả danh sách phẳng sắp theo NewsCategoryIndex, thứ tự đó không đảm bảo cha
+  // đứng trước con. Bản cũ duyệt một lượt và tìm cha trong cây đang dựng dở, nên danh
+  // mục nào tới trước cha của nó là bị rơi mất hẳn khỏi kết quả. Dựng map trọn vẹn
+  // trước rồi mới nối để không phụ thuộc thứ tự.
+  private buildCategoryTree(list: INewsCategory[]): NzTreeNodeOptions[] {
+    const nodeById = new Map<string, NzTreeNodeOptions>();
+    list.forEach(category =>
+      nodeById.set(category.NewsCategoryId, {
+        title: category.NewsCategoryName,
+        key: category.NewsCategoryId,
+        children: [],
+      })
+    );
+
+    const roots: NzTreeNodeOptions[] = [];
+    list.forEach(category => {
+      const node = nodeById.get(category.NewsCategoryId)!;
+      const parent = nodeById.get(category.NewsCategoryParentId);
+      // Cha không tồn tại (đã tắt FlagActive, hoặc dữ liệu tự trỏ vào chính nó) thì
+      // đẩy lên gốc - vẫn chọn được, thay vì biến mất như trước.
+      if (parent && parent !== node) {
+        parent.children!.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    // nz-tree-select vẫn vẽ mũi tên mở rộng nếu children là mảng rỗng.
+    nodeById.forEach(node => (node.isLeaf = node.children!.length === 0));
+    return roots;
+  }
+
+  private fetchHashtagSuggestions() {
+    this.apiService.GetTopHashTag().subscribe({
+      next: data => {
+        this.hashtagSuggestions = this.normalizeHashtags(
+          (data.DataList ?? []).map(tag => tag.HashTagNewsName)
+        );
+      },
+      // Gợi ý không có thì ô nhập vẫn gõ tay được, không cần báo lỗi ra màn hình.
+      error: () => (this.hashtagSuggestions = []),
+    });
+  }
+
+  // Bỏ dấu # người dùng quen gõ, cắt khoảng trắng, loại rỗng và loại trùng không
+  // phân biệt hoa thường (giữ lại cách viết của lần xuất hiện đầu tiên).
+  private normalizeHashtags(values: string[]): string[] {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    values.forEach(value => {
+      const name = (value ?? '').trim().replace(/^#+/, '').trim();
+      if (!name) return;
+      const dedupeKey = name.toLowerCase();
+      if (seen.has(dedupeKey)) return;
+      seen.add(dedupeKey);
+      result.push(name);
+    });
+    return result;
   }
 
   handleUploadFile = (file: any) => {
@@ -230,12 +253,9 @@ export class BlogsComponent implements OnInit {
       ShortDescription: this.validateForm.value.ShortDescription ?? '',
       ContentBody: this.validateForm.value.ContentBody ?? '',
       FlagActive: this.validateForm.value.FlagActive ?? true,
-      LstHashTagNews: (this.validateForm.value.LstHashTagNews ?? '')
-        .split(' ')
-        .filter(item => item.trim())
-        .map((item: string) => ({
-          HashTagNewsName: item.trim(),
-        })),
+      LstHashTagNews: this.normalizeHashtags(
+        this.validateForm.value.LstHashTagNews ?? []
+      ).map(name => ({ HashTagNewsName: name })),
       LstRefFileNews: [],
     };
     console.log('===update data', this.mode, data);

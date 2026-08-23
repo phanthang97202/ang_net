@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -30,13 +38,33 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './upload-common.component.html',
   styleUrls: ['./upload-common.component.scss'],
 })
-export class UploadCommonComponent {
+export class UploadCommonComponent implements OnChanges {
   cloudinary = inject(CloudinaryService);
   @Output() _onClick = new EventEmitter<MouseEvent>();
 
-  thumnail: any;
+  // Ảnh đã lưu của bản ghi. Không có input này thì màn edit không có cách nào
+  // hiển thị ảnh cũ, danh sách file luôn rỗng cho tới khi người dùng chọn ảnh mới.
+  @Input() imageUrl = '';
+
+  thumnail: NzUploadFile[] = [];
   previewVisible = false;
   previewImage: ArrayBuffer | string | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['imageUrl']) return;
+    // Ảnh vừa upload xong cũng quay lại qua input này, nên dựng lại danh sách theo
+    // url mới thay vì giữ file tạm mà nz-upload tự thêm vào lúc chọn.
+    this.thumnail = this.imageUrl
+      ? [
+          {
+            uid: this.imageUrl,
+            name: 'thumbnail',
+            status: 'done',
+            url: this.imageUrl,
+          },
+        ]
+      : [];
+  }
 
   handleUploadFile = (file: any) => {
     this._onClick.emit(file);

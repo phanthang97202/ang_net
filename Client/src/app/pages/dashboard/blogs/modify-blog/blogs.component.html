@@ -4,14 +4,14 @@
     [buttons]="listButtonsHeader" />
 
   <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
-    <div nz-row [nzGutter]="24" class="items-start blogpost__container">
-      <div nz-col [nzSpan]="8" [nzXs]="24" [nzMd]="8">
+    <div nz-row [nzGutter]="[24, 24]" class="items-start blogpost__container">
+      <div nz-col [nzXs]="24" [nzMd]="8">
         <div class="blogpost__panel">
           <nz-form-item class="status-toggle">
-            <nz-form-label nzLabelAlign="left" nzSpan="8">{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
               'T_FLAGACTIVE' | translate
             }}</nz-form-label>
-            <nz-form-control>
+            <nz-form-control [nzXs]="24" [nzMd]="16">
               <nz-switch
                 formControlName="FlagActive"
                 [nzCheckedChildren]="'T_PUBLISHED' | translate"
@@ -20,10 +20,12 @@
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8" nzRequired
               >{{ 'T_SHORTTITLE' | translate }}
             </nz-form-label>
             <nz-form-control
+              [nzXs]="24"
+              [nzMd]="16"
               nzValidatingTip="Validating..."
               nzErrorTip="Required!">
               <input
@@ -35,10 +37,12 @@
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8" nzRequired>{{
               'T_SHORTDESCRIPTION' | translate
             }}</nz-form-label>
             <nz-form-control
+              [nzXs]="24"
+              [nzMd]="16"
               nzValidatingTip="Validating..."
               nzErrorTip="Required!">
               <nz-textarea-count [nzMaxCharacterCount]="100">
@@ -52,57 +56,66 @@
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8" nzRequired>{{
               'T_CATEGORYNEWSID' | translate
             }}</nz-form-label>
             <nz-form-control
+              [nzXs]="24"
+              [nzMd]="16"
               nzValidatingTip="Validating..."
               nzErrorTip="Required!">
               <nz-tree-select
                 formControlName="CategoryNewsId"
                 [nzNodes]="nodes"
                 nzShowSearch
+                nzDefaultExpandAll
                 [nzPlaceHolder]="'T_PLEASESELECT' | translate"></nz-tree-select>
             </nz-form-control>
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8" nzFor="mention">{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
               'T_LSTHASHTAGNEWS' | translate
             }}</nz-form-label>
-            <nz-form-control nzErrorTip="More than one must be selected!">
-              <nz-mention #mentions>
-                <textarea
-                  rows="1"
-                  id="LstHashTagNews"
-                  [placeholder]="'T_LISTHASHTAG' | translate"
-                  formControlName="LstHashTagNews"
-                  nzMentionTrigger
-                  nz-input></textarea>
-              </nz-mention>
+            <nz-form-control [nzXs]="24" [nzMd]="16">
+              <nz-select
+                formControlName="LstHashTagNews"
+                nzMode="tags"
+                nzAllowClear
+                [nzTokenSeparators]="[',']"
+                [nzPlaceHolder]="'T_LISTHASHTAG' | translate">
+                <nz-option
+                  *ngFor="let tag of hashtagSuggestions"
+                  [nzValue]="tag"
+                  [nzLabel]="tag"></nz-option>
+              </nz-select>
             </nz-form-control>
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8" nzRequired>{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8" nzRequired>{{
               'T_THUMNAIL' | translate
             }}</nz-form-label>
             <nz-form-control
+              [nzXs]="24"
+              [nzMd]="16"
               nzValidatingTip="Validating..."
               nzErrorTip="Required!">
-              <app-upload-common (_onClick)="handleUploadFile($event)" />
+              <app-upload-common
+                [imageUrl]="validateForm.value.Thumbnail || ''"
+                (_onClick)="handleUploadFile($event)" />
             </nz-form-control>
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" nzSpan="8">{{
+            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
               'T_LSTREFFILENEWS' | translate
             }}</nz-form-label>
-            <nz-form-control>
+            <nz-form-control [nzXs]="24" [nzMd]="16">
               <nz-upload
                 nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                 [(nzFileList)]="lstRefFileNews">
-                <button nz-button>
+                <button nz-button type="button">
                   <span nz-icon nzType="upload"></span>
                   {{ 'T_UPLOAD' | translate }}
                 </button>
@@ -113,7 +126,7 @@
       </div>
 
       <!-- Thay đổi phần app-text-editor -->
-      <div nz-col [nzSpan]="16" [nzXs]="24" [nzMd]="16">
+      <div nz-col [nzXs]="24" [nzMd]="16">
         <div class="blogpost__panel blogpost__editor-panel">
           <nz-form-item>
             <nz-form-control nzValidatingTip="Validating...">

@@ -26,3 +26,43 @@
     justify-content: center;
     min-height: 400px;
 }
+
+// Ô chọn danh mục và ô hashtag phải chiếm trọn bề ngang, nếu không trên mobile
+// chúng co lại theo nội dung và rất khó bấm.
+::ng-deep nz-tree-select,
+::ng-deep nz-select {
+    width: 100%;
+}
+
+// ── Mobile ────────────────────────────────────────────────────────────
+// Dưới nzMd, label và control đã tự xuống dòng nhờ nzXs=24 trong template;
+// phần còn lại là thu gọn khoảng đệm để không phí diện tích màn hình.
+@media (max-width: 767px) {
+    .blogpost__panel {
+        padding: 16px;
+        border-radius: 6px;
+    }
+
+    // Bỏ chiều cao tối thiểu cố định: trên mobile nó tạo ra một khoảng trắng
+    // dài phía dưới editor.
+    .blogpost__editor-panel {
+        min-height: 0;
+    }
+
+    .loading-editor {
+        min-height: 200px;
+    }
+
+    // Label đứng riêng một dòng nên không cần khoảng đệm đáy mặc định của antd.
+    ::ng-deep .ant-form-item-label {
+        padding-bottom: 4px;
+
+        > label {
+            height: auto;
+        }
+    }
+
+    ::ng-deep .ant-form-item {
+        margin-bottom: 16px;
+    }
+}
