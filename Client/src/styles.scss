@@ -502,3 +502,112 @@ a {
     font-family: 'Courier New', monospace !important;
   }
 }
+// ── Popover: menu tài khoản (navbar) ──────────────────────────────────
+// Đặt ở global thay vì navbar.component.scss vì 2 lý do: nội dung popover
+// render qua CDK overlay ra ngoài DOM của navbar, và navbar.component.scss
+// đã chạm trần budget "anyComponentStyle" (8kB) của bản build production.
+.account-menu {
+  min-width: 250px;
+}
+
+.account-menu__head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.25rem 0 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.account-menu__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.account-menu__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.account-menu__identity {
+  min-width: 0;
+}
+
+.account-menu__name {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-menu__email {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--color-control-bg);
+  }
+
+  [nz-icon] {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+.account-menu__item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-menu__chevron {
+  color: var(--color-text-muted);
+  font-size: 0.75rem !important;
+}
+
+.account-menu__item--danger {
+  margin-top: 2px;
+  color: #c0392b;
+
+  &:hover {
+    background: rgba(192, 57, 43, 0.1);
+  }
+}
