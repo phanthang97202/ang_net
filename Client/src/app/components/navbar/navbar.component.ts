@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ActivatedRoute,
@@ -47,11 +47,26 @@ interface RouteItem {
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   isMobileMenuOpen = false;
   isSearchOpen = false;
   searchKeyword = '';
+
+  // Ở đầu trang navbar để trong suốt; chỉ khi nội dung bắt đầu chui xuống dưới
+  // nó mới cần nền kính để chữ không chồng lên nhau.
+  isScrolled = false;
+
+  private zone = inject(NgZone);
+
+  // Chạy ngoài zone của Angular: sự kiện scroll bắn liên tục, để trong zone là
+  // mỗi lần cuộn lại kích hoạt một vòng change detection toàn app. Chỉ quay lại
+  // zone đúng lúc vượt ngưỡng, tức là rất hiếm.
+  private readonly onWindowScroll = () => {
+    const scrolled = window.scrollY > 8;
+    if (scrolled === this.isScrolled) return;
+    this.zone.run(() => (this.isScrolled = scrolled));
+  };
 
   listRoute: RouteItem[] = [
     { path: '/', title: 'Home', icon: 'home' },
@@ -93,6 +108,16 @@ export class NavbarComponent implements OnInit {
       ...route,
       isActive: route.path === currentPath,
     }));
+
+    this.zone.runOutsideAngular(() =>
+      window.addEventListener('scroll', this.onWindowScroll, { passive: true })
+    );
+    // Tải lại trang khi đang ở giữa bài viết thì scrollY đã khác 0 sẵn.
+    this.onWindowScroll();
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.onWindowScroll);
   }
 
   // ── Mobile menu ──────────────────────────────────────

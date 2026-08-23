@@ -24,9 +24,40 @@ $nav-height: 64px;
 }
 
 // ── Wrapper ────────────────────────────────────────────
+// Ở đầu trang navbar không có hộp: bỏ nền/viền/bóng để 2 dải --glow-* chạy
+// trọn vẹn phía sau, và quan trọng hơn là không còn cạnh tiếp giáp với khối
+// hero bo 24px nằm sát ngay bên dưới.
 .navbar-wrapper {
-    background: $color-bg;
-    border-bottom: 1px solid $color-border;
+    background: transparent;
+    transition:
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+
+    // Cuộn xuống thì nội dung chui xuống dưới navbar, lúc này mới cần nền kính
+    // để chữ không chồng lên nhau. Cũng bật khi mở menu mobile: panel menu có
+    // nền đục nên để hàng logo phía trên trong suốt sẽ trông rời rạc.
+    &.scrolled {
+        background: var(--color-bg-nav);
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+        box-shadow: 0 6px 24px var(--color-card-shadow);
+        // backdrop-filter tạo stacking context mới, nhốt z-index:100 của
+        // .mobile-menu lại bên trong wrapper nên nó không so được với
+        // .mobile-overlay (z-index 99, anh em của wrapper) và bị phủ mờ.
+        // Nâng chính wrapper lên trên overlay để cả cụm navbar + menu nổi lên.
+        position: relative;
+        z-index: 100;
+    }
+}
+
+// Không có backdrop-filter thì nền trong mờ để lộ nguyên nội dung cuộn phía
+// sau, chữ navbar thành không đọc nổi - quay về nền đục.
+@supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+    .navbar-wrapper.scrolled {
+        background: $color-bg;
+    }
 }
 
 // ── Logo ───────────────────────────────────────────────
