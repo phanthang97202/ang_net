@@ -8,6 +8,7 @@ using static Dapper.SqlMapper;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 
 namespace angnet.Infrastructure.Data.Repositories
 {
@@ -36,6 +37,26 @@ namespace angnet.Infrastructure.Data.Repositories
                                                 .ToListAsync();
 
             return data;
+        }
+
+        public (List<NewsCategoryModel> Data, int TotalCount) Search(int pageIndex, int pageSize, string keyword)
+        {
+            IQueryable<NewsCategoryModel> query = _dbContext.NewsCategory
+                                    .Where(p => !TCommonUtils.IsNullOrEmpty(keyword)
+                                                    ? p.NewsCategoryId.Contains(keyword)
+                                                      || p.NewsCategoryName.Contains(keyword)
+                                                    : true);
+
+            int itemCount = query.Count();
+
+            // Sắp xếp cố định để phân trang không bị nhảy dòng giữa các lần gọi
+            List<NewsCategoryModel> dataResult = query.OrderBy(p => p.NewsCategoryIndex)
+                                                      .ThenBy(p => p.NewsCategoryId)
+                                                      .Skip(pageIndex * pageSize)
+                                                      .Take(pageSize)
+                                                      .ToList();
+
+            return (dataResult, itemCount);
         }
     }
 }

@@ -18,6 +18,10 @@ import {
   IRequestSysParameterCreate,
   IResponseSysParameterCreate,
   IResponseSysParameterSearch,
+  ISearchNewsCategoryRequest,
+  IResponseNewsCategorySearch,
+  IRequestNewsCategoryCreate,
+  IResponseNewsCategoryCreate,
   IReelFeedResponse,
   IReelLikeResponse,
   IReelCreateRequest,
@@ -219,6 +223,42 @@ export class ApiService {
   GetAllActiveNewsCategory(): Observable<INewsCategoryResponse> {
     return this.http.get<INewsCategoryResponse>(
       `${this.apiUrl}newscategory/getallactive`
+    );
+  }
+
+  NewsCategorySearch(
+    request: ISearchNewsCategoryRequest
+  ): Observable<IResponseNewsCategorySearch> {
+    return this.http.get<IResponseNewsCategorySearch>(
+      `${this.apiUrl}newscategory/search?pageIndex=${request.pageIndex}&pageSize=${request.pageSize}&keyword=${encodeURIComponent(
+        request.keyword
+      )}`
+    );
+  }
+
+  NewsCategoryCreate(
+    request: IRequestNewsCategoryCreate
+  ): Observable<IResponseNewsCategoryCreate> {
+    return this.http.post<IResponseNewsCategoryCreate>(
+      `${this.apiUrl}newscategory/create`,
+      { ...request }
+    );
+  }
+
+  NewsCategoryUpdate(
+    request: IRequestNewsCategoryCreate
+  ): Observable<IResponseNewsCategoryCreate> {
+    return this.http.patch<IResponseNewsCategoryCreate>(
+      `${this.apiUrl}newscategory/update`,
+      { ...request }
+    );
+  }
+
+  NewsCategoryDelete(
+    newsCategoryId: string
+  ): Observable<IResponseNewsCategoryCreate> {
+    return this.http.delete<IResponseNewsCategoryCreate>(
+      `${this.apiUrl}newscategory/delete?newsCategoryId=${encodeURIComponent(newsCategoryId)}`
     );
   }
 

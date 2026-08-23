@@ -57,6 +57,28 @@ namespace angnet.Infrastructure.Data.Repositories
             return false;
         }
 
+        /// <summary>
+        /// Bài chưa xuất bản (FlagActive = false) chỉ Admin hoặc chính tác giả mới được xem.
+        /// Truyền authorUserId = null khi chưa biết tác giả (vd lúc lọc danh sách) - khi đó
+        /// chỉ Admin mới qua được.
+        /// </summary>
+        private bool CanViewUnpublished(string authorUserId)
+        {
+            ClaimsPrincipal user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true)
+            {
+                return false;
+            }
+
+            if (user.IsInRole("Admin"))
+            {
+                return true;
+            }
+
+            return !TCommonUtils.IsNullOrEmpty(authorUserId)
+                   && user.FindFirstValue(ClaimTypes.NameIdentifier) == authorUserId;
+        }
+
         public bool CheckNewsExist(string newsId, ref NewsModel data)
         {
             NewsModel record = _dbContext.News.AsNoTracking().FirstOrDefault(n => n.NewsId == newsId);
@@ -180,6 +202,14 @@ namespace angnet.Infrastructure.Data.Repositories
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
+
+            // onlyPublished do client truyền nên không tin được: bất kỳ ai cũng có thể gọi
+            // ?onlyPublished=false để đọc bài nháp. Chỉ Admin (hoặc tác giả khi đang lọc đúng
+            // bài của chính mình) mới được phép tắt bộ lọc này.
+            if (!onlyPublished && !CanViewUnpublished(userId))
+            {
+                onlyPublished = true;
+            }
 
             // Check Permission
             string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -318,6 +348,16 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (!isExistRecordNews)
             {
+                apiResponse.CatchException(false, "News_Detail.NewsIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            // Chặn bài chưa xuất bản. Phải nằm TRƯỚC phần tăng ViewCount và phần đọc cache:
+            // cache key chỉ gồm newsId (không có user), nên nếu kiểm tra sau cache thì bản
+            // admin đã cache sẽ bị trả cho khách vãng lai. objNews đọc tươi từ DB nên tin được.
+            if (!objNews.FlagActive && !CanViewUnpublished(objNews.UserId))
+            {
+                // Trả cùng thông báo với bài không tồn tại, tránh lộ việc bài đó có thật
                 apiResponse.CatchException(false, "News_Detail.NewsIsNotExist", requestClient);
                 return apiResponse;
             }

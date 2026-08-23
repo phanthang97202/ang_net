@@ -1,0 +1,112 @@
+<div class="master__container">
+  <app-breadcrumb title="News Category" [buttons]="listButtonsHeader" />
+
+  <!-- Thanh tìm kiếm -->
+  <form
+    class="newscate__search"
+    nz-form
+    [formGroup]="searchForm"
+    [nzLayout]="'inline'"
+    (ngSubmit)="handleSearch()">
+    <nz-form-item>
+      <nz-form-control>
+        <input
+          nz-input
+          formControlName="Keyword"
+          placeholder="Tìm theo mã / tên danh mục..."
+          class="newscate__search-keyword" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button nz-button nzType="primary" type="submit">
+        <span nz-icon nzType="search"></span> Search
+      </button>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button
+        nz-button
+        nzType="default"
+        type="button"
+        (click)="handleResetSearch()">
+        <span nz-icon nzType="reload"></span> Reset
+      </button>
+    </nz-form-item>
+  </form>
+
+  <nz-layout>
+    <nz-content>
+      <nz-table
+        nzShowSizeChanger
+        [nzData]="dataSource"
+        [nzScroll]="{ x: '900px' }"
+        [nzFrontPagination]="true"
+        [nzPageSize]="20"
+        [nzLoading]="false">
+        <thead>
+          <tr>
+            <th nzWidth="90px"></th>
+            <th nzWidth="60px">#</th>
+            <th nzColumnKey="NewsCategoryId" [nzSortFn]="true">Code</th>
+            <th nzColumnKey="NewsCategoryName" [nzSortFn]="true">Name</th>
+            <th nzWidth="200px">Parent</th>
+            <th nzColumnKey="NewsCategoryIndex" [nzSortFn]="true" nzWidth="80px">
+              Sort
+            </th>
+            <th nzWidth="100px">Global</th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="100px">
+              Active
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of dataSource; let i = index">
+            <td>
+              <app-button-common
+                [iconType]="'edit'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDetail(data)"></app-button-common>
+              <app-button-common
+                [isShowConfirm]="true"
+                [iconType]="'delete'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDelete(data)"></app-button-common>
+            </td>
+            <td>{{ i + 1 }}</td>
+            <td>
+              <strong>{{ data.NewsCategoryId }}</strong>
+            </td>
+            <td>{{ data.NewsCategoryName }}</td>
+            <td>
+              <span class="newscate__cell">{{
+                parentName(data.NewsCategoryParentId) | showNullishValue
+              }}</span>
+            </td>
+            <td>{{ data.NewsCategoryIndex }}</td>
+            <td>
+              <nz-tag [nzColor]="data.IsGlobal ? 'geekblue' : 'default'">
+                {{ data.IsGlobal ? 'Yes' : 'No' }}
+              </nz-tag>
+            </td>
+            <td>
+              <app-tag-status
+                [sttValue]="
+                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
+                "></app-tag-status>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+</div>
+
+<app-save-news-category-popup
+  [titlePopup]="titlePopup"
+  [formDataSource]="formDataSource"
+  [parentOptions]="dataSource"
+  [(isOpenPopup)]="_isOpenPopup"
+  (_onSave)="handleSaveForm($event)" />

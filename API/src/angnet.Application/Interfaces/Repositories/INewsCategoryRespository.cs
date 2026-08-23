@@ -6,5 +6,6 @@ namespace angnet.Application.Interfaces.Repositories
     public interface INewsCategoryRespository : IBaseRespository<NewsCategoryModel>
     {
         Task<List<NewsCategoryDto>> GetAllNewCategory();
+        (List<NewsCategoryModel> Data, int TotalCount) Search(int pageIndex, int pageSize, string keyword);
     }
 }

@@ -203,6 +203,14 @@ export const routes: Routes = [
           ).then(p => p.SysParameterComponent),
         canActivate: [canActiveForAdmin],
       },
+      {
+        path: 'newscategory',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/news-category/news-category-list/news-category-list.component'
+          ).then(p => p.NewsCategoryComponent),
+        canActivate: [canActiveForAdmin],
+      },
     ],
   },
 ];

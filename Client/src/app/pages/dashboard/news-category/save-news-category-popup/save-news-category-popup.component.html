@@ -1,0 +1,94 @@
+<nz-modal
+  [nzVisible]="isOpenPopup"
+  [nzTitle]="titlePopup"
+  [nzWidth]="640"
+  (nzOnOk)="handleSave()"
+  (nzOnCancel)="handleCancel()">
+  <form
+    *nzModalContent
+    nz-form
+    [formGroup]="validateForm"
+    [nzLayout]="'vertical'">
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired [nzNoColon]="true">
+            Category Code
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Category code is required!">
+            <input
+              nz-input
+              formControlName="NewsCategoryId"
+              placeholder="VD: doi-song" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired [nzNoColon]="true">
+            Category Name
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Category name is required!">
+            <input
+              nz-input
+              formControlName="NewsCategoryName"
+              placeholder="VD: Đời sống" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label [nzNoColon]="true">Parent Category</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              formControlName="NewsCategoryParentId"
+              nzAllowClear
+              nzPlaceHolder="Không có (danh mục gốc)">
+              <nz-option
+                *ngFor="let c of selectableParents"
+                [nzValue]="c.NewsCategoryId"
+                [nzLabel]="c.NewsCategoryName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label [nzNoColon]="true">Sort Order</nz-form-label>
+          <nz-form-control>
+            <input
+              nz-input
+              type="number"
+              formControlName="NewsCategoryIndex"
+              placeholder="0" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label [nzNoColon]="true">Global</nz-form-label>
+          <nz-form-control>
+            <nz-switch formControlName="IsGlobal"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label [nzNoColon]="true">Active</nz-form-label>
+          <nz-form-control>
+            <nz-switch formControlName="FlagActive"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </form>
+</nz-modal>
