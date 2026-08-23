@@ -1,61 +1,88 @@
-<div class="login__container">
-  <form
-    nz-form
-    class="login-form"
-    appScrollReveal
-    [formGroup]="validateForm"
-    (ngSubmit)="submitForm($event)">
-    <nz-form-item>
-      <nz-form-control nzErrorTip="Please input your username!">
-        <nz-input-group nzPrefixIcon="user">
-          <input
-            type="text"
-            nz-input
-            formControlName="userName"
-            [placeholder]="'T_ENTERUSERNAME' | translate" />
-        </nz-input-group>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control nzErrorTip="Please input your Password!">
-        <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
-          <input
-            [type]="passwordVisible ? 'password' : 'text'"
-            nz-input
-            formControlName="password"
-            [placeholder]="'T_ENTERPASSWORD' | translate" />
-        </nz-input-group>
-        <ng-template #suffixTemplate>
-          <span
-            class="form__password-visible"
-            nz-icon
-            [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
-            (click)="passwordVisible = !passwordVisible"></span>
-        </ng-template>
-      </nz-form-control>
-    </nz-form-item>
+<div class="login">
+  <div class="login__card">
+    <!-- Cột ảnh thương hiệu, ẩn trên màn hình hẹp để nhường chỗ cho form -->
+    <aside class="login__hero">
+      <div class="login__hero-overlay"></div>
+      <div class="login__hero-content">
+        <p class="login__hero-brand">Phan<span>Thang</span></p>
+        <p class="login__hero-tagline">{{ 'T_LOGIN_TAGLINE' | translate }}</p>
+      </div>
+    </aside>
 
-    <nz-form-item>
-      <nz-form-control>
-        <button
-          nz-button
-          class="login-form-button login-form-margin"
-          nzType="primary">
+    <section class="login__panel">
+      <header class="login__panel-head">
+        <h1 class="login__title">{{ 'T_LOGIN_WELCOME' | translate }}</h1>
+        <p class="login__subtitle">{{ 'T_LOGIN_SUBTITLE' | translate }}</p>
+      </header>
+
+      <form
+        nz-form
+        class="login__form"
+        [formGroup]="validateForm"
+        (ngSubmit)="submitForm($event)">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your username!">
+            <label class="login__label" for="login-username">
+              {{ 'T_USERNAME' | translate }}
+            </label>
+            <nz-input-group nzPrefixIcon="user">
+              <input
+                id="login-username"
+                type="text"
+                nz-input
+                formControlName="userName"
+                [placeholder]="'T_ENTERUSERNAME' | translate" />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your Password!">
+            <label class="login__label" for="login-password">
+              {{ 'T_ENTERPASSWORD' | translate }}
+            </label>
+            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+              <input
+                id="login-password"
+                [type]="passwordVisible ? 'password' : 'text'"
+                nz-input
+                formControlName="password"
+                [placeholder]="'T_ENTERPASSWORD' | translate" />
+            </nz-input-group>
+            <ng-template #suffixTemplate>
+              <button
+                type="button"
+                class="login__password-toggle"
+                [attr.aria-label]="passwordVisible ? 'Hiện mật khẩu' : 'Ẩn mật khẩu'"
+                (click)="passwordVisible = !passwordVisible">
+                <span
+                  nz-icon
+                  [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"></span>
+              </button>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <a class="login__forgot" routerLink="/forgot-password">
+          {{ 'T_FORGOTPASSWORD' | translate }}
+        </a>
+
+        <button nz-button class="login__submit" nzType="primary">
           {{ 'T_LOGIN' | translate }}
         </button>
-      </nz-form-control>
-    </nz-form-item>
+      </form>
 
-    <nz-form-item class="mt-[-12px]">
-      <nz-form-control>
-        <div id="google-button" class="mx-[auto]"></div>
-      </nz-form-control>
-    </nz-form-item>
-    <a class="text-[blue]" routerLink="/register">{{
-      'T_REGISTERNOW' | translate
-    }}</a>
-    <a class="login-form-forgot text-[blue]" routerLink="/forgot-password">{{
-      'T_FORGOTPASSWORD' | translate
-    }}</a>
-  </form>
+      <div class="login__divider">
+        <span>{{ 'T_LOGIN_OR' | translate }}</span>
+      </div>
+
+      <!-- Nút do SDK của Google tự render vào đây, không tự dựng lại được -->
+      <div id="google-button" class="login__google"></div>
+
+      <p class="login__register">
+        {{ 'T_LOGIN_NOACCOUNT' | translate }}
+        <a routerLink="/register">{{ 'T_REGISTERNOW' | translate }}</a>
+      </p>
+    </section>
+  </div>
 </div>

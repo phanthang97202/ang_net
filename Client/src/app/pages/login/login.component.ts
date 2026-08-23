@@ -51,9 +51,15 @@ export class LoginComponent implements AfterViewInit {
       callback: (response: any) => this.handleCredentialResponse(response),
     });
 
+    // Nút này do SDK Google tự dựng, chỉ chỉnh được qua các tham số dưới đây.
+    // width là px cố định (SDK không nhận %), 300 đủ rộng trên desktop mà vẫn
+    // không tràn ở màn hình 360px.
     google.accounts.id.renderButton(document.getElementById('google-button'), {
       theme: 'outline',
       size: 'large',
+      shape: 'pill',
+      width: 300,
+      logo_alignment: 'center',
     });
   }
 

@@ -1,66 +1,244 @@
-.login__container {
-  margin: auto;
-  height: 100%;
-  width: 100%;
+// Trang login chạy trong layout 'none' -> nz-content của app.component.scss áp
+// margin: 64.8px 0. Trừ đúng khoảng đó để thẻ vẫn nằm giữa màn hình.
+$nz-content-gap: 130px;
+
+.login {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: calc(100vh - #{$nz-content-gap});
+  padding: 24px 16px;
+  // Nền dịu theo tông accent của blog thay vì nền đen như bản mẫu, cho ăn nhập
+  // với các trang còn lại
+  background:
+    radial-gradient(60% 60% at 12% 20%, rgba(242, 153, 74, 0.18), transparent 70%),
+    radial-gradient(55% 55% at 88% 80%, rgba(91, 79, 233, 0.2), transparent 70%),
+    var(--color-bg-page);
+}
 
-  .login-form {
-    width: 30%;
-    // box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    // padding: 10px;
+.login__card {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  width: 100%;
+  max-width: 980px;
+  min-height: 560px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  box-shadow: 0 24px 60px rgba(20, 15, 60, 0.16);
+}
 
-    .form__password-visible {
-      cursor: pointer;
-    }
+// ── Cột ảnh ───────────────────────────────────────────────────────────
+.login__hero {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 40px 36px;
+  background-image: url('/assets/images/bg_banner.avif');
+  background-size: cover;
+  background-position: center;
+}
+
+.login__hero-overlay {
+  position: absolute;
+  inset: 0;
+  // Tối dần từ trái xuống để chữ luôn đọc được bất kể ảnh sáng hay tối
+  background: linear-gradient(
+    160deg,
+    rgba(12, 10, 30, 0.68) 0%,
+    rgba(12, 10, 30, 0.35) 55%,
+    rgba(91, 79, 233, 0.45) 100%
+  );
+}
+
+.login__hero-content {
+  position: relative;
+  color: #fff;
+}
+
+.login__hero-brand {
+  margin: 0 0 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  span {
+    font-style: italic;
+    color: #c9c2ff;
   }
+}
 
-  .login-form-margin {
+.login__hero-tagline {
+  margin: 0;
+  max-width: 320px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+// ── Cột form ──────────────────────────────────────────────────────────
+.login__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px 44px 36px;
+}
+
+.login__panel-head {
+  margin-bottom: 26px;
+}
+
+.login__title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-accent);
+}
+
+.login__subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.login__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.login__form {
+  // ng-zorro mặc định chừa khoảng khá rộng giữa các form-item
+  nz-form-item {
     margin-bottom: 16px;
   }
 
-  .login-form-forgot {
-    float: right;
+  // Bo tròn + cao hơn mặc định để khớp bản mẫu
+  ::ng-deep .ant-input-affix-wrapper {
+    border-radius: 10px;
+    padding: 9px 12px;
   }
 
-  .login-form-button {
-    width: 100%;
+  ::ng-deep .ant-input-affix-wrapper:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent-bg);
+  }
+}
+
+.login__password-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-muted);
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.login__forgot {
+  display: block;
+  margin: -4px 0 18px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--color-text-muted);
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+.login__submit {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.login__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+}
+
+.login__google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.login__register {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-muted);
+
+  a {
+    margin-left: 4px;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────
+@media (max-width: 860px) {
+  .login__card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    max-width: 460px;
   }
 
-  // ========================
-  // Responsive design below
-  // ========================
-
-  @media (max-width: 1024px) {
-    width: 50%;
-
-    .login-form {
-      width: 100%;
-    }
+  // Ảnh co lại thành dải ngang phía trên thay vì biến mất hẳn, để vẫn còn
+  // nhận diện thương hiệu
+  .login__hero {
+    min-height: 170px;
+    align-items: flex-end;
+    padding: 24px;
   }
 
-  @media (max-width: 768px) {
-    width: 70%;
-
-    .login-form {
-      width: 100%;
-    }
+  .login__hero-brand {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
   }
 
-  @media (max-width: 480px) {
-    width: 90%;
-    padding: 0 10px;
+  .login__hero-tagline {
+    display: none;
+  }
 
-    .login-form-forgot {
-      float: none;
-      display: block;
-      text-align: right;
-      margin-top: 8px;
-    }
+  .login__panel {
+    padding: 30px 26px 26px;
+  }
 
-    .login-form-margin {
-      margin-bottom: 12px;
-    }
+  .login__title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login {
+    padding: 12px;
+  }
+
+  .login__panel {
+    padding: 24px 18px 20px;
   }
 }

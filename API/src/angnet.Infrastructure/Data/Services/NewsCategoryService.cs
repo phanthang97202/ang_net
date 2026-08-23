@@ -123,18 +123,10 @@ namespace angnet.Infrastructure.Data.Services
         public async Task<ApiResponse<NewsCategoryDto>> GetAllActive()
         {
             ApiResponse<NewsCategoryDto> apiResponse = new ApiResponse<NewsCategoryDto>();
-            List<RequestClient> requestClient = new List<RequestClient>();
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Danh mục là dữ liệu công khai (dùng ở thanh chọn chủ đề ngoài trang chủ),
+            // khách chưa đăng nhập cũng phải xem được nên không kiểm tra token ở đây.
 
-            // ------------
             Expression<Func<NewsCategoryModel, bool>> predicated = x => x.FlagActive == true;
             Expression<Func<NewsCategoryModel, NewsCategoryDto>> selectedField = s => new NewsCategoryDto
             {

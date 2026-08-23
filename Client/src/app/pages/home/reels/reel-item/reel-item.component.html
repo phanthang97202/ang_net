@@ -55,7 +55,48 @@
           }
         </button>
       } @else {
-        <img class="reel-item__media" [src]="mediaUrl" [alt]="reel.Caption" />
+        <!-- Ảnh trình chiếu: cuộn ngang scroll-snap nên vuốt được trên cảm ứng -->
+        <div
+          class="reel-item__slides"
+          #slideTrack
+          (scroll)="onTrackScroll()">
+          @for (image of images; track image.ReelMediaId) {
+            <img
+              class="reel-item__slide"
+              [src]="image.MediaUrl"
+              [alt]="reel.Caption" />
+          }
+        </div>
+
+        @if (hasMultipleImages) {
+          <button
+            type="button"
+            class="reel-item__slide-nav reel-item__slide-nav--prev"
+            [disabled]="slideIndex === 0"
+            (click)="prevSlide($event)"
+            aria-label="Ảnh trước">
+            <span nz-icon nzType="left" nzTheme="outline"></span>
+          </button>
+          <button
+            type="button"
+            class="reel-item__slide-nav reel-item__slide-nav--next"
+            [disabled]="slideIndex >= images.length - 1"
+            (click)="nextSlide($event)"
+            aria-label="Ảnh tiếp theo">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+          </button>
+
+          <div class="reel-item__dots">
+            @for (image of images; track image.ReelMediaId; let i = $index) {
+              <button
+                type="button"
+                class="reel-item__dot"
+                [class.is-active]="i === slideIndex"
+                (click)="goToSlide(i, $event)"
+                [attr.aria-label]="'Ảnh ' + (i + 1)"></button>
+            }
+          </div>
+        }
       }
     } @else if (coverUrl) {
       <img class="reel-item__media" [src]="coverUrl" [alt]="reel.Caption" />

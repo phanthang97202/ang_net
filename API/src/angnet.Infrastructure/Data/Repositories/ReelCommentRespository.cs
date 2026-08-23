@@ -59,21 +59,29 @@ namespace angnet.Infrastructure.Data.Repositories
         /// </summary>
         public async Task AddComment(ReelCommentModel comment)
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            // DbContext bật EnableRetryOnFailure (Program.cs) nên không được tự gọi
+            // BeginTransaction trần - phải chạy trong CreateExecutionStrategy để cả khối
+            // được retry như một đơn vị. Thiếu bước này thì mọi lượt bình luận đều lỗi 500.
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-            await _dbContext.ReelComment.AddAsync(comment);
-            await _dbContext.SaveChangesAsync();
-
-            await _dbContext.Reel.Where(r => r.ReelId == comment.ReelId)
-                    .ExecuteUpdateAsync(s => s.SetProperty(r => r.CommentCount, r => r.CommentCount + 1));
-
-            if (comment.ParentCommentId != null)
+            await strategy.ExecuteAsync(async () =>
             {
-                await _dbContext.ReelComment.Where(c => c.CommentId == comment.ParentCommentId)
-                        .ExecuteUpdateAsync(s => s.SetProperty(c => c.ReplyCount, c => c.ReplyCount + 1));
-            }
+                using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-            await transaction.CommitAsync();
+                await _dbContext.ReelComment.AddAsync(comment);
+                await _dbContext.SaveChangesAsync();
+
+                await _dbContext.Reel.Where(r => r.ReelId == comment.ReelId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(r => r.CommentCount, r => r.CommentCount + 1));
+
+                if (comment.ParentCommentId != null)
+                {
+                    await _dbContext.ReelComment.Where(c => c.CommentId == comment.ParentCommentId)
+                            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ReplyCount, c => c.ReplyCount + 1));
+                }
+
+                await transaction.CommitAsync();
+            });
         }
 
         // Comment sắp xếp cũ -> mới (ngược với feed reel), cursor cũng so sánh theo chiều tăng dần.

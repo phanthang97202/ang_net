@@ -102,12 +102,13 @@
   </nz-content>
 </nz-layout>
 
-<ng-container *ngIf="authService.isLoggedIn()">
+<!-- Ẩn ở layout 'immersive' (Reels): trang đó đã bỏ navbar/footer để chiếm trọn
+     màn hình, và mép phải là chỗ của nút lên/xuống + panel bình luận -->
+<ng-container *ngIf="authService.isLoggedIn() && layoutType !== 'immersive'">
   <!-- Nút Chat -->
   <button
     nz-button
     nzType="primary"
-    nzShape="circle"
     (click)="toggleChat()"
     class="chat-toggle-btn"
     aria-label="Toggle chat">

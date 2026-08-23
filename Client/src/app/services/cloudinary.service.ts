@@ -64,34 +64,12 @@ export class CloudinaryService {
    * nên người dùng cần thấy % thay vì màn hình đứng im.
    */
   uploadReelVideoWithProgress(file: File): Observable<CloudinaryUploadEvent> {
-    return this.http
-      .post<CloudinaryUploadResult>(
-        `https://api.cloudinary.com/v1_1/${this.cloudName}/video/upload`,
-        this.buildFormData(file, this.reelVideoPreset),
-        { reportProgress: true, observe: 'events' }
-      )
-      .pipe(
-        filter(
-          event =>
-            event.type === HttpEventType.UploadProgress ||
-            event.type === HttpEventType.Response
-        ),
-        map((event): CloudinaryUploadEvent => {
-          if (event.type === HttpEventType.UploadProgress) {
-            // event.total có thể undefined (server không trả Content-Length) -> tránh NaN%
-            return {
-              type: 'progress',
-              percent: event.total
-                ? Math.round((100 * event.loaded) / event.total)
-                : 0,
-            };
-          }
-          return {
-            type: 'done',
-            result: (event as HttpResponse<CloudinaryUploadResult>).body!,
-          };
-        })
-      );
+    return this.uploadWithProgress(file, this.reelVideoPreset, 'video');
+  }
+
+  /** Dùng cho chế độ đăng nhiều ảnh: mỗi ảnh vẫn cần báo tiến trình riêng. */
+  uploadReelImageWithProgress(file: File): Observable<CloudinaryUploadEvent> {
+    return this.uploadWithProgress(file, this.reelImagePreset, 'image');
   }
 
   /**
@@ -124,6 +102,41 @@ export class CloudinaryService {
       `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
       this.buildFormData(file, preset)
     );
+  }
+
+  private uploadWithProgress(
+    file: File,
+    preset: string,
+    resourceType: 'image' | 'video'
+  ): Observable<CloudinaryUploadEvent> {
+    return this.http
+      .post<CloudinaryUploadResult>(
+        `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
+        this.buildFormData(file, preset),
+        { reportProgress: true, observe: 'events' }
+      )
+      .pipe(
+        filter(
+          event =>
+            event.type === HttpEventType.UploadProgress ||
+            event.type === HttpEventType.Response
+        ),
+        map((event): CloudinaryUploadEvent => {
+          if (event.type === HttpEventType.UploadProgress) {
+            // event.total có thể undefined (server không trả Content-Length) -> tránh NaN%
+            return {
+              type: 'progress',
+              percent: event.total
+                ? Math.round((100 * event.loaded) / event.total)
+                : 0,
+            };
+          }
+          return {
+            type: 'done',
+            result: (event as HttpResponse<CloudinaryUploadResult>).body!,
+          };
+        })
+      );
   }
 
   private buildFormData(file: File, preset: string): FormData {

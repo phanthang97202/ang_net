@@ -77,7 +77,8 @@ export class NavbarComponent implements OnInit {
       ],
     },
     { path: '/reels', title: 'Reels', icon: 'play-circle' },
-    { path: '/about', title: 'AboutMe', icon: 'user' },
+    // Tạm ẩn cùng route /about (xem app.routes.ts)
+    // { path: '/about', title: 'AboutMe', icon: 'user' },
   ];
 
   constructor(

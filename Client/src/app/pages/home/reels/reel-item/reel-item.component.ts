@@ -10,7 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { IReelDto } from '../../../../interfaces';
+import { IReelDto, IReelMediaDto } from '../../../../interfaces';
 
 @Component({
   selector: 'app-reel-item',
@@ -32,9 +32,11 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
   @Output() commentsOpened = new EventEmitter<IReelDto>();
 
   @ViewChild('videoRef') videoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('slideTrack') slideTrack?: ElementRef<HTMLElement>;
 
   isPlaying = false;
   showHeartBurst = false;
+  slideIndex = 0;
 
   private singleTapTimer?: ReturnType<typeof setTimeout>;
   private heartBurstTimer?: ReturnType<typeof setTimeout>;
@@ -46,6 +48,15 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
 
   get mediaUrl(): string {
     return this.reel.Media?.[0]?.MediaUrl ?? '';
+  }
+
+  /** Ảnh trong bài, đã sắp theo SortOrder từ server */
+  get images(): IReelMediaDto[] {
+    return this.reel.Media ?? [];
+  }
+
+  get hasMultipleImages(): boolean {
+    return !this.isVideo && this.images.length > 1;
   }
 
   // Trả về null khi rỗng: bind chuỗi rỗng vào src/poster khiến trình duyệt
@@ -63,6 +74,12 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // Rời khỏi màn hình thì trả carousel về ảnh đầu, giống video được tua về 0
+    if (changes['isActive'] && !this.isActive && this.slideIndex !== 0) {
+      this.slideIndex = 0;
+      this.slideTrack?.nativeElement.scrollTo({ left: 0 });
+    }
+
     const video = this.videoRef?.nativeElement;
     if (!this.isVideo || !video) {
       return;
@@ -148,6 +165,36 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
         this.showHeartBurst = false;
       }, 800);
     });
+  }
+
+  // ── Carousel ảnh ────────────────────────────────────────────────────
+  // Cuộn ngang bằng CSS scroll-snap nên vuốt trên cảm ứng chạy sẵn, không cần
+  // thư viện gesture; nút mũi tên chỉ việc scroll tới đúng slide.
+
+  goToSlide(index: number, event?: Event): void {
+    event?.stopPropagation();
+
+    const track = this.slideTrack?.nativeElement;
+    const clamped = Math.min(Math.max(index, 0), this.images.length - 1);
+    this.slideIndex = clamped;
+    track?.scrollTo({ left: clamped * track.clientWidth, behavior: 'smooth' });
+  }
+
+  prevSlide(event: Event): void {
+    this.goToSlide(this.slideIndex - 1, event);
+  }
+
+  nextSlide(event: Event): void {
+    this.goToSlide(this.slideIndex + 1, event);
+  }
+
+  /** Đồng bộ chấm chỉ báo khi người dùng tự vuốt thay vì bấm nút */
+  onTrackScroll(): void {
+    const track = this.slideTrack?.nativeElement;
+    if (!track || track.clientWidth === 0) {
+      return;
+    }
+    this.slideIndex = Math.round(track.scrollLeft / track.clientWidth);
   }
 
   onPlay(): void {

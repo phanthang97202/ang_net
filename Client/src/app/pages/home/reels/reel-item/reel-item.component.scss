@@ -289,3 +289,108 @@ button.reel-item__action:active .reel-item__action-icon {
     padding-right: 76px;
   }
 }
+
+// ── Carousel ảnh (photo mode) ─────────────────────────────────────────
+// scroll-snap ngang: vuốt trên cảm ứng chạy sẵn không cần thư viện gesture,
+// nút mũi tên chỉ cần scrollTo tới đúng slide.
+.reel-item__slides {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.reel-item__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  // contain như video: ảnh người dùng đăng không phải lúc nào cũng 9:16
+  object-fit: contain;
+  background: #000;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.reel-item__slide-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.5);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(17, 17, 17, 0.75);
+  }
+
+  &:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.reel-item__slide-nav--prev {
+  left: 10px;
+}
+
+.reel-item__slide-nav--next {
+  right: 10px;
+}
+
+// Trên chuột thì ẩn cho đỡ che ảnh, chỉ hiện khi rê vào; cảm ứng luôn hiện.
+@media (hover: hover) {
+  .reel-item__stage:hover .reel-item__slide-nav:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .reel-item__slide-nav:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+.reel-item__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 96px; // nằm trên khối caption
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.reel-item__dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s ease, transform 0.15s ease;
+
+  &.is-active {
+    background: #fff;
+    transform: scale(1.35);
+  }
+}

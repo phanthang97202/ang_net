@@ -76,7 +76,6 @@
           nzPopoverTrigger="click"
           [nzPopoverContent]="contentTemplate"
           nzPopoverPlacement="bottomRight"
-          [nzPopoverTitle]="authService.getAccountInfo().name"
           [nzSrc]="authService.getAccountInfo().avatar || null"
           [nzText]="authService.getAccountInfo().shortname"
           class="cursor-pointer">
@@ -104,7 +103,6 @@
         nzPopoverTrigger="click"
         [nzPopoverContent]="contentTemplate"
         nzPopoverPlacement="bottomLeft"
-        [nzPopoverTitle]="authService.getAccountInfo().name"
         [nzSrc]="authService.getAccountInfo().avatar || null"
         [nzText]="authService.getAccountInfo().shortname"
         class="cursor-pointer">
@@ -212,21 +210,63 @@
 
 <!-- Avatar Popover Content -->
 <ng-template #contentTemplate>
-  <div class="popover-content">
-    <a routerLink="/userinfor" class="popover-user-link">
-      <span class="popover-label">{{ 'T_USERNAME' | translate }}</span>
-      <strong
-        ><u>{{ authService.getAccountInfo().email }}</u></strong
-      >
-    </a>
-    <div class="popover-row">
-      <span class="popover-label">{{ 'T_ROLE' | translate }}</span>
-      <strong>{{
-        authService.getAccountInfo().role.toString().replace(',', ', ')
-      }}</strong>
+  <div class="account-menu">
+    <div class="account-menu__head">
+      <img
+        *ngIf="authService.getAccountInfo().avatar"
+        class="account-menu__avatar"
+        [src]="authService.getAccountInfo().avatar"
+        alt="" />
+      <span
+        *ngIf="!authService.getAccountInfo().avatar"
+        class="account-menu__avatar account-menu__avatar--fallback">
+        {{ authService.getAccountInfo().shortname }}
+      </span>
+      <div class="account-menu__identity">
+        <p class="account-menu__name">{{ authService.getAccountInfo().name }}</p>
+        <p class="account-menu__email">
+          {{ authService.getAccountInfo().email }}
+        </p>
+      </div>
     </div>
-    <button class="btn-logout" (click)="handleLogout()">
-      <span nz-icon nzType="logout"></span> Logout
-    </button>
+
+    <nav class="account-menu__list">
+      <a routerLink="/userinfor" class="account-menu__item">
+        <span nz-icon nzType="user" nzTheme="outline"></span>
+        <span class="account-menu__item-label">{{
+          'T_MYPROFILE' | translate
+        }}</span>
+        <span
+          class="account-menu__chevron"
+          nz-icon
+          nzType="right"
+          nzTheme="outline"></span>
+      </a>
+
+      <a
+        *ngIf="authService.isAdminPermission()"
+        routerLink="/dashboard"
+        class="account-menu__item">
+        <span nz-icon nzType="dashboard" nzTheme="outline"></span>
+        <span class="account-menu__item-label">{{
+          'T_DASHBOARD' | translate
+        }}</span>
+        <span
+          class="account-menu__chevron"
+          nz-icon
+          nzType="right"
+          nzTheme="outline"></span>
+      </a>
+
+      <button
+        type="button"
+        class="account-menu__item account-menu__item--danger"
+        (click)="handleLogout()">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        <span class="account-menu__item-label">{{
+          'T_LOGOUT' | translate
+        }}</span>
+      </button>
+    </nav>
   </div>
 </ng-template>

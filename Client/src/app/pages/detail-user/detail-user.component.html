@@ -1,50 +1,103 @@
-<div class="h-full">
-    <nz-skeleton *ngIf="!userInfo" [nzParagraph]="{ rows: 4 }"></nz-skeleton>
-    <nz-card *ngIf="userInfo" nzTitle="User Account Details" [nzBordered]="true" class="user-details-card h-full ">
-        <nz-descriptions [nzColumn]="1">
-            <nz-descriptions-item nzTitle="Full Name">
-                <p><b>{{ userInfo.FullName }}</b></p>
-            </nz-descriptions-item>
-            <nz-descriptions-item nzTitle="Email">
-                <p>
-                    <b>
+<div class="profile">
+  <!-- Sidebar: sinh ra từ profileNav nên thêm tab mới chỉ cần sửa mảng đó -->
+  <aside class="profile__sidebar">
+    @for (section of profileNav; track section.titleKey) {
+      <div class="profile__nav-section">
+        <p class="profile__nav-title">{{ section.titleKey | translate }}</p>
+        @for (item of section.items; track item.id) {
+          <button
+            type="button"
+            class="profile__nav-item"
+            [class.is-active]="item.id === activeTab"
+            [class.is-disabled]="!item.available"
+            (click)="selectTab(item)">
+            <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
+            <span class="profile__nav-label">{{ item.labelKey | translate }}</span>
+          </button>
+        }
+      </div>
+    }
+  </aside>
 
-                        {{ userInfo.Email | showNullishValue }}
-                    </b>
-                </p>
-
-            </nz-descriptions-item>
-            <nz-descriptions-item nzTitle="Roles">
-
-                <p>
-                    <b>
-                        {{ userInfo.Roles.join(', ') | showNullishValue }}
-                    </b>
-                </p>
-            </nz-descriptions-item>
-            <nz-descriptions-item nzTitle="Phone">
-                <p>
-                    <b>
-
-                        {{ userInfo.PhoneNumber | showNullishValue }}
-                    </b>
-                </p>
-
-            </nz-descriptions-item>
-            <nz-descriptions-item nzTitle="Access Fail Count">
-                <p>
-                    <b>
-
-                        {{ userInfo.AccessFailedCount | showNullishValue}}
-                    </b>
-                </p>
-
-            </nz-descriptions-item>
-        </nz-descriptions>
-
-        <div class="user-actions flex gap-1">
-            <button nz-button nzType="primary" (click)="editUser()">Edit</button>
-            <button nz-button nzType="default" (click)="resetAccessFailCount()">Reset Access Fail Count</button>
+  <section class="profile__content">
+    @if (!userInfo) {
+      <nz-skeleton [nzAvatar]="true" [nzParagraph]="{ rows: 6 }"></nz-skeleton>
+    } @else {
+      <header class="profile__header">
+        @if (avatarUrl) {
+          <img class="profile__avatar" [src]="avatarUrl" alt="" />
+        } @else {
+          <span class="profile__avatar profile__avatar--fallback">{{
+            displayInitial
+          }}</span>
+        }
+        <div class="profile__identity">
+          <h1 class="profile__name">{{ userInfo.FullName }}</h1>
+          <p class="profile__email">{{ userInfo.Email | showNullishValue }}</p>
         </div>
-    </nz-card>
+      </header>
+
+      @switch (activeTab) {
+        @case ('profile') {
+          <article class="profile__card">
+            <h2 class="profile__card-title">
+              {{ 'T_PERSONALDETAILS' | translate }}
+            </h2>
+            <dl class="profile__rows">
+              <div class="profile__row">
+                <dt>{{ 'T_FULLNAME' | translate }}</dt>
+                <dd>{{ userInfo.FullName | showNullishValue }}</dd>
+              </div>
+              <div class="profile__row">
+                <dt>Email</dt>
+                <dd>{{ userInfo.Email | showNullishValue }}</dd>
+              </div>
+              <div class="profile__row">
+                <dt>{{ 'T_ROLE' | translate }}</dt>
+                <dd>{{ rolesLabel | showNullishValue }}</dd>
+              </div>
+              <div class="profile__row">
+                <dt>{{ 'T_PHONENUMBER' | translate }}</dt>
+                <dd>{{ userInfo.PhoneNumber | showNullishValue }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="profile__card">
+            <h2 class="profile__card-title">{{ 'T_SECURITY' | translate }}</h2>
+            <dl class="profile__rows">
+              <div class="profile__row">
+                <dt>Xác thực 2 lớp</dt>
+                <dd>
+                  <span
+                    class="profile__badge"
+                    [class.is-on]="userInfo.TwoFacotrEnabled">
+                    {{ userInfo.TwoFacotrEnabled ? 'Đang bật' : 'Đang tắt' }}
+                  </span>
+                </dd>
+              </div>
+              <div class="profile__row">
+                <dt>Xác minh số điện thoại</dt>
+                <dd>
+                  <span
+                    class="profile__badge"
+                    [class.is-on]="userInfo.PhoneNumberConfirmed">
+                    {{
+                      userInfo.PhoneNumberConfirmed
+                        ? 'Đã xác minh'
+                        : 'Chưa xác minh'
+                    }}
+                  </span>
+                </dd>
+              </div>
+              <div class="profile__row">
+                <dt>Số lần đăng nhập sai</dt>
+                <dd>{{ userInfo.AccessFailedCount }}</dd>
+              </div>
+            </dl>
+          </article>
+        }
+      }
+    }
+  </section>
 </div>

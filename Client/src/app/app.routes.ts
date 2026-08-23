@@ -92,13 +92,15 @@ export const routes: Routes = [
       );
     },
   },
-  {
-    title: 'About',
-    path: 'about',
-    loadComponent: () =>
-      import('./pages/about/about.component').then(p => p.AboutComponent),
-    // canActivate: [canActive],
-  },
+  // Trang giới thiệu tạm ẩn (chưa dùng tới). Bật lại: bỏ comment khối này và
+  // mục '/about' trong listRoute của navbar.component.ts. Component vẫn còn ở
+  // pages/about nên không mất gì.
+  // {
+  //   title: 'About',
+  //   path: 'about',
+  //   loadComponent: () =>
+  //     import('./pages/about/about.component').then(p => p.AboutComponent),
+  // },
   {
     title: 'User detail',
     path: 'userinfor',

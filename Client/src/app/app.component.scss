@@ -91,55 +91,77 @@ nz-footer {
 
 // =============
 
+// Tab dính ở rìa PHẢI màn hình, đối xứng với nút mục lục bài viết bên trái
+// (.toc-toggle-btn). Trước đây nút này nổi ở góc dưới-phải nên che mất ô gửi
+// bình luận của trang Reels.
 .chat-toggle-btn {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
     z-index: 1051;
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
+    width: 30px;
+    height: 46px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-accent) !important;
-    border-color: var(--color-accent) !important;
-    box-shadow: 0 4px 16px var(--color-card-shadow);
+    padding: 0 !important;
+    // Bo góc ngược với TOC vì dính mép phải
+    border-radius: 10px 0 0 10px !important;
+    // Tông trung tính thay cho tím accent: đây là tiện ích phụ, không nên hút
+    // mắt bằng nội dung chính. Chỉ chuyển sang accent khi rê chuột.
+    background: var(--color-bg-card) !important;
+    border: 1px solid var(--color-border) !important;
+    border-right: none !important;
+    color: var(--color-text-muted) !important;
+    box-shadow: -2px 2px 12px var(--color-card-shadow);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+
+    &:hover {
+        background: var(--color-accent-bg) !important;
+        color: var(--color-accent) !important;
+    }
 }
 
 .chat-box-container {
     position: fixed;
-    bottom: 86px; // cách nút một chút
-    right: 24px;
+    // Trượt ra từ cạnh tab thay vì nổi từ đáy
+    top: 50%;
+    right: 52px;
+    transform: translateY(-50%);
     width: 400px;
-    max-width: calc(100vw - 32px);
+    max-width: calc(100vw - 72px);
     z-index: 1050;
-    animation: slideUp 0.3s ease;
+    animation: slideInRight 0.3s ease;
 }
 
 @media (max-width: 640px) {
     .chat-toggle-btn {
-        bottom: 16px;
-        right: 16px;
-        width: 44px;
-        height: 44px;
-        font-size: 18px;
+        width: 26px;
+        height: 40px;
+        font-size: 13px;
     }
 
+    // Màn hình hẹp: hộp chat chiếm gần trọn bề ngang cho dễ đọc
     .chat-box-container {
-        bottom: 68px;
-        right: 16px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-width: none;
     }
 }
 
-@keyframes slideUp {
+@keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(-50%) translateX(20px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(-50%) translateX(0);
     }
 }

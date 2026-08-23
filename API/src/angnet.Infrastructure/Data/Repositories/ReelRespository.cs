@@ -110,44 +110,52 @@ namespace angnet.Infrastructure.Data.Repositories
         /// </summary>
         public async Task<(bool liked, int likeCount)> ToggleLike(string reelId, string userId, DateTime now)
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            // DbContext bật EnableRetryOnFailure (Program.cs), mà chiến lược retry của Npgsql
+            // cấm tự gọi BeginTransaction - phải bọc cả khối trong ExecuteAsync để nó retry
+            // trọn vẹn như một đơn vị. Thiếu bước này thì mọi lượt like đều lỗi 500.
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-            LikeReelModel existing = await _dbContext.LikeReel.AsNoTracking()
-                                        .FirstOrDefaultAsync(l => l.ReelId == reelId && l.UserId == userId);
-
-            bool liked;
-            if (existing == null)
+            return await strategy.ExecuteAsync(async () =>
             {
-                await _dbContext.LikeReel.AddAsync(new LikeReelModel
+                using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                LikeReelModel existing = await _dbContext.LikeReel.AsNoTracking()
+                                            .FirstOrDefaultAsync(l => l.ReelId == reelId && l.UserId == userId);
+
+                bool liked;
+                if (existing == null)
                 {
-                    ReelId = reelId,
-                    UserId = userId,
-                    FlagActive = true,
-                    CreatedBy = userId,
-                    UpdatedBy = userId,
-                    CreatedDTime = now,
-                    UpdatedDTime = now,
-                });
-                await _dbContext.SaveChangesAsync();
+                    await _dbContext.LikeReel.AddAsync(new LikeReelModel
+                    {
+                        ReelId = reelId,
+                        UserId = userId,
+                        FlagActive = true,
+                        CreatedBy = userId,
+                        UpdatedBy = userId,
+                        CreatedDTime = now,
+                        UpdatedDTime = now,
+                    });
+                    await _dbContext.SaveChangesAsync();
 
-                await _dbContext.Reel.Where(r => r.ReelId == reelId)
-                        .ExecuteUpdateAsync(s => s.SetProperty(r => r.LikeCount, r => r.LikeCount + 1));
-                liked = true;
-            }
-            else
-            {
-                await _dbContext.LikeReel.Where(l => l.LikeReelId == existing.LikeReelId).ExecuteDeleteAsync();
+                    await _dbContext.Reel.Where(r => r.ReelId == reelId)
+                            .ExecuteUpdateAsync(s => s.SetProperty(r => r.LikeCount, r => r.LikeCount + 1));
+                    liked = true;
+                }
+                else
+                {
+                    await _dbContext.LikeReel.Where(l => l.LikeReelId == existing.LikeReelId).ExecuteDeleteAsync();
 
-                await _dbContext.Reel.Where(r => r.ReelId == reelId && r.LikeCount > 0)
-                        .ExecuteUpdateAsync(s => s.SetProperty(r => r.LikeCount, r => r.LikeCount - 1));
-                liked = false;
-            }
+                    await _dbContext.Reel.Where(r => r.ReelId == reelId && r.LikeCount > 0)
+                            .ExecuteUpdateAsync(s => s.SetProperty(r => r.LikeCount, r => r.LikeCount - 1));
+                    liked = false;
+                }
 
-            int likeCount = await _dbContext.Reel.Where(r => r.ReelId == reelId).Select(r => r.LikeCount).FirstOrDefaultAsync();
+                int likeCount = await _dbContext.Reel.Where(r => r.ReelId == reelId).Select(r => r.LikeCount).FirstOrDefaultAsync();
 
-            await transaction.CommitAsync();
+                await transaction.CommitAsync();
 
-            return (liked, likeCount);
+                return (liked, likeCount);
+            });
         }
 
         /// <summary>
