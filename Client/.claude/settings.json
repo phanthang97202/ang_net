@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node check-navbar-sticky.js)",
+      "Bash(node check-newslist.js)",
+      "Bash(node check-homesidebar.js)",
+      "Bash(git commit -m ' *)",
+      "Bash(dotnet build *)",
+      "PowerShell($r = Test-NetConnection -ComputerName localhost -Port 5432 -WarningAction SilentlyContinue; \"TcpTestSucceeded: $\\($r.TcpTestSucceeded\\)\")",
+      "PowerShell($d = Get-Command docker -ErrorAction SilentlyContinue; if \\($d\\) { \"docker: $\\($d.Source\\)\"; docker info --format '{{.ServerVersion}}' } else { \"docker: NOT FOUND\" })"
+    ]
+  }
+}

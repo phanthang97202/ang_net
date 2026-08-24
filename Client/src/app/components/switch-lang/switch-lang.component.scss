@@ -1,1 +1,18 @@
- 
+// Icon PNG chỉ có nét đen trên nền trong suốt (do người dùng cung cấp). Dùng
+// làm mask thay vì <img> để lấy màu theo currentColor - khớp với cách
+// app-theme-toggle bên cạnh nó đổi màu theo theme sáng/tối và khi hover, thay
+// vì hiển thị cứng màu đen (sẽ gần như biến mất trên nền tối).
+.switch-lang-icon {
+  display: inline-block;
+  width: 21px;
+  height: 21px;
+  background-color: currentColor;
+  -webkit-mask-image: url('/assets/icon/switch_lang.png');
+  mask-image: url('/assets/icon/switch_lang.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
