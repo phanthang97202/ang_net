@@ -71,6 +71,9 @@
   </div>
 
   <div class="news__aside">
-    <app-aside-news class="sticky top-[46.8px]"></app-aside-news>
+    <app-aside-news
+      class="sticky top-[46.8px]"
+      [categoryId]="detailNews?.CategoryNewsId || ''"
+      [excludeNewsId]="detailNews?.NewsId || ''"></app-aside-news>
   </div>
 </div>

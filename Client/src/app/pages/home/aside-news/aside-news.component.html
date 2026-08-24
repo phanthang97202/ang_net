@@ -1,11 +1,14 @@
 <div class="w-full flex flex-col gap-[24px]">
+  <!-- Danh mục chỉ có mỗi bài đang đọc thì danh sách rỗng, ẩn hẳn khối đi thay
+       vì hiện một cái thẻ trống -->
   <div
+    *ngIf="lstNews.length > 0"
     class="bg-[var(--color-bg-card)] rounded-[20px] shadow-[0_2px_16px_var(--color-card-shadow)] p-[24px]"
     appScrollReveal>
     <div class="mb-[20px]">
       <p
         class="flex items-center gap-[16px] font-montserrat text-[20px] text-[var(--color-text)] tracking-[.15px] font-extrabold">
-        {{ 'T_RECENTNEWS' | translate }}
+        {{ (isRelatedMode ? 'T_RELATEDNEWS' : 'T_RECENTNEWS') | translate }}
         <span class="block h-[2px] bg-[var(--color-accent)] flex-1 rounded-full"></span>
       </p>
     </div>
