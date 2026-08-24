@@ -1,1 +1,3 @@
-<a class="hash__tag" href=""> # {{ title }} </a>
+<a class="hash__tag" routerLink="/news" [queryParams]="{ hashTag: title }">
+  # {{ title }}
+</a>

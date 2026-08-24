@@ -163,10 +163,11 @@ export class ApiService {
     keyword: string,
     userId: string,
     categoryId: string,
-    onlyPublished = true
+    onlyPublished = true,
+    hashTag = ''
   ): Observable<INewsResponse> {
     return this.http.get<INewsResponse>(
-      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}`
+      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}`
     );
   }
 

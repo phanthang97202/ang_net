@@ -198,7 +198,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true)
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "")
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -226,6 +226,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string _keyword = TCommonUtils.ConvertLowerCase(keyword);
             string _userId = TCommonUtils.ConvertLowerCase(userId);
             string _categoryId = TCommonUtils.ConvertLowerCase(categoryId);
+            string _hashTag = TCommonUtils.ConvertLowerCase(hashTag);
 
             if (pageIndex > 0)
             {
@@ -270,6 +271,17 @@ namespace angnet.Infrastructure.Data.Repositories
                                      .Where(i => true);
             }
 
+            // Loc theo hashtag dat ngoai chuoi if/else o tren de no CONG DON voi cac
+            // dieu kien kia thay vi loai tru nhau (vd: hashtag + danh muc).
+            if (!TCommonUtils.IsNullOrEmpty(_hashTag))
+            {
+                IQueryable<string> newsIdsByHashTag = _dbContext.HashTagNews.AsNoTracking()
+                                     .Where(h => h.HashTagNewsName.Trim().ToLower() == _hashTag)
+                                     .Select(h => h.NewsId);
+
+                query = query.Where(i => newsIdsByHashTag.Contains(i.NewsId));
+            }
+
             if (onlyPublished)
             {
                 query = query.Where(i => i.FlagActive);
@@ -283,7 +295,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
             // Starting cache data in RedisCloud
             //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
-            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished})";
+            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);

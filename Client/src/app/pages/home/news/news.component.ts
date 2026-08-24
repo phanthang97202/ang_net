@@ -29,26 +29,29 @@ export class NewsComponent implements OnInit {
   itemCount = 0;
   categoryId = '';
   keyword = '';
+  hashTag = '';
 
   ngOnInit() {
     this.activedRouter.queryParams.subscribe(p => {
       const pageIndex = p['pageIndex'] || 0;
       this.categoryId = p['categoryId'] || '';
       this.keyword = p['keyword'] || '';
+      this.hashTag = p['hashTag'] || '';
       this.loadData({
         pageIndex: pageIndex,
         pageSize: this.pageSize,
         categoryId: this.categoryId,
         keyword: this.keyword,
+        hashTag: this.hashTag,
       });
     });
   }
 
   loadData(searchCondition: any): void {
-    const { pageIndex, pageSize, categoryId, keyword } = searchCondition;
+    const { pageIndex, pageSize, categoryId, keyword, hashTag } = searchCondition;
     this.loadingService.setLoading(true);
     this.apiService
-      .SearchNews(pageIndex, pageSize, keyword || '', '', categoryId || '')
+      .SearchNews(pageIndex, pageSize, keyword || '', '', categoryId || '', true, hashTag || '')
       .pipe()
       .subscribe({
         next: res => {
@@ -77,6 +80,7 @@ export class NewsComponent implements OnInit {
       pageIndex: pageIndex,
       categoryId: this.categoryId || null,
       keyword: this.keyword || null,
+      hashTag: this.hashTag || null,
     };
     this.router.navigate(['/news'], { queryParams });
   }

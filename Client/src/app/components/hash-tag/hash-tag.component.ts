@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-hash-tag',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './hash-tag.component.html',
   styleUrl: './hash-tag.component.scss',
 })

@@ -72,8 +72,18 @@ namespace angnet.Infrastructure.Data.Repositories
 
             //🔄 BƯỚC 4: .Take(N)
             //Lấy tối đa TConstValue.MAX_TOP_HASHTAGNEWS bản ghi(ví dụ: 3).
+            // Chi tinh hashtag cua bai DA XUAT BAN. Truoc day query khong join sang
+            // News nen khoi "The noi bat" hien ca tag cua bai nhap; nguoi dung bam
+            // vao se ra danh sach rong vi Search da loc FlagActive.
+            List<string> publishedNewsIds = await _dbContext.News
+                        .AsNoTracking()
+                        .Where(n => n.FlagActive)
+                        .Select(n => n.NewsId)
+                        .ToListAsync();
+
             var grouped = await _dbContext.HashTagNews
                         .AsNoTracking()
+                        .Where(h => publishedNewsIds.Contains(h.NewsId))
                         .ToListAsync();
 
             var data = grouped
