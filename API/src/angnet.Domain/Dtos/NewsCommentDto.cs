@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using angnet.Domain.Enums;
 
 namespace angnet.Domain.Dtos
@@ -39,6 +40,10 @@ namespace angnet.Domain.Dtos
     public class NewsCommentReportCreateDto
     {
         public string CommentId { get; set; } = string.Empty;
+        // Client gui ten enum dang chuoi ("FakeNews"...) chu khong phai so thu tu.
+        // Khong co converter nay thi System.Text.Json tu choi, request hong o buoc
+        // model binding va tra ve 400 truoc khi vao controller.
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ENewsCommentReportReason Reason { get; set; } = ENewsCommentReportReason.Other;
         public string Description { get; set; } = string.Empty;
     }
