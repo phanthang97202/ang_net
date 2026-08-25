@@ -124,21 +124,59 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private insertEmbed(type: EmbedType) {
-    const url = window.prompt(
+    const input = window.prompt(
       type === 'pdf'
         ? 'Dán link file PDF (https://...)'
-        : 'Dán link nhúng iframe (https://...)'
+        : 'Dán link nhúng iframe, hoặc link/mã nhúng TikTok'
     );
-    if (!url) return;
+    if (!input) return;
+
+    const src = this.toEmbedSrc(input, type);
+    if (!src) {
+      window.alert(
+        'Link không hợp lệ. Hãy dán một đường dẫn https://... (hoặc link/mã nhúng TikTok).'
+      );
+      return;
+    }
 
     const range = this.quill.getSelection(true);
-    this.quill.insertEmbed(
-      range.index,
-      'iframeEmbed',
-      { src: url.trim(), type },
-      'user'
-    );
+    this.quill.insertEmbed(range.index, 'iframeEmbed', { src, type }, 'user');
     this.quill.setSelection(range.index + 1, 0, 'silent');
+  }
+
+  // Chuỗi dán vào không phải lúc nào cũng là URL nhúng dùng được: TikTok cho ra
+  // đoạn <blockquote> + <script> (không nhét vào iframe được), còn link chia sẻ
+  // thường thì trỏ tới trang xem video chứ không phải player. Quy về URL player
+  // chính thức; thứ gì không phải URL http/https tuyệt đối thì loại luôn thay vì
+  // để iframe hiểu nhầm thành đường dẫn tương đối.
+  private toEmbedSrc(input: string, type: EmbedType): string | null {
+    const raw = input.trim();
+    if (!raw) return null;
+
+    if (type === 'iframe') {
+      const tiktokId = this.extractTiktokVideoId(raw);
+      if (tiktokId) {
+        return `https://www.tiktok.com/player/v1/${tiktokId}`;
+      }
+    }
+
+    try {
+      const url = new URL(raw);
+      return url.protocol === 'http:' || url.protocol === 'https:'
+        ? url.href
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Bắt được cả link chia sẻ (.../@user/video/123), link player sẵn có, lẫn
+  // nguyên đoạn mã nhúng TikTok (data-video-id="123").
+  private extractTiktokVideoId(input: string): string | null {
+    const match =
+      input.match(/tiktok\.com\/(?:@[^/]+\/video|player\/v1)\/(\d+)/) ??
+      input.match(/data-video-id=["'](\d+)["']/);
+    return match ? match[1] : null;
   }
 
   onEditorCreated(editor: any) {
