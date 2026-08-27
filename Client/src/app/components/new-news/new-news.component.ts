@@ -39,18 +39,34 @@ export class NewNewsComponent implements OnInit {
   currentPage = 0;
   pageSize = CONSTANTS_APP.PAGE_SIZE;
   itemCount = 0;
+  categoryId = '';
+  keyword = '';
+  hashTag = '';
 
+  // Trang chủ không có mấy tham số lọc này nên chạy như cũ (lấy tất cả bài);
+  // trang /news thì có, và component tự đọc từ URL luôn giống pageIndex thay vì
+  // bắt trang cha truyền xuống.
   ngOnInit(): void {
     this.activedRouter.queryParams.subscribe(p => {
-      const pageIndex = p['pageIndex'] || 0;
-      this.loadPosts(pageIndex);
+      this.categoryId = p['categoryId'] || '';
+      this.keyword = p['keyword'] || '';
+      this.hashTag = p['hashTag'] || '';
+      this.loadPosts(p['pageIndex'] || 0);
     });
   }
 
   loadPosts(pageIndex: number): void {
     this.isLoading = true;
     this.apiService
-      .SearchNews(pageIndex, this.pageSize, '', '', '')
+      .SearchNews(
+        pageIndex,
+        this.pageSize,
+        this.keyword,
+        '',
+        this.categoryId,
+        true,
+        this.hashTag
+      )
       .pipe()
       .subscribe({
         next: res => {
@@ -72,8 +88,14 @@ export class NewNewsComponent implements OnInit {
       });
   }
 
+  // Ở lại đúng route đang đứng (/ hay /news) và giữ nguyên các tham số lọc,
+  // chỉ đổi mỗi pageIndex.
   handlePageIndexChange(pageIndex: number): void {
-    this.router.navigate(['/'], { queryParams: { pageIndex } });
+    this.router.navigate([], {
+      relativeTo: this.activedRouter,
+      queryParams: { pageIndex },
+      queryParamsHandling: 'merge',
+    });
   }
 
   trackById(_: number, post: IDetailNews): string {

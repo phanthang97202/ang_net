@@ -1,14 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
-import {
-  ApiService,
-  ShowErrorService,
-  LoadingService,
-} from '../../../services';
-import { IDetailNews } from '../../../interfaces';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CONSTANTS_APP } from '../../../helpers';
+import { Component } from '@angular/core';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 
+// Danh sách bài viết (kể cả phần lọc theo categoryId/keyword/hashTag trên URL,
+// phân trang và trạng thái loading) nằm hết trong app-new-news - cùng component
+// trang chủ đang dùng, nên 2 trang hiển thị giống hệt nhau. Ở đây chỉ còn bố cục
+// 2 cột: danh sách + sidebar.
 @Component({
   selector: 'app-news-page',
   standalone: true,
@@ -16,72 +12,4 @@ import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
   templateUrl: './news.component.html',
   styleUrl: './news.component.scss',
 })
-export class NewsComponent implements OnInit {
-  showErrorService = inject(ShowErrorService);
-  apiService = inject(ApiService);
-  loadingService = inject(LoadingService);
-  router = inject(Router);
-  activedRouter = inject(ActivatedRoute);
-
-  lstNews: IDetailNews[] = [];
-  currentPage = 0;
-  pageSize = CONSTANTS_APP.PAGE_SIZE;
-  itemCount = 0;
-  categoryId = '';
-  keyword = '';
-  hashTag = '';
-
-  ngOnInit() {
-    this.activedRouter.queryParams.subscribe(p => {
-      const pageIndex = p['pageIndex'] || 0;
-      this.categoryId = p['categoryId'] || '';
-      this.keyword = p['keyword'] || '';
-      this.hashTag = p['hashTag'] || '';
-      this.loadData({
-        pageIndex: pageIndex,
-        pageSize: this.pageSize,
-        categoryId: this.categoryId,
-        keyword: this.keyword,
-        hashTag: this.hashTag,
-      });
-    });
-  }
-
-  loadData(searchCondition: any): void {
-    const { pageIndex, pageSize, categoryId, keyword, hashTag } = searchCondition;
-    this.loadingService.setLoading(true);
-    this.apiService
-      .SearchNews(pageIndex, pageSize, keyword || '', '', categoryId || '', true, hashTag || '')
-      .pipe()
-      .subscribe({
-        next: res => {
-          const { DataList, PageIndex, ItemCount } = res.objResult;
-
-          this.lstNews = DataList;
-          this.currentPage = PageIndex;
-          this.itemCount = ItemCount;
-
-          this.loadingService.setLoading(false);
-        },
-        error: err => {
-          this.showErrorService.setShowError({
-            icon: 'warning',
-            message: JSON.stringify(err, null, 2),
-            title: err.message,
-          });
-          this.loadingService.setLoading(false);
-          throw new Error(err);
-        },
-      });
-  }
-
-  handlePageIndexChange(pageIndex: number) {
-    const queryParams = {
-      pageIndex: pageIndex,
-      categoryId: this.categoryId || null,
-      keyword: this.keyword || null,
-      hashTag: this.hashTag || null,
-    };
-    this.router.navigate(['/news'], { queryParams });
-  }
-}
+export class NewsComponent {}
