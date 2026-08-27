@@ -6,6 +6,13 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+
+  // Trên mobile bề ngang đã chật, thêm 24px padding mỗi bên nữa thì khối này
+  // thụt vào so với card bài viết / các khối khác vốn nằm sát mép khung chung.
+  @media (max-width: 640px) {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .topics-header {

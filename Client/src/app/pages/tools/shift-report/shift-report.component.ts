@@ -46,7 +46,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   ];
 
   shiftTypes = ['Ca ngày', 'Ca đêm'];
-  receiptors = ['Thăng', 'Huy', 'Long', 'Chi'];
+  receiptors = ['Thăng', 'Huy', 'Long', 'Chi', 'Chú Hải', 'Cô Ly', 'Cô Liễu'];
 
   customerTypes = [
     'k.ngày',
@@ -328,7 +328,6 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     const formValue = this.reportForm.value;
 
     const dto: CreateShiftReportDto = {
-      // ShiftDate: this.formatDate(formValue.shiftDate),
       ShiftDate: format(formValue.shiftDate, 'yyyy-MM-dd'),
       ShiftType: formValue.shiftType,
       StartTime: formValue.startTime,
@@ -392,8 +391,11 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
 
     if (this.searchDateRange && this.searchDateRange.length === 2) {
-      params.fromDate = this.formatDate(this.searchDateRange[0]);
-      params.toDate = this.formatDate(this.searchDateRange[1]);
+      // format() của date-fns lấy theo giờ địa phương. Dùng toISOString() ở đây
+      // sẽ quy về UTC, mà nửa đêm giờ VN (GMT+7) là 17:00 hôm trước, nên cả
+      // khoảng ngày bị lùi lại 1 ngày.
+      params.fromDate = format(this.searchDateRange[0], 'yyyy-MM-dd');
+      params.toDate = format(this.searchDateRange[1], 'yyyy-MM-dd');
     }
 
     this.shiftReportService.getAll(params).subscribe({
@@ -485,10 +487,6 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
         });
       },
     });
-  }
-
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
   }
 
   formatter = (value: number): string =>
