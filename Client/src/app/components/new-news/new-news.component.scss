@@ -13,6 +13,10 @@
   align-items: center;
   gap: 1rem;
   margin: 0;
+  // Tiêu đề bên sidebar nằm trong card có padding 24px, còn tiêu đề này nằm sát
+  // mép trên cột nên chữ bị cao hơn đúng 24px. Chừa lại bằng ngần ấy để hai
+  // dòng chữ thẳng hàng nhau.
+  padding-top: 1.5rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
