@@ -8,6 +8,30 @@
   gap: 1.5rem;
 }
 
+.post-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.15px;
+  color: var(--color-text);
+
+  strong {
+    color: var(--color-accent);
+    font-weight: 800;
+  }
+}
+
+.post-list-heading-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
 .post-card {
   display: flex;
   gap: 1.5rem;

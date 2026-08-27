@@ -17,7 +17,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { SpinnerComponent } from '../../../components';
 
 import { RevenueReportComponent } from './revenue-report.component';
 import { RevenueReportRoutingModule } from './revenue-report-routing.module';
@@ -44,7 +44,7 @@ import { RevenueReportRoutingModule } from './revenue-report-routing.module';
     NzStatisticModule,
     NzTabsModule,
     NzEmptyModule,
-    NzSpinModule,
+    SpinnerComponent,
   ],
 })
 export class RevenueReportModule {}

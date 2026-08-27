@@ -6,6 +6,7 @@ import { ApiService, LoadingService, ShowErrorService } from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { CONSTANTS_APP } from '../../helpers';
 import { ScrollRevealDirective } from '../../directives';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface INewsWithPlaceholder extends IDetailNews {
   _placeholderColor?: string;
@@ -23,7 +24,13 @@ const PLACEHOLDER_COLORS = [
 @Component({
   selector: 'app-new-news',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent, ScrollRevealDirective],
+  imports: [
+    CommonModule,
+    RouterLink,
+    PaginationComponent,
+    ScrollRevealDirective,
+    TranslateModule,
+  ],
   templateUrl: './new-news.component.html',
   styleUrls: ['./new-news.component.scss'],
 })
@@ -42,6 +49,22 @@ export class NewNewsComponent implements OnInit {
   categoryId = '';
   keyword = '';
   hashTag = '';
+
+  // URL chỉ có slug danh mục (vd "holiday"), tên hiển thị ("Ngày lễ") lấy từ
+  // chính kết quả trả về nên không phải gọi thêm API danh mục. Không có bài nào
+  // khớp thì đành hiện slug.
+  get filterLabelKey(): string | null {
+    if (this.keyword) return 'T_SEARCHRESULTTITLE';
+    if (this.hashTag) return 'T_HASHTAGTITLE';
+    if (this.categoryId) return 'T_CATEGORYTITLE';
+    return null;
+  }
+
+  get filterValue(): string {
+    if (this.keyword) return this.keyword;
+    if (this.hashTag) return this.hashTag;
+    return this.posts[0]?.CategoryNewsName || this.categoryId;
+  }
 
   // Trang chủ không có mấy tham số lọc này nên chạy như cũ (lấy tất cả bài);
   // trang /news thì có, và component tự đọc từ URL luôn giống pageIndex thay vì

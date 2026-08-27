@@ -25,7 +25,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({
   selector: 'app-chat-box',
@@ -40,7 +40,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
     NzButtonModule,
     NzUploadModule,
     NzModalModule,
-    NzSpinModule,
+    SpinnerComponent,
   ],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.scss',

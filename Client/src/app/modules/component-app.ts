@@ -29,6 +29,7 @@ import {
   NewNewsComponent,
   SubscribeNotifyComponent,
   HomeSidebarComponent,
+  SpinnerComponent,
 } from '../components';
 import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
 import { ScrollRevealDirective } from '../directives';
@@ -77,6 +78,7 @@ export const REUSE_COMPONENT_MODULES = [
   NewNewsComponent,
   SubscribeNotifyComponent,
   HomeSidebarComponent,
+  SpinnerComponent,
   // Một số module đặc biệt của antd
   NzSpinModule,
   NzCardModule,

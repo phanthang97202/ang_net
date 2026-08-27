@@ -1,4 +1,14 @@
 <section class="post-list">
+  <!-- Chỉ hiện khi đang lọc (trang /news), trang chủ không có tham số lọc nên
+       không có tiêu đề. Kiểu chữ + gạch nối lấy theo khối bên sidebar. -->
+  <p *ngIf="filterLabelKey" class="post-list-heading">
+    <span>
+      {{ filterLabelKey | translate }}
+      <strong>&ldquo;{{ filterValue }}&rdquo;</strong>
+    </span>
+    <span class="post-list-heading-line"></span>
+  </p>
+
   <!-- Loading skeleton -->
   <ng-container *ngIf="isLoading">
     <div class="post-card post-card--skeleton" *ngFor="let i of [1, 2, 3]">

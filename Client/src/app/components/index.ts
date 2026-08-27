@@ -12,6 +12,7 @@ export * from './news-items-sm/news-item-sm.component';
 export * from './pagination/pagination.component';
 export * from './sidebar-search/sidebar-search.component';
 export * from './switch-lang/switch-lang.component';
+export * from './spinner/spinner.component';
 export * from './tag-status/tag-status.component';
 export * from './theme-toggle/theme-toggle.component';
 export * from './text-editor/text-editor.component';
