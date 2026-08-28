@@ -9,6 +9,7 @@ import {
   ViewChildren,
   inject,
 } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -34,6 +35,7 @@ interface ReelMenuItem {
     RouterLink,
     ReelItemComponent,
     ReelCommentsComponent,
+    TranslateModule,
   ],
   templateUrl: './reels.component.html',
   styleUrl: './reels.component.scss',

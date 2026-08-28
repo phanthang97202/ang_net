@@ -1,6 +1,8 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SocialLinksComponent } from '../social-links/social-links.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import {
   IHomeIntro,
@@ -49,12 +51,13 @@ const SLIDE_INTERVAL_MS = 4000;
 @Component({
   selector: 'app-home-sidebar',
   standalone: true,
-  imports: [CommonModule, SocialLinksComponent],
+  imports: [CommonModule, SocialLinksComponent, TranslateModule],
   templateUrl: './home-sidebar.component.html',
   styleUrls: ['./home-sidebar.component.scss'],
 })
 export class HomeSidebarComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
+  private destroyRef = inject(DestroyRef);
 
   intro: IHomeIntro = DEFAULT_INTRO;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
@@ -66,6 +69,7 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.config
       .getJson<IHomeIntro>(SYS_PARAM_CODE.HOME_INTRO)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         if (data) {
           this.intro = data;
@@ -74,6 +78,7 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
 
     this.config
       .getJson<ISocialLink[]>(SYS_PARAM_CODE.SOCIAL_LINKS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         if (Array.isArray(data) && data.length > 0) {
           this.socials = data;
@@ -82,6 +87,7 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
 
     this.config
       .getJson<IHomeFeaturedImage[]>(SYS_PARAM_CODE.HOME_FEATURED_IMAGES)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         if (Array.isArray(data) && data.length > 0) {
           this.featuredImages = data;

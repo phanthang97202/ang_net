@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import {
@@ -25,6 +26,7 @@ import { NewsCommentReportModalComponent } from './news-comment-report-modal.com
     NewsCommentComposerComponent,
     NewsCommentItemComponent,
     NewsCommentReportModalComponent,
+    TranslateModule,
   ],
   templateUrl: './news-comments.component.html',
   styleUrl: './news-comments.component.scss',

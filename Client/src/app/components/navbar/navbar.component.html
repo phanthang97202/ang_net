@@ -129,7 +129,7 @@
       <input
         type="text"
         class="mobile-menu-search-input"
-        placeholder="Nhập từ khóa tìm kiếm..."
+        [placeholder]="'T_TYPINGSEARCHKEYWORD' | translate"
         [(ngModel)]="searchKeyword"
         (keyup.enter)="handleSearch()" />
       <button
@@ -201,7 +201,7 @@
     <input
       type="text"
       class="search-popup-input"
-      placeholder="Nhập từ khóa tìm kiếm..."
+      [placeholder]="'T_TYPINGSEARCHKEYWORD' | translate"
       [(ngModel)]="searchKeyword"
       (keyup.enter)="handleSearch()" />
     <button class="search-popup-btn" (click)="handleSearch()">

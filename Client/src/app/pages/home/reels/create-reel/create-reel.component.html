@@ -66,7 +66,7 @@
       <div class="create-reel__spec">
         <span nz-icon nzType="database" nzTheme="outline"></span>
         <div>
-          <p class="create-reel__spec-label">Dung lượng</p>
+          <p class="create-reel__spec-label">{{ 'T_FILESIZE' | translate }}</p>
           <p class="create-reel__spec-value">
             {{ isImageMode ? 'Tối đa 10MB mỗi ảnh' : 'Tối đa 50MB' }}
           </p>
@@ -75,7 +75,7 @@
       <div class="create-reel__spec">
         <span nz-icon nzType="file" nzTheme="outline"></span>
         <div>
-          <p class="create-reel__spec-label">Định dạng</p>
+          <p class="create-reel__spec-label">{{ 'T_FILEFORMAT' | translate }}</p>
           <p class="create-reel__spec-value">
             {{ isImageMode ? 'jpg, png, webp' : 'mp4, mov, webm' }}
           </p>
@@ -163,16 +163,16 @@
 
     <form class="create-reel__body" [formGroup]="validateForm">
       <div class="create-reel__details">
-        <h2 class="create-reel__section-title">Chi tiết</h2>
+        <h2 class="create-reel__section-title">{{ 'T_DETAILS' | translate }}</h2>
 
-        <label class="create-reel__label" for="caption">Mô tả</label>
+        <label class="create-reel__label" for="caption">{{ 'T_DESCRIPTION' | translate }}</label>
         <textarea
           id="caption"
           class="create-reel__textarea"
           formControlName="Caption"
           rows="6"
           [maxlength]="maxCaption"
-          placeholder="Mô tả reel của bạn..."></textarea>
+          [placeholder]="'T_TYPINGREELDESCRIPTION' | translate"></textarea>
         <p class="create-reel__counter">{{ captionLength }}/{{ maxCaption }}</p>
 
         @if (isImageMode) {
@@ -211,7 +211,7 @@
       </div>
 
       <div class="create-reel__preview">
-        <p class="create-reel__label">Xem trước</p>
+        <p class="create-reel__label">{{ 'T_PREVIEW' | translate }}</p>
         <div class="create-reel__preview-frame">
           @if (isImageMode) {
             @if (selectedImages.length > 0) {

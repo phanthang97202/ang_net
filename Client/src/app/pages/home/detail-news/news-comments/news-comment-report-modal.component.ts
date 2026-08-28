@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
@@ -15,7 +16,7 @@ interface ReportReasonOption {
 @Component({
   selector: 'app-news-comment-report-modal',
   standalone: true,
-  imports: [FormsModule, NzModalModule, NzRadioModule],
+  imports: [FormsModule, NzModalModule, NzRadioModule, TranslateModule],
   templateUrl: './news-comment-report-modal.component.html',
   styleUrl: './news-comment-report-modal.component.scss',
 })

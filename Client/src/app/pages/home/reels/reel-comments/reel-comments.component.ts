@@ -11,6 +11,7 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -22,7 +23,7 @@ import { TimeAgo } from '../../../../pipes';
 @Component({
   selector: 'app-reel-comments',
   standalone: true,
-  imports: [FormsModule, NzIconModule, TimeAgo],
+  imports: [FormsModule, NzIconModule, TimeAgo, TranslateModule],
   templateUrl: './reel-comments.component.html',
   styleUrl: './reel-comments.component.scss',
 })

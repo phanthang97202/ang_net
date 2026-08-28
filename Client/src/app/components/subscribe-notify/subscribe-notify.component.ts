@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ScrollRevealDirective } from '../../directives';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface SubscribeForm {
   email: string;
@@ -16,7 +17,7 @@ interface SubscribeForm {
 @Component({
   selector: 'app-subscribe-notify',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScrollRevealDirective],
+  imports: [CommonModule, FormsModule, ScrollRevealDirective, TranslateModule],
   templateUrl: './subscribe-notify.component.html',
   styleUrls: ['./subscribe-notify.component.scss'],
 })

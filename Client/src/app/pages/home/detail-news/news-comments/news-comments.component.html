@@ -28,7 +28,7 @@
   @if (isLoggedIn) {
     @if (replyTarget) {
       <p class="comments__replying">
-        Đang trả lời <strong>{{ replyTarget.UserFullName }}</strong>
+        {{ 'T_REPLYINGTO' | translate }} <strong>{{ replyTarget.UserFullName }}</strong>
       </p>
     }
     <app-news-comment-composer
@@ -85,7 +85,7 @@
     }
 
     @if (isLoading) {
-      <p class="comments__loading">Đang tải bình luận...</p>
+      <p class="comments__loading">{{ 'T_LOADINGCOMMENTS' | translate }}</p>
     }
   </div>
 

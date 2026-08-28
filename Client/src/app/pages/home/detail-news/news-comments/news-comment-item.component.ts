@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { INewsCommentDto } from '../../../../interfaces';
 import { TimeAgo } from '../../../../pipes';
@@ -6,7 +7,7 @@ import { TimeAgo } from '../../../../pipes';
 @Component({
   selector: 'app-news-comment-item',
   standalone: true,
-  imports: [NzIconModule, TimeAgo],
+  imports: [NzIconModule, TimeAgo, TranslateModule],
   templateUrl: './news-comment-item.component.html',
   styleUrl: './news-comment-item.component.scss',
 })

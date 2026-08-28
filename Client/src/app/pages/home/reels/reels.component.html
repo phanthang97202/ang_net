@@ -41,7 +41,7 @@
       }
 
       @if (!isLoading && lstReels.length === 0) {
-        <div class="reels__empty">Chưa có reel nào.</div>
+        <div class="reels__empty">{{ 'T_NOREELS' | translate }}</div>
       }
     </div>
 
@@ -49,7 +49,7 @@
     <div class="reels__topbar">
       <button type="button" class="reels__upload" (click)="goCreate()">
         <span nz-icon nzType="plus" nzTheme="outline"></span>
-        <span class="reels__upload-text">Tải lên</span>
+        <span class="reels__upload-text">{{ 'T_UPLOAD' | translate }}</span>
       </button>
 
       <span class="reels__topbar-divider"></span>

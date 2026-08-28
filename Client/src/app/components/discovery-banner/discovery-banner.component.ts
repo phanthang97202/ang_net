@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../directives';
@@ -34,6 +35,7 @@ const SLIDE_INTERVAL_MS = 6000;
 })
 export class DiscoveryBannerComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
+  private destroyRef = inject(DestroyRef);
 
   banners: IHomeBanner[] = DEFAULT_BANNERS;
   activeIndex = 0;
@@ -42,6 +44,7 @@ export class DiscoveryBannerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.config
       .getJson<IHomeBanner[]>(SYS_PARAM_CODE.HOME_BANNERS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         if (Array.isArray(data) && data.length > 0) {
           this.banners = data;

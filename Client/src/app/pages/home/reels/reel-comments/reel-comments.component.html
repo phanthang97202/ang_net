@@ -51,7 +51,7 @@
           }
 
           @if (loadingRepliesFor === comment.CommentId) {
-            <p class="reel-comments__loading">Đang tải...</p>
+            <p class="reel-comments__loading">{{ 'T_LOADING' | translate }}</p>
           }
 
           @if (expandedReplies.has(comment.CommentId)) {
@@ -97,7 +97,7 @@
     }
 
     @if (isLoading) {
-      <p class="reel-comments__loading">Đang tải bình luận...</p>
+      <p class="reel-comments__loading">{{ 'T_LOADINGCOMMENTS' | translate }}</p>
     }
 
     <!-- Sentinel để tự tải trang tiếp theo khi cuộn tới cuối -->
@@ -109,9 +109,9 @@
       @if (replyTo) {
         <div class="reel-comments__replying">
           <span
-            >Đang trả lời <strong>{{ replyTo.UserFullName }}</strong></span
+            >{{ 'T_REPLYINGTO' | translate }} <strong>{{ replyTo.UserFullName }}</strong></span
           >
-          <button type="button" (click)="cancelReply()">Hủy</button>
+          <button type="button" (click)="cancelReply()">{{ 'T_CANCEL' | translate }}</button>
         </div>
       }
 
@@ -134,7 +134,7 @@
           type="text"
           [(ngModel)]="draft"
           [disabled]="isSending"
-          placeholder="Thêm bình luận..."
+          [placeholder]="'T_ADDCOMMENT' | translate"
           (keydown.enter)="send()" />
 
         <button

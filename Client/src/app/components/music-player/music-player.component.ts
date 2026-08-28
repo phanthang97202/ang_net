@@ -1,4 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { combineLatest } from 'rxjs';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
@@ -24,6 +32,7 @@ const DEFAULT_PLAYLIST: IHomeSong[] = [
 })
 export class MusicPlayerComponent implements OnInit {
   private config = inject(SysParameterConfigService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('audioRef') audioRef!: ElementRef<HTMLAudioElement>;
 
@@ -38,25 +47,35 @@ export class MusicPlayerComponent implements OnInit {
   // Đổi bài chỉ đổi [src]; phải đợi audio nạp xong metadata mới play() được.
   private pendingAutoPlay = false;
 
+  // Phân biệt lần nạp đầu với các lần nạp lại (đổi ngôn ngữ), xem ngOnInit.
+  private playlistLoaded = false;
+
   ngOnInit(): void {
     // Cả 2 lời gọi đọc chung một response đã cache trong service nên chỉ có
     // đúng một request đi ra.
     combineLatest([
       this.config.getJson<IHomeSong[]>(SYS_PARAM_CODE.HOME_MUSIC),
       this.config.getDefaultText(SYS_PARAM_CODE.HOME_MUSIC),
-    ]).subscribe(([songs, defaultId]) => {
-      const valid = (songs ?? []).filter(song => song?.audioSrc);
-      if (valid.length > 0) {
-        this.playlist = valid;
-      }
+    ])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([songs, defaultId]) => {
+        const valid = (songs ?? []).filter(song => song?.audioSrc);
 
-      // DefaultValueVi chứa id của bài mặc định. Sai id hoặc bỏ trống thì lấy
-      // bài đầu danh sách.
-      const index = this.playlist.findIndex(
-        song => song.id === (defaultId ?? '').trim()
-      );
-      this.currentIndex = index >= 0 ? index : 0;
-    });
+        // Đổi ngôn ngữ làm danh sách nạp lại (tên bài có thể khác nhau giữa 2
+        // thứ tiếng). Giữ nguyên bài đang nghe thay vì quay về bài mặc định.
+        const keepId = this.playlistLoaded ? this.currentSong?.id : undefined;
+
+        if (valid.length > 0) {
+          this.playlist = valid;
+        }
+
+        // DefaultValueVi chứa id của bài mặc định. Sai id hoặc bỏ trống thì lấy
+        // bài đầu danh sách.
+        const targetId = keepId ?? (defaultId ?? '').trim();
+        const index = this.playlist.findIndex(song => song.id === targetId);
+        this.currentIndex = index >= 0 ? index : 0;
+        this.playlistLoaded = true;
+      });
   }
 
   get currentSong(): IHomeSong | undefined {

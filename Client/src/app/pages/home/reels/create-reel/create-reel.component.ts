@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   FormControl,
   FormGroup,
@@ -29,7 +30,7 @@ interface SelectedImage {
 @Component({
   selector: 'app-create-reel',
   standalone: true,
-  imports: [ReactiveFormsModule, NzIconModule],
+  imports: [ReactiveFormsModule, NzIconModule, TranslateModule],
   templateUrl: './create-reel.component.html',
   styleUrl: './create-reel.component.scss',
 })

@@ -3,7 +3,7 @@
   <div class="flex items-center gap-4 mb-8">
     <span
       class="text-[#c9622f] font-['Raleway'] text-[0.65rem] font-700 tracking-[0.2em] uppercase whitespace-nowrap">
-      NỔI BẬT TUẦN NÀY
+      {{ 'T_FEATUREDTHISWEEK' | translate }}
     </span>
     <div class="flex-1 h-px bg-[#c9622f] opacity-40"></div>
   </div>
@@ -119,7 +119,7 @@
   <ng-container *ngIf="featuredPosts.length === 0">
     <div class="flex flex-col items-center justify-center py-20 text-[var(--color-text-muted)]">
       <span class="font-['Raleway'] text-sm tracking-widest uppercase"
-        >Chưa có bài viết nổi bật</span
+        >{{ 'T_NOFEATUREDNEWS' | translate }}</span
       >
     </div>
   </ng-container>

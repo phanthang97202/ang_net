@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { LangService } from './lang-service.service';
@@ -51,7 +51,7 @@ export class SysParameterConfigService {
   // Giá trị ở cột DefaultValueVi/En. Dùng cho tham số cần trỏ tới một phần tử
   // nằm trong chính JSON của nó - vd HOME_MUSIC: id của bài hát mặc định.
   getDefaultText(code: string): Observable<string | null> {
-    return this.getResponse(code).pipe(
+    return this.whenLangChanges(this.getResponse(code)).pipe(
       map(res => {
         const data = res?.Data;
         if (!res?.Success || !data) {
@@ -69,7 +69,21 @@ export class SysParameterConfigService {
   }
 
   private getRaw(code: string): Observable<string | null> {
-    return this.getResponse(code).pipe(map(res => this.readValue(res)));
+    return this.whenLangChanges(this.getResponse(code)).pipe(
+      map(res => this.readValue(res))
+    );
+  }
+
+  // Request được cache và complete ngay sau 1 lần phát, nên nếu chỉ map thẳng
+  // thì lúc người dùng đổi ngôn ngữ sẽ không có gì phát lại - text giữ nguyên
+  // thứ tiếng cũ cho tới khi F5. Ghép thêm luồng ngôn ngữ để phát lại, và chỉ
+  // dùng nó làm TÍN HIỆU: giá trị ngôn ngữ vẫn đọc qua getLang() (localStorage)
+  // vì BehaviorSubject của LangService luôn khởi tạo 'vi', không theo giá trị
+  // đã lưu. setLang() ghi localStorage trước rồi mới next() nên thứ tự an toàn.
+  private whenLangChanges<T>(source$: Observable<T>): Observable<T> {
+    return combineLatest([source$, this.langService.$langSubjectObservable]).pipe(
+      map(([value]) => value)
+    );
   }
 
   private getResponse(

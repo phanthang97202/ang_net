@@ -86,6 +86,6 @@
 
   <!-- Empty state -->
   <ng-container *ngIf="!isLoading && posts.length === 0">
-    <div class="post-list-empty">Chưa có bài viết nào</div>
+    <div class="post-list-empty">{{ 'T_NONEWS' | translate }}</div>
   </ng-container>
 </section>

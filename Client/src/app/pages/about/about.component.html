@@ -34,7 +34,7 @@
   </section>
 
   <section class="portfolio__card" appScrollReveal>
-    <h2 class="portfolio__section-title">Kỹ năng</h2>
+    <h2 class="portfolio__section-title">{{ 'T_SKILLS' | translate }}</h2>
     <div class="portfolio__skills">
       @for (skill of skills; track skill) {
         <span class="portfolio__skill">{{ skill }}</span>
@@ -43,7 +43,7 @@
   </section>
 
   <section class="portfolio__card" appScrollReveal>
-    <h2 class="portfolio__section-title">Kinh nghiệm làm việc</h2>
+    <h2 class="portfolio__section-title">{{ 'T_WORKEXPERIENCE' | translate }}</h2>
 
     @for (item of experiences; track item.company) {
       <article class="portfolio__job">

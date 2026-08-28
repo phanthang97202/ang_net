@@ -11,18 +11,22 @@
     </div>
 
     <div class="footer-col">
-      <span class="footer-col-title">CÔNG CỤ</span>
-      <a routerLink="/tools/calculating-hotel-fee">Tính phí khách sạn</a>
-      <a routerLink="/tools/shift-report">Báo cáo ca</a>
-      <a routerLink="/tools/revenue-report">Báo cáo doanh thu</a>
+      <span class="footer-col-title">{{ 'T_TOOLS' | translate }}</span>
+      <a routerLink="/tools/calculating-hotel-fee">
+        {{ 'T_CALCULATINGHOTELFEE' | translate }}
+      </a>
+      <a routerLink="/tools/shift-report">{{ 'T_SHIFTREPORT' | translate }}</a>
+      <a routerLink="/tools/revenue-report">
+        {{ 'T_REVENUESHIFTREPORT' | translate }}
+      </a>
     </div>
 
     <div class="footer-col" *ngIf="stats$ | async as stats">
-      <span class="footer-col-title">THỐNG KÊ</span>
+      <span class="footer-col-title">{{ 'T_STATISTIC' | translate }}</span>
       <div class="footer-stat">
         <span class="footer-stat-dot"></span>
         <span class="footer-stat-value">{{ stats.OnlineCount }}</span>
-        <span class="footer-stat-label">đang online</span>
+        <span class="footer-stat-label">{{ 'T_ONLINE' | translate }}</span>
       </div>
       <div class="footer-stat">
         <svg
@@ -39,7 +43,9 @@
           <polyline points="17 6 23 6 23 12"></polyline>
         </svg>
         <span class="footer-stat-value">{{ stats.MonthCount }}</span>
-        <span class="footer-stat-label">lượt truy cập tháng này</span>
+        <span class="footer-stat-label">
+          {{ 'T_VISITSTHISMONTH' | translate }}
+        </span>
       </div>
       <div class="footer-stat">
         <svg
@@ -56,7 +62,7 @@
           <circle cx="12" cy="12" r="3"></circle>
         </svg>
         <span class="footer-stat-value">{{ stats.TotalCount }}</span>
-        <span class="footer-stat-label">tổng lượt truy cập</span>
+        <span class="footer-stat-label">{{ 'T_TOTALVISITS' | translate }}</span>
       </div>
     </div>
   </div>

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ApiService, LoadingService, ShowErrorService } from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
+import { TranslateModule } from '@ngx-translate/core';
 
 // ── Data Model ─────────────────────────────────────────────────────────────
 export interface FeaturedPost {
@@ -31,7 +32,7 @@ const PLACEHOLDER_COLORS = [
 @Component({
   selector: 'app-featured-news',
   standalone: true,
-  imports: [CommonModule, RouterLink, ScrollRevealDirective],
+  imports: [CommonModule, RouterLink, ScrollRevealDirective, TranslateModule],
   templateUrl: './featured-news.component.html',
   styleUrls: ['./featured-news.component.scss'],
 })

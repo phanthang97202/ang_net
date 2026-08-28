@@ -1,18 +1,19 @@
 <section class="newsletter" appScrollReveal>
   <h2 class="newsletter-title">
-    Đừng bỏ <span class="accent">lỡ bài viết</span><br />
-    tiếp theo
+    {{ 'T_NEWSLETTERTITLE' | translate }}
+    <span class="accent">{{ 'T_NEWSLETTERTITLEACCENT' | translate }}</span>
   </h2>
-  <p class="newsletter-subtitle">
-    Mỗi tuần một bài viết, một câu chuyện nhỏ, một góc nhìn khác. Không spam,
-    chỉ có nội dung thật.
-  </p>
+  <p class="newsletter-subtitle">{{ 'T_NEWSLETTERSUBTITLE' | translate }}</p>
 
   <!-- Success state -->
   <div *ngIf="isSuccess" class="newsletter-success">
     <span class="text-3xl">🎉</span>
-    <p class="newsletter-success-title">Đăng ký thành công!</p>
-    <p class="newsletter-success-text">Cảm ơn bạn. Mình sẽ gửi thư sớm nhé.</p>
+    <p class="newsletter-success-title">
+      {{ 'T_SUBSCRIBESUCCESS' | translate }}
+    </p>
+    <p class="newsletter-success-text">
+      {{ 'T_SUBSCRIBESUCCESSDESC' | translate }}
+    </p>
   </div>
 
   <!-- Form -->
@@ -20,7 +21,7 @@
     <div class="newsletter-form">
       <input
         type="email"
-        placeholder="Nhập email của bạn"
+        [placeholder]="'T_ENTERYOUREMAIL' | translate"
         [(ngModel)]="form.email"
         [disabled]="isLoading"
         (keyup.enter)="handleSubmit()"
@@ -29,7 +30,7 @@
         (click)="handleSubmit()"
         [disabled]="isLoading"
         class="newsletter-btn">
-        <span *ngIf="!isLoading">Đăng ký</span>
+        <span *ngIf="!isLoading">{{ 'T_SUBSCRIBE' | translate }}</span>
         <span *ngIf="isLoading" class="flex items-center gap-2">
           <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
             <circle
@@ -44,7 +45,7 @@
               fill="currentColor"
               d="M4 12a8 8 0 018-8v8z" />
           </svg>
-          Đang gửi...
+          {{ 'T_SENDING' | translate }}
         </span>
       </button>
     </div>

@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ScrollRevealDirective } from '../../directives';
@@ -19,7 +20,7 @@ interface Experience {
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [ScrollRevealDirective, SocialLinksComponent, NzIconModule],
+  imports: [ScrollRevealDirective, SocialLinksComponent, NzIconModule, TranslateModule],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss',
 })
