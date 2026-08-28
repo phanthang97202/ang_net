@@ -2,8 +2,6 @@ import { Routes } from '@angular/router';
 import { canActive, canActiveForAdmin } from './middlewares';
 
 export const routes: Routes = [
-  { path: '*', redirectTo: '' }, // Điều này đảm bảo rằng bất kỳ tuyến đường nào không xác định hoặc không tồn tại trong ứng dụng của bạn sẽ chuyển hướng người dùng về trang /home
-
   {
     // Không set title: AppTitleStrategy sẽ fallback về đúng "Phan Thang Blog"
     // thay vì lặp lại thành "Home - Phan Thang Blog".
@@ -213,4 +211,9 @@ export const routes: Routes = [
       },
     ],
   },
+
+  // Mọi URL không khớp route nào -> về trang chủ. Wildcard của Angular là '**'
+  // ('*' trước đây không bao giờ khớp, nên URL sai render ra trang trắng), và
+  // bắt buộc phải đứng CUỐI mảng vì router khớp theo thứ tự khai báo.
+  { path: '**', redirectTo: '' },
 ];
