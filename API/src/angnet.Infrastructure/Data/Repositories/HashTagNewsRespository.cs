@@ -37,44 +37,20 @@ namespace angnet.Infrastructure.Data.Repositories
             //}
 
             // ========================================
-            //✅ MỤC TIÊU CỦA TRUY VẤN
-            //Bạn muốn lấy 1 bản ghi đại diện duy nhất cho mỗi HashTagNewsName, ưu tiên bản ghi có Count cao nhất, và sau đó lấy TOP N bản ghi có Count cao nhất trong số đó.
-
-            //🔎 GIẢ SỬ DỮ LIỆU TRONG BẢNG HashTagNews
-            //HashTagNewsId   HashTagNewsName NewsId  Count CreatedDTime
-            //1.NET    1001    5   2024 - 01 - 01
-            //2   Angular 1002    7   2024 - 01 - 03
-            //3.NET    1003    10  2024 - 01 - 05
-            //4   React   1004    3   2024 - 02 - 01
-            //5   Angular 1005    4   2024 - 02 - 02
-            //6   React   1006    9   2024 - 02 - 10
-
-            //🔄 BƯỚC 1: .GroupBy(x => x.HashTagNewsName)
-            //Nhóm theo tên hashtag:
-
-            //.NET → [#1, #3]
-            //Angular → [#2, #5]
-            //React → [#4, #6]
-
-            //🔄 BƯỚC 2: g.OrderByDescending(x => x.Count).Select(...).First()
-            //Trong mỗi nhóm, chọn bản ghi có Count cao nhất:
-
-            //.NET → #3 (.NET - Count 10)
-            //Angular → #2 (Count 7)
-            //React → #6 (Count 9)
-
-            //🔄 BƯỚC 3: .OrderByDescending(x => x.Count)
-            //Sắp xếp lại 3 bản ghi trên:
-
-            //.NET(Count 10)
-            //React(Count 9)
-            //Angular(Count 7)
-
-            //🔄 BƯỚC 4: .Take(N)
-            //Lấy tối đa TConstValue.MAX_TOP_HASHTAGNEWS bản ghi(ví dụ: 3).
-            // Chi tinh hashtag cua bai DA XUAT BAN. Truoc day query khong join sang
-            // News nen khoi "The noi bat" hien ca tag cua bai nhap; nguoi dung bam
-            // vao se ra danh sach rong vi Search da loc FlagActive.
+            // MỤC TIÊU: lấy TOP N hashtag được dùng NHIỀU NHẤT, mỗi tên tag một bản ghi.
+            //
+            // Không xếp hạng bằng cột Count trong DB: NewsRespository lúc tạo tag hoặc
+            // bỏ trống cột này (=> 0), hoặc gán cứng = 1, chưa bao giờ cộng dồn. Nên
+            // trước đây mọi tag đều Count = 1, OrderByDescending không có gì để sắp,
+            // và 6 tag hiện ra thực chất là 6 tag bất kỳ theo thứ tự DB trả về chứ
+            // không phải tag nổi bật. Giờ đếm thẳng số bài viết đang dùng mỗi tag.
+            //
+            // Ví dụ: tag "Chè" nằm ở 3 bài, "Girl" ở 1 bài => "Chè" xếp trên.
+            // Bằng điểm thì tag nào được dùng gần đây hơn sẽ đứng trước.
+            //
+            // Chỉ tính hashtag của bài ĐÃ XUẤT BẢN. Trước đây query không join sang
+            // News nên khối "Thẻ nổi bật" hiện cả tag của bài nháp; người dùng bấm
+            // vào sẽ ra danh sách rỗng vì Search đã lọc FlagActive.
             List<string> publishedNewsIds = await _dbContext.News
                         .AsNoTracking()
                         .Where(n => n.FlagActive)
@@ -88,8 +64,18 @@ namespace angnet.Infrastructure.Data.Repositories
 
             var data = grouped
                         .GroupBy(x => x.HashTagNewsName)
-                        .Select(g => g.OrderByDescending(x => x.Count).First())
+                        .Select(g =>
+                        {
+                            // Lấy bản ghi mới nhất làm đại diện cho tên tag, rồi ghi
+                            // số bài thật sự đang dùng tag vào Count để client cũng
+                            // nhận được con số có nghĩa. Query đang AsNoTracking nên
+                            // gán vào đây không đụng gì tới DB.
+                            HashTagNewsModel tag = g.OrderByDescending(x => x.CreatedDTime).First();
+                            tag.Count = g.Select(x => x.NewsId).Distinct().Count();
+                            return tag;
+                        })
                         .OrderByDescending(x => x.Count)
+                        .ThenByDescending(x => x.CreatedDTime)
                         .Take(TConstValue.MAX_TOP_HASHTAGNEWS)
                         .ToList();
 
