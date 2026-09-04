@@ -17,11 +17,30 @@
       class="detail-card">
       <div class="detail-thumb">
         <img
-          [src]="
-            detailNews.Thumbnail ||
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsBGOs2225fFqTfnl5EKlrEUBn5-drby1x3Q&s'
-          "
+          [src]="slides[activeSlide]"
           [alt]="detailNews.ShortTitle" />
+
+        <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
+             điều khiển để khối ảnh trông y như trước. -->
+        <ng-container *ngIf="slides.length > 1">
+          <button
+            type="button"
+            class="detail-slide-nav detail-slide-nav--prev"
+            aria-label="Ảnh trước"
+            (click)="prevSlide()">
+            <span nz-icon nzType="left" nzTheme="outline"></span>
+          </button>
+          <button
+            type="button"
+            class="detail-slide-nav detail-slide-nav--next"
+            aria-label="Ảnh tiếp theo"
+            (click)="nextSlide()">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+          </button>
+          <span class="detail-slide-counter">
+            {{ activeSlide + 1 }}/{{ slides.length }}
+          </span>
+        </ng-container>
 
         <div class="detail-badges">
           <span *ngIf="detailNews.CategoryNewsName" class="detail-badge">{{

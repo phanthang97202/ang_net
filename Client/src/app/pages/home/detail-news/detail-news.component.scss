@@ -88,6 +88,53 @@
     white-space: nowrap;
 }
 
+// Hàng trên của khối ảnh đã có .detail-badges (trái) và .detail-readtime
+// (phải), nên mũi tên nằm giữa hai mép và bộ đếm xuống góc dưới phải.
+.detail-slide-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: rgba(26, 26, 46, 0.55);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background: rgba(26, 26, 46, 0.8);
+    }
+
+    &--prev {
+        left: 0.75rem;
+    }
+
+    &--next {
+        right: 0.75rem;
+    }
+}
+
+.detail-slide-counter {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    background: rgba(26, 26, 46, 0.55);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
 .detail-body {
     padding: 1.5rem;
 

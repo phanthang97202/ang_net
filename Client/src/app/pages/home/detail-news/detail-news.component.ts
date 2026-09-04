@@ -14,6 +14,8 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../modules';
 import { NewsCommentsComponent } from './news-comments/news-comments.component';
+import { buildNewsSlides, stepSlide } from '../../../helpers';
+
 @Component({
   selector: 'app-detail-news-page',
   standalone: true,
@@ -36,6 +38,10 @@ export class DetailNewsComponent implements OnInit {
   newsId = '';
   detailNews!: IDetailNews;
 
+  // Ảnh đại diện luôn đứng đầu, sau đó tới ảnh lấy từ nội dung bài viết.
+  slides: string[] = [];
+  activeSlide = 0;
+
   constructor(
     private sanitizer: DomSanitizer,
     private titleService: Title
@@ -57,11 +63,24 @@ export class DetailNewsComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
+  prevSlide(): void {
+    this.activeSlide = stepSlide(this.activeSlide, this.slides.length, -1);
+  }
+
+  nextSlide(): void {
+    this.activeSlide = stepSlide(this.activeSlide, this.slides.length, 1);
+  }
+
   loadData(newsId: string): void {
     this.loadingService.setLoading(true);
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
+        this.slides = buildNewsSlides(
+          res.Data.Thumbnail,
+          res.Data.ContentBody
+        );
+        this.activeSlide = 0;
         this.titleService.setTitle(
           `${this.detailNews.ShortTitle} - ${SITE_TITLE}`
         );
