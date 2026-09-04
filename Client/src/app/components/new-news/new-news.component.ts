@@ -2,7 +2,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { PaginationComponent } from '../pagination/pagination.component';
-import { ApiService, LoadingService, ShowErrorService } from '../../services';
+import {
+  LoadingService,
+  NewsCacheService,
+  ShowErrorService,
+} from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { CONSTANTS_APP } from '../../helpers';
 import { ScrollRevealDirective } from '../../directives';
@@ -36,7 +40,7 @@ const PLACEHOLDER_COLORS = [
 })
 export class NewNewsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
-  apiService = inject(ApiService);
+  newsCacheService = inject(NewsCacheService);
   loadingService = inject(LoadingService);
   router = inject(Router);
   activedRouter = inject(ActivatedRoute);
@@ -80,7 +84,7 @@ export class NewNewsComponent implements OnInit {
 
   loadPosts(pageIndex: number): void {
     this.isLoading = true;
-    this.apiService
+    this.newsCacheService
       .SearchNews(
         pageIndex,
         this.pageSize,

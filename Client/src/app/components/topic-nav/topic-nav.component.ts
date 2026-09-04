@@ -1,7 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ApiService, LoadingService, ShowErrorService } from '../../services';
+import {
+  LoadingService,
+  NewsCacheService,
+  ShowErrorService,
+} from '../../services';
 import { ScrollRevealDirective } from '../../directives';
 
 // ── Model ──────────────────────────────────────────────
@@ -68,7 +72,7 @@ const CARD_COLORS = [
 })
 export class TopicNavComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
-  apiService = inject(ApiService);
+  newsCacheService = inject(NewsCacheService);
   loadingService = inject(LoadingService);
   topics: Topic[] = [];
   isLoading = false;
@@ -79,7 +83,7 @@ export class TopicNavComponent implements OnInit {
 
   loadTopics(): void {
     this.isLoading = true;
-    this.apiService.GetAllActiveNewsCategory().subscribe({
+    this.newsCacheService.GetAllActiveNewsCategory().subscribe({
       next: res => {
         this.topics = (res.DataList || []).map(category => ({
           id: category.NewsCategoryId,

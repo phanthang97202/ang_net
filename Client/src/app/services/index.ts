@@ -5,6 +5,7 @@ export * from './cloudinary.service';
 export * from './interceptor-auth.service';
 export * from './lang-service.service';
 export * from './loading-service.service';
+export * from './news-cache.service';
 export * from './posthog.service';
 export * from './show-error.service';
 export * from './theme.service';

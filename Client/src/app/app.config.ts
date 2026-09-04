@@ -1,5 +1,9 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { provideRouter, TitleStrategy } from '@angular/router';
+import {
+  provideRouter,
+  TitleStrategy,
+  withInMemoryScrolling,
+} from '@angular/router';
 import { routes } from './app.routes';
 import { AppTitleStrategy } from './services/app-title-strategy.service';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
@@ -24,7 +28,13 @@ registerLocaleData(en);
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    // 'enabled': bấm Back/Forward thì khôi phục đúng vị trí cuộn cũ, còn điều
+    // hướng mới thì lên đầu trang. Mặc định router không làm gì cả, nên back
+    // từ bài viết về trang chủ là mất chỗ đang đọc dở.
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
+    ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideNzI18n(en_US),
     importProvidersFrom(FormsModule),
