@@ -21,7 +21,12 @@
   inset: 0;
   // background-image được gán inline theo từng banner (crossfade opacity)
   background-size: cover;
-  background-position: center bottom;
+  // Khung hero rất dẹt ngang (full-width, min-height 480px) trong khi ảnh do
+  // admin cấu hình qua HOME_BANNERS thường gần vuông hoặc ngang vừa phải, nên
+  // cover phải cắt bớt theo chiều dọc khá nhiều. "center bottom" giữ đáy ảnh và
+  // cắt mất phần trên - với ảnh có nhân vật thì mất luôn đầu. "center" cắt đều
+  // hai phía, an toàn hơn khi không kiểm soát được bố cục ảnh admin sẽ đưa vào.
+  background-position: center;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
 
