@@ -1,4 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -77,8 +84,73 @@ export class TopicNavComponent implements OnInit {
   topics: Topic[] = [];
   isLoading = false;
 
+  @ViewChild('viewport') viewportRef?: ElementRef<HTMLDivElement>;
+
+  // Số item/trang tuỳ kích thước màn hình - mỗi trang luôn nằm gọn 1 hàng
+  // ngang, không wrap. Khớp breakpoint 640/767px đang dùng chung trong dự án.
+  itemsPerPage = this.computeItemsPerPage();
+  currentPage = 0;
+
   ngOnInit(): void {
     this.loadTopics();
+  }
+
+  // Tính sẵn thay vì dùng getter: getter trả về mảng MỚI mỗi lần change
+  // detection gọi tới, khiến *ngFor coi như toàn bộ item bị thay và dựng lại
+  // hết DOM mỗi vòng CD. Card bị tạo lại liên tục nên IntersectionObserver của
+  // appScrollReveal vừa gắn đã bị huỷ, không kịp bắn -> card kẹt opacity:0.
+  pages: Topic[][] = [];
+
+  private rebuildPages(): void {
+    const size = this.itemsPerPage;
+    const result: Topic[][] = [];
+    for (let i = 0; i < this.topics.length; i += size) {
+      result.push(this.topics.slice(i, i + size));
+    }
+    this.pages = result;
+  }
+
+  trackByPageIndex(index: number): number {
+    return index;
+  }
+
+  private computeItemsPerPage(): number {
+    if (typeof window === 'undefined') return 7;
+    const w = window.innerWidth;
+    if (w <= 640) return 2;
+    if (w <= 767) return 4;
+    return 7;
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    const next = this.computeItemsPerPage();
+    if (next === this.itemsPerPage) return;
+    // Đổi số item/trang làm số trang thay đổi theo - vị trí cuộn cũ (tính theo
+    // trang cũ) không còn ý nghĩa, nên nhảy thẳng về trang đầu.
+    this.itemsPerPage = next;
+    this.rebuildPages();
+    this.currentPage = 0;
+    queueMicrotask(() => {
+      this.viewportRef?.nativeElement.scrollTo({ left: 0, behavior: 'auto' });
+    });
+  }
+
+  goToPage(index: number): void {
+    if (index < 0 || index >= this.pages.length) return;
+    this.currentPage = index;
+    const el = this.viewportRef?.nativeElement;
+    if (el) {
+      el.scrollTo({ left: index * el.clientWidth, behavior: 'smooth' });
+    }
+  }
+
+  // Đồng bộ currentPage khi người dùng tự vuốt/cuộn viewport (mobile) thay vì
+  // chỉ qua 2 nút - để trạng thái disabled của nút prev/next luôn đúng.
+  onViewportScroll(): void {
+    const el = this.viewportRef?.nativeElement;
+    if (!el || el.clientWidth === 0) return;
+    this.currentPage = Math.round(el.scrollLeft / el.clientWidth);
   }
 
   loadTopics(): void {
@@ -89,6 +161,8 @@ export class TopicNavComponent implements OnInit {
           id: category.NewsCategoryId,
           name: category.NewsCategoryName,
         }));
+        this.rebuildPages();
+        this.currentPage = 0;
         this.isLoading = false;
       },
       error: err => {

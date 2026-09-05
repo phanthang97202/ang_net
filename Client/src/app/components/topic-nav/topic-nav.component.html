@@ -5,7 +5,7 @@
         <path
           d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 16l3.81-8.19L18 6l-3.81 8.19z"></path>
       </svg>
-      Chọn chủ đề bạn quan tâm để bắt đầu khám phá
+      Chọn chủ đề bạn quan tâm để khám phá
     </span>
   </div>
 
@@ -18,23 +18,57 @@
     </div>
   </ng-container>
 
-  <!-- Topic cards -->
+  <!-- Topic cards: chia theo trang (itemsPerPage tuỳ breakpoint), mỗi trang 1
+       hàng ngang, cuộn có snap giữa các trang thay vì wrap xuống dòng lộn xộn -->
   <ng-container *ngIf="!isLoading && topics.length > 0">
-    <div class="topics-list">
-      <a
-        *ngFor="let topic of topics; trackBy: trackById; let i = index"
-        routerLink="/news"
-        [queryParams]="{ categoryId: topic.id }"
-        class="topic-card"
-        appScrollReveal
-        [appScrollRevealDelay]="i * 60">
-        <span class="topic-card-icon" [style.background]="getTopicColor(i)">
-          <svg viewBox="0 0 24 24" fill="#fff">
-            <path [attr.d]="getTopicIconPath(topic.name, i)"></path>
-          </svg>
-        </span>
-        <span class="topic-card-name">{{ topic.name }}</span>
-      </a>
+    <div class="topics-slider">
+      <button
+        type="button"
+        class="topics-nav-btn topics-nav-btn--prev"
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage === 0"
+        aria-label="Chủ đề trước">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div
+        class="topics-viewport"
+        #viewport
+        (scroll)="onViewportScroll()">
+        <div class="topics-track">
+          <div
+            class="topics-page"
+            *ngFor="let page of pages; trackBy: trackByPageIndex">
+            <a
+              *ngFor="let topic of page; trackBy: trackById; let i = index"
+              routerLink="/news"
+              [queryParams]="{ categoryId: topic.id }"
+              class="topic-card"
+              appScrollReveal
+              [appScrollRevealDelay]="i * 60">
+              <span class="topic-card-icon" [style.background]="getTopicColor(i)">
+                <svg viewBox="0 0 24 24" fill="#fff">
+                  <path [attr.d]="getTopicIconPath(topic.name, i)"></path>
+                </svg>
+              </span>
+              <span class="topic-card-name">{{ topic.name }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="topics-nav-btn topics-nav-btn--next"
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage === pages.length - 1"
+        aria-label="Chủ đề sau">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
     </div>
   </ng-container>
 </section>
