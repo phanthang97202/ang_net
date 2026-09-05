@@ -31,10 +31,16 @@
     <span class="sidebar-label">{{ 'T_FEATUREDIMAGES' | translate }}</span>
 
     <div class="featured-post">
-      <img
-        class="featured-post-bg"
-        [src]="featuredImages[activeIndex].image"
-        alt="" />
+      <!-- Các layer ảnh xếp chồng, crossfade opacity khi đổi slide (giống
+           discovery-banner) - 1 <img> duy nhất đổi [src] không tạo được
+           crossfade vì ảnh cũ biến mất ngay khi ảnh mới được gán. -->
+      <div class="featured-post-bg-layers">
+        <div
+          *ngFor="let img of featuredImages; let i = index"
+          class="featured-post-bg"
+          [class.is-active]="i === activeIndex"
+          [style.background-image]="'url(' + img.image + ')'"></div>
+      </div>
       <div class="featured-post-overlay"></div>
       <div class="featured-post-content">
         <p class="featured-post-title">
