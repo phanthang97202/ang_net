@@ -4,21 +4,20 @@
     <!-- Filter Section -->
     <div class="filter-section">
       <div nz-row [nzGutter]="[16, 16]">
-        <!-- Search Input -->
+        <!-- Search Receptionist -->
         <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-          <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-            <input
-              type="text"
-              nz-input
-              placeholder="Tìm theo lễ tân"
-              [(ngModel)]="searchReceptionist"
-              (keyup.enter)="onSearch()" />
-          </nz-input-group>
-          <ng-template #suffixIconButton>
-            <button nz-button nzType="primary" nzSearch (click)="onSearch()">
-              <span nz-icon nzType="search"></span>
-            </button>
-          </ng-template>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Tìm theo lễ tân"
+            [(ngModel)]="searchReceptionist"
+            (ngModelChange)="onSearch()"
+            style="width: 100%">
+            <nz-option
+              *ngFor="let type of receiptors"
+              [nzLabel]="type"
+              [nzValue]="type"></nz-option>
+          </nz-select>
         </div>
 
         <!-- Shift Type Select -->
@@ -49,13 +48,13 @@
         <!-- Action Buttons -->
         <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="24" [nzLg]="6">
           <div class="action-buttons">
-            <button nz-button (click)="resetSearch()" style="margin-right: 8px">
+            <button nz-button (click)="resetSearch()">
               <span nz-icon nzType="reload"></span>
-              Làm mới
+              <span>Làm mới</span>
             </button>
             <button nz-button nzType="primary" (click)="showCreateModal()">
               <span nz-icon nzType="plus"></span>
-              Tạo báo cáo
+              <span>Tạo báo cáo</span>
             </button>
           </div>
         </div>
@@ -301,6 +300,7 @@
                     <input
                       nz-input
                       (keydown.enter)="$event.preventDefault()"
+                      (blur)="syncRoomSalesFromTransactions()"
                       formControlName="roomNumber"
                       placeholder="Số phòng" />
                   </td>
@@ -314,6 +314,7 @@
                   <td>
                     <nz-select
                       formControlName="customerType"
+                      (ngModelChange)="syncRoomSalesFromTransactions()"
                       style="width: 100%"
                       nzAllowClear
                       placeholder="Loại phòng thuê">

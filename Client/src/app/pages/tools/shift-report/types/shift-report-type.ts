@@ -85,3 +85,14 @@ export interface ShiftReportQueryParams {
   pageNumber?: number;
   pageSize?: number;
 }
+
+// Bảng giá phòng, cấu hình qua tham số hệ thống SHIFT_ROOM_PRICES. Mỗi phòng
+// thuộc 1 loại phòng và có 3 mức giá theo loại khách (ngày / đêm / giờ) - dùng
+// để tự điền đơn giá sang bảng "Bán phòng ngày" từ giao dịch trong ca.
+export interface ShiftRoomPrice {
+  roomNumber: string;
+  roomType?: string;
+  dayPrice?: number;
+  nightPrice?: number;
+  hourPrice?: number;
+}

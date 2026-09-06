@@ -4,6 +4,20 @@
         margin-bottom: 24px;
     }
 
+    // Icon và chữ trong nút vốn lệch baseline vì .ant-btn mặc định là
+    // inline-block, không phải flex - ép flex + canh giữa để 2 nút đều nhau.
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    }
+
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;

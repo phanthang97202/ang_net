@@ -1,4 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -6,14 +11,19 @@ import { Subscription } from 'rxjs';
 import {
   CreateShiftReportDto,
   ShiftReportListItem,
+  ShiftRoomPrice,
 } from './types/shift-report-type';
 // import { ShiftReportMockService } from './services/shift-report-mock.service';
 import { ExcelExportService } from './services/excel-report.service';
 import { PrintService } from './services/print.service';
 import { ShiftReportService } from './services/shift-report.service';
 import { AiAssistantService } from './services/ai-assistant.service';
-import { AuthService } from '../../../services';
-import { format, startOfMonth } from 'date-fns';
+import {
+  AuthService,
+  SysParameterConfigService,
+  SYS_PARAM_CODE,
+} from '../../../services';
+import { format, startOfDay, addDays, setHours, startOfMonth } from 'date-fns';
 
 @Component({
   selector: 'app-shift-report',
@@ -58,6 +68,11 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   ];
   roomCategories = ['KHÁCH GIỜ', 'KHÁCH ĐÊM', 'KHÁCH NGÀY'];
 
+  // Bảng giá phòng lấy từ tham số hệ thống SHIFT_ROOM_PRICES, dùng để tự điền
+  // đơn giá sang bảng "Bán phòng ngày". Rỗng = chưa cấu hình -> vẫn đổ dòng
+  // sang nhưng để trống giá cho người dùng tự nhập.
+  private roomPrices: ShiftRoomPrice[] = [];
+
   constructor(
     private fb: FormBuilder,
     private shiftReportService: ShiftReportService, // Đổi từ ShiftReportService -> ShiftReportMockService
@@ -66,7 +81,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     private message: NzMessageService,
     private modal: NzModalService,
     private aiAssistantService: AiAssistantService,
-    private authService: AuthService
+    private authService: AuthService,
+    private config: SysParameterConfigService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -77,6 +94,46 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.aiShiftCreatedSub = this.aiAssistantService.shiftCreated$.subscribe(
       () => this.loadReports()
     );
+
+    this.config
+      .getJson<ShiftRoomPrice[]>(SYS_PARAM_CODE.SHIFT_ROOM_PRICES)
+      .subscribe(data => {
+        this.roomPrices = Array.isArray(data) ? data : [];
+      });
+
+    // Gợi ý lại Giờ bắt đầu/kết thúc mỗi khi đổi Loại ca lúc đang TẠO MỚI - chỉ
+    // là gợi ý, người dùng vẫn tự sửa lại được sau đó. Không áp dụng lúc SỬA để
+    // tránh ghi đè giờ thật đã lưu của báo cáo khi người dùng chỉ đổi Loại ca.
+    this.reportForm
+      .get('shiftType')
+      ?.valueChanges.subscribe((shiftType: string) => {
+        if (this.editingId !== null) return;
+        const shiftDate = this.reportForm.get('shiftDate')?.value ?? new Date();
+        const { start, end } = this.getSuggestedTimeRange(shiftType, shiftDate);
+        this.reportForm.patchValue(
+          { startTime: start, endTime: end },
+          { emitEvent: false }
+        );
+      });
+  }
+
+  // Ca ngày: 07h -> 19h cùng ngày. Ca đêm: 19h ngày đó -> 07h ngày hôm sau.
+  private getSuggestedTimeRange(
+    shiftType: string,
+    baseDate: Date
+  ): { start: Date; end: Date } {
+    const day = startOfDay(baseDate);
+    if (shiftType === 'Ca đêm') {
+      return { start: setHours(day, 19), end: setHours(addDays(day, 1), 7) };
+    }
+    return { start: setHours(day, 7), end: setHours(day, 19) };
+  }
+
+  // Gợi ý Loại ca theo giờ thực tại thời điểm mở modal tạo mới: 6h-18h là ca
+  // ngày, còn lại là ca đêm.
+  private getSuggestedShiftType(): string {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18 ? 'Ca ngày' : 'Ca đêm';
   }
 
   ngOnDestroy(): void {
@@ -179,6 +236,81 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.transactions.controls.forEach((control, i) => {
       control.patchValue({ orderNumber: i + 1 });
     });
+    this.syncRoomSalesFromTransactions();
+  }
+
+  // ── Tự điền bảng "Bán phòng ngày" từ giao dịch trong ca ────────────────
+  // Loại khách kèm "/out" không tính vào bán phòng (theo quy ước nghiệp vụ),
+  // nên trả về null để bỏ qua giao dịch đó.
+  private mapCustomerTypeToRoomCategory(customerType: string): string | null {
+    switch (customerType) {
+      case 'k.ngày':
+        return 'KHÁCH NGÀY';
+      case 'k.đêm':
+        return 'KHÁCH ĐÊM';
+      case 'k.giờ':
+        return 'KHÁCH GIỜ';
+      default:
+        return null;
+    }
+  }
+
+  // Giá để trống khi phòng chưa khai báo trong SHIFT_ROOM_PRICES - người dùng
+  // tự điền, hơn là âm thầm bỏ sót dòng.
+  private lookupUnitPrice(
+    roomNumber: string,
+    roomCategory: string
+  ): number | null {
+    const room = this.roomPrices.find(
+      r => String(r.roomNumber).trim() === String(roomNumber).trim()
+    );
+    if (!room) return null;
+
+    switch (roomCategory) {
+      case 'KHÁCH NGÀY':
+        return room.dayPrice ?? null;
+      case 'KHÁCH ĐÊM':
+        return room.nightPrice ?? null;
+      case 'KHÁCH GIỜ':
+        return room.hourPrice ?? null;
+      default:
+        return null;
+    }
+  }
+
+  // Dựng lại toàn bộ bảng 2 từ bảng 1. Chạy lại mỗi khi giao dịch đổi số phòng
+  // hoặc loại khách, nên đơn giá đã sửa tay ở bảng 2 sẽ bị tính lại theo bảng
+  // giá - đánh đổi có chủ ý để hành vi luôn đoán được.
+  syncRoomSalesFromTransactions(): void {
+    const rows = this.transactions.controls
+      .map(ctrl => {
+        const { roomNumber, customerType } = ctrl.value;
+        const roomCategory = this.mapCustomerTypeToRoomCategory(customerType);
+        if (!roomNumber || !roomCategory) return null;
+        return {
+          roomNumber: String(roomNumber).trim(),
+          roomCategory,
+          unitPrice: this.lookupUnitPrice(roomNumber, roomCategory),
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null);
+
+    this.roomSales.clear();
+    rows.forEach(row => {
+      this.roomSales.push(
+        this.fb.group({
+          roomNumber: [row.roomNumber, Validators.required],
+          roomCategory: [row.roomCategory, Validators.required],
+          unitPrice: [row.unitPrice, [Validators.required, Validators.min(0)]],
+        })
+      );
+    });
+
+    // nz-table xử lý [nzData] bất đồng bộ qua stream nội bộ: ngay sau khi
+    // FormArray đổi, nzData đã thấy dòng mới nhưng mảng render của bảng vẫn
+    // rỗng nên tbody không hiện gì. Ép Angular chạy thêm 1 vòng phát hiện thay
+    // đổi để bảng kịp dựng lại dòng.
+    this.cdr.detectChanges();
   }
 
   addRoomSale(): void {
@@ -215,11 +347,16 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   showCreateModal(): void {
     this.modalTitle = 'Tạo báo cáo ca mới';
     this.editingId = null;
+
+    const today = new Date();
+    const suggestedShiftType = this.getSuggestedShiftType();
+    const { start, end } = this.getSuggestedTimeRange(suggestedShiftType, today);
+
     this.reportForm.reset({
-      shiftDate: new Date(),
-      shiftType: 'Ca ngày',
-      startTime: new Date(),
-      endTime: new Date(),
+      shiftDate: today,
+      shiftType: suggestedShiftType,
+      startTime: start,
+      endTime: end,
       receptionistName: '',
       receiverName: '',
     });
