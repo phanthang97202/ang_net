@@ -134,3 +134,23 @@
   color: var(--color-text-muted);
   margin: 1.5rem 0 0;
 }
+
+// Cột bản đồ rộng hơn min-width mặc định của .footer-col (150px) vì iframe
+// cần đủ chỗ để tỉ lệ nhìn không bị bóp méo. Đặt ngay sau brand, trước
+// "Công cụ"/"Thống kê" cho cân đối.
+.footer-map-col {
+  flex: 1 1 260px;
+  min-width: 260px;
+}
+
+// "Công cụ" + "Thống kê" đi liền nhau như 1 khối - cùng gap với .footer-top
+// để khoảng cách giữa 2 cột này không đổi so với trước khi bọc chung.
+.footer-tools-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+}
+
+.footer-map {
+  border-radius: 10px;
+}
