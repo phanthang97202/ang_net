@@ -353,9 +353,9 @@ body {
   overflow: hidden;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 
+  // Chỉ đổi màu icon khi hover, không đổi viền/nền - tránh hiệu ứng "vòng
+  // tròn nổi bật" bao quanh nút.
   &:hover {
-    background: var(--color-accent-bg);
-    border-color: var(--color-accent);
     color: var(--color-accent);
   }
 
@@ -371,6 +371,33 @@ body {
 *::after {
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
+}
+
+// ── Focus ring toàn site ─────────────────────────────────────────────
+// Trước đây không có rule chung nào cho outline, nên mọi nút/link chưa tự
+// style riêng đều lộ ra viền xanh mặc định của trình duyệt khi được click hay
+// (trên mobile) chạm - và trên mobile viền đó còn đứng nguyên sau khi rời tay
+// vì phần tử vẫn giữ trạng thái :focus.
+//
+// Dùng :focus-visible thay vì tắt hẳn outline: trình duyệt tự phân biệt click
+// chuột/chạm (không hiện) với điều hướng bàn phím bằng Tab (vẫn hiện) - tắt
+// hẳn outline sẽ khiến người dùng bàn phím/trình đọc màn hình mất dấu đang ở
+// đâu trên trang.
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+// Vệt sáng xám/xanh khi chạm trên mobile (Chrome/Safari Android) - khác cơ
+// chế với outline ở trên nhưng nhìn cũng giống "viền dính lại sau khi bấm".
+a,
+button,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 // ── Scroll-reveal (dùng chung, gắn qua directive [appScrollReveal]) ──
