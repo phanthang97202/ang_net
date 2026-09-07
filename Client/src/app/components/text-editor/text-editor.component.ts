@@ -127,14 +127,14 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     const input = window.prompt(
       type === 'pdf'
         ? 'Dán link file PDF (https://...)'
-        : 'Dán link nhúng iframe, hoặc link/mã nhúng TikTok'
+        : 'Dán link nhúng iframe, hoặc link/mã nhúng TikTok, Facebook, Instagram'
     );
     if (!input) return;
 
     const src = this.toEmbedSrc(input, type);
     if (!src) {
       window.alert(
-        'Link không hợp lệ. Hãy dán một đường dẫn https://... (hoặc link/mã nhúng TikTok).'
+        'Link không hợp lệ. Hãy dán một đường dẫn https://... (hoặc link/mã nhúng TikTok, Facebook, Instagram).'
       );
       return;
     }
@@ -158,6 +158,22 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
       if (tiktokId) {
         return `https://www.tiktok.com/player/v1/${tiktokId}`;
       }
+
+      const facebookSrc = this.toFacebookPluginSrc(raw);
+      if (facebookSrc) {
+        return facebookSrc;
+      }
+
+      // Đã chắc là link Instagram thì không rơi xuống nhánh iframe chung nữa:
+      // instagram.com chặn iframe bằng X-Frame-Options, có nhúng cũng ra khung
+      // trắng. Trả null để báo link sai còn hơn chèn vào một khung hỏng.
+      const instagramLink = this.extractInstagramPermalink(raw);
+      if (instagramLink) {
+        return this.toInstagramEmbedSrc(
+          instagramLink,
+          /data-instgrm-captioned/i.test(raw)
+        );
+      }
     }
 
     try {
@@ -177,6 +193,98 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
       input.match(/tiktok\.com\/(?:@[^/]+\/video|player\/v1)\/(\d+)/) ??
       input.match(/data-video-id=["'](\d+)["']/);
     return match ? match[1] : null;
+  }
+
+  // Facebook cũng không nhúng thẳng link chia sẻ được, phải bọc qua plugin
+  // video.php (video/reel) hoặc post.php (bài viết/ảnh). Link plugin có sẵn thì
+  // giữ nguyên vì người dùng có thể đã tự chỉnh tham số width/show_text.
+  private toFacebookPluginSrc(input: string): string | null {
+    const href = this.extractFacebookHref(input);
+    if (!href) return null;
+
+    if (/facebook\.com\/plugins\/(video|post)\.php/.test(href)) {
+      return href;
+    }
+
+    const isVideo =
+      /\/(videos|reel|reels|watch)\//.test(href) ||
+      /\/share\/[vr]\//.test(href) ||
+      /fb\.watch\//.test(href) ||
+      /[?&]v=\d/.test(href);
+
+    // Không truyền width: FB vốn tự co nội dung theo bề ngang thật của iframe,
+    // truyền vào thì nó dựng player theo tỉ lệ của width rồi thu nhỏ cho vừa
+    // khung, chừa lại một dải trống phía dưới. Ngược lại height thì phải truyền
+    // đúng bằng chiều cao blot dựng iframe (400, xem quill-embed.blot.ts) để
+    // player lấp đầy khung. post.php không có tham số height nên chiều cao bài
+    // viết cao thấp ra sao là do FB quyết.
+    const encoded = encodeURIComponent(href);
+    return isVideo
+      ? `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false&height=400`
+      : `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true`;
+  }
+
+  // Facebook đưa ra 3 kiểu mã nhúng: iframe plugins sẵn, thẻ SDK
+  // <div class="fb-video" data-href> và <blockquote class="fb-post" cite>.
+  // Hai kiểu sau chỉ chạy khi trang có SDK của FB nên rút link ra tự bọc plugin.
+  private extractFacebookHref(input: string): string | null {
+    const embedded =
+      input.match(/<iframe[^>]+src=["']([^"']+)["']/i) ??
+      input.match(/data-href=["']([^"']+)["']/i) ??
+      input.match(/\scite=["']([^"']+)["']/i);
+
+    // Mã nhúng là HTML nên & trong query bị escape thành &amp;, không decode thì
+    // các tham số sau href dính liền vào giá trị href.
+    const candidate = (embedded ? embedded[1] : input).replace(/&amp;/g, '&');
+
+    try {
+      const url = new URL(candidate.trim());
+      return /(^|\.)(facebook\.com|fb\.watch)$/i.test(url.hostname)
+        ? url.href
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Mã nhúng Instagram là <blockquote> + <script src=embed.js>, nhét vào iframe
+  // không chạy. Nhưng IG có sẵn endpoint /embed nhúng iframe thẳng được, nên chỉ
+  // cần rút permalink trong data-instgrm-permalink ra.
+  private extractInstagramPermalink(input: string): string | null {
+    const embedded =
+      input.match(/data-instgrm-permalink=["']([^"']+)["']/i) ??
+      input.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+    const candidate = (embedded ? embedded[1] : input.trim()).replace(
+      /&amp;/g,
+      '&'
+    );
+
+    try {
+      const url = new URL(candidate);
+      return /(^|\.)instagram\.com$/i.test(url.hostname) ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private toInstagramEmbedSrc(
+    permalink: string,
+    captioned: boolean
+  ): string | null {
+    // Nút "Sao chép liên kết" trên app IG cho ra dạng /share/<token>, là link
+    // chuyển hướng nên không đọc được shortcode ở phía trình duyệt.
+    if (/instagram\.com\/share\//i.test(permalink)) return null;
+
+    // Bài viết có cả dạng /p/<code> lẫn /<user>/p/<code>.
+    const match = permalink.match(
+      /instagram\.com\/(?:[^/?#]+\/)?(p|reels?|tv)\/([A-Za-z0-9_-]+)/i
+    );
+    if (!match) return null;
+
+    const type = match[1].toLowerCase();
+    const kind = type === 'reels' ? 'reel' : type;
+    const suffix = captioned ? '/captioned' : '';
+    return `https://www.instagram.com/${kind}/${match[2]}/embed${suffix}`;
   }
 
   onEditorCreated(editor: any) {

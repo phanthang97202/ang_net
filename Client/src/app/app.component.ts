@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
   LoadingService,
@@ -81,6 +81,35 @@ export class AppComponent implements OnInit {
           top: 0,
           behavior: 'smooth',
         });
+      }
+    });
+  }
+
+  // Iframe nhúng của Instagram (.../embed) tự đo nội dung rồi postMessage chiều
+  // cao thật về trang cha - đây là cách embed.js chính chủ resize khung. Không
+  // nghe thì iframe giữ nguyên chiều cao cố định của blot và Instagram sinh
+  // thanh cuộn bên trong. Đặt ở app-root vì iframe xuất hiện cả ở trang đọc bài
+  // (render qua innerHTML) lẫn trong editor ở trang quản trị.
+  @HostListener('window:message', ['$event'])
+  resizeInstagramEmbed(ev: MessageEvent) {
+    if (ev.origin !== 'https://www.instagram.com') return;
+
+    let height: unknown;
+    try {
+      const data = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data;
+      if (data?.type !== 'MEASURE') return;
+      height = data.details?.height;
+    } catch {
+      // Instagram còn gửi vài message không phải JSON, bỏ qua
+      return;
+    }
+    if (typeof height !== 'number' || height <= 0) return;
+
+    // Chiều cao đi kèm message chứ không kèm id, nên đối chiếu contentWindow để
+    // biết message đến từ iframe nào (một bài có thể nhúng nhiều reel).
+    document.querySelectorAll('iframe.ql-embed').forEach(frame => {
+      if ((frame as HTMLIFrameElement).contentWindow === ev.source) {
+        frame.setAttribute('height', String(Math.ceil(height as number)));
       }
     });
   }
