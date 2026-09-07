@@ -46,6 +46,79 @@
     }
 }
 
+// Nút phủ kín ảnh cover: bấm chỗ nào cũng mở lightbox xem trọn ảnh (ảnh đang bị
+// object-fit:cover cắt cho vừa khung 360px).
+.detail-thumb-zoom {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: rgba(0, 0, 0, 0);
+    cursor: zoom-in;
+    transition: background 0.25s ease;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(0, 0, 0, 0.28);
+    }
+
+    // Bàn phím tab tới thì phải thấy được, còn chuột bấm xong không để lại viền.
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: -3px;
+    }
+}
+
+.detail-thumb-zoom-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 1.15rem;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+
+    .detail-thumb-zoom:hover &,
+    .detail-thumb-zoom:focus-visible & {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Máy cảm ứng không có trạng thái hover - :hover hoặc không bao giờ đúng, hoặc
+// dính lại sau khi chạm. Hiện sẵn icon mờ để vẫn biết là bấm xem được.
+@media (hover: none) {
+    .detail-thumb-zoom-icon {
+        opacity: 0.75;
+        transform: scale(1);
+    }
+}
+
+// Nút zoom phủ kín ảnh nên các nút bấm được của khối phải nổi lên trên nó, nếu
+// không bấm mũi tên chuyển ảnh lại hoá ra mở lightbox.
+.detail-slide-nav {
+    z-index: 1;
+}
+
+// Badge/read-time/bộ đếm chỉ là nhãn chứ không bấm được, nhưng nằm đè lên nút
+// zoom nên sẽ nuốt mất click ở vùng của chúng. Cho click xuyên qua để bấm vào
+// đó cũng mở được ảnh.
+.detail-badges,
+.detail-readtime,
+.detail-slide-counter {
+    pointer-events: none;
+}
+
 .detail-badges {
     position: absolute;
     top: 0.75rem;

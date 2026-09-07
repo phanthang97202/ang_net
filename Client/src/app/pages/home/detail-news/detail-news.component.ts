@@ -1,4 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NzImageService } from 'ng-zorro-antd/image';
 import {
   ApiService,
   ShowErrorService,
@@ -34,6 +36,8 @@ export class DetailNewsComponent implements OnInit {
   router = inject(ActivatedRoute);
   loadingService = inject(LoadingService);
   isLoading$ = this.loadingService.getLoading();
+  private imageService = inject(NzImageService);
+  private destroyRef = inject(DestroyRef);
 
   newsId = '';
   detailNews!: IDetailNews;
@@ -69,6 +73,29 @@ export class DetailNewsComponent implements OnInit {
 
   nextSlide(): void {
     this.activeSlide = stepSlide(this.activeSlide, this.slides.length, 1);
+  }
+
+  // Mở lightbox với cả bộ slide của bài viết (ảnh đại diện + ảnh trong nội dung)
+  // để lật qua lại ngay trong đó, mở đúng ở ảnh đang xem.
+  openPreview(): void {
+    if (!this.slides.length) return;
+
+    const ref = this.imageService.preview(
+      this.slides.map(src => ({ src, alt: this.detailNews?.ShortTitle }))
+    );
+    ref.switchTo(this.activeSlide);
+
+    // Đóng lightbox ở ảnh nào thì slider ngoài hiện tiếp ảnh đó, không giật về
+    // tấm cũ. animationStateChanged bắt được cả 3 kiểu đóng (nút X, Esc, click
+    // ra nền) vì kiểu nào cũng chạy qua animation 'leave' - closeClick thì chỉ
+    // bắn khi bấm nút X.
+    const instance = ref.previewInstance;
+    instance.animationStateChanged
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.phaseName !== 'done' || event.toState !== 'void') return;
+        this.activeSlide = instance.index;
+      });
   }
 
   loadData(newsId: string): void {

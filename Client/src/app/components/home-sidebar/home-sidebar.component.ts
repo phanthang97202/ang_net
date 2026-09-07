@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SocialLinksComponent } from '../social-links/social-links.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzImageModule, NzImageService } from 'ng-zorro-antd/image';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import {
   IHomeIntro,
@@ -51,13 +53,23 @@ const SLIDE_INTERVAL_MS = 4000;
 @Component({
   selector: 'app-home-sidebar',
   standalone: true,
-  imports: [CommonModule, SocialLinksComponent, TranslateModule],
+  // NzImageModule phải nằm ở đây dù template không dùng thẻ nz-image nào:
+  // NzImageService không khai providedIn:'root' mà được cấp qua providers của
+  // module, thiếu nó là inject ra NullInjectorError.
+  imports: [
+    CommonModule,
+    SocialLinksComponent,
+    TranslateModule,
+    NzIconModule,
+    NzImageModule,
+  ],
   templateUrl: './home-sidebar.component.html',
   styleUrls: ['./home-sidebar.component.scss'],
 })
 export class HomeSidebarComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
+  private imageService = inject(NzImageService);
 
   intro: IHomeIntro = DEFAULT_INTRO;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
@@ -98,21 +110,57 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
+    this.stopAutoplay();
   }
 
   setActive(index: number): void {
     this.activeIndex = index;
   }
 
+  // Mở lightbox với CẢ danh sách ảnh chứ không riêng ảnh đang hiện, để người xem
+  // lật qua lại giữa các ảnh nổi bật ngay trong đó. Autoplay phải dừng lúc này:
+  // không dừng thì slide dưới nền vẫn chạy, đóng lightbox ra là thấy ảnh đã nhảy
+  // sang tấm khác so với lúc bấm mở.
+  openPreview(): void {
+    this.stopAutoplay();
+
+    const ref = this.imageService.preview(
+      this.featuredImages.map(img => ({
+        src: img.image,
+        alt: img.caption,
+      }))
+    );
+    ref.switchTo(this.activeIndex);
+
+    // Không dùng closeClick: nó chỉ bắn khi bấm nút X, còn đóng bằng phím Esc hay
+    // click ra nền thì không, và autoplay sẽ chết luôn. animationStateChanged bắt
+    // được cả ba vì kiểu đóng nào cũng chạy qua animation 'leave'.
+    // takeUntilDestroyed để rời trang lúc lightbox còn mở thì không bị startAutoplay()
+    // dựng lại interval trên component đã huỷ.
+    const instance = ref.previewInstance;
+    instance.animationStateChanged
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.phaseName !== 'done' || event.toState !== 'void') return;
+
+        // Ảnh người xem dừng lại trong lightbox trở thành slide đang hiện, đóng ra
+        // không bị giật về tấm cũ.
+        this.activeIndex = instance.index;
+        this.startAutoplay();
+      });
+  }
+
   private startAutoplay(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
+    this.stopAutoplay();
     if (this.featuredImages.length > 1) {
       this.intervalId = setInterval(() => this.goToNext(), SLIDE_INTERVAL_MS);
+    }
+  }
+
+  private stopAutoplay(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
     }
   }
 

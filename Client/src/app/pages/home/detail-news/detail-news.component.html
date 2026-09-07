@@ -20,6 +20,18 @@
           [src]="slides[activeSlide]"
           [alt]="detailNews.ShortTitle" />
 
+        <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
+             để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
+             của khối, các nút mũi tên/badge phía sau được z-index kéo lên trên
+             nên vẫn bấm đúng chức năng của chúng. -->
+        <button
+          type="button"
+          class="detail-thumb-zoom"
+          [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
+          (click)="openPreview()">
+          <span class="detail-thumb-zoom-icon" nz-icon nzType="fullscreen"></span>
+        </button>
+
         <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
              điều khiển để khối ảnh trông y như trước. -->
         <ng-container *ngIf="slides.length > 1">

@@ -725,3 +725,17 @@ quill-editor {
     margin-right: 8px;
   }
 }
+
+// ── Lightbox xem ảnh (nz-image preview) ───────────────────────────────────────
+// Preflight của Tailwind đặt cho MỌI <img>: display:block + height:auto. Cả hai
+// đều phá cách ng-zorro căn ảnh trong lightbox:
+//   - ng-zorro căn giữa dọc bằng thủ thuật inline (một ::before cao 50% cộng
+//     vertical-align:middle trên ảnh), mà vertical-align chỉ ăn với inline -
+//     display:block làm ảnh rơi xuống nửa dưới màn hình.
+//   - height:auto đè mất max-height:100%, nên ảnh dọc/ảnh lớn tràn khỏi khung.
+// Trả lại đúng hai thuộc tính đó cho riêng ảnh trong lightbox.
+.ant-image-preview-img {
+  display: inline-block;
+  height: auto;
+  max-height: 100%;
+}
