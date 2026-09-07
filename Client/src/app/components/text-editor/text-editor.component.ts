@@ -212,15 +212,14 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
       /fb\.watch\//.test(href) ||
       /[?&]v=\d/.test(href);
 
-    // Không truyền width: FB vốn tự co nội dung theo bề ngang thật của iframe,
-    // truyền vào thì nó dựng player theo tỉ lệ của width rồi thu nhỏ cho vừa
-    // khung, chừa lại một dải trống phía dưới. Ngược lại height thì phải truyền
-    // đúng bằng chiều cao blot dựng iframe (400, xem quill-embed.blot.ts) để
-    // player lấp đầy khung. post.php không có tham số height nên chiều cao bài
-    // viết cao thấp ra sao là do FB quyết.
+    // Không truyền width/height: video.php dựng player theo TỈ LỆ của video gốc
+    // rồi phủ kín iframe. Truyền height cố định (vd 400) thì video dọc 9:16 phải
+    // cao gấp mấy lần mới hiện đủ, phần thừa bị iframe cắt mất trên/dưới. Bỏ đi
+    // để khung tỉ lệ ở blot (xem quill-embed.blot.ts) quyết chiều cao thay.
+    // post.php cũng không có tham số height, chiều cao bài viết do FB quyết.
     const encoded = encodeURIComponent(href);
     return isVideo
-      ? `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false&height=400`
+      ? `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false`
       : `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true`;
   }
 

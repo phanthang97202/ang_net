@@ -656,6 +656,32 @@ a {
   background-color: #f9fafb;
 }
 
+// Bài viết đăng trước khi blot biết suy tỉ lệ vẫn còn height="400" trong HTML đã
+// lưu, mà video dọc thì 400px chỉ đủ hiện khúc giữa. Suy lại tỉ lệ từ src cho
+// những embed đó; embed mới đã có aspect-ratio inline nên rule này không đụng tới
+// (style inline thắng stylesheet).
+.ql-editor .ql-embed[src*="facebook.com/plugins/video.php"],
+.content-display .ql-embed[src*="facebook.com/plugins/video.php"],
+.ql-editor .ql-embed[src*="youtube.com/embed"],
+.content-display .ql-embed[src*="youtube.com/embed"] {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+// href của reel được encode nên dấu / thành %2F.
+// Kèm max-width: video dọc trải hết bề ngang bài viết (~980px) sẽ cao gần 1750px,
+// đẩy phần nội dung phía dưới đi mất hút. Chặn lại bằng bề ngang của một khung
+// dọc cao vừa màn hình.
+.ql-editor .ql-embed[src*="%2Freel%2F"],
+.content-display .ql-embed[src*="%2Freel%2F"],
+.ql-editor .ql-embed[src*="tiktok.com/player/"],
+.content-display .ql-embed[src*="tiktok.com/player/"] {
+  aspect-ratio: 9 / 16;
+  height: auto;
+  max-width: min(100%, 400px);
+  margin-inline: auto;
+}
+
 // Quill chỉ dựng <button> rỗng cho format tự định nghĩa nên icon phải tự vẽ.
 .ql-toolbar button.ql-iframeEmbed,
 .ql-toolbar button.ql-pdfEmbed {
