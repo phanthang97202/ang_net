@@ -1,10 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import {
-  ApiService,
-  ShowErrorService,
-  LoadingService,
-  SITE_TITLE,
-} from '../../../services';
+import { ApiService, ShowErrorService, SITE_TITLE } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, Title } from '@angular/platform-browser';
@@ -32,8 +27,11 @@ export class DetailNewsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
   router = inject(ActivatedRoute);
-  loadingService = inject(LoadingService);
-  isLoading$ = this.loadingService.getLoading();
+
+  // Cờ riêng của trang thay vì LoadingService: service đó đếm request của toàn
+  // app và cũng là thứ bật spinner che kín màn hình, nên skeleton ở đây vừa bị
+  // trùng với spinner vừa bật tắt theo request của component khác.
+  isLoading = true;
 
   newsId = '';
   detailNews!: IDetailNews;
@@ -72,7 +70,7 @@ export class DetailNewsComponent implements OnInit {
   }
 
   loadData(newsId: string): void {
-    this.loadingService.setLoading(true);
+    this.isLoading = true;
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
@@ -91,11 +89,11 @@ export class DetailNewsComponent implements OnInit {
           message: JSON.stringify(err, null, 2),
           title: err.message,
         });
-        this.loadingService.setLoading(false);
+        this.isLoading = false;
         throw new Error(err);
       },
       complete: () => {
-        this.loadingService.setLoading(false);
+        this.isLoading = false;
       },
     });
   }

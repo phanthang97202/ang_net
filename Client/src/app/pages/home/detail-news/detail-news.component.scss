@@ -203,12 +203,12 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+// Khớp với .detail-thumb của bài viết thật. Bo góc và khoảng cách dưới do
+// .detail-card lo (border-radius + overflow:hidden), nên ở đây không đặt nữa.
 ::ng-deep.detail__news-skeleton {
     display: block !important;
     width: 100% !important;
     height: 360px !important;
-    margin-bottom: 20px;
-    border-radius: 20px;
     overflow: hidden;
 
     .ant-skeleton-image {

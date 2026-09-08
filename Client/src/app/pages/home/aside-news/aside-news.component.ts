@@ -1,9 +1,5 @@
 import { Component, Input, OnChanges, OnInit, inject } from '@angular/core';
-import {
-  ShowErrorService,
-  ApiService,
-  LoadingService,
-} from '../../../services';
+import { ShowErrorService, ApiService } from '../../../services';
 import { IDetailNews, IHashTagNews } from '../../../interfaces';
 import {
   AntdModule,
@@ -21,7 +17,12 @@ import {
 export class AsideNewsComponent implements OnInit, OnChanges {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
-  loadingService = inject(LoadingService);
+
+  // Không báo qua LoadingService: đó là bộ đếm request chung của cả app và nó
+  // bật spinner che kín màn hình. Khối này chỉ là thanh bên, hai request lại
+  // xong ở hai thời điểm khác nhau (còn loadNews() chạy lại mỗi lần đổi bài),
+  // nên báo vào đó là làm spinner và skeleton của trang chi tiết nhấp nháy theo
+  // lịch của thanh bên. Chỗ này tự hiện dần khi có dữ liệu là đủ.
 
   // Trang chi tiết truyền 2 giá trị này vào để khối đổi thành "bài viết liên
   // quan": cùng danh mục, mới nhất, bỏ chính bài đang đọc. Trang danh sách tin
@@ -54,7 +55,6 @@ export class AsideNewsComponent implements OnInit, OnChanges {
   }
 
   private loadNews(): void {
-    this.loadingService.setLoading(true);
     // API sắp sẵn theo CreatedDTime giảm dần và lọc theo danh mục khi categoryId
     // khác rỗng, nên chỉ còn phải bỏ bài đang đọc ra.
     this.apiService.SearchNews(0, 10, '', '', this.categoryId).subscribe({
@@ -62,7 +62,6 @@ export class AsideNewsComponent implements OnInit, OnChanges {
         this.lstNews = res.objResult.DataList.filter(
           item => item.NewsId !== this.excludeNewsId
         );
-        this.loadingService.setLoading(false);
       },
       error: err => {
         this.showErrorService.setShowError({
@@ -70,18 +69,15 @@ export class AsideNewsComponent implements OnInit, OnChanges {
           message: JSON.stringify(err, null, 2),
           title: err.message,
         });
-        this.loadingService.setLoading(false);
         throw new Error(err);
       },
     });
   }
 
   private loadTopHashTag(): void {
-    this.loadingService.setLoading(true);
     this.apiService.GetTopHashTag().subscribe({
       next: res => {
         this.lstTopHashTag = res.DataList;
-        this.loadingService.setLoading(false);
       },
       error: err => {
         this.showErrorService.setShowError({
@@ -89,7 +85,6 @@ export class AsideNewsComponent implements OnInit, OnChanges {
           message: JSON.stringify(err, null, 2),
           title: err.message,
         });
-        this.loadingService.setLoading(false);
         throw new Error(err);
       },
     });

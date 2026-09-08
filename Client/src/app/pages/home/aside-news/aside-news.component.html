@@ -19,7 +19,10 @@
     </div>
   </div>
 
+  <!-- Cùng lý do với khối trên: chưa tải xong thì danh sách rỗng, ẩn đi thay vì
+       hiện một cái thẻ chỉ có mỗi tiêu đề -->
   <div
+    *ngIf="lstTopHashTag.length > 0"
     class="bg-[var(--color-bg-card)] rounded-[20px] shadow-[0_2px_16px_var(--color-card-shadow)] p-[24px]"
     appScrollReveal
     [appScrollRevealDelay]="120">

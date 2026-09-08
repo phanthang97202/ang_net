@@ -1,19 +1,28 @@
-<!-- Khi loading thì hiện skeleton -->
-<nz-skeleton-element
-  *ngIf="isLoading$ | async"
-  nzType="image"
-  [nzActive]="true"
-  class="detail__news-skeleton"></nz-skeleton-element>
-<nz-skeleton
-  *ngIf="isLoading$ | async"
-  [nzActive]="true"
-  [nzParagraph]="{ rows: 10 }">
-</nz-skeleton>
-
 <div class="news__container">
   <div class="news__content">
+    <!-- Skeleton nằm trong đúng cột trái và mượn luôn .detail-card/.detail-body
+         của bài viết thật, nên khung lúc chờ trùng khít với khung lúc có dữ
+         liệu. Gói trong một *ngIf duy nhất để ảnh và các dòng chữ luôn hiện tắt
+         cùng lúc. -->
+    <div
+      *ngIf="isLoading"
+      class="detail-card"
+      aria-hidden="true">
+      <nz-skeleton-element
+        nzType="image"
+        [nzActive]="true"
+        class="detail__news-skeleton"></nz-skeleton-element>
+      <div class="detail-body">
+        <nz-skeleton
+          [nzActive]="true"
+          [nzTitle]="{ width: '60%' }"
+          [nzParagraph]="{ rows: 6 }">
+        </nz-skeleton>
+      </div>
+    </div>
+
     <article
-      *ngIf="(isLoading$ | async) === false"
+      *ngIf="!isLoading"
       class="detail-card">
       <div class="detail-thumb">
         <img
@@ -86,7 +95,12 @@
       </div>
     </article>
 
-    <app-news-comments [newsId]="detailNews.NewsId" />
+    <!-- Khối bình luận cần NewsId của bài, mà detailNews chỉ có sau khi API trả
+         về - render sớm hơn thì binding đọc thuộc tính trên undefined và ném
+         lỗi ngay giữa change detection. -->
+    <app-news-comments
+      *ngIf="!isLoading"
+      [newsId]="detailNews.NewsId" />
   </div>
 
   <div class="news__aside">
