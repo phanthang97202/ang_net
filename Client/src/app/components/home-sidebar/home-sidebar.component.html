@@ -42,6 +42,19 @@
           [style.background-image]="'url(' + img.image + ')'"></div>
       </div>
       <div class="featured-post-overlay"></div>
+
+      <!-- Nút phủ kín ảnh để bấm đâu cũng mở xem chi tiết. Dùng <button> thay vì
+           (click) trên div để còn tab/Enter tới được. Dots được kéo lên trên nút
+           này bằng z-index (xem .featured-post-dots) nên bấm dots vẫn đổi slide
+           chứ không mở lightbox. -->
+      <button
+        type="button"
+        class="featured-post-zoom"
+        [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
+        (click)="openPreview()">
+        <span class="featured-post-zoom-icon" nz-icon nzType="fullscreen"></span>
+      </button>
+
       <div class="featured-post-content">
         <p class="featured-post-title">
           {{ featuredImages[activeIndex].caption }}

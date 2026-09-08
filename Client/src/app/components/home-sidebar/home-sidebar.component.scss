@@ -140,9 +140,70 @@
   );
 }
 
+// Nút phủ kín ảnh: bấm chỗ nào cũng mở xem chi tiết, chỉ chừa dots ở dưới.
+.featured-post-zoom {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0);
+  cursor: zoom-in;
+  transition: background 0.25s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  // Bàn phím tab tới thì phải thấy được, còn chuột bấm xong không để lại viền.
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -3px;
+  }
+}
+
+.featured-post-zoom-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 1.05rem;
+  opacity: 0;
+  // Nhích lên một chút cho cân giữa ảnh, vì nửa dưới đã có caption và dots.
+  transform: translateY(-12px) scale(0.85);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+
+  .featured-post-zoom:hover &,
+  .featured-post-zoom:focus-visible & {
+    opacity: 1;
+    transform: translateY(-12px) scale(1);
+  }
+}
+
+// Máy cảm ứng không có trạng thái hover - :hover hoặc không bao giờ đúng, hoặc
+// dính lại sau khi chạm. Hiện sẵn icon mờ để vẫn biết là bấm xem được.
+@media (hover: none) {
+  .featured-post-zoom-icon {
+    opacity: 0.75;
+    transform: translateY(-12px) scale(1);
+  }
+}
+
 .featured-post-content {
   position: relative;
   padding: 1rem 1rem 2rem;
+  // Caption nằm dưới nút zoom trong DOM nên mặc định nó ăn mất click ở vùng chữ.
+  // Cho click xuyên qua để bấm vào caption cũng mở được ảnh.
+  pointer-events: none;
 }
 
 .featured-post-title {
@@ -160,6 +221,8 @@
   left: 1rem;
   display: flex;
   gap: 0.3rem;
+  // Nổi trên nút zoom đang phủ kín ảnh, nếu không thì bấm dots hoá ra mở lightbox.
+  z-index: 1;
 }
 
 .dot {
