@@ -1,0 +1,27 @@
+<div class="chess-board" [class.chess-board--interactive]="interactive">
+  <div class="chess-board__row" *ngFor="let row of rows">
+    <div
+      *ngFor="let cell of row"
+      class="chess-board__square"
+      [class.chess-board__square--light]="cell.isLight"
+      [class.chess-board__square--dark]="!cell.isLight"
+      [class.chess-board__square--selected]="cell.isSelected"
+      [class.chess-board__square--legal]="cell.isLegalTarget"
+      (click)="onSquareClick(cell.square)">
+      <span class="chess-board__piece">{{ cell.piece }}</span>
+      <span *ngIf="cell.isLegalTarget && !cell.piece" class="chess-board__dot"></span>
+    </div>
+  </div>
+
+  <div class="chess-board__promotion" *ngIf="pendingPromotion">
+    <div class="chess-board__promotion-panel">
+      <button
+        *ngFor="let piece of promotionChoices"
+        class="chess-board__promotion-btn"
+        (click)="choosePromotion(piece)">
+        {{ promotionGlyph(piece) }}
+      </button>
+      <button class="chess-board__promotion-cancel" (click)="cancelPromotion()">✕</button>
+    </div>
+  </div>
+</div>

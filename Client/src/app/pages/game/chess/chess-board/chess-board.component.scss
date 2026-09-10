@@ -1,0 +1,101 @@
+.chess-board {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px var(--color-card-shadow);
+  user-select: none;
+
+  &__row {
+    display: flex;
+  }
+
+  &__square {
+    position: relative;
+    width: min(11.5vw, 64px);
+    height: min(11.5vw, 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--light {
+      background: #eeeed2;
+    }
+
+    &--dark {
+      background: #769656;
+    }
+
+    &--selected {
+      outline: 3px solid var(--color-accent);
+      outline-offset: -3px;
+    }
+  }
+
+  &--interactive &__square {
+    cursor: pointer;
+  }
+
+  &__piece {
+    font-size: min(8vw, 46px);
+    line-height: 1;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+  }
+
+  &__dot {
+    position: absolute;
+    width: 22%;
+    height: 22%;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  &__promotion {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__promotion-panel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-bg-card);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 8px 24px var(--color-card-shadow);
+  }
+
+  &__promotion-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 32px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg-page);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-accent-bg);
+    }
+  }
+
+  &__promotion-cancel {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-control-bg);
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-control-bg-hover);
+    }
+  }
+}

@@ -11,4 +11,5 @@ export * from './show-error.service';
 export * from './theme.service';
 export * from './sys-parameter-config.service';
 export * from './ws-chat.service';
+export * from './chess-game.service';
 export * from './visit-tracking.service';

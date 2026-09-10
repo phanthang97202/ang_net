@@ -25,6 +25,7 @@
     "@microsoft/signalr": "^8.0.7",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
+    "chess.js": "^1.4.0",
     "ckeditor5": "^43.2.0",
     "ckeditor5-premium-features": "^43.2.0",
     "cloudinary-angular": "^1.0.1",

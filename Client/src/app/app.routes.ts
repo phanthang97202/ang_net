@@ -73,6 +73,22 @@ export const routes: Routes = [
     ],
   },
   {
+    title: 'Chess',
+    path: 'game/chess',
+    loadComponent: () =>
+      import('./pages/game/chess/chess-lobby/chess-lobby.component').then(
+        p => p.ChessLobbyComponent
+      ),
+  },
+  {
+    title: 'Chess room',
+    path: 'game/chess/:roomId',
+    loadComponent: () =>
+      import('./pages/game/chess/chess-room/chess-room.component').then(
+        p => p.ChessRoomComponent
+      ),
+  },
+  {
     title: 'Login',
     path: 'login',
     loadComponent() {

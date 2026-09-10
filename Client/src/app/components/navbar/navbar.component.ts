@@ -92,6 +92,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
       ],
     },
     { path: '/reels', title: 'Reels', icon: 'play-circle' },
+    {
+      title: 'Game',
+      icon: 'trophy',
+      children: [
+        { path: '/game/chess', title: 'Chess', icon: 'appstore' },
+      ],
+    },
     // Tạm ẩn cùng route /about (xem app.routes.ts)
     // { path: '/about', title: 'AboutMe', icon: 'user' },
   ];

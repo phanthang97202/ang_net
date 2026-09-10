@@ -1,0 +1,26 @@
+<div class="chess-lobby">
+  <div class="chess-lobby__card">
+    <h1 class="chess-lobby__title">{{ 'T_CHESS' | translate }}</h1>
+    <p class="chess-lobby__desc">{{ 'T_CHESS_LOBBY_DESC' | translate }}</p>
+
+    <label class="chess-lobby__label">{{ 'T_CHESS_YOUR_NAME' | translate }}</label>
+    <input
+      nz-input
+      [(ngModel)]="playerName"
+      [placeholder]="'T_CHESS_YOUR_NAME_PLACEHOLDER' | translate"
+      (keyup.enter)="createRoom()"
+      maxlength="30" />
+
+    <p class="chess-lobby__error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="large"
+      class="chess-lobby__submit"
+      [nzLoading]="isCreating"
+      (click)="createRoom()">
+      {{ 'T_CHESS_CREATE_ROOM' | translate }}
+    </button>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './chat';
+export * from './chess';
 export * from './common';
 export * from './error-info';
 export * from './hash-tag-news';

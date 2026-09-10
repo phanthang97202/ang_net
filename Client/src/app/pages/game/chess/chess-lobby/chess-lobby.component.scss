@@ -1,0 +1,47 @@
+.chess-lobby {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  &__card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--color-card-shadow);
+    padding: 32px;
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__desc {
+    margin: 0 0 24px;
+    color: var(--color-text-muted);
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+
+  &__error {
+    margin: 10px 0 0;
+    color: #e5484d;
+    font-size: 13px;
+  }
+
+  &__submit {
+    width: 100%;
+    margin-top: 20px;
+  }
+}

@@ -1,0 +1,116 @@
+<div class="chess-room">
+  <!-- Chưa vào phòng: form nhập tên để tham gia -->
+  <div class="chess-room__join" *ngIf="!joined">
+    <div class="chess-room__card">
+      <h1 class="chess-room__title">{{ 'T_CHESS' | translate }}</h1>
+      <p class="chess-room__desc">{{ 'T_CHESS_JOIN_DESC' | translate }}</p>
+
+      <label class="chess-room__label">{{ 'T_CHESS_YOUR_NAME' | translate }}</label>
+      <input
+        nz-input
+        [(ngModel)]="playerNameInput"
+        [placeholder]="'T_CHESS_YOUR_NAME_PLACEHOLDER' | translate"
+        (keyup.enter)="joinRoom()"
+        maxlength="30" />
+
+      <p class="chess-room__error" *ngIf="joinError">{{ joinError }}</p>
+
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        class="chess-room__submit"
+        [nzLoading]="isJoining"
+        (click)="joinRoom()">
+        {{ 'T_CHESS_JOIN_ROOM' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Đã vào phòng -->
+  <div class="chess-room__content" *ngIf="joined && state">
+    <div class="chess-room__players">
+      <div class="chess-room__player" [class.chess-room__player--ready]="myReady">
+        <span class="chess-room__player-name"
+          >{{ myName }} ({{ 'T_CHESS_YOU' | translate }})</span
+        >
+        <span class="chess-room__player-badge">{{
+          (myReady ? 'T_CHESS_READY' : 'T_CHESS_NOT_READY') | translate
+        }}</span>
+      </div>
+      <div
+        class="chess-room__player"
+        [class.chess-room__player--ready]="opponentReady"
+        *ngIf="opponentName">
+        <span class="chess-room__player-name">{{ opponentName }}</span>
+        <span class="chess-room__player-badge">{{
+          (opponentReady ? 'T_CHESS_READY' : 'T_CHESS_NOT_READY') | translate
+        }}</span>
+      </div>
+    </div>
+
+    <p class="chess-room__notice" *ngIf="opponentLeftMessage">
+      {{ opponentLeftMessage }}
+    </p>
+
+    <!-- Chờ đối thủ tham gia -->
+    <div class="chess-room__waiting" *ngIf="state.status === 'WaitingForOpponent'">
+      <p>{{ 'T_CHESS_WAITING_OPPONENT' | translate }}</p>
+      <div class="chess-room__invite">
+        <input nz-input [value]="inviteLink" readonly />
+        <button nz-button (click)="copyInviteLink()">
+          {{ (copyFeedback ? 'T_CHESS_COPIED' : 'T_CHESS_COPY_LINK') | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Đủ 2 người, chờ bấm sẵn sàng -->
+    <div class="chess-room__ready" *ngIf="state.status === 'WaitingForReady'">
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        [disabled]="myReady"
+        (click)="setReady()">
+        {{ 'T_CHESS_READY' | translate }}
+      </button>
+    </div>
+
+    <!-- Đang chơi -->
+    <div class="chess-room__game" *ngIf="state.status === 'Playing'">
+      <p class="chess-room__turn" *ngIf="!gameResult">
+        {{ (isMyTurn ? 'T_CHESS_YOUR_TURN' : 'T_CHESS_OPPONENT_TURN') | translate }}
+      </p>
+
+      <app-chess-board
+        [fen]="chess.fen()"
+        [orientation]="myColor"
+        [interactive]="canMove"
+        (move)="onLocalMove($event)">
+      </app-chess-board>
+
+      <button
+        nz-button
+        nzDanger
+        class="chess-room__resign"
+        *ngIf="!gameResult"
+        (click)="resign()">
+        {{ 'T_CHESS_RESIGN' | translate }}
+      </button>
+
+      <div class="chess-room__result" *ngIf="gameResult">
+        <p>{{ resultKey | translate }}</p>
+        <button nz-button nzType="primary" (click)="backToLobby()">
+          {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Phòng kết thúc trước khi vào ván (đối thủ rời khi đang chờ) -->
+    <div class="chess-room__finished" *ngIf="state.status === 'Finished' && !gameResult">
+      <button nz-button nzType="primary" (click)="backToLobby()">
+        {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
