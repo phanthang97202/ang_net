@@ -81,6 +81,14 @@ export const routes: Routes = [
       ),
   },
   {
+    title: 'Chess vs computer',
+    path: 'game/chess/vs-computer',
+    loadComponent: () =>
+      import(
+        './pages/game/chess/chess-vs-computer/chess-vs-computer.component'
+      ).then(p => p.ChessVsComputerComponent),
+  },
+  {
     title: 'Chess room',
     path: 'game/chess/:roomId',
     loadComponent: () =>

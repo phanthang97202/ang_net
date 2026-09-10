@@ -44,4 +44,25 @@
     width: 100%;
     margin-top: 20px;
   }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    color: var(--color-text-muted);
+    font-size: 12px;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+    }
+  }
+
+  &__vs-computer {
+    width: 100%;
+  }
 }

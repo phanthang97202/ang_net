@@ -1,0 +1,102 @@
+<div class="chess-vs-computer">
+  <!-- Màn hình cài đặt -->
+  <div class="chess-vs-computer__setup" *ngIf="!started">
+    <div class="chess-vs-computer__card">
+      <h1 class="chess-vs-computer__title">{{ 'T_CHESS_VS_COMPUTER' | translate }}</h1>
+
+      <label class="chess-vs-computer__label">{{ 'T_CHESS_CHOOSE_COLOR' | translate }}</label>
+      <div class="chess-vs-computer__options">
+        <button
+          type="button"
+          class="chess-vs-computer__option"
+          [class.chess-vs-computer__option--active]="playerColor === 'white'"
+          (click)="playerColor = 'white'">
+          {{ 'T_CHESS_COLOR_WHITE' | translate }}
+        </button>
+        <button
+          type="button"
+          class="chess-vs-computer__option"
+          [class.chess-vs-computer__option--active]="playerColor === 'black'"
+          (click)="playerColor = 'black'">
+          {{ 'T_CHESS_COLOR_BLACK' | translate }}
+        </button>
+      </div>
+
+      <label class="chess-vs-computer__label">{{ 'T_CHESS_DIFFICULTY' | translate }}</label>
+      <div class="chess-vs-computer__options">
+        <button
+          type="button"
+          class="chess-vs-computer__option"
+          [class.chess-vs-computer__option--active]="difficulty === 'easy'"
+          (click)="difficulty = 'easy'">
+          {{ 'T_CHESS_DIFFICULTY_EASY' | translate }}
+        </button>
+        <button
+          type="button"
+          class="chess-vs-computer__option"
+          [class.chess-vs-computer__option--active]="difficulty === 'medium'"
+          (click)="difficulty = 'medium'">
+          {{ 'T_CHESS_DIFFICULTY_MEDIUM' | translate }}
+        </button>
+        <button
+          type="button"
+          class="chess-vs-computer__option"
+          [class.chess-vs-computer__option--active]="difficulty === 'hard'"
+          (click)="difficulty = 'hard'">
+          {{ 'T_CHESS_DIFFICULTY_HARD' | translate }}
+        </button>
+      </div>
+
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        class="chess-vs-computer__submit"
+        (click)="startGame()">
+        {{ 'T_CHESS_START_GAME' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Bàn cờ -->
+  <div class="chess-vs-computer__content" *ngIf="started">
+    <p class="chess-vs-computer__turn" *ngIf="!gameResult">
+      {{
+        (isThinking
+          ? 'T_CHESS_THINKING'
+          : isMyTurn
+            ? 'T_CHESS_YOUR_TURN'
+            : 'T_CHESS_OPPONENT_TURN'
+        ) | translate
+      }}
+    </p>
+
+    <app-chess-board
+      [fen]="chess.fen()"
+      [orientation]="playerColor"
+      [interactive]="canMove"
+      (move)="onLocalMove($event)">
+    </app-chess-board>
+
+    <button
+      nz-button
+      nzDanger
+      class="chess-vs-computer__resign"
+      *ngIf="!gameResult"
+      (click)="resign()">
+      {{ 'T_CHESS_RESIGN' | translate }}
+    </button>
+
+    <div class="chess-vs-computer__result" *ngIf="gameResult">
+      <p>{{ resultKey | translate }}</p>
+      <div class="chess-vs-computer__result-actions">
+        <button nz-button nzType="primary" (click)="playAgain()">
+          {{ 'T_CHESS_PLAY_AGAIN' | translate }}
+        </button>
+        <button nz-button (click)="backToLobby()">
+          {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

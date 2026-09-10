@@ -1,0 +1,99 @@
+.chess-vs-computer {
+  min-height: calc(100vh - 80px);
+  padding: 24px;
+
+  &__setup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 128px);
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--color-card-shadow);
+    padding: 32px;
+  }
+
+  &__title {
+    margin: 0 0 24px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__label {
+    display: block;
+    margin: 16px 0 8px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+
+  &__options {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__option {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-page);
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-control-bg-hover);
+    }
+
+    &--active {
+      border-color: var(--color-accent);
+      background: var(--color-accent-bg);
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+  }
+
+  &__submit {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  &__content {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__turn {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__resign {
+    margin-top: 4px;
+  }
+
+  &__result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__result-actions {
+    display: flex;
+    gap: 8px;
+  }
+}

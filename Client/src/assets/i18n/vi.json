@@ -134,5 +134,17 @@
     "T_CHESS_OPPONENT_RESIGNED": "Đối thủ đã xin thua.",
     "T_CHESS_OPPONENT_DISCONNECTED": "Đối thủ đã mất kết nối.",
     "T_CHESS_OPPONENT_LEFT": "Đối thủ đã rời phòng.",
-    "T_CHESS_BACK_TO_LOBBY": "Về trang chủ cờ vua"
+    "T_CHESS_BACK_TO_LOBBY": "Về trang chủ cờ vua",
+    "T_CHESS_OR": "HOẶC",
+    "T_CHESS_VS_COMPUTER": "Chơi với máy",
+    "T_CHESS_CHOOSE_COLOR": "Chọn phe của bạn",
+    "T_CHESS_COLOR_WHITE": "Trắng",
+    "T_CHESS_COLOR_BLACK": "Đen",
+    "T_CHESS_DIFFICULTY": "Độ khó",
+    "T_CHESS_DIFFICULTY_EASY": "Dễ",
+    "T_CHESS_DIFFICULTY_MEDIUM": "Trung bình",
+    "T_CHESS_DIFFICULTY_HARD": "Khó",
+    "T_CHESS_START_GAME": "Bắt đầu",
+    "T_CHESS_THINKING": "Máy đang suy nghĩ...",
+    "T_CHESS_PLAY_AGAIN": "Chơi lại"
 }

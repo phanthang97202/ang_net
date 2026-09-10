@@ -134,5 +134,17 @@
     "T_CHESS_OPPONENT_RESIGNED": "Your opponent resigned.",
     "T_CHESS_OPPONENT_DISCONNECTED": "Your opponent disconnected.",
     "T_CHESS_OPPONENT_LEFT": "Your opponent left the room.",
-    "T_CHESS_BACK_TO_LOBBY": "Back to lobby"
+    "T_CHESS_BACK_TO_LOBBY": "Back to lobby",
+    "T_CHESS_OR": "OR",
+    "T_CHESS_VS_COMPUTER": "Play vs computer",
+    "T_CHESS_CHOOSE_COLOR": "Choose your side",
+    "T_CHESS_COLOR_WHITE": "White",
+    "T_CHESS_COLOR_BLACK": "Black",
+    "T_CHESS_DIFFICULTY": "Difficulty",
+    "T_CHESS_DIFFICULTY_EASY": "Easy",
+    "T_CHESS_DIFFICULTY_MEDIUM": "Medium",
+    "T_CHESS_DIFFICULTY_HARD": "Hard",
+    "T_CHESS_START_GAME": "Start game",
+    "T_CHESS_THINKING": "Computer is thinking...",
+    "T_CHESS_PLAY_AGAIN": "Play again"
 }

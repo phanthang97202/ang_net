@@ -22,5 +22,15 @@
       (click)="createRoom()">
       {{ 'T_CHESS_CREATE_ROOM' | translate }}
     </button>
+
+    <div class="chess-lobby__divider">{{ 'T_CHESS_OR' | translate }}</div>
+
+    <button
+      nz-button
+      nzSize="large"
+      class="chess-lobby__vs-computer"
+      routerLink="/game/chess/vs-computer">
+      {{ 'T_CHESS_VS_COMPUTER' | translate }}
+    </button>
   </div>
 </div>
