@@ -365,8 +365,10 @@ export class ExcelExportService {
     }
 
     // ========== DICH VU NGOAI SECTION ==========
-    // Luon in bang nay ke ca ca khong ban gi, de chu khach san va le tan ca
-    // sau deu nam duoc tinh hinh ton kho.
+    // Luon liet ke DAY DU danh muc san pham khai bao trong tham so he thong
+    // SHIFT_DRINK_STOCK, ke ca san pham khong ban trong ca nay (SL=0,
+    // Thanh tien=0) - de chu khach san va le tan ca sau nam duoc toan bo
+    // tinh hinh ton kho, khong chi rieng nhung gi vua ban.
     const drinkSales = report.DrinkSales || [];
     currentRow += 2;
 
@@ -388,48 +390,79 @@ export class ExcelExportService {
 
     let drinkTotal = 0;
 
-    if (drinkSales.length === 0) {
-      // Ca khong ban gi: van in 1 dong trong de bang khong bi cut.
-      const emptyRow = worksheet.getRow(currentRow);
-      emptyRow.getCell(1).value = 'Không có dịch vụ nào được bán';
-      emptyRow.getCell(1).style = dataStyle;
-      for (let i = 2; i <= 5; i++) {
-        emptyRow.getCell(i).value = '';
-        emptyRow.getCell(i).style = dataStyle;
+    // Gop so luong da ban trong ca theo ma san pham - 1 san pham co the co
+    // nhieu dong (vd ban 2 lan cung 1 loai voi 2 hinh thuc thanh toan khac
+    // nhau).
+    const soldByCode = new Map<string, { quantity: number; amount: number; unitPrice: number }>();
+    drinkSales.forEach(drink => {
+      const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
+      const existed = soldByCode.get(drink.ProductCode);
+      if (existed) {
+        existed.quantity += drink.Quantity || 0;
+        existed.amount += amount;
+      } else {
+        soldByCode.set(drink.ProductCode, {
+          quantity: drink.Quantity || 0,
+          amount,
+          unitPrice: drink.UnitPrice || 0,
+        });
       }
-      currentRow++;
-    } else {
-      drinkSales.forEach(drink => {
-        const row = worksheet.getRow(currentRow);
-        const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
-        drinkTotal += amount;
+    });
 
-        row.getCell(1).value = drink.ProductName;
-        row.getCell(1).style = dataStyle;
-
-        row.getCell(2).value = drink.Quantity;
-        row.getCell(2).style = dataStyleCenter;
-
-        row.getCell(3).value = drink.UnitPrice;
-        row.getCell(3).style = numberStyle;
-
-        row.getCell(4).value = amount;
-        row.getCell(4).style = numberStyle;
-
-        // Ton kho la so hien tai cua ca kho, khong phai ton rieng cua ca nay.
-        const stock = drinkStocks.find(d => d.ProductCode === drink.ProductCode);
-        const remainingCell = row.getCell(5);
-        if (stock) {
-          remainingCell.value = stock.Remaining;
-          remainingCell.style = dataStyleCenter;
-        } else {
-          remainingCell.value = '';
-          remainingCell.style = dataStyle;
-        }
-
-        currentRow++;
+    // Danh sach hien thi = toan bo danh muc tu drinkStocks. San pham da ban
+    // nhung khong con trong danh muc (bi xoa sau do) van duoc gop them vao
+    // cuoi, tranh mat lich su.
+    const displayList = drinkStocks.map(stock => {
+      const sold = soldByCode.get(stock.ProductCode);
+      return {
+        productName: stock.ProductName,
+        quantity: sold?.quantity || 0,
+        unitPrice: sold?.unitPrice ?? stock.UnitPrice,
+        amount: sold?.amount || 0,
+        remaining: stock.Remaining as number | null,
+      };
+    });
+    const knownCodes = new Set(drinkStocks.map(s => s.ProductCode));
+    drinkSales.forEach(drink => {
+      if (knownCodes.has(drink.ProductCode)) return;
+      knownCodes.add(drink.ProductCode);
+      const sold = soldByCode.get(drink.ProductCode)!;
+      displayList.push({
+        productName: drink.ProductName,
+        quantity: sold.quantity,
+        unitPrice: sold.unitPrice,
+        amount: sold.amount,
+        remaining: null,
       });
-    }
+    });
+
+    displayList.forEach(item => {
+      const row = worksheet.getRow(currentRow);
+      drinkTotal += item.amount;
+
+      row.getCell(1).value = item.productName;
+      row.getCell(1).style = dataStyle;
+
+      row.getCell(2).value = item.quantity;
+      row.getCell(2).style = dataStyleCenter;
+
+      row.getCell(3).value = item.unitPrice;
+      row.getCell(3).style = numberStyle;
+
+      row.getCell(4).value = item.amount;
+      row.getCell(4).style = numberStyle;
+
+      const remainingCell = row.getCell(5);
+      if (item.remaining != null) {
+        remainingCell.value = item.remaining;
+        remainingCell.style = dataStyleCenter;
+      } else {
+        remainingCell.value = '';
+        remainingCell.style = dataStyle;
+      }
+
+      currentRow++;
+    });
 
     const drinkTotalRow = worksheet.getRow(currentRow);
     drinkTotalRow.getCell(1).value = 'TỔNG';
