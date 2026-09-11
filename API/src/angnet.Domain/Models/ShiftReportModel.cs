@@ -50,5 +50,6 @@ namespace angnet.Domain.Models
         // Navigation properties
         public virtual ICollection<ShiftReportTransactionModel> Transactions { get; set; } = new List<ShiftReportTransactionModel>();
         public virtual ICollection<ShiftReportRoomSaleModel> RoomSales { get; set; } = new List<ShiftReportRoomSaleModel>();
+        public virtual ICollection<ShiftReportDrinkSaleModel> DrinkSales { get; set; } = new List<ShiftReportDrinkSaleModel>();
     }
 }

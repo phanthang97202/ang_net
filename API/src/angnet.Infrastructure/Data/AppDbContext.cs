@@ -56,6 +56,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<ShiftReportModel> ShiftReport { get; set; }
         public DbSet<ShiftReportTransactionModel> ShiftReportTransaction { get; set; }
         public DbSet<ShiftReportRoomSaleModel> ShiftReportRoomSale { get; set; }
+        public DbSet<ShiftReportDrinkSaleModel> ShiftReportDrinkSale { get; set; }
 
         // Tham số hệ thống
         public DbSet<SysParameterModel> SysParameter { get; set; }
@@ -419,6 +420,21 @@ namespace angnet.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(e => e.ShiftReportId);
+            });
+
+            modelBuilder.Entity<ShiftReportDrinkSaleModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).UseIdentityAlwaysColumn();
+
+                entity.HasOne(e => e.ShiftReport)
+                    .WithMany(e => e.DrinkSales)
+                    .HasForeignKey(e => e.ShiftReportId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.ShiftReportId);
+                // Tinh ton kho phai cong don Quantity theo ProductCode
+                entity.HasIndex(e => e.ProductCode);
             });
         }
     }

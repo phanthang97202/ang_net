@@ -27,6 +27,7 @@ namespace angnet.Domain.Dtos
 
         public List<TransactionDto> Transactions { get; set; } = new();
         public List<RoomSaleDto> RoomSales { get; set; } = new();
+        public List<DrinkSaleDto> DrinkSales { get; set; } = new();
     }
 
     public class UpdateShiftReportDto : CreateShiftReportDto
@@ -64,6 +65,42 @@ namespace angnet.Domain.Dtos
         public decimal UnitPrice { get; set; }
     }
 
+    public class DrinkSaleDto
+    {
+        public int? Id { get; set; }
+
+        [Required]
+        public string ProductCode { get; set; } = string.Empty;
+
+        [Required]
+        public string ProductName { get; set; } = string.Empty;
+
+        [Required]
+        public string Unit { get; set; } = string.Empty;
+
+        [Required]
+        public int Quantity { get; set; }
+
+        [Required]
+        public decimal UnitPrice { get; set; }
+
+        [Required]
+        public string PaymentMethod { get; set; } = string.Empty; // "Tiền mặt" | "Chuyển khoản"
+    }
+
+    // Ton kho con lai cua 1 san pham: stockIn khai trong tham so he thong,
+    // tru di tong da ban tren toan bo lich su bao cao ca.
+    public class DrinkStockDto
+    {
+        public string ProductCode { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
+        public string Unit { get; set; } = string.Empty;
+        public decimal UnitPrice { get; set; }
+        public int StockIn { get; set; }
+        public int SoldQuantity { get; set; }
+        public int Remaining { get; set; }
+    }
+
     // Response DTO
     public class ShiftReportResponseDto
     {
@@ -82,6 +119,7 @@ namespace angnet.Domain.Dtos
         public DateTime? UpdatedAt { get; set; }
         public List<TransactionDto> Transactions { get; set; }
         public List<RoomSaleDto> RoomSales { get; set; }
+        public List<DrinkSaleDto> DrinkSales { get; set; }
     }
 
     // List/Search response

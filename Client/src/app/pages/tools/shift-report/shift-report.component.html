@@ -434,6 +434,12 @@
             </div>
             <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
               <nz-statistic
+                [nzValue]="formatCurrency(totalDrinkAmount)"
+                [nzTitle]="'Tiền bán nước'"
+                [nzSuffix]="'đ'"></nz-statistic>
+            </div>
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
+              <nz-statistic
                 [nzValue]="formatCurrency(calculateTotals().handoverAmount)"
                 [nzTitle]="'Số tiền bàn giao'"
                 [nzSuffix]="'đ'"
@@ -515,6 +521,99 @@
             style="width: 100%">
             <span nz-icon nzType="plus"></span>
             Thêm phòng
+          </button>
+        </div>
+
+        <!-- Drink Sales Section -->
+        <nz-divider nzText="Bán nước"></nz-divider>
+
+        <div formArrayName="drinkSales">
+          <div class="table-responsive">
+            <nz-table
+              [nzData]="drinkSales.controls"
+              [nzShowPagination]="false"
+              [nzNoResult]="' '"
+              [nzScroll]="{ x: '860px' }"
+              nzSize="small">
+              <thead>
+                <tr>
+                  <th nzWidth="60px" nzLeft>STT</th>
+                  <th nzWidth="220px">Sản phẩm</th>
+                  <th nzWidth="110px">ĐVT</th>
+                  <th nzWidth="130px">Số lượng</th>
+                  <th nzWidth="150px">Đơn giá</th>
+                  <th nzWidth="170px">Thanh toán</th>
+                  <th nzWidth="150px">Thành tiền</th>
+                  <th nzWidth="80px" nzRight>Xóa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let drink of drinkSales.controls; let i = index"
+                  [formGroupName]="i">
+                  <td nzLeft>{{ i + 1 }}</td>
+                  <td>
+                    <nz-select
+                      formControlName="productCode"
+                      (ngModelChange)="onDrinkProductChange(i)"
+                      nzPlaceHolder="Chọn sản phẩm"
+                      style="width: 100%">
+                      <nz-option
+                        *ngFor="let d of drinkStocks"
+                        [nzLabel]="d.ProductName + ' (còn ' + d.Remaining + ' ' + d.Unit + ')'"
+                        [nzValue]="d.ProductCode"></nz-option>
+                    </nz-select>
+                  </td>
+                  <td>{{ drink.value.unit || '-' }}</td>
+                  <td>
+                    <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
+                      formControlName="quantity"
+                      [nzMin]="1"
+                      [nzStep]="1"
+                      style="width: 100%"></nz-input-number>
+                    <div *ngIf="isDrinkOverStock(i)" class="drink-stock-warning">
+                      Chỉ còn {{ getAvailableStock(drink.value.productCode, i) }}
+                    </div>
+                  </td>
+                  <td>
+                    <nz-input-number
+                      (keydown.enter)="$event.preventDefault()"
+                      formControlName="unitPrice"
+                      [nzMin]="0"
+                      [nzStep]="1000"
+                      style="width: 100%"></nz-input-number>
+                  </td>
+                  <td>
+                    <nz-select formControlName="paymentMethod" style="width: 100%">
+                      <nz-option
+                        *ngFor="let m of drinkPaymentMethods"
+                        [nzLabel]="m"
+                        [nzValue]="m"></nz-option>
+                    </nz-select>
+                  </td>
+                  <td>{{ formatCurrency(getDrinkLineTotal(i)) }}</td>
+                  <td nzRight>
+                    <button
+                      nz-button
+                      nzType="text"
+                      nzDanger
+                      (click)="removeDrinkSale(i)">
+                      <span nz-icon nzType="delete"></span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+
+          <button
+            nz-button
+            nzType="dashed"
+            (click)="addDrinkSale()"
+            style="width: 100%">
+            <span nz-icon nzType="plus"></span>
+            Thêm nước
           </button>
         </div>
       </form>

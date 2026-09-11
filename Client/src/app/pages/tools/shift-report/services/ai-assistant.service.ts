@@ -258,6 +258,8 @@ export class AiAssistantService {
         RoomCategory: s.roomCategory,
         UnitPrice: s.unitPrice,
       })),
+      // Trợ lý AI chưa hỗ trợ nhập bán nước - nhập tay trong form.
+      DrinkSales: [],
     };
   }
 

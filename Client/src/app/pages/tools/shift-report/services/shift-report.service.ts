@@ -8,6 +8,7 @@ import {
   ShiftReportListItem,
   ShiftReportQueryParams,
   ShiftReportResponse,
+  DrinkStock,
 } from '../types/shift-report-type';
 
 @Injectable({
@@ -46,6 +47,11 @@ export class ShiftReportService {
         params: httpParams,
       }
     );
+  }
+
+  // Ton kho nuoc con lai = so nhap khai trong tham so he thong tru tong da ban.
+  getDrinkStock(): Observable<DrinkStock[]> {
+    return this.http.get<DrinkStock[]>(`${this.apiUrl}/GetDrinkStock`);
   }
 
   getById(id: number): Observable<ShiftReportResponse> {

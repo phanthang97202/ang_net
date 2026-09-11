@@ -1,14 +1,22 @@
 import { Injectable } from '@angular/core';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { ShiftReportResponse } from './../types/shift-report-type';
+import {
+  DrinkStock,
+  ShiftReportResponse,
+} from './../types/shift-report-type';
 import { format } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExcelExportService {
-  async exportShiftReport(report: ShiftReportResponse): Promise<void> {
+  // drinkStocks dùng cho cột "Tồn kho còn lại" ở bảng bán nước. Không truyền
+  // thì cột đó để trống, phần còn lại của báo cáo vẫn xuất bình thường.
+  async exportShiftReport(
+    report: ShiftReportResponse,
+    drinkStocks: DrinkStock[] = []
+  ): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Báo cáo ca');
 
@@ -352,6 +360,89 @@ export class ExcelExportService {
         row.getCell(9).value = report.ReceiverName || '';
         row.getCell(9).style = signerDataStyle;
       }
+
+      currentRow++;
+    }
+
+    // ========== DRINK SALES SECTION ==========
+    const drinkSales = report.DrinkSales || [];
+    if (drinkSales.length > 0) {
+      currentRow += 2;
+
+      worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+      const drinkTitleCell = worksheet.getCell(`A${currentRow}`);
+      drinkTitleCell.value = 'Bán nước';
+      drinkTitleCell.style = subtitleStyle;
+
+      currentRow += 2;
+
+      const drinkHeaders = [
+        'Sản phẩm',
+        'ĐVT',
+        'SL bán',
+        'Đơn giá',
+        'Thành tiền',
+        'Tồn kho còn lại',
+      ];
+      const drinkHeaderRow = worksheet.getRow(currentRow);
+      drinkHeaders.forEach((title, i) => {
+        const cell = drinkHeaderRow.getCell(i + 1);
+        cell.value = title;
+        cell.style = headerStyle;
+      });
+      currentRow++;
+
+      let drinkTotal = 0;
+      drinkSales.forEach(drink => {
+        const row = worksheet.getRow(currentRow);
+        const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
+        drinkTotal += amount;
+
+        row.getCell(1).value = drink.ProductName;
+        row.getCell(1).style = dataStyle;
+
+        row.getCell(2).value = drink.Unit;
+        row.getCell(2).style = dataStyleCenter;
+
+        row.getCell(3).value = drink.Quantity;
+        row.getCell(3).style = dataStyleCenter;
+
+        row.getCell(4).value = drink.UnitPrice;
+        row.getCell(4).style = numberStyle;
+
+        row.getCell(5).value = amount;
+        row.getCell(5).style = numberStyle;
+
+        // Tồn kho là số hiện tại của cả kho, không phải tồn riêng của ca này.
+        const stock = drinkStocks.find(
+          d => d.ProductCode === drink.ProductCode
+        );
+        const remainingCell = row.getCell(6);
+        if (stock) {
+          remainingCell.value = stock.Remaining;
+          remainingCell.style = dataStyleCenter;
+        } else {
+          remainingCell.value = '';
+          remainingCell.style = dataStyle;
+        }
+
+        currentRow++;
+      });
+
+      const drinkTotalRow = worksheet.getRow(currentRow);
+      drinkTotalRow.getCell(1).value = 'TỔNG TIỀN NƯỚC';
+      drinkTotalRow.getCell(1).style = headerStyle;
+      for (let i = 2; i <= 4; i++) {
+        drinkTotalRow.getCell(i).value = '';
+        drinkTotalRow.getCell(i).style = headerStyle;
+      }
+      drinkTotalRow.getCell(5).value = drinkTotal;
+      drinkTotalRow.getCell(5).style = {
+        ...numberStyle,
+        font: { name: 'Arial', size: 10, bold: true },
+      };
+      drinkTotalRow.getCell(6).value = '';
+      drinkTotalRow.getCell(6).style = headerStyle;
 
       currentRow++;
     }

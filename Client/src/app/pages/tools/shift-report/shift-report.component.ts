@@ -7,6 +7,7 @@ import {
   CreateShiftReportDto,
   ShiftReportListItem,
   ShiftRoomPrice,
+  DrinkStock,
 } from './types/shift-report-type';
 // import { ShiftReportMockService } from './services/shift-report-mock.service';
 import { ExcelExportService } from './services/excel-report.service';
@@ -19,6 +20,16 @@ import {
   SYS_PARAM_CODE,
 } from '../../../services';
 import { format, startOfDay, addDays, setHours, startOfMonth } from 'date-fns';
+
+// Kiểu của 1 dòng trong FormArray drinkSales.
+interface DrinkSaleFormValue {
+  productCode: string;
+  productName: string;
+  unit: string;
+  quantity: number;
+  unitPrice: number;
+  paymentMethod: string;
+}
 
 @Component({
   selector: 'app-shift-report',
@@ -68,6 +79,17 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   // cấu hình -> để trống giá cho người dùng tự nhập.
   private roomPrices: ShiftRoomPrice[] = [];
 
+  // Danh mục nước + tồn kho còn lại, lấy từ API (số nhập khai trong tham số hệ
+  // thống SHIFT_DRINK_STOCK trừ đi tổng đã bán). Rỗng = chưa cấu hình sản phẩm
+  // nào -> bảng bán nước không có gì để chọn.
+  drinkStocks: DrinkStock[] = [];
+  drinkPaymentMethods = ['Tiền mặt', 'Chuyển khoản'];
+
+  // Số lượng nước đã lưu của chính báo cáo đang SỬA, theo mã sản phẩm. Tồn kho
+  // API trả về đã trừ phần này rồi, nên phải cộng ngược lại khi kiểm tra vượt
+  // tồn - đúng như excludeShiftReportId mà backend dùng.
+  private editingDrinkQuantities: Record<string, number> = {};
+
   constructor(
     private fb: FormBuilder,
     private shiftReportService: ShiftReportService, // Đổi từ ShiftReportService -> ShiftReportMockService
@@ -94,6 +116,8 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.roomPrices = Array.isArray(data) ? data : [];
       });
+
+    this.loadDrinkStock();
 
     // Gợi ý lại Giờ bắt đầu/kết thúc mỗi khi đổi Loại ca lúc đang TẠO MỚI - chỉ
     // là gợi ý, người dùng vẫn tự sửa lại được sau đó. Không áp dụng lúc SỬA để
@@ -186,6 +210,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       receiverName: [''],
       transactions: this.fb.array([]),
       roomSales: this.fb.array([]),
+      drinkSales: this.fb.array([]),
     });
   }
 
@@ -195,6 +220,10 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   get roomSales(): FormArray {
     return this.reportForm.get('roomSales') as FormArray;
+  }
+
+  get drinkSales(): FormArray {
+    return this.reportForm.get('drinkSales') as FormArray;
   }
 
   createTransactionForm(): FormGroup {
@@ -269,6 +298,82 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Tồn kho dùng để chặn bán vượt ngay trên UI; backend vẫn validate lại.
+  loadDrinkStock(): void {
+    this.shiftReportService.getDrinkStock().subscribe({
+      next: data => {
+        this.drinkStocks = Array.isArray(data) ? data : [];
+      },
+      error: () => {
+        this.drinkStocks = [];
+      },
+    });
+  }
+
+  createDrinkSaleForm(): FormGroup {
+    return this.fb.group({
+      productCode: ['', Validators.required],
+      productName: [''],
+      unit: [''],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      unitPrice: [null, [Validators.required, Validators.min(0)]],
+      paymentMethod: ['Tiền mặt', Validators.required],
+    });
+  }
+
+  addDrinkSale(): void {
+    this.drinkSales.push(this.createDrinkSaleForm());
+  }
+
+  removeDrinkSale(index: number): void {
+    this.drinkSales.removeAt(index);
+  }
+
+  // Chọn sản phẩm thì tự điền tên/đơn vị/đơn giá theo danh mục. Tên và giá được
+  // lưu lại vào DB như một bản chụp tại thời điểm bán, nên sau này sửa giá
+  // trong tham số hệ thống cũng không làm sai lệch báo cáo cũ.
+  onDrinkProductChange(index: number): void {
+    const group = this.drinkSales.at(index);
+    const product = this.drinkStocks.find(
+      d => d.ProductCode === group.value.productCode
+    );
+    if (!product) return;
+
+    group.patchValue({
+      productName: product.ProductName,
+      unit: product.Unit,
+      unitPrice: product.UnitPrice,
+    });
+  }
+
+  // Tồn còn lại của 1 sản phẩm sau khi trừ những dòng đang nhập trong form
+  // (trừ chính dòng đang xét), để hiển thị và chặn bán vượt.
+  getAvailableStock(productCode: string, exceptIndex = -1): number {
+    const product = this.drinkStocks.find(d => d.ProductCode === productCode);
+    if (!product) return 0;
+
+    const inForm = this.drinkSales.controls.reduce((sum, ctrl, i) => {
+      if (i === exceptIndex) return sum;
+      if (ctrl.value.productCode !== productCode) return sum;
+      return sum + (ctrl.value.quantity || 0);
+    }, 0);
+
+    const alreadySaved = this.editingDrinkQuantities[productCode] || 0;
+    return product.Remaining + alreadySaved - inForm;
+  }
+
+  // Dòng nào bán vượt tồn thì báo đỏ ngay tại chỗ, không đợi tới lúc lưu.
+  isDrinkOverStock(index: number): boolean {
+    const { productCode, quantity } = this.drinkSales.at(index).value;
+    if (!productCode || !quantity) return false;
+    return quantity > this.getAvailableStock(productCode, index);
+  }
+
+  getDrinkLineTotal(index: number): number {
+    const { quantity, unitPrice } = this.drinkSales.at(index).value;
+    return (quantity || 0) * (unitPrice || 0);
+  }
+
   addRoomSale(): void {
     this.roomSales.push(this.createRoomSaleForm());
   }
@@ -277,19 +382,43 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.roomSales.removeAt(index);
   }
 
+  // Tiền bán nước tách theo hình thức thanh toán, cộng thẳng vào tổng tiền
+  // mặt / chuyển khoản đúng như cách backend tính, để số trên màn hình khớp
+  // với số được lưu.
+  private calculateDrinkTotals(): { cash: number; transfer: number } {
+    return this.drinkSales.controls.reduce(
+      (acc, ctrl) => {
+        const amount = (ctrl.value.quantity || 0) * (ctrl.value.unitPrice || 0);
+        if (ctrl.value.paymentMethod === 'Chuyển khoản') acc.transfer += amount;
+        else acc.cash += amount;
+        return acc;
+      },
+      { cash: 0, transfer: 0 }
+    );
+  }
+
+  get totalDrinkAmount(): number {
+    const { cash, transfer } = this.calculateDrinkTotals();
+    return cash + transfer;
+  }
+
   calculateTotals(): {
     totalCash: number;
     totalTransfer: number;
     totalExpense: number;
     handoverAmount: number;
   } {
-    const totalCash = this.transactions.controls.reduce((sum, ctrl) => {
-      return sum + (ctrl.value.cashAmount || 0);
-    }, 0);
+    const drink = this.calculateDrinkTotals();
 
-    const totalTransfer = this.transactions.controls.reduce((sum, ctrl) => {
-      return sum + (ctrl.value.transferAmount || 0);
-    }, 0);
+    const totalCash =
+      this.transactions.controls.reduce((sum, ctrl) => {
+        return sum + (ctrl.value.cashAmount || 0);
+      }, 0) + drink.cash;
+
+    const totalTransfer =
+      this.transactions.controls.reduce((sum, ctrl) => {
+        return sum + (ctrl.value.transferAmount || 0);
+      }, 0) + drink.transfer;
 
     const totalExpense = this.transactions.controls.reduce((sum, ctrl) => {
       return sum + (ctrl.value.expenseAmount || 0);
@@ -318,7 +447,11 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     });
     this.transactions.clear();
     this.roomSales.clear();
+    this.drinkSales.clear();
+    this.editingDrinkQuantities = {};
     this.addTransaction();
+    // Lấy lại tồn kho mới nhất - ca khác có thể vừa bán xong.
+    this.loadDrinkStock();
     this.isModalVisible = true;
   }
 
@@ -378,6 +511,31 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
           );
         });
 
+        this.drinkSales.clear();
+        this.editingDrinkQuantities = {};
+        (report.DrinkSales || []).forEach(drink => {
+          this.editingDrinkQuantities[drink.ProductCode] =
+            (this.editingDrinkQuantities[drink.ProductCode] || 0) +
+            (drink.Quantity || 0);
+          this.drinkSales.push(
+            this.fb.group({
+              productCode: [drink.ProductCode || '', Validators.required],
+              productName: [drink.ProductName || ''],
+              unit: [drink.Unit || ''],
+              quantity: [
+                drink.Quantity || 1,
+                [Validators.required, Validators.min(1)],
+              ],
+              unitPrice: [
+                drink.UnitPrice || null,
+                [Validators.required, Validators.min(0)],
+              ],
+              paymentMethod: [drink.PaymentMethod || 'Tiền mặt', Validators.required],
+            })
+          );
+        });
+
+        this.loadDrinkStock();
         this.isLoading = false;
         this.isModalVisible = true;
       },
@@ -417,6 +575,16 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const overStockIndex = this.drinkSales.controls.findIndex((_, i) =>
+      this.isDrinkOverStock(i)
+    );
+    if (overStockIndex >= 0) {
+      const name =
+        this.drinkSales.at(overStockIndex).value.productName || 'sản phẩm';
+      this.message.warning('Số lượng bán "' + name + '" vượt quá tồn kho');
+      return;
+    }
+
     this.isLoading = true;
     const formValue = this.reportForm.value;
 
@@ -443,6 +611,15 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       }),
 
       RoomSales: formValue.roomSales,
+
+      DrinkSales: formValue.drinkSales.map((d: DrinkSaleFormValue) => ({
+        ProductCode: d.productCode,
+        ProductName: d.productName,
+        Unit: d.unit,
+        Quantity: d.quantity,
+        UnitPrice: d.unitPrice,
+        PaymentMethod: d.paymentMethod,
+      })),
     };
 
     const request = this.editingId
@@ -457,9 +634,12 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
         this.isModalVisible = false;
         this.isLoading = false;
         this.loadReports();
+        this.loadDrinkStock();
       },
       error: error => {
-        this.message.error('Có lỗi xảy ra');
+        // Backend trả 400 kèm lý do cụ thể khi bán vượt tồn kho - hiện đúng
+        // thông báo đó thay vì câu chung chung.
+        this.message.error(error?.error?.message || 'Có lỗi xảy ra');
         this.isLoading = false;
         console.error(error);
       },
@@ -532,7 +712,8 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.shiftReportService.getById(id).subscribe({
       next: report => {
-        this.excelService.exportShiftReport(report);
+        // Truyền tồn kho hiện tại để bảng bán nước có cột "Tồn kho còn lại".
+        this.excelService.exportShiftReport(report, this.drinkStocks);
         this.message.success('Xuất Excel thành công');
         this.isLoading = false;
       },

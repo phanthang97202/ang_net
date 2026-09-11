@@ -40,6 +40,26 @@ namespace angnet.WebApi.Controllers
         }
 
         /// <summary>
+        /// Tồn kho nước còn lại: số nhập khai trong tham số SHIFT_DRINK_STOCK
+        /// trừ đi tổng đã bán trên toàn bộ lịch sử báo cáo ca.
+        /// </summary>
+        [HttpGet("GetDrinkStock")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<DrinkStockDto>>> GetDrinkStock()
+        {
+            try
+            {
+                var result = await _service.GetDrinkStockAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting drink stock");
+                return StatusCode(500, new { message = "An error occurred while retrieving drink stock" });
+            }
+        }
+
+        /// <summary>
         /// Get shift report by ID
         /// </summary>
         [HttpGet("GetById/{id}")]
@@ -77,6 +97,10 @@ namespace angnet.WebApi.Controllers
                 var result = await _service.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating shift report");
@@ -105,6 +129,10 @@ namespace angnet.WebApi.Controllers
             catch (KeyNotFoundException)
             {
                 return NotFound(new { message = $"Shift report with ID {id} not found" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

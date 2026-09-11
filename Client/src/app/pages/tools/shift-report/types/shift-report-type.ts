@@ -27,6 +27,28 @@ export interface ShiftReportRoomSale extends BaseModel {
   UnitPrice: number;
 }
 
+export interface ShiftReportDrinkSale extends BaseModel {
+  Id?: number;
+  ProductCode: string;
+  ProductName: string;
+  Unit: string;
+  Quantity: number;
+  UnitPrice: number;
+  PaymentMethod: string; // 'Tiền mặt' | 'Chuyển khoản'
+}
+
+// Tồn kho 1 sản phẩm nước: StockIn khai trong tham số hệ thống
+// SHIFT_DRINK_STOCK, SoldQuantity là tổng đã bán trên toàn bộ lịch sử.
+export interface DrinkStock {
+  ProductCode: string;
+  ProductName: string;
+  Unit: string;
+  UnitPrice: number;
+  StockIn: number;
+  SoldQuantity: number;
+  Remaining: number;
+}
+
 export interface CreateShiftReportDto extends BaseModel {
   ShiftDate: string;
   ShiftType: string;
@@ -36,6 +58,7 @@ export interface CreateShiftReportDto extends BaseModel {
   ReceiverName?: string;
   Transactions: ShiftReportTransaction[];
   RoomSales: ShiftReportRoomSale[];
+  DrinkSales: ShiftReportDrinkSale[];
 }
 
 export interface ShiftReportResponse {
@@ -54,6 +77,7 @@ export interface ShiftReportResponse {
   UpdatedAt?: string;
   Transactions: ShiftReportTransaction[];
   RoomSales: ShiftReportRoomSale[];
+  DrinkSales: ShiftReportDrinkSale[];
 }
 
 export interface ShiftReportListItem {
