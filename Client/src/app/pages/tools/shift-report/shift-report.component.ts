@@ -1,9 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -69,8 +64,8 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   roomCategories = ['KHÁCH GIỜ', 'KHÁCH ĐÊM', 'KHÁCH NGÀY'];
 
   // Bảng giá phòng lấy từ tham số hệ thống SHIFT_ROOM_PRICES, dùng để tự điền
-  // đơn giá sang bảng "Bán phòng ngày". Rỗng = chưa cấu hình -> vẫn đổ dòng
-  // sang nhưng để trống giá cho người dùng tự nhập.
+  // đơn giá khi nhập số phòng/loại khách ở bảng "Bán phòng ngày". Rỗng = chưa
+  // cấu hình -> để trống giá cho người dùng tự nhập.
   private roomPrices: ShiftRoomPrice[] = [];
 
   constructor(
@@ -82,8 +77,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     private modal: NzModalService,
     private aiAssistantService: AiAssistantService,
     private authService: AuthService,
-    private config: SysParameterConfigService,
-    private cdr: ChangeDetectorRef
+    private config: SysParameterConfigService
   ) {}
 
   ngOnInit(): void {
@@ -236,23 +230,6 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.transactions.controls.forEach((control, i) => {
       control.patchValue({ orderNumber: i + 1 });
     });
-    this.syncRoomSalesFromTransactions();
-  }
-
-  // ── Tự điền bảng "Bán phòng ngày" từ giao dịch trong ca ────────────────
-  // Loại khách kèm "/out" không tính vào bán phòng (theo quy ước nghiệp vụ),
-  // nên trả về null để bỏ qua giao dịch đó.
-  private mapCustomerTypeToRoomCategory(customerType: string): string | null {
-    switch (customerType) {
-      case 'k.ngày':
-        return 'KHÁCH NGÀY';
-      case 'k.đêm':
-        return 'KHÁCH ĐÊM';
-      case 'k.giờ':
-        return 'KHÁCH GIỜ';
-      default:
-        return null;
-    }
   }
 
   // Giá để trống khi phòng chưa khai báo trong SHIFT_ROOM_PRICES - người dùng
@@ -278,39 +255,18 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Dựng lại toàn bộ bảng 2 từ bảng 1. Chạy lại mỗi khi giao dịch đổi số phòng
-  // hoặc loại khách, nên đơn giá đã sửa tay ở bảng 2 sẽ bị tính lại theo bảng
-  // giá - đánh đổi có chủ ý để hành vi luôn đoán được.
-  syncRoomSalesFromTransactions(): void {
-    const rows = this.transactions.controls
-      .map(ctrl => {
-        const { roomNumber, customerType } = ctrl.value;
-        const roomCategory = this.mapCustomerTypeToRoomCategory(customerType);
-        if (!roomNumber || !roomCategory) return null;
-        return {
-          roomNumber: String(roomNumber).trim(),
-          roomCategory,
-          unitPrice: this.lookupUnitPrice(roomNumber, roomCategory),
-        };
-      })
-      .filter((row): row is NonNullable<typeof row> => row !== null);
+  // Tự điền đơn giá ở bảng "Bán phòng ngày" theo bảng giá cấu hình mỗi khi
+  // đổi số phòng hoặc loại khách của chính dòng đó. Không tìm thấy giá cấu
+  // hình thì giữ nguyên giá đang có, tránh xóa mất giá đã tự nhập tay.
+  fillRoomSaleUnitPrice(index: number): void {
+    const group = this.roomSales.at(index);
+    const { roomNumber, roomCategory } = group.value;
+    if (!roomNumber || !roomCategory) return;
 
-    this.roomSales.clear();
-    rows.forEach(row => {
-      this.roomSales.push(
-        this.fb.group({
-          roomNumber: [row.roomNumber, Validators.required],
-          roomCategory: [row.roomCategory, Validators.required],
-          unitPrice: [row.unitPrice, [Validators.required, Validators.min(0)]],
-        })
-      );
-    });
-
-    // nz-table xử lý [nzData] bất đồng bộ qua stream nội bộ: ngay sau khi
-    // FormArray đổi, nzData đã thấy dòng mới nhưng mảng render của bảng vẫn
-    // rỗng nên tbody không hiện gì. Ép Angular chạy thêm 1 vòng phát hiện thay
-    // đổi để bảng kịp dựng lại dòng.
-    this.cdr.detectChanges();
+    const unitPrice = this.lookupUnitPrice(roomNumber, roomCategory);
+    if (unitPrice != null) {
+      group.patchValue({ unitPrice });
+    }
   }
 
   addRoomSale(): void {

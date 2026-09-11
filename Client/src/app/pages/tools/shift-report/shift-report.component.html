@@ -300,7 +300,6 @@
                     <input
                       nz-input
                       (keydown.enter)="$event.preventDefault()"
-                      (blur)="syncRoomSalesFromTransactions()"
                       formControlName="roomNumber"
                       placeholder="Số phòng" />
                   </td>
@@ -314,7 +313,6 @@
                   <td>
                     <nz-select
                       formControlName="customerType"
-                      (ngModelChange)="syncRoomSalesFromTransactions()"
                       style="width: 100%"
                       nzAllowClear
                       placeholder="Loại phòng thuê">
@@ -472,6 +470,7 @@
                   <td>
                     <input
                       (keydown.enter)="$event.preventDefault()"
+                      (blur)="fillRoomSaleUnitPrice(i)"
                       nz-input
                       formControlName="roomNumber"
                       placeholder="Số phòng" />
@@ -479,6 +478,7 @@
                   <td>
                     <nz-select
                       formControlName="roomCategory"
+                      (ngModelChange)="fillRoomSaleUnitPrice(i)"
                       style="width: 100%">
                       <nz-option
                         *ngFor="let cat of roomCategories"
