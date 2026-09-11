@@ -119,4 +119,7 @@ export interface ShiftRoomPrice {
   dayPrice?: number;
   nightPrice?: number;
   hourPrice?: number;
+  // Phụ thu quá giờ (VND/giờ) - áp dụng cho cả nhận phòng sớm lẫn trả phòng
+  // muộn. Dùng ở công cụ "Tối ưu chi phí đặt phòng".
+  extraFee?: number;
 }

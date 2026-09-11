@@ -41,11 +41,13 @@
 
       <div class="mt-4 text-sm text-gray-600">
         Ghi chú: giá hiển thị là <strong>nghìn VND</strong> (ví dụ 230 = 230 000
-        VND).<br />
-        Quy tắc thuê theo giờ: <strong>giá gốc áp dụng cho 2 giờ đầu</strong>.
-        Nếu ở quá 2 giờ thì tính phụ thu theo giờ (mức extra của từng phòng).
-        Phần phút vượt > 10 phút được làm tròn lên 1 giờ.<br />
-        Check-in/Check-out sớm/muộn tính theo extra từng phòng.
+        VND). Bảng giá lấy từ tham số hệ thống <strong>SHIFT_ROOM_PRICES</strong>.<br />
+        Phòng ngày: <strong>14h hôm nay → 12h trưa hôm sau</strong>. Phòng đêm:
+        <strong>21h hôm nay → 12h trưa hôm sau</strong>. Phòng giờ: giá gốc áp
+        dụng cho <strong>2 giờ đầu</strong>.<br />
+        Phụ thu quá giờ áp dụng khi nhận phòng sớm hoặc trả phòng muộn (mức
+        extra của từng phòng). Làm tròn theo mốc 15 phút mỗi nấc giờ: vượt quá
+        15 phút của giờ tròn thì tính thêm 1 giờ.
       </div>
 
       <ng-container *ngIf="results.length">
@@ -81,8 +83,10 @@
       </ng-container>
 
       <div class="text-xs italic text-gray-500" *ngIf="results.length">
-        Ghi chú: Thuật toán so sánh kịch bản “thuê theo giờ (2h + phụ thu giờ
-        phần vượt)”, “thuê theo ngày”, “thuê theo đêm” và bổ sung “đêm→ngày”.
+        Ghi chú: Thuật toán so sánh kịch bản "thuê theo giờ (2h + phụ thu giờ
+        phần vượt)", "thuê theo ngày", "thuê theo đêm" và "đêm + phụ thu/ngày
+        tiếp theo" (tự chọn phụ thu theo giờ hoặc quy đổi thành ngày trọn, tùy
+        cách nào rẻ hơn cho khách), rồi lấy phương án rẻ nhất.
       </div>
     </nz-card>
   </div>
