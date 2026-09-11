@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import {
   CreateShiftReportDto,
   ShiftReportListItem,
@@ -710,10 +710,15 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   exportToExcel(id: number): void {
     this.isLoading = true;
-    this.shiftReportService.getById(id).subscribe({
-      next: report => {
-        // Truyền tồn kho hiện tại để bảng bán nước có cột "Tồn kho còn lại".
-        this.excelService.exportShiftReport(report, this.drinkStocks);
+    // Lấy báo cáo và tồn kho cùng lúc để cột "Còn lại" là số mới nhất, không
+    // phải số đã nạp từ lúc mở trang.
+    forkJoin({
+      report: this.shiftReportService.getById(id),
+      stocks: this.shiftReportService.getDrinkStock(),
+    }).subscribe({
+      next: ({ report, stocks }) => {
+        this.drinkStocks = stocks;
+        this.excelService.exportShiftReport(report, stocks);
         this.message.success('Xuất Excel thành công');
         this.isLoading = false;
       },
@@ -727,9 +732,13 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   printReport(id: number): void {
     this.isLoading = true;
-    this.shiftReportService.getById(id).subscribe({
-      next: report => {
-        this.printService.printShiftReport(report);
+    forkJoin({
+      report: this.shiftReportService.getById(id),
+      stocks: this.shiftReportService.getDrinkStock(),
+    }).subscribe({
+      next: ({ report, stocks }) => {
+        this.drinkStocks = stocks;
+        this.printService.printShiftReport(report, stocks);
         this.message.success('Đang mở cửa sổ in...');
         this.isLoading = false;
       },

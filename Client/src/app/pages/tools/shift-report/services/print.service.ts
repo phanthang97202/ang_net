@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
-import { ShiftReportResponse } from './../types/shift-report-type';
+import {
+  DrinkStock,
+  ShiftReportResponse,
+} from './../types/shift-report-type';
 import { format } from 'date-fns';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PrintService {
-  printShiftReport(report: ShiftReportResponse): void {
+  // drinkStocks dùng cho cột "Còn lại" ở bảng Dịch vụ ngoài.
+  printShiftReport(
+    report: ShiftReportResponse,
+    drinkStocks: DrinkStock[] = []
+  ): void {
     const printWindow = window.open('', '_blank', 'width=1200,height=800');
 
     if (!printWindow) {
@@ -14,7 +21,7 @@ export class PrintService {
       return;
     }
 
-    const htmlContent = this.generatePrintHTML(report);
+    const htmlContent = this.generatePrintHTML(report, drinkStocks);
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
@@ -29,7 +36,10 @@ export class PrintService {
     };
   }
 
-  private generatePrintHTML(report: ShiftReportResponse): string {
+  private generatePrintHTML(
+    report: ShiftReportResponse,
+    drinkStocks: DrinkStock[]
+  ): string {
     const transactions = report.Transactions.map(
       (txn, index) => `
       <tr>
@@ -78,6 +88,39 @@ export class PrintService {
         </tr>
       `;
     }
+
+    // Bảng Dịch vụ ngoài: luôn in kể cả ca không bán gì, để chủ khách sạn và
+    // lễ tân ca sau đều nắm được tình hình tồn kho.
+    const drinkSales = report.DrinkSales || [];
+    const drinkTotal = drinkSales.reduce(
+      (sum, d) => sum + (d.Quantity || 0) * (d.UnitPrice || 0),
+      0
+    );
+
+    const drinkRows =
+      drinkSales.length === 0
+        ? `
+        <tr>
+          <td colspan="5" class="center-cell">Không có dịch vụ nào được bán</td>
+        </tr>
+      `
+        : drinkSales
+            .map(drink => {
+              const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
+              const stock = drinkStocks.find(
+                d => d.ProductCode === drink.ProductCode
+              );
+              return `
+        <tr>
+          <td>${drink.ProductName}</td>
+          <td class="center-cell">${drink.Quantity}</td>
+          <td class="number-cell">${this.formatNumber(drink.UnitPrice)}</td>
+          <td class="number-cell">${this.formatNumber(amount)}</td>
+          <td class="center-cell">${stock ? stock.Remaining : ''}</td>
+        </tr>
+      `;
+            })
+            .join('');
 
     const _stTime = format(new Date(report.StartTime), 'HH:mm').toString();
     const _eTime = format(new Date(report.EndTime), 'HH:mm').toString();
@@ -175,6 +218,16 @@ export class PrintService {
       width: 60%;
     }
     
+    .drink-sales-table {
+      width: 60%;
+      margin-top: 15px;
+    }
+
+    .drink-total-row {
+      background-color: #E7E6E6;
+      font-weight: bold;
+    }
+
     .signature-section {
       width: 35%;
       padding-left: 20px;
@@ -287,6 +340,35 @@ export class PrintService {
           <div class="signature-name">${report.ReceiverName || ''}</div>
         </div>
       </div>
+    </div>
+
+    <!-- Dịch vụ ngoài -->
+    <div class="drink-sales-table">
+      <div class="subtitle" style="text-align: left; margin-bottom: 10px;">
+        Dịch vụ ngoài
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 30%;">Sản phẩm</th>
+            <th style="width: 12%;">SL bán</th>
+            <th style="width: 18%;">Giá</th>
+            <th style="width: 20%;">Thành tiền</th>
+            <th style="width: 20%;">Còn lại</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${drinkRows}
+          <tr class="drink-total-row">
+            <td>TỔNG</td>
+            <td></td>
+            <td></td>
+            <td class="number-cell">${this.formatNumber(drinkTotal)}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </body>

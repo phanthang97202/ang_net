@@ -364,35 +364,41 @@ export class ExcelExportService {
       currentRow++;
     }
 
-    // ========== DRINK SALES SECTION ==========
+    // ========== DICH VU NGOAI SECTION ==========
+    // Luon in bang nay ke ca ca khong ban gi, de chu khach san va le tan ca
+    // sau deu nam duoc tinh hinh ton kho.
     const drinkSales = report.DrinkSales || [];
-    if (drinkSales.length > 0) {
-      currentRow += 2;
+    currentRow += 2;
 
-      worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
-      const drinkTitleCell = worksheet.getCell(`A${currentRow}`);
-      drinkTitleCell.value = 'Bán nước';
-      drinkTitleCell.style = subtitleStyle;
+    worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+    const drinkTitleCell = worksheet.getCell(`A${currentRow}`);
+    drinkTitleCell.value = 'Dịch vụ ngoài';
+    drinkTitleCell.style = subtitleStyle;
 
-      currentRow += 2;
+    currentRow += 2;
 
-      const drinkHeaders = [
-        'Sản phẩm',
-        'ĐVT',
-        'SL bán',
-        'Đơn giá',
-        'Thành tiền',
-        'Tồn kho còn lại',
-      ];
-      const drinkHeaderRow = worksheet.getRow(currentRow);
-      drinkHeaders.forEach((title, i) => {
-        const cell = drinkHeaderRow.getCell(i + 1);
-        cell.value = title;
-        cell.style = headerStyle;
-      });
+    const drinkHeaders = ['Sản phẩm', 'SL bán', 'Giá', 'Thành tiền', 'Còn lại'];
+    const drinkHeaderRow = worksheet.getRow(currentRow);
+    drinkHeaders.forEach((title, i) => {
+      const cell = drinkHeaderRow.getCell(i + 1);
+      cell.value = title;
+      cell.style = headerStyle;
+    });
+    currentRow++;
+
+    let drinkTotal = 0;
+
+    if (drinkSales.length === 0) {
+      // Ca khong ban gi: van in 1 dong trong de bang khong bi cut.
+      const emptyRow = worksheet.getRow(currentRow);
+      emptyRow.getCell(1).value = 'Không có dịch vụ nào được bán';
+      emptyRow.getCell(1).style = dataStyle;
+      for (let i = 2; i <= 5; i++) {
+        emptyRow.getCell(i).value = '';
+        emptyRow.getCell(i).style = dataStyle;
+      }
       currentRow++;
-
-      let drinkTotal = 0;
+    } else {
       drinkSales.forEach(drink => {
         const row = worksheet.getRow(currentRow);
         const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
@@ -401,23 +407,18 @@ export class ExcelExportService {
         row.getCell(1).value = drink.ProductName;
         row.getCell(1).style = dataStyle;
 
-        row.getCell(2).value = drink.Unit;
+        row.getCell(2).value = drink.Quantity;
         row.getCell(2).style = dataStyleCenter;
 
-        row.getCell(3).value = drink.Quantity;
-        row.getCell(3).style = dataStyleCenter;
+        row.getCell(3).value = drink.UnitPrice;
+        row.getCell(3).style = numberStyle;
 
-        row.getCell(4).value = drink.UnitPrice;
+        row.getCell(4).value = amount;
         row.getCell(4).style = numberStyle;
 
-        row.getCell(5).value = amount;
-        row.getCell(5).style = numberStyle;
-
-        // Tồn kho là số hiện tại của cả kho, không phải tồn riêng của ca này.
-        const stock = drinkStocks.find(
-          d => d.ProductCode === drink.ProductCode
-        );
-        const remainingCell = row.getCell(6);
+        // Ton kho la so hien tai cua ca kho, khong phai ton rieng cua ca nay.
+        const stock = drinkStocks.find(d => d.ProductCode === drink.ProductCode);
+        const remainingCell = row.getCell(5);
         if (stock) {
           remainingCell.value = stock.Remaining;
           remainingCell.style = dataStyleCenter;
@@ -428,24 +429,24 @@ export class ExcelExportService {
 
         currentRow++;
       });
-
-      const drinkTotalRow = worksheet.getRow(currentRow);
-      drinkTotalRow.getCell(1).value = 'TỔNG TIỀN NƯỚC';
-      drinkTotalRow.getCell(1).style = headerStyle;
-      for (let i = 2; i <= 4; i++) {
-        drinkTotalRow.getCell(i).value = '';
-        drinkTotalRow.getCell(i).style = headerStyle;
-      }
-      drinkTotalRow.getCell(5).value = drinkTotal;
-      drinkTotalRow.getCell(5).style = {
-        ...numberStyle,
-        font: { name: 'Arial', size: 10, bold: true },
-      };
-      drinkTotalRow.getCell(6).value = '';
-      drinkTotalRow.getCell(6).style = headerStyle;
-
-      currentRow++;
     }
+
+    const drinkTotalRow = worksheet.getRow(currentRow);
+    drinkTotalRow.getCell(1).value = 'TỔNG';
+    drinkTotalRow.getCell(1).style = headerStyle;
+    drinkTotalRow.getCell(2).value = '';
+    drinkTotalRow.getCell(2).style = headerStyle;
+    drinkTotalRow.getCell(3).value = '';
+    drinkTotalRow.getCell(3).style = headerStyle;
+    drinkTotalRow.getCell(4).value = drinkTotal;
+    drinkTotalRow.getCell(4).style = {
+      ...numberStyle,
+      font: { name: 'Arial', size: 10, bold: true },
+    };
+    drinkTotalRow.getCell(5).value = '';
+    drinkTotalRow.getCell(5).style = headerStyle;
+
+    currentRow++;
 
     // ========== EXPORT FILE ==========
     const buffer = await workbook.xlsx.writeBuffer();
