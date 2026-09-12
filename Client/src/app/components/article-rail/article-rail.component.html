@@ -1,0 +1,51 @@
+<div class="rail">
+  <!-- Mục lục: ẩn hẳn khi bài không có heading nào thay vì hiện nút mở ra panel
+       trống. Panel do app-news-toc-list vẽ, ở đây chỉ bật/tắt qua service. -->
+  <button
+    *ngIf="tocPanel.hasItems$ | async"
+    type="button"
+    class="rail-btn"
+    [class.is-active]="tocPanel.isOpen$ | async"
+    [attr.aria-label]="'T_MUCLUC' | translate"
+    [attr.aria-pressed]="tocPanel.isOpen$ | async"
+    (click)="tocPanel.toggle()">
+    <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+    <span class="rail-tip">{{ 'T_MUCLUC' | translate }}</span>
+  </button>
+
+  <button
+    type="button"
+    class="rail-btn"
+    [attr.aria-label]="'T_COMMENTS' | translate"
+    (click)="scrollToComments()">
+    <span nz-icon nzType="message" nzTheme="outline"></span>
+    <span class="rail-count">{{ commentCount }}</span>
+    <span class="rail-tip">{{ 'T_COMMENTS' | translate }}</span>
+  </button>
+
+  <button
+    type="button"
+    class="rail-btn"
+    [class.is-active]="isCopied"
+    [attr.aria-label]="'T_COPYLINK' | translate"
+    (click)="copyLink()">
+    <span
+      nz-icon
+      [nzType]="isCopied ? 'check' : 'link'"
+      nzTheme="outline"></span>
+    <span class="rail-tip">
+      {{ (isCopied ? 'T_LINKCOPIED' : 'T_COPYLINK') | translate }}
+    </span>
+  </button>
+
+  <!-- Chỉ hiện khi đã cuộn đủ xa: ở đầu bài thì nút này không có việc gì làm. -->
+  <button
+    *ngIf="showBackToTop"
+    type="button"
+    class="rail-btn"
+    [attr.aria-label]="'T_BACKTOTOP' | translate"
+    (click)="scrollToTop()">
+    <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+    <span class="rail-tip">{{ 'T_BACKTOTOP' | translate }}</span>
+  </button>
+</div>

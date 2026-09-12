@@ -3,9 +3,13 @@ import {
   Input,
   OnInit,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
+  inject,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { AntdModule } from '../../modules';
+import { TocPanelService } from '../../services';
 
 interface TocItem {
   id: string;
@@ -17,17 +21,21 @@ interface TocItem {
 @Component({
   selector: 'app-news-toc-list',
   standalone: true,
-  imports: [AntdModule],
+  imports: [CommonModule, AntdModule],
   templateUrl: './news-toc-list.component.html',
   styleUrl: './news-toc-list.component.scss',
 })
-export class NewsTocListComponent implements OnInit, OnChanges {
+export class NewsTocListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() content = '';
   @Input() containerId = 'content-container';
 
   tocItems: TocItem[] = [];
   activeId = '';
-  isOpen = false;
+
+  // Trạng thái mở nằm ở service vì nút bấm chính đã chuyển sang thanh công cụ
+  // bên trái bài viết - component này chỉ còn lo phần panel và nút dự phòng cho
+  // màn hình hẹp (thanh công cụ bị ẩn ở đó).
+  tocPanel = inject(TocPanelService);
 
   ngOnInit() {
     this.generateToc();
@@ -67,6 +75,16 @@ export class NewsTocListComponent implements OnInit, OnChanges {
         element: heading as HTMLElement,
       });
     });
+
+    this.tocPanel.setHasItems(this.tocItems.length > 0);
+  }
+
+  // Service là singleton ở gốc ứng dụng nên trạng thái sống lâu hơn component:
+  // rời bài viết lúc panel đang mở, không dọn thì sang bài sau thanh công cụ vẫn
+  // tưởng panel đang mở và bài không có mục lục vẫn thấy nút.
+  ngOnDestroy() {
+    this.tocPanel.close();
+    this.tocPanel.setHasItems(false);
   }
 
   generateId(text: string, index: number): string {
@@ -98,11 +116,11 @@ export class NewsTocListComponent implements OnInit, OnChanges {
   }
 
   toggleOpen() {
-    this.isOpen = !this.isOpen;
+    this.tocPanel.toggle();
   }
 
   close() {
-    this.isOpen = false;
+    this.tocPanel.close();
   }
 
   onItemClick(id: string) {

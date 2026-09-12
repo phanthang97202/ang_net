@@ -1,0 +1,104 @@
+// Sticky phải đặt ở ĐÂY chứ không phải trên .rail bên trong.
+//
+// Phần tử sticky chỉ trượt được trong phạm vi cha nó, mà host của component này
+// cao đúng bằng nội dung (~200px) - để sticky trên .rail thì nó dính trong cái
+// hộp 200px đó rồi cuộn đi mất cùng trang. Đặt trên host thì cha là .news__rail,
+// vốn là flex item được stretch cao hết bài viết, nên có chỗ để trượt.
+// Cột phải cùng trang cũng làm đúng vậy: <app-aside-news class="sticky ...">.
+//
+// 46.8px là chiều cao navbar dính ở đỉnh - cùng mốc với cột phải để hai bên bắt
+// đầu dính cùng lúc.
+:host {
+  display: block;
+  position: sticky;
+  top: 46.8px;
+  // Nổi trên lớp phủ mờ của panel mục lục (z-index 190) nhưng vẫn dưới chính
+  // panel (200): mở mục lục xong thanh công cụ không bị lớp phủ làm mờ, và bấm
+  // lại đúng cái nút vừa bấm để đóng. Không đụng navbar - thanh này dính ở
+  // 46.8px, tức ngay dưới navbar, hai bên không chồng lên nhau.
+  z-index: 195;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding-top: 1rem;
+}
+
+// Nút tròn mờ, chỉ rõ màu khi hover - cùng ngôn ngữ với .topics-nav-btn của
+// thanh chọn chủ đề và .navbar-icon-btn, chứ không phải nút đặc màu nổi bật.
+.rail-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  width: 46px;
+  min-height: 46px;
+  padding: 0.35rem 0;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+  }
+
+  // Dùng cho mục lục đang mở và nút chép link vừa bấm xong.
+  &.is-active {
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+  }
+}
+
+.rail-count {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+// Nhãn chữ hiện khi rê chuột. Không dùng nz-tooltip: tooltip của NG-ZORRO render
+// qua CDK overlay ra thẳng <body>, phải override màu riêng mới theo được theme
+// (xem phần dark mode trong styles.scss), trong khi ở đây chỉ cần một cái nhãn.
+.rail-tip {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  background: var(--color-text);
+  color: var(--color-bg-card);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+  z-index: 5;
+
+  .rail-btn:hover &,
+  .rail-btn:focus-visible & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Máy cảm ứng không có hover thật: hoặc nhãn không bao giờ hiện, hoặc hiện rồi
+// dính lại sau khi chạm. Bỏ hẳn - ở đó đã có aria-label cho trình đọc màn hình.
+@media (hover: none) {
+  .rail-tip {
+    display: none;
+  }
+}

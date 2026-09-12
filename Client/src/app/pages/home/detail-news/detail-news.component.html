@@ -1,118 +1,128 @@
 <div class="news__container">
-  <div class="news__content">
-    <!-- Skeleton nằm trong đúng cột trái và mượn luôn .detail-card/.detail-body
-         của bài viết thật, nên khung lúc chờ trùng khít với khung lúc có dữ
-         liệu. Gói trong một *ngIf duy nhất để ảnh và các dòng chữ luôn hiện tắt
-         cùng lúc. -->
-    <div
-      *ngIf="isLoading"
-      class="detail-card"
-      aria-hidden="true">
-      <nz-skeleton-element
-        nzType="image"
-        [nzActive]="true"
-        class="detail__news-skeleton"></nz-skeleton-element>
-      <div class="detail-body">
-        <nz-skeleton
-          [nzActive]="true"
-          [nzTitle]="{ width: '60%' }"
-          [nzParagraph]="{ rows: 6 }">
-        </nz-skeleton>
-      </div>
+  <!-- Thanh công cụ dính bên trái bài viết. Nằm ngoài .news__content để nó dính
+       theo cả chiều dài bài chứ không bị cuốn theo nội dung. -->
+  <div class="news__main">
+    <div class="news__rail">
+      <app-article-rail [commentCount]="commentCount"></app-article-rail>
     </div>
 
-    <article
-      *ngIf="!isLoading"
-      class="detail-card">
-      <div class="detail-thumb">
-        <img
-          [src]="slides[activeSlide]"
-          [alt]="detailNews.ShortTitle" />
+    <div class="news__content">
+      <!-- Skeleton nằm trong đúng cột trái và mượn luôn .detail-card/.detail-body
+           của bài viết thật, nên khung lúc chờ trùng khít với khung lúc có dữ
+           liệu. Gói trong một *ngIf duy nhất để ảnh và các dòng chữ luôn hiện tắt
+           cùng lúc. -->
+      <div
+        *ngIf="isLoading"
+        class="detail-card"
+        aria-hidden="true">
+        <nz-skeleton-element
+          nzType="image"
+          [nzActive]="true"
+          class="detail__news-skeleton"></nz-skeleton-element>
+        <div class="detail-body">
+          <nz-skeleton
+            [nzActive]="true"
+            [nzTitle]="{ width: '60%' }"
+            [nzParagraph]="{ rows: 6 }">
+          </nz-skeleton>
+        </div>
+      </div>
 
-        <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
-             để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
-             của khối, các nút mũi tên/badge phía sau được z-index kéo lên trên
-             nên vẫn bấm đúng chức năng của chúng. -->
-        <button
-          type="button"
-          class="detail-thumb-zoom"
-          [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
-          (click)="openPreview()">
-          <span class="detail-thumb-zoom-icon" nz-icon nzType="fullscreen"></span>
-        </button>
+      <article
+        *ngIf="!isLoading"
+        class="detail-card">
+        <div class="detail-thumb">
+          <img
+            [src]="slides[activeSlide]"
+            [alt]="detailNews.ShortTitle" />
 
-        <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
-             điều khiển để khối ảnh trông y như trước. -->
-        <ng-container *ngIf="slides.length > 1">
+          <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
+               để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
+               của khối, các nút mũi tên/badge phía sau được z-index kéo lên trên
+               nên vẫn bấm đúng chức năng của chúng. -->
           <button
             type="button"
-            class="detail-slide-nav detail-slide-nav--prev"
-            aria-label="Ảnh trước"
-            (click)="prevSlide()">
-            <span nz-icon nzType="left" nzTheme="outline"></span>
+            class="detail-thumb-zoom"
+            [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
+            (click)="openPreview()">
+            <span class="detail-thumb-zoom-icon" nz-icon nzType="fullscreen"></span>
           </button>
-          <button
-            type="button"
-            class="detail-slide-nav detail-slide-nav--next"
-            aria-label="Ảnh tiếp theo"
-            (click)="nextSlide()">
-            <span nz-icon nzType="right" nzTheme="outline"></span>
-          </button>
-          <span class="detail-slide-counter">
-            {{ activeSlide + 1 }}/{{ slides.length }}
+
+          <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
+               điều khiển để khối ảnh trông y như trước. -->
+          <ng-container *ngIf="slides.length > 1">
+            <button
+              type="button"
+              class="detail-slide-nav detail-slide-nav--prev"
+              aria-label="Ảnh trước"
+              (click)="prevSlide()">
+              <span nz-icon nzType="left" nzTheme="outline"></span>
+            </button>
+            <button
+              type="button"
+              class="detail-slide-nav detail-slide-nav--next"
+              aria-label="Ảnh tiếp theo"
+              (click)="nextSlide()">
+              <span nz-icon nzType="right" nzTheme="outline"></span>
+            </button>
+            <span class="detail-slide-counter">
+              {{ activeSlide + 1 }}/{{ slides.length }}
+            </span>
+          </ng-container>
+
+          <div class="detail-badges">
+            <span *ngIf="detailNews.CategoryNewsName" class="detail-badge">{{
+              detailNews.CategoryNewsName
+            }}</span>
+          </div>
+          <span class="detail-readtime">
+            {{ detailNews.EstimatedReadingTime }} Min Read
           </span>
-        </ng-container>
-
-        <div class="detail-badges">
-          <span *ngIf="detailNews.CategoryNewsName" class="detail-badge">{{
-            detailNews.CategoryNewsName
-          }}</span>
-        </div>
-        <span class="detail-readtime">
-          {{ detailNews.EstimatedReadingTime }} Min Read
-        </span>
-      </div>
-
-      <div class="detail-body">
-        <h1 class="detail-title">{{ detailNews.ShortTitle }}</h1>
-
-        <p class="detail-meta">
-          <span class="detail-author">{{ detailNews.FullName }}</span>
-          on {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
-          <span class="detail-meta-sep">—</span>
-          {{ detailNews.EstimatedReadingTime }} mins read
-          <span class="detail-meta-sep">—</span>
-          <span nz-icon nzType="eye" nzTheme="outline"></span>
-          {{ detailNews.ViewCount }}
-        </p>
-
-        <div
-          class="detail-hashtags"
-          *ngIf="
-            detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
-          ">
-          <span
-            *ngFor="let ht of detailNews.LstHashTagNews"
-            class="detail-hashtag"
-            >{{ ht.HashTagNewsName }}</span
-          >
         </div>
 
-        <div class="detail-content">
-          <app-news-content
-            [content]="detailNews.ContentBody"
-            [showToc]="true">
-          </app-news-content>
-        </div>
-      </div>
-    </article>
+        <div class="detail-body">
+          <h1 class="detail-title">{{ detailNews.ShortTitle }}</h1>
 
-    <!-- Khối bình luận cần NewsId của bài, mà detailNews chỉ có sau khi API trả
-         về - render sớm hơn thì binding đọc thuộc tính trên undefined và ném
-         lỗi ngay giữa change detection. -->
-    <app-news-comments
-      *ngIf="!isLoading"
-      [newsId]="detailNews.NewsId" />
+          <p class="detail-meta">
+            <span class="detail-author">{{ detailNews.FullName }}</span>
+            on {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+            <span class="detail-meta-sep">—</span>
+            {{ detailNews.EstimatedReadingTime }} mins read
+            <span class="detail-meta-sep">—</span>
+            <span nz-icon nzType="eye" nzTheme="outline"></span>
+            {{ detailNews.ViewCount }}
+          </p>
+
+          <div
+            class="detail-hashtags"
+            *ngIf="
+              detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
+            ">
+            <span
+              *ngFor="let ht of detailNews.LstHashTagNews"
+              class="detail-hashtag"
+              >{{ ht.HashTagNewsName }}</span
+            >
+          </div>
+
+          <div class="detail-content">
+            <app-news-content
+              [content]="detailNews.ContentBody"
+              [showToc]="true">
+            </app-news-content>
+          </div>
+        </div>
+      </article>
+
+      <!-- Khối bình luận cần NewsId của bài, mà detailNews chỉ có sau khi API trả
+           về - render sớm hơn thì binding đọc thuộc tính trên undefined và ném
+           lỗi ngay giữa change detection. -->
+      <app-news-comments
+        *ngIf="!isLoading"
+        id="news-comments"
+        [newsId]="detailNews.NewsId"
+        (totalCountChange)="commentCount = $event" />
+    </div>
   </div>
 
   <div class="news__aside">

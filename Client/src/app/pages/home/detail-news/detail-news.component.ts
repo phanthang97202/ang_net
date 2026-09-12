@@ -34,6 +34,11 @@ export class DetailNewsComponent implements OnInit {
   // app và cũng là thứ bật spinner che kín màn hình, nên skeleton ở đây vừa bị
   // trùng với spinner vừa bật tắt theo request của component khác.
   isLoading = true;
+
+  // Số bình luận do app-news-comments đếm (gồm cả trả lời lồng nhau), chuyển
+  // sang thanh công cụ bên trái để hiện cạnh icon bình luận.
+  commentCount = 0;
+
   private imageService = inject(NzImageService);
   private destroyRef = inject(DestroyRef);
 

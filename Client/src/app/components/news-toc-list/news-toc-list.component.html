@@ -1,19 +1,28 @@
+<!-- Nút dự phòng cho màn hình hẹp: ở đó thanh công cụ bên trái bài viết bị ẩn
+     (không đủ bề ngang), nên vẫn cần một lối mở mục lục. Desktop ẩn nút này đi,
+     việc mở/đóng do thanh công cụ lo. -->
 <button
   type="button"
   class="toc-toggle-btn"
   *ngIf="tocItems.length > 0"
-  [class.is-open]="isOpen"
+  [class.is-open]="tocPanel.isOpen$ | async"
   (click)="toggleOpen()"
   [attr.aria-label]="'T_MUCLUC' | translate">
   <span
     nz-icon
-    [nzType]="isOpen ? 'close' : 'unordered-list'"
+    [nzType]="(tocPanel.isOpen$ | async) ? 'close' : 'unordered-list'"
     nzTheme="outline"></span>
 </button>
 
-<div class="toc-backdrop" *ngIf="isOpen" (click)="close()"></div>
+<div
+  class="toc-backdrop"
+  *ngIf="tocPanel.isOpen$ | async"
+  (click)="close()"></div>
 
-<aside class="toc-panel" *ngIf="tocItems.length > 0" [class.is-open]="isOpen">
+<aside
+  class="toc-panel"
+  *ngIf="tocItems.length > 0"
+  [class.is-open]="tocPanel.isOpen$ | async">
   <h3 class="toc-title">{{ 'T_MUCLUC' | translate }}</h3>
   <div class="toc-scroll">
     <ul class="toc-list">

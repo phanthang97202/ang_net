@@ -2,8 +2,24 @@
     display: flex;
     gap: 70px;
 
-    .news__content {
+    // Thanh công cụ và bài viết dùng chung đúng cột 60% mà .news__content chiếm
+    // trước đây: cho thanh công cụ thành cột thứ ba của hàng thì cột phải bị hụt
+    // mất ngần ấy bề ngang, trong khi chỉ bài viết nên hẹp đi.
+    .news__main {
+        display: flex;
+        gap: 24px;
         width: 60%;
+    }
+
+    .news__rail {
+        flex: 0 0 46px;
+    }
+
+    .news__content {
+        flex: 1;
+        // Không có dòng này thì khối code/bảng rộng trong bài đẩy cột phình ra
+        // quá phần chia của nó - mặc định min-width của flex item là auto.
+        min-width: 0;
     }
 
     .news__aside {
@@ -16,13 +32,19 @@
         flex-direction: column;
         gap: 0;
 
-        >.news__content {
+        >.news__main {
             width: 100%;
         }
 
         >.news__aside {
             width: 100%;
         }
+    }
+
+    // Không đủ bề ngang cho một cột riêng. Ở khổ này việc mở mục lục do tab nổi
+    // ở rìa trái của app-news-toc-list lo (nó chỉ hiện dưới 769px).
+    .news__rail {
+        display: none;
     }
 }
 

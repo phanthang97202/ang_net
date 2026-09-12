@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -34,13 +41,27 @@ import { NewsCommentReportModalComponent } from './news-comment-report-modal.com
 export class NewsCommentsComponent implements OnInit {
   @Input({ required: true }) newsId!: string;
 
+  // Thanh công cụ bên trái bài viết hiện số bình luận. Dùng cặp getter/setter
+  // thay vì phát sự kiện ở từng chỗ gán: totalCount được gán ở nhiều nhánh
+  // (tải trang, tải thêm, vừa gửi trả lời), đi qua setter thì không sót chỗ nào.
+  @Output() totalCountChange = new EventEmitter<number>();
+
   private api = inject(ApiService);
   private authService = inject(AuthService);
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
 
   comments: INewsCommentDto[] = [];
-  totalCount = 0;
+  private _totalCount = 0;
+
+  get totalCount(): number {
+    return this._totalCount;
+  }
+
+  set totalCount(value: number) {
+    this._totalCount = value;
+    this.totalCountChange.emit(value);
+  }
   sort: ENewsCommentSort = 'Popular';
   isLoading = false;
   isSending = false;

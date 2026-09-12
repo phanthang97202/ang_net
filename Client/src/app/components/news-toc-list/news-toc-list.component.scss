@@ -191,3 +191,25 @@ $color-accent-bg: var(--color-accent-bg);
         width: 260px;
     }
 }
+
+// ── Từ 769px: thanh công cụ bên trái bài viết tiếp quản ──
+// Khối này phải nằm cuối file, sau các rule gốc của .toc-toggle-btn/.toc-panel:
+// media query không làm tăng độ ưu tiên, đặt lên trên thì chính rule gốc bên
+// dưới ghi đè ngược lại.
+@media (min-width: 769px) {
+    // app-article-rail đã có nút mục lục, giữ thêm tab nổi ở rìa màn hình là hai
+    // nút cùng làm một việc. Mốc 769px khớp với mốc mà .news__container xếp dọc
+    // lại và thanh công cụ bị ẩn.
+    .toc-toggle-btn {
+        display: none;
+    }
+
+    // Đẩy panel sang phải thanh công cụ thay vì bám rìa màn hình như trước: nút
+    // mở giờ nằm trong thanh đó, panel rộng 280px mở ở left:40px sẽ phủ lên đúng
+    // cái nút vừa bấm và không bấm lại để đóng được.
+    // 4% là lề ngang của layout 'user' (xem app.component.html), 46px là bề ngang
+    // thanh công cụ, 12px là khoảng hở.
+    .toc-panel {
+        left: calc(4% + 46px + 12px);
+    }
+}
