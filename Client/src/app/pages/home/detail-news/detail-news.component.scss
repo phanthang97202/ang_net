@@ -1,6 +1,12 @@
 .news__container {
     display: flex;
     gap: 70px;
+    // Chừa khoảng thở với navbar dính ở đỉnh - trước đây nội dung dính sát
+    // 0px vào navbar. Dùng padding chứ không margin: :host của trang này
+    // không khai display:block riêng (mặc định display:inline của custom
+    // element), margin-top đặt ở đây có thể bị collapse lên cha, còn padding
+    // thì luôn chắc chắn tạo khoảng trống thật.
+    padding-top: 10px;
 
     // Thanh công cụ và bài viết dùng chung đúng cột 60% mà .news__content chiếm
     // trước đây: cho thanh công cụ thành cột thứ ba của hàng thì cột phải bị hụt

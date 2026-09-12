@@ -40,17 +40,16 @@
 // Mượn nguyên hai kiểu pill đã có sẵn trên trang: trạng thái thường giống
 // .topic-card (viền mảnh + nền card), trạng thái đang chọn giống .topics-badge
 // (nền accent nhạt + chữ accent).
+// KHÔNG chừa padding-top 24px như .post-list-heading ở trên, dù cùng là khối
+// đầu cột. Lý do: .post-list-heading là chữ thuần, không có nền, nên mắt căn
+// chữ-với-chữ - chừa đúng 24px để chữ nó thẳng hàng với chữ "GIỚI THIỆU" nằm
+// trong card sidebar (card đó padding 24px). Còn pill ở đây CÓ nền và viền
+// riêng, mắt căn theo mép hộp chứ không theo chữ bên trong: chừa 24px làm mép
+// pill tụt xuống đúng 24px so với mép trên card sidebar, thành lệch hẳn.
 .post-list-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  // Khi không có tiêu đề lọc (trang chủ), đây là khối đầu cột nên phải chừa
-  // đúng 24px như .post-list-heading để thẳng hàng với card bên sidebar.
-  padding-top: 1.5rem;
-}
-
-.post-list-heading + .post-list-tabs {
-  padding-top: 0;
 }
 
 .post-list-tab {
