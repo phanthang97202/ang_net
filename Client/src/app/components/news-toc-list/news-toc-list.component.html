@@ -1,19 +1,3 @@
-<!-- Nút dự phòng cho màn hình hẹp: ở đó thanh công cụ bên trái bài viết bị ẩn
-     (không đủ bề ngang), nên vẫn cần một lối mở mục lục. Desktop ẩn nút này đi,
-     việc mở/đóng do thanh công cụ lo. -->
-<button
-  type="button"
-  class="toc-toggle-btn"
-  *ngIf="tocItems.length > 0"
-  [class.is-open]="tocPanel.isOpen$ | async"
-  (click)="toggleOpen()"
-  [attr.aria-label]="'T_MUCLUC' | translate">
-  <span
-    nz-icon
-    [nzType]="(tocPanel.isOpen$ | async) ? 'close' : 'unordered-list'"
-    nzTheme="outline"></span>
-</button>
-
 <div
   class="toc-backdrop"
   *ngIf="tocPanel.isOpen$ | async"

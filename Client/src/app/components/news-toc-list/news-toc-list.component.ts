@@ -32,9 +32,9 @@ export class NewsTocListComponent implements OnInit, OnChanges, OnDestroy {
   tocItems: TocItem[] = [];
   activeId = '';
 
-  // Trạng thái mở nằm ở service vì nút bấm chính đã chuyển sang thanh công cụ
-  // bên trái bài viết - component này chỉ còn lo phần panel và nút dự phòng cho
-  // màn hình hẹp (thanh công cụ bị ẩn ở đó).
+  // Trạng thái mở nằm ở service vì nút bấm nằm ở app-article-rail (thanh công
+  // cụ bên trái bài viết trên desktop, thanh ngang dính đáy trên mobile) -
+  // component này chỉ còn lo phần panel.
   tocPanel = inject(TocPanelService);
 
   ngOnInit() {
@@ -113,10 +113,6 @@ export class NewsTocListComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     }, 50);
-  }
-
-  toggleOpen() {
-    this.tocPanel.toggle();
   }
 
   close() {

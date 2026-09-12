@@ -3,38 +3,6 @@ $color-dark: var(--color-text);
 $color-muted: var(--color-text-muted);
 $color-accent-bg: var(--color-accent-bg);
 
-// ── Nút tab dính ở rìa trái màn hình ────────────────────
-.toc-toggle-btn {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    z-index: 210;
-    width: 40px;
-    height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: $color-accent;
-    color: #fff;
-    border: none;
-    border-radius: 0 12px 12px 0;
-    cursor: pointer;
-    font-size: 16px;
-    box-shadow: 2px 4px 16px rgba(20, 15, 60, 0.18);
-    transition: background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
-
-    &:hover {
-        opacity: 0.88;
-    }
-
-    // Nền tối cố định khi mở panel, không dùng $color-dark (biến này theo
-    // theme, sẽ hoá sáng ở dark mode và làm mất tương phản với icon trắng).
-    &.is-open {
-        background: #2a2a3a;
-    }
-}
-
 // ── Lớp phủ mờ khi mở mục lục ────────────────────────────
 .toc-backdrop {
     position: fixed;
@@ -180,32 +148,36 @@ $color-accent-bg: var(--color-accent-bg);
     font-size: 0.85em;
 }
 
+// ── Dưới 769px: app-article-rail là thanh ngang dính đáy, panel mở lên thành
+// bottom sheet thay vì trồi từ cạnh trái - hợp với hướng thanh hơn, và không
+// còn chỗ nào ở giữa màn hình để canh giữa theo chiều dọc như bản desktop.
+// Phải nằm SAU rule gốc của .toc-panel (media query không tăng độ ưu tiên),
+// và ghi đè cả top/left/transform lẫn transform lúc mở, vì bản gốc gộp chung
+// việc canh giữa dọc với hiệu ứng trượt ngang trong cùng một thuộc tính.
 @media (max-width: 768px) {
-    .toc-toggle-btn {
-        width: 36px;
-        height: 56px;
-    }
-
     .toc-panel {
-        left: 36px;
-        width: 260px;
+        top: auto;
+        left: 12px;
+        right: 12px;
+        // Cùng khoảng hở với padding-bottom của .news__container (xem
+        // detail-news.component.scss) để panel không đè lên thanh công cụ.
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        transform: translateY(16px);
+
+        &.is-open {
+            transform: translateY(0);
+        }
     }
 }
 
-// ── Từ 769px: thanh công cụ bên trái bài viết tiếp quản ──
-// Khối này phải nằm cuối file, sau các rule gốc của .toc-toggle-btn/.toc-panel:
-// media query không làm tăng độ ưu tiên, đặt lên trên thì chính rule gốc bên
-// dưới ghi đè ngược lại.
+// ── Từ 769px: panel mở bên cạnh thanh công cụ dọc ────────
+// Phải nằm SAU rule gốc của .toc-panel, cùng lý do trên.
 @media (min-width: 769px) {
-    // app-article-rail đã có nút mục lục, giữ thêm tab nổi ở rìa màn hình là hai
-    // nút cùng làm một việc. Mốc 769px khớp với mốc mà .news__container xếp dọc
-    // lại và thanh công cụ bị ẩn.
-    .toc-toggle-btn {
-        display: none;
-    }
-
     // Đẩy panel sang phải thanh công cụ thay vì bám rìa màn hình như trước: nút
-    // mở giờ nằm trong thanh đó, panel rộng 280px mở ở left:40px sẽ phủ lên đúng
+    // mở nằm trong thanh đó, panel rộng 280px mở ở left:40px sẽ phủ lên đúng
     // cái nút vừa bấm và không bấm lại để đóng được.
     // 4% là lề ngang của layout 'user' (xem app.component.html), 46px là bề ngang
     // thanh công cụ, 12px là khoảng hở.

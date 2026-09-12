@@ -102,3 +102,45 @@
     display: none;
   }
 }
+
+// ── Dưới 769px: thanh ngang dính đáy màn hình ────────────────────────
+// Cột dọc bên trái ăn mất bề ngang đọc vốn đã hẹp trên di động, và mép trái
+// khó bấm bằng ngón cái. Thanh ngang dính đáy là pattern chuẩn của mọi app đọc
+// trên di động (Medium, dev.to...) - nằm trong tầm ngón cái, không đụng cột
+// nội dung. Bốn nút y hệt desktop, chỉ đổi hướng xếp từ dọc sang ngang nên
+// template không cần đổi gì.
+//
+// Phải nằm cuối file, sau rule gốc của :host: media query không tăng độ ưu
+// tiên, đặt lên trên thì rule gốc bên dưới ghi đè ngược lại (đã vấp lỗi này
+// một lần với .toc-panel, xem news-toc-list.component.scss).
+@media (max-width: 768px) {
+  :host {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    // Cùng chất liệu với navbar: nền trong mờ + backdrop-filter, để thanh
+    // không cắt cứng khỏi nội dung cuộn ngay bên dưới nó.
+    background: var(--color-bg-nav);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-border);
+    // Né thanh cử chỉ/notch ở đáy màn hình (iPhone...).
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .rail {
+    flex-direction: row;
+    padding-top: 0;
+    gap: 0;
+  }
+
+  .rail-btn {
+    flex: 1;
+    width: auto;
+    min-height: 54px;
+    border-radius: 0;
+  }
+}

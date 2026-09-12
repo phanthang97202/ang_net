@@ -31,6 +31,12 @@
     .news__container {
         flex-direction: column;
         gap: 0;
+        // Chừa chỗ để thanh công cụ - giờ tự chuyển thành thanh ngang dính đáy
+        // màn hình ở khổ này (xem article-rail.component.scss) - không che
+        // khuất vĩnh viễn nội dung cuối trang (bình luận, khối liên quan) khi
+        // cuộn hết trang. Cùng con số với bottom của .toc-panel bên
+        // news-toc-list.component.scss để panel mở lên không đè lên thanh.
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
 
         >.news__main {
             width: 100%;
@@ -41,10 +47,14 @@
         }
     }
 
-    // Không đủ bề ngang cho một cột riêng. Ở khổ này việc mở mục lục do tab nổi
-    // ở rìa trái của app-news-toc-list lo (nó chỉ hiện dưới 769px).
+    // Không còn ẩn hẳn: app-article-rail tự chuyển bố cục sang thanh ngang dính
+    // đáy ở khổ này (position:fixed đặt ngay trên :host của nó). Nhưng div bọc
+    // nó ở đây vẫn ăn theo rule gốc flex:0 0 46px (dùng chung cho cả 2 khổ,
+    // không có media guard) - display:contents để nó biến mất khỏi flex layout
+    // của .news__main, tránh để lại một cột trống 46px vô dụng cắt vào bề
+    // ngang đọc.
     .news__rail {
-        display: none;
+        display: contents;
     }
 }
 
