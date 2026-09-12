@@ -85,8 +85,27 @@
   border-radius: 20px;
   box-shadow: 0 2px 16px var(--color-card-shadow);
   padding: 1rem;
+  // Cùng công thức hover với .featured-tile của khối "Bài viết nổi bật" (lift
+  // -3px + shadow + ảnh zoom 1.06, cùng số, cùng thời lượng) - trước đây khối
+  // này chỉ đổi màu chữ tiêu đề khi hover, không có phản hồi nào ở phần ảnh hay
+  // cả tấm card, khác hẳn cảm giác với khối kia dù đứng cạnh nhau.
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 
-  @media (max-width: 640px) {
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px var(--color-card-shadow);
+
+    .post-card-thumb img {
+      transform: scale(1.06);
+    }
+  }
+
+  // Đổi mốc từ 640px lên 900px để khớp đúng lúc featured-news chuyển sang 1 cột
+  // full-width (xem featured-news.component.scss) - trước đây lệch mốc: khối
+  // kia đã full-width từ 900px trong khi post-card vẫn giữ layout hàng ngang
+  // với ảnh nhỏ cố định tới tận 640px, tạo cảm giác "cái trên to hơn cái dưới"
+  // suốt dải 641-900px.
+  @media (max-width: 900px) {
     flex-direction: column;
   }
 }
@@ -100,15 +119,28 @@
   overflow: hidden;
   display: block;
 
-  @media (max-width: 640px) {
+  // aspect-ratio thay vì height cố định: dùng đúng tỉ lệ với .featured-tile của
+  // khối "Bài viết nổi bật" bên trên (xem featured-news.component.scss) - cùng
+  // chiều cao nhưng khác bề rộng hiệu dụng (card này có padding, tile kia
+  // full-bleed) từng khiến 2 khối lệch tỉ lệ dù tưởng đã khớp con số. Cùng mốc
+  // 900px với .post-card ở trên và với featured-tile.
+  @media (max-width: 900px) {
+    // .post-card chuyển flex-direction: column ở khổ này - flex-basis 220px kế
+    // thừa từ rule gốc (đặt cho layout hàng ngang) sẽ áp vào chiều DỌC thay vì
+    // ngang, ép chiều cao thành 220px và đè mất aspect-ratio bên dưới nếu không
+    // reset về auto ở đây.
+    flex: 0 0 auto;
     width: 100%;
-    height: 200px;
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    // Khớp animation với .featured-tile-bg: cùng thời lượng, cùng độ zoom.
+    transition: transform 0.6s ease;
   }
 }
 

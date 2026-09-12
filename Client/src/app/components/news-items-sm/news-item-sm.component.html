@@ -1,5 +1,5 @@
 <div class="flex gap-[14px]" appScrollReveal>
-  <div class="h-[68px] !w-[58px] rounded-[10px] overflow-hidden flex-shrink-0">
+  <div class="h-[64px] !w-[88px] rounded-[10px] overflow-hidden flex-shrink-0">
     <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
       <img
         class="h-full w-full object-cover"
@@ -10,7 +10,7 @@
   <div class="flex-1 min-w-0">
     <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
       <h5
-        class="hover:text-[var(--color-accent)] transition-colors font-montserrat text-[14px] text-[var(--color-text)] leading-[1.35] font-bold mb-[4px]">
+        class="hover:text-[var(--color-accent)] transition-colors font-montserrat text-[14px] text-[var(--color-text)] leading-[1.35] font-bold mb-[4px] line-clamp-3">
         {{ item.ShortTitle }}
       </h5>
     </a>

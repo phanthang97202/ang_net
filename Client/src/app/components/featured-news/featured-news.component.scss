@@ -188,16 +188,40 @@
   }
 }
 
-// ── Tablet: ô chính trải hết bề ngang, 4 ô phụ xếp 2x2 bên dưới ──────
+// ── Dưới 900px: 1 cột, mọi ô cùng tỉ lệ ──────────────────────────────
+// Gộp chung tablet + mobile vào đúng 1 breakpoint - trước đây tách riêng
+// (900px cho ô chính trải rộng 2 cột kiểu hero, 640px mới về 1 cột đồng nhất)
+// khiến dải 641-900px lọt vào giữa: ô chính lúc đó rộng hết container mà chỉ
+// cao 190px (~3.4:1, rất bẹt), trong khi post-card-thumb của khối "Mới nhất"
+// bên dưới vẫn giữ nguyên hộp cố định 220x160 - nhìn lệch cỡ rõ rệt ("cái trên
+// to hơn cái dưới") vì home__container cũng đổ về 1 cột full-width ngay từ
+// 900px (xem home.component.scss), không phải từ 640px.
+//
+// Dùng aspect-ratio thay vì chiều cao cố định: post-card-thumb nằm trong card
+// có padding nên bề rộng hiệu dụng hẹp hơn ô này (full-bleed) - cùng một chiều
+// cao cố định vẫn ra hai tỉ lệ khác nhau, chỉ aspect-ratio mới khoá đúng tỉ lệ
+// bất kể bề rộng cột là bao nhiêu.
 @media (max-width: 900px) {
   .featured-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 190px;
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 0.85rem;
   }
 
+  .featured-tile {
+    aspect-ratio: 16 / 9;
+  }
+
+  // Ô chính không còn trải rộng/cao khác ô phụ ở khổ này - cùng chiều với việc
+  // .post-card bên khối "Mới nhất" cũng chuyển hẳn sang 1 cột từ mốc này (xem
+  // new-news.component.scss), giữ 2 khối đồng bộ suốt từ 900px trở xuống.
   .featured-tile--main {
-    grid-column: span 2;
+    grid-column: span 1;
     grid-row: span 1;
+  }
+
+  .featured-tile--main .featured-tile-content {
+    padding: 1rem;
   }
 
   .featured-tile-title--main {
@@ -207,22 +231,5 @@
 
   .featured-tile-excerpt {
     display: none;
-  }
-}
-
-// ── Mobile: 1 cột, mọi ô cùng chiều cao ─────────────────────────────
-@media (max-width: 640px) {
-  .featured-grid {
-    grid-template-columns: 1fr;
-    grid-auto-rows: 200px;
-    gap: 0.85rem;
-  }
-
-  .featured-tile--main {
-    grid-column: span 1;
-  }
-
-  .featured-tile--main .featured-tile-content {
-    padding: 1rem;
   }
 }
