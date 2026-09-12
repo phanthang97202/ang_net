@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { PaginationComponent } from '../pagination/pagination.component';
 import {
@@ -44,6 +44,7 @@ export class NewNewsComponent implements OnInit {
   loadingService = inject(LoadingService);
   router = inject(Router);
   activedRouter = inject(ActivatedRoute);
+  location = inject(Location);
 
   isLoading = true;
   posts: INewsWithPlaceholder[] = [];
@@ -127,10 +128,15 @@ export class NewNewsComponent implements OnInit {
 
   // Ở lại đúng route đang đứng (/ hay /news) và giữ nguyên các tham số lọc,
   // chỉ đổi mỗi pageIndex.
+  //
+  // sort phải truyền TƯỜNG MINH từ state thay vì trông vào 'merge': changeSort
+  // cập nhật URL bằng replaceState (xem lý do ở đó) nên snapshot queryParams
+  // của ActivatedRoute không còn chứa sort - để 'merge' tự lo thì sang trang 2
+  // là mất luôn kiểu sắp xếp đang chọn.
   handlePageIndexChange(pageIndex: number): void {
     this.router.navigate([], {
       relativeTo: this.activedRouter,
-      queryParams: { pageIndex },
+      queryParams: { pageIndex, sort: this.sort || null },
       queryParamsHandling: 'merge',
     });
   }
@@ -139,14 +145,44 @@ export class NewNewsComponent implements OnInit {
   // vào trang trống (mỗi kiểu sắp xếp có số trang như nhau nhưng nội dung khác
   // hẳn, người đọc đang ở trang 4 bấm "Đọc nhiều" sẽ không hiểu mình đang xem gì).
   // sort rỗng truyền null để Angular xoá hẳn tham số khỏi URL thay vì để "?sort=".
+  // KHÔNG dùng router.navigate ở đây, dù URL vẫn phải đổi theo.
+  //
+  // App bật scrollPositionRestoration:'enabled' (app.config.ts) để back/forward
+  // khôi phục được chỗ đang đọc. Mặt trái: Angular coi mọi điều hướng chủ động
+  // là "trang mới" và cuộn thẳng về đầu - kể cả khi chỉ đổi một query param
+  // trên đúng route đang đứng. Đang đứng giữa danh sách bấm tab là bị bắn lên
+  // tận banner (đo được: scrollY 1221 -> 0), đó chính là cảm giác "nháy page".
+  // replaceUrl không cứu được (đã thử, vẫn cuộn), khôi phục scroll trong
+  // .then() cũng không (chạy trước lúc router cuộn nên bị ghi đè lại).
+  //
+  // Đổi tab sắp xếp là thay đổi state TRONG trang, không phải điều hướng - nên
+  // chỉ viết lại URL để F5/chia sẻ link vẫn đúng, không tạo navigation. Không
+  // ai khác đọc queryParams của route này ngoài chính component (navbar search
+  // thay trọn bộ query nên cũng không xung đột).
   changeSort(value: string): void {
     if (value === this.sort) return;
 
-    this.router.navigate([], {
-      relativeTo: this.activedRouter,
-      queryParams: { sort: value || null, pageIndex: 0 },
-      queryParamsHandling: 'merge',
-    });
+    this.sort = value;
+    this.loadPosts(0);
+
+    const params: Record<string, string> = {
+      ...this.activedRouter.snapshot.queryParams,
+      pageIndex: '0',
+    };
+    if (value) {
+      params['sort'] = value;
+    } else {
+      delete params['sort'];
+    }
+
+    this.location.replaceState(
+      this.router
+        .createUrlTree([], {
+          relativeTo: this.activedRouter,
+          queryParams: params,
+        })
+        .toString()
+    );
   }
 
   // 1200 -> "1.2k". Số lượt xem thô làm dòng meta của card dài ra và dễ xuống dòng.

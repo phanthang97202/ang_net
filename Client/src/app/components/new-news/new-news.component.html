@@ -23,8 +23,11 @@
     </button>
   </div>
 
-  <!-- Loading skeleton -->
-  <ng-container *ngIf="isLoading">
+  <!-- Skeleton CHỈ cho lần tải đầu (chưa có gì để hiện). Lúc đổi tab/đổi trang
+       thì giữ nguyên danh sách cũ trên màn hình - tháo nó ra để thay bằng
+       skeleton làm trang sụp chiều cao rồi giãn lại, và card phải dựng lại từ
+       đầu nên appScrollReveal chạy lại từ opacity 0, nhìn như nháy trang. -->
+  <ng-container *ngIf="isLoading && posts.length === 0">
     <div class="post-card post-card--skeleton" *ngFor="let i of [1, 2, 3]">
       <div class="post-card-thumb post-card-thumb--skeleton"></div>
       <div class="post-card-body">
@@ -36,10 +39,14 @@
     </div>
   </ng-container>
 
-  <!-- Post cards -->
-  <ng-container *ngIf="!isLoading && posts.length > 0">
+  <!-- Post cards: không gắn điều kiện isLoading để danh sách ở lại trong DOM
+       suốt lúc tải lại. Nhờ vậy trackBy mới phát huy - bài nào có ở cả thứ tự
+       cũ và mới thì Angular DI CHUYỂN đúng node đó thay vì huỷ rồi dựng lại,
+       nên nó không fade lại từ đầu; chỉ bài thật sự mới mới fade vào. -->
+  <ng-container *ngIf="posts.length > 0">
     <article
       class="post-card"
+      [class.is-refreshing]="isLoading"
       *ngFor="let post of posts; trackBy: trackById; let i = index"
       appScrollReveal
       [appScrollRevealDelay]="(i % 3) * 90">
@@ -120,7 +127,7 @@
       </div>
     </article>
 
-    <div class="post-list-pagination">
+    <div class="post-list-pagination" [class.is-refreshing]="isLoading">
       <pagination
         [pageIndex]="currentPage + 1"
         [itemCount]="itemCount"

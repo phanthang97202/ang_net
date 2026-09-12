@@ -109,6 +109,27 @@
   }
 }
 
+// Đang tải lại (đổi tab sắp xếp / đổi trang): làm mờ nhẹ danh sách cũ thay vì
+// tháo nó khỏi DOM. Giữ được chiều cao trang, không nhảy layout, và có phản hồi
+// cho người bấm khi request chưa về.
+//
+// Phải kèm .is-visible: appScrollReveal giữ card ở opacity 0 cho tới khi cuộn
+// tới (class .is-visible mới được thêm). Làm mờ theo .is-refreshing đơn thuần
+// sẽ ghi đè luôn cả mấy card đang ẩn dưới màn hình, đẩy chúng từ 0 lên 0.45 -
+// tức là card chưa tới lượt hiện lại lộ ra mờ mờ.
+//
+// Selector cũng cố tình để 3 cấp: .scroll-reveal.is-visible ở styles.scss toàn
+// cục cũng set opacity với độ ưu tiên 2 cấp - để ngang nhau thì ai thắng phụ
+// thuộc thứ tự chèn stylesheet, quá mong manh để dựa vào.
+.post-list .post-card.is-refreshing.is-visible,
+.post-list .post-list-pagination.is-refreshing {
+  opacity: 0.45;
+  // Chặn bấm tiếp vào bài/phân trang khi dữ liệu đang đổi, tránh điều hướng
+  // vào đúng bài vừa bị đẩy khỏi danh sách.
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
 .post-card-thumb {
   position: relative;
   flex: 0 0 220px;
