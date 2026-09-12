@@ -1,4 +1,5 @@
 import { IBaseResponse, IPageInfo } from './common';
+import { INewsItemSm } from './news';
 
 export interface INewsCategory {
   NewsCategoryId: string;
@@ -9,6 +10,23 @@ export interface INewsCategory {
 
 export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
   DataList: INewsCategory[];
+}
+
+// ── Khối "Khám phá theo chủ đề" ngoài trang chủ ────────────────────────
+// API gom sẵn theo danh mục gốc: TotalCount đã cộng cả bài của danh mục con,
+// Posts là vài bài đọc nhiều nhất trong cả nhánh.
+export interface INewsCategoryPreview {
+  NewsCategoryId: string;
+  NewsCategoryName: string;
+  NewsCategoryIndex: number;
+  TotalCount: number;
+  Children: INewsCategory[];
+  Posts: INewsItemSm[];
+}
+
+export interface INewsCategoryPreviewResponse
+  extends IBaseResponse<INewsCategoryPreview> {
+  DataList: INewsCategoryPreview[];
 }
 
 export interface INewsCategoryNode extends INewsCategory {

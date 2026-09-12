@@ -35,6 +35,19 @@ export interface IRefFileNews {
   FileUrl: string;
 }
 
+// Tập trường tối thiểu để vẽ một dòng bài viết cỡ nhỏ (app-news-item-sm).
+// IDetailNews thoả sẵn hình dạng này, nên khai báo riêng chỉ để những nguồn dữ
+// liệu gọn hơn - như khối xem trước theo danh mục - cũng dùng lại được component
+// đó mà không phải bịa ra các trường mình không có.
+export interface INewsItemSm {
+  NewsId: string;
+  CategoryNewsId: string;
+  Slug: string;
+  Thumbnail: string;
+  ShortTitle: string;
+  CreatedDTime: string;
+}
+
 export interface IDetailNews {
   NewsId: string;
   UserId: string;

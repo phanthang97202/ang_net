@@ -3,7 +3,10 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, shareReplay } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { INewsResponse } from '../interfaces/news';
-import { INewsCategoryResponse } from '../interfaces/news-category';
+import {
+  INewsCategoryPreviewResponse,
+  INewsCategoryResponse,
+} from '../interfaces/news-category';
 
 // Router huỷ component khi rời route và tạo lại khi quay về, nên mỗi lần bấm
 // vào 1 bài rồi back lại trang chủ là ngOnInit chạy lại -> gọi API lại ->
@@ -63,6 +66,15 @@ export class NewsCacheService {
   GetAllActiveNewsCategory(): Observable<INewsCategoryResponse> {
     return this.through('categories', () =>
       this.api.GetAllActiveNewsCategory()
+    );
+  }
+
+  // Thanh chọn chủ đề và khối "Khám phá theo chủ đề" cùng cần dữ liệu này và
+  // cùng nằm trên trang chủ. Chung một khoá cache nên hai component chỉ tạo ra
+  // đúng một request (through dùng shareReplay).
+  GetNewsCategoryPreview(take: number): Observable<INewsCategoryPreviewResponse> {
+    return this.through(`category-preview|${take}`, () =>
+      this.api.GetNewsCategoryPreview(take)
     );
   }
 

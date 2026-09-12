@@ -20,6 +20,7 @@ export * from './news-content/news-content.component';
 export * from './news-toc-list/news-toc-list.component';
 export * from './discovery-banner/discovery-banner.component';
 export * from './topic-nav/topic-nav.component';
+export * from './category-showcase/category-showcase.component';
 export * from './featured-news/featured-news.component';
 export * from './new-news/new-news.component';
 export * from './subscribe-notify/subscribe-notify.component';

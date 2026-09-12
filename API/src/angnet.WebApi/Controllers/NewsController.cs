@@ -38,6 +38,21 @@ namespace angnet.WebApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("CategoryPreview")]
+        public async Task<ActionResult<NewsCategoryPreviewDto>> CategoryPreview(int take = 3)
+        {
+            try
+            {
+                ApiResponse<NewsCategoryPreviewDto> response = await _newsRespository.CategoryPreview(take);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [AllowAnonymous]
         [HttpGet("Detail")]
         [SkipLogging]
         public async Task<ActionResult<RPNewsDto>> Detail(string newsId)

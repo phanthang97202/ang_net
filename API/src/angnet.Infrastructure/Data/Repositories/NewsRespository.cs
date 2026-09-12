@@ -363,6 +363,136 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
+        /// <summary>
+        /// Mỗi danh mục gốc kèm tổng số bài và vài bài được đọc nhiều nhất, dùng cho
+        /// khối "Khám phá theo chủ đề" ngoài trang chủ.
+        ///
+        /// Gộp tất cả vào một lần gọi thay vì để client bắn mỗi danh mục một request:
+        /// blog đang có 9 danh mục, cứ mỗi lần mở trang chủ là 9 round-trip.
+        /// </summary>
+        public async Task<ApiResponse<NewsCategoryPreviewDto>> CategoryPreview(int take)
+        {
+            ApiResponse<NewsCategoryPreviewDto> apiResponse = new ApiResponse<NewsCategoryPreviewDto>();
+
+            // take do client truyền: chặn trên để một request lỡ tay không kéo về cả blog.
+            int _take = (take > 0 && take <= 10) ? take : 3;
+
+            // Nội dung giống hệt nhau với mọi khách nên cache được nguyên khối. Vòng lặp
+            // bên dưới chạy mỗi danh mục 2 câu truy vấn, có cache thì chỉ tốn đúng một
+            // lần cho mỗi chu kỳ hết hạn chứ không phải mỗi lượt truy cập.
+            string keyStoreManager = TConstValue.NewsRespository_CategoryPreview;
+            string fieldKey = GenerateUniqueCacheKey(keyStoreManager, $"({_take})");
+            string rsCached = await GetFieldOfHashCacheAsync(keyStoreManager, fieldKey);
+
+            if (rsCached is not null)
+            {
+                apiResponse.DataList = TCommonUtils.ParseJsonStringify<List<NewsCategoryPreviewDto>>(rsCached);
+                return apiResponse;
+            }
+
+            List<NewsCategoryModel> categories = await _dbContext.NewsCategory.AsNoTracking()
+                                                        .Where(c => c.FlagActive)
+                                                        .ToListAsync();
+
+            // Danh mục gốc = không có cha, hoặc trỏ tới một cha đã bị vô hiệu/xoá. Vế sau
+            // quan trọng: thiếu nó thì nhánh mồ côi biến mất khỏi trang chủ hoàn toàn.
+            HashSet<string> activeIds = categories.Select(c => c.NewsCategoryId).ToHashSet();
+            List<NewsCategoryModel> roots = categories
+                    .Where(c => TCommonUtils.IsNullOrEmpty(c.NewsCategoryParentId)
+                                || !activeIds.Contains(c.NewsCategoryParentId))
+                    .OrderBy(c => c.NewsCategoryIndex)
+                    .ToList();
+
+            List<NewsCategoryPreviewDto> dataResponse = new List<NewsCategoryPreviewDto>();
+
+            foreach (NewsCategoryModel root in roots)
+            {
+                // Bài nằm ở danh mục con vẫn phải được tính cho danh mục cha, nếu không
+                // cha sẽ hiện "0 bài" dù bên dưới đầy bài.
+                List<string> branchIds = CollectBranchIds(root.NewsCategoryId, categories);
+
+                IQueryable<NewsModel> query = _dbContext.News.AsNoTracking()
+                                                    .Where(n => n.FlagActive && branchIds.Contains(n.CategoryNewsId));
+
+                int totalCount = await query.CountAsync();
+
+                // Danh mục chưa có bài thì bỏ hẳn khỏi kết quả: đưa ra trang chủ chỉ tạo
+                // thêm một ô trống dẫn tới trang danh sách rỗng.
+                if (totalCount == 0)
+                {
+                    continue;
+                }
+
+                List<NewsCategoryPreviewItemDto> posts = await query
+                        .OrderByDescending(n => n.ViewCount)
+                        .ThenByDescending(n => n.CreatedDTime)
+                        .Take(_take)
+                        .Select(n => new NewsCategoryPreviewItemDto
+                        {
+                            NewsId = n.NewsId,
+                            CategoryNewsId = n.CategoryNewsId,
+                            Slug = n.Slug,
+                            Thumbnail = n.Thumbnail,
+                            ShortTitle = n.ShortTitle,
+                            CreatedDTime = n.CreatedDTime
+                        })
+                        .ToListAsync();
+
+                dataResponse.Add(new NewsCategoryPreviewDto
+                {
+                    NewsCategoryId = root.NewsCategoryId,
+                    NewsCategoryName = root.NewsCategoryName,
+                    NewsCategoryIndex = root.NewsCategoryIndex,
+                    TotalCount = totalCount,
+                    Children = categories
+                            .Where(c => c.NewsCategoryParentId == root.NewsCategoryId)
+                            .OrderBy(c => c.NewsCategoryIndex)
+                            .Select(c => new NewsCategoryDto
+                            {
+                                NewsCategoryId = c.NewsCategoryId,
+                                NewsCategoryParentId = c.NewsCategoryParentId,
+                                NewsCategoryName = c.NewsCategoryName,
+                                NewsCategoryIndex = c.NewsCategoryIndex
+                            })
+                            .ToList(),
+                    Posts = posts
+                });
+            }
+
+            await HashCacheAsync(keyStoreManager, fieldKey, TCommonUtils.ConvertToJsonStringify(dataResponse));
+
+            apiResponse.DataList = dataResponse;
+
+            return apiResponse;
+        }
+
+        /// <summary>
+        /// Id của danh mục cùng toàn bộ danh mục con cháu bên dưới nó. Đi theo chiều rộng
+        /// và có HashSet chặn: dữ liệu danh mục do người dùng nhập tay ở trang admin, chỉ
+        /// cần trỏ cha vòng vào nhau là vòng lặp chạy mãi không dừng.
+        /// </summary>
+        private static List<string> CollectBranchIds(string rootId, List<NewsCategoryModel> categories)
+        {
+            HashSet<string> visited = new HashSet<string> { rootId };
+            Queue<string> pending = new Queue<string>();
+            pending.Enqueue(rootId);
+
+            while (pending.Count > 0)
+            {
+                string current = pending.Dequeue();
+
+                foreach (NewsCategoryModel child in categories.Where(c => c.NewsCategoryParentId == current))
+                {
+                    if (visited.Add(child.NewsCategoryId))
+                    {
+                        pending.Enqueue(child.NewsCategoryId);
+                    }
+                }
+            }
+
+            return visited.ToList();
+        }
+
         public async Task<ApiResponse<RPNewsDto>> Detail(string newsId)
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();

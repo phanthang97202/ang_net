@@ -15,5 +15,6 @@ namespace angnet.Utility.CommonUtils
         // News - Bài viết
         public const string NewsRespository_Search = "NewsRespository.Search";
         public const string NewsRespository_Detail = "NewsRespository.Detail";
+        public const string NewsRespository_CategoryPreview = "NewsRespository.CategoryPreview";
     }
 }

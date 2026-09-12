@@ -1,0 +1,74 @@
+<!-- API đã loại sẵn danh mục chưa có bài, nên rỗng ở đây nghĩa là blog chưa có
+     gì để khám phá - ẩn cả khối thay vì hiện lưới trống. -->
+<section class="topic-cards" *ngIf="isLoading || categories.length > 0">
+  <p class="topic-cards-heading">
+    <span>{{ 'T_EXPLOREBYTOPIC' | translate }}</span>
+    <span class="topic-cards-heading-line"></span>
+  </p>
+
+  <!-- Loading skeleton -->
+  <div class="topic-cards-grid" *ngIf="isLoading">
+    <div
+      class="topic-cards-item topic-cards-item--skeleton"
+      *ngFor="let i of [1, 2, 3]"></div>
+  </div>
+
+  <div class="topic-cards-grid" *ngIf="!isLoading">
+    <article
+      class="topic-cards-item"
+      *ngFor="let category of categories; trackBy: trackById; let i = index"
+      appScrollReveal
+      [appScrollRevealDelay]="(i % 3) * 90">
+      <a
+        class="topic-cards-head"
+        routerLink="/news"
+        [queryParams]="{ categoryId: category.NewsCategoryId }">
+        <span class="topic-cards-icon" [style.background]="getTopicColor(i)">
+          <svg viewBox="0 0 24 24" fill="#fff">
+            <path
+              [attr.d]="getTopicIconPath(category.NewsCategoryName, i)"></path>
+          </svg>
+        </span>
+        <span class="topic-cards-name">{{ category.NewsCategoryName }}</span>
+        <span class="topic-cards-count">
+          {{ category.TotalCount }} {{ 'T_POSTSUNIT' | translate }}
+        </span>
+      </a>
+
+      <!-- Chỉ hiện khi danh mục có con. Hiện tại blog chưa dùng phân cấp nên
+           hàng này không xuất hiện; thêm danh mục con ở trang admin là tự có. -->
+      <div class="topic-cards-children" *ngIf="category.Children.length > 0">
+        <a
+          class="topic-cards-chip"
+          *ngFor="let child of category.Children"
+          routerLink="/news"
+          [queryParams]="{ categoryId: child.NewsCategoryId }">
+          {{ child.NewsCategoryName }}
+        </a>
+      </div>
+
+      <div class="topic-cards-posts">
+        <app-news-item-sm
+          *ngFor="let post of category.Posts"
+          [item]="post"></app-news-item-sm>
+      </div>
+
+      <a
+        class="topic-cards-more"
+        routerLink="/news"
+        [queryParams]="{ categoryId: category.NewsCategoryId }">
+        {{ 'T_VIEWALL' | translate }}
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </article>
+  </div>
+</section>

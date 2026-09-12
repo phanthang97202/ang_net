@@ -40,7 +40,7 @@
         <div class="topics-track">
           <div
             class="topics-page"
-            *ngFor="let page of pages; trackBy: trackByPageIndex">
+            *ngFor="let page of pages; trackBy: trackByPageIndex; let p = index">
             <a
               *ngFor="let topic of page; trackBy: trackById; let i = index"
               routerLink="/news"
@@ -48,9 +48,19 @@
               class="topic-card"
               appScrollReveal
               [appScrollRevealDelay]="i * 60">
-              <span class="topic-card-icon" [style.background]="getTopicColor(i)">
+              <!-- Màu/icon tính theo thứ tự CHUNG của danh mục, không phải thứ
+                   tự trong trang: trước đây đổi kích thước cửa sổ là số item mỗi
+                   trang đổi theo và màu các chủ đề nhảy hết. Khối "Khám phá theo
+                   chủ đề" bên dưới cũng đánh số như vậy nên cùng một danh mục
+                   luôn ra cùng màu ở cả hai nơi. -->
+              <span
+                class="topic-card-icon"
+                [style.background]="getTopicColor(p * itemsPerPage + i)">
                 <svg viewBox="0 0 24 24" fill="#fff">
-                  <path [attr.d]="getTopicIconPath(topic.name, i)"></path>
+                  <path
+                    [attr.d]="
+                      getTopicIconPath(topic.name, p * itemsPerPage + i)
+                    "></path>
                 </svg>
               </span>
               <span class="topic-card-name">{{ topic.name }}</span>
