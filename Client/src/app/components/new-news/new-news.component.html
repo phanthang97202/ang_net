@@ -9,6 +9,20 @@
     <span class="post-list-heading-line"></span>
   </p>
 
+  <!-- Sắp xếp: đổi tab là đổi query param ?sort nên trạng thái nằm trên URL,
+       F5 hay chia sẻ link vẫn giữ đúng thứ tự đang xem. -->
+  <div class="post-list-tabs" role="group">
+    <button
+      type="button"
+      class="post-list-tab"
+      *ngFor="let tab of sortTabs"
+      [class.active]="tab.value === sort"
+      [attr.aria-pressed]="tab.value === sort"
+      (click)="changeSort(tab.value)">
+      {{ tab.labelKey | translate }}
+    </button>
+  </div>
+
   <!-- Loading skeleton -->
   <ng-container *ngIf="isLoading">
     <div class="post-card post-card--skeleton" *ngFor="let i of [1, 2, 3]">
@@ -53,8 +67,39 @@
 
       <div class="post-card-body">
         <p class="post-card-meta">
-          <span class="post-card-author">{{ post.FullName }}</span>
-          on {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+          <span>
+            <span class="post-card-author">{{ post.FullName }}</span>
+            on {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+          </span>
+
+          <!-- Lượt thích ẩn khi bằng 0: bài mới đăng nào cũng kèm "0" thì dãy
+               số phản tác dụng. Lượt xem luôn hiện vì chỉ cần mở bài là tăng. -->
+          <span class="post-card-stats">
+            <span class="post-card-stat">
+              <svg
+                class="post-card-stat-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              {{ formatCount(post.ViewCount) }}
+            </span>
+            <span class="post-card-stat" *ngIf="post.LikeCount > 0">
+              <svg
+                class="post-card-stat-icon"
+                viewBox="0 0 24 24"
+                fill="currentColor">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+              </svg>
+              {{ formatCount(post.LikeCount) }}
+            </span>
+          </span>
         </p>
 
         <a

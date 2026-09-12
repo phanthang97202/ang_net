@@ -36,6 +36,48 @@
   background: var(--color-accent);
 }
 
+// ── Tabs sắp xếp ─────────────────────────────────────────
+// Mượn nguyên hai kiểu pill đã có sẵn trên trang: trạng thái thường giống
+// .topic-card (viền mảnh + nền card), trạng thái đang chọn giống .topics-badge
+// (nền accent nhạt + chữ accent).
+.post-list-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  // Khi không có tiêu đề lọc (trang chủ), đây là khối đầu cột nên phải chừa
+  // đúng 24px như .post-list-heading để thẳng hàng với card bên sidebar.
+  padding-top: 1.5rem;
+}
+
+.post-list-heading + .post-list-tabs {
+  padding-top: 0;
+}
+
+.post-list-tab {
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+
+  &:hover:not(.active) {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  &.active {
+    background: var(--color-accent-bg);
+    border-color: transparent;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+}
+
 .post-card {
   display: flex;
   gap: 1.5rem;
@@ -128,10 +170,35 @@
 }
 
 .post-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  // Hai nhóm "tác giả + ngày" và "số liệu" cách nhau rộng hơn khoảng cách chữ
+  // thường để mắt tách được chúng mà không cần thêm dấu phân cách.
+  gap: 0.2rem 0.75rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
   color: var(--color-text-muted);
   margin: 0;
+}
+
+.post-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.post-card-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.post-card-stat-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .post-card-author {

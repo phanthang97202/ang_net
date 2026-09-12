@@ -31,7 +31,8 @@ export class NewsCacheService {
     userId: string,
     categoryId: string,
     onlyPublished = true,
-    hashTag = ''
+    hashTag = '',
+    sort = ''
   ): Observable<INewsResponse> {
     const key = [
       'search',
@@ -42,6 +43,7 @@ export class NewsCacheService {
       categoryId,
       onlyPublished,
       hashTag,
+      sort,
     ].join('|');
 
     return this.through(key, () =>
@@ -52,7 +54,8 @@ export class NewsCacheService {
         userId,
         categoryId,
         onlyPublished,
-        hashTag
+        hashTag,
+        sort
       )
     );
   }

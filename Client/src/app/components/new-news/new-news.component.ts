@@ -54,6 +54,14 @@ export class NewNewsComponent implements OnInit {
   keyword = '';
   hashTag = '';
 
+  // Rỗng = mặc định của API (bài mới nhất trước), giữ URL trang chủ sạch.
+  sort = '';
+  readonly sortTabs = [
+    { value: '', labelKey: 'T_SORTNEWEST' },
+    { value: 'views', labelKey: 'T_SORTMOSTREAD' },
+    { value: 'likes', labelKey: 'T_SORTMOSTLIKED' },
+  ];
+
   // URL chỉ có slug danh mục (vd "holiday"), tên hiển thị ("Ngày lễ") lấy từ
   // chính kết quả trả về nên không phải gọi thêm API danh mục. Không có bài nào
   // khớp thì đành hiện slug.
@@ -78,6 +86,7 @@ export class NewNewsComponent implements OnInit {
       this.categoryId = p['categoryId'] || '';
       this.keyword = p['keyword'] || '';
       this.hashTag = p['hashTag'] || '';
+      this.sort = p['sort'] || '';
       this.loadPosts(p['pageIndex'] || 0);
     });
   }
@@ -92,7 +101,8 @@ export class NewNewsComponent implements OnInit {
         '',
         this.categoryId,
         true,
-        this.hashTag
+        this.hashTag,
+        this.sort
       )
       .pipe()
       .subscribe({
@@ -123,6 +133,31 @@ export class NewNewsComponent implements OnInit {
       queryParams: { pageIndex },
       queryParamsHandling: 'merge',
     });
+  }
+
+  // Đổi cách sắp xếp phải về trang 1: giữ nguyên pageIndex cũ thì rất dễ rơi
+  // vào trang trống (mỗi kiểu sắp xếp có số trang như nhau nhưng nội dung khác
+  // hẳn, người đọc đang ở trang 4 bấm "Đọc nhiều" sẽ không hiểu mình đang xem gì).
+  // sort rỗng truyền null để Angular xoá hẳn tham số khỏi URL thay vì để "?sort=".
+  changeSort(value: string): void {
+    if (value === this.sort) return;
+
+    this.router.navigate([], {
+      relativeTo: this.activedRouter,
+      queryParams: { sort: value || null, pageIndex: 0 },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  // 1200 -> "1.2k". Số lượt xem thô làm dòng meta của card dài ra và dễ xuống dòng.
+  formatCount(value: number): string {
+    if (!value) return '0';
+    if (value < 1000) return `${value}`;
+
+    const thousands = value / 1000;
+    const rounded =
+      thousands < 10 ? thousands.toFixed(1).replace(/\.0$/, '') : Math.round(thousands);
+    return `${rounded}k`;
   }
 
   trackById(_: number, post: IDetailNews): string {

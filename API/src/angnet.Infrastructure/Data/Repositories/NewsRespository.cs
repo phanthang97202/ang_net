@@ -198,7 +198,32 @@ namespace angnet.Infrastructure.Data.Repositories
 
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "")
+        /// <summary>
+        /// Thứ tự trả về của Search. Mặc định (chuỗi rỗng hoặc giá trị lạ) là bài mới nhất
+        /// trước, giữ nguyên hành vi cũ.
+        /// </summary>
+        private IOrderedQueryable<NewsModel> ApplySort(IQueryable<NewsModel> query, string sort)
+        {
+            switch (sort)
+            {
+                // Cột News.ViewCount được tăng mỗi lần gọi Detail nên đọc thẳng được.
+                case "views":
+                    return query.OrderByDescending(i => i.ViewCount)
+                                .ThenByDescending(i => i.CreatedDTime);
+
+                // Không dùng cột News.LikeCount: cột đó không có chỗ nào ghi vào (chỉ Reel
+                // mới duy trì cột tương tự), like của bài viết nằm ở bảng LikeNews -
+                // FactoryNewsRecord cũng đang đếm theo bảng đó nên sắp xếp phải khớp.
+                case "likes":
+                    return query.OrderByDescending(i => _dbContext.LikeNews.Count(l => l.NewsId == i.NewsId))
+                                .ThenByDescending(i => i.CreatedDTime);
+
+                default:
+                    return query.OrderByDescending(i => i.CreatedDTime);
+            }
+        }
+
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "")
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -227,6 +252,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string _userId = TCommonUtils.ConvertLowerCase(userId);
             string _categoryId = TCommonUtils.ConvertLowerCase(categoryId);
             string _hashTag = TCommonUtils.ConvertLowerCase(hashTag);
+            string _sort = TCommonUtils.ConvertLowerCase(sort);
 
             if (pageIndex > 0)
             {
@@ -295,7 +321,10 @@ namespace angnet.Infrastructure.Data.Repositories
 
             // Starting cache data in RedisCloud
             //string keyCached = TCommonUtils.GenerateUniqueCacheKey(userId, TConstValue.CACHEKEY_NEWS_DETAIL, newsId);
-            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag})";
+            // _sort phải nằm trong khoá cache: thiếu nó thì trang "Đọc nhiều" và
+            // "Mới nhất" dùng chung một ô nhớ, ai gọi trước ghi kết quả gì thì
+            // người sau nhận đúng cái đó dù đã đổi kiểu sắp xếp.
+            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -303,7 +332,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (rsNewsCached is null)
             {
-                dataResult = query.AsNoTracking().OrderByDescending(i => i.CreatedDTime)
+                dataResult = ApplySort(query, _sort)
                               .Skip(_pageIndex * _pageSize)
                               .Take(_pageSize)
                               .ToList();
