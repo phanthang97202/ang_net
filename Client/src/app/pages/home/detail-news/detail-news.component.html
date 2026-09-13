@@ -75,9 +75,13 @@
           </ng-container>
 
           <div class="detail-badges">
-            <span *ngIf="detailNews.CategoryNewsName" class="detail-badge">{{
-              detailNews.CategoryNewsName
-            }}</span>
+            <a
+              *ngIf="detailNews.CategoryNewsName"
+              class="detail-badge"
+              routerLink="/news"
+              [queryParams]="{ categoryId: detailNews.CategoryNewsId }"
+              >{{ detailNews.CategoryNewsName }}</a
+            >
           </div>
           <span class="detail-readtime">
             {{ detailNews.EstimatedReadingTime }} Min Read
@@ -102,10 +106,12 @@
             *ngIf="
               detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
             ">
-            <span
+            <a
               *ngFor="let ht of detailNews.LstHashTagNews"
               class="detail-hashtag"
-              >{{ ht.HashTagNewsName }}</span
+              routerLink="/news"
+              [queryParams]="{ hashTag: ht.HashTagNewsName }"
+              >{{ ht.HashTagNewsName }}</a
             >
           </div>
 

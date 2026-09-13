@@ -165,8 +165,18 @@
   height: 100%;
 }
 
+// Link mở bài phủ kín khung ảnh. Nằm trên ảnh nhưng DƯỚI badge và nhãn thời
+// gian đọc (cả hai được z-index kéo lên), nên bấm vào badge là đi tới danh mục
+// chứ không mở bài.
+.post-card-thumb-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .post-card-badges {
   position: absolute;
+  z-index: 2;
   top: 0.75rem;
   left: 0.75rem;
   right: 4.5rem;
@@ -189,10 +199,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  // Là link lọc theo danh mục, nên đảo màu lúc rê chuột để thấy bấm được.
+  &:hover {
+    background: var(--color-accent);
+    color: #fff;
+  }
 }
 
 .post-card-readtime {
   position: absolute;
+  z-index: 2;
   top: 0.75rem;
   right: 0.75rem;
   display: flex;
@@ -301,6 +320,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  // Cùng cách phản hồi với .post-badge: cả hai đều là link lọc danh sách.
+  &:hover {
+    background: var(--color-accent);
+    color: #fff;
+  }
 }
 
 // ── Skeleton ─────────────────────────────────────────────

@@ -56,9 +56,10 @@
       *ngFor="let post of posts; trackBy: trackById; let i = index"
       appScrollReveal
       [appScrollRevealDelay]="(i % 3) * 90">
-      <a
-        [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-        class="post-card-thumb">
+      <!-- Khung ảnh là <div> chứ không phải <a>: badge danh mục bên trong cũng
+           là một link, mà <a> lồng trong <a> là HTML không hợp lệ. Link mở bài
+           nằm ở lớp phủ .post-card-thumb-link bên dưới, badge nằm đè lên nó. -->
+      <div class="post-card-thumb">
         <img
           *ngIf="post.Thumbnail"
           [src]="post.Thumbnail"
@@ -68,15 +69,24 @@
           class="post-card-thumb-placeholder"
           [style.background-color]="post._placeholderColor"></div>
 
+        <a
+          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+          class="post-card-thumb-link"
+          [attr.aria-label]="post.ShortTitle"></a>
+
         <div class="post-card-badges">
-          <span *ngIf="post.CategoryNewsName" class="post-badge">{{
-            post.CategoryNewsName
-          }}</span>
+          <a
+            *ngIf="post.CategoryNewsName"
+            class="post-badge"
+            routerLink="/news"
+            [queryParams]="{ categoryId: post.CategoryNewsId }"
+            >{{ post.CategoryNewsName }}</a
+          >
         </div>
         <span class="post-card-readtime">
           {{ post.EstimatedReadingTime }} Min Read
         </span>
-      </a>
+      </div>
 
       <div class="post-card-body">
         <p class="post-card-meta">
@@ -126,8 +136,12 @@
         <div
           class="post-card-hashtags"
           *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0">
-          <span *ngFor="let ht of post.LstHashTagNews" class="post-hashtag"
-            >{{ ht.HashTagNewsName }}</span
+          <a
+            *ngFor="let ht of post.LstHashTagNews"
+            class="post-hashtag"
+            routerLink="/news"
+            [queryParams]="{ hashTag: ht.HashTagNewsName }"
+            >{{ ht.HashTagNewsName }}</a
           >
         </div>
       </div>

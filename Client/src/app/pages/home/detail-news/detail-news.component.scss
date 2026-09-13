@@ -181,6 +181,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    // Là link lọc theo danh mục: đổi sang accent lúc rê chuột để thấy bấm được.
+    &:hover {
+        background: var(--color-accent);
+        color: #fff;
+    }
 }
 
 .detail-readtime {
@@ -308,6 +316,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    // Cùng cách phản hồi với .detail-badge: cả hai đều là link lọc danh sách.
+    &:hover {
+        background: var(--color-accent);
+        color: #fff;
+    }
 }
 
 .detail-content {

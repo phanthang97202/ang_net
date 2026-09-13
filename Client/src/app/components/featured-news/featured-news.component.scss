@@ -84,15 +84,29 @@
   );
 }
 
+// Link mở bài phủ kín tile. Nằm trên ảnh/overlay nhưng DƯỚI phần nội dung và
+// nhãn thời gian đọc, nên bấm vào badge danh mục là đi tới danh mục chứ không
+// mở bài.
+.featured-tile-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .featured-tile-content {
   position: absolute;
+  z-index: 2;
   inset: auto 0 0 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
   padding: 1rem;
+  // Content phủ hết bề ngang đáy tile, để nguyên thì nó nuốt luôn vùng bấm mở
+  // bài ở dải này. Trả pointer-events cho lớp phủ link, chỉ badge nhận lại.
+  pointer-events: none;
 }
+
 
 .featured-tile--main .featured-tile-content {
   padding: 1.5rem;
@@ -117,6 +131,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+  // .featured-tile-content bỏ pointer-events để không nuốt vùng bấm mở bài,
+  // badge là link nên phải nhận lại.
+  pointer-events: auto;
+  transition: filter 0.2s ease;
+
+  // Badge đã là accent đặc nên không đảo màu được như .post-badge, làm sáng lên
+  // để vẫn có phản hồi lúc rê chuột.
+  &:hover {
+    color: #fff;
+    filter: brightness(1.15);
+  }
 }
 
 .featured-tile-title {
@@ -160,6 +186,7 @@
 // Giống .post-card-readtime của card bài viết.
 .featured-tile-readtime {
   position: absolute;
+  z-index: 2;
   top: 1rem;
   right: 1rem;
   background: rgba(26, 26, 46, 0.55);

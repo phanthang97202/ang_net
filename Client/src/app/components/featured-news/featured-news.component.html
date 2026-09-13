@@ -16,10 +16,12 @@
   </div>
 
   <div class="featured-grid" *ngIf="!isLoading">
-    <!-- Bài chính: ô lớn bên trái, chiếm 2 hàng -->
-    <a
+    <!-- Bài chính: ô lớn bên trái, chiếm 2 hàng.
+         Tile là <div> chứ không phải <a>: badge danh mục bên trong cũng là link,
+         mà <a> lồng <a> là HTML không hợp lệ. Link mở bài là lớp phủ
+         .featured-tile-link, badge nằm đè lên nó. -->
+    <div
       *ngIf="mainPost"
-      [routerLink]="['/news', mainPost.CategoryNewsId, mainPost.NewsId]"
       class="featured-tile featured-tile--main"
       appScrollReveal>
       <div
@@ -30,14 +32,23 @@
         [style.background-color]="mainPost._placeholderColor"></div>
       <div class="featured-tile-overlay"></div>
 
+      <a
+        [routerLink]="['/news', mainPost.CategoryNewsId, mainPost.NewsId]"
+        class="featured-tile-link"
+        [attr.aria-label]="mainPost.ShortTitle"></a>
+
       <span class="featured-tile-readtime">
         {{ mainPost.EstimatedReadingTime }} {{ 'T_MINUTESREAD' | translate }}
       </span>
 
       <div class="featured-tile-content">
-        <span class="featured-tile-badge" *ngIf="mainPost.CategoryNewsName">
+        <a
+          *ngIf="mainPost.CategoryNewsName"
+          class="featured-tile-badge"
+          routerLink="/news"
+          [queryParams]="{ categoryId: mainPost.CategoryNewsId }">
           {{ mainPost.CategoryNewsName }}
-        </span>
+        </a>
         <h3 class="featured-tile-title featured-tile-title--main">
           {{ mainPost.ShortTitle }}
         </h3>
@@ -46,12 +57,11 @@
           {{ mainPost.CreatedDTime | date: 'MMMM d, yyyy' }}
         </p>
       </div>
-    </a>
+    </div>
 
-    <!-- 4 bài phụ: lưới 2x2 bên phải -->
-    <a
+    <!-- 4 bài phụ: lưới 2x2 bên phải. Cùng lý do với ô chính ở trên. -->
+    <div
       *ngFor="let post of subPosts; trackBy: trackById; let i = index"
-      [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
       class="featured-tile"
       appScrollReveal
       [appScrollRevealDelay]="(i + 1) * 90">
@@ -63,12 +73,21 @@
         [style.background-color]="post._placeholderColor"></div>
       <div class="featured-tile-overlay"></div>
 
+      <a
+        [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+        class="featured-tile-link"
+        [attr.aria-label]="post.ShortTitle"></a>
+
       <div class="featured-tile-content">
-        <span class="featured-tile-badge" *ngIf="post.CategoryNewsName">
+        <a
+          *ngIf="post.CategoryNewsName"
+          class="featured-tile-badge"
+          routerLink="/news"
+          [queryParams]="{ categoryId: post.CategoryNewsId }">
           {{ post.CategoryNewsName }}
-        </span>
+        </a>
         <h3 class="featured-tile-title">{{ post.ShortTitle }}</h3>
       </div>
-    </a>
+    </div>
   </div>
 </section>
