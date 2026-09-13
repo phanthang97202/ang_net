@@ -769,3 +769,39 @@ html.cdk-global-scrollblock {
 .ai-assistant-fab {
   transition: opacity 0.2s ease;
 }
+
+// ── iOS: chặn Safari tự phóng to trang khi chạm vào ô nhập ────────────────────
+// Safari/WebKit trên iPhone tự zoom cả trang khi focus vào input có font-size
+// dưới 16px, và KHÔNG tự zoom ra - người dùng phải chụm tay thu lại nên trang
+// như bị kẹt ở trạng thái phóng to. Mọi trình duyệt trên iOS đều vậy vì đều
+// chạy WebKit.
+//
+// ng-zorro để @font-size-base 14px nên toàn bộ form trong app đều dính, không
+// riêng trang nào. Nâng đúng 16px cho các ô nhập ở khổ điện thoại là hết.
+//
+// KHÔNG dùng cách thêm maximum-scale/user-scalable=no vào thẻ viewport: nó cũng
+// chặn luôn việc người dùng tự chụm tay phóng to, gây khó cho người mắt kém.
+//
+// 16px là ngưỡng cứng của WebKit, đừng hạ xuống 15px cho "gọn hơn".
+@media (max-width: 768px) {
+  .ant-input,
+  .ant-input-number-input,
+  .ant-select-selector,
+  .ant-select-selection-search-input,
+  .ant-picker-input > input,
+  textarea.ant-input,
+  input[type='text'],
+  input[type='number'],
+  input[type='email'],
+  input[type='password'],
+  input[type='search'],
+  input[type='tel'],
+  input[type='url'],
+  input[type='date'],
+  input[type='datetime-local'],
+  input[type='time'],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

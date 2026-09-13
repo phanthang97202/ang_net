@@ -40,12 +40,10 @@
                         font-size: 12px;
                     }
 
-                    .ant-input,
-                    .ant-input-number,
-                    .ant-select {
-                        font-size: 12px;
-                    }
-
+                    // Ô nhập KHÔNG hạ xuống 12px nữa: Safari iOS tự phóng to cả
+                    // trang khi chạm vào input có font dưới 16px. styles.scss
+                    // ghim các ô này ở 16px cho toàn app, để 12px ở đây chỉ làm
+                    // phần vỏ lệch với chữ bên trong.
                     .ant-input-number-input {
                         height: 26px;
                     }
