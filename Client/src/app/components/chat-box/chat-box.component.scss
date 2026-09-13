@@ -1,6 +1,9 @@
 .chat__container {
     width: 100%;
-    height: 520px;
+    // Hộp mọc lên từ nút ở góc dưới-phải, nên phải tự co lại trên màn hình thấp
+    // (cửa sổ nhỏ, laptop 768px) thay vì tràn lên che navbar. Trừ đi khoảng nút
+    // chiếm ở đáy cộng chỗ thở cho navbar trên đỉnh.
+    height: min(520px, calc(100vh - 160px));
     display: flex;
     flex-direction: column;
     background: var(--color-bg-card);
@@ -247,7 +250,10 @@
 // Responsive
 @media (max-width: 768px) {
     .chat__container {
-        height: 100vh;
-        border-radius: 0;
+        // Không dùng 100vh nữa: hộp giờ neo phía trên nút nổi và thanh
+        // app-article-rail ở đáy, cao trọn màn hình là tràn hẳn ra ngoài.
+        height: calc(100vh - 190px);
+        // Giữ bo góc: hộp không còn chiếm trọn màn hình nên vẫn là một tấm thẻ
+        // nổi, cắt góc vuông sẽ nhìn như bị cụt.
     }
 }

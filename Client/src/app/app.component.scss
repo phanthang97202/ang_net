@@ -91,62 +91,76 @@ nz-footer {
 
 // =============
 
-// Tab dính ở rìa PHẢI màn hình, đối xứng với nút mục lục bài viết bên trái
-// (.toc-toggle-btn). Trước đây nút này nổi ở góc dưới-phải nên che mất ô gửi
-// bình luận của trang Reels.
+// Nút nổi ở GÓC DƯỚI-PHẢI, chỗ quen thuộc của mọi widget chat.
+//
+// Trước đây là tab dính giữa mép phải (top: 50%), nhưng đó đúng tầm mắt lúc
+// đọc bài nên chắn ngay phần nội dung - trong khi chat chẳng liên quan gì tới
+// bài đang đọc. Thứ thật sự liên quan (tim, bình luận, mục lục) thì đã nằm ở
+// app-article-rail bên trái rồi.
+//
+// Nút CŨNG từng nổi ở góc dưới-phải và bị dời đi vì che ô gửi bình luận của
+// Reels. Giờ quay lại được: cả cụm đã bọc trong *ngIf layoutType !== 'immersive'
+// nên ở Reels không còn render nữa.
 .chat-toggle-btn {
     position: fixed;
-    top: 50%;
-    right: 0;
-    transform: translateY(-50%);
+    bottom: 24px;
+    right: 24px;
     z-index: 1051;
-    width: 30px;
-    height: 46px;
-    font-size: 14px;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 !important;
-    // Bo góc ngược với TOC vì dính mép phải
-    border-radius: 10px 0 0 10px !important;
+    border-radius: 50% !important;
     // Tông trung tính thay cho tím accent: đây là tiện ích phụ, không nên hút
     // mắt bằng nội dung chính. Chỉ chuyển sang accent khi rê chuột.
     background: var(--color-bg-card) !important;
     border: 1px solid var(--color-border) !important;
-    border-right: none !important;
     color: var(--color-text-muted) !important;
-    box-shadow: -2px 2px 12px var(--color-card-shadow);
+    box-shadow: 0 4px 16px var(--color-card-shadow);
     transition:
         background 0.2s ease,
-        color 0.2s ease;
+        color 0.2s ease,
+        transform 0.2s ease;
 
     &:hover {
         background: var(--color-accent-bg) !important;
         color: var(--color-accent) !important;
+        transform: translateY(-2px);
     }
 }
 
 .chat-box-container {
     position: fixed;
-    // Trượt ra từ cạnh tab thay vì nổi từ đáy
-    top: 50%;
-    right: 52px;
-    transform: translateY(-50%);
+    // Mọc lên từ nút: đáy hộp nằm ngay trên nút (24px lề + 48px nút + 12px thở)
+    bottom: 84px;
+    right: 24px;
     width: 400px;
-    max-width: calc(100vw - 72px);
+    max-width: calc(100vw - 48px);
     z-index: 1050;
-    animation: slideInRight 0.3s ease;
+    animation: slideInUp 0.3s ease;
 }
 
-@media (max-width: 640px) {
+// app-article-rail chuyển thành thanh cố định ở ĐÁY màn hình từ mốc 768px
+// (xem article-rail.component.scss), nên nút phải nâng lên khỏi thanh đó -
+// cùng mốc, nếu không hai thứ chồng lên nhau.
+@media (max-width: 768px) {
     .chat-toggle-btn {
-        width: 26px;
-        height: 40px;
-        font-size: 13px;
+        // 55px thanh rail (54px nút + 1px viền trên) + 16px thở, cộng vùng an
+        // toàn của máy có notch đáy.
+        bottom: calc(71px + env(safe-area-inset-bottom, 0px));
+        right: 16px;
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
     }
 
-    // Màn hình hẹp: hộp chat chiếm gần trọn bề ngang cho dễ đọc
     .chat-box-container {
+        // Trên nút: 71px + 44px nút + 12px thở.
+        bottom: calc(127px + env(safe-area-inset-bottom, 0px));
+        // Màn hình hẹp: hộp chat chiếm gần trọn bề ngang cho dễ đọc
         right: 8px;
         left: 8px;
         width: auto;
@@ -154,14 +168,14 @@ nz-footer {
     }
 }
 
-@keyframes slideInRight {
+@keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(-50%) translateX(20px);
+        transform: translateY(16px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(-50%) translateX(0);
+        transform: translateY(0);
     }
 }
