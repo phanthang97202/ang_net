@@ -1,11 +1,17 @@
 <section class="post-list">
-  <!-- Chỉ hiện khi đang lọc (trang /news), trang chủ không có tham số lọc nên
-       không có tiêu đề. Kiểu chữ + gạch nối lấy theo khối bên sidebar. -->
-  <p *ngIf="filterLabelKey" class="post-list-heading">
-    <span>
+  <!-- Luôn có tiêu đề để khối này cùng hạng với "Bài viết nổi bật" và các khối
+       bên sidebar - thiếu nó thì cột trái mở đầu bằng mấy pill trơ, người đọc
+       không biết đang ở khối nào. Đang lọc (trang /news) thì tiêu đề nói rõ
+       lọc theo gì, còn lại là "Tất cả bài viết" - chữ này đúng với cả 3 tab,
+       không trùng tên tab nào. Kiểu chữ + gạch nối lấy theo khối bên sidebar. -->
+  <p class="post-list-heading">
+    <span *ngIf="filterLabelKey; else allPostsHeading">
       {{ filterLabelKey | translate }}
       <strong>&ldquo;{{ filterValue }}&rdquo;</strong>
     </span>
+    <ng-template #allPostsHeading>
+      <span>{{ 'T_ALLPOSTS' | translate }}</span>
+    </ng-template>
     <span class="post-list-heading-line"></span>
   </p>
 

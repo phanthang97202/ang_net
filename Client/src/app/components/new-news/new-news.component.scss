@@ -16,7 +16,7 @@
   // Tiêu đề bên sidebar nằm trong card có padding 24px, còn tiêu đề này nằm sát
   // mép trên cột nên chữ bị cao hơn đúng 24px. Chừa lại bằng ngần ấy để hai
   // dòng chữ thẳng hàng nhau.
-  padding-top: 1.5rem;
+  // padding-top: 1.5rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
@@ -40,12 +40,8 @@
 // Mượn nguyên hai kiểu pill đã có sẵn trên trang: trạng thái thường giống
 // .topic-card (viền mảnh + nền card), trạng thái đang chọn giống .topics-badge
 // (nền accent nhạt + chữ accent).
-// KHÔNG chừa padding-top 24px như .post-list-heading ở trên, dù cùng là khối
-// đầu cột. Lý do: .post-list-heading là chữ thuần, không có nền, nên mắt căn
-// chữ-với-chữ - chừa đúng 24px để chữ nó thẳng hàng với chữ "GIỚI THIỆU" nằm
-// trong card sidebar (card đó padding 24px). Còn pill ở đây CÓ nền và viền
-// riêng, mắt căn theo mép hộp chứ không theo chữ bên trong: chừa 24px làm mép
-// pill tụt xuống đúng 24px so với mép trên card sidebar, thành lệch hẳn.
+// Nằm ngay dưới .post-list-heading, khoảng cách đã có gap 1.5rem của
+// .post-list lo, không cần tự căn với mép trên cột như trước nữa.
 .post-list-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -325,10 +321,12 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
