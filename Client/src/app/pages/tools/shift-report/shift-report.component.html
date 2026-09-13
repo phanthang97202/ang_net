@@ -149,9 +149,6 @@
     </nz-table>
   </nz-card>
   <!-- Modal Form -->
-  <!-- nzWrapClassName để styles.scss chạm được vào lớp bọc: modal này có body
-       cuộn riêng (nzBodyStyle), phải khoá cuộn của lớp ngoài không thì dropdown
-       trong form lệch khỏi ô select. Xem giải thích ở styles.scss. -->
   <nz-modal
     [(nzVisible)]="isModalVisible"
     [nzTitle]="modalTitle"
@@ -159,7 +156,6 @@
     [nzWidth]="modalWidth"
     [nzStyle]="modalStyle"
     [nzBodyStyle]="modalBodyStyle"
-    nzWrapClassName="modal-scroll-inside"
     (nzOnCancel)="handleCancel()"
     [nzFooter]="modalFooter">
     <ng-container *nzModalContent>
