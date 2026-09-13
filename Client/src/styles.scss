@@ -805,3 +805,40 @@ html.cdk-global-scrollblock {
     font-size: 16px !important;
   }
 }
+
+// ── Dropdown trong modal bị lệch khỏi ô select ────────────────────────────────
+// Modal của các trang "Công cụ" đặt height 100vh/95vh kèm body có
+// overflow-y:auto, mà .ant-modal-wrap bao ngoài cũng đã overflow:auto sẵn - hoá
+// ra hai vùng cuộn lồng nhau.
+//
+// nz-select gắn dropdown vào <body> qua CDK overlay và dùng NoopScrollStrategy
+// (mặc định của CDK, ng-zorro không đổi): overlay tính toạ độ đúng MỘT LẦN lúc
+// mở rồi đứng im. Cuộn ở vùng trong thì ô select trôi đi còn dropdown ở lại,
+// nên nó nằm cách ô cả một trường - đúng triệu chứng đang thấy.
+//
+// Khoá vùng cuộn NGOÀI lại, chỉ để body modal cuộn. Còn đúng một ngữ cảnh cuộn
+// thì cuộn tới đâu dropdown bám theo tới đó.
+//
+// Cũng gỡ luôn thủ thuật căn giữa của nzCentered ở khổ này: nó chèn một ::before
+// cao 100% rồi vertical-align:middle, cộng với modal cao 100vh thành nội dung
+// ~200vh trong .ant-modal-wrap - modal bị đẩy tụt xuống. Modal đã cao bằng màn
+// hình thì cũng không còn gì để căn giữa.
+// Chỉ nhắm modal tự khai báo .modal-scroll-inside (qua nzWrapClassName) chứ
+// không áp cho mọi modal: modal thường không có body cuộn riêng, khoá cuộn lớp
+// ngoài là nội dung dài hơn màn hình không cuộn được nữa.
+@media (max-width: 768px) {
+  .modal-scroll-inside {
+    overflow: hidden;
+  }
+
+  .modal-scroll-inside.ant-modal-centered::before {
+    display: none;
+  }
+
+  .modal-scroll-inside.ant-modal-centered .ant-modal {
+    display: block;
+    top: 0;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
