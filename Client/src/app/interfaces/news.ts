@@ -25,6 +25,7 @@ export interface INews {
   EstimatedReadingTime: number;
   ShareCount: number;
   LikeCount: number;
+  IsLikedByMe: boolean;
   AvgPoint: number;
   TotalPoint: number;
   MyPoint: number;
@@ -70,6 +71,7 @@ export interface IDetailNews {
   EstimatedReadingTime: number;
   ShareCount: number;
   LikeCount: number;
+  IsLikedByMe: boolean;
   AvgPoint: number;
   TotalPoint: number;
   MyPoint: number;
@@ -85,3 +87,16 @@ export interface INewsResponse extends IBaseResponse<IDetailNews> {
 export interface IDetailNewsResponse extends IBaseResponse<IDetailNews> {
   Data: IDetailNews;
 }
+
+export interface ILikeNewsResult {
+  NewsId: string;
+  Liked: boolean;
+  LikeCount: number;
+}
+
+export type ILikeNewsResponse = Omit<
+  IBaseResponse<IDetailNews>,
+  'objResult'
+> & {
+  objResult: ILikeNewsResult;
+};

@@ -71,6 +71,8 @@
     "T_MINUTESREAD": "minute(s) read",
     "T_MUCLUC": "List content",
     "T_COMMENTS": "Comments",
+    "T_LIKE": "Like this post",
+    "T_LIKED": "Liked",
     "T_COPYLINK": "Copy link",
     "T_LINKCOPIED": "Copied!",
     "T_BACKTOTOP": "Back to top",

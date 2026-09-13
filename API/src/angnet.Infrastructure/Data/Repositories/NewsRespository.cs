@@ -80,12 +80,13 @@ namespace angnet.Infrastructure.Data.Repositories
         }
 
         /// <summary>
-        /// Gán điểm mà người đang đăng nhập đã chấm cho bài viết (0 = chưa chấm).
+        /// Gán những thứ riêng của người đang đăng nhập: điểm họ đã chấm (0 = chưa
+        /// chấm) và đã thả tim hay chưa.
         /// Phải gọi SAU khi lấy dữ liệu, kể cả khi dữ liệu đến từ cache: cache
-        /// đánh theo newsId / tham số tìm kiếm chứ không theo user, nên điểm riêng
-        /// của từng người không được phép nằm trong phần đem đi cache.
+        /// đánh theo newsId / tham số tìm kiếm chứ không theo user, nên phần riêng
+        /// của từng người không được phép nằm trong dữ liệu đem đi cache.
         /// </summary>
-        private void FillMyPoint(List<RPNewsDto> lstNews)
+        private void FillMyInteractions(List<RPNewsDto> lstNews)
         {
             ClaimsPrincipal user = _httpContextAccessor.HttpContext?.User;
             if (user?.Identity?.IsAuthenticated != true || lstNews.Count == 0)
@@ -104,9 +105,15 @@ namespace angnet.Infrastructure.Data.Repositories
                 .Where(i => i.UserId == userId && lstNewsId.Contains(i.NewsId))
                 .ToDictionary(i => i.NewsId, i => i.Point);
 
+            HashSet<string> myLikes = _dbContext.LikeNews.AsNoTracking()
+                .Where(i => i.UserId == userId && lstNewsId.Contains(i.NewsId))
+                .Select(i => i.NewsId)
+                .ToHashSet();
+
             foreach (RPNewsDto item in lstNews)
             {
                 item.MyPoint = myPoints.TryGetValue(item.NewsId, out double point) ? point : 0;
+                item.IsLikedByMe = myLikes.Contains(item.NewsId);
             }
         }
 
@@ -189,7 +196,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // MyPoint KHÔNG tính ở đây: kết quả của factory bị cache theo newsId /
             // tham số tìm kiếm chứ không theo user, gán điểm riêng của người này vào
             // đây là lần sau người khác đọc cache sẽ nhận đúng điểm đó. Gọi
-            // FillMyPoint() sau khi đã lấy dữ liệu (kể cả từ cache) thay cho việc này.
+            // FillMyInteractions() sau khi đã lấy dữ liệu (kể cả từ cache) thay cho việc này.
 
             // Get LikeCount of News
             List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
@@ -388,7 +395,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
-            FillMyPoint(dataResponse);
+            FillMyInteractions(dataResponse);
 
             PageInfo<RPNewsDto> pageInfo = new PageInfo<RPNewsDto>();
             pageInfo.PageIndex = pageIndex;
@@ -602,7 +609,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
-            FillMyPoint(new List<RPNewsDto> { rsNews });
+            FillMyInteractions(new List<RPNewsDto> { rsNews });
 
             apiResponse.Data = rsNews;
 
@@ -844,6 +851,7 @@ namespace angnet.Infrastructure.Data.Repositories
             LikeNewsModel objLikeNews = new LikeNewsModel();
             bool isExistRecordLikeNews = CheckLikeNewsExist(newsId, currentUserId, ref objLikeNews);
 
+            bool liked;
             if (!isExistRecordLikeNews)
             {
                 await _dbContext.LikeNews.AddAsync(new LikeNewsModel
@@ -854,17 +862,32 @@ namespace angnet.Infrastructure.Data.Repositories
                     UpdatedDTime = TCommonUtils.DTimeNow()
                 });
                 await _dbContext.SaveChangesAsync();
+                liked = true;
             }
             else
             {
                 await _dbContext.LikeNews.Where(i => i.LikeNewsId == objLikeNews.LikeNewsId).ExecuteDeleteAsync();
                 await _dbContext.SaveChangesAsync();
-
-                // delete cached search api
-                string keyStoreManager = TConstValue.NewsRespository_Search;
-                await DeleteCachedAsync(keyStoreManager);
+                liked = false;
             }
+
+            // Xoá cache cho CẢ hai nhánh: trước đây chỉ nhánh bỏ like mới xoá, nên
+            // sau khi like, tab "Yêu thích" vẫn sắp xếp theo số liệu cũ.
+            string keyStoreManager = TConstValue.NewsRespository_Search;
+            await DeleteCachedAsync(keyStoreManager);
+
+            // Cache của Detail giữ LikeCount, không xoá thì số tim trên trang bài
+            // viết đứng yên cho tới khi cache hết hạn.
+            await DeleteCachedAsync(GenerateUniqueCacheKey(TConstValue.NewsRespository_Detail, $"({newsId})"));
             #endregion
+
+            // Trả lại trạng thái mới để client khỏi phải gọi thêm Detail.
+            apiResponse.objResult = new LikeNewsResultDto
+            {
+                NewsId = objNews.NewsId,
+                Liked = liked,
+                LikeCount = _dbContext.LikeNews.AsNoTracking().Count(i => i.NewsId == objNews.NewsId)
+            };
 
             return apiResponse;
         }

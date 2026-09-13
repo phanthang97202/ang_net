@@ -59,6 +59,18 @@
   }
 }
 
+// Tim dùng màu đỏ riêng chứ không mượn accent tím như các nút khác: đây là màu
+// quy ước của "đã thích", và cũng để không lẫn với nút mục lục đang mở.
+.rail-btn--like.is-liked {
+  color: #e0245e;
+  background: rgba(224, 36, 94, 0.1);
+
+  &:hover {
+    color: #e0245e;
+    background: rgba(224, 36, 94, 0.16);
+  }
+}
+
 .rail-count {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.7rem;

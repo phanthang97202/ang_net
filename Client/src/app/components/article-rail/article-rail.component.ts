@@ -1,9 +1,11 @@
 import {
   Component,
   DestroyRef,
+  EventEmitter,
   Input,
   NgZone,
   OnInit,
+  Output,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -29,6 +31,12 @@ const COMMENTS_ANCHOR_ID = 'news-comments';
 })
 export class ArticleRailComponent implements OnInit {
   @Input() commentCount = 0;
+  @Input() likeCount = 0;
+  @Input() isLiked = false;
+
+  // Rail chỉ là thanh điều khiển, việc gọi API để trang chi tiết lo - nó mới
+  // là nơi giữ detailNews.
+  @Output() likeToggle = new EventEmitter<void>();
 
   tocPanel = inject(TocPanelService);
   private destroyRef = inject(DestroyRef);

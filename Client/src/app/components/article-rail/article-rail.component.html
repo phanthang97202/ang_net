@@ -13,6 +13,25 @@
     <span class="rail-tip">{{ 'T_MUCLUC' | translate }}</span>
   </button>
 
+  <!-- Tim đổ đầy khi đã thích, để phân biệt ngay với trạng thái chưa thích mà
+       không cần đọc số bên cạnh. -->
+  <button
+    type="button"
+    class="rail-btn rail-btn--like"
+    [class.is-liked]="isLiked"
+    [attr.aria-label]="'T_LIKE' | translate"
+    [attr.aria-pressed]="isLiked"
+    (click)="likeToggle.emit()">
+    <span
+      nz-icon
+      nzType="heart"
+      [nzTheme]="isLiked ? 'fill' : 'outline'"></span>
+    <span class="rail-count">{{ likeCount }}</span>
+    <span class="rail-tip">
+      {{ (isLiked ? 'T_LIKED' : 'T_LIKE') | translate }}
+    </span>
+  </button>
+
   <button
     type="button"
     class="rail-btn"

@@ -3,7 +3,11 @@
        theo cả chiều dài bài chứ không bị cuốn theo nội dung. -->
   <div class="news__main">
     <div class="news__rail">
-      <app-article-rail [commentCount]="commentCount"></app-article-rail>
+      <app-article-rail
+        [commentCount]="commentCount"
+        [likeCount]="detailNews?.LikeCount || 0"
+        [isLiked]="detailNews?.IsLikedByMe || false"
+        (likeToggle)="toggleLike()"></app-article-rail>
     </div>
 
     <div class="news__content">

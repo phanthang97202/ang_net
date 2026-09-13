@@ -11,6 +11,7 @@ import {
   INewsCategoryPreviewResponse,
   ICreateNews,
   IDetailNewsResponse,
+  ILikeNewsResponse,
   INewsResponse,
   IAuditTrailResponse,
   IBaseResponse,
@@ -177,6 +178,14 @@ export class ApiService {
     // api/News/Detail?key=
     return this.http.get<IDetailNewsResponse>(
       `${this.apiUrl}news/detail?newsid=${newsId}`
+    );
+  }
+
+  // Toggle: đã tim rồi thì bấm lại là bỏ tim.
+  NewsLike(newsId: string): Observable<ILikeNewsResponse> {
+    return this.http.post<ILikeNewsResponse>(
+      `${this.apiUrl}news/like?newsId=${encodeURIComponent(newsId)}`,
+      {}
     );
   }
 

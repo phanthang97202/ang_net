@@ -1,7 +1,13 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzImageService } from 'ng-zorro-antd/image';
-import { ApiService, ShowErrorService, SITE_TITLE } from '../../../services';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import {
+  ApiService,
+  AuthService,
+  ShowErrorService,
+  SITE_TITLE,
+} from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, Title } from '@angular/platform-browser';
@@ -31,6 +37,11 @@ export class DetailNewsComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
   router = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+  private message = inject(NzMessageService);
+
+  // Chặn bấm tim liên tiếp khi request trước chưa về, tránh trạng thái nhảy loạn.
+  isLiking = false;
 
   // Cờ riêng của trang thay vì LoadingService: service đó đếm request của toàn
   // app và cũng là thứ bật spinner che kín màn hình, nên skeleton ở đây vừa bị
@@ -46,6 +57,54 @@ export class DetailNewsComponent implements OnInit {
   onRated(result: { avgPoint: number; totalPoint: number }): void {
     this.detailNews.AvgPoint = result.avgPoint;
     this.detailNews.TotalPoint = result.totalPoint;
+  }
+
+  toggleLike(): void {
+    if (!this.detailNews) return;
+
+    if (!this.authService.isLoggedIn()) {
+      this.message.info('Bạn cần đăng nhập để thích bài viết.');
+      return;
+    }
+    if (this.isLiking) return;
+
+    const previousLiked = this.detailNews.IsLikedByMe;
+    const previousCount = this.detailNews.LikeCount;
+    // Đổi tim ngay để bấm có phản hồi tức thì, hỏng thì trả lại bên dưới.
+    this.detailNews.IsLikedByMe = !previousLiked;
+    this.detailNews.LikeCount = previousCount + (previousLiked ? -1 : 1);
+    this.isLiking = true;
+
+    this.apiService
+      .NewsLike(this.detailNews.NewsId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.isLiking = false;
+          if (!res?.Success) {
+            this.detailNews.IsLikedByMe = previousLiked;
+            this.detailNews.LikeCount = previousCount;
+            this.message.error(
+              res?.ErrorMessage
+                ? `Không thực hiện được (${res.ErrorMessage}).`
+                : 'Không thực hiện được, vui lòng thử lại.'
+            );
+            return;
+          }
+          // Lấy số thật từ server thay vì giữ con số vừa tự cộng: người khác
+          // cũng có thể đã tim bài này trong lúc đó.
+          if (res.objResult) {
+            this.detailNews.IsLikedByMe = res.objResult.Liked;
+            this.detailNews.LikeCount = res.objResult.LikeCount;
+          }
+        },
+        error: () => {
+          this.isLiking = false;
+          this.detailNews.IsLikedByMe = previousLiked;
+          this.detailNews.LikeCount = previousCount;
+          this.message.error('Không thực hiện được, vui lòng thử lại.');
+        },
+      });
   }
 
   private imageService = inject(NzImageService);
