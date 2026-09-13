@@ -1,0 +1,157 @@
+:host {
+  display: block;
+}
+
+.rating {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: var(--color-bg-card);
+  border-radius: 20px;
+  box-shadow: 0 2px 16px var(--color-card-shadow);
+  padding: 1.5rem;
+}
+
+// Cùng kiểu tiêu đề với .post-list-heading và .featured-heading.
+.rating-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.15px;
+  color: var(--color-text);
+}
+
+.rating-heading-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.rating-body {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+}
+
+.rating-summary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  // Vạch ngăn hai cột, ở khổ hẹp thì xuống dòng nên bỏ vạch đi.
+  padding-right: 2rem;
+  border-right: 1px solid var(--color-border);
+
+  @media (max-width: 640px) {
+    padding-right: 0;
+    border-right: none;
+  }
+}
+
+.rating-score {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.rating-score-max {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.rating-count {
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.rating-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rating-star {
+  padding: 0;
+  border: none;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+    // Sao chưa chọn để rỗng viền xám, chọn rồi mới đổ màu - giống cách các
+    // trang TMĐT phân biệt "chưa chấm" với "đã chấm".
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 1.5;
+    transition: fill 0.15s ease, stroke 0.15s ease, transform 0.15s ease;
+  }
+
+  &.is-on svg {
+    fill: #f5a623;
+    stroke: #f5a623;
+  }
+
+  // Rê chuột thì sao phóng nhẹ để thấy rõ mình đang trỏ tới mức nào.
+  &:hover:not(:disabled) svg,
+  &:focus-visible svg {
+    transform: scale(1.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.rating-hint {
+  margin: 0;
+  min-height: 1.2rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+
+  &.is-active {
+    color: #f5a623;
+  }
+}
+
+.rating-note {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-accent);
+  }
+}

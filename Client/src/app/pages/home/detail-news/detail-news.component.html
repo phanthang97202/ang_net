@@ -111,6 +111,16 @@
               [showToc]="true">
             </app-news-content>
           </div>
+
+          <!-- Đặt ngay sau nội dung, trước phần bình luận: người vừa đọc xong
+               mới có cơ sở để chấm điểm. -->
+          <app-news-rating
+            class="detail-rating"
+            [newsId]="detailNews.NewsId"
+            [avgPoint]="detailNews.AvgPoint"
+            [totalPoint]="detailNews.TotalPoint"
+            [myPoint]="detailNews.MyPoint"
+            (rated)="onRated($event)" />
         </div>
       </article>
 

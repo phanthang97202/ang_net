@@ -180,6 +180,16 @@ export class ApiService {
     );
   }
 
+  // point theo thang 10 của backend (UI 5 sao thì nhân đôi trước khi gọi).
+  NewsPoint(newsId: string, point: number): Observable<IDetailNewsResponse> {
+    return this.http.post<IDetailNewsResponse>(
+      `${this.apiUrl}news/point?newsId=${encodeURIComponent(
+        newsId
+      )}&point=${point}`,
+      {}
+    );
+  }
+
   CreateNews(obj: ICreateNews): Observable<IDetailNewsResponse> {
     return this.http.post<IDetailNewsResponse>(`${this.apiUrl}news/create`, {
       Thumbnail: obj.Thumbnail,

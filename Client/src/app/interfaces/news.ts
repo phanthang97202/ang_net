@@ -26,6 +26,8 @@ export interface INews {
   ShareCount: number;
   LikeCount: number;
   AvgPoint: number;
+  TotalPoint: number;
+  MyPoint: number;
 }
 
 interface IHashTagNews {
@@ -69,6 +71,8 @@ export interface IDetailNews {
   ShareCount: number;
   LikeCount: number;
   AvgPoint: number;
+  TotalPoint: number;
+  MyPoint: number;
   LstHashTagNews: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }

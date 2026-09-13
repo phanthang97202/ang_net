@@ -11,6 +11,7 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../modules';
 import { NewsCommentsComponent } from './news-comments/news-comments.component';
+import { NewsRatingComponent } from '../../../components/news-rating/news-rating.component';
 import { buildNewsSlides, stepSlide } from '../../../helpers';
 
 @Component({
@@ -21,6 +22,7 @@ import { buildNewsSlides, stepSlide } from '../../../helpers';
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
     NewsCommentsComponent,
+    NewsRatingComponent,
   ],
   templateUrl: './detail-news.component.html',
   styleUrl: './detail-news.component.scss',
@@ -38,6 +40,13 @@ export class DetailNewsComponent implements OnInit {
   // Số bình luận do app-news-comments đếm (gồm cả trả lời lồng nhau), chuyển
   // sang thanh công cụ bên trái để hiện cạnh icon bình luận.
   commentCount = 0;
+
+  // Giữ điểm mới ngay trên detailNews để nếu có chỗ khác trong trang cùng đọc
+  // AvgPoint thì không bị lệch với con số khối đánh giá đang hiện.
+  onRated(result: { avgPoint: number; totalPoint: number }): void {
+    this.detailNews.AvgPoint = result.avgPoint;
+    this.detailNews.TotalPoint = result.totalPoint;
+  }
 
   private imageService = inject(NzImageService);
   private destroyRef = inject(DestroyRef);

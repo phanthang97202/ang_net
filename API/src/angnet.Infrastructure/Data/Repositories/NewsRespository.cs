@@ -79,6 +79,37 @@ namespace angnet.Infrastructure.Data.Repositories
                    && user.FindFirstValue(ClaimTypes.NameIdentifier) == authorUserId;
         }
 
+        /// <summary>
+        /// Gán điểm mà người đang đăng nhập đã chấm cho bài viết (0 = chưa chấm).
+        /// Phải gọi SAU khi lấy dữ liệu, kể cả khi dữ liệu đến từ cache: cache
+        /// đánh theo newsId / tham số tìm kiếm chứ không theo user, nên điểm riêng
+        /// của từng người không được phép nằm trong phần đem đi cache.
+        /// </summary>
+        private void FillMyPoint(List<RPNewsDto> lstNews)
+        {
+            ClaimsPrincipal user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true || lstNews.Count == 0)
+            {
+                return;
+            }
+
+            string userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (TCommonUtils.IsNullOrEmpty(userId))
+            {
+                return;
+            }
+
+            List<string> lstNewsId = lstNews.Select(i => i.NewsId).ToList();
+            Dictionary<string, double> myPoints = _dbContext.PointNews.AsNoTracking()
+                .Where(i => i.UserId == userId && lstNewsId.Contains(i.NewsId))
+                .ToDictionary(i => i.NewsId, i => i.Point);
+
+            foreach (RPNewsDto item in lstNews)
+            {
+                item.MyPoint = myPoints.TryGetValue(item.NewsId, out double point) ? point : 0;
+            }
+        }
+
         public bool CheckNewsExist(string newsId, ref NewsModel data)
         {
             NewsModel record = _dbContext.News.AsNoTracking().FirstOrDefault(n => n.NewsId == newsId);
@@ -155,6 +186,11 @@ namespace angnet.Infrastructure.Data.Repositories
                 avgPoint = 0;
             }
 
+            // MyPoint KHÔNG tính ở đây: kết quả của factory bị cache theo newsId /
+            // tham số tìm kiếm chứ không theo user, gán điểm riêng của người này vào
+            // đây là lần sau người khác đọc cache sẽ nhận đúng điểm đó. Gọi
+            // FillMyPoint() sau khi đã lấy dữ liệu (kể cả từ cache) thay cho việc này.
+
             // Get LikeCount of News
             List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
             int countLike;
@@ -189,6 +225,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.ShareCount = 0;
             rsNews.LikeCount = countLike;
             rsNews.AvgPoint = avgPoint;
+            rsNews.TotalPoint = dtPointNews.Count;
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
             rsNews.EstimatedReadingTime = estimatedReadingTime;
@@ -349,6 +386,9 @@ namespace angnet.Infrastructure.Data.Repositories
                 List<RPNewsDto> parseDataResult = TCommonUtils.ParseJsonStringify<List<RPNewsDto>>(rsNewsCached);
                 dataResponse = parseDataResult;
             }
+
+            // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
+            FillMyPoint(dataResponse);
 
             PageInfo<RPNewsDto> pageInfo = new PageInfo<RPNewsDto>();
             pageInfo.PageIndex = pageIndex;
@@ -560,6 +600,9 @@ namespace angnet.Infrastructure.Data.Repositories
             {
                 rsNews = rsNewsCached;
             }
+
+            // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
+            FillMyPoint(new List<RPNewsDto> { rsNews });
 
             apiResponse.Data = rsNews;
 
@@ -892,44 +935,35 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (!isExistRecordPointNews)
             {
-                // Cách 1
-                //FormattableString sql = $"insert into PointNews(NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) values ({objNews.NewsId}, {currentUserId}, {pointVal}, {true}, {TCommonUtils.DTimeNow()}, {TCommonUtils.DTimeNow()})";
-                //_dbContext.Database.ExecuteSql(sql);
-
-                // Cách 2
-                //await _dbContext.PointNews.AddAsync(new PointNewsModel
-                //{
-                //    NewsId = objNews.NewsId,
-                //    UserId = currentUserId,
-                //    Point = pointVal,
-                //    FlagActive = true,
-                //    CreatedDTime = TCommonUtils.DTimeNow(),
-                //    UpdatedDTime = TCommonUtils.DTimeNow()
-                //});
-                //await _dbContext.SaveChangesAsync();
-
-                // Cách 3: Using Dapper
-                //using (var connection = new SqliteConnection(_connectionString))
-                //{
-                //    string sql = @"INSERT INTO PointNews (NewsId, UserId, Point, FlagActive, CreatedDTime, UpdatedDTime) 
-                //   VALUES (@NewsId, @UserId, @Point, @FlagActive, @CreatedDTime, @UpdatedDTime)";
-
-                //    await connection.ExecuteAsync(sql, new
-                //    {
-                //        NewsId = objNews.NewsId,
-                //        UserId = currentUserId,
-                //        Point = pointVal,
-                //        FlagActive = true,
-                //        CreatedDTime = TCommonUtils.DTimeNow(),
-                //        UpdatedDTime = TCommonUtils.DTimeNow()
-                //    });
-                //}
-
-                // delete cached search api
-                string keyStoreManager = TConstValue.NewsRespository_Search;
-                await DeleteCachedAsync(keyStoreManager);
-
+                await _dbContext.PointNews.AddAsync(new PointNewsModel
+                {
+                    NewsId = objNews.NewsId,
+                    UserId = currentUserId,
+                    Point = pointVal,
+                    FlagActive = true,
+                    CreatedDTime = TCommonUtils.DTimeNow(),
+                    UpdatedDTime = TCommonUtils.DTimeNow()
+                });
+                await _dbContext.SaveChangesAsync();
             }
+            else
+            {
+                // Chấm lại thì ghi đè điểm cũ chứ không thêm bản ghi mới - khóa chính
+                // là cặp (NewsId, UserId) nên mỗi người chỉ có đúng 1 điểm cho 1 bài.
+                await _dbContext.PointNews
+                    .Where(i => i.NewsId == objNews.NewsId && i.UserId == currentUserId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(i => i.Point, pointVal)
+                        .SetProperty(i => i.UpdatedDTime, TCommonUtils.DTimeNow()));
+            }
+
+            // delete cached search api
+            string keyStoreManager = TConstValue.NewsRespository_Search;
+            await DeleteCachedAsync(keyStoreManager);
+
+            // Cache của Detail giữ cả AvgPoint/TotalPoint, không xoá thì điểm trung
+            // bình trên trang bài viết đứng yên cho tới khi cache hết hạn.
+            await DeleteCachedAsync(GenerateUniqueCacheKey(TConstValue.NewsRespository_Detail, $"({newsId})"));
             #endregion
 
             return apiResponse;

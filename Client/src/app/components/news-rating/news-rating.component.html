@@ -1,0 +1,62 @@
+<section class="rating">
+  <p class="rating-heading">
+    <span>{{ 'T_RATING_TITLE' | translate }}</span>
+    <span class="rating-heading-line"></span>
+  </p>
+
+  <div class="rating-body">
+    <!-- Cột trái: điểm đã có của bài. Hiện cả khi chưa ai chấm để người đọc
+         biết mình là người đầu tiên. -->
+    <div class="rating-summary">
+      <span class="rating-score">{{ avgStars | number: '1.1-1' }}</span>
+      <span class="rating-score-max">/ 5</span>
+      <span class="rating-count">
+        {{
+          totalPoint > 0
+            ? totalPoint + ' ' + ('T_RATING_COUNT' | translate)
+            : ('T_RATING_EMPTY' | translate)
+        }}
+      </span>
+    </div>
+
+    <!-- Cột phải: hàng sao bấm được. role=radiogroup để đọc màn hình hiểu đây
+         là chọn 1 trong 5 chứ không phải 5 nút rời rạc. -->
+    <div class="rating-picker">
+      <div
+        class="rating-stars"
+        role="radiogroup"
+        [attr.aria-label]="'T_RATING_TITLE' | translate"
+        (mouseleave)="onLeave()">
+        <button
+          type="button"
+          class="rating-star"
+          *ngFor="let star of stars"
+          role="radio"
+          [class.is-on]="star <= activeStars"
+          [class.is-mine]="star <= myStars && !hoverStars"
+          [attr.aria-checked]="star === myStars"
+          [attr.aria-label]="star + ' / 5'"
+          [disabled]="isSubmitting"
+          (mouseenter)="onEnter(star)"
+          (focus)="onEnter(star)"
+          (blur)="onLeave()"
+          (click)="rate(star)">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="rating-hint" [class.is-active]="activeStars > 0">
+        {{ hintKey | translate }}
+      </p>
+
+      <p class="rating-note" *ngIf="myStars > 0">
+        {{ 'T_RATING_MINE' | translate }}
+        <strong>{{ myStars }}/5</strong> —
+        {{ 'T_RATING_CHANGE' | translate }}
+      </p>
+    </div>
+  </div>
+</section>

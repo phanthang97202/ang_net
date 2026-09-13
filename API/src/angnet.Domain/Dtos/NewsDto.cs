@@ -36,6 +36,8 @@
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích
         public double AvgPoint { get; set; } // Trung bình lượt đánh giá * (thang điểm 10)
+        public int TotalPoint { get; set; } // Số lượt đánh giá
+        public double MyPoint { get; set; } // Điểm người đang đăng nhập đã chấm, 0 = chưa chấm
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
 
         public List<RefFileNewsDto> LstRefFileNews { get; set; } = new List<RefFileNewsDto>(); //  File đính kèm  

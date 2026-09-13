@@ -314,6 +314,11 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.detail-rating {
+    display: block;
+    margin-top: 2rem;
+}
+
 // Khớp với .detail-thumb của bài viết thật. Bo góc và khoảng cách dưới do
 // .detail-card lo (border-radius + overflow:hidden), nên ở đây không đặt nữa.
 ::ng-deep.detail__news-skeleton {
