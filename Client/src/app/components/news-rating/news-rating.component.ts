@@ -96,7 +96,13 @@ export class NewsRatingComponent {
           this.isSubmitting = false;
           if (!res?.Success) {
             this.myStars = previousStars;
-            this.message.error('Không gửi được đánh giá, vui lòng thử lại.');
+            // Kèm mã lỗi của server: Success=false về kèm HTTP 200 nên nếu chỉ
+            // báo chung chung thì không lần ra được hỏng ở đâu.
+            this.message.error(
+              res?.ErrorMessage
+                ? `Không gửi được đánh giá (${res.ErrorMessage}).`
+                : 'Không gửi được đánh giá, vui lòng thử lại.'
+            );
             return;
           }
           this.applyLocalAverage(previousStars, star);

@@ -52,8 +52,10 @@ export class AuthInterceptor implements HttpInterceptor {
       // đồng nghĩa không bao giờ gắn token - server luôn thấy request ẩn danh nên
       // admin không xem được bài chưa xuất bản. Cả 2 endpoint đều [AllowAnonymous]
       // nên khách vãng lai vẫn gọi bình thường (header chỉ gắn khi đã đăng nhập).
-      'news/like',
-      'news/point',
+      //
+      // news/like và news/point CŨNG từng nằm ở đây với cùng hậu quả, mà còn nặng
+      // hơn: cả hai đều lấy UserId từ token để biết ai like / ai chấm điểm, không
+      // gắn token là server trả UserNotFound nên không bao giờ lưu được.
       // ----
       'hashtagnews/gettophashtag',
       'cloudinary.com',
