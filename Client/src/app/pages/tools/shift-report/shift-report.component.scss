@@ -64,6 +64,9 @@
     }
 }
 
+// Xếp chồng NGAY TRÊN nút chat chung của app (.chat-toggle-btn ở
+// app.component.scss: bottom 24px, cao 48px) vì cùng dính mép phải.
+// 90px = 24 + 48 + 18px thở.
 .ai-assistant-fab {
     position: fixed;
     bottom: 90px;
@@ -89,9 +92,15 @@
     }
 }
 
-@media (max-width: 640px) {
+// Mốc 768px chứ không phải 640px: .chat-toggle-btn đổi vị trí đúng ở mốc đó
+// (nó phải né thanh app-article-rail dính đáy). Để lệch mốc thì trong dải
+// 641-768px nút này đã thu nhỏ xuống bottom 68px trong khi nút chat vẫn ở
+// bottom 24px cao 48px - hai nút chồng đè lên nhau.
+@media (max-width: 768px) {
     .ai-assistant-fab {
-        bottom: 68px;
+        // Nút chat ở khổ này là bottom 71px, cao 44px => đỉnh 115px, cộng 12px
+        // thở. Kèm safe-area giống nút chat để không lọt vào thanh cử chỉ.
+        bottom: calc(127px + env(safe-area-inset-bottom, 0px));
         right: 16px;
         width: 44px;
         height: 44px;

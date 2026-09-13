@@ -168,6 +168,9 @@ nz-footer {
     }
 }
 
+// Quy tắc ẩn nút này khi có modal mở nằm ở styles.scss (global): selector phải
+// bắt từ <html> nên không viết được trong file có encapsulation.
+
 @keyframes slideInUp {
     from {
         opacity: 0;

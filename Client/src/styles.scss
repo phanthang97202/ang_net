@@ -739,3 +739,33 @@ quill-editor {
   height: auto;
   max-height: 100%;
 }
+
+// ── Ẩn nút nổi khi có modal mở ────────────────────────────────────────────────
+// Nút chat chung và nút trợ lý AI đều fixed ở góc dưới-phải, nên khi bật hộp
+// thoại Tạo mới/Cập nhật chúng nổi đè lên đúng vùng thao tác.
+//
+// Bắt theo .cdk-global-scrollblock: CDK gắn class này lên <html> lúc khoá cuộn
+// nền, mà ng-zorro modal dùng đúng scrollStrategies.block(). Nhờ vậy một quy tắc
+// ở đây bắt được MỌI modal trong app, không phải đi sửa từng component và modal
+// thêm sau này cũng tự có.
+//
+// Phải đặt ở file global: selector bắt từ <html> nên viết trong stylesheet của
+// component (có encapsulation) sẽ không bao giờ khớp.
+//
+// Ẩn bằng opacity + pointer-events chứ không display:none - nút nằm ngoài modal
+// nên không cần giành lại vùng bấm, mà giữ trong luồng layout thì lúc đóng modal
+// nó mờ dần hiện lại thay vì bật ra đột ngột.
+html.cdk-global-scrollblock {
+  .chat-toggle-btn,
+  .chat-box-container,
+  .ai-assistant-fab {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.chat-toggle-btn,
+.chat-box-container,
+.ai-assistant-fab {
+  transition: opacity 0.2s ease;
+}
