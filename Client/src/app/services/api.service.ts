@@ -16,6 +16,9 @@ import {
   IAuditTrailResponse,
   ISearchAuditTrailRequest,
   IResponseAuditTrailSearch,
+  IPermissionCatalogueResponse,
+  IRolePermissionResponse,
+  IUpdateRolePermissionRequest,
   IBaseResponse,
   IVisitStats,
   ISearchSysParameterRequest,
@@ -377,6 +380,28 @@ export class ApiService {
   GetAllActiveAuditTrail(): Observable<IAuditTrailResponse> {
     return this.http.get<IAuditTrailResponse>(
       `${this.apiUrl}audittrail/getallactive`
+    );
+  }
+
+  // Permission (phân quyền theo vai trò)
+  PermissionCatalogue(): Observable<IPermissionCatalogueResponse> {
+    return this.http.get<IPermissionCatalogueResponse>(
+      `${this.apiUrl}SysPermission/Catalogue`
+    );
+  }
+
+  PermissionOfRole(roleId: string): Observable<IRolePermissionResponse> {
+    return this.http.get<IRolePermissionResponse>(
+      `${this.apiUrl}SysPermission/OfRole?roleId=${encodeURIComponent(roleId)}`
+    );
+  }
+
+  PermissionUpdateOfRole(
+    request: IUpdateRolePermissionRequest
+  ): Observable<IRolePermissionResponse> {
+    return this.http.post<IRolePermissionResponse>(
+      `${this.apiUrl}SysPermission/UpdateOfRole`,
+      { ...request }
     );
   }
 

@@ -17,10 +17,16 @@ import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 // NzEmptyModule không nằm trong AntdModule lẫn REUSE_COMPONENT_MODULES nên phải
 // khai báo riêng ở đây.
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { RolePermissionComponent } from '../../../components';
 @Component({
   selector: 'app-role-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, NzEmptyModule],
+  imports: [
+    AntdModule,
+    ...REUSE_COMPONENT_MODULES,
+    NzEmptyModule,
+    RolePermissionComponent,
+  ],
   templateUrl: './role-list.component.html',
   styleUrl: './role-list.component.scss',
 })

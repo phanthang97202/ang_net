@@ -11,6 +11,7 @@ export * from './province';
 export * from './sys-parameter';
 export * from './home-config';
 export * from './role';
+export * from './permission';
 export * from './user';
 export * from './audit-trail';
 export * from './visit-stats';

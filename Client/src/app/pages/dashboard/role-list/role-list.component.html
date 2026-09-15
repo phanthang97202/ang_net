@@ -17,6 +17,14 @@
       </nz-card>
     </div>
 
+    <!-- Phân quyền chiếm trọn chiều ngang: 9 nhóm checkbox không đủ chỗ trong
+         nửa cột bên trái. -->
+    <div nz-col [nzSpan]="24">
+      <nz-card nzTitle="Phân quyền cho vai trò" class="role__card">
+        <app-role-permission [lstRoles]="lstRoles" />
+      </nz-card>
+    </div>
+
     <!-- Cột phải: danh sách vai trò -->
     <div nz-col [nzXs]="24" [nzLg]="14">
       <nz-card nzTitle="Danh sách vai trò" class="role__card">

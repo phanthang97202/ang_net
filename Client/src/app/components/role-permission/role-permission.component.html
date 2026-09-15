@@ -1,0 +1,85 @@
+<div class="perm">
+  <!-- Chọn vai trò -->
+  <div class="perm__picker">
+    <nz-select
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="Chọn vai trò để phân quyền"
+      class="perm__picker-select"
+      [ngModel]="selectedRoleId"
+      (ngModelChange)="handleSelectRole($event)">
+      <nz-option
+        *ngFor="let role of lstRoles"
+        [nzValue]="role.Id"
+        [nzLabel]="role.Name" />
+    </nz-select>
+  </div>
+
+  <!-- Admin bỏ qua mọi kiểm tra quyền ở backend nên gán quyền không có tác dụng -->
+  <nz-alert
+    *ngIf="isAdminRole"
+    nzType="info"
+    nzShowIcon
+    class="perm__alert"
+    nzMessage="Vai trò Admin luôn có toàn quyền"
+    nzDescription="Hệ thống cho Admin đi qua mọi kiểm tra quyền, nên việc tick chọn ở đây không làm thay đổi quyền thực tế của Admin." />
+
+  <ng-container *ngIf="selectedRoleId; else pickRoleFirst">
+    <nz-spin [nzSpinning]="isLoadingRole || isLoadingCatalogue">
+      <div class="perm__modules">
+        <div *ngFor="let mod of catalogue" class="perm__module">
+          <div class="perm__module-head">
+            <label
+              nz-checkbox
+              [nzChecked]="isModuleAllChecked(mod)"
+              [nzIndeterminate]="isModuleIndeterminate(mod)"
+              (nzCheckedChange)="toggleModule(mod, $event)">
+              <strong>{{ mod.ModuleNameVi }}</strong>
+            </label>
+            <span class="perm__module-count">
+              {{ countCheckedOf(mod) }}/{{ mod.Permissions.length }}
+            </span>
+          </div>
+
+          <div class="perm__items">
+            <label
+              *ngFor="let p of mod.Permissions"
+              nz-checkbox
+              class="perm__item"
+              [nzChecked]="isChecked(p.PermissionCode)"
+              (nzCheckedChange)="togglePermission(p.PermissionCode, $event)"
+              [title]="p.DescriptionVi">
+              {{ p.PermissionNameVi }}
+              <code class="perm__code">{{ p.PermissionCode }}</code>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="perm__actions">
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [disabled]="!hasChanges"
+          [nzLoading]="isSaving"
+          (click)="handleSave()">
+          Lưu ({{ selected.size }} quyền)
+        </button>
+        <button
+          class="ml-1"
+          nz-button
+          nzType="default"
+          type="button"
+          [disabled]="!hasChanges"
+          (click)="handleReset()">
+          Hoàn tác
+        </button>
+      </div>
+    </nz-spin>
+  </ng-container>
+
+  <ng-template #pickRoleFirst>
+    <nz-empty nzNotFoundContent="Chọn một vai trò để xem và sửa quyền" />
+  </ng-template>
+</div>

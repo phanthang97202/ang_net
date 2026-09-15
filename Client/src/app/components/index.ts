@@ -2,6 +2,7 @@ export * from './assign-role/assign-role.component';
 export * from './breadcrumb/breadcrumb.component';
 export * from './chat-box/chat-box.component';
 export * from './create-role/create-role.component';
+export * from './role-permission/role-permission.component';
 export * from './error-popup/error-popup.component';
 export * from './footer/footer.component';
 export * from './hash-tag/hash-tag.component';
