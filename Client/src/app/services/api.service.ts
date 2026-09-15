@@ -19,6 +19,9 @@ import {
   IPermissionCatalogueResponse,
   IRolePermissionResponse,
   IUpdateRolePermissionRequest,
+  ISysMenuTreeResponse,
+  ISysMenuSaveResponse,
+  ISysMenuSave,
   IBaseResponse,
   IVisitStats,
   ISearchSysParameterRequest,
@@ -380,6 +383,50 @@ export class ApiService {
   GetAllActiveAuditTrail(): Observable<IAuditTrailResponse> {
     return this.http.get<IAuditTrailResponse>(
       `${this.apiUrl}audittrail/getallactive`
+    );
+  }
+
+  // SysMenu (menu điều hướng trang chủ)
+  SysMenuGetActive(): Observable<ISysMenuTreeResponse> {
+    // Công khai: navbar phục vụ cả khách chưa đăng nhập
+    return this.http.get<ISysMenuTreeResponse>(
+      `${this.apiUrl}SysMenu/GetActive`
+    );
+  }
+
+  SysMenuGetAll(): Observable<ISysMenuTreeResponse> {
+    return this.http.get<ISysMenuTreeResponse>(`${this.apiUrl}SysMenu/GetAll`);
+  }
+
+  SysMenuCreate(request: ISysMenuSave): Observable<ISysMenuSaveResponse> {
+    return this.http.post<ISysMenuSaveResponse>(
+      `${this.apiUrl}SysMenu/Create`,
+      { ...request }
+    );
+  }
+
+  SysMenuUpdate(request: ISysMenuSave): Observable<ISysMenuSaveResponse> {
+    return this.http.patch<ISysMenuSaveResponse>(
+      `${this.apiUrl}SysMenu/Update`,
+      { ...request }
+    );
+  }
+
+  SysMenuToggleActive(
+    menuId: string,
+    flagActive: boolean
+  ): Observable<ISysMenuSaveResponse> {
+    return this.http.patch<ISysMenuSaveResponse>(
+      `${this.apiUrl}SysMenu/ToggleActive?menuId=${encodeURIComponent(
+        menuId
+      )}&flagActive=${flagActive}`,
+      {}
+    );
+  }
+
+  SysMenuDelete(menuId: string): Observable<ISysMenuSaveResponse> {
+    return this.http.delete<ISysMenuSaveResponse>(
+      `${this.apiUrl}SysMenu/Delete?menuId=${encodeURIComponent(menuId)}`
     );
   }
 

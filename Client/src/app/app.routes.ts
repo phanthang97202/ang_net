@@ -244,6 +244,16 @@ export const routes: Routes = [
           ).then(p => p.NewsCategoryComponent),
         canActivate: [canActivePermission('newscategory.view')],
       },
+      {
+        // Menu trang chủ cũng là một dạng cấu hình hệ thống nên dùng chung quyền
+        // với tham số hệ thống, không đặt quyền riêng.
+        path: 'menu',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/sys-menu/sys-menu-list/sys-menu-list.component'
+          ).then(p => p.SysMenuComponent),
+        canActivate: [canActivePermission('sysparameter.view')],
+      },
     ],
   },
 

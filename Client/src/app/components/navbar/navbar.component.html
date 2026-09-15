@@ -16,7 +16,11 @@
             [routerLink]="route.path"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }">
-            {{ 'T_' + route.title | uppercase | translate }}
+            {{
+              isMenuFromApi
+                ? titleOf(route)
+                : ('T_' + route.title | uppercase | translate)
+            }}
           </a>
         </li>
 
@@ -29,7 +33,11 @@
           <span
             class="nav-dropdown-trigger"
             [class.active]="isRouteActive(route)">
-            {{ 'T_' + route.title | uppercase | translate }}
+            {{
+              isMenuFromApi
+                ? titleOf(route)
+                : ('T_' + route.title | uppercase | translate)
+            }}
             <span class="dropdown-arrow">▾</span>
           </span>
           <ul class="dropdown-menu" [class.visible]="route['_open']">
@@ -39,7 +47,11 @@
                 routerLinkActive="active"
                 (click)="closeDropdown(route)">
                 <span nz-icon [nzType]="child.icon" class="mr-1"></span>
-                {{ 'T_' + child.title | uppercase | translate }}
+                {{
+                  isMenuFromApi
+                    ? titleOf(child)
+                    : ('T_' + child.title | uppercase | translate)
+                }}
               </a>
             </li>
           </ul>
@@ -150,7 +162,11 @@
             routerLinkActive="active"
             (click)="closeMobileMenu()">
             <span nz-icon [nzType]="route.icon"></span>
-            {{ 'T_' + route.title | uppercase | translate }}
+            {{
+              isMenuFromApi
+                ? titleOf(route)
+                : ('T_' + route.title | uppercase | translate)
+            }}
           </a>
         </li>
         <li *ngIf="route.children" class="mobile-nav-item mobile-nav-group">
@@ -158,7 +174,11 @@
             class="mobile-nav-group-title"
             (click)="toggleMobileSubmenu(route)">
             <span nz-icon [nzType]="route.icon"></span>
-            {{ 'T_' + route.title | uppercase | translate }}
+            {{
+              isMenuFromApi
+                ? titleOf(route)
+                : ('T_' + route.title | uppercase | translate)
+            }}
             <span class="ml-auto">{{ route['_mobileOpen'] ? '−' : '+' }}</span>
           </span>
           <ul class="mobile-submenu" [class.visible]="route['_mobileOpen']">
@@ -168,7 +188,11 @@
                 routerLinkActive="active"
                 (click)="closeMobileMenu()">
                 <span nz-icon [nzType]="child.icon"></span>
-                {{ 'T_' + child.title | uppercase | translate }}
+                {{
+                  isMenuFromApi
+                    ? titleOf(child)
+                    : ('T_' + child.title | uppercase | translate)
+                }}
               </a>
             </li>
           </ul>

@@ -1,0 +1,102 @@
+<div class="master__container">
+  <app-breadcrumb title="Menu trang chủ" [buttons]="listButtonsHeader" />
+
+  <nz-alert
+    nzType="info"
+    nzShowIcon
+    class="menu__alert"
+    nzMessage="Menu hiển thị ngoài trang chủ"
+    nzDescription="Tắt một mục là ẩn khỏi trang chủ, không xóa dữ liệu. Tắt menu cha thì cả nhóm con cũng ẩn theo." />
+
+  <nz-layout>
+    <nz-content>
+      <nz-table
+        #menuTable
+        [nzData]="rows"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzScroll]="{ x: '1000px' }"
+        [nzNoResult]="emptyMenu">
+        <thead>
+          <tr>
+            <th nzWidth="100px">Thao tác</th>
+            <th nzWidth="90px">Bật/Tắt</th>
+            <th>Tiêu đề (VI)</th>
+            <th nzWidth="180px">Tiêu đề (EN)</th>
+            <th nzWidth="220px">Đường dẫn</th>
+            <th nzWidth="110px">Icon</th>
+            <th nzWidth="80px">Thứ tự</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of menuTable.data">
+            <td>
+              <app-button-common
+                [iconType]="'edit'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleDetail(row)"></app-button-common>
+              <!-- Cảnh báo kèm số menu con: backend xóa cascade nên xóa cha là
+                   mất luôn con. -->
+              <button
+                nz-button
+                nzType="text"
+                nzDanger
+                nz-popconfirm
+                [nzPopconfirmTitle]="
+                  childCountOf(row) > 0
+                    ? 'Menu này có ' +
+                      childCountOf(row) +
+                      ' menu con, xóa sẽ mất cả nhóm. Tiếp tục?'
+                    : 'Xóa menu ' + row.TitleVi + '?'
+                "
+                [nzOkText]="'Xóa'"
+                [nzCancelText]="'Hủy'"
+                nzOkDanger
+                (nzOnConfirm)="handleDelete(row)">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </td>
+            <td>
+              <nz-switch
+                [ngModel]="row.FlagActive"
+                (ngModelChange)="handleToggleActive(row, $event)"
+                nzSize="small"></nz-switch>
+            </td>
+            <td>
+              <span
+                class="menu__title"
+                [class.menu__title--child]="row.level > 0">
+                <span *ngIf="row.level > 0" class="menu__branch">└</span>
+                <strong *ngIf="row.level === 0">{{ row.TitleVi }}</strong>
+                <span *ngIf="row.level > 0">{{ row.TitleVi }}</span>
+              </span>
+            </td>
+            <td>{{ row.TitleEn }}</td>
+            <td>
+              <code *ngIf="row.Path" class="menu__path">{{ row.Path }}</code>
+              <!-- Menu cha chỉ làm nhóm xổ xuống thì không có đường dẫn -->
+              <span *ngIf="!row.Path" class="menu__empty">(nhóm)</span>
+            </td>
+            <td>
+              <span *ngIf="row.Icon" nz-icon [nzType]="row.Icon"></span>
+              <code class="menu__icon-name">{{ row.Icon }}</code>
+            </td>
+            <td>{{ row.SortOrder }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+
+      <ng-template #emptyMenu>
+        <nz-empty nzNotFoundContent="Chưa có menu nào" />
+      </ng-template>
+    </nz-content>
+  </nz-layout>
+</div>
+
+<app-save-sys-menu-popup
+  [titlePopup]="titlePopup"
+  [formDataSource]="formDataSource"
+  [parentOptions]="parentOptions"
+  [(isOpenPopup)]="_isOpenPopup"
+  (_onSave)="handleSaveForm($event)" />

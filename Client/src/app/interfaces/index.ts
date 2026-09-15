@@ -12,6 +12,7 @@ export * from './sys-parameter';
 export * from './home-config';
 export * from './role';
 export * from './permission';
+export * from './sys-menu';
 export * from './user';
 export * from './audit-trail';
 export * from './visit-stats';

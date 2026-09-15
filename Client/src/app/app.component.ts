@@ -124,6 +124,11 @@ export class AppComponent implements OnInit {
           title: 'Tham số hệ thống',
           permission: 'sysparameter.view',
         },
+        {
+          path: '/dashboard/menu',
+          title: 'Menu trang chủ',
+          permission: 'sysparameter.view',
+        },
       ],
     },
   ];

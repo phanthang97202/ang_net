@@ -1,0 +1,39 @@
+.menu__alert {
+  margin: 12px 0 16px;
+}
+
+.menu__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// Thụt lề menu con cho thấy rõ quan hệ cha/con - menu chỉ 2 cấp nên một bậc là đủ.
+.menu__title--child {
+  padding-left: 24px;
+}
+
+.menu__branch {
+  color: #bfbfbf;
+}
+
+.menu__path {
+  font-size: 12px;
+  color: #595959;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.menu__empty {
+  color: #bfbfbf;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.menu__icon-name {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #8c8c8c;
+}

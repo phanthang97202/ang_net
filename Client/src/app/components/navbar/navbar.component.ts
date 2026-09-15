@@ -13,9 +13,11 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { TranslateModule } from '@ngx-translate/core';
-import { AuthService } from '../../services';
+import { ApiService, AuthService, LangService } from '../../services';
+import { ISysMenuTree } from '../../interfaces';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { Subscription } from 'rxjs';
 
 interface RouteItem {
   path?: string;
@@ -68,7 +70,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.zone.run(() => (this.isScrolled = scrolled));
   };
 
-  listRoute: RouteItem[] = [
+  // Menu dự phòng, dùng khi API menu lỗi hoặc chưa có dữ liệu (bảng SysMenu chưa
+  // được migrator tạo/seed). Không có nó thì một lỗi API là trang chủ mất sạch
+  // menu - hỏng nặng hơn hẳn so với việc hiện menu hơi cũ.
+  //
+  // Tiêu đề ở đây là khóa i18n (template cũ render 'T_' + title), khác với menu
+  // lấy từ API vốn đã là chữ hiển thị sẵn - xem titleOf().
+  private readonly fallbackRoute: RouteItem[] = [
     { path: '/', title: 'Home', icon: 'home' },
     {
       title: 'Tools',
@@ -103,12 +111,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // { path: '/about', title: 'AboutMe', icon: 'user' },
   ];
 
+  // Menu đang hiển thị. Khởi tạo bằng bản dự phòng để lần vẽ đầu tiên đã có nội
+  // dung, rồi thay bằng dữ liệu API khi tải xong.
+  listRoute: RouteItem[] = this.fallbackRoute;
+
+  // Menu lấy từ API là chữ hiển thị sẵn (TitleVi/TitleEn) chứ không phải khóa
+  // i18n, nên template phải biết đang dùng nguồn nào để render cho đúng.
+  isMenuFromApi = false;
+
+  private menuTree: ISysMenuTree[] = [];
+  private api = inject(ApiService);
+  private langService = inject(LangService);
+  private langSub?: Subscription;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.fetchMenu();
+
+    // Menu từ API lưu sẵn chữ Việt và chữ Anh, không qua i18n - nên đổi ngôn ngữ
+    // phải tự dựng lại danh sách, khác với menu dự phòng (translate pipe tự lo).
+    this.langSub = this.langService.$langSubjectObservable.subscribe(() => {
+      if (this.isMenuFromApi) {
+        this.listRoute = this.toRouteItems(this.menuTree);
+      }
+    });
+
     // mark active based on current url (optional enhancement)
     const currentPath = '/' + this.activatedRoute.snapshot.url.join('/');
     this.listRoute = this.listRoute.map(route => ({
@@ -125,6 +156,53 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('scroll', this.onWindowScroll);
+    this.langSub?.unsubscribe();
+  }
+
+  /**
+   * Nhãn hiển thị của một mục menu.
+   *
+   * Hai nguồn menu có dạng tiêu đề khác nhau: bản dự phòng dùng khóa i18n (Home
+   * -> T_HOME), còn bản từ API đã là chữ hiển thị sẵn. Gom về một chỗ để template
+   * khỏi phải rẽ nhánh ở cả bốn nơi render (desktop/mobile, cha/con).
+   */
+  titleOf(route: RouteItem): string {
+    return route.title;
+  }
+
+  private fetchMenu(): void {
+    this.api.SysMenuGetActive().subscribe({
+      next: response => {
+        const tree = response?.DataList || [];
+
+        // Rỗng thì giữ menu dự phòng: bảng SysMenu có thể chưa được migrator tạo
+        // hoặc chưa seed, lúc đó thà hiện menu cũ còn hơn trang chủ trống trơn.
+        if (!response?.Success || tree.length === 0) {
+          return;
+        }
+
+        this.menuTree = tree;
+        this.listRoute = this.toRouteItems(tree);
+        this.isMenuFromApi = true;
+      },
+      // Nuốt lỗi có chủ đích: API menu hỏng thì vẫn còn menu dự phòng.
+      error: () => undefined,
+    });
+  }
+
+  private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {
+    const isVi = this.langService.getLang() !== 'en';
+
+    const toItem = (m: ISysMenuTree): RouteItem => ({
+      // Menu cha chỉ làm nhóm xổ xuống thì Path rỗng -> để undefined cho
+      // routerLink khỏi điều hướng về '/'.
+      path: m.Path || undefined,
+      title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
+      icon: m.Icon,
+      children: m.Children?.length ? m.Children.map(toItem) : undefined,
+    });
+
+    return tree.map(toItem);
   }
 
   // ── Mobile menu ──────────────────────────────────────

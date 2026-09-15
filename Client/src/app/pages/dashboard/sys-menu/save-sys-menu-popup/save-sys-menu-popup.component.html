@@ -1,0 +1,113 @@
+<nz-modal
+  [nzVisible]="isOpenPopup"
+  [nzTitle]="titlePopup === 'Create' ? 'Thêm menu' : 'Sửa menu'"
+  nzWidth="640px"
+  (nzOnCancel)="handleClose()"
+  (nzOnOk)="handleSave()"
+  [nzOkText]="'Lưu'"
+  [nzCancelText]="'Hủy'">
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Mã menu</nz-form-label>
+            <nz-form-control nzErrorTip="Mã menu là bắt buộc!">
+              <!-- Khóa chính, sửa thì thành menu khác nên chỉ nhập được lúc tạo -->
+              <input
+                nz-input
+                formControlName="MenuId"
+                placeholder="vd: tools-shift-report" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label>Menu cha</nz-form-label>
+            <nz-form-control>
+              <!-- Chỉ menu cấp 1 mới làm cha được: navbar chỉ vẽ 2 cấp -->
+              <nz-select
+                formControlName="ParentId"
+                nzAllowClear
+                nzPlaceHolder="Không có (menu cấp 1)">
+                <nz-option
+                  *ngFor="let p of selectableParents"
+                  [nzValue]="p.MenuId"
+                  [nzLabel]="p.TitleVi" />
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Tiêu đề (VI)</nz-form-label>
+            <nz-form-control nzErrorTip="Tiêu đề tiếng Việt là bắt buộc!">
+              <input nz-input formControlName="TitleVi" placeholder="Công cụ" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Tiêu đề (EN)</nz-form-label>
+            <nz-form-control nzErrorTip="Tiêu đề tiếng Anh là bắt buộc!">
+              <input nz-input formControlName="TitleEn" placeholder="Tools" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label>Đường dẫn</nz-form-label>
+        <nz-form-control>
+          <input
+            nz-input
+            formControlName="Path"
+            placeholder="/tools/shift-report — để trống nếu chỉ là nhóm xổ xuống" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label>Icon</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="Icon"
+                nzAllowClear
+                nzShowSearch
+                nzPlaceHolder="Chọn icon">
+                <nz-option
+                  *ngFor="let ic of iconOptions"
+                  [nzValue]="ic"
+                  [nzLabel]="ic" />
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="6">
+          <nz-form-item>
+            <nz-form-label>Thứ tự</nz-form-label>
+            <nz-form-control>
+              <input nz-input type="number" formControlName="SortOrder" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="6">
+          <nz-form-item>
+            <nz-form-label>Hiển thị</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="FlagActive"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>
