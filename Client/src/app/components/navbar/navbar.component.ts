@@ -21,6 +21,9 @@ import { Subscription } from 'rxjs';
 
 interface RouteItem {
   path?: string;
+  // Tham số query tách riêng khỏi path: routerLink coi cả chuỗi là một đoạn
+  // đường dẫn nên "?" và "=" bị mã hoá thành %3F/%3D, link thành vô nghĩa.
+  queryParams?: Record<string, string>;
   title: string;
   icon: string;
   isActive?: boolean;
@@ -193,16 +196,50 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {
     const isVi = this.langService.getLang() !== 'en';
 
-    const toItem = (m: ISysMenuTree): RouteItem => ({
-      // Menu cha chỉ làm nhóm xổ xuống thì Path rỗng -> để undefined cho
-      // routerLink khỏi điều hướng về '/'.
-      path: m.Path || undefined,
-      title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
-      icon: m.Icon,
-      children: m.Children?.length ? m.Children.map(toItem) : undefined,
-    });
+    const toItem = (m: ISysMenuTree): RouteItem => {
+      const { path, queryParams } = this.splitPath(m.Path);
+
+      return {
+        // Menu cha chỉ làm nhóm xổ xuống thì Path rỗng -> để undefined cho
+        // routerLink khỏi điều hướng về '/'.
+        path,
+        queryParams,
+        title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
+        icon: m.Icon,
+        children: m.Children?.length ? m.Children.map(toItem) : undefined,
+      };
+    };
 
     return tree.map(toItem);
+  }
+
+  /**
+   * Tách "/news?categoryId=girl" thành path "/news" và { categoryId: 'girl' }.
+   *
+   * routerLink coi cả chuỗi là MỘT đoạn đường dẫn, nên để nguyên thì "?" và "="
+   * bị mã hoá thành %3F/%3D - ra href="/news%3FcategoryId%3Dgirl", bấm vào không
+   * đi đâu cả. Tham số query phải truyền riêng qua [queryParams].
+   */
+  private splitPath(raw: string): {
+    path?: string;
+    queryParams?: Record<string, string>;
+  } {
+    if (!raw) {
+      return { path: undefined, queryParams: undefined };
+    }
+
+    const [path, queryString] = raw.split('?');
+
+    if (!queryString) {
+      return { path, queryParams: undefined };
+    }
+
+    const queryParams: Record<string, string> = {};
+    new URLSearchParams(queryString).forEach((value, key) => {
+      queryParams[key] = value;
+    });
+
+    return { path, queryParams };
   }
 
   // ── Mobile menu ──────────────────────────────────────

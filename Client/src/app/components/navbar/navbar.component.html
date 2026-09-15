@@ -14,6 +14,7 @@
         <li *ngIf="!route.children" class="nav-item">
           <a
             [routerLink]="route.path"
+            [queryParams]="route.queryParams || {}"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }">
             {{
@@ -44,6 +45,7 @@
             <li *ngFor="let child of route.children">
               <a
                 [routerLink]="child.path"
+                [queryParams]="child.queryParams || {}"
                 routerLinkActive="active"
                 (click)="closeDropdown(route)">
                 <span nz-icon [nzType]="child.icon" class="mr-1"></span>
@@ -159,6 +161,7 @@
         <li *ngIf="!route.children" class="mobile-nav-item">
           <a
             [routerLink]="route.path"
+            [queryParams]="route.queryParams || {}"
             routerLinkActive="active"
             (click)="closeMobileMenu()">
             <span nz-icon [nzType]="route.icon"></span>
@@ -185,6 +188,7 @@
             <li *ngFor="let child of route.children">
               <a
                 [routerLink]="child.path"
+                [queryParams]="child.queryParams || {}"
                 routerLinkActive="active"
                 (click)="closeMobileMenu()">
                 <span nz-icon [nzType]="child.icon"></span>
