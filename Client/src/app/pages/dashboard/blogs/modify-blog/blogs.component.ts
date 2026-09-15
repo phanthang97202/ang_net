@@ -10,6 +10,7 @@ import {
   ShowErrorService,
   CloudinaryService,
   LoadingService,
+  AuthService,
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -17,7 +18,7 @@ import { INewsCategory, IRefFileNews } from '../../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import { Util } from '../../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -35,6 +36,8 @@ export class BlogsComponent implements OnInit {
   private message = inject(NzMessageService);
   private route = inject(ActivatedRoute);
   private translate = inject(TranslateService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   mode: 'create' | 'edit' = 'create';
   isDataLoaded = false; // ✅ Thêm flag để track data loading
@@ -112,6 +115,21 @@ export class BlogsComponent implements OnInit {
       .pipe()
       .subscribe({
         next: data => {
+          // Chỉ tác giả mới được mở màn hình sửa, kể cả Admin. Khớp với
+          // NewsRespository.Update - chỗ đó chặn theo UserId và không có ngoại lệ
+          // nào cho Admin, nên để người khác soạn xong rồi mới báo lỗi lúc lưu là
+          // bắt họ làm việc vô ích.
+          //
+          // Guard của route không kiểm được điều này: lúc đó chưa biết bài của ai,
+          // phải tải bài về mới có UserId để so.
+          const currentUserId = this.authService.getAccountInfo().nameid || '';
+          if (data.Data.UserId !== currentUserId) {
+            this.loadingService.setLoading(false);
+            this.message.warning('Chỉ tác giả mới sửa được bài viết này');
+            this.router.navigate(['/dashboard/blog']);
+            return;
+          }
+
           // ✅ Set contentBody trước khi patch form
           this.contentBody = data.Data.ContentBody || '';
 

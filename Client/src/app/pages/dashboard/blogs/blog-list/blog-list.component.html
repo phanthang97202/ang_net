@@ -25,18 +25,16 @@
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
+            <!-- Chỉ tác giả mới thấy nút sửa. Nút xóa đã bỏ hẳn: nó gọi nhầm API
+                 xóa tỉnh/thành (MstProvince/Delete) chứ chưa bao giờ xóa được
+                 bài, và backend cũng chưa có endpoint xóa bài viết. -->
             <td>
               <app-button-common
+                *ngIf="canEdit(data)"
                 [iconType]="'edit'"
                 [iconTheme]="'outline'"
                 [nzType]="'text'"
                 (_onClick)="handleDetail(data)"></app-button-common>
-              <app-button-common
-                [isShowConfirm]="true"
-                [iconType]="'delete'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDelete(data)"></app-button-common>
             </td>
             <td>
               {{ (pageIndex - 1) * pageSize + i + 1 }}

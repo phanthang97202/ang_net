@@ -14,6 +14,7 @@ import {
 } from '../../../../modules';
 import { Router } from '@angular/router';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
+import { AuthService } from '../../../../services';
 @Component({
   selector: 'app-blog-list',
   standalone: true,
@@ -27,6 +28,11 @@ export class BlogListComponent implements OnInit {
   private router = inject(Router);
   private message = inject(NzMessageService);
   private loadingService = inject(LoadingService);
+  private authService = inject(AuthService);
+
+  // Id người đang đăng nhập, đọc một lần chứ không gọi trong template: template
+  // chạy lại mỗi vòng change detection, mà getAccountInfo() thì giải mã JWT.
+  private currentUserId = '';
 
   dataSource: IDetailNews[] = [];
   pageIndex = 1;
@@ -43,7 +49,17 @@ export class BlogListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.currentUserId = this.authService.getAccountInfo().nameid || '';
     this.fetchData();
+  }
+
+  /**
+   * Chỉ tác giả mới sửa được bài của mình - kể cả Admin cũng không.
+   * Khớp với NewsRespository.Update: chỗ đó chặn theo UserId, không có ngoại lệ
+   * nào cho Admin. Ẩn nút ở đây để không mời người ta bấm vào rồi nhận lỗi.
+   */
+  canEdit(data: IDetailNews): boolean {
+    return !!this.currentUserId && data.UserId === this.currentUserId;
   }
 
   onQueryParamsChange(params: NzTableQueryParams): void {
@@ -79,27 +95,17 @@ export class BlogListComponent implements OnInit {
   }
 
   handleDetail(data: IDetailNews): void {
+    // Chặn cả ở đây chứ không chỉ ẩn nút: ẩn nút chỉ là bề mặt, gọi hàm này bằng
+    // cách khác vẫn mở được màn hình sửa.
+    if (!this.canEdit(data)) {
+      this.message.warning('Chỉ tác giả mới sửa được bài viết này');
+      return;
+    }
     this.router.navigate([`/dashboard/blog/edit`, data.NewsId]);
-  }
-
-  private deleteData(key: string): void {
-    this.setLoading(true);
-    this.api.MstProvinceDelete(key).subscribe({
-      next: () => {
-        this.message.success('Delete successfully');
-        this.fetchData();
-      },
-      error: err => this.handleApiError(err),
-      complete: () => this.setLoading(false),
-    });
   }
 
   handleOpenCreate(): void {
     this.router.navigate(['/dashboard/blog/create']);
-  }
-
-  handleDelete(data: IDetailNews): void {
-    this.deleteData(data.NewsId);
   }
 
   private setLoading(isLoading: boolean): void {
