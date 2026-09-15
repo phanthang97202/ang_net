@@ -11,6 +11,10 @@ import {
   REUSE_COMPONENT_MODULES,
   REUSE_PIPE_MODULE,
 } from '../../../../modules';
+// AntdModule chỉ có ReactiveFormsModule, và không export NzEmpty. Bảng này dùng
+// [ngModel] cho switch bật/tắt (không nằm trong form nào) nên cần FormsModule.
+import { FormsModule } from '@angular/forms';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { SaveSysMenuPopupComponent } from '../save-sys-menu-popup/save-sys-menu-popup.component';
 
 /** Một dòng trong bảng phẳng, kèm cấp để thụt lề. */
@@ -26,6 +30,8 @@ interface MenuRow extends ISysMenuTree {
     AntdModule,
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
+    FormsModule,
+    NzEmptyModule,
     SaveSysMenuPopupComponent,
   ],
   templateUrl: './sys-menu-list.component.html',
