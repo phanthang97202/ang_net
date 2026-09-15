@@ -91,7 +91,9 @@ export class TagStatusComponent implements OnChanges {
         this.color = '#dc3545'; // Đỏ
         break;
       case 'CRITICAL':
-        this.color = '#ffffff'; // Trắng
+        // Trước đây để trắng: chữ trắng trên nền tag trắng nên nhìn như ô trống,
+        // đúng vào mức độ nghiêm trọng nhất lại là mức khó thấy nhất.
+        this.color = '#a8071a'; // Đỏ đậm
         break;
 
       // NULL

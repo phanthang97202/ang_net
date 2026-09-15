@@ -35,5 +35,20 @@ namespace angnet.WebApi.Controllers
                 throw;
             }
         }
+
+        [EnableRateLimitingAttribute("API")]
+        [HttpGet("Search")]
+        public ActionResult<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType)
+        {
+            try
+            {
+                ApiResponse<AuditTrailModel> response = _AuditTrailService.Search(pageIndex, pageSize, keyword, level, trailType);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { AuditTrailLevelType, AuditTrailTypeType } from '../types';
-import { IBaseResponse } from './common';
+import { IBaseResponse, IPageInfo } from './common';
 
 export interface IAuditTrail {
   AuditTrailId: string;
@@ -19,6 +19,18 @@ export interface IAuditTrail {
 
 export interface IAuditTrailResponse extends IBaseResponse<IAuditTrail> {
   DataList: IAuditTrail[];
+}
+
+export interface ISearchAuditTrailRequest {
+  pageIndex: number;
+  pageSize: number;
+  keyword: string;
+  level: string;
+  trailType: string;
+}
+
+export interface IResponseAuditTrailSearch extends IBaseResponse<IAuditTrail> {
+  objResult: IPageInfo<IAuditTrail>;
 }
 
 export interface IAuditTrailNode extends IAuditTrail {

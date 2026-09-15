@@ -1,108 +1,178 @@
 <div class="master__container">
+  <app-breadcrumb title="Audit Trail" />
+
+  <!-- Thanh tìm kiếm -->
+  <form
+    class="audit__search"
+    nz-form
+    [formGroup]="searchForm"
+    [nzLayout]="'inline'"
+    (ngSubmit)="handleSearch()">
+    <nz-form-item>
+      <nz-form-control>
+        <input
+          nz-input
+          formControlName="Keyword"
+          placeholder="Tìm theo mô tả / người làm / mã bản ghi..."
+          class="audit__search-keyword" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-select
+          formControlName="Level"
+          nzAllowClear
+          nzPlaceHolder="Tất cả mức độ"
+          class="audit__search-select">
+          <nz-option
+            *ngFor="let l of levelOptions"
+            [nzValue]="l"
+            [nzLabel]="l"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-select
+          formControlName="TrailType"
+          nzAllowClear
+          nzPlaceHolder="Tất cả thao tác"
+          class="audit__search-select">
+          <nz-option
+            *ngFor="let t of trailTypeOptions"
+            [nzValue]="t"
+            [nzLabel]="t"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button nz-button nzType="primary" type="submit">
+        <span nz-icon nzType="search"></span> Search
+      </button>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button
+        nz-button
+        nzType="default"
+        type="button"
+        (click)="handleResetSearch()">
+        <span nz-icon nzType="reload"></span> Reset
+      </button>
+    </nz-form-item>
+  </form>
+
   <nz-layout>
-    <!-- <nz-sider
-      [nzCollapsed]="true"
-      [nzCollapsedWidth]="0"
-      [nzCollapsible]="false"
-      nzWidth="0px"
-      [nzTheme]="'light'">
-      <div class="sidebar__content">
-        <div class="sidebar__form">
-          <div class="sidebar__form--close">
-            <app-button-common
-              class="w-full sidebar__form--close-btn"
-              [iconType]="'to-top'"
-              [nzType]="'text'"
-              [iconRotate]="-90"></app-button-common>
-          </div>
-          <form
-            class="sidebar__form--form"
-            nz-form
-            [formGroup]="validateForm"
-            [nzLayout]="'vertical'">
-            <nz-form-item>
-              <nz-form-label [nzSpan]="null">Keyword</nz-form-label>
-              <nz-form-control [nzSpan]="null" nzErrorTip="PleaseEnterKeyword">
-                <input nz-input formControlName="Keyword" id="Keyword" />
-              </nz-form-control>
-            </nz-form-item>
-          </form>
-        </div>
-
-        <div class="sidebar__btnsearch">
-          <app-button-common
-            class="w-full"
-            [iconType]="'search'"
-            [nzType]="'primary'"
-            [text]="'Search'"></app-button-common>
-        </div>
-      </div>
-    </nz-sider> -->
-
-    <!-- <app-sidebar-search /> -->
-
     <nz-content>
+      <!-- Phân trang phía server: nzFrontPagination=false + nzTotal để nz-table
+           vẽ thanh phân trang theo tổng số bản ghi thật thay vì theo số dòng
+           đang có trong dataSource. -->
       <nz-table
         nzShowSizeChanger
         [nzData]="dataSource"
-        [nzScroll]="{ x: 'w-full' }"
         [nzFrontPagination]="false"
-        [nzLoading]="false">
+        [nzTotal]="total"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzLoading]="isLoading"
+        [nzScroll]="{ x: '1000px' }"
+        (nzPageIndexChange)="handlePageIndexChange($event)"
+        (nzPageSizeChange)="handlePageSizeChange($event)">
         <thead>
           <tr>
-            <th nzColumnKey="Idx" [nzSortFn]="true" [nzWidth]="'10px'">#</th>
-            <th nzColumnKey="RecordId" [nzSortFn]="true" [nzWidth]="'10px'">
-              Record ID
-            </th>
-            <th nzColumnKey="Level" [nzSortFn]="true" [nzWidth]="'15px'">
-              Level
-            </th>
-            <th nzColumnKey="IPAddress" [nzSortFn]="true" [nzWidth]="'10px'">
-              IP Address
-            </th>
-            <th nzColumnKey="Description" [nzSortFn]="true" [nzWidth]="'30px'">
-              Description
-            </th>
-            <th nzColumnKey="RequestUrl" [nzSortFn]="true" [nzWidth]="'20px'">
-              Request URL
-            </th>
-            <th nzColumnKey="TrailType" [nzSortFn]="true" [nzWidth]="'15px'">
-              Trail Type
-            </th>
-            <th nzColumnKey="ChangedDTime" [nzSortFn]="true" [nzWidth]="'20px'">
-              Changed Time
-            </th>
-            <th nzColumnKey="ChangedBy" [nzSortFn]="true" [nzWidth]="'20px'">
-              Changed By
-            </th>
-            <th nzColumnKey="IsRevoked" [nzSortFn]="true" [nzWidth]="'20px'">
-              IsRevoked
-            </th>
+            <th nzWidth="60px">#</th>
+            <th nzWidth="170px">Thời gian</th>
+            <th nzWidth="120px">Mức độ</th>
+            <th nzWidth="100px">Thao tác</th>
+            <th>Mô tả</th>
+            <th nzWidth="180px">Người làm</th>
+            <th nzWidth="90px">Chi tiết</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
-            <td>
-              {{ i + 1 }}
-            </td>
-            <td>
-              {{ data.RecordId }}
-            </td>
+            <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
+            <td>{{ data.ChangedDTime | localeDTime }}</td>
             <td>
               <app-tag-status [sttValue]="data.Level"></app-tag-status>
             </td>
-            <td>{{ data.IPAddress }}</td>
-            <td>{{ data.Description }}</td>
-            <td>{{ data.RequestUrl }}</td>
             <td>
               <app-tag-status [sttValue]="data.TrailType"></app-tag-status>
             </td>
-            <td>{{ data.ChangedDTime | localeDTime }}</td>
-            <td>{{ data.ChangedBy }}</td>
-            <td>{{ data.IsRevoked }}</td>
+            <td>
+              <div class="audit__desc" [title]="data.Description">
+                {{ data.Description }}
+              </div>
+            </td>
+            <td>{{ data.ChangedBy || '-' }}</td>
+            <td>
+              <app-button-common
+                [iconType]="'eye'"
+                [iconTheme]="'outline'"
+                [nzType]="'text'"
+                (_onClick)="handleOpenDetail(data)"></app-button-common>
+            </td>
           </tr>
         </tbody>
       </nz-table>
     </nz-content>
   </nz-layout>
 </div>
+
+<!-- Popup chi tiết: các cột ít dùng (IP, URL, mã bản ghi) và JSON giá trị
+     trước/sau dồn vào đây để bảng chính còn chỗ cho phần hay đọc nhất. -->
+<nz-modal
+  [nzVisible]="!!detailRow"
+  nzTitle="Chi tiết nhật ký"
+  nzWidth="760px"
+  [nzFooter]="null"
+  (nzOnCancel)="handleCloseDetail()">
+  <ng-container *nzModalContent>
+    <div *ngIf="detailRow" class="audit__detail">
+      <div class="audit__detail-grid">
+        <div class="audit__detail-label">Thời gian</div>
+        <div>{{ detailRow.ChangedDTime | localeDTime }}</div>
+
+        <div class="audit__detail-label">Mức độ</div>
+        <div><app-tag-status [sttValue]="detailRow.Level"></app-tag-status></div>
+
+        <div class="audit__detail-label">Thao tác</div>
+        <div>
+          <app-tag-status [sttValue]="detailRow.TrailType"></app-tag-status>
+        </div>
+
+        <div class="audit__detail-label">Người làm</div>
+        <div>{{ detailRow.ChangedBy || '-' }}</div>
+
+        <div class="audit__detail-label">Mã bản ghi</div>
+        <div>{{ detailRow.RecordId || '-' }}</div>
+
+        <div class="audit__detail-label">Địa chỉ IP</div>
+        <div>{{ detailRow.IPAddress || '-' }}</div>
+
+        <div class="audit__detail-label">Request URL</div>
+        <div>{{ detailRow.RequestUrl || '-' }}</div>
+
+        <div class="audit__detail-label">Mô tả</div>
+        <div>{{ detailRow.Description || '-' }}</div>
+      </div>
+
+      <div class="audit__detail-section">
+        <div class="audit__detail-title">Giá trị trước (OldValues)</div>
+        <pre class="audit__json">{{
+          formatJson(detailRow.OldValues) || '(không có)'
+        }}</pre>
+      </div>
+
+      <div class="audit__detail-section">
+        <div class="audit__detail-title">Giá trị sau (NewValues)</div>
+        <pre class="audit__json">{{
+          formatJson(detailRow.NewValues) || '(không có)'
+        }}</pre>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

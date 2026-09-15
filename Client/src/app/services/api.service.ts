@@ -14,6 +14,8 @@ import {
   ILikeNewsResponse,
   INewsResponse,
   IAuditTrailResponse,
+  ISearchAuditTrailRequest,
+  IResponseAuditTrailSearch,
   IBaseResponse,
   IVisitStats,
   ISearchSysParameterRequest,
@@ -375,6 +377,19 @@ export class ApiService {
   GetAllActiveAuditTrail(): Observable<IAuditTrailResponse> {
     return this.http.get<IAuditTrailResponse>(
       `${this.apiUrl}audittrail/getallactive`
+    );
+  }
+
+  AuditTrailSearch(
+    request: ISearchAuditTrailRequest
+  ): Observable<IResponseAuditTrailSearch> {
+    // api/AuditTrail/Search?pageIndex=0&pageSize=20&keyword=&level=&trailType=
+    return this.http.get<IResponseAuditTrailSearch>(
+      `${this.apiUrl}AuditTrail/Search?pageIndex=${request.pageIndex}&pageSize=${request.pageSize}&keyword=${encodeURIComponent(
+        request.keyword
+      )}&level=${encodeURIComponent(request.level)}&trailType=${encodeURIComponent(
+        request.trailType
+      )}`
     );
   }
 

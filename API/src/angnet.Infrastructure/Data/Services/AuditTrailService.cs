@@ -54,6 +54,46 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        public ApiResponse<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType)
+        {
+            ApiResponse<AuditTrailModel> apiResponse = new ApiResponse<AuditTrailModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(new
+            {
+                pageIndex,
+                pageSize,
+                keyword,
+                level,
+                trailType
+            }, ref requestClient);
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
+            int _pageIndex = pageIndex > 0 ? pageIndex : 0;
+            int _pageSize = pageSize > 0 ? pageSize : 20;
+
+            (List<AuditTrailModel> dataResult, int itemCount) = _unitOfWork.AuditTrailRespository
+                                                                    .Search(_pageIndex, _pageSize, keyword, level, trailType);
+
+            PageInfo<AuditTrailModel> pageInfo = new PageInfo<AuditTrailModel>();
+            pageInfo.PageIndex = _pageIndex;
+            pageInfo.PageSize = _pageSize;
+            pageInfo.PageCount = itemCount % _pageSize == 0 ? itemCount / _pageSize : itemCount / _pageSize + 1;
+            pageInfo.ItemCount = itemCount;
+            pageInfo.DataList = dataResult;
+
+            apiResponse.objResult = pageInfo;
+
+            return apiResponse;
+        }
+
         public async Task<ApiResponse<AuditTrailDto>> Create(AuditTrailDto data)
         {
             ApiResponse<AuditTrailDto> apiResponse = new ApiResponse<AuditTrailDto>();
