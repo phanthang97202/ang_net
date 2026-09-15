@@ -85,7 +85,14 @@ namespace angnet.Utility.CommonUtils
 
         public static string RemoveAccent(string txt)
         {
-            var normalizedString = txt.Normalize(NormalizationForm.FormD);
+            // đ/Đ phải thay trước khi chuẩn hoá: trong Unicode chúng là ký tự riêng chứ
+            // không phải "d + dấu", nên FormD không tách được và vòng lặp dưới giữ
+            // nguyên chúng - sau đó GenerateSlug lại xoá thẳng vì không khớp [a-z0-9].
+            // Hậu quả: "Hà Giang mang nét đẹp" ra slug "...mang-net-ep" (mất hẳn chữ).
+            var normalizedString = txt
+                .Replace('đ', 'd')
+                .Replace('Đ', 'D')
+                .Normalize(NormalizationForm.FormD);
             var stringBuilder = new StringBuilder();
 
             foreach (var c in normalizedString)
@@ -102,14 +109,26 @@ namespace angnet.Utility.CommonUtils
 
         public static string GenerateSlug(string phrase)
         {
+            const int maxLength = 45;
+
             string str = RemoveAccent(phrase).ToLower();
             // invalid chars           
             str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
             // convert multiple spaces into one space   
             str = Regex.Replace(str, @"\s+", " ").Trim();
-            // cut and trim 
-            str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
-            str = Regex.Replace(str, @"\s", "-"); // hyphens   
+
+            // Cắt theo ranh giới từ thay vì cắt cứng giữa chừng: cắt cứng sinh ra
+            // những slug cụt nghĩa như "...cua-mie" (miền núi) - vừa xấu vừa mất
+            // từ khoá. Nếu từ đầu tiên đã dài hơn maxLength thì đành cắt cứng.
+            if (str.Length > maxLength)
+            {
+                int lastSpace = str.LastIndexOf(' ', maxLength);
+                str = lastSpace > 0 ? str.Substring(0, lastSpace) : str.Substring(0, maxLength);
+            }
+
+            str = Regex.Replace(str.Trim(), @"\s", "-"); // hyphens   
+            // Gộp gạch nối lặp (tiêu đề có sẵn "-") và bỏ gạch thừa ở hai đầu.
+            str = Regex.Replace(str, @"-+", "-").Trim('-');
             return str;
         }
 

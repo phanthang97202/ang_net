@@ -134,7 +134,7 @@ async function handleStaticPage(pathname, origin) {
   const canonical = SITE_ORIGIN + key;
   const html = await (await fetchOrigin(origin)).text();
 
-  const injected = injectHead(
+  let injected = injectHead(
     injectMetaTags(html, {
       title: meta.title,
       description: meta.description,
@@ -146,7 +146,39 @@ async function handleStaticPage(pathname, origin) {
       (key === '/' ? jsonLdTag(buildWebSiteSchema()) : '')
   );
 
+  // Trang chủ và trang danh sách là nơi crawler tìm ra bài viết. Cả hai đều do
+  // Angular render nên HTML rời server không có lấy một thẻ <a> nào trỏ tới bài
+  // - Googlebot đọc xong thấy trang rỗng, và đường duy nhất tới bài viết trở
+  // thành sitemap.xml (vốn chỉ là gợi ý, không phải lệnh crawl).
+  if (key === '/' || key === '/news') {
+    injected = injectBody(injected, await buildArticleLinks());
+  }
+
   return htmlResponse(injected);
+}
+
+// Danh sách liên kết nội bộ sinh từ chính API đang chạy - không có danh sách
+// viết tay nào phải cập nhật khi đăng bài mới.
+async function buildArticleLinks() {
+  const list = await fetchNews(30);
+
+  const links = list
+    .filter(item => item.NewsId && item.CategoryNewsId && item.ShortTitle)
+    .map(item => {
+      const href = `/news/${encodeURIComponent(item.CategoryNewsId)}/${encodeURIComponent(item.NewsId)}`;
+      return `<li><a href="${escapeHtml(href)}">${escapeHtml(item.ShortTitle)}</a></li>`;
+    })
+    .join('');
+
+  if (!links) return '';
+
+  // Đặt trong <noscript>: người dùng thật (có JS) không bao giờ thấy khối này vì
+  // Angular sẽ dựng giao diện thật, còn crawler đọc thẳng HTML thì thấy đủ link.
+  // Không dùng display:none - nội dung ẩn bị Google hạ trọng số, còn <noscript>
+  // là ngữ nghĩa chuẩn cho "bản dành cho client không chạy JS".
+  // Mọi request đều nhận khối này (không phân biệt User-Agent) nên không phải
+  // cloaking - cùng lý do đã nêu ở đầu file.
+  return `<noscript><nav aria-label="Bài viết mới nhất"><h2>Bài viết mới nhất</h2><ul>${links}</ul></nav></noscript>`;
 }
 
 // ----------------------------------------------------------------- bài viết
@@ -188,20 +220,51 @@ async function handleArticle(pathname, newsId, origin) {
 
   const html = await (await fetchOrigin(origin)).text();
 
-  const injected = injectHead(
-    injectMetaTags(html, {
-      title,
-      description,
-      image,
-      pageUrl: canonical,
-      type: 'article',
-    }),
-    canonicalTag(canonical) +
-      jsonLdTag(buildArticleSchema(article, canonical, image)) +
-      jsonLdTag(buildBreadcrumbSchema(article, canonical))
+  const injected = injectBody(
+    injectHead(
+      injectMetaTags(html, {
+        title,
+        description,
+        image,
+        pageUrl: canonical,
+        type: 'article',
+      }),
+      canonicalTag(canonical) +
+        jsonLdTag(buildArticleSchema(article, canonical, image)) +
+        jsonLdTag(buildBreadcrumbSchema(article, canonical))
+    ),
+    buildArticleBody(article)
   );
 
   return htmlResponse(injected);
+}
+
+// Phần <head> đã đủ để chia sẻ link và để Google nhận diện bài, nhưng <body>
+// rời server vẫn rỗng: nội dung bài chỉ xuất hiện sau khi Angular gọi API và
+// render. Google có chạy JS, song phải xếp hàng ở render queue và ngân sách đó
+// rất hẹp với site nhỏ - nên bài dễ được index bằng mỗi title/description, gần
+// như không có nội dung để khớp truy vấn dài.
+function buildArticleBody(article) {
+  const heading = article.ShortTitle
+    ? `<h1>${escapeHtml(article.ShortTitle)}</h1>`
+    : '';
+  const lead = article.ShortDescription
+    ? `<p>${escapeHtml(article.ShortDescription)}</p>`
+    : '';
+
+  // Lấy văn bản thuần thay vì nhúng lại HTML của trình soạn thảo: ContentBody là
+  // HTML người dùng nhập (Quill), nhúng nguyên vào đây là mở đường cho script/
+  // iframe lạ chạy trên chính domain này. Google chỉ cần chữ để hiểu bài.
+  const text = stripHtml(article.ContentBody);
+  const content = text ? `<p>${escapeHtml(truncate(text, 5000))}</p>` : '';
+
+  if (!heading && !lead && !content) return '';
+
+  const time = article.CreatedDTime
+    ? `<time datetime="${escapeHtml(article.CreatedDTime)}">${escapeHtml(toDateOnly(article.CreatedDTime) || '')}</time>`
+    : '';
+
+  return `<noscript><article>${heading}${time}${lead}${content}</article></noscript>`;
 }
 
 async function notFoundResponse(origin) {
@@ -301,42 +364,51 @@ async function handleSitemap() {
     priority: PAGE_META[key].priority,
   }));
 
-  let articleEntries = [];
+  const list = await fetchNews(1000);
 
-  try {
-    const res = await fetch(
-      `${API_BASE}news/search?pageIndex=0&pageSize=1000&keyword=&userid=&categoryid=&onlyPublished=true`
-    );
-
-    if (res.ok) {
-      const body = await res.json();
-      const list = (body && body.objResult && body.objResult.DataList) || [];
-
-      articleEntries = list
-        .filter(item => item.NewsId && item.CategoryNewsId)
-        .map(item => ({
-          loc: `${SITE_ORIGIN}/news/${encodeURIComponent(item.CategoryNewsId)}/${encodeURIComponent(item.NewsId)}`,
-          lastmod: toDateOnly(item.UpdatedDTime || item.CreatedDTime),
-          changefreq: 'weekly',
-          priority: '0.7',
-        }));
-    }
-  } catch {
-    // API lỗi -> vẫn trả sitemap với các trang tĩnh, không chặn crawl hoàn
-    // toàn chỉ vì backend tạm thời không phản hồi.
-  }
+  const articleEntries = list
+    .filter(item => item.NewsId && item.CategoryNewsId)
+    .map(item => ({
+      loc: `${SITE_ORIGIN}/news/${encodeURIComponent(item.CategoryNewsId)}/${encodeURIComponent(item.NewsId)}`,
+      lastmod: toDateOnly(item.UpdatedDTime || item.CreatedDTime),
+      changefreq: 'weekly',
+      priority: '0.7',
+    }));
 
   const xml = buildSitemapXml([...staticEntries, ...articleEntries]);
+
+  // API không trả được bài nào (Render đang ngủ dậy, 5xx...) -> sitemap lúc này
+  // chỉ còn vài trang tĩnh. KHÔNG để CDN giữ bản cụt đó 1 tiếng: Google tải
+  // đúng lúc ấy sẽ thấy toàn bộ bài viết biến mất khỏi sitemap. Cache ngắn để
+  // lần crawl sau lấy lại được bản đầy đủ.
+  const cacheControl = articleEntries.length
+    ? 'public, max-age=300, s-maxage=3600'
+    : 'public, max-age=0, s-maxage=60';
 
   return new Response(xml, {
     status: 200,
     headers: {
       'content-type': 'application/xml; charset=utf-8',
-      // Cache ngắn hơn trang bài viết vì đây là danh sách tổng hợp, muốn
-      // bài mới xuất hiện trong sitemap tương đối sớm.
-      'cache-control': 'public, max-age=300, s-maxage=3600',
+      'cache-control': cacheControl,
     },
   });
+}
+
+// Nguồn dùng chung cho sitemap và danh sách liên kết nội bộ. Luôn fail-open trả
+// mảng rỗng: bên gọi tự quyết định xử lý thế nào khi không có dữ liệu.
+async function fetchNews(pageSize) {
+  try {
+    const res = await fetch(
+      `${API_BASE}news/search?pageIndex=0&pageSize=${pageSize}&keyword=&userid=&categoryid=&onlyPublished=true`
+    );
+
+    if (!res.ok) return [];
+
+    const body = await res.json();
+    return (body && body.objResult && body.objResult.DataList) || [];
+  } catch {
+    return [];
+  }
 }
 
 function toDateOnly(dateStr) {
@@ -403,6 +475,26 @@ function injectHead(html, extra) {
   // Dùng hàm thay cho chuỗi thay thế: nội dung chèn vào có thể chứa "$&",
   // "$'"... vốn mang nghĩa đặc biệt trong String.replace.
   return html.replace('</head>', () => `${extra}</head>`);
+}
+
+// Chèn ngay trước </body>, tức sau <app-root>: Angular thay nội dung bên trong
+// <app-root> nên khối này không ảnh hưởng gì tới lúc bootstrap.
+function injectBody(html, extra) {
+  if (!extra) return html;
+  return html.replace('</body>', () => `${extra}</body>`);
+}
+
+// HTML của trình soạn thảo -> văn bản thuần. Bỏ hẳn phần bên trong <script> và
+// <style> trước, nếu không nội dung của chúng sẽ lọt ra thành chữ trong bài.
+function stripHtml(html) {
+  if (!html) return '';
+
+  return String(html)
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function injectMetaTags(html, { title, description, image, pageUrl, type }) {
