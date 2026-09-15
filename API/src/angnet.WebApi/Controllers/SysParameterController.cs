@@ -66,6 +66,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "sysparameter.create")]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] SysParameterModel reqData)
         {
@@ -80,6 +81,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "sysparameter.update")]
         [HttpPatch("Update")]
         public async Task<IActionResult> Update([FromBody] SysParameterModel reqData)
         {
@@ -94,6 +96,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "sysparameter.delete")]
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(string ParameterCode)
         {

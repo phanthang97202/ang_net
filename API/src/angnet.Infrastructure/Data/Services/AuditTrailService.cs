@@ -36,16 +36,12 @@ namespace angnet.Infrastructure.Data.Services
             List<RequestClient> requestClient = new List<RequestClient>();
 
             //// Kiểm tra Client có ngắt kết nối call api không?
-            //var cancellationToken = _httpContextAccessor.HttpContext.RequestAborted; 
+            //var cancellationToken = _httpContextAccessor.HttpContext.RequestAborted;
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Không còn tự kiểm tra token ở đây: controller đã gắn
+            // [Authorize(Policy = "audittrail.view")]. GuardAuth.IsAuthorized chỉ xác
+            // minh chữ ký JWT hợp lệ chứ không biết người gọi là ai, nên giữ lại vừa
+            // thừa vừa dễ gây hiểu nhầm là đã phân quyền xong.
 
             List<AuditTrailModel> data = await _unitOfWork.AuditTrailRespository.GetAll<AuditTrailModel>();
 
@@ -67,14 +63,7 @@ namespace angnet.Infrastructure.Data.Services
                 trailType
             }, ref requestClient);
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Phân quyền do controller lo: [Authorize(Policy = "audittrail.view")].
 
             int _pageIndex = pageIndex > 0 ? pageIndex : 0;
             int _pageSize = pageSize > 0 ? pageSize : 20;

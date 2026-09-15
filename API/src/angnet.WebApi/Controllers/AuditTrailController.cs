@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace angnet.WebApi.Controllers
 {
+    // Cấp controller giữ [Authorize] làm lớp đáy: thêm endpoint mới mà quên gắn
+    // policy thì ít nhất vẫn phải đăng nhập, chứ không hở hẳn ra ngoài.
+    // Từng endpoint đọc nhật ký thì đòi thêm quyền "audittrail.view".
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
@@ -21,6 +24,7 @@ namespace angnet.WebApi.Controllers
             _AuditTrailService = AuditTrailService;
         }
 
+        [Authorize(Policy = "audittrail.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<AuditTrailModel>> GetAllActive()
@@ -36,6 +40,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "audittrail.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Search")]
         public ActionResult<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType)

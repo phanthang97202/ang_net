@@ -157,14 +157,10 @@ namespace angnet.Infrastructure.Data.Services
                 requestClient.Add(rc);
             }
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Phân quyền do controller lo: [Authorize(Policy = "sysparameter.create")].
+            // Trước đây chỉ gọi GuardAuth.IsAuthorized - hàm đó chỉ xác minh chữ ký JWT
+            // hợp lệ chứ không biết người gọi là ai, nên BẤT KỲ tài khoản đăng nhập
+            // được nào cũng tạo được tham số hệ thống.
 
             if (TCommonUtils.IsNullOrEmpty(data.ParameterCode))
             {
@@ -235,14 +231,7 @@ namespace angnet.Infrastructure.Data.Services
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Phân quyền do controller lo: [Authorize(Policy = "sysparameter.update")].
 
             if (TCommonUtils.IsNullOrEmpty(data.ParameterCode))
             {
@@ -343,14 +332,7 @@ namespace angnet.Infrastructure.Data.Services
             List<RequestClient> requestClient = new List<RequestClient>();
             TCommonUtils.GetKeyValuePairRequestClient(ParameterCode, ref requestClient);
 
-            // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
-            if (!isAuthorized)
-            {
-                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
-                return apiResponse;
-            }
+            // Phân quyền do controller lo: [Authorize(Policy = "sysparameter.delete")].
 
             if (TCommonUtils.IsNullOrEmpty(ParameterCode))
             {
