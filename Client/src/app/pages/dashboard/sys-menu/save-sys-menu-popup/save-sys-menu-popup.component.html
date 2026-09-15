@@ -76,15 +76,23 @@
           <nz-form-item>
             <nz-form-label>Icon</nz-form-label>
             <nz-form-control>
+              <!-- 421 icon: bật virtual scroll để chỉ vẽ phần đang nhìn thấy,
+                   không thì mở dropdown là dựng 421 phần tử DOM một lúc. -->
               <nz-select
                 formControlName="Icon"
                 nzAllowClear
                 nzShowSearch
-                nzPlaceHolder="Chọn icon">
+                nzPlaceHolder="Gõ để tìm icon..."
+                [nzOptionHeightPx]="32"
+                [nzOptionOverflowSize]="8">
                 <nz-option
                   *ngFor="let ic of iconOptions"
                   [nzValue]="ic"
-                  [nzLabel]="ic" />
+                  [nzLabel]="ic"
+                  nzCustomContent>
+                  <span nz-icon [nzType]="ic" class="mr-1"></span>
+                  {{ ic }}
+                </nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>

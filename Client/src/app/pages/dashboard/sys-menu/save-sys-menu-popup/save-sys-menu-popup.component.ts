@@ -9,6 +9,7 @@ import {
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { ISysMenuSave, ISysMenuTree } from '../../../../interfaces';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
+import { NZ_OUTLINE_ICONS } from '../../../../helpers';
 
 @Component({
   selector: 'app-save-sys-menu-popup',
@@ -28,22 +29,14 @@ export class SaveSysMenuPopupComponent implements OnChanges {
   @Output() isOpenPopupChange = new EventEmitter<boolean>();
   @Output() _onSave = new EventEmitter<ISysMenuSave>();
 
-  // Icon hay dùng cho menu. Backend lưu free-text nên đây chỉ để gợi ý, gõ tên
-  // icon khác của ng-zorro vẫn được.
-  iconOptions = [
-    'home',
-    'tool',
-    'play-circle',
-    'trophy',
-    'read',
-    'calculator',
-    'file-text',
-    'dollar',
-    'appstore',
-    'user',
-    'setting',
-    'team',
-  ];
+  // Toàn bộ 421 icon kiểu outline của ng-zorro. Không tốn dung lượng bundle: dự
+  // án không khai NZ_ICONS provider nên svg được tải theo yêu cầu từ assets,
+  // danh sách này chỉ là chuỗi tên.
+  //
+  // Danh sách dài nên ô chọn bật nzShowSearch và giới hạn số mục vẽ cùng lúc
+  // (nzMaxTagCount không áp dụng cho select đơn, nên dùng virtual scroll của
+  // nz-select: nó tự chỉ render phần đang nhìn thấy).
+  iconOptions = NZ_OUTLINE_ICONS;
 
   validateForm = this.fb.group({
     // Mã menu là khóa chính, sửa thì coi như menu khác - nên chỉ cho nhập lúc tạo.
