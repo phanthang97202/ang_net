@@ -1,4 +1,5 @@
-﻿using angnet.Domain.Dtos;
+﻿using angnet.Application.Interfaces.Services;
+using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 using System;
@@ -23,10 +24,59 @@ namespace angnet.Infrastructure.Data.Services
     public class ShiftReportService : IShiftReportService
     {
         private readonly AppDbContext _context;
+        private readonly IAuditTrailService _auditTrailService;
 
-        public ShiftReportService(AppDbContext context)
+        public ShiftReportService(AppDbContext context, IAuditTrailService auditTrailService)
         {
             _context = context;
+            _auditTrailService = auditTrailService;
+        }
+
+        // Ghi nhật ký thao tác vào AuditTrail.
+        //
+        // Bọc try/catch: đây là nghiệp vụ tiền bạc, ghi log hỏng (DB log lỗi, hết
+        // kết nối...) không được phép làm mất báo cáo ca vừa lưu thành công.
+        //
+        // AuditTrail.ChangedBy lấy từ HttpContext.User nên sẽ rỗng: các route
+        // Create/Update của báo cáo ca đang [AllowAnonymous] (lễ tân dùng không cần
+        // đăng nhập). Vì vậy tên lễ tân nhập trên form được ghi thẳng vào
+        // Description - đó là danh tính duy nhất hệ thống có ở thời điểm này.
+        private async Task WriteAuditAsync(string recordId, string description, object oldValues)
+        {
+            try
+            {
+                await _auditTrailService.Create(new AuditTrailDto
+                {
+                    RecordId = recordId,
+                    Description = description,
+                    ChangedColumns = "",
+                    OldValues = oldValues is null
+                        ? ""
+                        : System.Text.Json.JsonSerializer.Serialize(oldValues)
+                });
+            }
+            catch
+            {
+                // Nuốt lỗi có chủ đích - xem giải thích ở trên.
+            }
+        }
+
+        // Ảnh chụp các cột tổng hợp để đối chiếu khi cần truy lại một báo cáo đã bị
+        // sửa hoặc xóa: biết được số tiền trước khi thay đổi là bao nhiêu.
+        private static object SnapshotOf(ShiftReportModel report)
+        {
+            return new
+            {
+                report.Id,
+                report.ShiftDate,
+                report.ShiftType,
+                report.ReceptionistName,
+                report.ReceiverName,
+                report.TotalCash,
+                report.TotalTransfer,
+                report.TotalExpense,
+                report.HandoverAmount
+            };
         }
 
         // Mã tham số hệ thống khai báo danh mục nước + số lượng NHẬP kho.
@@ -211,6 +261,13 @@ namespace angnet.Infrastructure.Data.Services
             _context.ShiftReport.Add(shiftReport);
             await _context.SaveChangesAsync();
 
+            // save logging
+            await WriteAuditAsync(
+                shiftReport.Id.ToString(),
+                $"Lễ tân {shiftReport.ReceptionistName} đã tạo báo cáo {shiftReport.ShiftType} ngày {shiftReport.ShiftDate:dd/MM/yyyy}",
+                null
+            );
+
             return await GetByIdAsync(shiftReport.Id);
         }
 
@@ -236,6 +293,10 @@ namespace angnet.Infrastructure.Data.Services
                     $"Không thể chỉnh sửa báo cáo ca đã được tạo hơn {Math.Floor(hoursDiff)} giờ trước."
                 );
             }
+
+            // Chụp lại giá trị cũ TRƯỚC khi gán đè, nếu không thì lúc ghi log chỉ còn
+            // giá trị mới và mất hẳn khả năng đối chiếu số tiền trước/sau khi sửa.
+            object oldSnapshot = SnapshotOf(shiftReport);
 
             // Update basic info
             shiftReport.ShiftDate = dto.ShiftDate;
@@ -310,6 +371,13 @@ namespace angnet.Infrastructure.Data.Services
 
             await _context.SaveChangesAsync();
 
+            // save logging
+            await WriteAuditAsync(
+                shiftReport.Id.ToString(),
+                $"Lễ tân {shiftReport.ReceptionistName} đã sửa báo cáo {shiftReport.ShiftType} ngày {shiftReport.ShiftDate:dd/MM/yyyy}",
+                oldSnapshot
+            );
+
             return await GetByIdAsync(shiftReport.Id);
         }
 
@@ -319,8 +387,22 @@ namespace angnet.Infrastructure.Data.Services
             if (shiftReport == null)
                 return false;
 
+            // Chụp trước khi xóa: sau khi Remove thì không còn gì để ghi lại.
+            object oldSnapshot = SnapshotOf(shiftReport);
+            string shiftType = shiftReport.ShiftType;
+            DateOnly shiftDate = shiftReport.ShiftDate;
+            string receptionistName = shiftReport.ReceptionistName;
+
             _context.ShiftReport.Remove(shiftReport);
             await _context.SaveChangesAsync();
+
+            // save logging
+            await WriteAuditAsync(
+                id.ToString(),
+                $"Lễ tân {receptionistName} đã xóa báo cáo {shiftType} ngày {shiftDate:dd/MM/yyyy}",
+                oldSnapshot
+            );
+
             return true;
         }
 

@@ -14,15 +14,57 @@ namespace angnet.Infrastructure.Data.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuditTrailService _auditTrailService;
         public SysParameterService(
                 AppDbContext appDbContext
                 , IHttpContextAccessor httpContextAccessor
                 , IUnitOfWork unitOfWork
+                , IAuditTrailService auditTrailService
             )
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _unitOfWork = unitOfWork;
+            _auditTrailService = auditTrailService;
+        }
+
+        // Ghi nhật ký thao tác vào AuditTrail. Bọc try/catch để ghi log hỏng không
+        // làm hỏng luôn thao tác chính đã lưu thành công.
+        private async Task WriteAuditAsync(string recordId, string description, object oldValues)
+        {
+            try
+            {
+                await _auditTrailService.Create(new AuditTrailDto
+                {
+                    RecordId = recordId,
+                    Description = description,
+                    ChangedColumns = "",
+                    OldValues = oldValues is null
+                        ? ""
+                        : System.Text.Json.JsonSerializer.Serialize(oldValues)
+                });
+            }
+            catch
+            {
+                // Nuốt lỗi có chủ đích - xem giải thích ở trên.
+            }
+        }
+
+        // Ảnh chụp giá trị tham số trước khi sửa/xóa, để truy lại được giá trị cũ.
+        private static object SnapshotOf(SysParameterModel p)
+        {
+            return new
+            {
+                p.ParameterCode,
+                p.ParameterNameVi,
+                p.ParameterNameEn,
+                p.ParameterValueVi,
+                p.ParameterValueEn,
+                p.DataType,
+                p.Category,
+                p.SortOrder,
+                p.FlagActive
+            };
         }
 
         public ApiResponse<SysParameterModel> Search(int pageIndex, int pageSize, string keyword, string category)
@@ -177,6 +219,13 @@ namespace angnet.Infrastructure.Data.Services
 
             apiResponse.Data = data;
 
+            // save logging
+            await WriteAuditAsync(
+                data.ParameterCode,
+                $"Đã tạo tham số hệ thống {data.ParameterCode} ({data.ParameterNameVi})",
+                null
+            );
+
             return apiResponse;
         }
 
@@ -236,6 +285,9 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
+            // Chụp bản ghi cũ trước khi dựng entity mới đè lên.
+            object oldSnapshot = SnapshotOf(_data);
+
             SysParameterModel entity = new SysParameterModel()
             {
                 ParameterCode = _data.ParameterCode,
@@ -275,6 +327,13 @@ namespace angnet.Infrastructure.Data.Services
                                                             );
             await _dbContext.SaveChangesAsync();
 
+            // save logging
+            await WriteAuditAsync(
+                entity.ParameterCode,
+                $"Đã sửa tham số hệ thống {entity.ParameterCode} ({entity.ParameterNameVi})",
+                oldSnapshot
+            );
+
             return apiResponse;
         }
 
@@ -310,9 +369,20 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
+            // Chụp trước khi xóa: sau khi Remove thì không còn gì để ghi lại.
+            object oldSnapshot = SnapshotOf(_data);
+            string parameterNameVi = _data.ParameterNameVi;
+
             // Truyền entity chứ không truyền khóa: BaseRepository.Delete gọi thẳng _dbCtx.Remove(...)
             await _unitOfWork.SysParameterRespository.Delete(_data);
             await _dbContext.SaveChangesAsync();
+
+            // save logging
+            await WriteAuditAsync(
+                ParameterCode,
+                $"Đã xóa tham số hệ thống {ParameterCode} ({parameterNameVi})",
+                oldSnapshot
+            );
 
             return apiResponse;
         }
