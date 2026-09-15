@@ -29,6 +29,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         public IAuditTrailRespository AuditTrailRespository { get; }
         public ITenantRepository TenantRepository { get; }
         public ISysParameterRespository SysParameterRespository { get; }
+        public ISysPermissionRespository SysPermissionRespository { get; }
         public IReelRespository ReelRespository { get; }
         public IReelCommentRespository ReelCommentRespository { get; }
         public INewsCommentRepository NewsCommentRepository { get; }
@@ -45,6 +46,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
                 , IAuditTrailRespository auditTrailRespository
                 , ITenantRepository tenantRepository
                 , ISysParameterRespository sysParameterRespository
+                , ISysPermissionRespository sysPermissionRespository
                 , IReelRespository reelRespository
                 , IReelCommentRespository reelCommentRespository
                 , INewsCommentRepository newsCommentRepository
@@ -62,6 +64,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
             AuditTrailRespository = auditTrailRespository;
             TenantRepository = tenantRepository;
             SysParameterRespository = sysParameterRespository;
+            SysPermissionRespository = sysPermissionRespository;
             ReelRespository = reelRespository;
             ReelCommentRespository = reelCommentRespository;
             NewsCommentRepository = newsCommentRepository;

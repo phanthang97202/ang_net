@@ -67,6 +67,9 @@ namespace angnet.Infrastructure
             services.AddScoped<ISysParameterRespository, SysParameterRespository>();
             services.AddScoped<ISysParameterService, SysParameterService>();
 
+            services.AddScoped<ISysPermissionRespository, SysPermissionRespository>();
+            services.AddScoped<ISysPermissionService, SysPermissionService>();
+
             services.AddScoped<IReelRespository, ReelRespository>();
             services.AddScoped<IReelCommentRespository, ReelCommentRespository>();
             services.AddScoped<IReelService, ReelService>();

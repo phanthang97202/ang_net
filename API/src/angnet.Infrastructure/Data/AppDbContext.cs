@@ -61,6 +61,10 @@ namespace angnet.Infrastructure.Data
         // Tham số hệ thống
         public DbSet<SysParameterModel> SysParameter { get; set; }
 
+        // Danh mục quyền. Việc gán quyền vào vai trò nằm ở bảng AspNetRoleClaims
+        // có sẵn của Identity, không phải ở đây.
+        public DbSet<SysPermissionModel> SysPermission { get; set; }
+
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
         public DbSet<ReelMediaModel> ReelMedia { get; set; }

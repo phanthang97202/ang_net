@@ -129,6 +129,12 @@ builder.Services
 //(such as a database context or UserManager), register the handler using AddScoped.
 builder.Services.AddScoped<IAuthorizationHandler, IsActiveUserHandler>();
 
+// Phân quyền theo mã quyền: [Authorize(Policy = "blog.create")]. Provider sinh policy
+// theo yêu cầu nên thêm quyền mới vào DB không phải sửa code ở đây.
+// Handler chỉ đọc claim trong token (singleton được vì không phụ thuộc DB).
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+
 
 builder.Services.AddCors(options =>
 {

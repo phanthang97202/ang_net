@@ -13,6 +13,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         IAuditTrailRespository AuditTrailRespository { get; }
         ITenantRepository TenantRepository { get; }
         ISysParameterRespository SysParameterRespository { get; }
+        ISysPermissionRespository SysPermissionRespository { get; }
         IReelRespository ReelRespository { get; }
         IReelCommentRespository ReelCommentRespository { get; }
         INewsCommentRepository NewsCommentRepository { get; }

@@ -57,6 +57,42 @@ namespace angnet.Infrastructure.Data.Repositories
             _auditTrailService = auditTrailService; 
         }
 
+        // Tên claim chứa mã quyền trong JWT. Phải khớp với hằng số cùng tên bên
+        // PermissionHandler (nơi đọc ra để kiểm tra).
+        private const string PermissionClaimType = "permission";
+
+        /// <summary>
+        /// Gom quyền của tất cả vai trò mà người dùng đang giữ, bỏ trùng.
+        /// Quyền gán vào vai trò nằm ở bảng AspNetRoleClaims có sẵn của Identity.
+        /// </summary>
+        private List<string> GetPermissionsOfRoles(IList<string> roles)
+        {
+            if (roles is null || roles.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            // Lọc theo tên vai trò rồi join sang role-claims: RoleManager không có sẵn
+            // hàm lấy claim của nhiều vai trò một lượt, gọi từng vai trò thì tốn n query.
+            var roleIds = _dbContext.Roles
+                                    .Where(r => roles.Contains(r.Name!))
+                                    .Select(r => r.Id)
+                                    .ToList();
+
+            if (roleIds.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            return _dbContext.RoleClaims
+                             .Where(rc => roleIds.Contains(rc.RoleId)
+                                          && rc.ClaimType == PermissionClaimType
+                                          && rc.ClaimValue != null)
+                             .Select(rc => rc.ClaimValue!)
+                             .Distinct()
+                             .ToList();
+        }
+
         public string GenerateAccessToken(AppUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -87,6 +123,20 @@ namespace angnet.Infrastructure.Data.Repositories
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            // Quyền của người dùng = hợp của quyền các vai trò họ đang giữ. Gắn thẳng
+            // vào token để mỗi request khỏi phải tra DB.
+            //
+            // Đánh đổi: quyền trong token là ảnh chụp lúc đăng nhập. Gỡ quyền của một
+            // người thì họ vẫn dùng được cho tới khi token hết hạn (hoặc đăng nhập lại).
+            // Đổi lại là không tốn query nào cho việc phân quyền.
+            //
+            // Vai trò Admin không cần gắn quyền: PermissionHandler cho Admin đi qua
+            // trước khi đọc tới danh sách này.
+            foreach (var permission in GetPermissionsOfRoles(roles))
+            {
+                claims.Add(new Claim(PermissionClaimType, permission));
             }
 
             var tokenDescriptor = new SecurityTokenDescriptor
