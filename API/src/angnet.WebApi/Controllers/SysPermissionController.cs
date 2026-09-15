@@ -9,12 +9,16 @@ namespace angnet.WebApi.Controllers
     /*
         Quản trị danh mục quyền và việc gán quyền vào vai trò.
 
-        Vẫn để [Authorize(Roles = "Admin")] như RolesController: bước này mới dựng nền,
-        chưa chuyển endpoint nào sang [Authorize(Policy = "...")]. Đổi sang policy là
-        việc của bước áp dụng sau - làm sớm mà seed thiếu quyền thì chính màn hình
-        phân quyền lại là thứ khoá mình ra ngoài đầu tiên.
+        Đọc danh mục và xem quyền của vai trò cần role.view - khớp với quyền mở trang
+        /dashboard/role. Thay quyền của vai trò thì cần role.manage.
+
+        Cấp controller giữ [Authorize] làm lớp đáy: thêm endpoint mới mà quên gắn
+        policy thì ít nhất vẫn phải đăng nhập, chứ không hở hẳn ra ngoài.
+
+        Admin đi qua tất cả (PermissionHandler), nên không có chuyện seed thiếu quyền
+        rồi tự khoá mình ra khỏi chính màn hình phân quyền.
     */
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SysPermissionController : ControllerBase
@@ -27,6 +31,7 @@ namespace angnet.WebApi.Controllers
         }
 
         /// <summary>Danh mục quyền của hệ thống, đã gom nhóm theo module.</summary>
+        [Authorize(Policy = "role.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Catalogue")]
         public async Task<IActionResult> GetCatalogue()
@@ -43,6 +48,7 @@ namespace angnet.WebApi.Controllers
         }
 
         /// <summary>Các mã quyền đang gán cho một vai trò.</summary>
+        [Authorize(Policy = "role.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("OfRole")]
         public async Task<IActionResult> GetPermissionsOfRole(string roleId)
@@ -59,6 +65,7 @@ namespace angnet.WebApi.Controllers
         }
 
         /// <summary>Thay toàn bộ quyền của một vai trò bằng danh sách mới.</summary>
+        [Authorize(Policy = "role.manage")]
         [EnableRateLimitingAttribute("API")]
         [HttpPost("UpdateOfRole")]
         public async Task<IActionResult> UpdatePermissionsOfRole([FromBody] RolePermissionUpdateDto reqData)

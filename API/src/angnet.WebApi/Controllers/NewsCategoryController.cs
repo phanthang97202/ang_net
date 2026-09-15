@@ -37,7 +37,7 @@ namespace angnet.WebApi.Controllers
 
         // Trước đây để [AllowAnonymous]: service chỉ kiểm tra token hợp lệ nên bất kỳ tài
         // khoản nào cũng tạo được danh mục. Quản trị danh mục là việc của Admin.
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "newscategory.create")]
         [EnableRateLimitingAttribute("API")]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] NewsCategoryModel news)
@@ -70,7 +70,8 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        // Detail là endpoint đọc nên đi cùng quyền xem, không phải quyền sửa.
+        [Authorize(Policy = "newscategory.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Detail")]
         public async Task<ActionResult<NewsCategoryModel>> Detail(string newsCategoryId)
@@ -86,7 +87,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "newscategory.update")]
         [EnableRateLimitingAttribute("API")]
         [HttpPatch("Update")]
         public async Task<IActionResult> Update([FromBody] NewsCategoryModel data)
@@ -102,7 +103,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "newscategory.delete")]
         [EnableRateLimitingAttribute("API")]
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(string newsCategoryId)
