@@ -109,7 +109,12 @@ namespace angnet.Utility.CommonUtils
 
         public static string GenerateSlug(string phrase)
         {
-            const int maxLength = 45;
+            // 45 (giá trị cũ) cắt cụt gần như mọi tiêu đề tiếng Việt: "Vibe Coding là
+            // gì? Nó đang thay đổi nghề lập trình ra sao?" chỉ còn tới "...nghe-lap",
+            // mất hẳn từ khoá ở đuôi. 90 đủ giữ trọn tiêu đề dài nhất đang có mà URL
+            // vẫn chưa tới mức Google phải cắt bớt khi hiển thị.
+            // Không có ràng buộc độ dài nào ở DB - NewsId/Slug đều là text tự do.
+            const int maxLength = 90;
 
             string str = RemoveAccent(phrase).ToLower();
             // invalid chars           
