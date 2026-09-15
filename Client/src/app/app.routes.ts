@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
-import { canActive, canActiveForAdmin } from './middlewares';
+import {
+  canActive,
+  canActiveDashboard,
+  canActivePermission,
+} from './middlewares';
 
 export const routes: Routes = [
   {
@@ -139,7 +143,9 @@ export const routes: Routes = [
       import('./pages/dashboard/_layout/_layout.component').then(
         p => p.LayoutDashboardComponent
       ),
-    canActivate: [canActiveForAdmin],
+    // Cửa vào khu quản trị: có bất kỳ quyền nào là vào được. Từng trang con bên
+    // dưới còn guard riêng theo đúng quyền của trang đó.
+    canActivate: [canActiveDashboard],
     children: [
       {
         path: '',
@@ -147,7 +153,8 @@ export const routes: Routes = [
           import('./pages/dashboard/dashboard/dashboard.component').then(
             p => p.DashboardComponent
           ),
-        canActivate: [canActiveForAdmin],
+        // Không guard riêng: trang tổng quan là chỗ đáp của mọi người vào được
+        // khu quản trị, kể cả người chỉ có đúng một quyền.
       },
       {
         path: 'users',
@@ -155,7 +162,7 @@ export const routes: Routes = [
           import('./pages/dashboard/user-list/user-list.component').then(
             p => p.UserListComponent
           ),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('user.view')],
       },
       {
         path: 'role',
@@ -163,7 +170,7 @@ export const routes: Routes = [
           import('./pages/dashboard/role-list/role-list.component').then(
             p => p.RoleListComponent
           ),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('role.view')],
       },
       {
         path: 'mstprovince',
@@ -171,7 +178,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
           ).then(p => p.MstProvinceComponent),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('master.view')],
       },
       {
         path: 'mstdistrict',
@@ -179,7 +186,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
           ).then(p => p.MstProvinceComponent),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('master.view')],
       },
       {
         path: 'blog',
@@ -187,7 +194,7 @@ export const routes: Routes = [
           import('./pages/dashboard/blogs/blog-list/blog-list.component').then(
             p => p.BlogListComponent
           ),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('blog.view')],
       },
 
       {
@@ -196,7 +203,7 @@ export const routes: Routes = [
           import('./pages/dashboard/blogs/modify-blog/blogs.component').then(
             p => p.BlogsComponent
           ),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('blog.create')],
         data: { mode: 'create' },
       },
 
@@ -215,7 +222,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component'
           ).then(p => p.AuditTrailComponent),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('audittrail.view')],
       },
       {
         path: 'sysparameter',
@@ -223,7 +230,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component'
           ).then(p => p.SysParameterComponent),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('sysparameter.view')],
       },
       {
         path: 'newscategory',
@@ -231,7 +238,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/news-category/news-category-list/news-category-list.component'
           ).then(p => p.NewsCategoryComponent),
-        canActivate: [canActiveForAdmin],
+        canActivate: [canActivePermission('newscategory.view')],
       },
     ],
   },

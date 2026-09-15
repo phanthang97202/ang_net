@@ -9,7 +9,11 @@ using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 
 namespace angnet.WebApi.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    // Cấp controller hạ từ [Authorize(Roles="Admin")] xuống [Authorize] làm lớp đáy,
+    // rồi từng endpoint đòi quyền cụ thể: đọc cần role.view, còn tạo/xóa/gán cần
+    // role.manage hoặc role.assign. Giữ nguyên Roles="Admin" ở cấp controller thì
+    // người được gán role.view vẫn không đọc được gì.
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class RolesController : ControllerBase
@@ -23,6 +27,7 @@ namespace angnet.WebApi.Controllers
             _appUser = appUser;
         }
 
+        [Authorize(Policy = "role.manage")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleDto createRoleDto)
         {
@@ -66,10 +71,11 @@ namespace angnet.WebApi.Controllers
             });
         }
 
+        [Authorize(Policy = "role.view")]
         [HttpGet("roles")]
         public async Task<IActionResult> GetAllRole()
         {
-            // ?o?n n�y c?ng m?c l?i t??ng t? nh? tr??c: g?i .Result trong m?t bi?u th?c LINQ async (ToListAsync()),
+            // ?o?n n�y c?ng m?c l?i t??ng t? nh? tr??c: g?i .Result trong m?t bi?u th?c LINQ async (ToListAsync()),
             // s? d?n ??n deadlock ho?c l?i k?t n?i song song trong PostgreSQL v?i EF Core.
 
             //var allRoles = await _roleManager.Roles.Select(r => new RoleResponseDto
@@ -103,6 +109,7 @@ namespace angnet.WebApi.Controllers
 
         }
 
+        [Authorize(Policy = "role.view")]
         [HttpGet]
         public async Task<IActionResult> DetailRole([FromQuery] string idRole)
         {
@@ -126,6 +133,7 @@ namespace angnet.WebApi.Controllers
             });
         }
 
+        [Authorize(Policy = "role.manage")]
         [HttpDelete("{idRole}")]
         public async Task<IActionResult> DeleteRole(string idRole)
         {
@@ -150,6 +158,7 @@ namespace angnet.WebApi.Controllers
             });
         }
 
+        [Authorize(Policy = "role.assign")]
         [HttpPost("assign")]
         public async Task<IActionResult> AssignRole([FromBody] RoleAssignDto assignRole)
         {
@@ -199,6 +208,7 @@ namespace angnet.WebApi.Controllers
             });
         }
 
+        [Authorize(Policy = "role.assign")]
         [HttpPost("unassign")]
         public async Task<IActionResult> UnassignRole([FromBody] UnRoleAssignDto unassignRole)
         {

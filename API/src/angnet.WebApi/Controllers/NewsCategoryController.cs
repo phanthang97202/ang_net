@@ -54,7 +54,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "newscategory.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Search")]
         public ActionResult<NewsCategoryModel> Search(int pageIndex, int pageSize, string keyword)

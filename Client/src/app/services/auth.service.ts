@@ -191,6 +191,47 @@ export class AuthService {
     return bool;
   }
 
+  /**
+   * Các mã quyền có trong token. Backend gộp quyền của mọi vai trò người dùng
+   * đang giữ rồi nhét vào claim "permission" lúc đăng nhập.
+   *
+   * Claim chỉ có MỘT giá trị thì thư viện JWT trả về chuỗi chứ không phải mảng -
+   * ép về mảng để bên gọi khỏi phải phân biệt hai trường hợp.
+   */
+  getPermissions(): string[] {
+    const token = this.getToken();
+    if (!token) return [];
+
+    const decodedToken: any = jwtDecode(token);
+    const raw = decodedToken?.permission;
+
+    if (!raw) return [];
+    return Array.isArray(raw) ? raw : [raw];
+  }
+
+  /**
+   * Admin đi qua mọi kiểm tra quyền - khớp với PermissionHandler ở backend.
+   * Không có ngoại lệ này thì tài khoản Admin (vốn không cần gán quyền) sẽ bị
+   * giao diện chặn dù API vẫn cho qua.
+   */
+  hasPermission(code: string): boolean {
+    if (this.isAdminPermission()) return true;
+    return this.getPermissions().includes(code);
+  }
+
+  /** Có ít nhất một trong các quyền truyền vào. */
+  hasAnyPermission(codes: string[]): boolean {
+    if (this.isAdminPermission()) return true;
+    const owned = this.getPermissions();
+    return codes.some(c => owned.includes(c));
+  }
+
+  /** Có bất kỳ quyền nào - dùng làm điều kiện vào khu quản trị. */
+  hasAnyPermissionAtAll(): boolean {
+    if (this.isAdminPermission()) return true;
+    return this.getPermissions().length > 0;
+  }
+
   getToken() {
     return localStorage.getItem(this.tokenKey) ?? '';
   }

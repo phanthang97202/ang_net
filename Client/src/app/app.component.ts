@@ -48,6 +48,86 @@ export class AppComponent implements OnInit {
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
 
+  // Menu khu quản trị. Mỗi mục khai quyền cần có; getDashboardMenu() lọc bỏ mục
+  // người dùng không có quyền, để họ không thấy rồi bấm vào và nhận lỗi.
+  // Nhóm nào không còn mục nào thì ẩn luôn cả nhóm.
+  dashboardMenu: {
+    title: string;
+    icon: string;
+    children: { path: string; title: string; permission: string }[];
+  }[] = [
+    {
+      title: 'Người dùng',
+      icon: 'team',
+      children: [
+        {
+          path: '/dashboard/users',
+          title: 'Danh sách người dùng',
+          permission: 'user.view',
+        },
+      ],
+    },
+    {
+      title: 'Vai trò',
+      icon: 'safety',
+      children: [
+        {
+          path: '/dashboard/role',
+          title: 'Vai trò & phân quyền',
+          permission: 'role.view',
+        },
+      ],
+    },
+    {
+      title: 'Danh mục địa giới',
+      icon: 'table',
+      children: [
+        {
+          path: '/dashboard/mstprovince',
+          title: 'Tỉnh/Thành',
+          permission: 'master.view',
+        },
+        {
+          path: '/dashboard/mstdistrict',
+          title: 'Quận/Huyện',
+          permission: 'master.view',
+        },
+      ],
+    },
+    {
+      title: 'Nội dung',
+      icon: 'read',
+      children: [
+        {
+          path: '/dashboard/blog',
+          title: 'Bài viết',
+          permission: 'blog.view',
+        },
+        {
+          path: '/dashboard/newscategory',
+          title: 'Danh mục tin',
+          permission: 'newscategory.view',
+        },
+      ],
+    },
+    {
+      title: 'Hệ thống',
+      icon: 'setting',
+      children: [
+        {
+          path: '/dashboard/audittrail',
+          title: 'Nhật ký',
+          permission: 'audittrail.view',
+        },
+        {
+          path: '/dashboard/sysparameter',
+          title: 'Tham số hệ thống',
+          permission: 'sysparameter.view',
+        },
+      ],
+    },
+  ];
+
   lstRouteLayoutNone = ['/login', '/forgot-password'];
   // /reels chiếm trọn màn hình kiểu TikTok: không navbar/footer, và cũng không qua
   // nz-content (nz-content có margin: 64.8px 0 cho các trang 'none' khác, gây khoảng
@@ -187,5 +267,18 @@ export class AppComponent implements OnInit {
 
   toggleChat() {
     this.isChatOpen = !this.isChatOpen;
+  }
+
+  // Menu đã lọc theo quyền của người đang đăng nhập. Admin thấy hết (AuthService
+  // cho Admin qua mọi kiểm tra, khớp với PermissionHandler ở backend).
+  getDashboardMenu() {
+    return this.dashboardMenu
+      .map(group => ({
+        ...group,
+        children: group.children.filter(c =>
+          this.authService.hasPermission(c.permission)
+        ),
+      }))
+      .filter(group => group.children.length > 0);
   }
 }

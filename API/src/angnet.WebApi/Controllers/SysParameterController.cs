@@ -20,6 +20,7 @@ namespace angnet.WebApi.Controllers
             _sysParameterService = sysParameterService;
         }
 
+        [Authorize(Policy = "sysparameter.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Search")]
         public ActionResult<SysParameterModel> Search(int pageIndex, int pageSize, string keyword, string category)
@@ -51,6 +52,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "sysparameter.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetAllActive")]
         public async Task<ActionResult<SysParameterModel>> GetAllActive()

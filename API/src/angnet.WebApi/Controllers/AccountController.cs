@@ -161,7 +161,7 @@ namespace angnet.WebApi.Controllers
         }
 
         // get all users
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "user.view")]
         [HttpGet("users")]
         public async Task<ActionResult<UserDetailDto>> GetAllUser()
         {

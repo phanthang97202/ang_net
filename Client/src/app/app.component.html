@@ -32,56 +32,19 @@
           alt="" />
       </a>
     </div>
+    <!-- Menu dựng từ getDashboardMenu(): mục nào người dùng không có quyền thì
+         không hiện, nhóm rỗng thì ẩn cả nhóm. Trước đây hiện cứng đủ 9 mục cho
+         bất kỳ ai vào được, bấm vào mới báo lỗi.
+         Mục Order đã bỏ: route /dashboard/order không tồn tại. -->
     <ul nz-menu nzTheme="dark" nzMode="inline">
-      <li nz-submenu nzTitle="Users" nzIcon="team">
+      <li
+        *ngFor="let group of getDashboardMenu()"
+        nz-submenu
+        [nzTitle]="group.title"
+        [nzIcon]="group.icon">
         <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/users"> All Users </a>
-          </li>
-        </ul>
-      </li>
-
-      <li nz-submenu nzTitle="Roles" nzIcon="safety">
-        <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/role"> Setting Role </a>
-          </li>
-        </ul>
-      </li>
-      <li nz-submenu nzTitle="Masters" nzIcon="table">
-        <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/mstprovince"> Provinces </a>
-          </li>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/mstdistrict"> Districts </a>
-          </li>
-        </ul>
-      </li>
-      <li nz-submenu nzTitle="Blogs" nzIcon="read">
-        <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/blog"> Blogs </a>
-          </li>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/newscategory"> Categories </a>
-          </li>
-        </ul>
-      </li>
-      <li nz-submenu nzTitle="Order" nzIcon="solution">
-        <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/order"> Order </a>
-          </li>
-        </ul>
-      </li>
-      <li nz-submenu nzTitle="System" nzIcon="setting">
-        <ul>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/audittrail"> Audit Trail </a>
-          </li>
-          <li nz-menu-item>
-            <a routerLink="/dashboard/sysparameter"> System Parameter </a>
+          <li *ngFor="let item of group.children" nz-menu-item>
+            <a [routerLink]="item.path">{{ item.title }}</a>
           </li>
         </ul>
       </li>
