@@ -32,13 +32,13 @@
           alt="" />
       </a>
     </div>
-    <!-- Menu dựng từ getDashboardMenu(): mục nào người dùng không có quyền thì
+    <!-- Menu dựng từ dashboardMenuFiltered: mục nào người dùng không có quyền thì
          không hiện, nhóm rỗng thì ẩn cả nhóm. Trước đây hiện cứng đủ 9 mục cho
          bất kỳ ai vào được, bấm vào mới báo lỗi.
          Mục Order đã bỏ: route /dashboard/order không tồn tại. -->
     <ul nz-menu nzTheme="dark" nzMode="inline">
       <li
-        *ngFor="let group of getDashboardMenu()"
+        *ngFor="let group of dashboardMenuFiltered"
         nz-submenu
         [nzTitle]="group.title"
         [nzIcon]="group.icon">

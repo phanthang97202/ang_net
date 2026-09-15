@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
 
-  // Menu khu quản trị. Mỗi mục khai quyền cần có; getDashboardMenu() lọc bỏ mục
+  // Menu khu quản trị. Mỗi mục khai quyền cần có; rebuildDashboardMenu() lọc bỏ mục
   // người dùng không có quyền, để họ không thấy rồi bấm vào và nhận lỗi.
   // Nhóm nào không còn mục nào thì ẩn luôn cả nhóm.
   dashboardMenu: {
@@ -207,6 +207,9 @@ export class AppComponent implements OnInit {
 
         if (url.startsWith('/dashboard')) {
           this.layoutType = 'admin';
+          // Dựng lại menu mỗi lần vào khu quản trị: token có thể đã đổi kể từ lần
+          // trước (đăng nhập tài khoản khác, hoặc vừa refresh token).
+          this.rebuildDashboardMenu();
         } else if (isLayoutImmersive) {
           this.layoutType = 'immersive';
         } else if (isLayoutNone) {
@@ -269,10 +272,17 @@ export class AppComponent implements OnInit {
     this.isChatOpen = !this.isChatOpen;
   }
 
-  // Menu đã lọc theo quyền của người đang đăng nhập. Admin thấy hết (AuthService
-  // cho Admin qua mọi kiểm tra, khớp với PermissionHandler ở backend).
-  getDashboardMenu() {
-    return this.dashboardMenu
+  // Menu đã lọc theo quyền, TÍNH SẴN một lần chứ không gọi từ template.
+  //
+  // Trước đây template gọi thẳng getDashboardMenu() trong *ngFor. Hàm đó trả về
+  // mảng MỚI mỗi lần gọi, Angular so sánh theo tham chiếu nên thấy khác -> vẽ lại
+  // *ngFor -> kích hoạt change detection -> gọi lại hàm... thành vòng lặp vô tận.
+  // Mỗi vòng còn jwtDecode cả chục lần (mỗi mục menu một lần), nên trình duyệt
+  // đơ hẳn khi vào dashboard.
+  dashboardMenuFiltered: typeof this.dashboardMenu = [];
+
+  private rebuildDashboardMenu(): void {
+    this.dashboardMenuFiltered = this.dashboardMenu
       .map(group => ({
         ...group,
         children: group.children.filter(c =>
