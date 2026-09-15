@@ -30,6 +30,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         public ITenantRepository TenantRepository { get; }
         public ISysParameterRespository SysParameterRespository { get; }
         public ISysPermissionRespository SysPermissionRespository { get; }
+        public ISysMenuRespository SysMenuRespository { get; }
         public IReelRespository ReelRespository { get; }
         public IReelCommentRespository ReelCommentRespository { get; }
         public INewsCommentRepository NewsCommentRepository { get; }
@@ -47,6 +48,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
                 , ITenantRepository tenantRepository
                 , ISysParameterRespository sysParameterRespository
                 , ISysPermissionRespository sysPermissionRespository
+                , ISysMenuRespository sysMenuRespository
                 , IReelRespository reelRespository
                 , IReelCommentRespository reelCommentRespository
                 , INewsCommentRepository newsCommentRepository
@@ -65,6 +67,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
             TenantRepository = tenantRepository;
             SysParameterRespository = sysParameterRespository;
             SysPermissionRespository = sysPermissionRespository;
+            SysMenuRespository = sysMenuRespository;
             ReelRespository = reelRespository;
             ReelCommentRespository = reelCommentRespository;
             NewsCommentRepository = newsCommentRepository;

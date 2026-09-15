@@ -14,6 +14,7 @@ namespace angnet.Infrastructure.Data.UnitOfWork
         ITenantRepository TenantRepository { get; }
         ISysParameterRespository SysParameterRespository { get; }
         ISysPermissionRespository SysPermissionRespository { get; }
+        ISysMenuRespository SysMenuRespository { get; }
         IReelRespository ReelRespository { get; }
         IReelCommentRespository ReelCommentRespository { get; }
         INewsCommentRepository NewsCommentRepository { get; }

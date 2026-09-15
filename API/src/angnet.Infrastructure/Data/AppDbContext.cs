@@ -65,6 +65,9 @@ namespace angnet.Infrastructure.Data
         // có sẵn của Identity, không phải ở đây.
         public DbSet<SysPermissionModel> SysPermission { get; set; }
 
+        // Menu điều hướng ngoài trang chủ (2 cấp qua ParentId tự tham chiếu).
+        public DbSet<SysMenuModel> SysMenu { get; set; }
+
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
         public DbSet<ReelMediaModel> ReelMedia { get; set; }
