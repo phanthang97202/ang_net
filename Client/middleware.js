@@ -36,7 +36,11 @@ const SITE_NAME = 'Phan Thang Blog';
 // mọi biến thể host về 1 địa chỉ duy nhất. Vercel còn phục vụ site qua các
 // domain *.vercel.app (preview/deploy), nếu để chúng tự trỏ về chính mình thì
 // các domain đó thành bản sao cạnh tranh với domain chính trên Google.
-const SITE_ORIGIN = 'https://www.phanthang.site';
+// Phải là host mà site thật sự phục vụ (apex): www.phanthang.site đang 307 về
+// đây. Trỏ canonical/sitemap sang www là đẩy Googlebot vào một vòng mâu thuẫn -
+// sitemap dẫn tới URL redirect, đi theo redirect thì trang lại khai canonical
+// ngược về www.
+const SITE_ORIGIN = 'https://phanthang.site';
 const DEFAULT_DESCRIPTION =
   'Blog cá nhân của Phan Thang - chia sẻ bài viết, tin tức và trải nghiệm.';
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/assets/images/logo.png`;
