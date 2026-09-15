@@ -100,11 +100,14 @@ export class LoginComponent implements AfterViewInit {
       next: response => {
         this.loadingService.setLoading(false);
 
-        const isAdmin = this.authService.isAdminPermission();
+        // Đưa vào khu quản trị nếu có bất kỳ quyền nào, không chỉ riêng Admin -
+        // khớp với canActiveDashboard. Trước đây chỉ hỏi vai trò Admin nên người
+        // được gán quyền vẫn bị đẩy ra trang chủ sau khi đăng nhập.
+        const canAccessDashboard = this.authService.hasAnyPermissionAtAll();
 
         if (response?.Success) {
           this.message.create('success', 'Login successfully');
-          this.router.navigate([isAdmin ? '/dashboard' : '/']);
+          this.router.navigate([canAccessDashboard ? '/dashboard' : '/']);
         } else {
           this.showErrorService.setShowError({
             icon: 'warning',

@@ -246,7 +246,7 @@
       </a>
 
       <a
-        *ngIf="authService.isAdminPermission()"
+        *ngIf="authService.hasAnyPermissionAtAll()"
         routerLink="/dashboard"
         class="account-menu__item">
         <span nz-icon nzType="dashboard" nzTheme="outline"></span>
