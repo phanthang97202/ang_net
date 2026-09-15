@@ -68,7 +68,7 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize()]
+        [Authorize(Policy = "blog.create")]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] NewsDto news)
         {
@@ -87,7 +87,11 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [Authorize()]
+        // Quyền blog.update là điều kiện CẦN, không phải đủ: NewsRespository.Update
+        // vẫn chặn nếu người gọi không phải tác giả của bài (kể cả Admin). Quyền này
+        // chỉ quyết định "có được sửa bài nói chung hay không", còn "sửa bài nào"
+        // thì do quyền sở hữu quyết định.
+        [Authorize(Policy = "blog.update")]
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] UpdateNewsDto news)
         {

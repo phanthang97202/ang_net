@@ -213,6 +213,10 @@ export const routes: Routes = [
           import('./pages/dashboard/blogs/modify-blog/blogs.component').then(
             p => p.BlogsComponent
           ),
+        // Trước đây route này không có guard nào: ai vào được khu quản trị đều mở
+        // được trình soạn bài bằng URL. Việc lưu vẫn bị API chặn nếu không phải
+        // tác giả, nhưng không nên để mở được màn hình ngay từ đầu.
+        canActivate: [canActivePermission('blog.update')],
         data: { mode: 'edit' },
       },
 
