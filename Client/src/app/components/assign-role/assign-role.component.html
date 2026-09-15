@@ -1,26 +1,73 @@
-<form nz-form nzSpan="24" [formGroup]="validateForm">
-    <nz-form-item nz-form nzSpan="12">
-        <nz-form-control nzErrorTip="Please select user!">
-            <nz-select id="UserId" formControlName="UserId" nzPlaceHolder="Select user">
-                @for (user of lstUsers; track user) {
-                <nz-option [nzValue]="user.Id" [nzLabel]="user.Email" />
-                }
-            </nz-select>
-        </nz-form-control>
-    </nz-form-item>
-    <nz-form-item nzSpan="12">
-        <nz-form-control nzErrorTip="Please select role!">
-            <nz-select id="RoleId" formControlName="RoleId" nzPlaceHolder="Select role">
-                @for (role of lstRoles; track role) {
-                <nz-option [nzValue]="role.Id" [nzLabel]="role.Name" />
-                }
-            </nz-select>
-        </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-        <nz-form-control>
-            <button nz-button (click)="handleAssign()" nzType="primary">Assign</button>
-            <button class="ml-1" nz-button (click)="handleUnassign()" nzDanger nzType="primary">Unassign</button>
-        </nz-form-control>
-    </nz-form-item>
+<form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+  <nz-form-item>
+    <nz-form-label>Người dùng</nz-form-label>
+    <nz-form-control nzErrorTip="Vui lòng chọn người dùng!">
+      <!-- nzShowSearch: danh sách người dùng dài thì cuộn tay tìm email rất mệt. -->
+      <nz-select
+        id="UserId"
+        formControlName="UserId"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Chọn người dùng">
+        @for (user of lstUsers; track user.Id) {
+          <nz-option [nzValue]="user.Id" [nzLabel]="user.Email" />
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Vai trò hiện có của người được chọn -->
+  @if (validateForm.value.UserId) {
+    <div class="assign__current">
+      <span class="assign__current-label">Hiện có:</span>
+      @if (selectedUserRoles.length) {
+        @for (roleName of selectedUserRoles; track roleName) {
+          <nz-tag nzColor="blue">{{ roleName }}</nz-tag>
+        }
+      } @else {
+        <span class="assign__current-empty">chưa có vai trò nào</span>
+      }
+    </div>
+  }
+
+  <nz-form-item>
+    <nz-form-label>Vai trò</nz-form-label>
+    <nz-form-control nzErrorTip="Vui lòng chọn vai trò!">
+      <nz-select
+        id="RoleId"
+        formControlName="RoleId"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Chọn vai trò">
+        @for (role of lstRoles; track role.Id) {
+          <nz-option [nzValue]="role.Id" [nzLabel]="role.Name" />
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-control>
+      <!-- type="button" tường minh: mặc định của <button> trong <form> là
+           submit, Enter trong ô chọn sẽ kích hoạt nút đầu tiên. -->
+      <button
+        nz-button
+        type="button"
+        nzType="primary"
+        [disabled]="isRoleAlreadyAssigned"
+        (click)="handleAssign()">
+        Gán
+      </button>
+      <button
+        class="ml-1"
+        nz-button
+        type="button"
+        nzType="primary"
+        nzDanger
+        [disabled]="!!validateForm.value.RoleId && !isRoleAlreadyAssigned"
+        (click)="handleUnassign()">
+        Gỡ
+      </button>
+    </nz-form-control>
+  </nz-form-item>
 </form>

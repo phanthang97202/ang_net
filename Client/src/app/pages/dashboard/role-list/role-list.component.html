@@ -1,64 +1,87 @@
 <div class="master__container">
   <app-breadcrumb title="Role" />
-  <div class="" nz-row>
-    <div nz-col [nzXs]="24" [nzSm]="12">
-      <div nz-col [nzXs]="24" [nzSm]="22">
-        <h5 nz-typography>Create roles</h5>
+
+  <div nz-row [nzGutter]="[24, 24]">
+    <!-- Cột trái: thao tác -->
+    <div nz-col [nzXs]="24" [nzLg]="10">
+      <nz-card nzTitle="Tạo vai trò mới" class="role__card">
         <app-create-role (onCreateRole)="handleCreateRole($event)" />
-      </div>
-      <div nz-col [nzXs]="24" [nzSm]="22">
-        <h5 nz-typography>Assign roles for user</h5>
+      </nz-card>
+
+      <nz-card nzTitle="Gán vai trò cho người dùng" class="role__card">
         <app-assign-role
           [lstRoles]="lstRoles"
           [lstUsers]="lstUsers"
           (onAssignRole)="handleAssignRole($event)"
           (onUnassignRole)="handleUnassignRole($event)" />
-      </div>
+      </nz-card>
     </div>
 
-    <div class="mt-[32px]" nz-col [nzXs]="24" [nzSm]="12">
-      <nz-table
-        nzShowSizeChanger
-        [nzData]="lstRoles"
-        [nzFrontPagination]="true"
-        [nzLoading]="false"
-        [nzTotal]="100"
-        [nzPageSize]="10"
-        [nzPageIndex]="0">
-        <thead>
-          <tr>
-            <th nzColumnKey="name" [nzFilterFn]="true">Name</th>
-            <th nzColumnKey="totalUsers" [nzSortFn]="true">Total users</th>
-            <th nzColumnKey="options">Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (data of lstRoles; track data) {
+    <!-- Cột phải: danh sách vai trò -->
+    <div nz-col [nzXs]="24" [nzLg]="14">
+      <nz-card nzTitle="Danh sách vai trò" class="role__card">
+        <!-- Bỏ nzTotal/nzPageIndex đặt cứng: với nzFrontPagination, ng-zorro tự
+             đếm theo nzData. nzTotal="100" trước đây là con số bịa, còn
+             nzPageIndex="0" không hợp lệ vì ng-zorro đếm trang từ 1. -->
+        <nz-table
+          #roleTable
+          [nzData]="lstRoles"
+          [nzFrontPagination]="true"
+          [nzPageSize]="10"
+          [nzShowPagination]="lstRoles.length > 10"
+          [nzNoResult]="emptyRole">
+          <thead>
             <tr>
-              <td>
-                {{ data.Name }}
-              </td>
-              <td>{{ data.TotalUsers }}</td>
-              <td>
-                <button
-                  nz-popconfirm
-                  [nzOkText]="'Yes'"
-                  [nzCancelText]="'No'"
-                  nzPopconfirmTitle="Are you sure ?"
-                  (nzOnConfirm)="handleDelete(data.Id)"
-                  (nzOnCancel)="cancel()"
-                  nz-button
-                  nzType="default"
-                  nzShape="circle">
-                  <span nz-icon nzType="delete"></span>
-                </button>
-              </td>
+              <th nzColumnKey="Name" [nzSortFn]="sortByName">Tên vai trò</th>
+              <th nzColumnKey="TotalUsers" [nzSortFn]="sortByTotalUsers" nzWidth="140px">
+                Số người dùng
+              </th>
+              <th nzWidth="90px">Thao tác</th>
             </tr>
-          }
-        </tbody>
-      </nz-table>
+          </thead>
+          <tbody>
+            @for (data of roleTable.data; track data.Id) {
+              <tr>
+                <td>
+                  <strong>{{ data.Name }}</strong>
+                </td>
+                <td>
+                  <nz-tag [nzColor]="data.TotalUsers > 0 ? 'blue' : 'default'">
+                    {{ data.TotalUsers }}
+                  </nz-tag>
+                </td>
+                <td>
+                  <!-- Cảnh báo kèm số người đang giữ vai trò: xóa một vai trò
+                       đang có người dùng là tước quyền của từng ấy người và
+                       không hoàn tác được. -->
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    nz-popconfirm
+                    [nzPopconfirmTitle]="
+                      data.TotalUsers > 0
+                        ? 'Vai trò này đang có ' +
+                          data.TotalUsers +
+                          ' người dùng. Xóa sẽ gỡ quyền của tất cả. Tiếp tục?'
+                        : 'Xóa vai trò ' + data.Name + '?'
+                    "
+                    [nzOkText]="'Xóa'"
+                    [nzCancelText]="'Hủy'"
+                    nzOkDanger
+                    (nzOnConfirm)="handleDelete(data.Id)">
+                    <span nz-icon nzType="delete"></span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </nz-table>
+
+        <ng-template #emptyRole>
+          <nz-empty nzNotFoundContent="Chưa có vai trò nào" />
+        </ng-template>
+      </nz-card>
     </div>
   </div>
 </div>
-
-<!-- (click)="handleDelete(data.id)" -->

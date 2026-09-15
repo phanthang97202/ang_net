@@ -14,10 +14,13 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
+// NzEmptyModule không nằm trong AntdModule lẫn REUSE_COMPONENT_MODULES nên phải
+// khai báo riêng ở đây.
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 @Component({
   selector: 'app-role-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, NzEmptyModule],
   templateUrl: './role-list.component.html',
   styleUrl: './role-list.component.scss',
 })
@@ -28,6 +31,10 @@ export class RoleListComponent implements OnInit {
 
   lstRoles: IRole[] = [];
   lstUsers: IUser[] = [];
+
+  sortByName = (a: IRole, b: IRole): number =>
+    (a.Name || '').localeCompare(b.Name || '');
+  sortByTotalUsers = (a: IRole, b: IRole): number => a.TotalUsers - b.TotalUsers;
   constructor(
     private message: NzMessageService,
     private router: Router
@@ -143,8 +150,6 @@ export class RoleListComponent implements OnInit {
       },
     });
   }
-
-  cancel(): void {}
 
   confirm(): void {
     this.message.info('click confirm');
