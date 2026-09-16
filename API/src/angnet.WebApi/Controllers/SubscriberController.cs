@@ -36,6 +36,26 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        // Danh sách cho trang quản trị. Dùng chung quyền với tham số hệ thống thay
+        // vì seed thêm permission riêng - cùng nhóm "cấu hình/vận hành site", giống
+        // cách màn Menu trang chủ đang làm.
+        [Authorize(Policy = "sysparameter.view")]
+        [HttpGet("Search")]
+        public async Task<IActionResult> Search(
+            int pageIndex = 0, int pageSize = 20, string keyword = "", bool? onlyActive = null)
+        {
+            try
+            {
+                ApiResponse<SubscriberItemDto> response =
+                    await _subscriberService.SearchAsync(pageIndex, pageSize, keyword, onlyActive);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         // GET chứ không POST: đây là link bấm thẳng từ hộp thư.
         [AllowAnonymous]
         [HttpGet("Unsubscribe")]

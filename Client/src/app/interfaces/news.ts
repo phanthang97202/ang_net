@@ -117,3 +117,17 @@ export type ISubscribeResponse = Omit<
 > & {
   Data: ISubscribeResult;
 };
+
+export interface ISubscriberItem {
+  SubscriberId: string;
+  Email: string;
+  /** false = người này đã huỷ đăng ký */
+  FlagActive: boolean;
+  CreatedDTime: string;
+  UnsubscribedDTime: string | null;
+}
+
+export interface ISubscriberSearchResponse
+  extends IBaseResponse<ISubscriberItem> {
+  objResult: IPageInfo<ISubscriberItem>;
+}

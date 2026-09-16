@@ -14,6 +14,7 @@ import {
   IDetailNewsResponse,
   ILikeNewsResponse,
   ISubscribeResponse,
+  ISubscriberSearchResponse,
   INewsResponse,
   IAuditTrailResponse,
   ISearchAuditTrailRequest,
@@ -205,6 +206,23 @@ export class ApiService {
         newsId
       )}&isPinned=${isPinned}&pinOrder=${pinOrder}`,
       {}
+    );
+  }
+
+  // Danh sách người đăng ký cho trang quản trị. onlyActive bỏ trống = lấy cả
+  // người đã huỷ.
+  SubscriberSearch(
+    pageIndex: number,
+    pageSize: number,
+    keyword = '',
+    onlyActive?: boolean
+  ): Observable<ISubscriberSearchResponse> {
+    const activeParam =
+      onlyActive === undefined ? '' : `&onlyActive=${onlyActive}`;
+    return this.http.get<ISubscriberSearchResponse>(
+      `${this.apiUrl}subscriber/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(
+        keyword
+      )}${activeParam}`
     );
   }
 

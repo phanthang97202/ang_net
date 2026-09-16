@@ -1,0 +1,101 @@
+<div class="master__container">
+  <app-breadcrumb title="Người đăng ký nhận bài" />
+
+  <!-- Thanh tìm kiếm -->
+  <form
+    class="subscriber__search"
+    nz-form
+    [formGroup]="searchForm"
+    [nzLayout]="'inline'"
+    (ngSubmit)="handleSearch()">
+    <nz-form-item>
+      <nz-form-control>
+        <input
+          nz-input
+          formControlName="Keyword"
+          placeholder="Tìm theo email..."
+          class="subscriber__search-keyword" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-select
+          formControlName="Status"
+          nzPlaceHolder="Trạng thái"
+          class="subscriber__search-status">
+          <nz-option nzValue="" nzLabel="Tất cả"></nz-option>
+          <nz-option nzValue="active" nzLabel="Đang nhận"></nz-option>
+          <nz-option nzValue="inactive" nzLabel="Đã huỷ"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button nz-button nzType="primary" type="submit">
+        <span nz-icon nzType="search"></span> Tìm
+      </button>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button
+        nz-button
+        nzType="default"
+        type="button"
+        (click)="handleResetSearch()">
+        <span nz-icon nzType="reload"></span> Đặt lại
+      </button>
+    </nz-form-item>
+
+    <nz-form-item>
+      <button
+        nz-button
+        nzType="default"
+        type="button"
+        nz-tooltip="Chép email đang nhận ở trang này để dán vào ô BCC"
+        (click)="copyActiveEmails()">
+        <span nz-icon nzType="copy"></span> Chép email
+      </button>
+    </nz-form-item>
+  </form>
+
+  <nz-layout>
+    <nz-content>
+      <!-- Phân trang ở server nên tắt nzFrontPagination, tự truyền total/index. -->
+      <nz-table
+        nzShowSizeChanger
+        [nzData]="dataSource"
+        [nzTotal]="itemCount"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzFrontPagination]="false"
+        [nzLoading]="isLoading"
+        [nzScroll]="{ x: '700px' }"
+        (nzPageIndexChange)="onPageIndexChange($event)"
+        (nzPageSizeChange)="onPageSizeChange($event)">
+        <thead>
+          <tr>
+            <th nzWidth="60px">#</th>
+            <th nzWidth="260px">Email</th>
+            <th nzWidth="120px">Trạng thái</th>
+            <th nzWidth="160px">Ngày đăng ký</th>
+            <th nzWidth="160px">Ngày huỷ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of dataSource; let i = index">
+            <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
+            <td>{{ data.Email }}</td>
+            <td>
+              <nz-tag [nzColor]="data.FlagActive ? 'green' : 'default'">
+                {{ data.FlagActive ? 'Đang nhận' : 'Đã huỷ' }}
+              </nz-tag>
+            </td>
+            <td>{{ data.CreatedDTime | localeDTime }}</td>
+            <td>{{ data.UnsubscribedDTime | localeDTime | showNullishValue }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+  </nz-layout>
+</div>

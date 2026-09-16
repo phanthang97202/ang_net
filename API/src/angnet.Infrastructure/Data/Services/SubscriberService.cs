@@ -11,6 +11,7 @@ namespace angnet.Infrastructure.Data.Services
     {
         Task<ApiResponse<SubscribeResultDto>> SubscribeAsync(string email);
         Task<bool> UnsubscribeAsync(string token);
+        Task<ApiResponse<SubscriberItemDto>> SearchAsync(int pageIndex, int pageSize, string keyword, bool? onlyActive);
     }
 
     public class SubscriberService : ISubscriberService
@@ -93,6 +94,62 @@ namespace angnet.Infrastructure.Data.Services
                 Email = normalized,
                 AlreadySubscribed = false
             };
+            return apiResponse;
+        }
+
+        // Danh sách cho trang quản trị. Trả cả người đã huỷ (onlyActive = null) vì
+        // biết ai vừa bỏ theo dõi cũng là thông tin có ích, chỉ là hiện khác trạng
+        // thái trên bảng.
+        public async Task<ApiResponse<SubscriberItemDto>> SearchAsync(
+            int pageIndex, int pageSize, string keyword, bool? onlyActive)
+        {
+            ApiResponse<SubscriberItemDto> apiResponse = new ApiResponse<SubscriberItemDto>();
+
+            int _pageIndex = pageIndex < 0 ? 0 : pageIndex;
+            // Chặn trần pageSize: client truyền được số bất kỳ, pageSize=100000 là
+            // một câu truy vấn kéo sập cả trang quản trị.
+            int _pageSize = pageSize is <= 0 or > 200 ? 20 : pageSize;
+
+            IQueryable<SubscriberModel> query = _dbContext.Subscriber.AsNoTracking();
+
+            string _keyword = (keyword ?? string.Empty).Trim().ToLowerInvariant();
+            if (!TCommonUtils.IsNullOrEmpty(_keyword))
+            {
+                query = query.Where(x => x.Email.Contains(_keyword));
+            }
+
+            if (onlyActive.HasValue)
+            {
+                query = query.Where(x => x.FlagActive == onlyActive.Value);
+            }
+
+            int itemCount = await query.CountAsync();
+
+            List<SubscriberItemDto> dataList = await query
+                .OrderByDescending(x => x.CreatedDTime)
+                .Skip(_pageIndex * _pageSize)
+                .Take(_pageSize)
+                .Select(x => new SubscriberItemDto
+                {
+                    SubscriberId = x.SubscriberId,
+                    Email = x.Email,
+                    FlagActive = x.FlagActive,
+                    CreatedDTime = x.CreatedDTime,
+                    UnsubscribedDTime = x.UnsubscribedDTime
+                })
+                .ToListAsync();
+
+            apiResponse.objResult = new PageInfo<SubscriberItemDto>
+            {
+                PageIndex = _pageIndex,
+                PageSize = _pageSize,
+                PageCount = itemCount % _pageSize == 0
+                    ? itemCount / _pageSize
+                    : itemCount / _pageSize + 1,
+                ItemCount = itemCount,
+                DataList = dataList
+            };
+
             return apiResponse;
         }
 

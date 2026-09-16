@@ -108,6 +108,11 @@ export class AppComponent implements OnInit {
           title: 'Danh mục tin',
           permission: 'newscategory.view',
         },
+        {
+          path: '/dashboard/subscriber',
+          title: 'Người đăng ký',
+          permission: 'sysparameter.view',
+        },
       ],
     },
     {

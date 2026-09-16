@@ -245,6 +245,16 @@ export const routes: Routes = [
         canActivate: [canActivePermission('newscategory.view')],
       },
       {
+        // Cùng lý do với menu trang chủ: dùng chung quyền với tham số hệ thống
+        // thay vì seed thêm permission riêng.
+        path: 'subscriber',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/subscriber/subscriber-list/subscriber-list.component'
+          ).then(p => p.SubscriberComponent),
+        canActivate: [canActivePermission('sysparameter.view')],
+      },
+      {
         // Menu trang chủ cũng là một dạng cấu hình hệ thống nên dùng chung quyền
         // với tham số hệ thống, không đặt quyền riêng.
         path: 'menu',

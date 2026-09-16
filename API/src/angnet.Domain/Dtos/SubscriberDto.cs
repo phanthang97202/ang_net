@@ -18,4 +18,15 @@ namespace angnet.Domain.Dtos
         // người lạ dò được ai đang theo dõi blog.
         public bool AlreadySubscribed { get; set; }
     }
+
+    // Một dòng trong bảng quản trị. Không trả UnsubscribeToken: nó là thứ cho phép
+    // huỷ đăng ký mà không cần đăng nhập, không có lý do gì để nó ra tới client.
+    public class SubscriberItemDto
+    {
+        public string SubscriberId { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public bool FlagActive { get; set; } // false = đã huỷ đăng ký
+        public DateTime CreatedDTime { get; set; }
+        public DateTime? UnsubscribedDTime { get; set; }
+    }
 }
