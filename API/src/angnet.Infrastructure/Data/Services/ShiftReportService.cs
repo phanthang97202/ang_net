@@ -61,8 +61,16 @@ namespace angnet.Infrastructure.Data.Services
             }
         }
 
-        // Ảnh chụp các cột tổng hợp để đối chiếu khi cần truy lại một báo cáo đã bị
-        // sửa hoặc xóa: biết được số tiền trước khi thay đổi là bao nhiêu.
+        // Ảnh chụp để đối chiếu khi cần truy lại một báo cáo đã bị sửa hoặc xóa.
+        //
+        // Chụp cả 3 danh sách con chứ không riêng mấy cột tổng: UpdateAsync xoá sạch
+        // rồi tạo lại toàn bộ giao dịch / phòng bán / dịch vụ ngoài, nên nếu chỉ lưu
+        // số tổng thì sửa chi tiết mà tổng không đổi (đổi số phòng, chuyển tiền mặt
+        // sang chuyển khoản, sửa tên mặt hàng...) sẽ không để lại dấu vết nào -
+        // đúng thứ cần nhất khi đi truy một báo cáo tiền bạc.
+        //
+        // Danh sách con phải được Include sẵn; chỗ nào gọi mà không Include thì
+        // EF trả về rỗng và log sẽ ghi nhầm là "không có dòng nào".
         private static object SnapshotOf(ShiftReportModel report)
         {
             return new
@@ -75,7 +83,45 @@ namespace angnet.Infrastructure.Data.Services
                 report.TotalCash,
                 report.TotalTransfer,
                 report.TotalExpense,
-                report.HandoverAmount
+                report.HandoverAmount,
+
+                Transactions = report.Transactions
+                    .OrderBy(x => x.OrderNumber)
+                    .Select(x => new
+                    {
+                        x.OrderNumber,
+                        x.RoomNumber,
+                        x.InvoiceCode,
+                        x.CustomerType,
+                        x.CashAmount,
+                        x.TransferAmount,
+                        x.PrepaidNote,
+                        x.ExpenseDescription,
+                        x.ExpenseAmount,
+                        x.IsUseExpenseForReportRevenue
+                    })
+                    .ToList(),
+
+                RoomSales = report.RoomSales
+                    .Select(x => new
+                    {
+                        x.RoomNumber,
+                        x.RoomCategory,
+                        x.UnitPrice
+                    })
+                    .ToList(),
+
+                DrinkSales = report.DrinkSales
+                    .Select(x => new
+                    {
+                        x.ProductCode,
+                        x.ProductName,
+                        x.Unit,
+                        x.Quantity,
+                        x.UnitPrice,
+                        x.PaymentMethod
+                    })
+                    .ToList()
             };
         }
 
@@ -383,7 +429,15 @@ namespace angnet.Infrastructure.Data.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var shiftReport = await _context.ShiftReport.FindAsync(id);
+            // Include 3 bảng con: SnapshotOf đọc chúng để ghi lại chi tiết, mà
+            // FindAsync không nạp navigation nên log sẽ ghi nhầm thành "không có
+            // dòng nào" - trong khi xóa là lúc cần bản chụp đầy đủ nhất.
+            var shiftReport = await _context.ShiftReport
+                .Include(x => x.Transactions)
+                .Include(x => x.RoomSales)
+                .Include(x => x.DrinkSales)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (shiftReport == null)
                 return false;
 
