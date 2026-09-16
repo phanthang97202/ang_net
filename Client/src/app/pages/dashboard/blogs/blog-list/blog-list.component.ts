@@ -69,6 +69,17 @@ export class BlogListComponent implements OnInit {
     return !!this.currentUserId && data.UserId === this.currentUserId;
   }
 
+  /**
+   * Gửi thư báo bài mới là quyền riêng, không đi kèm quyền sửa bài: đây là hành
+   * động ra ngoài tới hộp thư người thật và không thu hồi được.
+   *
+   * Ẩn nút chỉ để đỡ mời người ta bấm vào rồi nhận 403 - chặn thật nằm ở
+   * [Authorize(Policy = "blog.noticenews")] trên endpoint.
+   */
+  get canNotify(): boolean {
+    return this.authService.hasPermission('blog.noticenews');
+  }
+
   onQueryParamsChange(params: NzTableQueryParams): void {
     this.pageIndex = params.pageIndex;
     this.pageSize = params.pageSize;

@@ -22,7 +22,9 @@
             <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
             <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
             <th nzWidth="110px">Ghim</th>
-            <th nzWidth="150px">Gửi thư</th>
+            <!-- Ẩn cả cột khi không có quyền: để lại cột trống chỉ tổ khiến người
+                 dùng tưởng chức năng hỏng. -->
+            <th *ngIf="canNotify" nzWidth="150px">Gửi thư</th>
           </tr>
         </thead>
         <tbody>
@@ -71,7 +73,7 @@
 
             <!-- Gửi mail báo bài mới cho người đăng ký. Gửi xong là không thu hồi
                  được nên nút khoá hẳn sau lần đầu, chỉ còn hiện ngày đã gửi. -->
-            <td>
+            <td *ngIf="canNotify">
               <span *ngIf="data.NotifiedAt" class="blog__notified">
                 <span nz-icon nzType="check" nzTheme="outline"></span>
                 Đã gửi {{ data.NotifiedAt | localeDTime: 'dd-mm-yy' }}

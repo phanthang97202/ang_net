@@ -58,10 +58,11 @@ namespace angnet.WebApi.Controllers
 
         // Gửi mail báo bài mới cho toàn bộ người đang nhận.
         //
-        // Dùng quyền blog.update chứ không phải sysparameter.view: đây là thao tác
-        // gửi thư hàng loạt ra ngoài, không thu hồi được - ai sửa được bài thì mới
-        // được phép thông báo về bài đó.
-        [Authorize(Policy = "blog.update")]
+        // Quyền RIÊNG chứ không dùng lại blog.update: sửa bài là thao tác trong nội
+        // bộ, còn gửi thư hàng loạt là hành động ra ngoài - tới hộp thư người thật,
+        // và không thu hồi được. Cộng tác viên được sửa bài không có nghĩa là được
+        // phép gửi thư cho toàn bộ người đăng ký.
+        [Authorize(Policy = "blog.noticenews")]
         [HttpPost("NotifyNewPost")]
         public async Task<IActionResult> NotifyNewPost(string newsId)
         {
