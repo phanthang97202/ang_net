@@ -12,17 +12,34 @@
       <ng-container *ngFor="let route of listRoute">
         <!-- No children -->
         <li *ngIf="!route.children" class="nav-item">
+          <!-- Link ra ngoài site: routerLink không điều hướng ra khỏi ứng dụng
+               được nên phải dùng <a href> thường. rel="noopener" bắt buộc -
+               thiếu nó thì trang đích với tới được window.opener và đổi được
+               địa chỉ tab này. -->
           <a
-            [routerLink]="route.path"
-            [queryParams]="route.queryParams || {}"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }">
+            *ngIf="route.externalUrl; else internalRoute"
+            [href]="route.externalUrl"
+            target="_blank"
+            rel="noopener noreferrer">
             {{
               isMenuFromApi
                 ? titleOf(route)
                 : ('T_' + route.title | uppercase | translate)
             }}
           </a>
+          <ng-template #internalRoute>
+            <a
+              [routerLink]="route.path"
+              [queryParams]="route.queryParams || {}"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }">
+              {{
+                isMenuFromApi
+                  ? titleOf(route)
+                  : ('T_' + route.title | uppercase | translate)
+              }}
+            </a>
+          </ng-template>
         </li>
 
         <!-- Has children (dropdown) -->
@@ -44,9 +61,10 @@
           <ul class="dropdown-menu" [class.visible]="route['_open']">
             <li *ngFor="let child of route.children">
               <a
-                [routerLink]="child.path"
-                [queryParams]="child.queryParams || {}"
-                routerLinkActive="active"
+                *ngIf="child.externalUrl; else internalChild"
+                [href]="child.externalUrl"
+                target="_blank"
+                rel="noopener noreferrer"
                 (click)="closeDropdown(route)">
                 <span nz-icon [nzType]="child.icon" class="mr-1"></span>
                 {{
@@ -55,6 +73,20 @@
                     : ('T_' + child.title | uppercase | translate)
                 }}
               </a>
+              <ng-template #internalChild>
+                <a
+                  [routerLink]="child.path"
+                  [queryParams]="child.queryParams || {}"
+                  routerLinkActive="active"
+                  (click)="closeDropdown(route)">
+                  <span nz-icon [nzType]="child.icon" class="mr-1"></span>
+                  {{
+                    isMenuFromApi
+                      ? titleOf(child)
+                      : ('T_' + child.title | uppercase | translate)
+                  }}
+                </a>
+              </ng-template>
             </li>
           </ul>
         </li>
@@ -160,9 +192,10 @@
       <ng-container *ngFor="let route of listRoute">
         <li *ngIf="!route.children" class="mobile-nav-item">
           <a
-            [routerLink]="route.path"
-            [queryParams]="route.queryParams || {}"
-            routerLinkActive="active"
+            *ngIf="route.externalUrl; else internalRouteMobile"
+            [href]="route.externalUrl"
+            target="_blank"
+            rel="noopener noreferrer"
             (click)="closeMobileMenu()">
             <span nz-icon [nzType]="route.icon"></span>
             {{
@@ -171,6 +204,20 @@
                 : ('T_' + route.title | uppercase | translate)
             }}
           </a>
+          <ng-template #internalRouteMobile>
+            <a
+              [routerLink]="route.path"
+              [queryParams]="route.queryParams || {}"
+              routerLinkActive="active"
+              (click)="closeMobileMenu()">
+              <span nz-icon [nzType]="route.icon"></span>
+              {{
+                isMenuFromApi
+                  ? titleOf(route)
+                  : ('T_' + route.title | uppercase | translate)
+              }}
+            </a>
+          </ng-template>
         </li>
         <li *ngIf="route.children" class="mobile-nav-item mobile-nav-group">
           <span
@@ -187,9 +234,10 @@
           <ul class="mobile-submenu" [class.visible]="route['_mobileOpen']">
             <li *ngFor="let child of route.children">
               <a
-                [routerLink]="child.path"
-                [queryParams]="child.queryParams || {}"
-                routerLinkActive="active"
+                *ngIf="child.externalUrl; else internalChildMobile"
+                [href]="child.externalUrl"
+                target="_blank"
+                rel="noopener noreferrer"
                 (click)="closeMobileMenu()">
                 <span nz-icon [nzType]="child.icon"></span>
                 {{
@@ -198,6 +246,20 @@
                     : ('T_' + child.title | uppercase | translate)
                 }}
               </a>
+              <ng-template #internalChildMobile>
+                <a
+                  [routerLink]="child.path"
+                  [queryParams]="child.queryParams || {}"
+                  routerLinkActive="active"
+                  (click)="closeMobileMenu()">
+                  <span nz-icon [nzType]="child.icon"></span>
+                  {{
+                    isMenuFromApi
+                      ? titleOf(child)
+                      : ('T_' + child.title | uppercase | translate)
+                  }}
+                </a>
+              </ng-template>
             </li>
           </ul>
         </li>

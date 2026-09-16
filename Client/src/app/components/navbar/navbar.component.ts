@@ -24,6 +24,10 @@ interface RouteItem {
   // Tham số query tách riêng khỏi path: routerLink coi cả chuỗi là một đoạn
   // đường dẫn nên "?" và "=" bị mã hoá thành %3F/%3D, link thành vô nghĩa.
   queryParams?: Record<string, string>;
+  // Link ra ngoài site (http://, https://, mailto:, tel:...). routerLink chỉ
+  // điều hướng trong ứng dụng nên những link này phải render bằng <a href>
+  // thường - xem splitPath().
+  externalUrl?: string;
   title: string;
   icon: string;
   isActive?: boolean;
@@ -197,13 +201,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const isVi = this.langService.getLang() !== 'en';
 
     const toItem = (m: ISysMenuTree): RouteItem => {
-      const { path, queryParams } = this.splitPath(m.Path);
+      const { path, queryParams, externalUrl } = this.splitPath(m.Path);
 
       return {
         // Menu cha chỉ làm nhóm xổ xuống thì Path rỗng -> để undefined cho
         // routerLink khỏi điều hướng về '/'.
         path,
         queryParams,
+        externalUrl,
         title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
         icon: m.Icon,
         children: m.Children?.length ? m.Children.map(toItem) : undefined,
@@ -223,9 +228,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private splitPath(raw: string): {
     path?: string;
     queryParams?: Record<string, string>;
+    externalUrl?: string;
   } {
     if (!raw) {
-      return { path: undefined, queryParams: undefined };
+      return {};
+    }
+
+    // Link ra ngoài site thì giữ nguyên cả chuỗi: routerLink chỉ điều hướng
+    // trong ứng dụng, đưa "https://..." vào nó sẽ thành đường dẫn nội bộ
+    // "/https:%2F%2F..." - bấm vào rơi vào wildcard rồi về trang chủ.
+    //
+    // Nhận cả mailto:/tel: vì menu có thể trỏ tới email hay số điện thoại.
+    // KHÔNG nhận javascript: - đường dẫn này do người quản trị nhập vào DB, để
+    // lọt thì một tài khoản quản trị bị chiếm là chạy được mã tuỳ ý trên trang.
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) {
+      return { externalUrl: raw };
     }
 
     const [path, queryString] = raw.split('?');
