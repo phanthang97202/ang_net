@@ -99,6 +99,10 @@ module.exports = async function middleware(request) {
     return handleSitemap();
   }
 
+  if (url.pathname === '/rss.xml') {
+    return handleRss();
+  }
+
   // /news/:categoryId/:newsId -> ['', 'news', categoryId, newsId]
   const segments = url.pathname.split('/').filter(Boolean);
 
@@ -413,6 +417,82 @@ async function fetchNews(pageSize) {
   } catch {
     return [];
   }
+}
+
+// --------------------------------------------------------------------- RSS
+
+// Nguồn tin cho trình đọc RSS (Feedly, Inoreader...) và các dịch vụ tổng hợp.
+// Khác sitemap ở chỗ: sitemap chỉ liệt kê URL cho máy tìm kiếm, còn RSS mang
+// theo tiêu đề + mô tả + ngày đăng để người đọc xem ngay trong trình đọc.
+//
+// Chỉ lấy 30 bài mới nhất: trình đọc RSS chỉ quan tâm phần mới, đẩy cả nghìn bài
+// vào feed chỉ làm file nặng mà không ai đọc tới.
+async function handleRss() {
+  const list = await fetchNews(30);
+
+  const items = list
+    .filter(item => item.NewsId && item.CategoryNewsId && item.ShortTitle)
+    .map(item => {
+      const link = `${SITE_ORIGIN}/news/${encodeURIComponent(item.CategoryNewsId)}/${encodeURIComponent(item.NewsId)}`;
+      const pubDate = toRfc822(item.CreatedDTime);
+
+      return [
+        '    <item>',
+        `      <title>${escapeHtml(item.ShortTitle)}</title>`,
+        `      <link>${escapeHtml(link)}</link>`,
+        // guid là khoá bất biến để trình đọc biết đã hiển thị bài này chưa.
+        // Dùng chính URL bài, và isPermaLink="true" vì nó là địa chỉ thật.
+        `      <guid isPermaLink="true">${escapeHtml(link)}</guid>`,
+        `      <description>${escapeHtml(item.ShortDescription || '')}</description>`,
+        item.CategoryNewsName
+          ? `      <category>${escapeHtml(item.CategoryNewsName)}</category>`
+          : '',
+        item.FullName
+          ? `      <dc:creator>${escapeHtml(item.FullName)}</dc:creator>`
+          : '',
+        pubDate ? `      <pubDate>${pubDate}</pubDate>` : '',
+        '    </item>',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    })
+    .join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>${escapeHtml(SITE_NAME)}</title>
+    <link>${SITE_ORIGIN}</link>
+    <description>${escapeHtml(DEFAULT_DESCRIPTION)}</description>
+    <language>vi</language>
+    <lastBuildDate>${toRfc822(new Date().toISOString())}</lastBuildDate>
+    <atom:link href="${SITE_ORIGIN}/rss.xml" rel="self" type="application/rss+xml" />
+${items}
+  </channel>
+</rss>
+`;
+
+  // Feed rỗng (API đang ngủ dậy hoặc lỗi) thì cache thật ngắn, giống sitemap:
+  // không để trình đọc giữ bản rỗng cả tiếng rồi tưởng site không có bài nào.
+  const cacheControl = items
+    ? 'public, max-age=300, s-maxage=3600'
+    : 'public, max-age=0, s-maxage=60';
+
+  return new Response(xml, {
+    status: 200,
+    headers: {
+      'content-type': 'application/rss+xml; charset=utf-8',
+      'cache-control': cacheControl,
+    },
+  });
+}
+
+// RSS bắt buộc ngày theo định dạng RFC-822, không phải ISO như sitemap.
+function toRfc822(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toUTCString();
 }
 
 function toDateOnly(dateStr) {

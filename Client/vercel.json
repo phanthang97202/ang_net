@@ -10,7 +10,8 @@
       "/tools/shift-report",
       "/tools/revenue-report",
       "/tools/calculating-hotel-fee",
-      "/sitemap.xml"
+      "/sitemap.xml",
+      "/rss.xml"
     ]
   }
 }
