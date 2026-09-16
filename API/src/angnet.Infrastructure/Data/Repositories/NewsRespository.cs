@@ -630,6 +630,12 @@ namespace angnet.Infrastructure.Data.Repositories
                 rsNews = rsNewsCached;
             }
 
+            // ViewCount vừa tăng ở trên nhưng bản cache giữ số cũ, mà cache sống tới
+            // 30 phút nên để nguyên là số lượt xem đứng im gần nửa tiếng. Gán lại từ
+            // biến vừa tính thay vì xoá cache - xoá thì mỗi lượt xem lại kéo theo một
+            // vòng nạp lại toàn bộ bài, đúng thứ đang cần tránh.
+            rsNews.ViewCount = viewCount;
+
             // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
             FillMyInteractions(new List<RPNewsDto> { rsNews });
 
