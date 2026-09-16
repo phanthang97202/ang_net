@@ -104,3 +104,16 @@ export type ILikeNewsResponse = Omit<
 > & {
   objResult: ILikeNewsResult;
 };
+
+export interface ISubscribeResult {
+  Email: string;
+  /** Email này đã đăng ký từ trước; client vẫn hiện cùng màn thành công */
+  AlreadySubscribed: boolean;
+}
+
+export type ISubscribeResponse = Omit<
+  IBaseResponse<ISubscribeResult>,
+  'objResult'
+> & {
+  Data: ISubscribeResult;
+};

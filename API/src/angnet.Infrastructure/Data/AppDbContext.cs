@@ -50,6 +50,9 @@ namespace angnet.Infrastructure.Data
         public DbSet<AuditTrailModel> AuditTrail { get; set; }
 
         //
+        public DbSet<SubscriberModel> Subscriber { get; set; }
+
+        //
         public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
 
         // Extension: Shift Report 
@@ -371,6 +374,13 @@ namespace angnet.Infrastructure.Data
                         .WithMany()
                         .HasForeignKey(p => p.ParentCommentId)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // Subscriber: chặn trùng email ngay ở DB thay vì chỉ kiểm tra trong code -
+            // hai request đăng ký cùng lúc cùng một email đều thấy "chưa tồn tại" rồi
+            // cùng ghi vào.
+            modelBuilder.Entity<SubscriberModel>()
+                        .HasIndex(x => x.Email)
+                        .IsUnique();
 
             // AuditTrail
             modelBuilder.Entity<AuditTrailModel>()

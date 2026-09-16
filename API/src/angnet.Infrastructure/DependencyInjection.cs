@@ -84,6 +84,8 @@ namespace angnet.Infrastructure
             services.AddScoped<IShiftReportService, ShiftReportService>();
             services.AddScoped<IRevenueReportService, RevenueReportService>();
 
+            services.AddScoped<ISubscriberService, SubscriberService>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register services

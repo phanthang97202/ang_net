@@ -13,6 +13,7 @@ import {
   IDetailNews,
   IDetailNewsResponse,
   ILikeNewsResponse,
+  ISubscribeResponse,
   INewsResponse,
   IAuditTrailResponse,
   ISearchAuditTrailRequest,
@@ -193,7 +194,6 @@ export class ApiService {
     );
   }
 
-  // Toggle: đã tim rồi thì bấm lại là bỏ tim.
   // Ghim/bỏ ghim bài viết lên đầu danh sách. pinOrder chỉ có nghĩa khi ghim.
   NewsTogglePin(
     newsId: string,
@@ -208,6 +208,15 @@ export class ApiService {
     );
   }
 
+  // Đăng ký nhận bài viết mới. AllowAnonymous - người đọc không cần tài khoản.
+  Subscribe(email: string): Observable<ISubscribeResponse> {
+    return this.http.post<ISubscribeResponse>(
+      `${this.apiUrl}subscriber/subscribe`,
+      { Email: email }
+    );
+  }
+
+  // Toggle: đã tim rồi thì bấm lại là bỏ tim.
   NewsLike(newsId: string): Observable<ILikeNewsResponse> {
     return this.http.post<ILikeNewsResponse>(
       `${this.apiUrl}news/like?newsId=${encodeURIComponent(newsId)}`,
