@@ -29,6 +29,8 @@ export interface INews {
   AvgPoint: number;
   TotalPoint: number;
   MyPoint: number;
+  IsPinned: boolean;
+  PinOrder: number;
 }
 
 interface IHashTagNews {
@@ -75,6 +77,8 @@ export interface IDetailNews {
   AvgPoint: number;
   TotalPoint: number;
   MyPoint: number;
+  IsPinned: boolean;
+  PinOrder: number;
   LstHashTagNews: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }

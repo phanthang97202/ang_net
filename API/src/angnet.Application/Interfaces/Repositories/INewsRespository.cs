@@ -11,6 +11,7 @@ namespace angnet.Application.Interfaces.Repositories
         public Task<ApiResponse<NewsCategoryPreviewDto>> CategoryPreview(int take);
         public Task<ApiResponse<NewsModel>> Create(ClaimsPrincipal User, NewsDto data);
         public Task<ApiResponse<NewsModel>> Update(ClaimsPrincipal User, UpdateNewsDto data);
+        public Task<ApiResponse<NewsModel>> TogglePin(string newsId, bool isPinned, int pinOrder);
         public Task<ApiResponse<NewsModel>> Like(ClaimsPrincipal User, string newsId);
         public Task<ApiResponse<NewsModel>> Point(ClaimsPrincipal User, string newsId, double point);
     }

@@ -21,6 +21,7 @@
             <th nzColumnKey="ViewCount" [nzFilterFn]="true">ViewCount</th>
             <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
             <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+            <th nzWidth="110px">Ghim</th>
           </tr>
         </thead>
         <tbody>
@@ -54,6 +55,17 @@
                 [sttValue]="
                   data.FlagActive ? 'ACTIVE' : 'INACTIVE'
                 "></app-tag-status>
+            </td>
+            <!-- Ghim là quyết định biên tập của cả trang, không giới hạn theo tác
+                 giả như nút sửa - ai có quyền sửa bài đều ghim được bài bất kỳ. -->
+            <td>
+              <nz-switch
+                [ngModel]="data.IsPinned"
+                (ngModelChange)="handleTogglePin(data, $event)"
+                nzSize="small"></nz-switch>
+              <span *ngIf="data.IsPinned" class="blog__pin-order">
+                #{{ data.PinOrder }}
+              </span>
             </td>
           </tr>
         </tbody>

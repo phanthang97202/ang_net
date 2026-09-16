@@ -10,6 +10,7 @@ import {
   INewsCategoryResponse,
   INewsCategoryPreviewResponse,
   ICreateNews,
+  IDetailNews,
   IDetailNewsResponse,
   ILikeNewsResponse,
   INewsResponse,
@@ -190,6 +191,20 @@ export class ApiService {
   }
 
   // Toggle: đã tim rồi thì bấm lại là bỏ tim.
+  // Ghim/bỏ ghim bài viết lên đầu danh sách. pinOrder chỉ có nghĩa khi ghim.
+  NewsTogglePin(
+    newsId: string,
+    isPinned: boolean,
+    pinOrder = 0
+  ): Observable<IBaseResponse<IDetailNews>> {
+    return this.http.post<IBaseResponse<IDetailNews>>(
+      `${this.apiUrl}news/TogglePin?newsId=${encodeURIComponent(
+        newsId
+      )}&isPinned=${isPinned}&pinOrder=${pinOrder}`,
+      {}
+    );
+  }
+
   NewsLike(newsId: string): Observable<ILikeNewsResponse> {
     return this.http.post<ILikeNewsResponse>(
       `${this.apiUrl}news/like?newsId=${encodeURIComponent(newsId)}`,

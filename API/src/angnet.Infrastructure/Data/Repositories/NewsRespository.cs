@@ -232,6 +232,8 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.ShareCount = 0;
             rsNews.LikeCount = countLike;
             rsNews.AvgPoint = avgPoint;
+            rsNews.IsPinned = objNews.IsPinned;
+            rsNews.PinOrder = objNews.PinOrder;
             rsNews.TotalPoint = dtPointNews.Count;
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
@@ -248,22 +250,30 @@ namespace angnet.Infrastructure.Data.Repositories
         /// </summary>
         private IOrderedQueryable<NewsModel> ApplySort(IQueryable<NewsModel> query, string sort)
         {
+            // Bài ghim luôn đứng trên, bất kể đang sắp theo kiểu nào: ghim là để nổi
+            // bật, mà chuyển sang tab "Đọc nhiều" lại tụt xuống thì mất tác dụng.
+            // Chỉ sắp theo PinOrder giữa các bài cùng ghim; phần còn lại do từng
+            // nhánh bên dưới quyết định.
+            IOrderedQueryable<NewsModel> pinned = query
+                .OrderByDescending(i => i.IsPinned)
+                .ThenBy(i => i.IsPinned ? i.PinOrder : 0);
+
             switch (sort)
             {
                 // Cột News.ViewCount được tăng mỗi lần gọi Detail nên đọc thẳng được.
                 case "views":
-                    return query.OrderByDescending(i => i.ViewCount)
-                                .ThenByDescending(i => i.CreatedDTime);
+                    return pinned.ThenByDescending(i => i.ViewCount)
+                                 .ThenByDescending(i => i.CreatedDTime);
 
                 // Không dùng cột News.LikeCount: cột đó không có chỗ nào ghi vào (chỉ Reel
                 // mới duy trì cột tương tự), like của bài viết nằm ở bảng LikeNews -
                 // FactoryNewsRecord cũng đang đếm theo bảng đó nên sắp xếp phải khớp.
                 case "likes":
-                    return query.OrderByDescending(i => _dbContext.LikeNews.Count(l => l.NewsId == i.NewsId))
-                                .ThenByDescending(i => i.CreatedDTime);
+                    return pinned.ThenByDescending(i => _dbContext.LikeNews.Count(l => l.NewsId == i.NewsId))
+                                 .ThenByDescending(i => i.CreatedDTime);
 
                 default:
-                    return query.OrderByDescending(i => i.CreatedDTime);
+                    return pinned.ThenByDescending(i => i.CreatedDTime);
             }
         }
 
@@ -808,6 +818,57 @@ namespace angnet.Infrastructure.Data.Repositories
             string keyStoreManager = TConstValue.NewsRespository_Search;
             await DeleteCachedAsync(keyStoreManager);
             #endregion 
+            return apiResponse;
+        }
+
+        /// <summary>
+        /// Bật/tắt ghim một bài viết lên đầu danh sách.
+        /// </summary>
+        public async Task<ApiResponse<NewsModel>> TogglePin(string newsId, bool isPinned, int pinOrder)
+        {
+            ApiResponse<NewsModel> apiResponse = new ApiResponse<NewsModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(new { newsId, isPinned, pinOrder }, ref requestClient);
+
+            // Phân quyền do controller lo: [Authorize(Policy = "blog.update")].
+            // Khác Update bài viết, ghim KHÔNG giới hạn theo tác giả: đây là quyết định
+            // biên tập của cả trang chứ không phải sửa nội dung bài của ai.
+
+            if (TCommonUtils.IsNullOrEmpty(newsId))
+            {
+                apiResponse.CatchException(false, "News_TogglePin.NewsIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            NewsModel existingNews = await _dbContext.News.FirstOrDefaultAsync(n => n.NewsId == newsId);
+
+            if (existingNews is null)
+            {
+                apiResponse.CatchException(false, "News_TogglePin.NewsWasNotExisted", requestClient);
+                return apiResponse;
+            }
+
+            existingNews.IsPinned = isPinned;
+            // Bỏ ghim thì đưa thứ tự về 0 luôn, khỏi để lại số cũ gây khó hiểu khi
+            // ghim lại lần sau.
+            existingNews.PinOrder = isPinned ? pinOrder : 0;
+            existingNews.UpdatedDTime = TCommonUtils.DTimeNow();
+
+            _dbContext.News.Update(existingNews);
+            await _dbContext.SaveChangesAsync();
+
+            // Xoá cache danh sách: thiếu bước này thì bài vừa ghim vẫn nằm đúng chỗ cũ
+            // cho tới khi cache hết hạn.
+            await DeleteCachedAsync(TConstValue.NewsRespository_Search);
+            await DeleteCachedAsync(GenerateUniqueCacheKey(TConstValue.NewsRespository_Detail, $"({newsId})"));
+
+            apiResponse.Data = existingNews;
+
+            // Không ghi AuditTrail ở đây: NewsRespository chưa inject IAuditTrailService,
+            // thêm dependency chỉ để ghi log một thao tác là mở rộng phạm vi không cần
+            // thiết. Nếu sau này cần vết cho thao tác ghim thì thêm một lượt cho cả
+            // Create/Update/Like luôn, chứ không riêng chỗ này.
+
             return apiResponse;
         }
 

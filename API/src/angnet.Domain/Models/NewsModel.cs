@@ -22,6 +22,10 @@ namespace angnet.Domain.Models
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích
         public double AvgPoint { get; set; } // Trung bình lượt đánh giá * (thang điểm 10)
+
+        public bool IsPinned { get; set; } // Ghim lên đầu danh sách
+        // Thứ tự giữa các bài cùng ghim, số nhỏ hiện trước. Chỉ có nghĩa khi IsPinned = true.
+        public int PinOrder { get; set; }
         [Column(TypeName = "varchar(20)")]
         public EWhoCanSee WhoCanSee { get; set; } // Loại chính sách (ví dụ: Chỉ tenant, Chỉ mình tôi, Public, v.v.) 
     }

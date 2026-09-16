@@ -15,10 +15,17 @@ import {
 import { Router } from '@angular/router';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
 import { AuthService } from '../../../../services';
+// AntdModule chỉ có ReactiveFormsModule; switch ghim dùng [ngModel] nên cần FormsModule.
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    ...REUSE_COMPONENT_MODULES,
+    ...REUSE_PIPE_MODULE,
+    FormsModule,
+  ],
   templateUrl: './blog-list.component.html',
   styleUrls: ['./blog-list.component.scss'],
 })
@@ -106,6 +113,45 @@ export class BlogListComponent implements OnInit {
 
   handleOpenCreate(): void {
     this.router.navigate(['/dashboard/blog/create']);
+  }
+
+  /**
+   * Ghim/bỏ ghim bài viết. Khác nút sửa, việc này KHÔNG giới hạn theo tác giả:
+   * ghim là quyết định biên tập của cả trang chứ không phải sửa nội dung bài.
+   */
+  handleTogglePin(data: IDetailNews, isPinned: boolean): void {
+    // Thứ tự ghim mặc định đẩy bài mới ghim lên trước các bài đã ghim: người ghim
+    // thường muốn bài vừa chọn nổi nhất. Muốn xếp khác thì sửa trực tiếp trong DB
+    // - màn hình này chưa có ô nhập thứ tự.
+    const pinOrder = isPinned ? this.nextPinOrder() : 0;
+
+    this.setLoading(true);
+    this.api.NewsTogglePin(data.NewsId, isPinned, pinOrder).subscribe({
+      next: response => {
+        if (response?.Success) {
+          this.message.success(isPinned ? 'Đã ghim bài viết' : 'Đã bỏ ghim');
+          this.fetchData();
+        } else {
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(response, null, 2),
+            title: response?.ErrorMessage || 'Error',
+          });
+          // Tải lại để switch trở về đúng trạng thái thật dưới DB.
+          this.fetchData();
+        }
+      },
+      error: err => this.handleApiError(err),
+      complete: () => this.setLoading(false),
+    });
+  }
+
+  /** Số thứ tự nhỏ hơn mọi bài đang ghim, để bài vừa ghim đứng đầu. */
+  private nextPinOrder(): number {
+    const orders = this.dataSource
+      .filter(x => x.IsPinned)
+      .map(x => x.PinOrder ?? 0);
+    return orders.length ? Math.min(...orders) - 1 : 0;
   }
 
   private setLoading(isLoading: boolean): void {

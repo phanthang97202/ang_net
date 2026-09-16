@@ -110,6 +110,23 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        /// <summary>Ghim/bỏ ghim bài viết lên đầu danh sách.</summary>
+        [Authorize(Policy = "blog.update")]
+        [HttpPost("TogglePin")]
+        public async Task<IActionResult> TogglePin(string newsId, bool isPinned, int pinOrder = 0)
+        {
+            try
+            {
+                ApiResponse<NewsModel> response = await _newsRespository.TogglePin(newsId, isPinned, pinOrder);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("NewsRespository.TogglePin", newsId, ex);
+                throw;
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost("Like")]
         public async Task<IActionResult> Like(string newsId)
