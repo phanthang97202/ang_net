@@ -1,9 +1,12 @@
 ﻿using angnet.Application.Interfaces.Services;
 using angnet.Domain.Dtos;
+using angnet.Domain.Models;
+using angnet.Infrastructure.Data;
 using angnet.Infrastructure.Mail.Service;
 using angnet.Utility.CommonUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -17,19 +20,23 @@ namespace angnet.Infrastructure.Mail.Consumer
         //private readonly IAuditTrailService _auditTrailService;
         private readonly WriteLog _logger;
         private readonly IConfiguration _config;
+        private readonly IServiceScopeFactory _scopeFactory;
         private IConnection? _connection;
         private IChannel? _channel;
+        private const int MaxAttempts = 3;
 
         public RabbitMqEmailConsumer(
             EmailSenderService emailSenderService,
             //IAuditTrailService auditTrailService,
             WriteLog logger,
-            IConfiguration config)
+            IConfiguration config,
+            IServiceScopeFactory scopeFactory)
         {
             _emailSenderService = emailSenderService;
             //_auditTrailService = auditTrailService;
             _logger = logger;
             _config = config;
+            _scopeFactory = scopeFactory;
         }
 
         private async Task InitializeRabbitMQAsync()
@@ -103,6 +110,12 @@ namespace angnet.Infrastructure.Mail.Consumer
                         }
 
                         await _emailSenderService.SendEmailAsync(message);
+                        await TryUpdateDeliveryAsync(
+                            message.DeliveryId,
+                            EmailDeliveryModel.SucceededStatus,
+                            message.AttemptCount + 1,
+                            null,
+                            DateTime.UtcNow);
                         await _channel.BasicAckAsync(ea.DeliveryTag, false);
 
                         _logger.LogInformation($"Email sent successfully to {message.To}");
@@ -111,8 +124,36 @@ namespace angnet.Infrastructure.Mail.Consumer
                     }
                     catch (Exception ex)
                     {
-                        // nack để message quay lại queue (có thể retry)
-                        await _channel!.BasicNackAsync(ea.DeliveryTag, false, true);
+                        // Mail bài viết thử lại tối đa ba lần; các loại mail cũ vẫn requeue như trước.
+                        if (message?.DeliveryId is not null)
+                        {
+                            int attemptCount = message.AttemptCount + 1;
+                            bool exhausted = attemptCount >= MaxAttempts;
+
+                            await TryUpdateDeliveryAsync(
+                                message.DeliveryId,
+                                exhausted
+                                    ? EmailDeliveryModel.FailedStatus
+                                    : EmailDeliveryModel.PendingStatus,
+                                attemptCount,
+                                ex.Message,
+                                null);
+
+                            if (exhausted)
+                            {
+                                await _channel!.BasicAckAsync(ea.DeliveryTag, false);
+                            }
+                            else
+                            {
+                                message.AttemptCount = attemptCount;
+                                await RepublishAsync(message);
+                                await _channel!.BasicAckAsync(ea.DeliveryTag, false);
+                            }
+                        }
+                        else
+                        {
+                            await _channel!.BasicNackAsync(ea.DeliveryTag, false, true);
+                        }
 
                         await LogAuditAsync(message?.Id ?? Guid.NewGuid().ToString(),
                             $"Error sending mail: {ex.Message}");
@@ -141,6 +182,60 @@ namespace angnet.Infrastructure.Mail.Consumer
             catch
             {
                 throw;
+            }
+        }
+
+        private async Task RepublishAsync(EmailMessageModel message)
+        {
+            string json = JsonConvert.SerializeObject(message);
+            byte[] body = Encoding.UTF8.GetBytes(json);
+            BasicProperties properties = new BasicProperties { Persistent = true };
+
+            await _channel!.BasicPublishAsync(
+                exchange: "",
+                routingKey: "send_email",
+                mandatory: false,
+                basicProperties: properties,
+                body: body);
+        }
+
+        private async Task TryUpdateDeliveryAsync(
+            string? deliveryId,
+            string status,
+            int attemptCount,
+            string? lastError,
+            DateTime? sentAt)
+        {
+            if (string.IsNullOrWhiteSpace(deliveryId))
+            {
+                return;
+            }
+
+            try
+            {
+                using IServiceScope scope = _scopeFactory.CreateScope();
+                AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                EmailDeliveryModel? delivery =
+                    await dbContext.EmailDelivery.FindAsync(deliveryId);
+
+                if (delivery is null)
+                {
+                    return;
+                }
+
+                delivery.Status = status;
+                delivery.AttemptCount = attemptCount;
+                delivery.LastError = lastError?.Length > 2000
+                    ? lastError[..2000]
+                    : lastError;
+                delivery.SentAt = sentAt;
+                delivery.UpdatedDTime = DateTime.UtcNow;
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    $"Could not update email delivery {deliveryId}: {ex.Message}");
             }
         }
 

@@ -51,6 +51,7 @@ namespace angnet.Infrastructure.Data
 
         //
         public DbSet<SubscriberModel> Subscriber { get; set; }
+        public DbSet<EmailDeliveryModel> EmailDelivery { get; set; }
 
         //
         public DbSet<GenerationAuthCode> GenerationAuthCode { get; set; }
@@ -381,6 +382,25 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<SubscriberModel>()
                         .HasIndex(x => x.Email)
                         .IsUnique();
+
+            modelBuilder.Entity<EmailDeliveryModel>()
+                        .HasIndex(x => new { x.NewsId, x.SubscriberId })
+                        .IsUnique();
+
+            modelBuilder.Entity<EmailDeliveryModel>()
+                        .HasIndex(x => new { x.Status, x.CreatedDTime });
+
+            modelBuilder.Entity<EmailDeliveryModel>()
+                        .HasOne<NewsModel>()
+                        .WithMany()
+                        .HasForeignKey(x => x.NewsId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmailDeliveryModel>()
+                        .HasOne<SubscriberModel>()
+                        .WithMany()
+                        .HasForeignKey(x => x.SubscriberId)
+                        .OnDelete(DeleteBehavior.Restrict);
 
             // AuditTrail
             modelBuilder.Entity<AuditTrailModel>()

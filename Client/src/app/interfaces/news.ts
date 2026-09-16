@@ -147,3 +147,36 @@ export type INotifyResultResponse = Omit<
 > & {
   Data: INotifyResult;
 };
+
+export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed';
+
+export interface IEmailDeliverySummary {
+  Total: number;
+  Pending: number;
+  Succeeded: number;
+  Failed: number;
+}
+
+export interface IEmailDeliveryItem {
+  DeliveryId: string;
+  NewsId: string;
+  NewsTitle: string;
+  Email: string;
+  Status: TEmailDeliveryStatus;
+  AttemptCount: number;
+  LastError: string | null;
+  QueuedAt: string;
+  SentAt: string | null;
+}
+
+export interface IEmailDeliveryReport {
+  Summary: IEmailDeliverySummary;
+  Page: IPageInfo<IEmailDeliveryItem>;
+}
+
+export type IEmailDeliveryReportResponse = Omit<
+  IBaseResponse<IEmailDeliveryReport>,
+  'Data'
+> & {
+  Data: IEmailDeliveryReport;
+};

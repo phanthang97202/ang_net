@@ -109,6 +109,11 @@ export class AppComponent implements OnInit {
           permission: 'newscategory.view',
         },
         {
+          path: '/dashboard/email-report',
+          title: 'Báo cáo gửi mail',
+          permission: 'sysparameter.view',
+        },
+        {
           path: '/dashboard/subscriber',
           title: 'Người đăng ký',
           permission: 'sysparameter.view',

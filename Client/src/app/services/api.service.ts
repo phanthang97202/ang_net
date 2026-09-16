@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   IRequestProvinceCreate,
   IResponseProvinceCreate,
@@ -16,6 +16,7 @@ import {
   ISubscribeResponse,
   ISubscriberSearchResponse,
   INotifyResultResponse,
+  IEmailDeliveryReportResponse,
   INewsResponse,
   IAuditTrailResponse,
   ISearchAuditTrailRequest,
@@ -233,6 +234,24 @@ export class ApiService {
       `${this.apiUrl}subscriber/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(
         keyword
       )}${activeParam}`
+    );
+  }
+
+  EmailDeliveryReport(
+    pageIndex: number,
+    pageSize: number,
+    keyword = '',
+    status = ''
+  ): Observable<IEmailDeliveryReportResponse> {
+    const params = new HttpParams()
+      .set('pageIndex', pageIndex)
+      .set('pageSize', pageSize)
+      .set('keyword', keyword)
+      .set('status', status);
+
+    return this.http.get<IEmailDeliveryReportResponse>(
+      `${this.apiUrl}subscriber/deliveryreport`,
+      { params }
     );
   }
 

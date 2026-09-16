@@ -11,5 +11,7 @@ namespace angnet.Infrastructure.Mail.Service
         public string Body { get; set; } = string.Empty;
         public string FromHtml { get; set; } = string.Empty;
         public string ToHtml { get; set; } = string.Empty;
+        public string? DeliveryId { get; set; }
+        public int AttemptCount { get; set; }
     }
 }

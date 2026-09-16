@@ -36,4 +36,31 @@ namespace angnet.Domain.Dtos
         public DateTime CreatedDTime { get; set; }
         public DateTime? UnsubscribedDTime { get; set; }
     }
+
+    public class EmailDeliverySummaryDto
+    {
+        public int Total { get; set; }
+        public int Pending { get; set; }
+        public int Succeeded { get; set; }
+        public int Failed { get; set; }
+    }
+
+    public class EmailDeliveryItemDto
+    {
+        public string DeliveryId { get; set; } = string.Empty;
+        public string NewsId { get; set; } = string.Empty;
+        public string NewsTitle { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public int AttemptCount { get; set; }
+        public string? LastError { get; set; }
+        public DateTime QueuedAt { get; set; }
+        public DateTime? SentAt { get; set; }
+    }
+
+    public class EmailDeliveryReportDto
+    {
+        public EmailDeliverySummaryDto Summary { get; set; } = new EmailDeliverySummaryDto();
+        public PageInfo<EmailDeliveryItemDto> Page { get; set; } = new PageInfo<EmailDeliveryItemDto>();
+    }
 }

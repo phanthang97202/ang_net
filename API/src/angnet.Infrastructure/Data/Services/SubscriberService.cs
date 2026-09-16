@@ -12,6 +12,8 @@ namespace angnet.Infrastructure.Data.Services
         Task<ApiResponse<SubscribeResultDto>> SubscribeAsync(string email);
         Task<bool> UnsubscribeAsync(string token);
         Task<ApiResponse<SubscriberItemDto>> SearchAsync(int pageIndex, int pageSize, string keyword, bool? onlyActive);
+        Task<ApiResponse<EmailDeliveryReportDto>> GetDeliveryReportAsync(
+            int pageIndex, int pageSize, string keyword, string status);
         Task<ApiResponse<NotifyResultDto>> NotifyNewPostAsync(string newsId);
     }
 
@@ -154,6 +156,79 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        // Tổng hợp kết quả và trả danh sách từng người nhận cho màn hình quản trị.
+        public async Task<ApiResponse<EmailDeliveryReportDto>> GetDeliveryReportAsync(
+            int pageIndex, int pageSize, string keyword, string status)
+        {
+            int _pageIndex = pageIndex < 0 ? 0 : pageIndex;
+            int _pageSize = pageSize is <= 0 or > 200 ? 20 : pageSize;
+            string _keyword = (keyword ?? string.Empty).Trim().ToLowerInvariant();
+            string _status = (status ?? string.Empty).Trim();
+
+            IQueryable<EmailDeliveryItemDto> baseQuery =
+                from delivery in _dbContext.EmailDelivery.AsNoTracking()
+                join news in _dbContext.News.AsNoTracking()
+                    on delivery.NewsId equals news.NewsId
+                where TCommonUtils.IsNullOrEmpty(_keyword)
+                    || delivery.Email.Contains(_keyword)
+                    || news.ShortTitle.ToLower().Contains(_keyword)
+                select new EmailDeliveryItemDto
+                {
+                    DeliveryId = delivery.DeliveryId,
+                    NewsId = delivery.NewsId,
+                    NewsTitle = news.ShortTitle,
+                    Email = delivery.Email,
+                    Status = delivery.Status,
+                    AttemptCount = delivery.AttemptCount,
+                    LastError = delivery.LastError,
+                    QueuedAt = delivery.CreatedDTime,
+                    SentAt = delivery.SentAt
+                };
+
+            Dictionary<string, int> counts = await baseQuery
+                .GroupBy(x => x.Status)
+                .Select(group => new { Status = group.Key, Count = group.Count() })
+                .ToDictionaryAsync(x => x.Status, x => x.Count);
+
+            IQueryable<EmailDeliveryItemDto> pageQuery = baseQuery;
+            if (_status is EmailDeliveryModel.PendingStatus
+                or EmailDeliveryModel.SucceededStatus
+                or EmailDeliveryModel.FailedStatus)
+            {
+                pageQuery = pageQuery.Where(x => x.Status == _status);
+            }
+
+            int itemCount = await pageQuery.CountAsync();
+            List<EmailDeliveryItemDto> dataList = await pageQuery
+                .OrderByDescending(x => x.QueuedAt)
+                .Skip(_pageIndex * _pageSize)
+                .Take(_pageSize)
+                .ToListAsync();
+
+            EmailDeliverySummaryDto summary = new EmailDeliverySummaryDto
+            {
+                Pending = counts.GetValueOrDefault(EmailDeliveryModel.PendingStatus),
+                Succeeded = counts.GetValueOrDefault(EmailDeliveryModel.SucceededStatus),
+                Failed = counts.GetValueOrDefault(EmailDeliveryModel.FailedStatus)
+            };
+            summary.Total = summary.Pending + summary.Succeeded + summary.Failed;
+
+            return new ApiResponse<EmailDeliveryReportDto>(new EmailDeliveryReportDto
+            {
+                Summary = summary,
+                Page = new PageInfo<EmailDeliveryItemDto>
+                {
+                    PageIndex = _pageIndex,
+                    PageSize = _pageSize,
+                    PageCount = itemCount % _pageSize == 0
+                        ? itemCount / _pageSize
+                        : itemCount / _pageSize + 1,
+                    ItemCount = itemCount,
+                    DataList = dataList
+                }
+            });
+        }
+
         // Gửi mail báo bài mới cho toàn bộ người đang nhận.
         public async Task<ApiResponse<NotifyResultDto>> NotifyNewPostAsync(string newsId)
         {
@@ -196,12 +271,32 @@ namespace angnet.Infrastructure.Data.Services
             // đăng ký cũng phải đánh dấu để nút không treo mãi.
             DateTime notifiedAt = TCommonUtils.DTimeNow();
             news.NotifiedAt = notifiedAt;
+
+            List<EmailDeliveryModel> deliveries = subscribers
+                .Select(subscriber => new EmailDeliveryModel
+                {
+                    NewsId = news.NewsId,
+                    SubscriberId = subscriber.SubscriberId,
+                    Email = subscriber.Email,
+                    Status = EmailDeliveryModel.PendingStatus,
+                    FlagActive = true,
+                    CreatedDTime = notifiedAt,
+                    UpdatedDTime = notifiedAt
+                })
+                .ToList();
+
+            await _dbContext.EmailDelivery.AddRangeAsync(deliveries);
             await _dbContext.SaveChangesAsync();
+
+            Dictionary<string, EmailDeliveryModel> deliveryBySubscriber = deliveries
+                .ToDictionary(x => x.SubscriberId);
 
             foreach (SubscriberModel subscriber in subscribers)
             {
-                await SendNewPostMailAsync(news, subscriber);
+                await SendNewPostMailAsync(
+                    news, subscriber, deliveryBySubscriber[subscriber.SubscriberId]);
             }
+            await _dbContext.SaveChangesAsync();
 
             apiResponse.Data = new NotifyResultDto
             {
@@ -217,7 +312,8 @@ namespace angnet.Infrastructure.Data.Services
         // Gmail đánh dấu spam.
         //
         // Bọc try/catch từng người: một địa chỉ hỏng không được làm dừng cả vòng gửi.
-        private async Task SendNewPostMailAsync(NewsModel news, SubscriberModel subscriber)
+        private async Task SendNewPostMailAsync(
+            NewsModel news, SubscriberModel subscriber, EmailDeliveryModel delivery)
         {
             try
             {
@@ -259,11 +355,15 @@ namespace angnet.Infrastructure.Data.Services
                     Subject = news.ShortTitle,
                     Body = body,
                     FromHtml = MAIL_FROM,
-                    ToHtml = subscriber.Email
+                    ToHtml = subscriber.Email,
+                    DeliveryId = delivery.DeliveryId
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                delivery.Status = EmailDeliveryModel.FailedStatus;
+                delivery.LastError = ex.Message;
+                delivery.UpdatedDTime = TCommonUtils.DTimeNow();
                 // Nuốt lỗi có chủ đích - xem giải thích ở trên.
             }
         }

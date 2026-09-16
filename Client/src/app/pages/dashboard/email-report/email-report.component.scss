@@ -1,0 +1,42 @@
+.email-report__summary {
+  margin-bottom: 20px;
+}
+
+.email-report__search {
+  margin-bottom: 16px;
+}
+
+.email-report__keyword {
+  width: 280px;
+}
+
+.email-report__status {
+  width: 150px;
+}
+
+.email-report__pending {
+  color: #d48806;
+}
+
+.email-report__success {
+  color: #389e0d;
+}
+
+.email-report__failed {
+  color: #cf1322;
+}
+
+.email-report__error {
+  display: block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .email-report__keyword,
+  .email-report__status {
+    width: 100%;
+  }
+}

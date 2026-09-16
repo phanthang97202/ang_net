@@ -264,6 +264,14 @@ export const routes: Routes = [
           ).then(p => p.SysMenuComponent),
         canActivate: [canActivePermission('sysparameter.view')],
       },
+      {
+        path: 'email-report',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/email-report/email-report.component'
+          ).then(p => p.EmailReportComponent),
+        canActivate: [canActivePermission('sysparameter.view')],
+      },
     ],
   },
 

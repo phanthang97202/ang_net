@@ -39,6 +39,7 @@ namespace angnet.WebApi.Controllers
         // Danh sách cho trang quản trị. Dùng chung quyền với tham số hệ thống thay
         // vì seed thêm permission riêng - cùng nhóm "cấu hình/vận hành site", giống
         // cách màn Menu trang chủ đang làm.
+        // Báo cáo vận hành dùng cùng quyền với màn hình quản lý người đăng ký.
         [Authorize(Policy = "sysparameter.view")]
         [HttpGet("Search")]
         public async Task<IActionResult> Search(
@@ -62,6 +63,18 @@ namespace angnet.WebApi.Controllers
         // bộ, còn gửi thư hàng loạt là hành động ra ngoài - tới hộp thư người thật,
         // và không thu hồi được. Cộng tác viên được sửa bài không có nghĩa là được
         // phép gửi thư cho toàn bộ người đăng ký.
+        [Authorize(Policy = "sysparameter.view")]
+        [HttpGet("DeliveryReport")]
+        public async Task<IActionResult> DeliveryReport(
+            int pageIndex = 0, int pageSize = 20, string keyword = "", string status = "")
+        {
+            ApiResponse<EmailDeliveryReportDto> response =
+                await _subscriberService.GetDeliveryReportAsync(
+                    pageIndex, pageSize, keyword, status);
+            return Ok(response);
+        }
+
+        // Gửi mail là hành động riêng, không dùng chung quyền xem báo cáo.
         [Authorize(Policy = "blog.noticenews")]
         [HttpPost("NotifyNewPost")]
         public async Task<IActionResult> NotifyNewPost(string newsId)

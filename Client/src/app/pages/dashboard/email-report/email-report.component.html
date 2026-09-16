@@ -1,0 +1,140 @@
+<div class="master__container">
+  <app-breadcrumb title="Báo cáo gửi mail bài viết" />
+
+  <div nz-row [nzGutter]="[16, 16]" class="email-report__summary">
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzXl]="6">
+      <nz-card>
+        <nz-statistic
+          [nzValue]="summary.Total"
+          nzTitle="Tổng lượt gửi"
+          [nzPrefix]="totalIcon"></nz-statistic>
+        <ng-template #totalIcon>
+          <span nz-icon nzType="mail"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzXl]="6">
+      <nz-card>
+        <nz-statistic
+          [nzValue]="summary.Pending"
+          nzTitle="Đang chờ"
+          [nzPrefix]="pendingIcon"></nz-statistic>
+        <ng-template #pendingIcon>
+          <span nz-icon nzType="clock-circle" class="email-report__pending"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzXl]="6">
+      <nz-card>
+        <nz-statistic
+          [nzValue]="summary.Succeeded"
+          [nzTitle]="'Thành công (' + successRate + '%)'"
+          [nzPrefix]="successIcon"></nz-statistic>
+        <ng-template #successIcon>
+          <span nz-icon nzType="check-circle" class="email-report__success"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzXl]="6">
+      <nz-card>
+        <nz-statistic
+          [nzValue]="summary.Failed"
+          nzTitle="Thất bại"
+          [nzPrefix]="failedIcon"></nz-statistic>
+        <ng-template #failedIcon>
+          <span nz-icon nzType="close-circle" class="email-report__failed"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+  </div>
+
+  <form
+    class="email-report__search"
+    nz-form
+    [formGroup]="searchForm"
+    nzLayout="inline"
+    (ngSubmit)="handleSearch()">
+    <nz-form-item>
+      <nz-form-control>
+        <input
+          nz-input
+          formControlName="Keyword"
+          placeholder="Tìm theo email hoặc bài viết..."
+          class="email-report__keyword" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-select
+          formControlName="Status"
+          nzPlaceHolder="Trạng thái"
+          class="email-report__status">
+          <nz-option nzValue="" nzLabel="Tất cả"></nz-option>
+          <nz-option nzValue="Pending" nzLabel="Đang chờ"></nz-option>
+          <nz-option nzValue="Succeeded" nzLabel="Thành công"></nz-option>
+          <nz-option nzValue="Failed" nzLabel="Thất bại"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <button nz-button nzType="primary" type="submit">
+        <span nz-icon nzType="search"></span> Tìm
+      </button>
+    </nz-form-item>
+    <nz-form-item>
+      <button nz-button type="button" (click)="handleResetSearch()">
+        <span nz-icon nzType="reload"></span> Đặt lại
+      </button>
+    </nz-form-item>
+    <nz-form-item>
+      <button nz-button type="button" (click)="fetchData()">
+        <span nz-icon nzType="sync"></span> Làm mới
+      </button>
+    </nz-form-item>
+  </form>
+
+  <nz-table
+    nzShowSizeChanger
+    [nzData]="dataSource"
+    [nzTotal]="itemCount"
+    [nzPageIndex]="pageIndex"
+    [nzPageSize]="pageSize"
+    [nzFrontPagination]="false"
+    [nzLoading]="isLoading"
+    [nzScroll]="{ x: '1100px' }"
+    (nzPageIndexChange)="onPageIndexChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)">
+    <thead>
+      <tr>
+        <th nzWidth="60px">#</th>
+        <th nzWidth="260px">Bài viết</th>
+        <th nzWidth="240px">Email nhận</th>
+        <th nzWidth="120px">Trạng thái</th>
+        <th nzWidth="90px">Số lần thử</th>
+        <th nzWidth="170px">Xếp hàng lúc</th>
+        <th nzWidth="170px">Gửi xong lúc</th>
+        <th nzWidth="260px">Lỗi gần nhất</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of dataSource; let i = index">
+        <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
+        <td>{{ data.NewsTitle }}</td>
+        <td>{{ data.Email }}</td>
+        <td>
+          <nz-tag [nzColor]="statusColor(data.Status)">
+            {{ statusLabel(data.Status) }}
+          </nz-tag>
+        </td>
+        <td>{{ data.AttemptCount }}</td>
+        <td>{{ data.QueuedAt | localeDTime }}</td>
+        <td>{{ data.SentAt | localeDTime | showNullishValue }}</td>
+        <td>
+          <span class="email-report__error" [title]="data.LastError || ''">
+            {{ data.LastError | showNullishValue }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
