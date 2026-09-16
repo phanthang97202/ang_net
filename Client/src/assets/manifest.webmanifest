@@ -1,0 +1,19 @@
+{
+  "name": "Phan Thang Blog",
+  "short_name": "Phan Thang Blog",
+  "description": "Blog cá nhân của Phan Thang - chia sẻ bài viết, tin tức và trải nghiệm.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#5b4fe9",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "assets/images/logo.png",
+      "sizes": "139x139",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

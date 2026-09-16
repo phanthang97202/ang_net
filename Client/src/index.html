@@ -11,6 +11,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
 
+    <!-- Thiếu manifest thì Chrome trên điện thoại không biết gọi site là gì, nên
+         lưu vào màn hình chính với nhãn mặc định "Home". -->
+    <link rel="manifest" href="assets/manifest.webmanifest" />
+    <!-- iOS không đọc icon trong manifest, phải khai riêng bằng apple-touch-icon. -->
+    <link rel="apple-touch-icon" href="assets/images/logo.png" />
+    <!-- Màu thanh trạng thái trên điện thoại; khớp --color-accent của giao diện. -->
+    <meta name="theme-color" content="#5b4fe9" />
+
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Phan Thang Blog" />
