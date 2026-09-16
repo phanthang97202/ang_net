@@ -168,6 +168,8 @@ export class ApiService {
   }
 
   // News
+  // pinnedFirst chỉ khối "Bài viết nổi bật" bật: ghim mà áp cho cả danh sách
+  // "Tất cả bài viết" ngay bên dưới thì hai khối cùng mở đầu bằng một bài.
   SearchNews(
     pageIndex: number,
     pageSize: number,
@@ -176,10 +178,11 @@ export class ApiService {
     categoryId: string,
     onlyPublished = true,
     hashTag = '',
-    sort = ''
+    sort = '',
+    pinnedFirst = false
   ): Observable<INewsResponse> {
     return this.http.get<INewsResponse>(
-      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}&sort=${sort}`
+      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}&sort=${sort}&pinnedFirst=${pinnedFirst}`
     );
   }
 

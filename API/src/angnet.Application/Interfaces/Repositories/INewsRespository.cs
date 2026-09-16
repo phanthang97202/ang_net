@@ -6,7 +6,7 @@ namespace angnet.Application.Interfaces.Repositories
 {
     public interface INewsRespository
     {
-        public Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "");
+        public Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false);
         public Task<ApiResponse<RPNewsDto>> Detail(string newsId);
         public Task<ApiResponse<NewsCategoryPreviewDto>> CategoryPreview(int take);
         public Task<ApiResponse<NewsModel>> Create(ClaimsPrincipal User, NewsDto data);

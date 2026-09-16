@@ -35,8 +35,12 @@ export class NewsCacheService {
     categoryId: string,
     onlyPublished = true,
     hashTag = '',
-    sort = ''
+    sort = '',
+    pinnedFirst = false
   ): Observable<INewsResponse> {
+    // pinnedFirst phải nằm trong khoá: nó đổi thứ tự kết quả, thiếu nó thì khối
+    // "Bài viết nổi bật" và danh sách thường (cùng sort=views) dùng chung một ô
+    // nhớ và nhận đúng kết quả của nhau.
     const key = [
       'search',
       pageIndex,
@@ -47,6 +51,7 @@ export class NewsCacheService {
       onlyPublished,
       hashTag,
       sort,
+      pinnedFirst,
     ].join('|');
 
     return this.through(key, () =>
@@ -58,7 +63,8 @@ export class NewsCacheService {
         categoryId,
         onlyPublished,
         hashTag,
-        sort
+        sort,
+        pinnedFirst
       )
     );
   }

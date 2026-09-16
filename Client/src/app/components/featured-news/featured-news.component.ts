@@ -47,9 +47,14 @@ export class FeaturedNewsComponent implements OnInit {
     this.loadFeaturedPosts();
   }
 
-  // "Nổi bật" = được đọc nhiều nhất: đó là tín hiệu duy nhất có thật trong dữ
-  // liệu (ViewCount được tăng mỗi lần mở bài), và nhờ khác thứ tự với danh sách
-  // bên dưới nên người mới vào thấy được hai lát cắt khác nhau của blog.
+  // "Nổi bật" = bài được ghim trước, rồi tới bài đọc nhiều nhất. Lượt đọc là tín
+  // hiệu có thật trong dữ liệu (ViewCount tăng mỗi lần mở bài), còn ghim là chỗ
+  // để tự chọn bài muốn đẩy lên. Nhờ khác thứ tự với danh sách bên dưới nên
+  // người mới vào thấy được hai lát cắt khác nhau của blog.
+  //
+  // pinnedFirst chỉ bật ở ĐÂY. Bật cho cả Search nói chung là bài ghim đứng đầu
+  // luôn cả khối "Tất cả bài viết" nằm ngay dưới, hai khối cùng mở đầu bằng một
+  // bài nhìn thành lặp nội dung.
   //
   // Dùng NewsCacheService chứ không gọi thẳng ApiService: đây là màn hình công
   // khai, quay lại trang chủ từ một bài viết sẽ lấy lại từ cache thay vì nháy
@@ -57,7 +62,7 @@ export class FeaturedNewsComponent implements OnInit {
   // che cả trang chủ, trong khi các khối khác đều tự hiện skeleton tại chỗ.
   private loadFeaturedPosts(): void {
     this.newsCacheService
-      .SearchNews(0, FEATURED_COUNT, '', '', '', true, '', 'views')
+      .SearchNews(0, FEATURED_COUNT, '', '', '', true, '', 'views', true)
       .subscribe({
         next: res => {
           this.featuredPosts = this.assignPlaceholders(res.objResult.DataList);

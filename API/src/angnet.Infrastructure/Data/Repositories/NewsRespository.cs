@@ -247,16 +247,25 @@ namespace angnet.Infrastructure.Data.Repositories
         /// <summary>
         /// Thứ tự trả về của Search. Mặc định (chuỗi rỗng hoặc giá trị lạ) là bài mới nhất
         /// trước, giữ nguyên hành vi cũ.
+        ///
+        /// pinnedFirst chỉ bật cho khối "Bài viết nổi bật" ngoài trang chủ. Trước đây
+        /// ghim áp cho MỌI lời gọi Search, mà cả khối nổi bật lẫn danh sách "Tất cả
+        /// bài viết" đều dùng chung endpoint này - nên bài ghim đứng đầu cả hai khối
+        /// nằm sát nhau, nhìn thành lặp nội dung. Danh sách chính, sidebar và bảng
+        /// quản trị giữ nguyên thứ tự theo ngày đăng / lượt đọc.
         /// </summary>
-        private IOrderedQueryable<NewsModel> ApplySort(IQueryable<NewsModel> query, string sort)
+        private IOrderedQueryable<NewsModel> ApplySort(IQueryable<NewsModel> query, string sort, bool pinnedFirst)
         {
-            // Bài ghim luôn đứng trên, bất kể đang sắp theo kiểu nào: ghim là để nổi
-            // bật, mà chuyển sang tab "Đọc nhiều" lại tụt xuống thì mất tác dụng.
-            // Chỉ sắp theo PinOrder giữa các bài cùng ghim; phần còn lại do từng
+            // Bài ghim đứng trên trong phạm vi đã bật cờ, bất kể đang sắp theo kiểu
+            // nào. Chỉ sắp theo PinOrder giữa các bài cùng ghim; phần còn lại do từng
             // nhánh bên dưới quyết định.
-            IOrderedQueryable<NewsModel> pinned = query
-                .OrderByDescending(i => i.IsPinned)
-                .ThenBy(i => i.IsPinned ? i.PinOrder : 0);
+            //
+            // Khi tắt cờ vẫn phải trả về IOrderedQueryable để các ThenBy bên dưới dùng
+            // được, nên sắp theo một hằng số - không đổi thứ tự gì cả.
+            IOrderedQueryable<NewsModel> pinned = pinnedFirst
+                ? query.OrderByDescending(i => i.IsPinned)
+                       .ThenBy(i => i.IsPinned ? i.PinOrder : 0)
+                : query.OrderBy(i => 0);
 
             switch (sort)
             {
@@ -277,7 +286,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "")
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false)
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -378,7 +387,10 @@ namespace angnet.Infrastructure.Data.Repositories
             // _sort phải nằm trong khoá cache: thiếu nó thì trang "Đọc nhiều" và
             // "Mới nhất" dùng chung một ô nhớ, ai gọi trước ghi kết quả gì thì
             // người sau nhận đúng cái đó dù đã đổi kiểu sắp xếp.
-            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort})";
+            // pinnedFirst nằm trong khoá cache vì nó đổi thứ tự kết quả: thiếu nó thì
+            // khối "Bài viết nổi bật" và danh sách thường (cùng sort=views) dùng
+            // chung một ô nhớ, ai gọi trước ghi gì thì người sau nhận đúng cái đó.
+            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -386,7 +398,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (rsNewsCached is null)
             {
-                dataResult = ApplySort(query, _sort)
+                dataResult = ApplySort(query, _sort, pinnedFirst)
                               .Skip(_pageIndex * _pageSize)
                               .Take(_pageSize)
                               .ToList();
