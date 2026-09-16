@@ -1,0 +1,34 @@
+<!-- Ẩn cả khối khi không có bài nào: hiện tiêu đề rồi để trống bên dưới nhìn
+     như lỗi tải. Cùng cách xử lý với các khối bên aside-news. -->
+<section class="related" *ngIf="posts.length > 0" appScrollReveal>
+  <p class="related-heading">
+    <span>{{ 'T_RELATEDNEWS' | translate }}</span>
+    <span class="related-heading-line"></span>
+  </p>
+
+  <div class="related-grid">
+    <a
+      *ngFor="let post of posts"
+      class="related-card"
+      [routerLink]="['/news', post.CategoryNewsId, post.NewsId]">
+      <div class="related-thumb">
+        <img
+          *ngIf="post.Thumbnail"
+          [src]="post.Thumbnail"
+          [alt]="post.ShortTitle"
+          loading="lazy" />
+        <div *ngIf="!post.Thumbnail" class="related-thumb-placeholder"></div>
+      </div>
+
+      <div class="related-body">
+        <span class="related-badge" *ngIf="post.CategoryNewsName">
+          {{ post.CategoryNewsName }}
+        </span>
+        <h3 class="related-title">{{ post.ShortTitle }}</h3>
+        <p class="related-meta">
+          {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+        </p>
+      </div>
+    </a>
+  </div>
+</section>

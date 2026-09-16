@@ -1,0 +1,49 @@
+<div class="share">
+  <span class="share-label">{{ 'T_SHARE' | translate }}</span>
+
+  <div class="share-buttons">
+    <button
+      type="button"
+      class="share-btn share-btn--facebook"
+      aria-label="Facebook"
+      (click)="shareFacebook()">
+      <span nz-icon nzType="facebook" nzTheme="fill"></span>
+    </button>
+
+    <button
+      type="button"
+      class="share-btn share-btn--x"
+      aria-label="X"
+      (click)="shareX()">
+      <span nz-icon nzType="twitter" nzTheme="outline"></span>
+    </button>
+
+    <!-- Zalo không có trong bộ icon ng-zorro nên vẽ thẳng bằng SVG. -->
+    <button
+      type="button"
+      class="share-btn share-btn--zalo"
+      aria-label="Zalo"
+      (click)="shareZalo()">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M24 5C12.4 5 3 13.2 3 23.3c0 5.7 3 10.8 7.7 14.1-.3 2.3-1.3 4.6-2.9 6.6-.3.4 0 .9.5.8 3.9-.6 7-2.2 9.1-3.7 2.1.5 4.3.8 6.6.8 11.6 0 21-8.2 21-18.3S35.6 5 24 5z" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="share-btn share-btn--copy"
+      [class.is-copied]="isCopied"
+      [attr.aria-label]="(isCopied ? 'T_LINKCOPIED' : 'T_COPYLINK') | translate"
+      (click)="copyLink()">
+      <span
+        nz-icon
+        [nzType]="isCopied ? 'check' : 'link'"
+        nzTheme="outline"></span>
+      <span class="share-btn-text">
+        {{ (isCopied ? 'T_LINKCOPIED' : 'T_COPYLINK') | translate }}
+      </span>
+    </button>
+  </div>
+</div>

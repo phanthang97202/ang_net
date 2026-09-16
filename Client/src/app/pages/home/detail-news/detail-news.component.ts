@@ -18,6 +18,8 @@ import {
 } from '../../../modules';
 import { NewsCommentsComponent } from './news-comments/news-comments.component';
 import { NewsRatingComponent } from '../../../components/news-rating/news-rating.component';
+import { ShareButtonsComponent } from '../../../components/share-buttons/share-buttons.component';
+import { RelatedPostsComponent } from '../../../components/related-posts/related-posts.component';
 import { buildNewsSlides, stepSlide } from '../../../helpers';
 
 @Component({
@@ -29,6 +31,8 @@ import { buildNewsSlides, stepSlide } from '../../../helpers';
     ...REUSE_PIPE_MODULE,
     NewsCommentsComponent,
     NewsRatingComponent,
+    ShareButtonsComponent,
+    RelatedPostsComponent,
   ],
   templateUrl: './detail-news.component.html',
   styleUrl: './detail-news.component.scss',

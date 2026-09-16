@@ -122,6 +122,13 @@
             </app-news-content>
           </div>
 
+          <!-- Chia sẻ đặt ngay cuối bài: đọc xong mới là lúc người ta muốn gửi
+               cho người khác. Trước khối đánh giá vì chia sẻ là thao tác một
+               chạm, còn chấm điểm thì phải nghĩ. -->
+          <app-share-buttons
+            class="detail-share"
+            [title]="detailNews.ShortTitle" />
+
           <!-- Đặt ngay sau nội dung, trước phần bình luận: người vừa đọc xong
                mới có cơ sở để chấm điểm. -->
           <app-news-rating
@@ -142,6 +149,15 @@
         id="news-comments"
         [newsId]="detailNews.NewsId"
         (totalCountChange)="commentCount = $event" />
+
+      <!-- Sau bình luận, cuối trang: đây là chỗ người đọc hết bài cần một đường
+           đi tiếp. Sidebar cũng có khối tương tự nhưng ở mobile nó bị đẩy xuống
+           tận đáy, cuộn hết bài là hết đường. -->
+      <app-related-posts
+        *ngIf="!isLoading"
+        class="detail-related"
+        [categoryId]="detailNews.CategoryNewsId"
+        [excludeNewsId]="detailNews.NewsId" />
     </div>
   </div>
 

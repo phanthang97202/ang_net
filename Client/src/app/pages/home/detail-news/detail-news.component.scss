@@ -330,9 +330,21 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.detail-share {
+    display: block;
+    margin-top: 2rem;
+}
+
 .detail-rating {
     display: block;
     margin-top: 2rem;
+}
+
+// Nằm sau khối bình luận nên cần khoảng thở rộng hơn: hai khối này thuộc hai
+// mạch nội dung khác nhau.
+.detail-related {
+    display: block;
+    margin-top: 2.5rem;
 }
 
 // Khớp với .detail-thumb của bài viết thật. Bo góc và khoảng cách dưới do
