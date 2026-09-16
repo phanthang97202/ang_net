@@ -19,6 +19,13 @@ namespace angnet.Domain.Dtos
         public bool AlreadySubscribed { get; set; }
     }
 
+    public class NotifyResultDto
+    {
+        public string NewsId { get; set; } = string.Empty;
+        public int SentCount { get; set; } // Số mail đã đẩy vào hàng đợi
+        public DateTime NotifiedAt { get; set; }
+    }
+
     // Một dòng trong bảng quản trị. Không trả UnsubscribeToken: nó là thứ cho phép
     // huỷ đăng ký mà không cần đăng nhập, không có lý do gì để nó ra tới client.
     public class SubscriberItemDto

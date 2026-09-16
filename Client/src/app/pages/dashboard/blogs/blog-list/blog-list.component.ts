@@ -119,6 +119,39 @@ export class BlogListComponent implements OnInit {
    * Ghim/bỏ ghim bài viết. Khác nút sửa, việc này KHÔNG giới hạn theo tác giả:
    * ghim là quyết định biên tập của cả trang chứ không phải sửa nội dung bài.
    */
+  handleNotifySubscribers(data: IDetailNews): void {
+    this.setLoading(true);
+    this.api.NotifyNewPost(data.NewsId).subscribe({
+      next: response => {
+        if (response?.Success) {
+          const sent = response.Data?.SentCount ?? 0;
+          this.message.success(
+            sent > 0
+              ? `Đã đưa ${sent} thư vào hàng đợi gửi`
+              : 'Chưa có ai đăng ký nhận bài'
+          );
+        } else {
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(response, null, 2),
+            title: response?.ErrorMessage || 'Error',
+          });
+        }
+        // Tải lại trong cả hai nhánh: server đánh dấu NotifiedAt trước khi đẩy
+        // thư nên nút phải đổi trạng thái theo đúng dữ liệu thật dưới DB.
+        this.fetchData();
+      },
+      error: err => {
+        this.setLoading(false);
+        this.showErrorService.setShowError({
+          icon: 'warning',
+          message: JSON.stringify(err, null, 2),
+          title: err.message,
+        });
+      },
+    });
+  }
+
   handleTogglePin(data: IDetailNews, isPinned: boolean): void {
     // Thứ tự ghim mặc định đẩy bài mới ghim lên trước các bài đã ghim: người ghim
     // thường muốn bài vừa chọn nổi nhất. Muốn xếp khác thì sửa trực tiếp trong DB

@@ -56,6 +56,27 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        // Gửi mail báo bài mới cho toàn bộ người đang nhận.
+        //
+        // Dùng quyền blog.update chứ không phải sysparameter.view: đây là thao tác
+        // gửi thư hàng loạt ra ngoài, không thu hồi được - ai sửa được bài thì mới
+        // được phép thông báo về bài đó.
+        [Authorize(Policy = "blog.update")]
+        [HttpPost("NotifyNewPost")]
+        public async Task<IActionResult> NotifyNewPost(string newsId)
+        {
+            try
+            {
+                ApiResponse<NotifyResultDto> response =
+                    await _subscriberService.NotifyNewPostAsync(newsId);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         // GET chứ không POST: đây là link bấm thẳng từ hộp thư.
         [AllowAnonymous]
         [HttpGet("Unsubscribe")]

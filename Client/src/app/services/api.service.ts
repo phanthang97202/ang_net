@@ -15,6 +15,7 @@ import {
   ILikeNewsResponse,
   ISubscribeResponse,
   ISubscriberSearchResponse,
+  INotifyResultResponse,
   INewsResponse,
   IAuditTrailResponse,
   ISearchAuditTrailRequest,
@@ -205,6 +206,15 @@ export class ApiService {
       `${this.apiUrl}news/TogglePin?newsId=${encodeURIComponent(
         newsId
       )}&isPinned=${isPinned}&pinOrder=${pinOrder}`,
+      {}
+    );
+  }
+
+  // Gửi mail báo bài mới cho toàn bộ người đang nhận. Server tự chặn gửi lại
+  // lần hai, nên không cần client giữ trạng thái.
+  NotifyNewPost(newsId: string): Observable<INotifyResultResponse> {
+    return this.http.post<INotifyResultResponse>(
+      `${this.apiUrl}subscriber/notifynewpost?newsId=${encodeURIComponent(newsId)}`,
       {}
     );
   }

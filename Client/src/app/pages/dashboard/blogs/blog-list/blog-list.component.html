@@ -22,6 +22,7 @@
             <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
             <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
             <th nzWidth="110px">Ghim</th>
+            <th nzWidth="150px">Gửi thư</th>
           </tr>
         </thead>
         <tbody>
@@ -66,6 +67,37 @@
               <span *ngIf="data.IsPinned" class="blog__pin-order">
                 #{{ data.PinOrder }}
               </span>
+            </td>
+
+            <!-- Gửi mail báo bài mới cho người đăng ký. Gửi xong là không thu hồi
+                 được nên nút khoá hẳn sau lần đầu, chỉ còn hiện ngày đã gửi. -->
+            <td>
+              <span *ngIf="data.NotifiedAt" class="blog__notified">
+                <span nz-icon nzType="check" nzTheme="outline"></span>
+                Đã gửi {{ data.NotifiedAt | localeDTime: 'dd-mm-yy' }}
+              </span>
+
+              <button
+                *ngIf="!data.NotifiedAt"
+                nz-button
+                nzType="default"
+                nzSize="small"
+                [disabled]="!data.FlagActive"
+                [attr.title]="
+                  data.FlagActive
+                    ? 'Gửi mail báo bài này cho người đăng ký'
+                    : 'Bài chưa xuất bản thì chưa gửi được'
+                "
+                nz-popconfirm
+                [nzPopconfirmTitle]="
+                  'Gửi mail báo bài này cho tất cả người đăng ký? Gửi rồi không thu hồi được.'
+                "
+                nzOkText="Gửi"
+                nzCancelText="Huỷ"
+                (nzOnConfirm)="handleNotifySubscribers(data)">
+                <span nz-icon nzType="mail" nzTheme="outline"></span>
+                Gửi
+              </button>
             </td>
           </tr>
         </tbody>

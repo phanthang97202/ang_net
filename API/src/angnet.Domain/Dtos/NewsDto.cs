@@ -40,6 +40,7 @@
         public int TotalPoint { get; set; } // Số lượt đánh giá
         public double MyPoint { get; set; } // Điểm người đang đăng nhập đã chấm, 0 = chưa chấm
         public bool IsPinned { get; set; } // Bài đang được ghim lên đầu
+        public DateTime? NotifiedAt { get; set; } // Đã gửi mail báo bài này cho người đăng ký chưa
         public int PinOrder { get; set; } // Thứ tự giữa các bài cùng ghim, số nhỏ hiện trước
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
 

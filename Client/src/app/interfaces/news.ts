@@ -30,6 +30,7 @@ export interface INews {
   TotalPoint: number;
   MyPoint: number;
   IsPinned: boolean;
+  NotifiedAt: string | null;
   PinOrder: number;
 }
 
@@ -78,6 +79,7 @@ export interface IDetailNews {
   TotalPoint: number;
   MyPoint: number;
   IsPinned: boolean;
+  NotifiedAt: string | null;
   PinOrder: number;
   LstHashTagNews: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
@@ -131,3 +133,17 @@ export interface ISubscriberSearchResponse
   extends IBaseResponse<ISubscriberItem> {
   objResult: IPageInfo<ISubscriberItem>;
 }
+
+export interface INotifyResult {
+  NewsId: string;
+  /** Số mail đã đẩy vào hàng đợi */
+  SentCount: number;
+  NotifiedAt: string;
+}
+
+export type INotifyResultResponse = Omit<
+  IBaseResponse<INotifyResult>,
+  'objResult'
+> & {
+  Data: INotifyResult;
+};

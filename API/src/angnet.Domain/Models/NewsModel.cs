@@ -26,6 +26,13 @@ namespace angnet.Domain.Models
         public bool IsPinned { get; set; } // Ghim lên đầu danh sách
         // Thứ tự giữa các bài cùng ghim, số nhỏ hiện trước. Chỉ có nghĩa khi IsPinned = true.
         public int PinOrder { get; set; }
+
+        // Thời điểm đã gửi mail báo bài này cho người đăng ký. null = chưa gửi.
+        //
+        // Cột này là thứ chặn gửi trùng: Update cho phép sửa bài nhiều lần sau khi
+        // đăng, nếu chỉ dựa vào "bài đã xuất bản" thì mỗi lần sửa lỗi chính tả rồi
+        // lưu lại là người đọc nhận thêm một mail nữa.
+        public DateTime? NotifiedAt { get; set; }
         [Column(TypeName = "varchar(20)")]
         public EWhoCanSee WhoCanSee { get; set; } // Loại chính sách (ví dụ: Chỉ tenant, Chỉ mình tôi, Public, v.v.) 
     }

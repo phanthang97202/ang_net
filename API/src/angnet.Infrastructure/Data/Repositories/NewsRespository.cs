@@ -233,6 +233,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.LikeCount = countLike;
             rsNews.AvgPoint = avgPoint;
             rsNews.IsPinned = objNews.IsPinned;
+            rsNews.NotifiedAt = objNews.NotifiedAt;
             rsNews.PinOrder = objNews.PinOrder;
             rsNews.TotalPoint = dtPointNews.Count;
             rsNews.LstHashTagNews = lstHashTagNews;
