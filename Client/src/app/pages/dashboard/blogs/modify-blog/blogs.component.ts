@@ -49,6 +49,7 @@ export class BlogsComponent implements OnInit {
 
   lstRefFileNews: IRefFileNews[] & NzUploadFile[] = [];
   contentBody = ''; // ✅ Store content để binding vào editor
+  contentBodyEn = '';
 
   hashtagSuggestions: string[] = [];
 
@@ -58,8 +59,11 @@ export class BlogsComponent implements OnInit {
   validateForm!: FormGroup<{
     Thumbnail: FormControl<string>;
     ContentBody: FormControl<string>;
+    ContentBodyEn: FormControl<string>;
     ShortTitle: FormControl<string>;
+    ShortTitleEn: FormControl<string>;
     ShortDescription: FormControl<string>;
+    ShortDescriptionEn: FormControl<string>;
     LstHashTagNews: FormControl<string[]>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
@@ -77,8 +81,11 @@ export class BlogsComponent implements OnInit {
       Thumbnail: ['', [Validators.required]],
       CategoryNewsId: ['', [Validators.required]],
       ContentBody: ['', [Validators.required]],
+      ContentBodyEn: [''],
       ShortTitle: ['', [Validators.required]],
+      ShortTitleEn: [''],
       ShortDescription: ['', [Validators.required]],
+      ShortDescriptionEn: [''],
       LstHashTagNews: [[] as string[]],
       LstRefFileNews: [[{ FileUrl: '' }]],
       FlagActive: [true],
@@ -134,12 +141,16 @@ export class BlogsComponent implements OnInit {
 
           // ✅ Set contentBody trước khi patch form
           this.contentBody = data.Data.ContentBody || '';
+          this.contentBodyEn = data.Data.ContentBodyEn || '';
 
           this.validateForm.patchValue({
             CategoryNewsId: data.Data.CategoryNewsId,
             ContentBody: data.Data.ContentBody,
+            ContentBodyEn: data.Data.ContentBodyEn,
             ShortTitle: data.Data.ShortTitle,
+            ShortTitleEn: data.Data.ShortTitleEn,
             ShortDescription: data.Data.ShortDescription,
+            ShortDescriptionEn: data.Data.ShortDescriptionEn,
             Thumbnail: data.Data.Thumbnail,
             LstRefFileNews: data.Data.LstRefFileNews,
             FlagActive: data.Data.FlagActive,
@@ -276,8 +287,11 @@ export class BlogsComponent implements OnInit {
       Thumbnail: this.validateForm.value.Thumbnail ?? '',
       CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
       ShortTitle: this.validateForm.value.ShortTitle ?? '',
+      ShortTitleEn: this.validateForm.value.ShortTitleEn ?? '',
       ShortDescription: this.validateForm.value.ShortDescription ?? '',
+      ShortDescriptionEn: this.validateForm.value.ShortDescriptionEn ?? '',
       ContentBody: this.validateForm.value.ContentBody ?? '',
+      ContentBodyEn: this.validateForm.value.ContentBodyEn ?? '',
       FlagActive: this.validateForm.value.FlagActive ?? true,
       LstHashTagNews: this.normalizeHashtags(
         this.validateForm.value.LstHashTagNews ?? []
@@ -285,6 +299,20 @@ export class BlogsComponent implements OnInit {
       LstRefFileNews: [],
     };
     console.log('===update data', this.mode, data);
+    const englishFields = [
+      data.ShortTitleEn.trim(),
+      data.ShortDescriptionEn.trim(),
+      data.ContentBodyEn.trim(),
+    ];
+    const hasAnyEnglishContent = englishFields.some(Boolean);
+    const hasCompleteEnglishContent = englishFields.every(Boolean);
+    if (hasAnyEnglishContent && !hasCompleteEnglishContent) {
+      this.message.warning(
+        'English translation requires title, description and content.'
+      );
+      return;
+    }
+
     if (this.validateForm.valid) {
       this.loadingService.setLoading(true);
       const apiCall =
@@ -293,8 +321,11 @@ export class BlogsComponent implements OnInit {
               Thumbnail: data.Thumbnail ?? '',
               CategoryNewsId: data.CategoryNewsId ?? '',
               ShortTitle: data.ShortTitle ?? '',
+              ShortTitleEn: data.ShortTitleEn ?? '',
               ShortDescription: data.ShortDescription ?? '',
+              ShortDescriptionEn: data.ShortDescriptionEn ?? '',
               ContentBody: data.ContentBody ?? '',
+              ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstRefFileNews: [],
@@ -303,8 +334,11 @@ export class BlogsComponent implements OnInit {
               Thumbnail: data.Thumbnail ?? '',
               CategoryNewsId: data.CategoryNewsId ?? '',
               ShortTitle: data.ShortTitle ?? '',
+              ShortTitleEn: data.ShortTitleEn ?? '',
               ShortDescription: data.ShortDescription ?? '',
+              ShortDescriptionEn: data.ShortDescriptionEn ?? '',
               ContentBody: data.ContentBody ?? '',
+              ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstRefFileNews: [],
@@ -347,6 +381,12 @@ export class BlogsComponent implements OnInit {
     }
   }
 
+  handleContentChangedEditorEn({ content }: { content: string }) {
+    if (this.validateForm.value.ContentBodyEn !== content) {
+      this.validateForm.patchValue({ ContentBodyEn: content });
+    }
+  }
+
   handlePreview = async (file: NzUploadFile): Promise<void> => {
     const extendedFile = file as NzUploadFile & {
       url: string;
@@ -371,5 +411,6 @@ export class BlogsComponent implements OnInit {
   handleResetForm() {
     this.validateForm.reset();
     this.contentBody = ''; // ✅ Reset content body
+    this.contentBodyEn = '';
   }
 }

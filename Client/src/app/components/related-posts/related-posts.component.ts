@@ -56,6 +56,12 @@ export class RelatedPostsComponent implements OnInit, OnChanges {
       : post.CategoryNewsName;
   }
 
+  getTitle(post: IDetailNews): string {
+    return this.langService.getLang() === 'en' && post.HasEnglishTranslation
+      ? post.ShortTitleEn
+      : post.ShortTitle;
+  }
+
   private load(): void {
     if (!this.categoryId) return;
 

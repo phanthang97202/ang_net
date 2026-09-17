@@ -6,7 +6,7 @@
       <img
         class="h-full w-full object-cover"
         [src]="item.Thumbnail | sizeImgCloudinary"
-        [alt]="item.ShortTitle" />
+        [alt]="title" />
     </div>
 
     <div class="flex-1">
@@ -14,7 +14,7 @@
         <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
           <h2
             class="hover:underline text-[20px] xl:text-[38px] text-[var(--color-text)] leading-[1.2] font-bold">
-            {{ item.ShortTitle }}
+            {{ title }}
           </h2>
         </a>
       </div>
@@ -31,7 +31,7 @@
         <div>
           <p>
             <span class="pr-[4px] font-sourceSerif">
-              {{ item.EstimatedReadingTime }}
+              {{ readingTime }}
             </span>
             <span class="font-sourceSerif">
               {{ 'T_MINUTESREAD' | translate }}
@@ -56,7 +56,7 @@
   <div class="mt-[35px] mb-[60px] hidden xl:block">
     <p
       class="news__items-shortdesc text-[17px] text-[var(--color-text-muted)] font-sourceSerif leading-[1.8] tracking-[.5px]">
-      {{ item.ShortDescription | subString: 242 }}
+      {{ description | subString: 242 }}
     </p>
   </div>
 

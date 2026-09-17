@@ -35,10 +35,10 @@
       <a
         [routerLink]="['/news', mainPost.CategoryNewsId, mainPost.NewsId]"
         class="featured-tile-link"
-        [attr.aria-label]="mainPost.ShortTitle"></a>
+        [attr.aria-label]="getTitle(mainPost)"></a>
 
       <span class="featured-tile-readtime">
-        {{ mainPost.EstimatedReadingTime }} {{ 'T_MINUTESREAD' | translate }}
+        {{ getReadingTime(mainPost) }} {{ 'T_MINUTESREAD' | translate }}
       </span>
 
       <div class="featured-tile-content">
@@ -50,9 +50,9 @@
           {{ getCategoryName(mainPost) }}
         </a>
         <h3 class="featured-tile-title featured-tile-title--main">
-          {{ mainPost.ShortTitle }}
+          {{ getTitle(mainPost) }}
         </h3>
-        <p class="featured-tile-excerpt">{{ mainPost.ShortDescription }}</p>
+        <p class="featured-tile-excerpt">{{ getDescription(mainPost) }}</p>
         <p class="featured-tile-meta">
           {{ mainPost.CreatedDTime | date: 'MMMM d, yyyy' }}
         </p>
@@ -76,7 +76,7 @@
       <a
         [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
         class="featured-tile-link"
-        [attr.aria-label]="post.ShortTitle"></a>
+        [attr.aria-label]="getTitle(post)"></a>
 
       <div class="featured-tile-content">
         <a
@@ -86,7 +86,7 @@
           [queryParams]="{ categoryId: post.CategoryNewsId }">
           {{ getCategoryName(post) }}
         </a>
-        <h3 class="featured-tile-title">{{ post.ShortTitle }}</h3>
+        <h3 class="featured-tile-title">{{ getTitle(post) }}</h3>
       </div>
     </div>
   </div>

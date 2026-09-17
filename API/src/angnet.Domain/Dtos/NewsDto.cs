@@ -5,8 +5,11 @@
         public string Thumbnail { get; set; } = string.Empty; // Ảnh thu nhỏ bài viết
         public string CategoryNewsId { get; set; } = string.Empty; // Danh mục bài viết
         public string ShortTitle { get; set; } = string.Empty; // Tiêu đề ngắn bài viết
+        public string ShortTitleEn { get; set; } = string.Empty; // Tiêu đề tiếng Anh (không bắt buộc)
         public string ShortDescription { get; set; } = string.Empty; // Mô tả ngắn bài viết
+        public string ShortDescriptionEn { get; set; } = string.Empty; // Mô tả tiếng Anh (không bắt buộc)
         public string ContentBody { get; set; } = string.Empty; // Nội dung bài viết
+        public string ContentBodyEn { get; set; } = string.Empty; // Nội dung tiếng Anh (không bắt buộc)
         public bool FlagActive { get; set; } // Trạng thái bài viết
 
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
@@ -25,11 +28,17 @@
         public string CategoryNewsName { get; set; } = string.Empty; // Tên danh mục tiếng Việt
         public string CategoryNewsNameEn { get; set; } = string.Empty; // Tên danh mục tiếng Anh
         public string Slug { get; set; } = string.Empty;  // Slug bài viết
+        public string SlugEn { get; set; } = string.Empty; // Slug bản tiếng Anh
         public string Thumbnail { get; set; } = string.Empty;  // Ảnh thu nhỏ bài viết
         public string ShortTitle { get; set; } = string.Empty; // Tiêu đề ngắn bài viết
+        public string ShortTitleEn { get; set; } = string.Empty; // Tiêu đề tiếng Anh
         public string ShortDescription { get; set; } = string.Empty;  // Mô tả ngắn bài viết
+        public string ShortDescriptionEn { get; set; } = string.Empty; // Mô tả tiếng Anh
         public string ContentBody { get; set; } = string.Empty; // Nội dung bài viết
+        public string ContentBodyEn { get; set; } = string.Empty; // Nội dung tiếng Anh
+        public bool HasEnglishTranslation { get; set; }
         public int EstimatedReadingTime { get; set; } // Ước lượng thời gian đọc
+        public int EstimatedReadingTimeEn { get; set; } // Ước lượng thời gian đọc bản tiếng Anh
         public DateTime CreatedDTime { get; set; } // Thời gian đăng bài
         public DateTime UpdatedDTime { get; set; } // Thời gian sửa bài
         public bool FlagActive { get; set; } // Trạng thái bài viết

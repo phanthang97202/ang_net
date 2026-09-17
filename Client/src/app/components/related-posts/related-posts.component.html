@@ -15,7 +15,7 @@
         <img
           *ngIf="post.Thumbnail"
           [src]="post.Thumbnail"
-          [alt]="post.ShortTitle"
+          [alt]="getTitle(post)"
           loading="lazy" />
         <div *ngIf="!post.Thumbnail" class="related-thumb-placeholder"></div>
       </div>
@@ -24,7 +24,7 @@
         <span class="related-badge" *ngIf="getCategoryName(post)">
           {{ getCategoryName(post) }}
         </span>
-        <h3 class="related-title">{{ post.ShortTitle }}</h3>
+        <h3 class="related-title">{{ getTitle(post) }}</h3>
         <p class="related-meta">
           {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
         </p>

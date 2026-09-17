@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { RouterModule } from '@angular/router';
@@ -8,6 +8,7 @@ import { IDetailNews } from '../../interfaces';
 import { HashTagComponent } from '../hash-tag/hash-tag.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ScrollRevealDirective } from '../../directives';
+import { LangService } from '../../services';
 
 @Component({
   selector: 'app-news-item',
@@ -29,7 +30,30 @@ import { ScrollRevealDirective } from '../../directives';
 })
 export class NewsItemComponent implements OnInit {
   @Input() item!: IDetailNews;
+  private langService = inject(LangService);
   constructor() {}
 
   ngOnInit() {}
+
+  get title(): string {
+    return this.useEnglish ? this.item.ShortTitleEn : this.item.ShortTitle;
+  }
+
+  get description(): string {
+    return this.useEnglish
+      ? this.item.ShortDescriptionEn
+      : this.item.ShortDescription;
+  }
+
+  get readingTime(): number {
+    return this.useEnglish
+      ? this.item.EstimatedReadingTimeEn
+      : this.item.EstimatedReadingTime;
+  }
+
+  private get useEnglish(): boolean {
+    return (
+      this.langService.getLang() === 'en' && this.item.HasEnglishTranslation
+    );
+  }
 }

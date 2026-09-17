@@ -63,7 +63,7 @@
         <img
           *ngIf="post.Thumbnail"
           [src]="post.Thumbnail"
-          [alt]="post.ShortTitle" />
+          [alt]="getTitle(post)" />
         <div
           *ngIf="!post.Thumbnail"
           class="post-card-thumb-placeholder"
@@ -72,7 +72,7 @@
         <a
           [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
           class="post-card-thumb-link"
-          [attr.aria-label]="post.ShortTitle"></a>
+          [attr.aria-label]="getTitle(post)"></a>
 
         <div class="post-card-badges">
           <a
@@ -84,7 +84,7 @@
           >
         </div>
         <span class="post-card-readtime">
-          {{ post.EstimatedReadingTime }} Min Read
+          {{ getReadingTime(post) }} Min Read
         </span>
       </div>
 
@@ -128,10 +128,10 @@
         <a
           [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
           class="post-card-title">
-          {{ post.ShortTitle }}
+          {{ getTitle(post) }}
         </a>
 
-        <p class="post-card-excerpt">{{ post.ShortDescription }}</p>
+        <p class="post-card-excerpt">{{ getDescription(post) }}</p>
 
         <div
           class="post-card-hashtags"

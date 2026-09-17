@@ -95,6 +95,26 @@ export class FeaturedNewsComponent implements OnInit {
       : post.CategoryNewsName;
   }
 
+  getTitle(post: IDetailNews): string {
+    return this.useEnglish(post) ? post.ShortTitleEn : post.ShortTitle;
+  }
+
+  getDescription(post: IDetailNews): string {
+    return this.useEnglish(post)
+      ? post.ShortDescriptionEn
+      : post.ShortDescription;
+  }
+
+  getReadingTime(post: IDetailNews): number {
+    return this.useEnglish(post)
+      ? post.EstimatedReadingTimeEn
+      : post.EstimatedReadingTime;
+  }
+
+  private useEnglish(post: IDetailNews): boolean {
+    return this.langService.getLang() === 'en' && post.HasEnglishTranslation;
+  }
+
   // Gán màu placeholder cho các bài chưa có thumbnail
   private assignPlaceholders(posts: IDetailNews[]): INewsWithPlaceholder[] {
     return posts.map((post, i) => ({

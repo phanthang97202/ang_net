@@ -3,8 +3,11 @@ export interface ICreateNews {
   Thumbnail: string;
   CategoryNewsId: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
   FlagActive: boolean;
   LstHashTagNews: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
@@ -14,15 +17,21 @@ export interface INews {
   UserId: string;
   CategoryNewsId: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: Date;
   UpdatedDTime: Date;
   FlagActive: boolean;
   ViewCount: number;
   EstimatedReadingTime: number;
+  EstimatedReadingTimeEn: number;
   ShareCount: number;
   LikeCount: number;
   IsLikedByMe: boolean;
@@ -49,8 +58,11 @@ export interface INewsItemSm {
   NewsId: string;
   CategoryNewsId: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: string;
 }
 
@@ -64,15 +76,21 @@ export interface IDetailNews {
   CategoryNewsName: string;
   CategoryNewsNameEn: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: string;
   UpdatedDTime: string;
   FlagActive: boolean;
   ViewCount: number;
   EstimatedReadingTime: number;
+  EstimatedReadingTimeEn: number;
   ShareCount: number;
   LikeCount: number;
   IsLikedByMe: boolean;

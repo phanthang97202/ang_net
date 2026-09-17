@@ -212,6 +212,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
             // Estimated Reading Time 
             (int estimatedReadingTime, int wordCountContent) = TCommonUtils.CalculateReadingTime(objNews.ContentBody);
+            (int estimatedReadingTimeEn, int wordCountContentEn) = TCommonUtils.CalculateReadingTime(objNews.ContentBodyEn);
             //
             rsNews.NewsId = objNews.NewsId;
             rsNews.UserId = objNews.UserId;
@@ -222,10 +223,17 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.CategoryNewsName = categoryDetail.NewsCategoryName;
             rsNews.CategoryNewsNameEn = categoryDetail.NewsCategoryNameEn;
             rsNews.Slug = objNews.Slug;
+            rsNews.SlugEn = objNews.SlugEn;
             rsNews.Thumbnail = objNews.Thumbnail;
             rsNews.ShortTitle = objNews.ShortTitle;
+            rsNews.ShortTitleEn = objNews.ShortTitleEn;
             rsNews.ShortDescription = objNews.ShortDescription;
+            rsNews.ShortDescriptionEn = objNews.ShortDescriptionEn;
             rsNews.ContentBody = excludeFields.Contains("ContentBody") ? null : objNews.ContentBody;
+            rsNews.ContentBodyEn = excludeFields.Contains("ContentBody") ? null : objNews.ContentBodyEn;
+            rsNews.HasEnglishTranslation = !TCommonUtils.IsNullOrEmpty(objNews.ShortTitleEn)
+                                           && !TCommonUtils.IsNullOrEmpty(objNews.ShortDescriptionEn)
+                                           && !TCommonUtils.IsNullOrEmpty(objNews.ContentBodyEn);
             rsNews.CreatedDTime = objNews.CreatedDTime;
             rsNews.UpdatedDTime = objNews.UpdatedDTime;
             rsNews.FlagActive = objNews.FlagActive;
@@ -240,6 +248,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
             rsNews.EstimatedReadingTime = estimatedReadingTime;
+            rsNews.EstimatedReadingTimeEn = estimatedReadingTimeEn;
 
             // 
             return rsNews;
@@ -340,6 +349,8 @@ namespace angnet.Infrastructure.Data.Repositories
                                      .Where(i =>
                                              i.ShortTitle.Trim().ToLower().Contains(_keyword)
                                              || i.ShortDescription.Trim().ToLower().Contains(_keyword)
+                                             || i.ShortTitleEn.Trim().ToLower().Contains(_keyword)
+                                             || i.ShortDescriptionEn.Trim().ToLower().Contains(_keyword)
                                      );
             }
             else if (!TCommonUtils.IsNullOrEmpty(_userId))
@@ -503,8 +514,13 @@ namespace angnet.Infrastructure.Data.Repositories
                             NewsId = n.NewsId,
                             CategoryNewsId = n.CategoryNewsId,
                             Slug = n.Slug,
+                            SlugEn = n.SlugEn,
                             Thumbnail = n.Thumbnail,
                             ShortTitle = n.ShortTitle,
+                            ShortTitleEn = n.ShortTitleEn,
+                            HasEnglishTranslation = n.ShortTitleEn != ""
+                                                    && n.ShortDescriptionEn != ""
+                                                    && n.ContentBodyEn != "",
                             CreatedDTime = n.CreatedDTime
                         })
                         .ToListAsync();
@@ -670,10 +686,16 @@ namespace angnet.Infrastructure.Data.Repositories
             string UserId = currentUserId;
             string CategoryNewsId = TCommonUtils.PureString(data.CategoryNewsId);
             string Slug = TCommonUtils.GenerateSlug(data.ShortTitle);
+            string ShortTitleEn = TCommonUtils.PureString(data.ShortTitleEn);
+            string SlugEn = TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                ? string.Empty
+                : TCommonUtils.GenerateSlug(ShortTitleEn);
             string Thumbnail = TCommonUtils.PureString(data.Thumbnail);
             string ShortTitle = TCommonUtils.PureString(data.ShortTitle);
             string ShortDescription = TCommonUtils.PureString(data.ShortDescription);
+            string ShortDescriptionEn = TCommonUtils.PureString(data.ShortDescriptionEn);
             string ContentBody = data.ContentBody;
+            string ContentBodyEn = data.ContentBodyEn ?? string.Empty;
             DateTime CreatedDTime = TCommonUtils.DTimeNow();
             DateTime UpdatedDTime = TCommonUtils.DTimeNow();
             bool FlagActive = data.FlagActive;
@@ -709,6 +731,18 @@ namespace angnet.Infrastructure.Data.Repositories
             if (TCommonUtils.IsNullOrEmpty(ContentBody))
             {
                 apiResponse.CatchException(false, "News_Create.ContentBodyIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            bool hasAnyEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                                        || !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
+                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+            bool hasCompleteEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                                             && !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
+                                             && !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+            if (hasAnyEnglishContent && !hasCompleteEnglishContent)
+            {
+                apiResponse.CatchException(false, "News_Create.EnglishTranslationIsIncomplete", requestClient);
                 return apiResponse;
             }
 
@@ -801,10 +835,14 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = currentUserId,
                 CategoryNewsId = CategoryNewsId,
                 Slug = Slug,
+                SlugEn = SlugEn,
                 Thumbnail = Thumbnail,
                 ShortTitle = ShortTitle,
+                ShortTitleEn = ShortTitleEn,
                 ShortDescription = ShortDescription,
+                ShortDescriptionEn = ShortDescriptionEn,
                 ContentBody = ContentBody,
+                ContentBodyEn = ContentBodyEn,
                 CreatedDTime = CreatedDTime,
                 UpdatedDTime = UpdatedDTime,
                 FlagActive = FlagActive,
@@ -841,6 +879,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // when create new post => delete cached search api
             string keyStoreManager = TConstValue.NewsRespository_Search;
             await DeleteCachedAsync(keyStoreManager);
+            await DeleteCachedAsync(TConstValue.NewsRespository_CategoryPreview);
             #endregion 
             return apiResponse;
         }
@@ -1096,10 +1135,16 @@ namespace angnet.Infrastructure.Data.Repositories
             string newsId = TCommonUtils.PureString(data.NewsId);
             string CategoryNewsId = TCommonUtils.PureString(data.CategoryNewsId);
             string Slug = TCommonUtils.GenerateSlug(data.ShortTitle);
+            string ShortTitleEn = TCommonUtils.PureString(data.ShortTitleEn);
+            string SlugEn = TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                ? string.Empty
+                : TCommonUtils.GenerateSlug(ShortTitleEn);
             string Thumbnail = TCommonUtils.PureString(data.Thumbnail);
             string ShortTitle = TCommonUtils.PureString(data.ShortTitle);
             string ShortDescription = TCommonUtils.PureString(data.ShortDescription);
+            string ShortDescriptionEn = TCommonUtils.PureString(data.ShortDescriptionEn);
             string ContentBody = data.ContentBody;
+            string ContentBodyEn = data.ContentBodyEn ?? string.Empty;
             DateTime UpdatedDTime = TCommonUtils.DTimeNow();
             #endregion
 
@@ -1138,6 +1183,18 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            bool hasAnyEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                                        || !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
+                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+            bool hasCompleteEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
+                                             && !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
+                                             && !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+            if (hasAnyEnglishContent && !hasCompleteEnglishContent)
+            {
+                apiResponse.CatchException(false, "News_Update.EnglishTranslationIsIncomplete", requestClient);
+                return apiResponse;
+            }
+
             // Check if category exists
             NewsCategoryModel objNewsCategory = new NewsCategoryModel();
             bool isExistRecordNewsCategory = CheckNewsCategoryExist(CategoryNewsId, ref objNewsCategory);
@@ -1167,10 +1224,14 @@ namespace angnet.Infrastructure.Data.Repositories
             #region // Update News Record
             existingNews.CategoryNewsId = CategoryNewsId;
             existingNews.Slug = Slug;
+            existingNews.SlugEn = SlugEn;
             existingNews.Thumbnail = Thumbnail;
             existingNews.ShortTitle = ShortTitle;
+            existingNews.ShortTitleEn = ShortTitleEn;
             existingNews.ShortDescription = ShortDescription;
+            existingNews.ShortDescriptionEn = ShortDescriptionEn;
             existingNews.ContentBody = ContentBody;
+            existingNews.ContentBodyEn = ContentBodyEn;
             existingNews.UpdatedDTime = UpdatedDTime;
             existingNews.FlagActive = data.FlagActive;
 
@@ -1274,6 +1335,8 @@ namespace angnet.Infrastructure.Data.Repositories
                 // Clear cached search results
                 string keyStoreManager = TConstValue.NewsRespository_Search;
                 await DeleteCachedAsync(keyStoreManager);
+                await DeleteCachedAsync(TConstValue.NewsRespository_CategoryPreview);
+                await DeleteCachedAsync(GenerateUniqueCacheKey(TConstValue.NewsRespository_Detail, $"({newsId})"));
 
                 // ✅ Return updated news
                 apiResponse.Success = true;

@@ -38,6 +38,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 // NzImageService không khai providedIn:'root' mà cấp qua providers của module,
 // nên module phải có mặt ở đây thì component mới inject được service để mở lightbox.
 import { NzImageModule } from 'ng-zorro-antd/image';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 // import { FooterComponent } from '../components/footer/footer.component';
 // ... import tất cả module bạn cần
 
@@ -69,6 +70,7 @@ const ZORRO_MODULES = [
   NzCheckboxModule,
   NzAlertModule,
   NzImageModule,
+  NzTabsModule,
   // NzHeaderComponent,
   //   NzContentComponent,
   NzBreadCrumbModule,

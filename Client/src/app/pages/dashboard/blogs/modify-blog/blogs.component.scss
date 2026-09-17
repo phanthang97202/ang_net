@@ -1,68 +1,85 @@
 .blogpost__container {
-    margin: 0 !important;
+  margin: 0 !important;
 }
 
 .blogpost__panel {
-    background: #fff;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .blogpost__editor-panel {
-    min-height: 600px;
+  min-height: 600px;
+}
+
+.blogpost__translation-pane {
+  padding-top: 8px;
+}
+
+.blogpost__translation-hint {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f5f7fa;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 13px;
+}
+
+::ng-deep .blogpost__editor-panel .ant-form-item-label {
+  text-align: left;
 }
 
 .status-toggle {
-    ::ng-deep .ant-form-item-control-input-content {
-        display: flex;
-        align-items: center;
-    }
+  ::ng-deep .ant-form-item-control-input-content {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .loading-editor {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 }
 
 // Ô chọn danh mục và ô hashtag phải chiếm trọn bề ngang, nếu không trên mobile
 // chúng co lại theo nội dung và rất khó bấm.
 ::ng-deep nz-tree-select,
 ::ng-deep nz-select {
-    width: 100%;
+  width: 100%;
 }
 
 // ── Mobile ────────────────────────────────────────────────────────────
 // Dưới nzMd, label và control đã tự xuống dòng nhờ nzXs=24 trong template;
 // phần còn lại là thu gọn khoảng đệm để không phí diện tích màn hình.
 @media (max-width: 767px) {
-    .blogpost__panel {
-        padding: 16px;
-        border-radius: 6px;
-    }
+  .blogpost__panel {
+    padding: 16px;
+    border-radius: 6px;
+  }
 
-    // Bỏ chiều cao tối thiểu cố định: trên mobile nó tạo ra một khoảng trắng
-    // dài phía dưới editor.
-    .blogpost__editor-panel {
-        min-height: 0;
-    }
+  // Bỏ chiều cao tối thiểu cố định: trên mobile nó tạo ra một khoảng trắng
+  // dài phía dưới editor.
+  .blogpost__editor-panel {
+    min-height: 0;
+  }
 
-    .loading-editor {
-        min-height: 200px;
-    }
+  .loading-editor {
+    min-height: 200px;
+  }
 
-    // Label đứng riêng một dòng nên không cần khoảng đệm đáy mặc định của antd.
-    ::ng-deep .ant-form-item-label {
-        padding-bottom: 4px;
+  // Label đứng riêng một dòng nên không cần khoảng đệm đáy mặc định của antd.
+  ::ng-deep .ant-form-item-label {
+    padding-bottom: 4px;
 
-        > label {
-            height: auto;
-        }
+    > label {
+      height: auto;
     }
+  }
 
-    ::ng-deep .ant-form-item {
-        margin-bottom: 16px;
-    }
+  ::ng-deep .ant-form-item {
+    margin-bottom: 16px;
+  }
 }

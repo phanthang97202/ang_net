@@ -14,10 +14,14 @@ namespace angnet.Domain.Models
         [ForeignKey("CategoryNewsId")]
         public string CategoryNewsId { get; set; } = string.Empty; // Mã danh mục
         public string Slug { get; set; } = string.Empty; // Slug bài viết
+        public string SlugEn { get; set; } = string.Empty; // Slug bản tiếng Anh
         public string Thumbnail { get; set; } = string.Empty; // Ảnh thu nhỏ bài viết
         public string ShortTitle { get; set; } = string.Empty; // Tiêu đề ngắn bài viết
+        public string ShortTitleEn { get; set; } = string.Empty; // Tiêu đề tiếng Anh
         public string ShortDescription { get; set; } = string.Empty; // Mô tả ngắn bài viết
+        public string ShortDescriptionEn { get; set; } = string.Empty; // Mô tả tiếng Anh
         public string ContentBody { get; set; } = string.Empty; // Nội dung bài viết 
+        public string ContentBodyEn { get; set; } = string.Empty; // Nội dung tiếng Anh
         public int ViewCount { get; set; } // Số lượt xem
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích

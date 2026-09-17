@@ -129,6 +129,14 @@ export class DetailNewsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.langService.$langSubjectObservable
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.detailNews) {
+          this.refreshLocalizedPresentation();
+        }
+      });
+
     // Subscribe to paramMap to react to changes in the route parameters
     this.router.paramMap.subscribe(params => {
       const newNewsId = params.get('newsId') || '';
@@ -151,6 +159,24 @@ export class DetailNewsComponent implements OnInit {
       : this.detailNews.CategoryNewsName;
   }
 
+  getTitle(): string {
+    return this.useEnglishTranslation()
+      ? this.detailNews.ShortTitleEn
+      : this.detailNews.ShortTitle;
+  }
+
+  getContent(): string {
+    return this.useEnglishTranslation()
+      ? this.detailNews.ContentBodyEn
+      : this.detailNews.ContentBody;
+  }
+
+  getReadingTime(): number {
+    return this.useEnglishTranslation()
+      ? this.detailNews.EstimatedReadingTimeEn
+      : this.detailNews.EstimatedReadingTime;
+  }
+
   prevSlide(): void {
     this.activeSlide = stepSlide(this.activeSlide, this.slides.length, -1);
   }
@@ -165,7 +191,7 @@ export class DetailNewsComponent implements OnInit {
     if (!this.slides.length) return;
 
     const ref = this.imageService.preview(
-      this.slides.map(src => ({ src, alt: this.detailNews?.ShortTitle }))
+      this.slides.map(src => ({ src, alt: this.getTitle() }))
     );
     ref.switchTo(this.activeSlide);
 
@@ -187,11 +213,7 @@ export class DetailNewsComponent implements OnInit {
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
-        this.slides = buildNewsSlides(res.Data.Thumbnail, res.Data.ContentBody);
-        this.activeSlide = 0;
-        this.titleService.setTitle(
-          `${this.detailNews.ShortTitle} - ${SITE_TITLE}`
-        );
+        this.refreshLocalizedPresentation();
       },
       error: err => {
         this.showErrorService.setShowError({
@@ -206,5 +228,18 @@ export class DetailNewsComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  private useEnglishTranslation(): boolean {
+    return (
+      this.langService.getLang() === 'en' &&
+      this.detailNews.HasEnglishTranslation
+    );
+  }
+
+  private refreshLocalizedPresentation(): void {
+    this.slides = buildNewsSlides(this.detailNews.Thumbnail, this.getContent());
+    this.activeSlide = 0;
+    this.titleService.setTitle(`${this.getTitle()} - ${SITE_TITLE}`);
   }
 }
