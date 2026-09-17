@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { NewsCacheService } from '../../services';
+import { LangService, NewsCacheService } from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
 
@@ -32,6 +32,7 @@ export class RelatedPostsComponent implements OnInit, OnChanges {
 
   private newsCache = inject(NewsCacheService);
   private destroyRef = inject(DestroyRef);
+  private langService = inject(LangService);
 
   posts: IDetailNews[] = [];
   private initialized = false;
@@ -47,6 +48,12 @@ export class RelatedPostsComponent implements OnInit, OnChanges {
     if (this.initialized) {
       this.load();
     }
+  }
+
+  getCategoryName(post: IDetailNews): string {
+    return this.langService.getLang() === 'en' && post.CategoryNewsNameEn
+      ? post.CategoryNewsNameEn
+      : post.CategoryNewsName;
   }
 
   private load(): void {

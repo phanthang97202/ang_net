@@ -5,6 +5,8 @@ export interface INewsCategory {
   NewsCategoryId: string;
   NewsCategoryParentId: string;
   NewsCategoryName: string;
+  NewsCategoryNameEn: string;
+  NewsCategoryLogo: string;
   NewsCategoryIndex: number;
 }
 
@@ -18,6 +20,8 @@ export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
 export interface INewsCategoryPreview {
   NewsCategoryId: string;
   NewsCategoryName: string;
+  NewsCategoryNameEn: string;
+  NewsCategoryLogo: string;
   NewsCategoryIndex: number;
   TotalCount: number;
   Children: INewsCategory[];

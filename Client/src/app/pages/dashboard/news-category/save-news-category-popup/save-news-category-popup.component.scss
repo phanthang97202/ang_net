@@ -1,1 +1,21 @@
-// Styling dùng chung của NG-ZORRO form/modal đã đủ cho popup này.
+.category-logo-editor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-logo-preview {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border: 1px solid #d9d9d9;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.category-logo-hint {
+  margin-top: 0.35rem;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}

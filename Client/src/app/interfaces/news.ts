@@ -62,6 +62,7 @@ export interface IDetailNews {
   Avatar: string;
   CategoryNewsId: string;
   CategoryNewsName: string;
+  CategoryNewsNameEn: string;
   Slug: string;
   Thumbnail: string;
   ShortTitle: string;

@@ -21,8 +21,8 @@
       </div>
 
       <div class="related-body">
-        <span class="related-badge" *ngIf="post.CategoryNewsName">
-          {{ post.CategoryNewsName }}
+        <span class="related-badge" *ngIf="getCategoryName(post)">
+          {{ getCategoryName(post) }}
         </span>
         <h3 class="related-title">{{ post.ShortTitle }}</h3>
         <p class="related-meta">

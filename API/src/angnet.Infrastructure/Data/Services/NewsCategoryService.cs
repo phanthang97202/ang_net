@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using DocumentFormat.OpenXml.Spreadsheet;
 using angnet.Infrastructure.Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+using TConstValue = angnet.Utility.CommonUtils.ConstValue;
 
 namespace angnet.Infrastructure.Data.Services
 {
@@ -20,18 +22,21 @@ namespace angnet.Infrastructure.Data.Services
         private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAuditTrailService _auditTrailService;
+        private readonly IDatabase _redisDb;
 
         public NewsCategoryService(
                 AppDbContext appDbContext
                 , IHttpContextAccessor httpContextAccessor
                 , IUnitOfWork unitOfWork
-                , IAuditTrailService auditTrailService 
+                , IAuditTrailService auditTrailService
+                , IConnectionMultiplexer connectionMultiplexer
             )
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _unitOfWork = unitOfWork;
             _auditTrailService = auditTrailService;
+            _redisDb = connectionMultiplexer.GetDatabase();
         }
 
         public async Task<ApiResponse<NewsCategoryModel>> Create(NewsCategoryModel data)
@@ -92,6 +97,12 @@ namespace angnet.Infrastructure.Data.Services
                 apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryNameIsNotValid", requestClient);
                 return apiResponse;
             }
+
+            if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryNameEn))
+            {
+                apiResponse.CatchException(false, "NewsCategory_Create.NewsCategoryNameEnIsNotValid", requestClient);
+                return apiResponse;
+            }
             
             if (data.NewsCategoryIndex < 0)
             {
@@ -105,6 +116,7 @@ namespace angnet.Infrastructure.Data.Services
 
             await _unitOfWork.NewsCategoryRespository.Create(data);
             await _dbContext.SaveChangesAsync();
+            await InvalidateCategoryPreviewCache();
 
             apiResponse.Data = data;
             
@@ -134,6 +146,8 @@ namespace angnet.Infrastructure.Data.Services
                 NewsCategoryId = s.NewsCategoryId,
                 NewsCategoryParentId = s.NewsCategoryParentId,
                 NewsCategoryName = s.NewsCategoryName,
+                NewsCategoryNameEn = s.NewsCategoryNameEn,
+                NewsCategoryLogo = s.NewsCategoryLogo,
                 NewsCategoryIndex = s.NewsCategoryIndex
             };
 
@@ -243,6 +257,12 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
+            if (TCommonUtils.IsNullOrEmpty(data.NewsCategoryNameEn))
+            {
+                apiResponse.CatchException(false, "NewsCategory_Update.NewsCategoryNameEnIsNotValid", requestClient);
+                return apiResponse;
+            }
+
             var (isExistRecord, _data) = await _unitOfWork.NewsCategoryRespository
                                             .CheckRecordExist<NewsCategoryModel>(x => x.NewsCategoryId == data.NewsCategoryId);
 
@@ -257,6 +277,8 @@ namespace angnet.Infrastructure.Data.Services
                 NewsCategoryId = _data.NewsCategoryId,
                 TenantId = _data.TenantId,
                 NewsCategoryName = data.NewsCategoryName,
+                NewsCategoryNameEn = data.NewsCategoryNameEn,
+                NewsCategoryLogo = data.NewsCategoryLogo ?? string.Empty,
                 NewsCategoryParentId = data.NewsCategoryParentId ?? string.Empty,
                 NewsCategoryIndex = data.NewsCategoryIndex,
                 IsGlobal = data.IsGlobal,
@@ -269,6 +291,8 @@ namespace angnet.Infrastructure.Data.Services
 
             await _unitOfWork.NewsCategoryRespository.Update(entity
                                     , x => x.NewsCategoryName
+                                    , x => x.NewsCategoryNameEn
+                                    , x => x.NewsCategoryLogo
                                     , x => x.NewsCategoryParentId
                                     , x => x.NewsCategoryIndex
                                     , x => x.IsGlobal
@@ -277,6 +301,7 @@ namespace angnet.Infrastructure.Data.Services
                                     , x => x.UpdatedDTime
                                 );
             await _dbContext.SaveChangesAsync();
+            await InvalidateCategoryPreviewCache();
 
             apiResponse.Data = entity;
 
@@ -324,8 +349,14 @@ namespace angnet.Infrastructure.Data.Services
             // Truyền entity chứ không truyền khóa: BaseRepository.Delete gọi thẳng _dbCtx.Remove(...)
             await _unitOfWork.NewsCategoryRespository.Delete(_data);
             await _dbContext.SaveChangesAsync();
+            await InvalidateCategoryPreviewCache();
 
             return apiResponse;
+        }
+
+        private Task InvalidateCategoryPreviewCache()
+        {
+            return _redisDb.KeyDeleteAsync(TConstValue.NewsRespository_CategoryPreview);
         }
     }
 }

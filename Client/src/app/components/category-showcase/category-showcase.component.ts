@@ -2,7 +2,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { NewsCacheService, ShowErrorService } from '../../services';
+import {
+  LangService,
+  NewsCacheService,
+  ShowErrorService,
+} from '../../services';
 import { INewsCategoryPreview } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
 import {
@@ -28,6 +32,7 @@ import { NewsItemSmComponent } from '../news-items-sm/news-item-sm.component';
 export class CategoryShowcaseComponent implements OnInit {
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
+  private langService = inject(LangService);
 
   isLoading = true;
   categories: INewsCategoryPreview[] = [];
@@ -61,6 +66,15 @@ export class CategoryShowcaseComponent implements OnInit {
 
   trackById(_: number, category: INewsCategoryPreview): string {
     return category.NewsCategoryId;
+  }
+
+  getCategoryName(category: {
+    NewsCategoryName: string;
+    NewsCategoryNameEn: string;
+  }): string {
+    return this.langService.getLang() === 'en' && category.NewsCategoryNameEn
+      ? category.NewsCategoryNameEn
+      : category.NewsCategoryName;
   }
 
   // Cùng helper với thanh chọn chủ đề: một danh mục phải ra đúng một icon/màu ở

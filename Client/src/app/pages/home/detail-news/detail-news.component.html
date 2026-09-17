@@ -15,10 +15,7 @@
            của bài viết thật, nên khung lúc chờ trùng khít với khung lúc có dữ
            liệu. Gói trong một *ngIf duy nhất để ảnh và các dòng chữ luôn hiện tắt
            cùng lúc. -->
-      <div
-        *ngIf="isLoading"
-        class="detail-card"
-        aria-hidden="true">
+      <div *ngIf="isLoading" class="detail-card" aria-hidden="true">
         <nz-skeleton-element
           nzType="image"
           [nzActive]="true"
@@ -32,13 +29,9 @@
         </div>
       </div>
 
-      <article
-        *ngIf="!isLoading"
-        class="detail-card">
+      <article *ngIf="!isLoading" class="detail-card">
         <div class="detail-thumb">
-          <img
-            [src]="slides[activeSlide]"
-            [alt]="detailNews.ShortTitle" />
+          <img [src]="slides[activeSlide]" [alt]="detailNews.ShortTitle" />
 
           <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
                để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
@@ -49,7 +42,10 @@
             class="detail-thumb-zoom"
             [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
             (click)="openPreview()">
-            <span class="detail-thumb-zoom-icon" nz-icon nzType="fullscreen"></span>
+            <span
+              class="detail-thumb-zoom-icon"
+              nz-icon
+              nzType="fullscreen"></span>
           </button>
 
           <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
@@ -76,11 +72,11 @@
 
           <div class="detail-badges">
             <a
-              *ngIf="detailNews.CategoryNewsName"
+              *ngIf="getCategoryName()"
               class="detail-badge"
               routerLink="/news"
               [queryParams]="{ categoryId: detailNews.CategoryNewsId }"
-              >{{ detailNews.CategoryNewsName }}</a
+              >{{ getCategoryName() }}</a
             >
           </div>
           <span class="detail-readtime">

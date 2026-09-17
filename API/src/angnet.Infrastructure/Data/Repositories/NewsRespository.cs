@@ -220,6 +220,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.Avatar = userDetail.Avatar;
             rsNews.CategoryNewsId = objNews.CategoryNewsId;
             rsNews.CategoryNewsName = categoryDetail.NewsCategoryName;
+            rsNews.CategoryNewsNameEn = categoryDetail.NewsCategoryNameEn;
             rsNews.Slug = objNews.Slug;
             rsNews.Thumbnail = objNews.Thumbnail;
             rsNews.ShortTitle = objNews.ShortTitle;
@@ -512,6 +513,8 @@ namespace angnet.Infrastructure.Data.Repositories
                 {
                     NewsCategoryId = root.NewsCategoryId,
                     NewsCategoryName = root.NewsCategoryName,
+                    NewsCategoryNameEn = root.NewsCategoryNameEn,
+                    NewsCategoryLogo = root.NewsCategoryLogo,
                     NewsCategoryIndex = root.NewsCategoryIndex,
                     TotalCount = totalCount,
                     Children = categories
@@ -522,6 +525,8 @@ namespace angnet.Infrastructure.Data.Repositories
                                 NewsCategoryId = c.NewsCategoryId,
                                 NewsCategoryParentId = c.NewsCategoryParentId,
                                 NewsCategoryName = c.NewsCategoryName,
+                                NewsCategoryNameEn = c.NewsCategoryNameEn,
+                                NewsCategoryLogo = c.NewsCategoryLogo,
                                 NewsCategoryIndex = c.NewsCategoryIndex
                             })
                             .ToList(),

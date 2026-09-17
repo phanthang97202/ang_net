@@ -49,9 +49,18 @@
             <th nzWidth="90px"></th>
             <th nzWidth="60px">#</th>
             <th nzColumnKey="NewsCategoryId" [nzSortFn]="true">Code</th>
-            <th nzColumnKey="NewsCategoryName" [nzSortFn]="true">Name</th>
+            <th nzWidth="72px">Logo</th>
+            <th nzColumnKey="NewsCategoryName" [nzSortFn]="true">
+              Vietnamese Name
+            </th>
+            <th nzColumnKey="NewsCategoryNameEn" [nzSortFn]="true">
+              English Name
+            </th>
             <th nzWidth="200px">Parent</th>
-            <th nzColumnKey="NewsCategoryIndex" [nzSortFn]="true" nzWidth="80px">
+            <th
+              nzColumnKey="NewsCategoryIndex"
+              [nzSortFn]="true"
+              nzWidth="80px">
               Sort
             </th>
             <th nzWidth="100px">Global</th>
@@ -79,7 +88,16 @@
             <td>
               <strong>{{ data.NewsCategoryId }}</strong>
             </td>
+            <td>
+              <img
+                *ngIf="data.NewsCategoryLogo"
+                class="newscate__logo"
+                [src]="data.NewsCategoryLogo"
+                [alt]="data.NewsCategoryName" />
+              <span *ngIf="!data.NewsCategoryLogo">—</span>
+            </td>
             <td>{{ data.NewsCategoryName }}</td>
+            <td>{{ data.NewsCategoryNameEn }}</td>
             <td>
               <span class="newscate__cell">{{
                 parentName(data.NewsCategoryParentId) | showNullishValue

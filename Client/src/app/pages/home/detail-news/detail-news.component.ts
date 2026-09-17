@@ -5,6 +5,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   ApiService,
   AuthService,
+  LangService,
   ShowErrorService,
   SITE_TITLE,
 } from '../../../services';
@@ -43,6 +44,7 @@ export class DetailNewsComponent implements OnInit {
   router = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private message = inject(NzMessageService);
+  private langService = inject(LangService);
 
   // Chặn bấm tim liên tiếp khi request trước chưa về, tránh trạng thái nhảy loạn.
   isLiking = false;
@@ -142,6 +144,13 @@ export class DetailNewsComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
+  getCategoryName(): string {
+    return this.langService.getLang() === 'en' &&
+      this.detailNews.CategoryNewsNameEn
+      ? this.detailNews.CategoryNewsNameEn
+      : this.detailNews.CategoryNewsName;
+  }
+
   prevSlide(): void {
     this.activeSlide = stepSlide(this.activeSlide, this.slides.length, -1);
   }
@@ -178,10 +187,7 @@ export class DetailNewsComponent implements OnInit {
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
-        this.slides = buildNewsSlides(
-          res.Data.Thumbnail,
-          res.Data.ContentBody
-        );
+        this.slides = buildNewsSlides(res.Data.Thumbnail, res.Data.ContentBody);
         this.activeSlide = 0;
         this.titleService.setTitle(
           `${this.detailNews.ShortTitle} - ${SITE_TITLE}`

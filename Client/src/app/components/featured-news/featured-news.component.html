@@ -43,11 +43,11 @@
 
       <div class="featured-tile-content">
         <a
-          *ngIf="mainPost.CategoryNewsName"
+          *ngIf="getCategoryName(mainPost)"
           class="featured-tile-badge"
           routerLink="/news"
           [queryParams]="{ categoryId: mainPost.CategoryNewsId }">
-          {{ mainPost.CategoryNewsName }}
+          {{ getCategoryName(mainPost) }}
         </a>
         <h3 class="featured-tile-title featured-tile-title--main">
           {{ mainPost.ShortTitle }}
@@ -80,11 +80,11 @@
 
       <div class="featured-tile-content">
         <a
-          *ngIf="post.CategoryNewsName"
+          *ngIf="getCategoryName(post)"
           class="featured-tile-badge"
           routerLink="/news"
           [queryParams]="{ categoryId: post.CategoryNewsId }">
-          {{ post.CategoryNewsName }}
+          {{ getCategoryName(post) }}
         </a>
         <h3 class="featured-tile-title">{{ post.ShortTitle }}</h3>
       </div>

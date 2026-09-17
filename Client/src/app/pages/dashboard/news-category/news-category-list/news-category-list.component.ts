@@ -208,6 +208,8 @@ export class NewsCategoryComponent implements OnInit {
       NewsCategoryId: '',
       NewsCategoryParentId: '',
       NewsCategoryName: '',
+      NewsCategoryNameEn: '',
+      NewsCategoryLogo: '',
       NewsCategoryIndex: 0,
       IsGlobal: false,
       FlagActive: true,

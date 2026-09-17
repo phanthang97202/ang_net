@@ -1,7 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { NewsCacheService, ShowErrorService } from '../../services';
+import {
+  LangService,
+  NewsCacheService,
+  ShowErrorService,
+} from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +33,7 @@ const FEATURED_COUNT = 5;
 export class FeaturedNewsComponent implements OnInit {
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
+  private langService = inject(LangService);
 
   isLoading = true;
   featuredPosts: INewsWithPlaceholder[] = [];
@@ -82,6 +87,12 @@ export class FeaturedNewsComponent implements OnInit {
 
   trackById(_: number, post: IDetailNews): string {
     return post.NewsId;
+  }
+
+  getCategoryName(post: IDetailNews): string {
+    return this.langService.getLang() === 'en' && post.CategoryNewsNameEn
+      ? post.CategoryNewsNameEn
+      : post.CategoryNewsName;
   }
 
   // Gán màu placeholder cho các bài chưa có thumbnail

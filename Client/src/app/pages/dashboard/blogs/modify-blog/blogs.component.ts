@@ -11,6 +11,7 @@ import {
   CloudinaryService,
   LoadingService,
   AuthService,
+  LangService,
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -38,6 +39,7 @@ export class BlogsComponent implements OnInit {
   private translate = inject(TranslateService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private langService = inject(LangService);
 
   mode: 'create' | 'edit' = 'create';
   isDataLoaded = false; // ✅ Thêm flag để track data loading
@@ -199,7 +201,7 @@ export class BlogsComponent implements OnInit {
     const nodeById = new Map<string, NzTreeNodeOptions>();
     list.forEach(category =>
       nodeById.set(category.NewsCategoryId, {
-        title: category.NewsCategoryName,
+        title: this.getCategoryName(category),
         key: category.NewsCategoryId,
         children: [],
       })
@@ -221,6 +223,12 @@ export class BlogsComponent implements OnInit {
     // nz-tree-select vẫn vẽ mũi tên mở rộng nếu children là mảng rỗng.
     nodeById.forEach(node => (node.isLeaf = node.children!.length === 0));
     return roots;
+  }
+
+  private getCategoryName(category: INewsCategory): string {
+    return this.langService.getLang() === 'en' && category.NewsCategoryNameEn
+      ? category.NewsCategoryNameEn
+      : category.NewsCategoryName;
   }
 
   private fetchHashtagSuggestions() {

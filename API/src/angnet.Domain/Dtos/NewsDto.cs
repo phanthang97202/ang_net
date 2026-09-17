@@ -22,7 +22,8 @@
         public string FullName { get; set; } = string.Empty; // Tác giả
         public string Avatar { get; set; } = string.Empty; // Tác giả
         public string CategoryNewsId { get; set; } = string.Empty; // Mã danh mục
-        public string CategoryNewsName { get; set; } = string.Empty; // Tên danh mục
+        public string CategoryNewsName { get; set; } = string.Empty; // Tên danh mục tiếng Việt
+        public string CategoryNewsNameEn { get; set; } = string.Empty; // Tên danh mục tiếng Anh
         public string Slug { get; set; } = string.Empty;  // Slug bài viết
         public string Thumbnail { get; set; } = string.Empty;  // Ảnh thu nhỏ bài viết
         public string ShortTitle { get; set; } = string.Empty; // Tiêu đề ngắn bài viết

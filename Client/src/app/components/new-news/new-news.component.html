@@ -76,11 +76,11 @@
 
         <div class="post-card-badges">
           <a
-            *ngIf="post.CategoryNewsName"
+            *ngIf="getCategoryName(post)"
             class="post-badge"
             routerLink="/news"
             [queryParams]="{ categoryId: post.CategoryNewsId }"
-            >{{ post.CategoryNewsName }}</a
+            >{{ getCategoryName(post) }}</a
           >
         </div>
         <span class="post-card-readtime">
