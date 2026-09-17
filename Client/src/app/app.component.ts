@@ -116,7 +116,7 @@ export class AppComponent implements OnInit {
         {
           path: '/dashboard/subscriber',
           title: 'Người đăng ký',
-          permission: 'sysparameter.view',
+          permission: 'subscriber.view',
         },
       ],
     },

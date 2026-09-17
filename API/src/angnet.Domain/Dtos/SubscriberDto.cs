@@ -43,6 +43,7 @@ namespace angnet.Domain.Dtos
         public int Pending { get; set; }
         public int Succeeded { get; set; }
         public int Failed { get; set; }
+        public int Skipped { get; set; } // Không gửi vì người nhận đã tắt trước lúc gửi
     }
 
     public class EmailDeliveryItemDto

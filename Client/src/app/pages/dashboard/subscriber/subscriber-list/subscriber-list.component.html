@@ -70,7 +70,7 @@
         [nzPageSize]="pageSize"
         [nzFrontPagination]="false"
         [nzLoading]="isLoading"
-        [nzScroll]="{ x: '700px' }"
+        [nzScroll]="{ x: '820px' }"
         (nzPageIndexChange)="onPageIndexChange($event)"
         (nzPageSizeChange)="onPageSizeChange($event)">
         <thead>
@@ -80,6 +80,7 @@
             <th nzWidth="120px">Trạng thái</th>
             <th nzWidth="160px">Ngày đăng ký</th>
             <th nzWidth="160px">Ngày huỷ</th>
+            <th nzWidth="120px">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -93,6 +94,17 @@
             </td>
             <td>{{ data.CreatedDTime | localeDTime }}</td>
             <td>{{ data.UnsubscribedDTime | localeDTime | showNullishValue }}</td>
+            <td>
+              <!-- Người chỉ có subscriber.view vẫn thấy trạng thái nhưng không bấm
+                   được - để bật thì bấm vào nhận ngay 403 từ API. -->
+              <nz-switch
+                [ngModel]="data.FlagActive"
+                [nzDisabled]="!canUpdateSubscriber"
+                [nzCheckedChildren]="'Bật'"
+                [nzUnCheckedChildren]="'Tắt'"
+                nzSize="small"
+                (ngModelChange)="handleToggleActive(data, $event)"></nz-switch>
+            </td>
           </tr>
         </tbody>
       </nz-table>

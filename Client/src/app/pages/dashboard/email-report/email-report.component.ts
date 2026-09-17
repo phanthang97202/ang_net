@@ -41,6 +41,7 @@ export class EmailReportComponent implements OnInit {
     Pending: 0,
     Succeeded: 0,
     Failed: 0,
+    Skipped: 0,
   };
   dataSource: IEmailDeliveryItem[] = [];
   isLoading = false;
@@ -57,9 +58,12 @@ export class EmailReportComponent implements OnInit {
     this.fetchData();
   }
 
+  // Tính trên số thư THỰC SỰ được gửi đi, không tính thư bỏ qua: bỏ qua vì người
+  // nhận đã tắt không phải lỗi gửi, để trong mẫu số thì tỉ lệ tụt xuống oan.
   get successRate(): number {
-    return this.summary.Total
-      ? Math.round((this.summary.Succeeded / this.summary.Total) * 100)
+    const attempted = this.summary.Total - this.summary.Skipped;
+    return attempted
+      ? Math.round((this.summary.Succeeded / attempted) * 100)
       : 0;
   }
 
@@ -90,6 +94,7 @@ export class EmailReportComponent implements OnInit {
       Pending: 'Đang chờ',
       Succeeded: 'Thành công',
       Failed: 'Thất bại',
+      Skipped: 'Đã bỏ qua',
     };
     return labels[status];
   }
@@ -99,6 +104,7 @@ export class EmailReportComponent implements OnInit {
       Pending: 'gold',
       Succeeded: 'green',
       Failed: 'red',
+      Skipped: 'default',
     };
     return colors[status];
   }

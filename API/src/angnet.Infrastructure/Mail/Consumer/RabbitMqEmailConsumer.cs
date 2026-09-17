@@ -4,6 +4,7 @@ using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
 using angnet.Infrastructure.Mail.Service;
 using angnet.Utility.CommonUtils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -109,6 +110,23 @@ namespace angnet.Infrastructure.Mail.Consumer
                             return;
                         }
 
+                        // Danh sách người nhận được chốt lúc bấm gửi, còn thư đi thật
+                        // thì muộn hơn - nhất là khi phải thử lại. Người bị tắt (hoặc
+                        // tự bấm huỷ đăng ký) trong khoảng đó không được nhận thêm thư,
+                        // nên kiểm lại ngay trước khi gửi.
+                        if (message.DeliveryId is not null
+                            && !await IsRecipientStillActiveAsync(message.DeliveryId))
+                        {
+                            await TryUpdateDeliveryAsync(
+                                message.DeliveryId,
+                                EmailDeliveryModel.SkippedStatus,
+                                message.AttemptCount,
+                                "Người nhận đã tắt nhận thư trước khi gửi",
+                                null);
+                            await _channel.BasicAckAsync(ea.DeliveryTag, false);
+                            return;
+                        }
+
                         await _emailSenderService.SendEmailAsync(message);
                         await TryUpdateDeliveryAsync(
                             message.DeliveryId,
@@ -197,6 +215,36 @@ namespace angnet.Infrastructure.Mail.Consumer
                 mandatory: false,
                 basicProperties: properties,
                 body: body);
+        }
+
+        /// <summary>
+        /// Người nhận của một thư bài viết có còn đang bật nhận thư không.
+        ///
+        /// KHÔNG bọc try/catch có chủ ý: lỗi DB thì để nổi lên, rơi vào nhánh thử lại
+        /// của consumer. Nuốt lỗi rồi trả true là gửi mù cho người có thể đã huỷ đăng
+        /// ký - đúng thứ hàm này sinh ra để chặn.
+        /// </summary>
+        private async Task<bool> IsRecipientStillActiveAsync(string deliveryId)
+        {
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            EmailDeliveryModel? delivery = await dbContext.EmailDelivery
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.DeliveryId == deliveryId);
+
+            // Không có bản ghi theo dõi thì không có căn cứ để chặn - giữ hành vi cũ.
+            if (delivery is null)
+            {
+                return true;
+            }
+
+            SubscriberModel? subscriber = await dbContext.Subscriber
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.SubscriberId == delivery.SubscriberId);
+
+            // Người nhận đã bị xoá khỏi hệ thống thì càng không gửi.
+            return subscriber is not null && subscriber.FlagActive;
         }
 
         private async Task TryUpdateDeliveryAsync(

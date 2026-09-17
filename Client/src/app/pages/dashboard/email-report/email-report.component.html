@@ -46,6 +46,19 @@
         </ng-template>
       </nz-card>
     </div>
+    <!-- Thư không gửi vì người nhận đã tắt trong lúc còn trong hàng đợi. Tách
+         khỏi "Thất bại" vì đây không phải lỗi gửi. -->
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzXl]="6">
+      <nz-card>
+        <nz-statistic
+          [nzValue]="summary.Skipped"
+          nzTitle="Đã bỏ qua"
+          [nzPrefix]="skippedIcon"></nz-statistic>
+        <ng-template #skippedIcon>
+          <span nz-icon nzType="minus-circle" class="email-report__skipped"></span>
+        </ng-template>
+      </nz-card>
+    </div>
   </div>
 
   <form
@@ -73,6 +86,7 @@
           <nz-option nzValue="Pending" nzLabel="Đang chờ"></nz-option>
           <nz-option nzValue="Succeeded" nzLabel="Thành công"></nz-option>
           <nz-option nzValue="Failed" nzLabel="Thất bại"></nz-option>
+          <nz-option nzValue="Skipped" nzLabel="Đã bỏ qua"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>

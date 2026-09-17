@@ -155,6 +155,8 @@ export interface ISubscriberSearchResponse
   objResult: IPageInfo<ISubscriberItem>;
 }
 
+export type ISubscriberToggleActiveResponse = IBaseResponse<ISubscriberItem>;
+
 export interface INotifyResult {
   NewsId: string;
   /** Số mail đã đẩy vào hàng đợi */
@@ -169,13 +171,15 @@ export type INotifyResultResponse = Omit<
   Data: INotifyResult;
 };
 
-export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed';
+export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed' | 'Skipped';
 
 export interface IEmailDeliverySummary {
   Total: number;
   Pending: number;
   Succeeded: number;
   Failed: number;
+  /** Không gửi vì người nhận đã tắt trong lúc thư còn trong hàng đợi */
+  Skipped: number;
 }
 
 export interface IEmailDeliveryItem {

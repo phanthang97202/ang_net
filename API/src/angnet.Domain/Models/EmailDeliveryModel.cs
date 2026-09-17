@@ -7,6 +7,10 @@ namespace angnet.Domain.Models
         public const string PendingStatus = "Pending";
         public const string SucceededStatus = "Succeeded";
         public const string FailedStatus = "Failed";
+        // Không gửi vì người nhận đã bị tắt (hoặc tự huỷ đăng ký) trong lúc thư còn
+        // nằm trong hàng đợi. Tách khỏi Failed: đây không phải lỗi gửi, gộp vào thì
+        // tỉ lệ thành công trên báo cáo tụt xuống oan.
+        public const string SkippedStatus = "Skipped";
 
         [Key]
         public string DeliveryId { get; set; } = Guid.NewGuid().ToString();

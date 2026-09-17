@@ -15,6 +15,7 @@ import {
   ILikeNewsResponse,
   ISubscribeResponse,
   ISubscriberSearchResponse,
+  ISubscriberToggleActiveResponse,
   INotifyResultResponse,
   IEmailDeliveryReportResponse,
   INewsResponse,
@@ -234,6 +235,18 @@ export class ApiService {
       `${this.apiUrl}subscriber/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(
         keyword
       )}${activeParam}`
+    );
+  }
+
+  SubscriberToggleActive(
+    subscriberId: string,
+    flagActive: boolean
+  ): Observable<ISubscriberToggleActiveResponse> {
+    return this.http.patch<ISubscriberToggleActiveResponse>(
+      `${this.apiUrl}subscriber/toggleactive?subscriberId=${encodeURIComponent(
+        subscriberId
+      )}&flagActive=${flagActive}`,
+      {}
     );
   }
 

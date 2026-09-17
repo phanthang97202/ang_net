@@ -36,11 +36,10 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        // Danh sách cho trang quản trị. Dùng chung quyền với tham số hệ thống thay
-        // vì seed thêm permission riêng - cùng nhóm "cấu hình/vận hành site", giống
-        // cách màn Menu trang chủ đang làm.
-        // Báo cáo vận hành dùng cùng quyền với màn hình quản lý người đăng ký.
-        [Authorize(Policy = "sysparameter.view")]
+        // Danh sách cho trang quản trị. Quyền riêng subscriber.view chứ không dùng
+        // chung sysparameter.view: danh sách này chứa email người thật, được sửa
+        // tham số hệ thống không có nghĩa là được xem dữ liệu cá nhân.
+        [Authorize(Policy = "subscriber.view")]
         [HttpGet("Search")]
         public async Task<IActionResult> Search(
             int pageIndex = 0, int pageSize = 20, string keyword = "", bool? onlyActive = null)
@@ -57,12 +56,26 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        // Gửi mail báo bài mới cho toàn bộ người đang nhận.
-        //
-        // Quyền RIÊNG chứ không dùng lại blog.update: sửa bài là thao tác trong nội
-        // bộ, còn gửi thư hàng loạt là hành động ra ngoài - tới hộp thư người thật,
-        // và không thu hồi được. Cộng tác viên được sửa bài không có nghĩa là được
-        // phép gửi thư cho toàn bộ người đăng ký.
+        // Bật/tắt một người nhận từ màn hình quản trị. Quyền update tách khỏi quyền
+        // xem: xem danh sách không có nghĩa là được quyết định ai nhận thư.
+        [Authorize(Policy = "subscriber.update")]
+        [HttpPatch("ToggleActive")]
+        public async Task<IActionResult> ToggleActive(string subscriberId, bool flagActive)
+        {
+            try
+            {
+                ApiResponse<SubscriberItemDto> response =
+                    await _subscriberService.ToggleActiveAsync(subscriberId, flagActive);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        // Báo cáo gửi thư nằm ở màn hình email-report riêng, route đó vẫn gác bằng
+        // sysparameter.view - nên endpoint giữ cùng quyền để hai bên khớp nhau.
         [Authorize(Policy = "sysparameter.view")]
         [HttpGet("DeliveryReport")]
         public async Task<IActionResult> DeliveryReport(
@@ -74,7 +87,12 @@ namespace angnet.WebApi.Controllers
             return Ok(response);
         }
 
-        // Gửi mail là hành động riêng, không dùng chung quyền xem báo cáo.
+        // Gửi mail báo bài mới cho toàn bộ người đang nhận.
+        //
+        // Quyền RIÊNG chứ không dùng lại blog.update: sửa bài là thao tác trong nội
+        // bộ, còn gửi thư hàng loạt là hành động ra ngoài - tới hộp thư người thật,
+        // và không thu hồi được. Cộng tác viên được sửa bài không có nghĩa là được
+        // phép gửi thư cho toàn bộ người đăng ký.
         [Authorize(Policy = "blog.noticenews")]
         [HttpPost("NotifyNewPost")]
         public async Task<IActionResult> NotifyNewPost(string newsId)

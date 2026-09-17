@@ -252,7 +252,7 @@ export const routes: Routes = [
           import(
             './pages/dashboard/subscriber/subscriber-list/subscriber-list.component'
           ).then(p => p.SubscriberComponent),
-        canActivate: [canActivePermission('sysparameter.view')],
+        canActivate: [canActivePermission('subscriber.view')],
       },
       {
         // Menu trang chủ cũng là một dạng cấu hình hệ thống nên dùng chung quyền

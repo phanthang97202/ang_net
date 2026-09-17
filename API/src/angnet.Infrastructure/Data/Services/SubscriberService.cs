@@ -11,6 +11,7 @@ namespace angnet.Infrastructure.Data.Services
     {
         Task<ApiResponse<SubscribeResultDto>> SubscribeAsync(string email);
         Task<bool> UnsubscribeAsync(string token);
+        Task<ApiResponse<SubscriberItemDto>> ToggleActiveAsync(string subscriberId, bool flagActive);
         Task<ApiResponse<SubscriberItemDto>> SearchAsync(int pageIndex, int pageSize, string keyword, bool? onlyActive);
         Task<ApiResponse<EmailDeliveryReportDto>> GetDeliveryReportAsync(
             int pageIndex, int pageSize, string keyword, string status);
@@ -156,6 +157,32 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        // Trang quản trị có thể tạm ngừng hoặc bật lại việc nhận thư cho một địa chỉ.
+        // Không xoá bản ghi để vẫn giữ lịch sử đăng ký; bật lại cũng không gửi welcome mail.
+        public async Task<ApiResponse<SubscriberItemDto>> ToggleActiveAsync(
+            string subscriberId, bool flagActive)
+        {
+            ApiResponse<SubscriberItemDto> apiResponse = new ApiResponse<SubscriberItemDto>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+
+            string id = (subscriberId ?? string.Empty).Trim();
+            SubscriberModel subscriber = await _dbContext.Subscriber
+                .FirstOrDefaultAsync(x => x.SubscriberId == id);
+            if (TCommonUtils.IsNullOrEmpty(id) || subscriber is null)
+            {
+                apiResponse.CatchException(false, "Subscriber.SubscriberIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            DateTime now = TCommonUtils.DTimeNow();
+            subscriber.FlagActive = flagActive;
+            subscriber.UnsubscribedDTime = flagActive ? null : now;
+            subscriber.UpdatedDTime = now;
+
+            await _dbContext.SaveChangesAsync();
+            return apiResponse;
+        }
+
         // Tổng hợp kết quả và trả danh sách từng người nhận cho màn hình quản trị.
         public async Task<ApiResponse<EmailDeliveryReportDto>> GetDeliveryReportAsync(
             int pageIndex, int pageSize, string keyword, string status)
@@ -193,7 +220,8 @@ namespace angnet.Infrastructure.Data.Services
             IQueryable<EmailDeliveryItemDto> pageQuery = baseQuery;
             if (_status is EmailDeliveryModel.PendingStatus
                 or EmailDeliveryModel.SucceededStatus
-                or EmailDeliveryModel.FailedStatus)
+                or EmailDeliveryModel.FailedStatus
+                or EmailDeliveryModel.SkippedStatus)
             {
                 pageQuery = pageQuery.Where(x => x.Status == _status);
             }
@@ -209,9 +237,10 @@ namespace angnet.Infrastructure.Data.Services
             {
                 Pending = counts.GetValueOrDefault(EmailDeliveryModel.PendingStatus),
                 Succeeded = counts.GetValueOrDefault(EmailDeliveryModel.SucceededStatus),
-                Failed = counts.GetValueOrDefault(EmailDeliveryModel.FailedStatus)
+                Failed = counts.GetValueOrDefault(EmailDeliveryModel.FailedStatus),
+                Skipped = counts.GetValueOrDefault(EmailDeliveryModel.SkippedStatus)
             };
-            summary.Total = summary.Pending + summary.Succeeded + summary.Failed;
+            summary.Total = summary.Pending + summary.Succeeded + summary.Failed + summary.Skipped;
 
             return new ApiResponse<EmailDeliveryReportDto>(new EmailDeliveryReportDto
             {
