@@ -84,7 +84,7 @@
           >
         </div>
         <span class="post-card-readtime">
-          {{ getReadingTime(post) }} Min Read
+          {{ getReadingTime(post) }} {{ 'T_MINUTESREAD' | translate }}
         </span>
       </div>
 
@@ -92,7 +92,8 @@
         <p class="post-card-meta">
           <span>
             <span class="post-card-author">{{ post.FullName }}</span>
-            on {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+            {{ 'T_ON' | translate }}
+            {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
           </span>
 
           <!-- Lượt thích ẩn khi bằng 0: bài mới đăng nào cũng kèm "0" thì dãy

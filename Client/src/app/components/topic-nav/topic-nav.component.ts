@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   LoadingService,
   LangService,
@@ -32,7 +33,7 @@ export interface Topic {
 @Component({
   selector: 'app-topic-nav',
   standalone: true,
-  imports: [CommonModule, RouterLink, ScrollRevealDirective],
+  imports: [CommonModule, RouterLink, TranslateModule, ScrollRevealDirective],
   templateUrl: './topic-nav.component.html',
   styleUrls: ['./topic-nav.component.scss'],
 })
