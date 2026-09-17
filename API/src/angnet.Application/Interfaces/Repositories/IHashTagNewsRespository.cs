@@ -5,6 +5,6 @@ namespace angnet.Application.Interfaces.Repositories
 {
     public interface IHashTagNewsRespository
     {
-        public Task<ApiResponse<HashTagNewsModel>> GetTopHashTag();
+        public Task<ApiResponse<HashTagNewsModel>> GetTopHashTag(string languageCode);
     }
 }

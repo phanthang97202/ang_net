@@ -133,11 +133,9 @@
 
         <p class="post-card-excerpt">{{ getDescription(post) }}</p>
 
-        <div
-          class="post-card-hashtags"
-          *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0">
+        <div class="post-card-hashtags" *ngIf="getHashtags(post).length > 0">
           <a
-            *ngFor="let ht of post.LstHashTagNews"
+            *ngFor="let ht of getHashtags(post)"
             class="post-hashtag"
             routerLink="/news"
             [queryParams]="{ hashTag: ht.HashTagNewsName }"

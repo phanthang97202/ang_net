@@ -177,6 +177,12 @@ export class DetailNewsComponent implements OnInit {
       : this.detailNews.EstimatedReadingTime;
   }
 
+  getHashtags(): IDetailNews['LstHashTagNews'] {
+    return this.useEnglishTranslation()
+      ? (this.detailNews.LstHashTagNewsEn ?? [])
+      : (this.detailNews.LstHashTagNews ?? []);
+  }
+
   prevSlide(): void {
     this.activeSlide = stepSlide(this.activeSlide, this.slides.length, -1);
   }

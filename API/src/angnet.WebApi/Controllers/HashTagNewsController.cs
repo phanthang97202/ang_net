@@ -21,11 +21,11 @@ namespace angnet.WebApi.Controllers
         [AllowAnonymous]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("GetTopHashTag")]
-        public async Task<ActionResult<HashTagNewsModel>> GetTopHashTag()
+        public async Task<ActionResult<HashTagNewsModel>> GetTopHashTag([FromQuery] string languageCode = "vi")
         {
             try
             {
-                ApiResponse<HashTagNewsModel> response = await _hashTagNewsRespository.GetTopHashTag();
+                ApiResponse<HashTagNewsModel> response = await _hashTagNewsRespository.GetTopHashTag(languageCode);
                 return Ok(response);
             }
             catch (Exception)

@@ -52,6 +52,7 @@ export class BlogsComponent implements OnInit {
   contentBodyEn = '';
 
   hashtagSuggestions: string[] = [];
+  hashtagSuggestionsEn: string[] = [];
 
   previewVisible = false;
   previewImage: ArrayBuffer | string | null = null;
@@ -65,6 +66,7 @@ export class BlogsComponent implements OnInit {
     ShortDescription: FormControl<string>;
     ShortDescriptionEn: FormControl<string>;
     LstHashTagNews: FormControl<string[]>;
+    LstHashTagNewsEn: FormControl<string[]>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
     FlagActive: FormControl<boolean>;
@@ -87,6 +89,7 @@ export class BlogsComponent implements OnInit {
       ShortDescription: ['', [Validators.required]],
       ShortDescriptionEn: [''],
       LstHashTagNews: [[] as string[]],
+      LstHashTagNewsEn: [[] as string[]],
       LstRefFileNews: [[{ FileUrl: '' }]],
       FlagActive: [true],
     });
@@ -159,6 +162,9 @@ export class BlogsComponent implements OnInit {
           this.validateForm.patchValue({
             LstHashTagNews: this.normalizeHashtags(
               (data.Data.LstHashTagNews ?? []).map(tag => tag.HashTagNewsName)
+            ),
+            LstHashTagNewsEn: this.normalizeHashtags(
+              (data.Data.LstHashTagNewsEn ?? []).map(tag => tag.HashTagNewsName)
             ),
           });
 
@@ -243,7 +249,7 @@ export class BlogsComponent implements OnInit {
   }
 
   private fetchHashtagSuggestions() {
-    this.apiService.GetTopHashTag().subscribe({
+    this.apiService.GetTopHashTag('vi').subscribe({
       next: data => {
         this.hashtagSuggestions = this.normalizeHashtags(
           (data.DataList ?? []).map(tag => tag.HashTagNewsName)
@@ -251,6 +257,15 @@ export class BlogsComponent implements OnInit {
       },
       // Gợi ý không có thì ô nhập vẫn gõ tay được, không cần báo lỗi ra màn hình.
       error: () => (this.hashtagSuggestions = []),
+    });
+
+    this.apiService.GetTopHashTag('en').subscribe({
+      next: data => {
+        this.hashtagSuggestionsEn = this.normalizeHashtags(
+          (data.DataList ?? []).map(tag => tag.HashTagNewsName)
+        );
+      },
+      error: () => (this.hashtagSuggestionsEn = []),
     });
   }
 
@@ -296,6 +311,9 @@ export class BlogsComponent implements OnInit {
       LstHashTagNews: this.normalizeHashtags(
         this.validateForm.value.LstHashTagNews ?? []
       ).map(name => ({ HashTagNewsName: name })),
+      LstHashTagNewsEn: this.normalizeHashtags(
+        this.validateForm.value.LstHashTagNewsEn ?? []
+      ).map(name => ({ HashTagNewsName: name })),
       LstRefFileNews: [],
     };
     console.log('===update data', this.mode, data);
@@ -304,11 +322,22 @@ export class BlogsComponent implements OnInit {
       data.ShortDescriptionEn.trim(),
       data.ContentBodyEn.trim(),
     ];
-    const hasAnyEnglishContent = englishFields.some(Boolean);
+    const hasAnyEnglishContent =
+      englishFields.some(Boolean) || data.LstHashTagNewsEn.length > 0;
     const hasCompleteEnglishContent = englishFields.every(Boolean);
     if (hasAnyEnglishContent && !hasCompleteEnglishContent) {
       this.message.warning(
         'English translation requires title, description and content.'
+      );
+      return;
+    }
+    if (
+      hasCompleteEnglishContent &&
+      data.LstHashTagNews.length > 0 &&
+      data.LstHashTagNewsEn.length === 0
+    ) {
+      this.message.warning(
+        'Please add English hashtags for the English translation.'
       );
       return;
     }
@@ -328,6 +357,7 @@ export class BlogsComponent implements OnInit {
               ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
+              LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],
             })
           : this.apiService.CreateNews({
@@ -341,6 +371,7 @@ export class BlogsComponent implements OnInit {
               ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
+              LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],
             });
       apiCall.subscribe({

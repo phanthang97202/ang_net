@@ -10,6 +10,7 @@ export interface ICreateNews {
   ContentBodyEn: string;
   FlagActive: boolean;
   LstHashTagNews: IHashTagNews[];
+  LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }
 export interface INews {
@@ -101,6 +102,7 @@ export interface IDetailNews {
   NotifiedAt: string | null;
   PinOrder: number;
   LstHashTagNews: IHashTagNews[];
+  LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }
 

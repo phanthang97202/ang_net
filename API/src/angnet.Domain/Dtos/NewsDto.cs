@@ -13,6 +13,7 @@
         public bool FlagActive { get; set; } // Trạng thái bài viết
 
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
+        public List<HashTagNewsDto> LstHashTagNewsEn { get; set; } = new List<HashTagNewsDto>(); // Từ khóa tiếng Anh
 
         public List<RefFileNewsDto> LstRefFileNews { get; set; } = new List<RefFileNewsDto>(); //  File đính kèm  
     }
@@ -53,6 +54,7 @@
         public DateTime? NotifiedAt { get; set; } // Đã gửi mail báo bài này cho người đăng ký chưa
         public int PinOrder { get; set; } // Thứ tự giữa các bài cùng ghim, số nhỏ hiện trước
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
+        public List<HashTagNewsDto> LstHashTagNewsEn { get; set; } = new List<HashTagNewsDto>(); // Từ khóa tiếng Anh
 
         public List<RefFileNewsDto> LstRefFileNews { get; set; } = new List<RefFileNewsDto>(); //  File đính kèm
     }

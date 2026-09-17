@@ -293,6 +293,7 @@ export class ApiService {
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     });
   }
@@ -313,6 +314,7 @@ export class ApiService {
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     };
     console.log('====data', data);
@@ -328,14 +330,17 @@ export class ApiService {
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     });
   }
 
   // HashTagNews
-  GetTopHashTag(): Observable<IHashTagNewsResponse> {
+  GetTopHashTag(
+    languageCode: 'vi' | 'en' = 'vi'
+  ): Observable<IHashTagNewsResponse> {
     return this.http.get<IHashTagNewsResponse>(
-      `${this.apiUrl}hashtagnews/gettophashtag`
+      `${this.apiUrl}hashtagnews/gettophashtag?languageCode=${languageCode}`
     );
   }
 

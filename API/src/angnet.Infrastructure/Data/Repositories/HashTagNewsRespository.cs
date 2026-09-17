@@ -22,7 +22,7 @@ namespace angnet.Infrastructure.Data.Repositories
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ApiResponse<HashTagNewsModel>> GetTopHashTag()
+        public async Task<ApiResponse<HashTagNewsModel>> GetTopHashTag(string languageCode)
         {
             ApiResponse<HashTagNewsModel> apiResponse = new ApiResponse<HashTagNewsModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -57,9 +57,12 @@ namespace angnet.Infrastructure.Data.Repositories
                         .Select(n => n.NewsId)
                         .ToListAsync();
 
+            string normalizedLanguageCode = languageCode?.Trim().ToLowerInvariant() == "en" ? "en" : "vi";
+
             var grouped = await _dbContext.HashTagNews
                         .AsNoTracking()
-                        .Where(h => publishedNewsIds.Contains(h.NewsId))
+                        .Where(h => publishedNewsIds.Contains(h.NewsId)
+                                    && h.LanguageCode == normalizedLanguageCode)
                         .ToListAsync();
 
             var data = grouped

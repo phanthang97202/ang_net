@@ -4,6 +4,7 @@ export interface IHashTagNews {
   HashTagNewsId: string;
   NewsId: string;
   HashTagNewsName: string;
+  LanguageCode: 'vi' | 'en';
   FlagActive: boolean;
   CreatedDTime: Date;
   UpdatedDTime: Date;

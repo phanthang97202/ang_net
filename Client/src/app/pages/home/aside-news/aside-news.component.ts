@@ -1,11 +1,19 @@
-import { Component, Input, OnChanges, OnInit, inject } from '@angular/core';
-import { ShowErrorService, ApiService } from '../../../services';
+import {
+  Component,
+  DestroyRef,
+  Input,
+  OnChanges,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { ShowErrorService, ApiService, LangService } from '../../../services';
 import { IDetailNews, IHashTagNews } from '../../../interfaces';
 import {
   AntdModule,
   REUSE_COMPONENT_MODULES,
   REUSE_PIPE_MODULE,
 } from '../../../modules';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-aside-news',
@@ -17,6 +25,8 @@ import {
 export class AsideNewsComponent implements OnInit, OnChanges {
   showErrorService = inject(ShowErrorService);
   apiService = inject(ApiService);
+  private langService = inject(LangService);
+  private destroyRef = inject(DestroyRef);
 
   // Không báo qua LoadingService: đó là bộ đếm request chung của cả app và nó
   // bật spinner che kín màn hình. Khối này chỉ là thanh bên, hai request lại
@@ -42,7 +52,9 @@ export class AsideNewsComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.initialized = true;
     this.loadNews();
-    this.loadTopHashTag();
+    this.langService.$langSubjectObservable
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadTopHashTag());
   }
 
   // Component nằm ngoài khối *ngIf của trang chi tiết nên nó có mặt trước khi
@@ -75,7 +87,8 @@ export class AsideNewsComponent implements OnInit, OnChanges {
   }
 
   private loadTopHashTag(): void {
-    this.apiService.GetTopHashTag().subscribe({
+    const languageCode = this.langService.getLang() === 'en' ? 'en' : 'vi';
+    this.apiService.GetTopHashTag(languageCode).subscribe({
       next: res => {
         this.lstTopHashTag = res.DataList;
       },

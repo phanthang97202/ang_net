@@ -95,13 +95,9 @@
             {{ detailNews.ViewCount }}
           </p>
 
-          <div
-            class="detail-hashtags"
-            *ngIf="
-              detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
-            ">
+          <div class="detail-hashtags" *ngIf="getHashtags().length > 0">
             <a
-              *ngFor="let ht of detailNews.LstHashTagNews"
+              *ngFor="let ht of getHashtags()"
               class="detail-hashtag"
               routerLink="/news"
               [queryParams]="{ hashTag: ht.HashTagNewsName }"

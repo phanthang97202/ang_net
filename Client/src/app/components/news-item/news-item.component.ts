@@ -51,6 +51,12 @@ export class NewsItemComponent implements OnInit {
       : this.item.EstimatedReadingTime;
   }
 
+  get hashtags(): IDetailNews['LstHashTagNews'] {
+    return this.useEnglish
+      ? (this.item.LstHashTagNewsEn ?? [])
+      : (this.item.LstHashTagNews ?? []);
+  }
+
   private get useEnglish(): boolean {
     return (
       this.langService.getLang() === 'en' && this.item.HasEnglishTranslation

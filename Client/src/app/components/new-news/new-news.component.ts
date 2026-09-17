@@ -228,6 +228,12 @@ export class NewNewsComponent implements OnInit {
       : post.EstimatedReadingTime;
   }
 
+  getHashtags(post: IDetailNews): IDetailNews['LstHashTagNews'] {
+    return this.useEnglish(post)
+      ? (post.LstHashTagNewsEn ?? [])
+      : (post.LstHashTagNews ?? []);
+  }
+
   private useEnglish(post: IDetailNews): boolean {
     return this.langService.getLang() === 'en' && post.HasEnglishTranslation;
   }

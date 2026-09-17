@@ -153,6 +153,29 @@ namespace angnet.Infrastructure.Data.Repositories
             return false;
         }
 
+        private static List<HashTagNewsModel> BuildHashTagModels(
+            string newsId,
+            IEnumerable<HashTagNewsDto>? hashtags,
+            string languageCode)
+        {
+            return (hashtags ?? Enumerable.Empty<HashTagNewsDto>())
+                .Select(i => TCommonUtils.PureString(i.HashTagNewsName))
+                .Where(i => !TCommonUtils.IsNullOrEmpty(i))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(name => new HashTagNewsModel
+                {
+                    HashTagNewsId = name,
+                    HashTagNewsName = name,
+                    NewsId = newsId,
+                    LanguageCode = languageCode,
+                    FlagActive = true,
+                    CreatedDTime = TCommonUtils.DTimeNow(),
+                    UpdatedDTime = TCommonUtils.DTimeNow(),
+                    Count = 1
+                })
+                .ToList();
+        }
+
         public async Task<RPNewsDto> FactoryNewsRecord(NewsModel objNews, List<string> excludeFields)
         {
             // 
@@ -167,10 +190,19 @@ namespace angnet.Infrastructure.Data.Repositories
             List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
             dtHashTagNews = _dbContext.HashTagNews.AsNoTracking().Where(item => item.NewsId == objNews.NewsId).ToList();
 
-            List<HashTagNewsDto> lstHashTagNews = dtHashTagNews.Select(i => new HashTagNewsDto
+            List<HashTagNewsDto> lstHashTagNews = dtHashTagNews
+                .Where(i => i.LanguageCode == "vi")
+                .Select(i => new HashTagNewsDto
             {
                 HashTagNewsName = i.HashTagNewsName
             }).ToList();
+
+            List<HashTagNewsDto> lstHashTagNewsEn = dtHashTagNews
+                .Where(i => i.LanguageCode == "en")
+                .Select(i => new HashTagNewsDto
+                {
+                    HashTagNewsName = i.HashTagNewsName
+                }).ToList();
 
             // Get File of News
             List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
@@ -246,6 +278,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.PinOrder = objNews.PinOrder;
             rsNews.TotalPoint = dtPointNews.Count;
             rsNews.LstHashTagNews = lstHashTagNews;
+            rsNews.LstHashTagNewsEn = lstHashTagNewsEn;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
             rsNews.EstimatedReadingTime = estimatedReadingTime;
             rsNews.EstimatedReadingTimeEn = estimatedReadingTimeEn;
@@ -734,15 +767,24 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            bool hasEnglishHashtags = data.LstHashTagNewsEn?.Any(i => !TCommonUtils.IsNullOrEmpty(i.HashTagNewsName)) == true;
+            bool hasVietnameseHashtags = data.LstHashTagNews?.Any(i => !TCommonUtils.IsNullOrEmpty(i.HashTagNewsName)) == true;
             bool hasAnyEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
                                         || !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
-                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn)
+                                        || hasEnglishHashtags;
             bool hasCompleteEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
                                              && !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
                                              && !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
             if (hasAnyEnglishContent && !hasCompleteEnglishContent)
             {
                 apiResponse.CatchException(false, "News_Create.EnglishTranslationIsIncomplete", requestClient);
+                return apiResponse;
+            }
+
+            if (hasCompleteEnglishContent && hasVietnameseHashtags && !hasEnglishHashtags)
+            {
+                apiResponse.CatchException(false, "News_Create.EnglishHashtagsAreRequired", requestClient);
                 return apiResponse;
             }
 
@@ -767,42 +809,9 @@ namespace angnet.Infrastructure.Data.Repositories
 
             #region // Save temp HashTagNews
 
-            List<HashTagNewsDto> lstHashTagNews = data.LstHashTagNews.GroupBy(i => i.HashTagNewsName).Select(g => g.First()).ToList();
-            var x = data.LstHashTagNews.GroupBy(i => i.HashTagNewsName);
-
-            List<HashTagNewsModel> saveDtHashTagNews = new List<HashTagNewsModel>();
-            List<string> saveUpdateDtHashTagNews = new List<string>();
-
-            for (int i = 0; i < lstHashTagNews.Count; i++)
-            {
-                string HashTagNewId = TCommonUtils.PureString(lstHashTagNews[i].HashTagNewsName);
-                HashTagNewsModel record = _dbContext.HashTagNews.AsNoTracking()
-                                            .FirstOrDefault(i => i.HashTagNewsId == HashTagNewId && i.NewsId == NewsId);
-
-                //if (!(record is null))
-                //{ 
-
-                //    lstHashTagNews.Remove(new HashTagNewsDto
-                //    {
-                //        HashTagNewsName = HashTagNewId
-                //    });
-                //    saveUpdateDtHashTagNews.Add(HashTagNewId);
-                //}
-                //else
-                //{
-                HashTagNewsModel hashTagNews = new HashTagNewsModel()
-                {
-                    HashTagNewsId = HashTagNewId,
-                    HashTagNewsName = HashTagNewId,
-                    NewsId = NewsId,
-                    FlagActive = true,
-                    CreatedDTime = TCommonUtils.DTimeNow(),
-                    UpdatedDTime = TCommonUtils.DTimeNow(),
-                };
-
-                saveDtHashTagNews.Add(hashTagNews);
-                //}
-            }
+            List<HashTagNewsModel> saveDtHashTagNews = BuildHashTagModels(NewsId, data.LstHashTagNews, "vi")
+                .Concat(BuildHashTagModels(NewsId, data.LstHashTagNewsEn, "en"))
+                .ToList();
             #endregion
 
             #region // Save temp RefFileNews
@@ -855,18 +864,6 @@ namespace angnet.Infrastructure.Data.Repositories
             if (saveDtHashTagNews.Count > 0)
             {
                 await _dbContext.HashTagNews.AddRangeAsync(saveDtHashTagNews);
-            }
-
-            if (saveUpdateDtHashTagNews.Count > 0)
-            {
-                foreach (var item in saveUpdateDtHashTagNews)
-                {
-
-                    await _dbContext.HashTagNews.Where(i => i.HashTagNewsId == item)
-                        .ExecuteUpdateAsync(setter =>
-                             setter.SetProperty(i => i.Count, i => i.Count + 1)
-                        );
-                }
             }
 
             if (saveDtRefFileNews.Count > 0)
@@ -1183,15 +1180,24 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            bool hasEnglishHashtags = data.LstHashTagNewsEn?.Any(i => !TCommonUtils.IsNullOrEmpty(i.HashTagNewsName)) == true;
+            bool hasVietnameseHashtags = data.LstHashTagNews?.Any(i => !TCommonUtils.IsNullOrEmpty(i.HashTagNewsName)) == true;
             bool hasAnyEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
                                         || !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
-                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
+                                        || !TCommonUtils.IsNullOrEmpty(ContentBodyEn)
+                                        || hasEnglishHashtags;
             bool hasCompleteEnglishContent = !TCommonUtils.IsNullOrEmpty(ShortTitleEn)
                                              && !TCommonUtils.IsNullOrEmpty(ShortDescriptionEn)
                                              && !TCommonUtils.IsNullOrEmpty(ContentBodyEn);
             if (hasAnyEnglishContent && !hasCompleteEnglishContent)
             {
                 apiResponse.CatchException(false, "News_Update.EnglishTranslationIsIncomplete", requestClient);
+                return apiResponse;
+            }
+
+            if (hasCompleteEnglishContent && hasVietnameseHashtags && !hasEnglishHashtags)
+            {
+                apiResponse.CatchException(false, "News_Update.EnglishHashtagsAreRequired", requestClient);
                 return apiResponse;
             }
 
@@ -1250,34 +1256,10 @@ namespace angnet.Infrastructure.Data.Repositories
                 _dbContext.HashTagNews.RemoveRange(oldHashTags);
             }
 
-            // ✅ Add new hashtags (remove duplicates)
-            List<HashTagNewsDto> lstHashTagNews = data.LstHashTagNews
-                .GroupBy(i => i.HashTagNewsName)
-                .Select(g => g.First())
+            // Add hashtag của cả hai ngôn ngữ sau khi đã loại rỗng/trùng.
+            List<HashTagNewsModel> newHashTags = BuildHashTagModels(newsId, data.LstHashTagNews, "vi")
+                .Concat(BuildHashTagModels(newsId, data.LstHashTagNewsEn, "en"))
                 .ToList();
-
-            List<HashTagNewsModel> newHashTags = new List<HashTagNewsModel>();
-
-            foreach (var hashTag in lstHashTagNews)
-            {
-                string hashTagId = TCommonUtils.PureString(hashTag.HashTagNewsName);
-
-                if (!string.IsNullOrEmpty(hashTagId))
-                {
-                    HashTagNewsModel newHashTag = new HashTagNewsModel()
-                    {
-                        HashTagNewsId = hashTagId,
-                        HashTagNewsName = hashTagId,
-                        NewsId = newsId,
-                        FlagActive = true,
-                        CreatedDTime = TCommonUtils.DTimeNow(),
-                        UpdatedDTime = TCommonUtils.DTimeNow(),
-                        Count = 1 // or increment if exists globally
-                    };
-
-                    newHashTags.Add(newHashTag);
-                }
-            }
 
             if (newHashTags.Any())
             {

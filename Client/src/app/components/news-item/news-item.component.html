@@ -62,7 +62,7 @@
 
   <div class="hidden xl:flex justify-between items-center">
     <ul class="news_tag flex justify-between items-center gap-3">
-      @for (ht of item.LstHashTagNews; track ht) {
+      @for (ht of hashtags; track ht) {
         <li>
           <app-hash-tag [title]="ht.HashTagNewsName" />
         </li>

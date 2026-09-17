@@ -20,6 +20,7 @@ namespace angnet.Domain.Dtos
         public bool FlagActive { get; set; } // Trạng thái bài viết
 
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
+        public List<HashTagNewsDto> LstHashTagNewsEn { get; set; } = new List<HashTagNewsDto>(); // Từ khóa tiếng Anh
 
         public List<RefFileNewsDto> LstRefFileNews { get; set; } = new List<RefFileNewsDto>(); //  File đính kèm  
     }

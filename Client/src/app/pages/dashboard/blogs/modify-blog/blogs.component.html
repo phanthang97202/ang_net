@@ -42,25 +42,6 @@
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
-              'T_LSTHASHTAGNEWS' | translate
-            }}</nz-form-label>
-            <nz-form-control [nzXs]="24" [nzMd]="16">
-              <nz-select
-                formControlName="LstHashTagNews"
-                nzMode="tags"
-                nzAllowClear
-                [nzTokenSeparators]="[',']"
-                [nzPlaceHolder]="'T_LISTHASHTAG' | translate">
-                <nz-option
-                  *ngFor="let tag of hashtagSuggestions"
-                  [nzValue]="tag"
-                  [nzLabel]="tag"></nz-option>
-              </nz-select>
-            </nz-form-control>
-          </nz-form-item>
-
-          <nz-form-item>
             <nz-form-label
               nzLabelAlign="left"
               [nzXs]="24"
@@ -135,6 +116,23 @@
                       (onContentChanged)="handleContentChangedEditor($event)" />
                   </nz-form-control>
                 </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label>Hashtag</nz-form-label>
+                  <nz-form-control>
+                    <nz-select
+                      formControlName="LstHashTagNews"
+                      nzMode="tags"
+                      nzAllowClear
+                      [nzTokenSeparators]="[',']"
+                      nzPlaceHolder="Nhập hashtag tiếng Việt">
+                      <nz-option
+                        *ngFor="let tag of hashtagSuggestions"
+                        [nzValue]="tag"
+                        [nzLabel]="tag"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
               </div>
             </nz-tab>
 
@@ -177,6 +175,23 @@
                       (onContentChanged)="
                         handleContentChangedEditorEn($event)
                       " />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label>Hashtags</nz-form-label>
+                  <nz-form-control>
+                    <nz-select
+                      formControlName="LstHashTagNewsEn"
+                      nzMode="tags"
+                      nzAllowClear
+                      [nzTokenSeparators]="[',']"
+                      nzPlaceHolder="Enter English hashtags">
+                      <nz-option
+                        *ngFor="let tag of hashtagSuggestionsEn"
+                        [nzValue]="tag"
+                        [nzLabel]="tag"></nz-option>
+                    </nz-select>
                   </nz-form-control>
                 </nz-form-item>
               </div>
