@@ -28,9 +28,13 @@ export class LangService {
   }
 
   setLang(lang: 'vi' | 'en'): void {
-    this.translate.use(lang);
     localStorage.setItem(this.langKey, lang);
-    this._loadingSubject.next(lang);
+    // Chỉ báo cho các component sau khi file dịch đã tải xong. Nhờ vậy những
+    // nội dung dùng translate.instant()/get(), bao gồm title trình duyệt, không
+    // đọc nhầm bản dịch của ngôn ngữ trước đó.
+    this.translate.use(lang).subscribe(() => {
+      this._loadingSubject.next(lang);
+    });
   }
 }
 

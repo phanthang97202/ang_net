@@ -15,13 +15,13 @@ export const routes: Routes = [
     // canActivate: [canActive],
   },
   {
-    title: 'News',
+    title: 'T_PAGE_NEWS',
     path: 'news',
     loadComponent: () =>
       import('./pages/home/news/news.component').then(p => p.NewsComponent),
   },
   {
-    title: 'News detail',
+    title: 'T_PAGE_NEWS_DETAIL',
     path: 'news/:categoryId/:newsId',
     loadComponent: () =>
       import('./pages/home/detail-news/detail-news.component').then(
@@ -29,7 +29,7 @@ export const routes: Routes = [
       ),
   },
   {
-    title: 'Reels',
+    title: 'T_PAGE_REELS',
     path: 'reels',
     loadComponent: () =>
       import('./pages/home/reels/reels.component').then(
@@ -37,7 +37,7 @@ export const routes: Routes = [
       ),
   },
   {
-    title: 'Create reel',
+    title: 'T_PAGE_CREATE_REEL',
     path: 'reels/create',
     loadComponent: () =>
       import('./pages/home/reels/create-reel/create-reel.component').then(
@@ -46,12 +46,12 @@ export const routes: Routes = [
     canActivate: [canActive],
   },
   {
-    title: 'Tools',
+    title: 'T_PAGE_TOOLS',
     path: 'tools',
     // canActivate: [canActive],
     children: [
       {
-        title: 'Calculating hotel fee',
+        title: 'T_PAGE_CALCULATING_HOTEL_FEE',
         path: 'calculating-hotel-fee',
         loadComponent: () =>
           import(
@@ -59,7 +59,7 @@ export const routes: Routes = [
           ).then(p => p.CalculatingHotelFeeComponent),
       },
       {
-        title: 'Shift report',
+        title: 'T_PAGE_SHIFT_REPORT',
         path: 'shift-report',
         loadChildren: () =>
           import('./pages/tools/shift-report/shift-report.module').then(
@@ -67,7 +67,7 @@ export const routes: Routes = [
           ),
       },
       {
-        title: 'Revenue report',
+        title: 'T_PAGE_REVENUE_REPORT',
         path: 'revenue-report',
         loadChildren: () =>
           import('./pages/tools/revenue-report/revenue-report.module').then(
@@ -77,7 +77,7 @@ export const routes: Routes = [
     ],
   },
   {
-    title: 'Chess',
+    title: 'T_PAGE_CHESS',
     path: 'game/chess',
     loadComponent: () =>
       import('./pages/game/chess/chess-lobby/chess-lobby.component').then(
@@ -85,7 +85,7 @@ export const routes: Routes = [
       ),
   },
   {
-    title: 'Chess vs computer',
+    title: 'T_PAGE_CHESS_VS_COMPUTER',
     path: 'game/chess/vs-computer',
     loadComponent: () =>
       import(
@@ -93,7 +93,7 @@ export const routes: Routes = [
       ).then(p => p.ChessVsComputerComponent),
   },
   {
-    title: 'Chess room',
+    title: 'T_PAGE_CHESS_ROOM',
     path: 'game/chess/:roomId',
     loadComponent: () =>
       import('./pages/game/chess/chess-room/chess-room.component').then(
@@ -101,7 +101,7 @@ export const routes: Routes = [
       ),
   },
   {
-    title: 'Login',
+    title: 'T_PAGE_LOGIN',
     path: 'login',
     loadComponent() {
       return import('./pages/login/login.component').then(
@@ -110,7 +110,7 @@ export const routes: Routes = [
     },
   },
   {
-    title: 'Forgot password',
+    title: 'T_PAGE_FORGOT_PASSWORD',
     path: 'forgot-password',
     loadComponent() {
       return import('./pages/forgot-password/forgot-password.component').then(
@@ -128,7 +128,7 @@ export const routes: Routes = [
   //     import('./pages/about/about.component').then(p => p.AboutComponent),
   // },
   {
-    title: 'User detail',
+    title: 'T_PAGE_USER_DETAIL',
     path: 'userinfor',
     loadComponent: () =>
       import('./pages/detail-user/detail-user.component').then(
@@ -137,7 +137,7 @@ export const routes: Routes = [
     // canActivate: [canActive],
   },
   {
-    title: 'Dashboard',
+    title: 'T_PAGE_DASHBOARD',
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/dashboard/_layout/_layout.component').then(
