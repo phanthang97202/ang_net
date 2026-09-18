@@ -8,7 +8,7 @@ import {
   SysParameterConfigService,
   SYS_PARAM_CODE,
 } from '../../services';
-import { ISocialLink } from '../../interfaces';
+import { IFooterContent, ISocialLink } from '../../interfaces';
 import { SocialLinksComponent } from '../social-links/social-links.component';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -26,6 +26,14 @@ const DEFAULT_SOCIALS: ISocialLink[] = [
   { icon: 'linkedin', link: '#' },
 ];
 
+const DEFAULT_FOOTER_CONTENT: IFooterContent = {
+  brandName: 'Phan',
+  brandAccent: 'Thang',
+  tagline:
+    'Góc nhỏ ghi lại những chuyến đi, khoảnh khắc đời thường và những câu chuyện thật của Phan Thang.',
+  copyright: '© {year} — Phan Thang. Đã đăng ký bản quyền.',
+};
+
 @Component({
   selector: 'app-footer',
   standalone: true,
@@ -42,12 +50,29 @@ export class FooterComponent implements OnInit {
   currentYear = new Date().getFullYear();
   stats$ = this.visitTrackingService.stats$;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
+  footerContent: IFooterContent = DEFAULT_FOOTER_CONTENT;
+
+  get copyrightText(): string {
+    return this.footerContent.copyright.replace(
+      /\{year\}/g,
+      String(this.currentYear)
+    );
+  }
 
   // null = chưa cấu hình hoặc URL không hợp lệ -> template ẩn hẳn khối map
   // thay vì hiện 1 iframe rỗng xấu xí.
   mapEmbedUrl: SafeResourceUrl | null = null;
 
   ngOnInit(): void {
+    this.config
+      .getJson<IFooterContent>(SYS_PARAM_CODE.FOOTER_CONTENT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        if (data) {
+          this.footerContent = { ...DEFAULT_FOOTER_CONTENT, ...data };
+        }
+      });
+
     this.config
       .getJson<ISocialLink[]>(SYS_PARAM_CODE.SOCIAL_LINKS)
       .pipe(takeUntilDestroyed(this.destroyRef))
