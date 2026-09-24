@@ -5,6 +5,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   ApiService,
   AuthService,
+  LangService,
   ShowErrorService,
   SITE_TITLE,
 } from '../../../services';
@@ -43,6 +44,7 @@ export class DetailNewsComponent implements OnInit {
   router = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private message = inject(NzMessageService);
+  private langService = inject(LangService);
 
   // Chặn bấm tim liên tiếp khi request trước chưa về, tránh trạng thái nhảy loạn.
   isLiking = false;
@@ -127,6 +129,14 @@ export class DetailNewsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.langService.$langSubjectObservable
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.detailNews) {
+          this.refreshLocalizedPresentation();
+        }
+      });
+
     // Subscribe to paramMap to react to changes in the route parameters
     this.router.paramMap.subscribe(params => {
       const newNewsId = params.get('newsId') || '';
@@ -140,6 +150,37 @@ export class DetailNewsComponent implements OnInit {
 
   byPassHTML(html: string) {
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  getCategoryName(): string {
+    return this.langService.getLang() === 'en' &&
+      this.detailNews.CategoryNewsNameEn
+      ? this.detailNews.CategoryNewsNameEn
+      : this.detailNews.CategoryNewsName;
+  }
+
+  getTitle(): string {
+    return this.useEnglishTranslation()
+      ? this.detailNews.ShortTitleEn
+      : this.detailNews.ShortTitle;
+  }
+
+  getContent(): string {
+    return this.useEnglishTranslation()
+      ? this.detailNews.ContentBodyEn
+      : this.detailNews.ContentBody;
+  }
+
+  getReadingTime(): number {
+    return this.useEnglishTranslation()
+      ? this.detailNews.EstimatedReadingTimeEn
+      : this.detailNews.EstimatedReadingTime;
+  }
+
+  getHashtags(): IDetailNews['LstHashTagNews'] {
+    return this.useEnglishTranslation()
+      ? (this.detailNews.LstHashTagNewsEn ?? [])
+      : (this.detailNews.LstHashTagNews ?? []);
   }
 
   prevSlide(): void {
@@ -156,7 +197,7 @@ export class DetailNewsComponent implements OnInit {
     if (!this.slides.length) return;
 
     const ref = this.imageService.preview(
-      this.slides.map(src => ({ src, alt: this.detailNews?.ShortTitle }))
+      this.slides.map(src => ({ src, alt: this.getTitle() }))
     );
     ref.switchTo(this.activeSlide);
 
@@ -178,14 +219,7 @@ export class DetailNewsComponent implements OnInit {
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;
-        this.slides = buildNewsSlides(
-          res.Data.Thumbnail,
-          res.Data.ContentBody
-        );
-        this.activeSlide = 0;
-        this.titleService.setTitle(
-          `${this.detailNews.ShortTitle} - ${SITE_TITLE}`
-        );
+        this.refreshLocalizedPresentation();
       },
       error: err => {
         this.showErrorService.setShowError({
@@ -200,5 +234,18 @@ export class DetailNewsComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  private useEnglishTranslation(): boolean {
+    return (
+      this.langService.getLang() === 'en' &&
+      this.detailNews.HasEnglishTranslation
+    );
+  }
+
+  private refreshLocalizedPresentation(): void {
+    this.slides = buildNewsSlides(this.detailNews.Thumbnail, this.getContent());
+    this.activeSlide = 0;
+    this.titleService.setTitle(`${this.getTitle()} - ${SITE_TITLE}`);
   }
 }

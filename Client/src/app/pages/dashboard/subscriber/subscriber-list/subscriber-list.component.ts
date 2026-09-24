@@ -1,8 +1,8 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder } from '@angular/forms';
+import { FormsModule, NonNullableFormBuilder } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ApiService, ShowErrorService } from '../../../../services';
+import { ApiService, AuthService, ShowErrorService } from '../../../../services';
 import { ISubscriberItem } from '../../../../interfaces';
 import {
   AntdModule,
@@ -16,12 +16,18 @@ type TStatusFilter = '' | 'active' | 'inactive';
 @Component({
   selector: 'app-subscriber-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    FormsModule,
+    ...REUSE_COMPONENT_MODULES,
+    ...REUSE_PIPE_MODULE,
+  ],
   templateUrl: './subscriber-list.component.html',
   styleUrls: ['./subscriber-list.component.scss'],
 })
 export class SubscriberComponent implements OnInit {
   private api = inject(ApiService);
+  private authService = inject(AuthService);
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
   private destroyRef = inject(DestroyRef);
@@ -29,6 +35,7 @@ export class SubscriberComponent implements OnInit {
 
   dataSource: ISubscriberItem[] = [];
   isLoading = false;
+  canUpdateSubscriber = this.authService.hasPermission('subscriber.update');
 
   // Phân trang ở SERVER: danh sách email có thể dài, tải hết về rồi phân trang
   // tại client là kéo cả bảng qua mạng mỗi lần mở màn hình.
@@ -88,6 +95,38 @@ export class SubscriberComponent implements OnInit {
     navigator.clipboard.writeText(emails).then(() => {
       this.message.success('Đã chép email của trang hiện tại.');
     });
+  }
+
+  handleToggleActive(data: ISubscriberItem, flagActive: boolean): void {
+    this.isLoading = true;
+    this.api
+      .SubscriberToggleActive(data.SubscriberId, flagActive)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          if (response?.Success) {
+            this.message.success(
+              flagActive
+                ? `Đã bật nhận thư cho ${data.Email}.`
+                : `Đã tạm ngừng nhận thư cho ${data.Email}.`
+            );
+          } else {
+            this.message.error(
+              response?.ErrorMessage || 'Không thể cập nhật trạng thái người đăng ký.'
+            );
+          }
+          this.fetchData();
+        },
+        error: err => {
+          this.isLoading = false;
+          this.showErrorService.setShowError({
+            icon: 'warning',
+            message: JSON.stringify(err, null, 2),
+            title: err.message,
+          });
+          this.fetchData();
+        },
+      });
   }
 
   private fetchData(): void {

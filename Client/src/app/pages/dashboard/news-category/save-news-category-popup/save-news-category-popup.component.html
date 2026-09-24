@@ -1,7 +1,8 @@
 <nz-modal
   [nzVisible]="isOpenPopup"
   [nzTitle]="titlePopup"
-  [nzWidth]="640"
+  [nzWidth]="720"
+  [nzOkLoading]="isUploadingLogo"
   (nzOnOk)="handleSave()"
   (nzOnCancel)="handleCancel()">
   <form
@@ -27,9 +28,9 @@
       <div nz-col [nzSpan]="12">
         <nz-form-item>
           <nz-form-label nzRequired [nzNoColon]="true">
-            Category Name
+            Vietnamese Name
           </nz-form-label>
-          <nz-form-control nzErrorTip="Category name is required!">
+          <nz-form-control nzErrorTip="Vietnamese name is required!">
             <input
               nz-input
               formControlName="NewsCategoryName"
@@ -40,6 +41,20 @@
     </div>
 
     <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired [nzNoColon]="true">
+            English Name
+          </nz-form-label>
+          <nz-form-control nzErrorTip="English name is required!">
+            <input
+              nz-input
+              formControlName="NewsCategoryNameEn"
+              placeholder="E.g. Lifestyle" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
       <div nz-col [nzSpan]="12">
         <nz-form-item>
           <nz-form-label [nzNoColon]="true">Parent Category</nz-form-label>
@@ -56,7 +71,9 @@
           </nz-form-control>
         </nz-form-item>
       </div>
+    </div>
 
+    <div nz-row [nzGutter]="16">
       <div nz-col [nzSpan]="12">
         <nz-form-item>
           <nz-form-label [nzNoColon]="true">Sort Order</nz-form-label>
@@ -66,6 +83,41 @@
               type="number"
               formControlName="NewsCategoryIndex"
               placeholder="0" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label [nzNoColon]="true">Category Logo</nz-form-label>
+          <nz-form-control>
+            <div class="category-logo-editor">
+              <img
+                *ngIf="logoUrl"
+                class="category-logo-preview"
+                [src]="logoUrl"
+                alt="Category logo preview" />
+              <nz-upload
+                nzAccept="image/*"
+                [nzShowUploadList]="false"
+                [nzBeforeUpload]="handleUploadLogo">
+                <button nz-button type="button" [disabled]="isUploadingLogo">
+                  <span
+                    nz-icon
+                    [nzType]="isUploadingLogo ? 'loading' : 'upload'"></span>
+                  {{ logoUrl ? 'Replace logo' : 'Upload logo' }}
+                </button>
+              </nz-upload>
+              <button
+                *ngIf="logoUrl"
+                nz-button
+                nzDanger
+                type="button"
+                (click)="handleRemoveLogo()">
+                Remove
+              </button>
+            </div>
+            <div class="category-logo-hint">Image file, maximum 5 MB.</div>
           </nz-form-control>
         </nz-form-item>
       </div>

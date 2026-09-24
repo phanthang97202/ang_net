@@ -3,10 +3,14 @@ export interface ICreateNews {
   Thumbnail: string;
   CategoryNewsId: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
   FlagActive: boolean;
   LstHashTagNews: IHashTagNews[];
+  LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }
 export interface INews {
@@ -14,15 +18,21 @@ export interface INews {
   UserId: string;
   CategoryNewsId: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: Date;
   UpdatedDTime: Date;
   FlagActive: boolean;
   ViewCount: number;
   EstimatedReadingTime: number;
+  EstimatedReadingTimeEn: number;
   ShareCount: number;
   LikeCount: number;
   IsLikedByMe: boolean;
@@ -49,8 +59,11 @@ export interface INewsItemSm {
   NewsId: string;
   CategoryNewsId: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: string;
 }
 
@@ -62,16 +75,23 @@ export interface IDetailNews {
   Avatar: string;
   CategoryNewsId: string;
   CategoryNewsName: string;
+  CategoryNewsNameEn: string;
   Slug: string;
+  SlugEn: string;
   Thumbnail: string;
   ShortTitle: string;
+  ShortTitleEn: string;
   ShortDescription: string;
+  ShortDescriptionEn: string;
   ContentBody: string;
+  ContentBodyEn: string;
+  HasEnglishTranslation: boolean;
   CreatedDTime: string;
   UpdatedDTime: string;
   FlagActive: boolean;
   ViewCount: number;
   EstimatedReadingTime: number;
+  EstimatedReadingTimeEn: number;
   ShareCount: number;
   LikeCount: number;
   IsLikedByMe: boolean;
@@ -82,6 +102,7 @@ export interface IDetailNews {
   NotifiedAt: string | null;
   PinOrder: number;
   LstHashTagNews: IHashTagNews[];
+  LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }
 
@@ -134,6 +155,8 @@ export interface ISubscriberSearchResponse
   objResult: IPageInfo<ISubscriberItem>;
 }
 
+export type ISubscriberToggleActiveResponse = IBaseResponse<ISubscriberItem>;
+
 export interface INotifyResult {
   NewsId: string;
   /** Số mail đã đẩy vào hàng đợi */
@@ -148,13 +171,15 @@ export type INotifyResultResponse = Omit<
   Data: INotifyResult;
 };
 
-export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed';
+export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed' | 'Skipped';
 
 export interface IEmailDeliverySummary {
   Total: number;
   Pending: number;
   Succeeded: number;
   Failed: number;
+  /** Không gửi vì người nhận đã tắt trong lúc thư còn trong hàng đợi */
+  Skipped: number;
 }
 
 export interface IEmailDeliveryItem {

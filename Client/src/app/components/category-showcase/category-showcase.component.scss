@@ -46,7 +46,9 @@
   border-radius: 20px;
   box-shadow: 0 2px 16px var(--color-card-shadow);
   padding: 1.25rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-3px);
@@ -85,6 +87,13 @@
   svg {
     width: 17px;
     height: 17px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
   }
 }
 

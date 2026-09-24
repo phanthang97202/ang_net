@@ -1,7 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { NewsCacheService, ShowErrorService } from '../../services';
+import {
+  LangService,
+  NewsCacheService,
+  ShowErrorService,
+} from '../../services';
 import { IDetailNews } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +33,7 @@ const FEATURED_COUNT = 5;
 export class FeaturedNewsComponent implements OnInit {
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
+  private langService = inject(LangService);
 
   isLoading = true;
   featuredPosts: INewsWithPlaceholder[] = [];
@@ -82,6 +87,32 @@ export class FeaturedNewsComponent implements OnInit {
 
   trackById(_: number, post: IDetailNews): string {
     return post.NewsId;
+  }
+
+  getCategoryName(post: IDetailNews): string {
+    return this.langService.getLang() === 'en' && post.CategoryNewsNameEn
+      ? post.CategoryNewsNameEn
+      : post.CategoryNewsName;
+  }
+
+  getTitle(post: IDetailNews): string {
+    return this.useEnglish(post) ? post.ShortTitleEn : post.ShortTitle;
+  }
+
+  getDescription(post: IDetailNews): string {
+    return this.useEnglish(post)
+      ? post.ShortDescriptionEn
+      : post.ShortDescription;
+  }
+
+  getReadingTime(post: IDetailNews): number {
+    return this.useEnglish(post)
+      ? post.EstimatedReadingTimeEn
+      : post.EstimatedReadingTime;
+  }
+
+  private useEnglish(post: IDetailNews): boolean {
+    return this.langService.getLang() === 'en' && post.HasEnglishTranslation;
   }
 
   // Gán màu placeholder cho các bài chưa có thumbnail

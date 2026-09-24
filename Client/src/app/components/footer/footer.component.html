@@ -1,11 +1,10 @@
 <footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
-      <a routerLink="/" class="footer-logo"> Phan<span>Thang</span> </a>
-      <p class="footer-tagline">
-        Góc nhỏ ghi lại những chuyến đi, khoảnh khắc đời thường và những
-        câu chuyện thật của Phan Thang.
-      </p>
+      <a routerLink="/" class="footer-logo">
+        {{ footerContent.brandName }}<span>{{ footerContent.brandAccent }}</span>
+      </a>
+      <p class="footer-tagline">{{ footerContent.tagline }}</p>
 
       <app-social-links class="footer-socials" [items]="socials"></app-social-links>
     </div>
@@ -85,7 +84,5 @@
 
   <div class="footer-divider"></div>
 
-  <p class="footer-copyright">
-    © {{ currentYear }} — Phan Thang. All Rights Reserved.
-  </p>
+  <p class="footer-copyright">{{ copyrightText }}</p>
 </footer>

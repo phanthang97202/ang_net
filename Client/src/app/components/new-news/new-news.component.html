@@ -63,7 +63,7 @@
         <img
           *ngIf="post.Thumbnail"
           [src]="post.Thumbnail"
-          [alt]="post.ShortTitle" />
+          [alt]="getTitle(post)" />
         <div
           *ngIf="!post.Thumbnail"
           class="post-card-thumb-placeholder"
@@ -72,19 +72,19 @@
         <a
           [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
           class="post-card-thumb-link"
-          [attr.aria-label]="post.ShortTitle"></a>
+          [attr.aria-label]="getTitle(post)"></a>
 
         <div class="post-card-badges">
           <a
-            *ngIf="post.CategoryNewsName"
+            *ngIf="getCategoryName(post)"
             class="post-badge"
             routerLink="/news"
             [queryParams]="{ categoryId: post.CategoryNewsId }"
-            >{{ post.CategoryNewsName }}</a
+            >{{ getCategoryName(post) }}</a
           >
         </div>
         <span class="post-card-readtime">
-          {{ post.EstimatedReadingTime }} Min Read
+          {{ getReadingTime(post) }} {{ 'T_MINUTESREAD' | translate }}
         </span>
       </div>
 
@@ -92,7 +92,8 @@
         <p class="post-card-meta">
           <span>
             <span class="post-card-author">{{ post.FullName }}</span>
-            on {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+            {{ 'T_ON' | translate }}
+            {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
           </span>
 
           <!-- Lượt thích ẩn khi bằng 0: bài mới đăng nào cũng kèm "0" thì dãy
@@ -128,16 +129,14 @@
         <a
           [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
           class="post-card-title">
-          {{ post.ShortTitle }}
+          {{ getTitle(post) }}
         </a>
 
-        <p class="post-card-excerpt">{{ post.ShortDescription }}</p>
+        <p class="post-card-excerpt">{{ getDescription(post) }}</p>
 
-        <div
-          class="post-card-hashtags"
-          *ngIf="post.LstHashTagNews && post.LstHashTagNews.length > 0">
+        <div class="post-card-hashtags" *ngIf="getHashtags(post).length > 0">
           <a
-            *ngFor="let ht of post.LstHashTagNews"
+            *ngFor="let ht of getHashtags(post)"
             class="post-hashtag"
             routerLink="/news"
             [queryParams]="{ hashTag: ht.HashTagNewsName }"

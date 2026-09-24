@@ -4,14 +4,14 @@
       <img
         class="h-full w-full object-cover"
         [src]="item.Thumbnail | sizeImgCloudinary"
-        [alt]="item.Slug" />
+        [alt]="title" />
     </a>
   </div>
   <div class="flex-1 min-w-0">
     <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
       <h5
         class="hover:text-[var(--color-accent)] transition-colors font-montserrat text-[14px] text-[var(--color-text)] leading-[1.35] font-bold mb-[4px] line-clamp-3">
-        {{ item.ShortTitle }}
+        {{ title }}
       </h5>
     </a>
     <p class="font-montserrat text-[var(--color-text-muted)] text-[11.5px]">

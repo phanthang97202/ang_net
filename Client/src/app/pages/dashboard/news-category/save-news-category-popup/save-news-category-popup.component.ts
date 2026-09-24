@@ -1,12 +1,15 @@
 import {
   Component,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   Output,
   SimpleChanges,
 } from '@angular/core';
 import { NonNullableFormBuilder } from '@angular/forms';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { FormValidatorsCommon } from '../../../../helpers';
 import {
   INewsCategoryAdmin,
@@ -18,6 +21,10 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../../modules';
 import { TTitlePopup } from '../type';
+import {
+  CloudinaryService,
+  CloudinaryUploadResult,
+} from '../../../../services';
 
 @Component({
   selector: 'app-save-news-category-popup',
@@ -28,6 +35,10 @@ import { TTitlePopup } from '../type';
 })
 export class SaveNewsCategoryPopupComponent implements OnChanges {
   constructor(private fb: NonNullableFormBuilder) {}
+
+  private cloudinary = inject(CloudinaryService);
+  private message = inject(NzMessageService);
+  isUploadingLogo = false;
 
   @Input() formDataSource!: IRequestNewsCategoryCreate;
   @Input() isOpenPopup!: boolean;
@@ -43,8 +54,14 @@ export class SaveNewsCategoryPopupComponent implements OnChanges {
       FormValidatorsCommon.Required({ en: 'NewsCategoryIdIsRequired!' }),
     ]),
     NewsCategoryName: this.fb.control('', [
-      FormValidatorsCommon.Required({ en: 'NewsCategoryNameIsRequired!' }),
+      FormValidatorsCommon.Required({
+        en: 'VietnameseCategoryNameIsRequired!',
+      }),
     ]),
+    NewsCategoryNameEn: this.fb.control('', [
+      FormValidatorsCommon.Required({ en: 'EnglishCategoryNameIsRequired!' }),
+    ]),
+    NewsCategoryLogo: this.fb.control(''),
     NewsCategoryParentId: this.fb.control(''),
     NewsCategoryIndex: this.fb.control(0),
     IsGlobal: this.fb.control(false),
@@ -83,7 +100,52 @@ export class SaveNewsCategoryPopupComponent implements OnChanges {
     return this.validateForm.get(fieldName);
   }
 
+  get logoUrl(): string {
+    return this.validateForm.controls.NewsCategoryLogo.value;
+  }
+
+  handleUploadLogo = (file: NzUploadFile): boolean => {
+    const isImage = !!file.type?.startsWith('image/');
+    if (!isImage) {
+      this.message.error('Logo must be an image file');
+      return false;
+    }
+
+    const isUnder5Mb = (file.size || 0) <= 5 * 1024 * 1024;
+    if (!isUnder5Mb) {
+      this.message.error('Logo must be smaller than 5 MB');
+      return false;
+    }
+
+    this.isUploadingLogo = true;
+    this.cloudinary.uploadImage(file as unknown as File).subscribe({
+      next: response => {
+        const result = response as CloudinaryUploadResult;
+        this.validateForm.controls.NewsCategoryLogo.setValue(result.secure_url);
+        this.validateForm.controls.NewsCategoryLogo.markAsDirty();
+        this.message.success('Logo uploaded successfully');
+      },
+      error: () => {
+        this.isUploadingLogo = false;
+        this.message.error('Logo upload failed');
+      },
+      complete: () => (this.isUploadingLogo = false),
+    });
+
+    return false;
+  };
+
+  handleRemoveLogo(): void {
+    this.validateForm.controls.NewsCategoryLogo.setValue('');
+    this.validateForm.controls.NewsCategoryLogo.markAsDirty();
+  }
+
   handleSave() {
+    if (this.isUploadingLogo) {
+      this.message.warning('Please wait for the logo upload to finish');
+      return;
+    }
+
     if (this.validateForm.valid) {
       const remainFormValue = this.validateForm.getRawValue();
 
@@ -116,6 +178,8 @@ export class SaveNewsCategoryPopupComponent implements OnChanges {
     this.validateForm.reset({
       NewsCategoryId: '',
       NewsCategoryName: '',
+      NewsCategoryNameEn: '',
+      NewsCategoryLogo: '',
       NewsCategoryParentId: '',
       NewsCategoryIndex: 0,
       IsGlobal: false,

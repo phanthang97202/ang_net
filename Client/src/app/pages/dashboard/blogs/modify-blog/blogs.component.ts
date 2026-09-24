@@ -11,6 +11,7 @@ import {
   CloudinaryService,
   LoadingService,
   AuthService,
+  LangService,
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -38,6 +39,7 @@ export class BlogsComponent implements OnInit {
   private translate = inject(TranslateService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private langService = inject(LangService);
 
   mode: 'create' | 'edit' = 'create';
   isDataLoaded = false; // ✅ Thêm flag để track data loading
@@ -47,8 +49,10 @@ export class BlogsComponent implements OnInit {
 
   lstRefFileNews: IRefFileNews[] & NzUploadFile[] = [];
   contentBody = ''; // ✅ Store content để binding vào editor
+  contentBodyEn = '';
 
   hashtagSuggestions: string[] = [];
+  hashtagSuggestionsEn: string[] = [];
 
   previewVisible = false;
   previewImage: ArrayBuffer | string | null = null;
@@ -56,9 +60,13 @@ export class BlogsComponent implements OnInit {
   validateForm!: FormGroup<{
     Thumbnail: FormControl<string>;
     ContentBody: FormControl<string>;
+    ContentBodyEn: FormControl<string>;
     ShortTitle: FormControl<string>;
+    ShortTitleEn: FormControl<string>;
     ShortDescription: FormControl<string>;
+    ShortDescriptionEn: FormControl<string>;
     LstHashTagNews: FormControl<string[]>;
+    LstHashTagNewsEn: FormControl<string[]>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
     FlagActive: FormControl<boolean>;
@@ -75,9 +83,13 @@ export class BlogsComponent implements OnInit {
       Thumbnail: ['', [Validators.required]],
       CategoryNewsId: ['', [Validators.required]],
       ContentBody: ['', [Validators.required]],
+      ContentBodyEn: [''],
       ShortTitle: ['', [Validators.required]],
+      ShortTitleEn: [''],
       ShortDescription: ['', [Validators.required]],
+      ShortDescriptionEn: [''],
       LstHashTagNews: [[] as string[]],
+      LstHashTagNewsEn: [[] as string[]],
       LstRefFileNews: [[{ FileUrl: '' }]],
       FlagActive: [true],
     });
@@ -132,12 +144,16 @@ export class BlogsComponent implements OnInit {
 
           // ✅ Set contentBody trước khi patch form
           this.contentBody = data.Data.ContentBody || '';
+          this.contentBodyEn = data.Data.ContentBodyEn || '';
 
           this.validateForm.patchValue({
             CategoryNewsId: data.Data.CategoryNewsId,
             ContentBody: data.Data.ContentBody,
+            ContentBodyEn: data.Data.ContentBodyEn,
             ShortTitle: data.Data.ShortTitle,
+            ShortTitleEn: data.Data.ShortTitleEn,
             ShortDescription: data.Data.ShortDescription,
+            ShortDescriptionEn: data.Data.ShortDescriptionEn,
             Thumbnail: data.Data.Thumbnail,
             LstRefFileNews: data.Data.LstRefFileNews,
             FlagActive: data.Data.FlagActive,
@@ -146,6 +162,9 @@ export class BlogsComponent implements OnInit {
           this.validateForm.patchValue({
             LstHashTagNews: this.normalizeHashtags(
               (data.Data.LstHashTagNews ?? []).map(tag => tag.HashTagNewsName)
+            ),
+            LstHashTagNewsEn: this.normalizeHashtags(
+              (data.Data.LstHashTagNewsEn ?? []).map(tag => tag.HashTagNewsName)
             ),
           });
 
@@ -199,7 +218,7 @@ export class BlogsComponent implements OnInit {
     const nodeById = new Map<string, NzTreeNodeOptions>();
     list.forEach(category =>
       nodeById.set(category.NewsCategoryId, {
-        title: category.NewsCategoryName,
+        title: this.getCategoryName(category),
         key: category.NewsCategoryId,
         children: [],
       })
@@ -223,8 +242,14 @@ export class BlogsComponent implements OnInit {
     return roots;
   }
 
+  private getCategoryName(category: INewsCategory): string {
+    return this.langService.getLang() === 'en' && category.NewsCategoryNameEn
+      ? category.NewsCategoryNameEn
+      : category.NewsCategoryName;
+  }
+
   private fetchHashtagSuggestions() {
-    this.apiService.GetTopHashTag().subscribe({
+    this.apiService.GetTopHashTag('vi').subscribe({
       next: data => {
         this.hashtagSuggestions = this.normalizeHashtags(
           (data.DataList ?? []).map(tag => tag.HashTagNewsName)
@@ -232,6 +257,15 @@ export class BlogsComponent implements OnInit {
       },
       // Gợi ý không có thì ô nhập vẫn gõ tay được, không cần báo lỗi ra màn hình.
       error: () => (this.hashtagSuggestions = []),
+    });
+
+    this.apiService.GetTopHashTag('en').subscribe({
+      next: data => {
+        this.hashtagSuggestionsEn = this.normalizeHashtags(
+          (data.DataList ?? []).map(tag => tag.HashTagNewsName)
+        );
+      },
+      error: () => (this.hashtagSuggestionsEn = []),
     });
   }
 
@@ -268,15 +302,46 @@ export class BlogsComponent implements OnInit {
       Thumbnail: this.validateForm.value.Thumbnail ?? '',
       CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
       ShortTitle: this.validateForm.value.ShortTitle ?? '',
+      ShortTitleEn: this.validateForm.value.ShortTitleEn ?? '',
       ShortDescription: this.validateForm.value.ShortDescription ?? '',
+      ShortDescriptionEn: this.validateForm.value.ShortDescriptionEn ?? '',
       ContentBody: this.validateForm.value.ContentBody ?? '',
+      ContentBodyEn: this.validateForm.value.ContentBodyEn ?? '',
       FlagActive: this.validateForm.value.FlagActive ?? true,
       LstHashTagNews: this.normalizeHashtags(
         this.validateForm.value.LstHashTagNews ?? []
       ).map(name => ({ HashTagNewsName: name })),
+      LstHashTagNewsEn: this.normalizeHashtags(
+        this.validateForm.value.LstHashTagNewsEn ?? []
+      ).map(name => ({ HashTagNewsName: name })),
       LstRefFileNews: [],
     };
     console.log('===update data', this.mode, data);
+    const englishFields = [
+      data.ShortTitleEn.trim(),
+      data.ShortDescriptionEn.trim(),
+      data.ContentBodyEn.trim(),
+    ];
+    const hasAnyEnglishContent =
+      englishFields.some(Boolean) || data.LstHashTagNewsEn.length > 0;
+    const hasCompleteEnglishContent = englishFields.every(Boolean);
+    if (hasAnyEnglishContent && !hasCompleteEnglishContent) {
+      this.message.warning(
+        'English translation requires title, description and content.'
+      );
+      return;
+    }
+    if (
+      hasCompleteEnglishContent &&
+      data.LstHashTagNews.length > 0 &&
+      data.LstHashTagNewsEn.length === 0
+    ) {
+      this.message.warning(
+        'Please add English hashtags for the English translation.'
+      );
+      return;
+    }
+
     if (this.validateForm.valid) {
       this.loadingService.setLoading(true);
       const apiCall =
@@ -285,20 +350,28 @@ export class BlogsComponent implements OnInit {
               Thumbnail: data.Thumbnail ?? '',
               CategoryNewsId: data.CategoryNewsId ?? '',
               ShortTitle: data.ShortTitle ?? '',
+              ShortTitleEn: data.ShortTitleEn ?? '',
               ShortDescription: data.ShortDescription ?? '',
+              ShortDescriptionEn: data.ShortDescriptionEn ?? '',
               ContentBody: data.ContentBody ?? '',
+              ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
+              LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],
             })
           : this.apiService.CreateNews({
               Thumbnail: data.Thumbnail ?? '',
               CategoryNewsId: data.CategoryNewsId ?? '',
               ShortTitle: data.ShortTitle ?? '',
+              ShortTitleEn: data.ShortTitleEn ?? '',
               ShortDescription: data.ShortDescription ?? '',
+              ShortDescriptionEn: data.ShortDescriptionEn ?? '',
               ContentBody: data.ContentBody ?? '',
+              ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
               LstHashTagNews: data.LstHashTagNews ?? '',
+              LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],
             });
       apiCall.subscribe({
@@ -339,6 +412,12 @@ export class BlogsComponent implements OnInit {
     }
   }
 
+  handleContentChangedEditorEn({ content }: { content: string }) {
+    if (this.validateForm.value.ContentBodyEn !== content) {
+      this.validateForm.patchValue({ ContentBodyEn: content });
+    }
+  }
+
   handlePreview = async (file: NzUploadFile): Promise<void> => {
     const extendedFile = file as NzUploadFile & {
       url: string;
@@ -363,5 +442,6 @@ export class BlogsComponent implements OnInit {
   handleResetForm() {
     this.validateForm.reset();
     this.contentBody = ''; // ✅ Reset content body
+    this.contentBodyEn = '';
   }
 }

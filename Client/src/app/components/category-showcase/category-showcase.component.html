@@ -24,12 +24,20 @@
         routerLink="/news"
         [queryParams]="{ categoryId: category.NewsCategoryId }">
         <span class="topic-cards-icon" [style.background]="getTopicColor(i)">
-          <svg viewBox="0 0 24 24" fill="#fff">
-            <path
-              [attr.d]="getTopicIconPath(category.NewsCategoryName, i)"></path>
-          </svg>
+          <img
+            *ngIf="category.NewsCategoryLogo; else fallbackCategoryIcon"
+            [src]="category.NewsCategoryLogo"
+            [alt]="getCategoryName(category)" />
+          <ng-template #fallbackCategoryIcon>
+            <svg viewBox="0 0 24 24" fill="#fff">
+              <path
+                [attr.d]="
+                  getTopicIconPath(getCategoryName(category), i)
+                "></path>
+            </svg>
+          </ng-template>
         </span>
-        <span class="topic-cards-name">{{ category.NewsCategoryName }}</span>
+        <span class="topic-cards-name">{{ getCategoryName(category) }}</span>
         <span class="topic-cards-count">
           {{ category.TotalCount }} {{ 'T_POSTSUNIT' | translate }}
         </span>
@@ -43,7 +51,7 @@
           *ngFor="let child of category.Children"
           routerLink="/news"
           [queryParams]="{ categoryId: child.NewsCategoryId }">
-          {{ child.NewsCategoryName }}
+          {{ getCategoryName(child) }}
         </a>
       </div>
 

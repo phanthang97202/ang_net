@@ -4,6 +4,7 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { PaginationComponent } from '../pagination/pagination.component';
 import {
   LoadingService,
+  LangService,
   NewsCacheService,
   ShowErrorService,
 } from '../../services';
@@ -45,6 +46,7 @@ export class NewNewsComponent implements OnInit {
   router = inject(Router);
   activedRouter = inject(ActivatedRoute);
   location = inject(Location);
+  private langService = inject(LangService);
 
   isLoading = true;
   posts: INewsWithPlaceholder[] = [];
@@ -76,7 +78,9 @@ export class NewNewsComponent implements OnInit {
   get filterValue(): string {
     if (this.keyword) return this.keyword;
     if (this.hashTag) return this.hashTag;
-    return this.posts[0]?.CategoryNewsName || this.categoryId;
+    return this.posts[0]
+      ? this.getCategoryName(this.posts[0])
+      : this.categoryId;
   }
 
   // Trang chủ không có mấy tham số lọc này nên chạy như cũ (lấy tất cả bài);
@@ -192,7 +196,9 @@ export class NewNewsComponent implements OnInit {
 
     const thousands = value / 1000;
     const rounded =
-      thousands < 10 ? thousands.toFixed(1).replace(/\.0$/, '') : Math.round(thousands);
+      thousands < 10
+        ? thousands.toFixed(1).replace(/\.0$/, '')
+        : Math.round(thousands);
     return `${rounded}k`;
   }
 
@@ -200,9 +206,39 @@ export class NewNewsComponent implements OnInit {
     return post.NewsId;
   }
 
-  private assignPlaceholders(
-    posts: IDetailNews[]
-  ): INewsWithPlaceholder[] {
+  getCategoryName(post: IDetailNews): string {
+    return this.langService.getLang() === 'en' && post.CategoryNewsNameEn
+      ? post.CategoryNewsNameEn
+      : post.CategoryNewsName;
+  }
+
+  getTitle(post: IDetailNews): string {
+    return this.useEnglish(post) ? post.ShortTitleEn : post.ShortTitle;
+  }
+
+  getDescription(post: IDetailNews): string {
+    return this.useEnglish(post)
+      ? post.ShortDescriptionEn
+      : post.ShortDescription;
+  }
+
+  getReadingTime(post: IDetailNews): number {
+    return this.useEnglish(post)
+      ? post.EstimatedReadingTimeEn
+      : post.EstimatedReadingTime;
+  }
+
+  getHashtags(post: IDetailNews): IDetailNews['LstHashTagNews'] {
+    return this.useEnglish(post)
+      ? (post.LstHashTagNewsEn ?? [])
+      : (post.LstHashTagNews ?? []);
+  }
+
+  private useEnglish(post: IDetailNews): boolean {
+    return this.langService.getLang() === 'en' && post.HasEnglishTranslation;
+  }
+
+  private assignPlaceholders(posts: IDetailNews[]): INewsWithPlaceholder[] {
     return posts.map((post, i) => ({
       ...post,
       _placeholderColor: PLACEHOLDER_COLORS[i % PLACEHOLDER_COLORS.length],

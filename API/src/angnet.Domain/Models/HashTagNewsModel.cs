@@ -10,6 +10,8 @@ namespace angnet.Domain.Models
         [Required]
         [StringLength(30, ErrorMessage = "HashTagNameIsLimited30Characters")]
         public string HashTagNewsName { get; set; } = string.Empty; // Tên hashtag
+        [StringLength(2)]
+        public string LanguageCode { get; set; } = "vi"; // Ngôn ngữ hashtag: vi/en
         public int Count { get; set; } // Số lần tag 
     }
 }

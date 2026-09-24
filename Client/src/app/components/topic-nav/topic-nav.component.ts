@@ -8,8 +8,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   LoadingService,
+  LangService,
   NewsCacheService,
   ShowErrorService,
 } from '../../services';
@@ -23,13 +25,15 @@ import {
 // ── Model ──────────────────────────────────────────────
 export interface Topic {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  logo: string;
 }
 
 @Component({
   selector: 'app-topic-nav',
   standalone: true,
-  imports: [CommonModule, RouterLink, ScrollRevealDirective],
+  imports: [CommonModule, RouterLink, TranslateModule, ScrollRevealDirective],
   templateUrl: './topic-nav.component.html',
   styleUrls: ['./topic-nav.component.scss'],
 })
@@ -37,6 +41,7 @@ export class TopicNavComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
   newsCacheService = inject(NewsCacheService);
   loadingService = inject(LoadingService);
+  private langService = inject(LangService);
   topics: Topic[] = [];
   isLoading = false;
 
@@ -122,7 +127,9 @@ export class TopicNavComponent implements OnInit {
         next: res => {
           this.topics = (res.DataList || []).map(category => ({
             id: category.NewsCategoryId,
-            name: category.NewsCategoryName,
+            nameVi: category.NewsCategoryName,
+            nameEn: category.NewsCategoryNameEn,
+            logo: category.NewsCategoryLogo,
           }));
           this.rebuildPages();
           this.currentPage = 0;
@@ -142,6 +149,12 @@ export class TopicNavComponent implements OnInit {
 
   trackById(_: number, topic: Topic): string {
     return topic.id;
+  }
+
+  getTopicName(topic: Topic): string {
+    return this.langService.getLang() === 'en' && topic.nameEn
+      ? topic.nameEn
+      : topic.nameVi;
   }
 
   // Uỷ quyền sang helper dùng chung để khối "Khám phá theo chủ đề" ra đúng cùng

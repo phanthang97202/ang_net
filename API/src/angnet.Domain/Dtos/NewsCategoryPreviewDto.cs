@@ -10,6 +10,8 @@ namespace angnet.Domain.Dtos
     {
         public string NewsCategoryId { get; set; } = string.Empty;
         public string NewsCategoryName { get; set; } = string.Empty;
+        public string NewsCategoryNameEn { get; set; } = string.Empty;
+        public string NewsCategoryLogo { get; set; } = string.Empty;
         public int NewsCategoryIndex { get; set; }
 
         /// <summary>Tổng số bài đã xuất bản của danh mục này, tính cả các danh mục con.</summary>
@@ -26,8 +28,11 @@ namespace angnet.Domain.Dtos
         public string NewsId { get; set; } = string.Empty;
         public string CategoryNewsId { get; set; } = string.Empty;
         public string Slug { get; set; } = string.Empty;
+        public string SlugEn { get; set; } = string.Empty;
         public string Thumbnail { get; set; } = string.Empty;
         public string ShortTitle { get; set; } = string.Empty;
+        public string ShortTitleEn { get; set; } = string.Empty;
+        public bool HasEnglishTranslation { get; set; }
         public DateTime CreatedDTime { get; set; }
     }
 }

@@ -15,6 +15,7 @@ import {
   ILikeNewsResponse,
   ISubscribeResponse,
   ISubscriberSearchResponse,
+  ISubscriberToggleActiveResponse,
   INotifyResultResponse,
   IEmailDeliveryReportResponse,
   INewsResponse,
@@ -237,6 +238,18 @@ export class ApiService {
     );
   }
 
+  SubscriberToggleActive(
+    subscriberId: string,
+    flagActive: boolean
+  ): Observable<ISubscriberToggleActiveResponse> {
+    return this.http.patch<ISubscriberToggleActiveResponse>(
+      `${this.apiUrl}subscriber/toggleactive?subscriberId=${encodeURIComponent(
+        subscriberId
+      )}&flagActive=${flagActive}`,
+      {}
+    );
+  }
+
   EmailDeliveryReport(
     pageIndex: number,
     pageSize: number,
@@ -286,10 +299,14 @@ export class ApiService {
       Thumbnail: obj.Thumbnail,
       CategoryNewsId: obj.CategoryNewsId,
       ShortTitle: obj.ShortTitle,
+      ShortTitleEn: obj.ShortTitleEn,
       ShortDescription: obj.ShortDescription,
+      ShortDescriptionEn: obj.ShortDescriptionEn,
       ContentBody: obj.ContentBody,
+      ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     });
   }
@@ -303,10 +320,14 @@ export class ApiService {
       Thumbnail: obj.Thumbnail,
       CategoryNewsId: obj.CategoryNewsId,
       ShortTitle: obj.ShortTitle,
+      ShortTitleEn: obj.ShortTitleEn,
       ShortDescription: obj.ShortDescription,
+      ShortDescriptionEn: obj.ShortDescriptionEn,
       ContentBody: obj.ContentBody,
+      ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     };
     console.log('====data', data);
@@ -315,18 +336,24 @@ export class ApiService {
       Thumbnail: obj.Thumbnail,
       CategoryNewsId: obj.CategoryNewsId,
       ShortTitle: obj.ShortTitle,
+      ShortTitleEn: obj.ShortTitleEn,
       ShortDescription: obj.ShortDescription,
+      ShortDescriptionEn: obj.ShortDescriptionEn,
       ContentBody: obj.ContentBody,
+      ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
       LstHashTagNews: obj.LstHashTagNews,
+      LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
     });
   }
 
   // HashTagNews
-  GetTopHashTag(): Observable<IHashTagNewsResponse> {
+  GetTopHashTag(
+    languageCode: 'vi' | 'en' = 'vi'
+  ): Observable<IHashTagNewsResponse> {
     return this.http.get<IHashTagNewsResponse>(
-      `${this.apiUrl}hashtagnews/gettophashtag`
+      `${this.apiUrl}hashtagnews/gettophashtag?languageCode=${languageCode}`
     );
   }
 
@@ -383,9 +410,7 @@ export class ApiService {
     );
   }
 
-  NewsCommentDelete(
-    commentId: string
-  ): Observable<INewsCommentCreateResponse> {
+  NewsCommentDelete(commentId: string): Observable<INewsCommentCreateResponse> {
     return this.http.delete<INewsCommentCreateResponse>(
       `${this.apiUrl}newscomment/delete?commentId=${encodeURIComponent(commentId)}`
     );
@@ -393,7 +418,9 @@ export class ApiService {
 
   // Mỗi danh mục gốc kèm tổng số bài và vài bài đọc nhiều nhất, gộp trong một
   // lần gọi (khối "Khám phá theo chủ đề" ngoài trang chủ).
-  GetNewsCategoryPreview(take: number): Observable<INewsCategoryPreviewResponse> {
+  GetNewsCategoryPreview(
+    take: number
+  ): Observable<INewsCategoryPreviewResponse> {
     return this.http.get<INewsCategoryPreviewResponse>(
       `${this.apiUrl}news/categorypreview?take=${take}`
     );

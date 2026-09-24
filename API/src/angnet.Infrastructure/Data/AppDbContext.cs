@@ -216,7 +216,7 @@ namespace angnet.Infrastructure.Data
 
             // HashTagNewsModel
             modelBuilder.Entity<HashTagNewsModel>()
-                        .HasKey(p => new { p.HashTagNewsId, p.NewsId });
+                        .HasKey(p => new { p.HashTagNewsId, p.NewsId, p.LanguageCode });
             modelBuilder.Entity<HashTagNewsModel>()
                         .HasOne<NewsModel>()
                         .WithMany()

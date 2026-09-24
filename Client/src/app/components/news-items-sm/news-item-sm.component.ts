@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { SubString, LocalDTime, SizeImgCloudinary } from '../../pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { INewsItemSm } from '../../interfaces';
 import { ScrollRevealDirective } from '../../directives';
+import { LangService } from '../../services';
 
 @Component({
   selector: 'app-news-item-sm',
@@ -28,7 +29,15 @@ export class NewsItemSmComponent implements OnInit {
   // được như cũ (thoả đủ các trường), mà khối xem trước theo danh mục - vốn chỉ
   // lấy về 6 trường - cũng dùng lại được component này.
   @Input() item!: INewsItemSm;
+  private langService = inject(LangService);
   constructor() {}
 
   ngOnInit() {}
+
+  get title(): string {
+    return this.langService.getLang() === 'en' &&
+      this.item.HasEnglishTranslation
+      ? this.item.ShortTitleEn
+      : this.item.ShortTitle;
+  }
 }

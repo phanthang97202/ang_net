@@ -15,10 +15,7 @@
            của bài viết thật, nên khung lúc chờ trùng khít với khung lúc có dữ
            liệu. Gói trong một *ngIf duy nhất để ảnh và các dòng chữ luôn hiện tắt
            cùng lúc. -->
-      <div
-        *ngIf="isLoading"
-        class="detail-card"
-        aria-hidden="true">
+      <div *ngIf="isLoading" class="detail-card" aria-hidden="true">
         <nz-skeleton-element
           nzType="image"
           [nzActive]="true"
@@ -32,13 +29,9 @@
         </div>
       </div>
 
-      <article
-        *ngIf="!isLoading"
-        class="detail-card">
+      <article *ngIf="!isLoading" class="detail-card">
         <div class="detail-thumb">
-          <img
-            [src]="slides[activeSlide]"
-            [alt]="detailNews.ShortTitle" />
+          <img [src]="slides[activeSlide]" [alt]="getTitle()" />
 
           <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
                để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
@@ -49,7 +42,10 @@
             class="detail-thumb-zoom"
             [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
             (click)="openPreview()">
-            <span class="detail-thumb-zoom-icon" nz-icon nzType="fullscreen"></span>
+            <span
+              class="detail-thumb-zoom-icon"
+              nz-icon
+              nzType="fullscreen"></span>
           </button>
 
           <!-- Bài không có ảnh nào trong nội dung thì chỉ còn 1 slide, ẩn hết
@@ -76,38 +72,32 @@
 
           <div class="detail-badges">
             <a
-              *ngIf="detailNews.CategoryNewsName"
+              *ngIf="getCategoryName()"
               class="detail-badge"
               routerLink="/news"
               [queryParams]="{ categoryId: detailNews.CategoryNewsId }"
-              >{{ detailNews.CategoryNewsName }}</a
+              >{{ getCategoryName() }}</a
             >
           </div>
-          <span class="detail-readtime">
-            {{ detailNews.EstimatedReadingTime }} Min Read
-          </span>
+          <span class="detail-readtime"> {{ getReadingTime() }} Min Read </span>
         </div>
 
         <div class="detail-body">
-          <h1 class="detail-title">{{ detailNews.ShortTitle }}</h1>
+          <h1 class="detail-title">{{ getTitle() }}</h1>
 
           <p class="detail-meta">
             <span class="detail-author">{{ detailNews.FullName }}</span>
             on {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
             <span class="detail-meta-sep">—</span>
-            {{ detailNews.EstimatedReadingTime }} mins read
+            {{ getReadingTime() }} mins read
             <span class="detail-meta-sep">—</span>
             <span nz-icon nzType="eye" nzTheme="outline"></span>
             {{ detailNews.ViewCount }}
           </p>
 
-          <div
-            class="detail-hashtags"
-            *ngIf="
-              detailNews.LstHashTagNews && detailNews.LstHashTagNews.length > 0
-            ">
+          <div class="detail-hashtags" *ngIf="getHashtags().length > 0">
             <a
-              *ngFor="let ht of detailNews.LstHashTagNews"
+              *ngFor="let ht of getHashtags()"
               class="detail-hashtag"
               routerLink="/news"
               [queryParams]="{ hashTag: ht.HashTagNewsName }"
@@ -116,18 +106,14 @@
           </div>
 
           <div class="detail-content">
-            <app-news-content
-              [content]="detailNews.ContentBody"
-              [showToc]="true">
+            <app-news-content [content]="getContent()" [showToc]="true">
             </app-news-content>
           </div>
 
           <!-- Chia sẻ đặt ngay cuối bài: đọc xong mới là lúc người ta muốn gửi
                cho người khác. Trước khối đánh giá vì chia sẻ là thao tác một
                chạm, còn chấm điểm thì phải nghĩ. -->
-          <app-share-buttons
-            class="detail-share"
-            [title]="detailNews.ShortTitle" />
+          <app-share-buttons class="detail-share" [title]="getTitle()" />
 
           <!-- Đặt ngay sau nội dung, trước phần bình luận: người vừa đọc xong
                mới có cơ sở để chấm điểm. -->

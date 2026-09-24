@@ -31,6 +31,8 @@ namespace angnet.Infrastructure.Data.Repositories
                                                         NewsCategoryId = i.NewsCategoryId,
                                                         NewsCategoryParentId = i.NewsCategoryParentId,
                                                         NewsCategoryName = i.NewsCategoryName,
+                                                        NewsCategoryNameEn = i.NewsCategoryNameEn,
+                                                        NewsCategoryLogo = i.NewsCategoryLogo,
                                                         NewsCategoryIndex = i.NewsCategoryIndex,
                                                     })
                                                 .OrderBy(i => i.NewsCategoryIndex)
@@ -45,6 +47,7 @@ namespace angnet.Infrastructure.Data.Repositories
                                     .Where(p => !TCommonUtils.IsNullOrEmpty(keyword)
                                                     ? p.NewsCategoryId.Contains(keyword)
                                                       || p.NewsCategoryName.Contains(keyword)
+                                                      || p.NewsCategoryNameEn.Contains(keyword)
                                                     : true);
 
             int itemCount = query.Count();

@@ -40,3 +40,16 @@
     width: 100%;
   }
 }
+
+.email-report__skipped {
+  color: #8c8c8c;
+}
+
+// 5 thẻ thống kê: lưới 24 cột không chia đều 5 được (nzXl=6 là 4 thẻ một hàng,
+// thẻ thứ 5 rơi xuống lẻ loi). Trên màn rộng cho các thẻ chia đều một hàng.
+@media (min-width: 1200px) {
+  .email-report__summary > [nz-col] {
+    flex: 1 1 0;
+    max-width: none;
+  }
+}
