@@ -1,12 +1,13 @@
 import {
+  HttpBackend,
+  HttpClient,
   HttpErrorResponse,
   HttpEvent,
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
+import { Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -19,6 +20,8 @@ import {
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ShowErrorService } from './show-error.service';
+import { AuthResponse } from '../interfaces';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -28,19 +31,29 @@ export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
+  private readonly refreshHttp: HttpClient;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    httpBackend: HttpBackend,
+    private injector: Injector,
     private showErrorService: ShowErrorService
-  ) {}
+  ) {
+    // Không inject AuthService/Router tại constructor. AuthService phụ thuộc
+    // HttpClient, còn Router dựng AppTitleStrategy -> TranslateService ->
+    // HttpClient; inject một trong hai ở đây sẽ tạo vòng DI qua
+    // HTTP_INTERCEPTORS ngay lúc ứng dụng bootstrap.
+    //
+    // Client dùng HttpBackend đi thẳng tới backend, rất quan trọng cho request
+    // refresh token: nó không chạy lại chính interceptor này.
+    this.refreshHttp = new HttpClient(httpBackend);
+  }
 
   // luôn luôn phải return ra observable
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    const curToken = this.authService.getToken();
+  ): Observable<HttpEvent<unknown>> {
+    const curToken = localStorage.getItem(this.tokenKey) ?? '';
     let clonedRequest = req;
 
     const listIgnore = [
@@ -68,7 +81,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // check khi access token còn hạn thì dùng tiếp như bình thường
-    if (curToken && this.authService.isLoggedIn()) {
+    if (curToken && this.isTokenValid(curToken)) {
       clonedRequest = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${curToken}`),
       });
@@ -88,15 +101,17 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private handleRefreshToken(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    const { nameid: userid } = this.authService.getAccountInfo();
+  ): Observable<HttpEvent<unknown>> {
+    const userid = this.getUserId(req);
     const refreshToken = localStorage.getItem(this.refreshTokenKey) ?? '';
 
-    if (!refreshToken) {
+    if (!refreshToken || !userid) {
       return this.handleCatchExpiredToken({
-        message: 'RefreshTokenIsMissing',
+        message: !refreshToken
+          ? 'RefreshTokenIsMissing'
+          : 'UserIdIsMissingFromToken',
       });
     }
 
@@ -116,15 +131,15 @@ export class AuthInterceptor implements HttpInterceptor {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
-      return this.authService
-        .refreshToken({
+      return this.refreshHttp
+        .post<AuthResponse>(`${environment.apiUrl}account/refreshtoken`, {
           UserId: userid,
           RefreshToken: refreshToken,
         })
         .pipe(
           switchMap(response => {
             if (!response?.Success) {
-              this.handleCatchExpiredToken({
+              return this.handleCatchExpiredToken({
                 ErrorMessage: response.ErrorMessage,
               });
             }
@@ -159,17 +174,55 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   // bắt lỗi
-  private handleCatchExpiredToken(err: HttpErrorResponse | any) {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  private handleCatchExpiredToken(err: unknown) {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+
+    // Router được lấy trễ, sau khi bootstrap đã hoàn tất. Inject Router trong
+    // constructor của interceptor sẽ tạo vòng Router -> TitleStrategy ->
+    // TranslateService -> HttpClient -> HTTP_INTERCEPTORS -> Router.
+    this.injector.get(Router).navigate(['/login']);
+    const message = this.getErrorMessage(err);
     this.showErrorService.setShowError({
-      title: err.message ?? err.ErrorMessage ?? '',
+      title: message,
       message: JSON.stringify(err, null, 2),
     });
     return throwError(() => {
       return {
-        ErrorMessage: err.message ?? err.ErrorMessage ?? '',
+        ErrorMessage: message,
       };
     });
+  }
+
+  private isTokenValid(token: string): boolean {
+    try {
+      const { exp } = jwtDecode<{ exp?: number }>(token);
+      return typeof exp === 'number' && Date.now() < exp * 1000;
+    } catch {
+      return false;
+    }
+  }
+
+  private getUserId(req: HttpRequest<unknown>): string {
+    const authorization = req.headers.get('Authorization') ?? '';
+    const requestToken = authorization.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : '';
+    const token = requestToken || localStorage.getItem(this.tokenKey) || '';
+    if (!token) return '';
+
+    try {
+      return jwtDecode<{ nameid?: string }>(token).nameid ?? '';
+    } catch {
+      return '';
+    }
+  }
+
+  private getErrorMessage(err: unknown): string {
+    if (!err || typeof err !== 'object') return '';
+
+    const error = err as { message?: unknown; ErrorMessage?: unknown };
+    const message = error.message ?? error.ErrorMessage;
+    return typeof message === 'string' ? message : '';
   }
 }

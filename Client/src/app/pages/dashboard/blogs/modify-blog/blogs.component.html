@@ -113,7 +113,7 @@
                     <app-text-editor
                       *ngIf="isDataLoaded"
                       [initContentBody]="contentBody"
-                      (onContentChanged)="handleContentChangedEditor($event)" />
+                      (contentChanged)="handleContentChangedEditor($event)" />
                   </nz-form-control>
                 </nz-form-item>
 
@@ -172,7 +172,7 @@
                     <app-text-editor
                       *ngIf="isDataLoaded"
                       [initContentBody]="contentBodyEn"
-                      (onContentChanged)="
+                      (contentChanged)="
                         handleContentChangedEditorEn($event)
                       " />
                   </nz-form-control>

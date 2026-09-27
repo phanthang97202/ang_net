@@ -6,6 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap&subset=vietnamese,latin,latin-ext');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap&subset=vietnamese,latin,latin-ext');
 
+@import 'ckeditor5/ckeditor5.css';
 @import 'quill/dist/quill.core.css';
 @import 'quill/dist/quill.snow.css';
 @tailwind base;
@@ -723,6 +724,89 @@ quill-editor {
     flex: 0 0 auto;
     align-items: center;
     margin-right: 8px;
+  }
+}
+
+// ── CKEditor cho trang soạn bài ──────────────────────────────────────────────
+// CKEditor render phần editable ở component con nên các rule layout phải đặt
+// global; style có encapsulation trong text-editor.component.scss không đi vào.
+app-text-editor .ck-editor__editable_inline {
+  min-height: 500px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+app-text-editor .editor-extra-tools + ckeditor .ck-toolbar {
+  border-radius: 0;
+}
+
+app-text-editor .ck-source-editing-area textarea {
+  min-height: 500px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+// Bảng do CKEditor tạo và bảng HTML dán từ ChatGPT dùng cùng kiểu hiển thị ở
+// trang soạn lẫn trang đọc. Các selector public phải ở global vì nội dung bài
+// viết được dựng bằng [innerHTML] và không mang attribute scope của Angular.
+.ck-content table,
+.content-display table {
+  width: 100%;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: var(--color-bg-card, #fff);
+  color: var(--color-text, #1a1a2e);
+}
+
+.ck-content table th,
+.ck-content table td,
+.content-display table th,
+.content-display table td {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border, #dfe3e8);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ck-content table th,
+.content-display table th {
+  background: var(--color-accent-bg, #f2f0fd);
+  font-weight: 700;
+}
+
+.ck-content table tbody tr:nth-child(even),
+.content-display table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--color-accent-bg, #f2f0fd) 45%, transparent);
+}
+
+.content-display figure.table {
+  width: 100%;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+}
+
+.content-display table caption,
+.ck-content table caption {
+  padding: 8px;
+  color: var(--color-text-muted, #667085);
+  font-size: 0.9em;
+  text-align: left;
+}
+
+@media (max-width: 767px) {
+  app-text-editor .ck-editor__editable_inline,
+  app-text-editor .ck-source-editing-area textarea {
+    min-height: 420px;
+  }
+
+  .ck-content table th,
+  .ck-content table td,
+  .content-display table th,
+  .content-display table td {
+    padding: 8px;
+    font-size: 14px;
   }
 }
 

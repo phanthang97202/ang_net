@@ -15,7 +15,6 @@ import {
   NewsItemSmComponent,
   PaginationComponent,
   SidebarSearchComponent,
-  TextEditorComponent,
   NavbarComponent,
   ErrorPopupComponent,
   SwitchLangComponent,
@@ -33,7 +32,8 @@ import {
   HomeSidebarComponent,
   SpinnerComponent,
 } from '../components';
-import { SaveProvincePopupComponent, AsideNewsComponent } from '../pages';
+import { AsideNewsComponent } from '../pages/home/aside-news/aside-news.component';
+import { SaveProvincePopupComponent } from '../pages/dashboard/mst-province/save-province-popup/save-province-popup.component';
 import { ScrollRevealDirective } from '../directives';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
@@ -51,7 +51,6 @@ import {
 } from 'ng-zorro-antd/layout';
 
 export const REUSE_COMPONENT_MODULES = [
-  TextEditorComponent,
   ChatBoxComponent,
   UploadCommonComponent,
   IconCommonComponent,

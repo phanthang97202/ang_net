@@ -1,14 +1,22 @@
-<div>
-  <div class="editor-container">
-    <quill-editor
-      format="html"
-      [modules]="editorModules"
-      [customModules]="customModules"
-      [styles]="{ height: '500px' }"
-      [(ngModel)]="content"
-      (onEditorChanged)="handleonEditorChanged($event)"
-      (onContentChanged)="handleContentChanged($event)"
-      (onEditorCreated)="onEditorCreated($event)">
-    </quill-editor>
+<div class="editor-container">
+  <div class="editor-extra-tools" aria-label="Công cụ nhúng nội dung">
+    <button type="button" (click)="insertEmbed('iframe')">
+      Nhúng video / iframe
+    </button>
+    <button type="button" (click)="insertEmbed('pdf')">Nhúng PDF</button>
   </div>
+
+  <ckeditor
+    [editor]="Editor"
+    [config]="editorConfig"
+    [(ngModel)]="content"
+    (ready)="onReady($event)"
+    (change)="handleContentChanged($event)">
+  </ckeditor>
+
+  <p class="editor-help">
+    Chọn biểu tượng <strong>&lt;/&gt;</strong> (Sửa mã nguồn) để dán HTML, sau đó
+    chọn lại biểu tượng này để xem nội dung đã render. Dùng biểu tượng bảng để
+    tạo hoặc chỉnh sửa hàng, cột và ô.
+  </p>
 </div>

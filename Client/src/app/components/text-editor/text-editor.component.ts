@@ -1,129 +1,242 @@
 import {
   Component,
   EventEmitter,
-  inject,
-  Output,
-  OnInit,
   Input,
   OnChanges,
-  OnDestroy,
+  Output,
   SimpleChanges,
 } from '@angular/core';
-import {
-  ContentChange,
-  EditorChangeContent,
-  EditorChangeSelection,
-  QuillModule,
-} from 'ngx-quill';
-import BlotFormatter, {
-  ImageSpec,
-  UnclickableBlotSpec,
-} from 'quill-blot-formatter';
-import { ApiService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
-import { EmbedType, IframeEmbedBlot } from './quill-embed.blot';
+import { ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import {
+  Alignment,
+  Autoformat,
+  Base64UploadAdapter,
+  BlockQuote,
+  Bold,
+  ClassicEditor,
+  Code,
+  CodeBlock,
+  Essentials,
+  FontBackgroundColor,
+  FontColor,
+  FontFamily,
+  FontSize,
+  GeneralHtmlSupport,
+  Heading,
+  Image,
+  ImageCaption,
+  ImageInsert,
+  ImageResize,
+  ImageStyle,
+  ImageToolbar,
+  ImageUpload,
+  Indent,
+  IndentBlock,
+  Italic,
+  Link,
+  LinkImage,
+  List,
+  Paragraph,
+  PasteFromOffice,
+  PlainTableOutput,
+  RemoveFormat,
+  SourceEditing,
+  Strikethrough,
+  Subscript,
+  Superscript,
+  Table,
+  TableCaption,
+  TableCellProperties,
+  TableColumnResize,
+  TableProperties,
+  TableToolbar,
+  Underline,
+  type EditorConfig,
+} from 'ckeditor5';
+import viTranslations from 'ckeditor5/translations/vi.js';
 
-// IframeVideoSpec của thư viện chỉ bắt selector 'iframe.ql-video'. Nới ra 'iframe'
-// để resize được cả embed iframe/PDF do nút mới chèn vào.
-class AnyIframeSpec extends UnclickableBlotSpec {
-  constructor(formatter: BlotFormatter) {
-    super(formatter, 'iframe');
-  }
-}
+type EmbedType = 'iframe' | 'pdf';
 
 @Component({
   selector: 'app-text-editor',
   standalone: true,
-  imports: [QuillModule, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CKEditorModule],
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss',
 })
-export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() initContentBody: string = '';
+export class TextEditorComponent implements OnChanges {
+  @Input() initContentBody = '';
 
-  editorModules: any;
-  editorContent = '';
+  @Output()
+  readonly contentChanged = new EventEmitter<{ content: string }>();
+
+  readonly Editor = ClassicEditor;
+  readonly editorConfig: EditorConfig = {
+    language: 'vi',
+    translations: [viTranslations],
+    plugins: [
+      Alignment,
+      Autoformat,
+      Base64UploadAdapter,
+      BlockQuote,
+      Bold,
+      Code,
+      CodeBlock,
+      Essentials,
+      FontBackgroundColor,
+      FontColor,
+      FontFamily,
+      FontSize,
+      GeneralHtmlSupport,
+      Heading,
+      Image,
+      ImageCaption,
+      ImageInsert,
+      ImageResize,
+      ImageStyle,
+      ImageToolbar,
+      ImageUpload,
+      Indent,
+      IndentBlock,
+      Italic,
+      Link,
+      LinkImage,
+      List,
+      Paragraph,
+      PasteFromOffice,
+      PlainTableOutput,
+      RemoveFormat,
+      SourceEditing,
+      Strikethrough,
+      Subscript,
+      Superscript,
+      Table,
+      TableCaption,
+      TableCellProperties,
+      TableColumnResize,
+      TableProperties,
+      TableToolbar,
+      Underline,
+    ],
+    toolbar: {
+      items: [
+        'undo',
+        'redo',
+        '|',
+        'sourceEditing',
+        '|',
+        'heading',
+        '|',
+        'bold',
+        'italic',
+        'underline',
+        'strikethrough',
+        'code',
+        '|',
+        'fontFamily',
+        'fontSize',
+        'fontColor',
+        'fontBackgroundColor',
+        '|',
+        'link',
+        'insertImage',
+        'insertTable',
+        'blockQuote',
+        'codeBlock',
+        '|',
+        'bulletedList',
+        'numberedList',
+        'outdent',
+        'indent',
+        '|',
+        'subscript',
+        'superscript',
+        'alignment',
+        'removeFormat',
+      ],
+      shouldNotGroupWhenFull: false,
+    },
+    image: {
+      toolbar: [
+        'imageTextAlternative',
+        'toggleImageCaption',
+        '|',
+        'imageStyle:inline',
+        'imageStyle:wrapText',
+        'imageStyle:breakText',
+        '|',
+        'resizeImage',
+        'linkImage',
+      ],
+    },
+    table: {
+      contentToolbar: [
+        'tableColumn',
+        'tableRow',
+        'mergeTableCells',
+        'toggleTableCaption',
+        '|',
+        'tableProperties',
+        'tableCellProperties',
+      ],
+    },
+    htmlSupport: {
+      // Giữ lại HTML hợp lệ khi chuyển qua lại giữa chế độ trực quan và mã nguồn.
+      // Các phần tử/thuộc tính có thể thực thi mã bị loại để bài viết không trở
+      // thành điểm chèn XSS khi trang chi tiết dùng innerHTML.
+      allow: [
+        {
+          name: /.*/,
+          attributes: true,
+          classes: true,
+          styles: true,
+        },
+      ],
+      disallow: [
+        {
+          name: /^(script|style|object|embed|form|input|button|textarea|select|option|meta|link|base)$/i,
+        },
+        { name: /.*/, attributes: /^on.*$/i },
+        {
+          name: /.*/,
+          attributes: [
+            {
+              key: /^(href|src|xlink:href|formaction)$/i,
+              value: /^\s*(javascript|vbscript):/i,
+            },
+          ],
+        },
+      ],
+    },
+  };
+
   content = '';
-
-  // Đăng ký qua đúng cơ chế customModules của ngx-quill. ngx-quill nạp Quill bằng
-  // await import('quill') rồi mới dựng editor, nên tự gọi Quill.register() ở ngOnInit
-  // là đua với vòng nạp đó - chạy được ở dev nhưng hỏng khi build production.
-  readonly customModules = [
-    { path: 'modules/blotFormatter', implementation: BlotFormatter },
-    { path: 'formats/iframeEmbed', implementation: IframeEmbedBlot },
-  ];
-
-  apiService = inject(ApiService);
-  showErrorService = inject(ShowErrorService);
-
-  @Output('onContentChanged')
-  onContentChanged: EventEmitter<{ ev?: ContentChange; content: string }> =
-    new EventEmitter();
-
-  private quill: any;
-  private domObserver?: MutationObserver;
-  private syncTimer?: ReturnType<typeof setTimeout>;
-
-  constructor(private sanitizer: DomSanitizer) {}
-
-  ngOnInit() {
-    if (this.initContentBody) {
-      this.content = this.initContentBody;
-      this.editorContent = this.initContentBody;
-    }
-
-    this.setupEditorModules();
-  }
+  private editorInstance?: ClassicEditor;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initContentBody'] && !changes['initContentBody'].firstChange) {
-      const newContent = changes['initContentBody'].currentValue;
-      if (newContent !== this.content) {
-        this.content = newContent;
-        this.editorContent = newContent;
-      }
+    if (!changes['initContentBody']) return;
+
+    const newContent = changes['initContentBody'].currentValue ?? '';
+    if (newContent !== this.content) {
+      this.content = newContent;
     }
   }
 
-  ngOnDestroy(): void {
-    this.domObserver?.disconnect();
-    clearTimeout(this.syncTimer);
+  onReady(editor: ClassicEditor): void {
+    this.editorInstance = editor;
   }
 
-  private setupEditorModules() {
-    this.editorModules = {
-      toolbar: {
-        container: [
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ header: 1 }, { header: 2 }],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          [{ script: 'sub' }, { script: 'super' }],
-          [{ indent: '-1' }, { indent: '+1' }],
-          [{ direction: 'rtl' }],
-          [{ size: ['small', false, 'large', 'huge'] }],
-          [{ header: [1, 2, 3, 4, 5, 6, false] }],
-          [{ color: [] }, { background: [] }],
-          [{ font: [] }],
-          [{ align: [] }],
-          ['clean'],
-          ['link', 'image', 'video'],
-          ['iframeEmbed', 'pdfEmbed'],
-        ],
-        handlers: {
-          iframeEmbed: () => this.insertEmbed('iframe'),
-          pdfEmbed: () => this.insertEmbed('pdf'),
-        },
-      },
-      blotFormatter: {
-        specs: [ImageSpec, AnyIframeSpec],
-      },
-    };
+  handleContentChanged(event: ChangeEvent<ClassicEditor>): void {
+    const content = event.editor.getData();
+    this.content = content;
+    this.contentChanged.emit({ content });
   }
 
-  private insertEmbed(type: EmbedType) {
+  insertEmbed(type: EmbedType): void {
+    if (!this.editorInstance) return;
+
     const input = window.prompt(
       type === 'pdf'
         ? 'Dán link file PDF (https://...)'
@@ -134,39 +247,31 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     const src = this.toEmbedSrc(input, type);
     if (!src) {
       window.alert(
-        'Link không hợp lệ. Hãy dán một đường dẫn https://... (hoặc link/mã nhúng TikTok, Facebook, Instagram).'
+        'Link không hợp lệ. Hãy dán một đường dẫn http/https hợp lệ.'
       );
       return;
     }
 
-    const range = this.quill.getSelection(true);
-    this.quill.insertEmbed(range.index, 'iframeEmbed', { src, type }, 'user');
-    this.quill.setSelection(range.index + 1, 0, 'silent');
+    const height = type === 'pdf' ? '600' : '400';
+    const html = `<iframe class="ql-embed" data-embed="${type}" src="${this.escapeAttribute(src)}" width="100%" height="${height}" frameborder="0" allowfullscreen="true" loading="lazy"></iframe>`;
+    const viewFragment = this.editorInstance.data.processor.toView(html);
+    const modelFragment = this.editorInstance.data.toModel(viewFragment);
+
+    this.editorInstance.model.insertContent(modelFragment);
+    this.editorInstance.editing.view.focus();
   }
 
-  // Chuỗi dán vào không phải lúc nào cũng là URL nhúng dùng được: TikTok cho ra
-  // đoạn <blockquote> + <script> (không nhét vào iframe được), còn link chia sẻ
-  // thường thì trỏ tới trang xem video chứ không phải player. Quy về URL player
-  // chính thức; thứ gì không phải URL http/https tuyệt đối thì loại luôn thay vì
-  // để iframe hiểu nhầm thành đường dẫn tương đối.
   private toEmbedSrc(input: string, type: EmbedType): string | null {
     const raw = input.trim();
     if (!raw) return null;
 
     if (type === 'iframe') {
       const tiktokId = this.extractTiktokVideoId(raw);
-      if (tiktokId) {
-        return `https://www.tiktok.com/player/v1/${tiktokId}`;
-      }
+      if (tiktokId) return `https://www.tiktok.com/player/v1/${tiktokId}`;
 
       const facebookSrc = this.toFacebookPluginSrc(raw);
-      if (facebookSrc) {
-        return facebookSrc;
-      }
+      if (facebookSrc) return facebookSrc;
 
-      // Đã chắc là link Instagram thì không rơi xuống nhánh iframe chung nữa:
-      // instagram.com chặn iframe bằng X-Frame-Options, có nhúng cũng ra khung
-      // trắng. Trả null để báo link sai còn hơn chèn vào một khung hỏng.
       const instagramLink = this.extractInstagramPermalink(raw);
       if (instagramLink) {
         return this.toInstagramEmbedSrc(
@@ -186,8 +291,6 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // Bắt được cả link chia sẻ (.../@user/video/123), link player sẵn có, lẫn
-  // nguyên đoạn mã nhúng TikTok (data-video-id="123").
   private extractTiktokVideoId(input: string): string | null {
     const match =
       input.match(/tiktok\.com\/(?:@[^/]+\/video|player\/v1)\/(\d+)/) ??
@@ -195,9 +298,6 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     return match ? match[1] : null;
   }
 
-  // Facebook cũng không nhúng thẳng link chia sẻ được, phải bọc qua plugin
-  // video.php (video/reel) hoặc post.php (bài viết/ảnh). Link plugin có sẵn thì
-  // giữ nguyên vì người dùng có thể đã tự chỉnh tham số width/show_text.
   private toFacebookPluginSrc(input: string): string | null {
     const href = this.extractFacebookHref(input);
     if (!href) return null;
@@ -211,29 +311,18 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
       /\/share\/[vr]\//.test(href) ||
       /fb\.watch\//.test(href) ||
       /[?&]v=\d/.test(href);
-
-    // Không truyền width/height: video.php dựng player theo TỈ LỆ của video gốc
-    // rồi phủ kín iframe. Truyền height cố định (vd 400) thì video dọc 9:16 phải
-    // cao gấp mấy lần mới hiện đủ, phần thừa bị iframe cắt mất trên/dưới. Bỏ đi
-    // để khung tỉ lệ ở blot (xem quill-embed.blot.ts) quyết chiều cao thay.
-    // post.php cũng không có tham số height, chiều cao bài viết do FB quyết.
     const encoded = encodeURIComponent(href);
+
     return isVideo
       ? `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false`
       : `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true`;
   }
 
-  // Facebook đưa ra 3 kiểu mã nhúng: iframe plugins sẵn, thẻ SDK
-  // <div class="fb-video" data-href> và <blockquote class="fb-post" cite>.
-  // Hai kiểu sau chỉ chạy khi trang có SDK của FB nên rút link ra tự bọc plugin.
   private extractFacebookHref(input: string): string | null {
     const embedded =
       input.match(/<iframe[^>]+src=["']([^"']+)["']/i) ??
       input.match(/data-href=["']([^"']+)["']/i) ??
       input.match(/\scite=["']([^"']+)["']/i);
-
-    // Mã nhúng là HTML nên & trong query bị escape thành &amp;, không decode thì
-    // các tham số sau href dính liền vào giá trị href.
     const candidate = (embedded ? embedded[1] : input).replace(/&amp;/g, '&');
 
     try {
@@ -246,9 +335,6 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // Mã nhúng Instagram là <blockquote> + <script src=embed.js>, nhét vào iframe
-  // không chạy. Nhưng IG có sẵn endpoint /embed nhúng iframe thẳng được, nên chỉ
-  // cần rút permalink trong data-instgrm-permalink ra.
   private extractInstagramPermalink(input: string): string | null {
     const embedded =
       input.match(/data-instgrm-permalink=["']([^"']+)["']/i) ??
@@ -270,11 +356,8 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     permalink: string,
     captioned: boolean
   ): string | null {
-    // Nút "Sao chép liên kết" trên app IG cho ra dạng /share/<token>, là link
-    // chuyển hướng nên không đọc được shortcode ở phía trình duyệt.
     if (/instagram\.com\/share\//i.test(permalink)) return null;
 
-    // Bài viết có cả dạng /p/<code> lẫn /<user>/p/<code>.
     const match = permalink.match(
       /instagram\.com\/(?:[^/?#]+\/)?(p|reels?|tv)\/([A-Za-z0-9_-]+)/i
     );
@@ -286,39 +369,11 @@ export class TextEditorComponent implements OnInit, OnChanges, OnDestroy {
     return `https://www.instagram.com/${kind}/${match[2]}/embed${suffix}`;
   }
 
-  onEditorCreated(editor: any) {
-    this.quill = editor;
-
-    // BlotFormatter ghi width/height thẳng vào DOM chứ không đi qua Delta, nên Quill
-    // không phát text-change và ngx-quill không đẩy giá trị mới ra ngoài. Không có
-    // đoạn này thì kéo resize xong bấm Đăng là mất kích thước.
-    this.domObserver = new MutationObserver(() => this.scheduleSync());
-    this.domObserver.observe(editor.root, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['width', 'height', 'style'],
-    });
-  }
-
-  private scheduleSync() {
-    clearTimeout(this.syncTimer);
-    this.syncTimer = setTimeout(() => {
-      const html = this.quill.root.innerHTML;
-      if (html === this.content) return;
-      this.content = html;
-      this.onContentChanged.emit({ content: html });
-    }, 200);
-  }
-
-  byPassHTML(html: string) {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
-  }
-
-  handleonEditorChanged(ev: EditorChangeContent | EditorChangeSelection) {
-    // Handle editor change if needed
-  }
-
-  handleContentChanged(ev: ContentChange) {
-    this.onContentChanged.emit({ ev, content: this.content });
+  private escapeAttribute(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 }

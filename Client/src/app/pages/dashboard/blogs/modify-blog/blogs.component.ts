@@ -21,11 +21,12 @@ import { Util } from '../../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { TextEditorComponent } from '../../../../components/text-editor/text-editor.component';
 
 @Component({
   selector: 'app-blogs',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, TextEditorComponent],
   templateUrl: './blogs.component.html',
   styleUrl: './blogs.component.scss',
 })
