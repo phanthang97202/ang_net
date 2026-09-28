@@ -17,10 +17,16 @@ namespace angnet.Domain.Dtos
         /// <summary>Tổng số bài đã xuất bản của danh mục này, tính cả các danh mục con.</summary>
         public int TotalCount { get; set; }
 
-        /// <summary>Các danh mục con trực tiếp, để hiện thành chip trong thẻ.</summary>
-        public List<NewsCategoryDto> Children { get; set; } = new List<NewsCategoryDto>();
+        /// <summary>Các danh mục con trực tiếp, kèm tổng bài của từng nhánh.</summary>
+        public List<NewsCategoryPreviewChildDto> Children { get; set; } = new List<NewsCategoryPreviewChildDto>();
 
         public List<NewsCategoryPreviewItemDto> Posts { get; set; } = new List<NewsCategoryPreviewItemDto>();
+    }
+
+    public class NewsCategoryPreviewChildDto : NewsCategoryDto
+    {
+        /// <summary>Tổng số bài đã xuất bản của danh mục con, tính cả các nhánh bên dưới.</summary>
+        public int TotalCount { get; set; }
     }
 
     public class NewsCategoryPreviewItemDto

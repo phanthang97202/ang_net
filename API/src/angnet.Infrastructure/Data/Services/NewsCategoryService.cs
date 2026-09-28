@@ -116,7 +116,7 @@ namespace angnet.Infrastructure.Data.Services
 
             await _unitOfWork.NewsCategoryRespository.Create(data);
             await _dbContext.SaveChangesAsync();
-            await InvalidateCategoryPreviewCache();
+            await InvalidateCategoryCaches();
 
             apiResponse.Data = data;
             
@@ -301,7 +301,7 @@ namespace angnet.Infrastructure.Data.Services
                                     , x => x.UpdatedDTime
                                 );
             await _dbContext.SaveChangesAsync();
-            await InvalidateCategoryPreviewCache();
+            await InvalidateCategoryCaches();
 
             apiResponse.Data = entity;
 
@@ -349,14 +349,20 @@ namespace angnet.Infrastructure.Data.Services
             // Truyền entity chứ không truyền khóa: BaseRepository.Delete gọi thẳng _dbCtx.Remove(...)
             await _unitOfWork.NewsCategoryRespository.Delete(_data);
             await _dbContext.SaveChangesAsync();
-            await InvalidateCategoryPreviewCache();
+            await InvalidateCategoryCaches();
 
             return apiResponse;
         }
 
-        private Task InvalidateCategoryPreviewCache()
+        private Task InvalidateCategoryCaches()
         {
-            return _redisDb.KeyDeleteAsync(TConstValue.NewsRespository_CategoryPreview);
+            // Đổi quan hệ cha-con không chỉ làm thay đổi cây và số đếm, mà còn thay
+            // đổi kết quả Search khi người dùng lọc theo danh mục cha.
+            return _redisDb.KeyDeleteAsync(new RedisKey[]
+            {
+                TConstValue.NewsRespository_CategoryPreview,
+                TConstValue.NewsRespository_Search
+            });
         }
     }
 }

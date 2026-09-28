@@ -395,10 +395,31 @@ namespace angnet.Infrastructure.Data.Repositories
             }
             else if (!TCommonUtils.IsNullOrEmpty(_categoryId))
             {
-                query = _dbContext.News.AsNoTracking()
-                                     .Where(i =>
-                                             i.CategoryNewsId.Trim().ToLower() == _categoryId
-                                     );
+                // Khi chọn một danh mục cha, danh sách phải gồm cả bài nằm trong mọi
+                // nhánh con. Trước đây chỉ so sánh đúng CategoryNewsId nên bấm cha có
+                // thể ra danh sách rỗng dù số đếm của cha vẫn bao gồm bài của con.
+                List<NewsCategoryModel> activeCategories = await _dbContext.NewsCategory
+                        .AsNoTracking()
+                        .Where(c => c.FlagActive)
+                        .ToListAsync();
+
+                NewsCategoryModel? selectedCategory = activeCategories.FirstOrDefault(c =>
+                        c.NewsCategoryId.Trim().ToLower() == _categoryId);
+
+                if (selectedCategory is null)
+                {
+                    query = _dbContext.News.AsNoTracking()
+                                         .Where(i => i.CategoryNewsId.Trim().ToLower() == _categoryId);
+                }
+                else
+                {
+                    List<string> branchIds = CollectBranchIds(
+                            selectedCategory.NewsCategoryId,
+                            activeCategories);
+
+                    query = _dbContext.News.AsNoTracking()
+                                         .Where(i => branchIds.Contains(i.CategoryNewsId));
+                }
             }
             else
             {
@@ -436,7 +457,10 @@ namespace angnet.Infrastructure.Data.Repositories
             // pinnedFirst nằm trong khoá cache vì nó đổi thứ tự kết quả: thiếu nó thì
             // khối "Bài viết nổi bật" và danh sách thường (cùng sort=views) dùng
             // chung một ô nhớ, ai gọi trước ghi gì thì người sau nhận đúng cái đó.
-            string primaryKey = $"({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst})";
+            // v2 tách khỏi kết quả cũ vốn chỉ lọc đúng một CategoryNewsId. Nếu không
+            // đổi field cache, sau khi deploy danh mục cha vẫn có thể trả dữ liệu cũ
+            // trong tối đa 30 phút.
+            string primaryKey = $"v2|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -492,11 +516,12 @@ namespace angnet.Infrastructure.Data.Repositories
             // take do client truyền: chặn trên để một request lỡ tay không kéo về cả blog.
             int _take = (take > 0 && take <= 10) ? take : 3;
 
-            // Nội dung giống hệt nhau với mọi khách nên cache được nguyên khối. Vòng lặp
-            // bên dưới chạy mỗi danh mục 2 câu truy vấn, có cache thì chỉ tốn đúng một
-            // lần cho mỗi chu kỳ hết hạn chứ không phải mỗi lượt truy cập.
+            // Nội dung giống hệt nhau với mọi khách nên cache được nguyên khối. Số bài
+            // theo danh mục được gom bằng một query, sau đó mỗi danh mục gốc chỉ cần lấy
+            // danh sách bài tiêu biểu của nhánh.
             string keyStoreManager = TConstValue.NewsRespository_CategoryPreview;
-            string fieldKey = GenerateUniqueCacheKey(keyStoreManager, $"({_take})");
+            // v2 buộc tạo lại payload vì bản cũ chưa có TotalCount cho danh mục con.
+            string fieldKey = GenerateUniqueCacheKey(keyStoreManager, $"v2|({_take})");
             string rsCached = await GetFieldOfHashCacheAsync(keyStoreManager, fieldKey);
 
             if (rsCached is not null)
@@ -520,6 +545,19 @@ namespace angnet.Infrastructure.Data.Repositories
 
             List<NewsCategoryPreviewDto> dataResponse = new List<NewsCategoryPreviewDto>();
 
+            // Đếm một lần theo danh mục rồi cộng theo từng nhánh ở bộ nhớ. Như vậy danh
+            // mục con có số lượng chính xác mà không phát sinh thêm một query cho mỗi con.
+            Dictionary<string, int> publishedCountByCategory = await _dbContext.News
+                    .AsNoTracking()
+                    .Where(n => n.FlagActive)
+                    .GroupBy(n => n.CategoryNewsId)
+                    .Select(group => new
+                    {
+                        CategoryId = group.Key,
+                        Count = group.Count()
+                    })
+                    .ToDictionaryAsync(item => item.CategoryId, item => item.Count);
+
             foreach (NewsCategoryModel root in roots)
             {
                 // Bài nằm ở danh mục con vẫn phải được tính cho danh mục cha, nếu không
@@ -529,7 +567,8 @@ namespace angnet.Infrastructure.Data.Repositories
                 IQueryable<NewsModel> query = _dbContext.News.AsNoTracking()
                                                     .Where(n => n.FlagActive && branchIds.Contains(n.CategoryNewsId));
 
-                int totalCount = await query.CountAsync();
+                int totalCount = branchIds.Sum(id =>
+                        publishedCountByCategory.TryGetValue(id, out int count) ? count : 0);
 
                 // Danh mục chưa có bài thì bỏ hẳn khỏi kết quả: đưa ra trang chủ chỉ tạo
                 // thêm một ô trống dẫn tới trang danh sách rỗng.
@@ -569,14 +608,18 @@ namespace angnet.Infrastructure.Data.Repositories
                     Children = categories
                             .Where(c => c.NewsCategoryParentId == root.NewsCategoryId)
                             .OrderBy(c => c.NewsCategoryIndex)
-                            .Select(c => new NewsCategoryDto
+                            .Select(c => new NewsCategoryPreviewChildDto
                             {
                                 NewsCategoryId = c.NewsCategoryId,
                                 NewsCategoryParentId = c.NewsCategoryParentId,
                                 NewsCategoryName = c.NewsCategoryName,
                                 NewsCategoryNameEn = c.NewsCategoryNameEn,
                                 NewsCategoryLogo = c.NewsCategoryLogo,
-                                NewsCategoryIndex = c.NewsCategoryIndex
+                                NewsCategoryIndex = c.NewsCategoryIndex,
+                                TotalCount = CollectBranchIds(c.NewsCategoryId, categories)
+                                        .Sum(id => publishedCountByCategory.TryGetValue(id, out int count)
+                                                ? count
+                                                : 0)
                             })
                             .ToList(),
                     Posts = posts
