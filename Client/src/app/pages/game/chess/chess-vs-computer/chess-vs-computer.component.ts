@@ -5,7 +5,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { Chess } from 'chess.js';
 import { AntdModule } from '../../../../modules';
 import { ChessColor } from '../../../../interfaces';
-import { ChessBoardComponent } from '../chess-board/chess-board.component';
+import {
+  ChessBoardComponent,
+  ChessLastMove,
+} from '../chess-board/chess-board.component';
 import { AiLevel, getBestMove } from '../chess-ai';
 
 type GameResult = 'win' | 'lose' | 'draw' | null;
@@ -26,6 +29,7 @@ export class ChessVsComputerComponent {
   difficulty: AiLevel = 'medium';
 
   chess = new Chess();
+  lastMove: ChessLastMove | null = null;
   gameResult: GameResult = null;
   isThinking = false;
 
@@ -45,6 +49,7 @@ export class ChessVsComputerComponent {
   startGame(): void {
     this.started = true;
     this.chess = new Chess();
+    this.lastMove = null;
     this.gameResult = null;
     this.isThinking = false;
 
@@ -61,6 +66,7 @@ export class ChessVsComputerComponent {
     });
     if (!result) return;
 
+    this.lastMove = { from: result.from, to: result.to };
     if (this.checkGameOver()) return;
     this.triggerAiMove();
   }
@@ -84,7 +90,8 @@ export class ChessVsComputerComponent {
     setTimeout(() => {
       const move = getBestMove(this.chess.fen(), this.difficulty);
       if (move) {
-        this.chess.move(move);
+        const result = this.chess.move(move);
+        this.lastMove = { from: result.from, to: result.to };
       }
       this.isThinking = false;
       this.checkGameOver();

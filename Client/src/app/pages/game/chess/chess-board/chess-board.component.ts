@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+} from '@angular/core';
 import { Chess, Square } from 'chess.js';
 import { ChessColor } from '../../../../interfaces';
 
@@ -7,13 +13,29 @@ interface BoardSquare {
   square: string;
   piece: string; // ký hiệu unicode quân cờ, rỗng nếu ô trống
   isLight: boolean;
+  isLastMove: boolean;
   isSelected: boolean;
   isLegalTarget: boolean;
 }
 
+export interface ChessLastMove {
+  from: string;
+  to: string;
+}
+
 const PIECE_GLYPHS: Record<string, string> = {
-  wk: '♔', wq: '♕', wr: '♖', wb: '♗', wn: '♘', wp: '♙',
-  bk: '♚', bq: '♛', br: '♜', bb: '♝', bn: '♞', bp: '♟',
+  wk: '♔',
+  wq: '♕',
+  wr: '♖',
+  wb: '♗',
+  wn: '♘',
+  wp: '♙',
+  bk: '♚',
+  bq: '♛',
+  br: '♜',
+  bb: '♝',
+  bn: '♞',
+  bp: '♟',
 };
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -29,6 +51,7 @@ export class ChessBoardComponent implements OnChanges {
   @Input({ required: true }) fen!: string;
   @Input() orientation: ChessColor = 'white';
   @Input() interactive = false;
+  @Input() lastMove: ChessLastMove | null = null;
 
   @Output() move = new EventEmitter<{
     from: string;
@@ -148,6 +171,8 @@ export class ChessBoardComponent implements OnChanges {
           piece: piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '',
           // a1 luôn là ô tối theo quy ước bàn cờ chuẩn.
           isLight: (fileIndex + rank) % 2 === 0,
+          isLastMove:
+            square === this.lastMove?.from || square === this.lastMove?.to,
           isSelected: square === this.selectedSquare,
           isLegalTarget: this.legalTargets.has(square),
         };

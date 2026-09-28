@@ -5,7 +5,9 @@
       <h1 class="chess-room__title">{{ 'T_CHESS' | translate }}</h1>
       <p class="chess-room__desc">{{ 'T_CHESS_JOIN_DESC' | translate }}</p>
 
-      <label class="chess-room__label">{{ 'T_CHESS_YOUR_NAME' | translate }}</label>
+      <label class="chess-room__label">{{
+        'T_CHESS_YOUR_NAME' | translate
+      }}</label>
       <input
         nz-input
         [(ngModel)]="playerNameInput"
@@ -30,7 +32,9 @@
   <!-- Đã vào phòng -->
   <div class="chess-room__content" *ngIf="joined && state">
     <div class="chess-room__players">
-      <div class="chess-room__player" [class.chess-room__player--ready]="myReady">
+      <div
+        class="chess-room__player"
+        [class.chess-room__player--ready]="myReady">
         <span class="chess-room__player-name"
           >{{ myName }} ({{ 'T_CHESS_YOU' | translate }})</span
         >
@@ -54,12 +58,16 @@
     </p>
 
     <!-- Chờ đối thủ tham gia -->
-    <div class="chess-room__waiting" *ngIf="state.status === 'WaitingForOpponent'">
+    <div
+      class="chess-room__waiting"
+      *ngIf="state.status === 'WaitingForOpponent'">
       <p>{{ 'T_CHESS_WAITING_OPPONENT' | translate }}</p>
       <div class="chess-room__invite">
         <input nz-input [value]="inviteLink" readonly />
         <button nz-button (click)="copyInviteLink()">
-          {{ (copyFeedback ? 'T_CHESS_COPIED' : 'T_CHESS_COPY_LINK') | translate }}
+          {{
+            (copyFeedback ? 'T_CHESS_COPIED' : 'T_CHESS_COPY_LINK') | translate
+          }}
         </button>
       </div>
     </div>
@@ -79,13 +87,16 @@
     <!-- Đang chơi -->
     <div class="chess-room__game" *ngIf="state.status === 'Playing'">
       <p class="chess-room__turn" *ngIf="!gameResult">
-        {{ (isMyTurn ? 'T_CHESS_YOUR_TURN' : 'T_CHESS_OPPONENT_TURN') | translate }}
+        {{
+          (isMyTurn ? 'T_CHESS_YOUR_TURN' : 'T_CHESS_OPPONENT_TURN') | translate
+        }}
       </p>
 
       <app-chess-board
         [fen]="chess.fen()"
         [orientation]="myColor"
         [interactive]="canMove"
+        [lastMove]="lastMove"
         (move)="onLocalMove($event)">
       </app-chess-board>
 
@@ -107,7 +118,9 @@
     </div>
 
     <!-- Phòng kết thúc trước khi vào ván (đối thủ rời khi đang chờ) -->
-    <div class="chess-room__finished" *ngIf="state.status === 'Finished' && !gameResult">
+    <div
+      class="chess-room__finished"
+      *ngIf="state.status === 'Finished' && !gameResult">
       <button nz-button nzType="primary" (click)="backToLobby()">
         {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
       </button>

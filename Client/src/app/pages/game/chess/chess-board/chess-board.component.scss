@@ -28,6 +28,10 @@
       background: #769656;
     }
 
+    &--last-move {
+      background: #f6f669;
+    }
+
     &--selected {
       outline: 3px solid var(--color-accent);
       outline-offset: -3px;

@@ -2,9 +2,13 @@
   <!-- Màn hình cài đặt -->
   <div class="chess-vs-computer__setup" *ngIf="!started">
     <div class="chess-vs-computer__card">
-      <h1 class="chess-vs-computer__title">{{ 'T_CHESS_VS_COMPUTER' | translate }}</h1>
+      <h1 class="chess-vs-computer__title">
+        {{ 'T_CHESS_VS_COMPUTER' | translate }}
+      </h1>
 
-      <label class="chess-vs-computer__label">{{ 'T_CHESS_CHOOSE_COLOR' | translate }}</label>
+      <label class="chess-vs-computer__label">{{
+        'T_CHESS_CHOOSE_COLOR' | translate
+      }}</label>
       <div class="chess-vs-computer__options">
         <button
           type="button"
@@ -22,7 +26,9 @@
         </button>
       </div>
 
-      <label class="chess-vs-computer__label">{{ 'T_CHESS_DIFFICULTY' | translate }}</label>
+      <label class="chess-vs-computer__label">{{
+        'T_CHESS_DIFFICULTY' | translate
+      }}</label>
       <div class="chess-vs-computer__options">
         <button
           type="button"
@@ -75,6 +81,7 @@
       [fen]="chess.fen()"
       [orientation]="playerColor"
       [interactive]="canMove"
+      [lastMove]="lastMove"
       (move)="onLocalMove($event)">
     </app-chess-board>
 
