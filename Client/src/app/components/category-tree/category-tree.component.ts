@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, Input, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,6 +36,10 @@ import { ScrollRevealDirective } from '../../directives';
 })
 export class CategoryTreeComponent implements OnInit {
   @Input() currentCategoryId = '';
+  @Input() forceLoading = false;
+  // Phát bất đồng bộ để cache trả dữ liệu tức thì cũng không thay đổi state
+  // của component cha ngay giữa một lượt change detection.
+  @Output() loadingChange = new EventEmitter<boolean>(true);
 
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
@@ -42,6 +54,10 @@ export class CategoryTreeComponent implements OnInit {
 
   get activeCategoryId(): string {
     return this.currentCategoryId || this.routeCategoryId;
+  }
+
+  get showLoading(): boolean {
+    return this.forceLoading || this.isLoading;
   }
 
   ngOnInit(): void {
@@ -93,16 +109,20 @@ export class CategoryTreeComponent implements OnInit {
   }
 
   private loadCategories(): void {
+    this.isLoading = true;
+    this.loadingChange.emit(true);
     this.newsCacheService
       .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE)
       .subscribe({
         next: res => {
           this.categories = res.DataList || [];
           this.isLoading = false;
+          this.loadingChange.emit(false);
         },
         error: err => {
           this.categories = [];
           this.isLoading = false;
+          this.loadingChange.emit(false);
           this.showErrorService.setShowError({
             icon: 'warning',
             message: JSON.stringify(err, null, 2),

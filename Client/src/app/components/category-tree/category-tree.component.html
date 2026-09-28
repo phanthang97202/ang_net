@@ -1,5 +1,5 @@
 <section
-  *ngIf="isLoading || categories.length > 0"
+  *ngIf="showLoading || categories.length > 0"
   class="category-tree-card"
   appScrollReveal>
   <button
@@ -22,12 +22,12 @@
     id="news-category-tree"
     class="category-tree-body"
     [class.category-tree-body--collapsed]="isCollapsed">
-    <div *ngIf="isLoading" class="category-tree-skeleton" aria-hidden="true">
+    <div *ngIf="showLoading" class="category-tree-skeleton" aria-hidden="true">
       <span *ngFor="let item of [1, 2, 3, 4, 5]"></span>
     </div>
 
     <nav
-      *ngIf="!isLoading"
+      *ngIf="!showLoading"
       class="category-tree-nav"
       [attr.aria-label]="'T_CATEGORIES' | translate">
       <a
