@@ -13,7 +13,8 @@ interface BoardSquare {
   square: string;
   piece: string; // ký hiệu unicode quân cờ, rỗng nếu ô trống
   isLight: boolean;
-  isLastMove: boolean;
+  isLastMoveFrom: boolean;
+  isLastMoveTo: boolean;
   isSelected: boolean;
   isLegalTarget: boolean;
 }
@@ -171,8 +172,8 @@ export class ChessBoardComponent implements OnChanges {
           piece: piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '',
           // a1 luôn là ô tối theo quy ước bàn cờ chuẩn.
           isLight: (fileIndex + rank) % 2 === 0,
-          isLastMove:
-            square === this.lastMove?.from || square === this.lastMove?.to,
+          isLastMoveFrom: square === this.lastMove?.from,
+          isLastMoveTo: square === this.lastMove?.to,
           isSelected: square === this.selectedSquare,
           isLegalTarget: this.legalTargets.has(square),
         };

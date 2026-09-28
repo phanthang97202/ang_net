@@ -5,11 +5,14 @@
       class="chess-board__square"
       [class.chess-board__square--light]="cell.isLight"
       [class.chess-board__square--dark]="!cell.isLight"
-      [class.chess-board__square--last-move]="cell.isLastMove"
+      [class.chess-board__square--last-move-to]="cell.isLastMoveTo"
       [class.chess-board__square--selected]="cell.isSelected"
       [class.chess-board__square--legal]="cell.isLegalTarget"
       (click)="onSquareClick(cell.square)">
       <span class="chess-board__piece">{{ cell.piece }}</span>
+      <span
+        *ngIf="cell.isLastMoveFrom"
+        class="chess-board__last-move-dot"></span>
       <span
         *ngIf="cell.isLegalTarget && !cell.piece"
         class="chess-board__dot"></span>
