@@ -136,12 +136,17 @@
 
         <div class="post-card-hashtags" *ngIf="getHashtags(post).length > 0">
           <a
-            *ngFor="let ht of getHashtags(post)"
+            *ngFor="let ht of getHashtags(post) | slice: 0 : 2"
             class="post-hashtag"
             routerLink="/news"
             [queryParams]="{ hashTag: ht.HashTagNewsName }"
             >{{ ht.HashTagNewsName }}</a
           >
+          <span
+            *ngIf="getHashtags(post).length > 2"
+            class="post-hashtag post-hashtag--more">
+            +{{ getHashtags(post).length - 2 }} more
+          </span>
         </div>
       </div>
     </article>

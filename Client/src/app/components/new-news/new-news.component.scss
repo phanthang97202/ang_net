@@ -328,6 +328,13 @@
     background: var(--color-accent);
     color: #fff;
   }
+
+  &--more,
+  &--more:hover {
+    background: var(--color-control-bg);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
 }
 
 // ── Skeleton ─────────────────────────────────────────────
