@@ -135,15 +135,6 @@
         id="news-comments"
         [newsId]="detailNews.NewsId"
         (totalCountChange)="commentCount = $event" />
-
-      <!-- Sau bình luận, cuối trang: đây là chỗ người đọc hết bài cần một đường
-           đi tiếp. Sidebar cũng có khối tương tự nhưng ở mobile nó bị đẩy xuống
-           tận đáy, cuộn hết bài là hết đường. -->
-      <app-related-posts
-        *ngIf="!isLoading"
-        class="detail-related"
-        [categoryId]="detailNews.CategoryNewsId"
-        [excludeNewsId]="detailNews.NewsId" />
     </div>
   </div>
 
