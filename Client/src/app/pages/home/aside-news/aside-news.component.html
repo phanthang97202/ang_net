@@ -1,4 +1,9 @@
 <div class="w-full flex flex-col gap-[24px]">
+  <!-- Ở trang danh sách, chuyên mục là điều hướng chính nên đặt lên đầu. -->
+  <app-category-tree
+    *ngIf="!isRelatedMode"
+    [currentCategoryId]="categoryId"></app-category-tree>
+
   <!-- Danh mục chỉ có mỗi bài đang đọc thì danh sách rỗng, ẩn hẳn khối đi thay
        vì hiện một cái thẻ trống -->
   <div
@@ -18,6 +23,11 @@
       }
     </div>
   </div>
+
+  <!-- Ở trang chi tiết, ưu tiên bài liên quan trước rồi mới tới điều hướng danh mục. -->
+  <app-category-tree
+    *ngIf="isRelatedMode"
+    [currentCategoryId]="categoryId"></app-category-tree>
 
   <!-- Cùng lý do với khối trên: chưa tải xong thì danh sách rỗng, ẩn đi thay vì
        hiện một cái thẻ chỉ có mỗi tiêu đề -->

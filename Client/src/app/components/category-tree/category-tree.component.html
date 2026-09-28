@@ -1,0 +1,94 @@
+<section
+  *ngIf="isLoading || categories.length > 0"
+  class="category-tree-card"
+  appScrollReveal>
+  <button
+    type="button"
+    class="category-tree-heading"
+    [attr.aria-expanded]="!isCollapsed"
+    aria-controls="news-category-tree"
+    (click)="toggleTree()">
+    <span>{{ 'T_CATEGORIES' | translate }}</span>
+    <span class="category-tree-heading-line"></span>
+    <span
+      class="category-tree-toggle"
+      nz-icon
+      nzType="down"
+      nzTheme="outline"
+      [class.category-tree-toggle--collapsed]="isCollapsed"></span>
+  </button>
+
+  <div
+    id="news-category-tree"
+    class="category-tree-body"
+    [class.category-tree-body--collapsed]="isCollapsed">
+    <div *ngIf="isLoading" class="category-tree-skeleton" aria-hidden="true">
+      <span *ngFor="let item of [1, 2, 3, 4, 5]"></span>
+    </div>
+
+    <nav
+      *ngIf="!isLoading"
+      class="category-tree-nav"
+      [attr.aria-label]="'T_CATEGORIES' | translate">
+      <a
+        class="category-tree-link category-tree-link--all"
+        routerLink="/news"
+        [class.category-tree-link--active]="!activeCategoryId">
+        <span nz-icon nzType="appstore" nzTheme="outline"></span>
+        <span class="category-tree-name">{{ 'T_ALLPOSTS' | translate }}</span>
+      </a>
+
+      <ul class="category-tree-list">
+        <li
+          *ngFor="let category of categories; trackBy: trackByCategoryId"
+          class="category-tree-branch"
+          [class.category-tree-branch--selected]="hasActiveChild(category)">
+          <a
+            class="category-tree-link"
+            routerLink="/news"
+            [queryParams]="{ categoryId: category.NewsCategoryId }"
+            [class.category-tree-link--active]="
+              isActive(category.NewsCategoryId)
+            ">
+            <span
+              nz-icon
+              [nzType]="category.Children.length > 0 ? 'folder-open' : 'folder'"
+              nzTheme="outline"></span>
+            <span class="category-tree-name">
+              {{ getCategoryName(category) }}
+            </span>
+            <span class="category-tree-count">{{ category.TotalCount }}</span>
+          </a>
+
+          <ul
+            *ngIf="category.Children.length > 0"
+            class="category-tree-children">
+            <li
+              *ngFor="
+                let child of category.Children;
+                trackBy: trackByCategoryId
+              ">
+              <a
+                class="category-tree-link category-tree-link--child"
+                routerLink="/news"
+                [queryParams]="{ categoryId: child.NewsCategoryId }"
+                [class.category-tree-link--active]="
+                  isActive(child.NewsCategoryId)
+                ">
+                <span nz-icon nzType="folder" nzTheme="outline"></span>
+                <span class="category-tree-name">{{
+                  getCategoryName(child)
+                }}</span>
+                <span
+                  *ngIf="getChildCount(child) !== null"
+                  class="category-tree-count">
+                  {{ getChildCount(child) }}
+                </span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</section>

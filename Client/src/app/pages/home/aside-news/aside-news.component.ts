@@ -14,11 +14,17 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../modules';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CategoryTreeComponent } from '../../../components/category-tree/category-tree.component';
 
 @Component({
   selector: 'app-aside-news',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    CategoryTreeComponent,
+    ...REUSE_COMPONENT_MODULES,
+    ...REUSE_PIPE_MODULE,
+  ],
   templateUrl: './aside-news.component.html',
   styleUrl: './aside-news.component.scss',
 })

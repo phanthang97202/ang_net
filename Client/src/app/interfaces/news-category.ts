@@ -8,6 +8,8 @@ export interface INewsCategory {
   NewsCategoryNameEn: string;
   NewsCategoryLogo: string;
   NewsCategoryIndex: number;
+  // Endpoint cây danh mục có thể trả tổng số bài cho từng nhánh con.
+  TotalCount?: number;
 }
 
 export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
