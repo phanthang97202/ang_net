@@ -12,6 +12,7 @@ import {
   LoadingService,
   AuthService,
   LangService,
+  NewsCacheService,
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -41,6 +42,7 @@ export class BlogsComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private langService = inject(LangService);
+  private newsCacheService = inject(NewsCacheService);
 
   mode: 'create' | 'edit' = 'create';
   isDataLoaded = false; // ✅ Thêm flag để track data loading
@@ -378,6 +380,9 @@ export class BlogsComponent implements OnInit {
       apiCall.subscribe({
         next: res => {
           if (res.Success) {
+            // Server đã xóa Redis; xóa thêm cache public của tab hiện tại để khi
+            // quay ra trang bài viết sẽ thấy nội dung mới ngay lập tức.
+            this.newsCacheService.clear();
             this.loadingService.setLoading(false);
             const action = this.mode === 'edit' ? 'Updated' : 'Created';
             this.message.create('success', `${action} successfully`);

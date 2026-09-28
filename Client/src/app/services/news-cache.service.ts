@@ -84,6 +84,11 @@ export class NewsCacheService {
     );
   }
 
+  /** Xóa dữ liệu public đang giữ trong bộ nhớ của tab hiện tại. */
+  clear(): void {
+    this.cache.clear();
+  }
+
   private through<T>(key: string, request: () => Observable<T>): Observable<T> {
     const hit = this.cache.get(key) as CacheEntry<T> | undefined;
 

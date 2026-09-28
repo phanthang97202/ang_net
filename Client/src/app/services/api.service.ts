@@ -348,6 +348,14 @@ export class ApiService {
     });
   }
 
+  ClearNewsCache(): Observable<
+    IBaseResponse<{ DeletedKeyCount: number; ClearedAtUtc: string }>
+  > {
+    return this.http.delete<
+      IBaseResponse<{ DeletedKeyCount: number; ClearedAtUtc: string }>
+    >(`${this.apiUrl}cache/news`);
+  }
+
   // HashTagNews
   GetTopHashTag(
     languageCode: 'vi' | 'en' = 'vi'

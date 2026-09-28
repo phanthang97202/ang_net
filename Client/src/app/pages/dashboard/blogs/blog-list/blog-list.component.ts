@@ -3,6 +3,7 @@ import {
   ShowErrorService,
   LoadingService,
   ApiService,
+  NewsCacheService,
 } from '../../../../services';
 import { IDetailNews } from '../../../../interfaces';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -17,6 +18,7 @@ import { NzTableQueryParams } from 'ng-zorro-antd/table';
 import { AuthService } from '../../../../services';
 // AntdModule chỉ có ReactiveFormsModule; switch ghim dùng [ngModel] nên cần FormsModule.
 import { FormsModule } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
 @Component({
   selector: 'app-blog-list',
   standalone: true,
@@ -36,6 +38,8 @@ export class BlogListComponent implements OnInit {
   private message = inject(NzMessageService);
   private loadingService = inject(LoadingService);
   private authService = inject(AuthService);
+  private newsCacheService = inject(NewsCacheService);
+  private modal = inject(NzModalService);
 
   // Id người đang đăng nhập, đọc một lần chứ không gọi trong template: template
   // chạy lại mỗi vòng change detection, mà getAccountInfo() thì giải mã JWT.
@@ -47,17 +51,74 @@ export class BlogListComponent implements OnInit {
   total = 0;
   tableLoading = false;
 
-  listButtonsHeader = [
-    {
-      text: 'Create',
-      iconType: 'plus',
-      onClick: () => this.handleOpenCreate(),
-    },
-  ];
+  listButtonsHeader: {
+    text: string;
+    iconType: string;
+    onClick: () => void;
+  }[] = [];
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getAccountInfo().nameid || '';
+    this.listButtonsHeader = [
+      ...(this.authService.hasPermission('blog.noticenews')
+        ? [
+            {
+              text: 'Xóa cache',
+              iconType: 'clear',
+              onClick: () => this.confirmClearCache(),
+            },
+          ]
+        : []),
+      {
+        text: 'Create',
+        iconType: 'plus',
+        onClick: () => this.handleOpenCreate(),
+      },
+    ];
     this.fetchData();
+  }
+
+  confirmClearCache(): void {
+    this.modal.confirm({
+      nzTitle: 'Xóa cache bài viết?',
+      nzContent:
+        'Danh sách, cây danh mục và chi tiết bài viết sẽ được tải mới từ dữ liệu gốc.',
+      nzOkText: 'Xóa cache',
+      nzOkDanger: true,
+      nzCancelText: 'Hủy',
+      nzOnOk: () => this.clearNewsCache(),
+    });
+  }
+
+  private clearNewsCache(): Promise<void> {
+    this.setLoading(true);
+
+    return new Promise((resolve, reject) => {
+      this.api.ClearNewsCache().subscribe({
+        next: response => {
+          if (!response?.Success) {
+            const error = new Error(
+              response?.ErrorMessage || 'Không thể xóa cache'
+            );
+            this.handleApiError(error);
+            reject(error);
+            return;
+          }
+
+          this.newsCacheService.clear();
+          this.message.success(
+            `Đã xóa cache bài viết (${response.Data?.DeletedKeyCount ?? 0} khóa)`
+          );
+          this.fetchData();
+          resolve();
+        },
+        error: err => {
+          this.handleApiError(err);
+          reject(err);
+        },
+        complete: () => this.setLoading(false),
+      });
+    });
   }
 
   /**

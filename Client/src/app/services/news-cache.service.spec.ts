@@ -62,6 +62,14 @@ describe('NewsCacheService', () => {
     expect(api.SearchNews).toHaveBeenCalledTimes(2);
   });
 
+  it('gọi lại API ngay sau khi xóa cache thủ công', () => {
+    search().subscribe();
+    service.clear();
+    search().subscribe();
+
+    expect(api.SearchNews).toHaveBeenCalledTimes(2);
+  });
+
   it('không giữ lỗi lại trong cache', () => {
     api.SearchNews.and.returnValue(throwError(() => new Error('mạng lỗi')));
     search().subscribe({ error: () => undefined });
