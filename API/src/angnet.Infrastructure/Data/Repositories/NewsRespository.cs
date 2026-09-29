@@ -504,24 +504,36 @@ namespace angnet.Infrastructure.Data.Repositories
 
         /// <summary>
         /// Mỗi danh mục gốc kèm tổng số bài và vài bài được đọc nhiều nhất, dùng cho
-        /// khối "Khám phá theo chủ đề" ngoài trang chủ.
+        /// khối khám phá chủ đề ngoài trang chủ. Khi hotOnly = true, danh mục được
+        /// lọc và sắp xếp theo SysParameter HOME_HOT_TOPIC_CATEGORY_IDS.
         ///
         /// Gộp tất cả vào một lần gọi thay vì để client bắn mỗi danh mục một request:
         /// blog đang có 9 danh mục, cứ mỗi lần mở trang chủ là 9 round-trip.
         /// </summary>
-        public async Task<ApiResponse<NewsCategoryPreviewDto>> CategoryPreview(int take)
+        public async Task<ApiResponse<NewsCategoryPreviewDto>> CategoryPreview(int take, bool hotOnly = false)
         {
             ApiResponse<NewsCategoryPreviewDto> apiResponse = new ApiResponse<NewsCategoryPreviewDto>();
 
             // take do client truyền: chặn trên để một request lỡ tay không kéo về cả blog.
             int _take = (take > 0 && take <= 10) ? take : 3;
 
+            // Chỉ khối "Khám phá các chủ đề hot" dùng cấu hình này. Thanh chọn chủ
+            // đề và cây danh mục vẫn gọi hotOnly=false để luôn có đủ danh mục.
+            (bool hasHotTopicConfig, List<string> hotTopicCategoryIds, string configSignature)
+                = hotOnly
+                    ? await GetHotTopicCategoryIds()
+                    : (false, new List<string>(), "all");
+
             // Nội dung giống hệt nhau với mọi khách nên cache được nguyên khối. Số bài
             // theo danh mục được gom bằng một query, sau đó mỗi danh mục gốc chỉ cần lấy
             // danh sách bài tiêu biểu của nhánh.
             string keyStoreManager = TConstValue.NewsRespository_CategoryPreview;
-            // v2 buộc tạo lại payload vì bản cũ chưa có TotalCount cho danh mục con.
-            string fieldKey = GenerateUniqueCacheKey(keyStoreManager, $"v2|({_take})");
+            // Chữ ký cấu hình nằm trong cache key: admin đổi danh sách hoặc thứ tự
+            // là request kế tiếp dùng payload mới ngay, không nhận bản cache cũ.
+            string fieldKey = GenerateUniqueCacheKey(
+                keyStoreManager,
+                $"v3|({_take})|hotOnly={hotOnly}|config={configSignature}"
+            );
             string rsCached = await GetFieldOfHashCacheAsync(keyStoreManager, fieldKey);
 
             if (rsCached is not null)
@@ -537,11 +549,30 @@ namespace angnet.Infrastructure.Data.Repositories
             // Danh mục gốc = không có cha, hoặc trỏ tới một cha đã bị vô hiệu/xoá. Vế sau
             // quan trọng: thiếu nó thì nhánh mồ côi biến mất khỏi trang chủ hoàn toàn.
             HashSet<string> activeIds = categories.Select(c => c.NewsCategoryId).ToHashSet();
-            List<NewsCategoryModel> roots = categories
-                    .Where(c => TCommonUtils.IsNullOrEmpty(c.NewsCategoryParentId)
-                                || !activeIds.Contains(c.NewsCategoryParentId))
-                    .OrderBy(c => c.NewsCategoryIndex)
-                    .ToList();
+            List<NewsCategoryModel> roots;
+
+            if (hotOnly && hasHotTopicConfig)
+            {
+                // Không OrderBy ở đây: thứ tự mảng JSON là thứ tự hiển thị. ID
+                // trùng được loại từ lúc parse; ID sai hoặc inactive được bỏ qua.
+                Dictionary<string, NewsCategoryModel> categoryById = categories
+                        .ToDictionary(c => c.NewsCategoryId, StringComparer.Ordinal);
+
+                roots = hotTopicCategoryIds
+                        .Where(categoryById.ContainsKey)
+                        .Select(id => categoryById[id])
+                        .ToList();
+            }
+            else
+            {
+                // Không có cấu hình hợp lệ thì giữ hành vi cũ để deploy không làm
+                // biến mất cả khối trước khi migration seed chạy xong.
+                roots = categories
+                        .Where(c => TCommonUtils.IsNullOrEmpty(c.NewsCategoryParentId)
+                                    || !activeIds.Contains(c.NewsCategoryParentId))
+                        .OrderBy(c => c.NewsCategoryIndex)
+                        .ToList();
+            }
 
             List<NewsCategoryPreviewDto> dataResponse = new List<NewsCategoryPreviewDto>();
 
@@ -631,6 +662,63 @@ namespace angnet.Infrastructure.Data.Repositories
             apiResponse.DataList = dataResponse;
 
             return apiResponse;
+        }
+
+        /// <summary>
+        /// Đọc danh sách danh mục hot có thứ tự. Trả hasConfig=false nếu tham số
+        /// chưa tồn tại hoặc JSON lỗi để caller fallback về hành vi cũ; mảng rỗng
+        /// hợp lệ vẫn là một cấu hình và có nghĩa là không hiển thị danh mục nào.
+        /// </summary>
+        private async Task<(bool HasConfig, List<string> CategoryIds, string Signature)> GetHotTopicCategoryIds()
+        {
+            SysParameterModel? parameter = await _dbContext.SysParameter
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p =>
+                        p.ParameterCode == TConstValue.HOME_HOT_TOPIC_CATEGORY_IDS
+                        && p.FlagActive);
+
+            if (parameter is null)
+            {
+                return (false, new List<string>(), "missing");
+            }
+
+            // Cấu hình này không phụ thuộc ngôn ngữ. Ưu tiên ValueVi, nhưng vẫn
+            // thử ValueEn/default để một ô bị để trống hoặc nhập JSON lỗi không
+            // làm mất cấu hình hợp lệ ở ô còn lại.
+            string[] candidates = new string[]
+            {
+                parameter.ParameterValueVi,
+                parameter.ParameterValueEn,
+                parameter.DefaultValueVi,
+                parameter.DefaultValueEn
+            };
+
+            foreach (string rawValue in candidates.Where(value => !TCommonUtils.IsNullOrEmpty(value)))
+            {
+                try
+                {
+                    List<string> configuredIds = System.Text.Json.JsonSerializer
+                            .Deserialize<List<string>>(rawValue) ?? new List<string>();
+
+                    List<string> normalizedIds = configuredIds
+                            .Where(id => !TCommonUtils.IsNullOrEmpty(id))
+                            .Select(id => id.Trim())
+                            .Distinct(StringComparer.Ordinal)
+                            .ToList();
+
+                    string signature = normalizedIds.Count == 0
+                            ? "empty"
+                            : string.Join(",", normalizedIds);
+
+                    return (true, normalizedIds, signature);
+                }
+                catch (System.Text.Json.JsonException)
+                {
+                    // Thử cột giá trị/default tiếp theo.
+                }
+            }
+
+            return (false, new List<string>(), "invalid");
         }
 
         /// <summary>

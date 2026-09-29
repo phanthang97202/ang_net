@@ -114,11 +114,9 @@ export class TopicNavComponent implements OnInit {
     this.currentPage = Math.round(el.scrollLeft / el.clientWidth);
   }
 
-  // Dùng chung nguồn dữ liệu với khối "Khám phá theo chủ đề" thay vì
-  // GetAllActiveNewsCategory: endpoint này đã bỏ sẵn danh mục chưa có bài nào.
-  // Trước đây thanh chủ đề liệt kê đủ mọi danh mục, bấm vào mục rỗng là rơi
-  // thẳng vào trang danh sách trắng trơn. Hai khối cùng khoá cache nên vẫn chỉ
-  // một request.
+  // Dùng endpoint preview thay vì GetAllActiveNewsCategory để bỏ sẵn danh mục
+  // chưa có bài. Không bật hotOnly: thanh điều hướng phải giữ đầy đủ chủ đề,
+  // độc lập với danh sách được chọn cho khối chủ đề hot bên dưới.
   loadTopics(): void {
     this.isLoading = true;
     this.newsCacheService
@@ -157,7 +155,7 @@ export class TopicNavComponent implements OnInit {
       : topic.nameVi;
   }
 
-  // Uỷ quyền sang helper dùng chung để khối "Khám phá theo chủ đề" ra đúng cùng
+  // Uỷ quyền sang helper dùng chung để khối chủ đề hot ra đúng cùng
   // icon/màu cho cùng một danh mục.
   getTopicIconPath(name: string, index: number): string {
     return topicIconPath(name, index);

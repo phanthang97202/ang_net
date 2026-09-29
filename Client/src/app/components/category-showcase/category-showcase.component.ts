@@ -41,12 +41,11 @@ export class CategoryShowcaseComponent implements OnInit {
     this.loadCategories();
   }
 
-  // API trả sẵn theo danh mục gốc, đã bỏ mục chưa có bài, đã xếp theo
-  // NewsCategoryIndex và bài trong mỗi mục đã xếp theo lượt đọc - ở đây không
-  // sắp lại gì nữa để thứ tự trên trang đúng bằng thứ tự admin đã cấu hình.
+  // API đã lọc danh mục theo SysParameter và giữ đúng thứ tự ID admin cấu hình;
+  // ở đây không sắp xếp lại để giao diện phản ánh chính xác cấu hình đó.
   private loadCategories(): void {
     this.newsCacheService
-      .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE)
+      .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE, true)
       .subscribe({
         next: res => {
           this.categories = res.DataList || [];

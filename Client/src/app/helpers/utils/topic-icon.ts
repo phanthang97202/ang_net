@@ -1,5 +1,5 @@
 // Biểu tượng và màu của chủ đề, dùng chung cho thanh chọn chủ đề (topic-nav) và
-// khối "Khám phá theo chủ đề" (category-showcase) - hai nơi phải ra cùng một
+// khối chủ đề hot (category-showcase) - hai nơi phải ra cùng một
 // icon/màu cho cùng một danh mục, nên gom về đây thay vì chép đôi.
 
 // ── Icon set (Material single-path icons) ───────────────

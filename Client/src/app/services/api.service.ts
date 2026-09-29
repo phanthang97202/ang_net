@@ -425,12 +425,13 @@ export class ApiService {
   }
 
   // Mỗi danh mục gốc kèm tổng số bài và vài bài đọc nhiều nhất, gộp trong một
-  // lần gọi (khối "Khám phá theo chủ đề" ngoài trang chủ).
+  // lần gọi. hotOnly chỉ dùng cho khối chủ đề hot ngoài trang chủ.
   GetNewsCategoryPreview(
-    take: number
+    take: number,
+    hotOnly = false
   ): Observable<INewsCategoryPreviewResponse> {
     return this.http.get<INewsCategoryPreviewResponse>(
-      `${this.apiUrl}news/categorypreview?take=${take}`
+      `${this.apiUrl}news/categorypreview?take=${take}&hotOnly=${hotOnly}`
     );
   }
 

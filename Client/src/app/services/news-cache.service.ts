@@ -75,12 +75,13 @@ export class NewsCacheService {
     );
   }
 
-  // Thanh chọn chủ đề và khối "Khám phá theo chủ đề" cùng cần dữ liệu này và
-  // cùng nằm trên trang chủ. Chung một khoá cache nên hai component chỉ tạo ra
-  // đúng một request (through dùng shareReplay).
-  GetNewsCategoryPreview(take: number): Observable<INewsCategoryPreviewResponse> {
-    return this.through(`category-preview|${take}`, () =>
-      this.api.GetNewsCategoryPreview(take)
+  // hotOnly nằm trong cache key vì nó thay đổi cả tập dữ liệu lẫn thứ tự.
+  GetNewsCategoryPreview(
+    take: number,
+    hotOnly = false
+  ): Observable<INewsCategoryPreviewResponse> {
+    return this.through(`category-preview|${take}|${hotOnly}`, () =>
+      this.api.GetNewsCategoryPreview(take, hotOnly)
     );
   }
 

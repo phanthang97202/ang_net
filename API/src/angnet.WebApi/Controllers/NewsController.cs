@@ -39,11 +39,11 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("CategoryPreview")]
-        public async Task<ActionResult<NewsCategoryPreviewDto>> CategoryPreview(int take = 3)
+        public async Task<ActionResult<NewsCategoryPreviewDto>> CategoryPreview(int take = 3, bool hotOnly = false)
         {
             try
             {
-                ApiResponse<NewsCategoryPreviewDto> response = await _newsRespository.CategoryPreview(take);
+                ApiResponse<NewsCategoryPreviewDto> response = await _newsRespository.CategoryPreview(take, hotOnly);
                 return Ok(response);
             }
             catch (Exception)

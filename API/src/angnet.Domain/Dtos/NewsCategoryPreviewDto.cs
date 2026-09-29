@@ -1,7 +1,7 @@
 namespace angnet.Domain.Dtos
 {
     /// <summary>
-    /// Một danh mục gốc kèm vài bài tiêu biểu, dùng cho khối "Khám phá theo chủ đề"
+    /// Một danh mục kèm vài bài tiêu biểu, dùng cho điều hướng và khối chủ đề hot
     /// ngoài trang chủ. Chỉ mang đúng số trường để vẽ được thẻ danh mục - không
     /// dùng RPNewsDto vì bản đó kéo theo ContentBody, hashtag, file đính kèm,
     /// điểm đánh giá... cho từng bài, quá nặng so với một khối xem trước.

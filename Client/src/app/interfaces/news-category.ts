@@ -16,7 +16,7 @@ export interface INewsCategoryResponse extends IBaseResponse<INewsCategory> {
   DataList: INewsCategory[];
 }
 
-// ── Khối "Khám phá theo chủ đề" ngoài trang chủ ────────────────────────
+// ── Dữ liệu xem trước danh mục / khối chủ đề hot ngoài trang chủ ───────
 // API gom sẵn theo danh mục gốc: TotalCount đã cộng cả bài của danh mục con,
 // Posts là vài bài đọc nhiều nhất trong cả nhánh.
 export interface INewsCategoryPreview {
