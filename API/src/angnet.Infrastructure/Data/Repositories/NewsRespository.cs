@@ -525,6 +525,7 @@ namespace angnet.Infrastructure.Data.Repositories
             {
                 query = query.Where(i =>
                     i.WhoCanSee == EWhoCanSee.Public
+                    || i.UserId == viewerUserId
                     || (i.WhoCanSee == EWhoCanSee.Tenant
                         && viewerTenantId.HasValue
                         && viewerTenantId.Value > 0
@@ -563,7 +564,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string visibilityScope = onlyPublished
                     ? $"tenant:{viewerTenantId?.ToString() ?? "anonymous"}"
                     : $"viewer:{viewerUserId}|tenant:{viewerTenantId?.ToString() ?? "none"}";
-            string primaryKey = $"v4|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
+            string primaryKey = $"v5|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
