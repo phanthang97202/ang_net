@@ -523,9 +523,15 @@ namespace angnet.Infrastructure.Data.Repositories
             // nhìn thấy bởi người đăng nhập cùng tenant với tác giả.
             if (onlyPublished)
             {
+                // Bài Private chỉ được đưa vào kết quả khi caller chủ động mở đúng
+                // danh sách "Riêng tư". Các danh sách công khai như trang chủ không
+                // được trộn bài riêng vào, kể cả người đang xem chính là tác giả.
+                bool includeOwnPrivate = visibilityFilter == EWhoCanSee.Private;
                 query = query.Where(i =>
                     i.WhoCanSee == EWhoCanSee.Public
-                    || i.UserId == viewerUserId
+                    || (includeOwnPrivate
+                        && i.WhoCanSee == EWhoCanSee.Private
+                        && i.UserId == viewerUserId)
                     || (i.WhoCanSee == EWhoCanSee.Tenant
                         && viewerTenantId.HasValue
                         && viewerTenantId.Value > 0
@@ -564,7 +570,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string visibilityScope = onlyPublished
                     ? $"tenant:{viewerTenantId?.ToString() ?? "anonymous"}"
                     : $"viewer:{viewerUserId}|tenant:{viewerTenantId?.ToString() ?? "none"}";
-            string primaryKey = $"v5|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
+            string primaryKey = $"v6|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
