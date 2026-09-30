@@ -18,3 +18,4 @@ export * from './audit-trail';
 export * from './visit-stats';
 export * from './reel';
 export * from './news-comment';
+export * from './media';

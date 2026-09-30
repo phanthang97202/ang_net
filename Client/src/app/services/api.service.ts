@@ -53,6 +53,11 @@ import {
   INewsCommentLikeResponse,
   INewsCommentReportRequest,
   INewsCommentReportResponse,
+  IMediaPageResponse,
+  IMediaUploadResponse,
+  IMediaDeleteResponse,
+  IMediaDeleteRequest,
+  MediaResourceType,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -63,6 +68,38 @@ export class ApiService {
   apiUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  MediaSearch(
+    resourceType: MediaResourceType,
+    pageSize: number,
+    nextCursor = '',
+    prefix = ''
+  ): Observable<IMediaPageResponse> {
+    const params = new HttpParams()
+      .set('resourceType', resourceType)
+      .set('pageSize', pageSize)
+      .set('nextCursor', nextCursor)
+      .set('prefix', prefix);
+    return this.http.get<IMediaPageResponse>(`${this.apiUrl}media/search`, {
+      params,
+    });
+  }
+
+  MediaUpload(file: File): Observable<IMediaUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<IMediaUploadResponse>(
+      `${this.apiUrl}media/upload`,
+      formData
+    );
+  }
+
+  MediaDelete(request: IMediaDeleteRequest): Observable<IMediaDeleteResponse> {
+    return this.http.delete<IMediaDeleteResponse>(
+      `${this.apiUrl}media/delete`,
+      { body: request }
+    );
+  }
 
   // MstProvince
   MstProvinceSearch(

@@ -104,6 +104,11 @@ export class AppComponent implements OnInit {
           permission: 'blog.view',
         },
         {
+          path: '/dashboard/media',
+          title: 'Thư viện media',
+          permission: 'media.view',
+        },
+        {
           path: '/dashboard/newscategory',
           title: 'Danh mục tin',
           permission: 'newscategory.view',

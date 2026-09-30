@@ -57,6 +57,7 @@ var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 
 // register infrastructure 
 builder.Services.AddInfrastructure();
+builder.Services.AddHttpClient();
 
 // inject AppDbContext
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));

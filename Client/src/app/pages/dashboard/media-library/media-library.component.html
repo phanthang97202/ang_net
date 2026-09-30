@@ -1,0 +1,150 @@
+<div class="master__container media">
+  <app-breadcrumb title="Thư viện media" />
+
+  <section class="media__panel">
+    <header class="media__header">
+      <div>
+        <h2>Quản lý file Cloudinary</h2>
+        <p>Duyệt, tải lên và sao chép file để sử dụng trong bài viết.</p>
+      </div>
+
+      <div *ngIf="canUpload">
+        <input
+          #fileInput
+          class="media__file-input"
+          type="file"
+          multiple
+          (change)="uploadFiles($event)" />
+        <button
+          nz-button
+          nzType="primary"
+          [nzLoading]="uploading"
+          (click)="openFilePicker()">
+          <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
+          Tải file lên
+        </button>
+      </div>
+    </header>
+
+    <div class="media__toolbar">
+      <div class="media__types" aria-label="Loại media">
+        <button
+          *ngFor="let type of resourceTypes"
+          type="button"
+          class="media__type"
+          [class.media__type--active]="resourceType === type.value"
+          (click)="changeResourceType(type.value)">
+          <span nz-icon [nzType]="type.icon" nzTheme="outline"></span>
+          {{ type.label }}
+        </button>
+      </div>
+
+      <nz-input-group class="media__search" [nzSuffix]="searchSuffix">
+        <input
+          nz-input
+          [(ngModel)]="keyword"
+          placeholder="Tìm theo public ID..."
+          (keyup.enter)="search()" />
+      </nz-input-group>
+      <ng-template #searchSuffix>
+        <button
+          type="button"
+          class="media__search-button"
+          [attr.aria-label]="keyword ? 'Xóa tìm kiếm' : 'Tìm kiếm'"
+          (click)="keyword ? clearSearch() : search()">
+          <span
+            nz-icon
+            [nzType]="keyword ? 'close' : 'search'"
+            nzTheme="outline"></span>
+        </button>
+      </ng-template>
+    </div>
+
+    <nz-spin [nzSpinning]="loading">
+      <div *ngIf="assets.length; else emptyState" class="media__grid">
+        <article *ngFor="let asset of assets" class="media-card">
+          <div class="media-card__preview">
+            <img
+              *ngIf="asset.ResourceType === 'image'"
+              [src]="asset.SecureUrl"
+              [alt]="assetName(asset)"
+              loading="lazy" />
+            <video
+              *ngIf="asset.ResourceType === 'video'"
+              [src]="asset.SecureUrl"
+              muted
+              controls
+              preload="metadata"></video>
+            <div *ngIf="asset.ResourceType === 'raw'" class="media-card__file">
+              <span nz-icon nzType="file" nzTheme="outline"></span>
+              <strong>.{{ asset.Format || 'file' }}</strong>
+            </div>
+            <span class="media-card__format">{{
+              asset.Format || asset.ResourceType
+            }}</span>
+          </div>
+
+          <div class="media-card__body">
+            <h3 [title]="asset.PublicId">{{ assetName(asset) }}</h3>
+            <p>
+              {{ formatBytes(asset.Bytes) }}
+              <ng-container *ngIf="asset.Width && asset.Height">
+                · {{ asset.Width }}×{{ asset.Height }}
+              </ng-container>
+            </p>
+            <p *ngIf="asset.CreatedAt">
+              {{ asset.CreatedAt | date: 'dd/MM/yyyy HH:mm' }}
+            </p>
+
+            <div class="media-card__actions">
+              <button
+                nz-button
+                nzType="default"
+                nzSize="small"
+                (click)="copyUrl(asset)">
+                <span nz-icon nzType="link" nzTheme="outline"></span>
+                Sao chép URL
+              </button>
+              <button
+                *ngIf="canDelete"
+                nz-button
+                nzType="text"
+                nzDanger
+                nzSize="small"
+                aria-label="Xóa file"
+                (click)="confirmDelete(asset)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </nz-spin>
+
+    <ng-template #emptyState>
+      <nz-empty
+        *ngIf="!loading"
+        class="media__empty"
+        [nzNotFoundContent]="
+          keyword ? 'Không tìm thấy file phù hợp' : 'Chưa có file nào'
+        " />
+    </ng-template>
+
+    <footer *ngIf="assets.length" class="media__pagination">
+      <button
+        nz-button
+        [disabled]="!canGoBack || loading"
+        (click)="previousPage()">
+        <span nz-icon nzType="left" nzTheme="outline"></span>
+        Trang trước
+      </button>
+      <button
+        nz-button
+        [disabled]="!nextCursor || loading"
+        (click)="nextPage()">
+        Trang sau
+        <span nz-icon nzType="right" nzTheme="outline"></span>
+      </button>
+    </footer>
+  </section>
+</div>

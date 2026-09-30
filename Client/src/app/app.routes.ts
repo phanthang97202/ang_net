@@ -196,6 +196,14 @@ export const routes: Routes = [
           ),
         canActivate: [canActivePermission('blog.view')],
       },
+      {
+        path: 'media',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/media-library/media-library.component'
+          ).then(p => p.MediaLibraryComponent),
+        canActivate: [canActivePermission('media.view')],
+      },
 
       {
         path: 'blog/create',
