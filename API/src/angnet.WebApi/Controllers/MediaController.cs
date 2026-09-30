@@ -55,10 +55,13 @@ namespace angnet.WebApi.Controllers
             }
 
             pageSize = Math.Clamp(pageSize, 1, 100);
+            using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
             var expression = new List<string> { $"resource_type:{resourceType}" };
             if (!string.IsNullOrWhiteSpace(folder))
             {
-                expression.Add($"asset_folder=\"{EscapeSearchPhrase(NormalizeFolderPath(folder))}\"");
+                bool usesDynamicFolders = await UsesDynamicFolders(client, cloudName);
+                string folderField = usesDynamicFolders ? "asset_folder" : "folder";
+                expression.Add($"{folderField}=\"{EscapeSearchPhrase(NormalizeFolderPath(folder))}\"");
             }
             if (!string.IsNullOrWhiteSpace(prefix))
             {
@@ -76,7 +79,6 @@ namespace angnet.WebApi.Controllers
                 searchBody["next_cursor"] = nextCursor;
             }
 
-            using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
             using HttpResponseMessage response = await client.PostAsJsonAsync(
                 $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/resources/search",
                 searchBody);
@@ -236,10 +238,17 @@ namespace angnet.WebApi.Controllers
                 return BadRequest(new ApiResponse<MediaAssetDto>("Tên thư mục không hợp lệ"));
             }
 
+            string folderParameter = "asset_folder";
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+                using HttpClient adminClient = CreateCloudinaryClient(apiKey, apiSecret);
+                bool usesDynamicFolders = await UsesDynamicFolders(adminClient, cloudName);
+                folderParameter = usesDynamicFolders ? "asset_folder" : "folder";
+            }
             long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             string parameters = string.IsNullOrWhiteSpace(folder)
                 ? $"timestamp={timestamp}"
-                : $"asset_folder={folder}&timestamp={timestamp}";
+                : $"{folderParameter}={folder}&timestamp={timestamp}";
             string signature = SignCloudinaryParameters(parameters, apiSecret);
             using var form = new MultipartFormDataContent();
             using var fileContent = new StreamContent(file.OpenReadStream());
@@ -253,7 +262,7 @@ namespace angnet.WebApi.Controllers
             form.Add(new StringContent(signature), "signature");
             if (!string.IsNullOrWhiteSpace(folder))
             {
-                form.Add(new StringContent(folder), "asset_folder");
+                form.Add(new StringContent(folder), folderParameter);
             }
 
             using HttpClient client = _httpClientFactory.CreateClient();
@@ -267,7 +276,16 @@ namespace angnet.WebApi.Controllers
             }
 
             using JsonDocument document = JsonDocument.Parse(json);
-            return Ok(new ApiResponse<MediaAssetDto>(MapAsset(document.RootElement)));
+            MediaAssetDto uploadedAsset = MapAsset(document.RootElement);
+            if (!string.IsNullOrWhiteSpace(folder) &&
+                !string.Equals(uploadedAsset.Folder, folder, StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status502BadGateway,
+                    new ApiResponse<MediaAssetDto>(
+                        $"Cloudinary đã tải file nhưng không đưa vào đúng thư mục '{folder}'"));
+            }
+
+            return Ok(new ApiResponse<MediaAssetDto>(uploadedAsset));
         }
 
         [Authorize(Policy = "media.delete")]
@@ -408,6 +426,29 @@ namespace angnet.WebApi.Controllers
             string credential = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{apiKey}:{apiSecret}"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credential);
             return client;
+        }
+
+        private static async Task<bool> UsesDynamicFolders(HttpClient client, string cloudName)
+        {
+            using HttpResponseMessage response = await client.GetAsync(
+                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/config?settings=true");
+            if (!response.IsSuccessStatusCode)
+            {
+                // New Cloudinary environments use dynamic folders. Keep that as the safe fallback
+                // if this account cannot expose its configuration through the Admin API.
+                return true;
+            }
+
+            string json = await response.Content.ReadAsStringAsync();
+            using JsonDocument document = JsonDocument.Parse(json);
+            if (document.RootElement.TryGetProperty("settings", out JsonElement settings) &&
+                settings.TryGetProperty("folder_mode", out JsonElement folderMode) &&
+                folderMode.ValueKind == JsonValueKind.String)
+            {
+                return !string.Equals(folderMode.GetString(), "fixed", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return true;
         }
 
         private static string SignCloudinaryParameters(string parameters, string apiSecret)
