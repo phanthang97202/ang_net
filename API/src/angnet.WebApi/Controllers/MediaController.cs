@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -39,7 +40,8 @@ namespace angnet.WebApi.Controllers
             string resourceType = "image",
             int pageSize = 24,
             string nextCursor = "",
-            string prefix = "")
+            string prefix = "",
+            string folder = "")
         {
             if (!AllowedResourceTypes.Contains(resourceType))
             {
@@ -53,19 +55,31 @@ namespace angnet.WebApi.Controllers
             }
 
             pageSize = Math.Clamp(pageSize, 1, 100);
-            var query = new List<string> { $"max_results={pageSize}" };
-            if (!string.IsNullOrWhiteSpace(nextCursor))
+            var expression = new List<string> { $"resource_type:{resourceType}" };
+            if (!string.IsNullOrWhiteSpace(folder))
             {
-                query.Add($"next_cursor={Uri.EscapeDataString(nextCursor)}");
+                expression.Add($"asset_folder=\"{EscapeSearchPhrase(NormalizeFolderPath(folder))}\"");
             }
             if (!string.IsNullOrWhiteSpace(prefix))
             {
-                query.Add($"prefix={Uri.EscapeDataString(prefix.Trim())}");
+                expression.Add($"public_id:{EscapeSearchToken(prefix.Trim())}*");
+            }
+
+            var searchBody = new Dictionary<string, object>
+            {
+                ["expression"] = string.Join(" AND ", expression),
+                ["max_results"] = pageSize,
+                ["sort_by"] = new[] { new Dictionary<string, string> { ["created_at"] = "desc" } }
+            };
+            if (!string.IsNullOrWhiteSpace(nextCursor))
+            {
+                searchBody["next_cursor"] = nextCursor;
             }
 
             using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
-            using HttpResponseMessage response = await client.GetAsync(
-                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/resources/{resourceType}/upload?{string.Join('&', query)}");
+            using HttpResponseMessage response = await client.PostAsJsonAsync(
+                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/resources/search",
+                searchBody);
             string json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -89,10 +103,118 @@ namespace angnet.WebApi.Controllers
             return Ok(new ApiResponse<MediaPageDto>(page));
         }
 
+        [Authorize(Policy = "media.view")]
+        [HttpGet("Folders")]
+        public async Task<ActionResult<ApiResponse<MediaFolderDto>>> Folders()
+        {
+            if (!TryGetCloudinarySettings(out string cloudName, out string apiKey, out string apiSecret))
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    new ApiResponse<MediaFolderDto>("Cloudinary chưa được cấu hình trên máy chủ"));
+            }
+
+            using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
+            using HttpResponseMessage response = await client.GetAsync(
+                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/folders/search?max_results=500");
+            string json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode,
+                    new ApiResponse<MediaFolderDto>(ReadCloudinaryError(json)));
+            }
+
+            using JsonDocument document = JsonDocument.Parse(json);
+            var folders = new List<MediaFolderDto>();
+            if (document.RootElement.TryGetProperty("folders", out JsonElement items))
+            {
+                folders = items.EnumerateArray()
+                    .Select(item => new MediaFolderDto
+                    {
+                        ExternalId = GetString(item, "external_id"),
+                        Name = GetString(item, "name"),
+                        Path = GetString(item, "path")
+                    })
+                    .Where(item => !string.IsNullOrWhiteSpace(item.Path))
+                    .OrderBy(item => item.Path, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+
+            return Ok(new ApiResponse<MediaFolderDto> { DataList = folders });
+        }
+
+        [Authorize(Policy = "media.upload")]
+        [HttpPost("Folder")]
+        public async Task<ActionResult<ApiResponse<MediaFolderDto>>> CreateFolder(
+            [FromBody] MediaFolderRequestDto request)
+        {
+            string path = NormalizeFolderPath(request.Path);
+            if (!IsValidFolderPath(path))
+            {
+                return BadRequest(new ApiResponse<MediaFolderDto>("Tên thư mục không hợp lệ"));
+            }
+            if (!TryGetCloudinarySettings(out string cloudName, out string apiKey, out string apiSecret))
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    new ApiResponse<MediaFolderDto>("Cloudinary chưa được cấu hình trên máy chủ"));
+            }
+
+            using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
+            using HttpResponseMessage response = await client.PostAsync(
+                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/folders/{EncodePath(path)}",
+                new StringContent(string.Empty));
+            string json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode,
+                    new ApiResponse<MediaFolderDto>(ReadCloudinaryError(json)));
+            }
+
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+            return Ok(new ApiResponse<MediaFolderDto>(new MediaFolderDto
+            {
+                ExternalId = GetString(root, "external_id"),
+                Name = GetString(root, "name", path.Split('/').Last()),
+                Path = GetString(root, "path", path)
+            }));
+        }
+
+        [Authorize(Policy = "media.delete")]
+        [HttpDelete("Folder")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteFolder(string path)
+        {
+            path = NormalizeFolderPath(path);
+            if (!IsValidFolderPath(path))
+            {
+                return BadRequest(new ApiResponse<bool>("Tên thư mục không hợp lệ"));
+            }
+            if (!TryGetCloudinarySettings(out string cloudName, out string apiKey, out string apiSecret))
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    new ApiResponse<bool>("Cloudinary chưa được cấu hình trên máy chủ"));
+            }
+
+            using HttpClient client = CreateCloudinaryClient(apiKey, apiSecret);
+            using var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/folders/{EncodePath(path)}");
+            using HttpResponseMessage response = await client.SendAsync(request);
+            string json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode,
+                    new ApiResponse<bool>(ReadCloudinaryError(json)));
+            }
+
+            return Ok(new ApiResponse<bool>(true));
+        }
+
         [Authorize(Policy = "media.upload")]
         [HttpPost("Upload")]
         [RequestSizeLimit(52_428_800)]
-        public async Task<ActionResult<ApiResponse<MediaAssetDto>>> Upload(IFormFile file)
+        public async Task<ActionResult<ApiResponse<MediaAssetDto>>> Upload(
+            IFormFile file,
+            [FromForm] string folder = "")
         {
             if (file == null || file.Length == 0)
             {
@@ -108,8 +230,17 @@ namespace angnet.WebApi.Controllers
                     new ApiResponse<MediaAssetDto>("Cloudinary chưa được cấu hình trên máy chủ"));
             }
 
+            folder = NormalizeFolderPath(folder);
+            if (!string.IsNullOrWhiteSpace(folder) && !IsValidFolderPath(folder))
+            {
+                return BadRequest(new ApiResponse<MediaAssetDto>("Tên thư mục không hợp lệ"));
+            }
+
             long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            string signature = SignCloudinaryParameters($"timestamp={timestamp}", apiSecret);
+            string parameters = string.IsNullOrWhiteSpace(folder)
+                ? $"timestamp={timestamp}"
+                : $"asset_folder={folder}&timestamp={timestamp}";
+            string signature = SignCloudinaryParameters(parameters, apiSecret);
             using var form = new MultipartFormDataContent();
             using var fileContent = new StreamContent(file.OpenReadStream());
             if (!string.IsNullOrWhiteSpace(file.ContentType))
@@ -120,6 +251,10 @@ namespace angnet.WebApi.Controllers
             form.Add(new StringContent(apiKey), "api_key");
             form.Add(new StringContent(timestamp.ToString()), "timestamp");
             form.Add(new StringContent(signature), "signature");
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+                form.Add(new StringContent(folder), "asset_folder");
+            }
 
             using HttpClient client = _httpClientFactory.CreateClient();
             using HttpResponseMessage response = await client.PostAsync(
@@ -279,6 +414,36 @@ namespace angnet.WebApi.Controllers
         {
             byte[] hash = SHA1.HashData(Encoding.UTF8.GetBytes(parameters + apiSecret));
             return Convert.ToHexString(hash).ToLowerInvariant();
+        }
+
+        private static string NormalizeFolderPath(string path) =>
+            string.Join('/', (path ?? string.Empty).Split(
+                '/',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+
+        private static bool IsValidFolderPath(string path) =>
+            !string.IsNullOrWhiteSpace(path) &&
+            path.Length <= 200 &&
+            !path.Split('/').Any(segment =>
+                string.IsNullOrWhiteSpace(segment) || segment is "." or ".." ||
+                segment.IndexOfAny(['?', '#', '\\', '%', '<', '>']) >= 0);
+
+        private static string EncodePath(string path) =>
+            string.Join('/', path.Split('/').Select(Uri.EscapeDataString));
+
+        private static string EscapeSearchPhrase(string value) =>
+            value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+        private static string EscapeSearchToken(string value)
+        {
+            const string specialCharacters = " +-=&|><!(){}[]^\"~?:\\/";
+            var result = new StringBuilder();
+            foreach (char character in value)
+            {
+                if (specialCharacters.Contains(character)) result.Append('\\');
+                result.Append(character);
+            }
+            return result.ToString();
         }
 
         private static MediaAssetDto MapAsset(JsonElement item)

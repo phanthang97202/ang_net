@@ -42,6 +42,107 @@
   display: none;
 }
 
+.media__workspace {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 22px;
+}
+
+.media__content {
+  min-width: 0;
+}
+
+.media-folders {
+  align-self: start;
+  min-height: 420px;
+  padding: 10px;
+  border: 1px solid #eeeef5;
+  border-radius: 12px;
+  background: #fafafe;
+}
+
+.media-folders__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 10px 10px;
+  color: #27243b;
+}
+
+.media-folders__icon-button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  place-items: center;
+  color: #6255f5;
+  background: #eeecff;
+  cursor: pointer;
+}
+
+.media-folders__item {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  color: #656176;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.media-folders__item > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-folders__item:hover {
+  background: #f0eff9;
+}
+
+.media-folders__item--active {
+  color: #6255f5;
+  background: #ebe9ff;
+  font-weight: 600;
+}
+
+.media-folders__form {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 10px;
+  border-top: 1px solid #e8e7ef;
+}
+
+.media-folders__form small {
+  overflow: hidden;
+  color: #9693a8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-folders__delete {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.media__current-folder {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  color: #6255f5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .media__toolbar {
   justify-content: space-between;
   gap: 16px;
@@ -197,6 +298,16 @@
   .media__toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .media__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .media-folders {
+    min-height: 0;
+    max-height: 260px;
+    overflow-y: auto;
   }
 
   .media__types {

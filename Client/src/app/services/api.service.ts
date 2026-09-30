@@ -58,6 +58,7 @@ import {
   IMediaDeleteResponse,
   IMediaDeleteRequest,
   MediaResourceType,
+  IMediaFolderResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
 
@@ -73,21 +74,42 @@ export class ApiService {
     resourceType: MediaResourceType,
     pageSize: number,
     nextCursor = '',
-    prefix = ''
+    prefix = '',
+    folder = ''
   ): Observable<IMediaPageResponse> {
     const params = new HttpParams()
       .set('resourceType', resourceType)
       .set('pageSize', pageSize)
       .set('nextCursor', nextCursor)
-      .set('prefix', prefix);
+      .set('prefix', prefix)
+      .set('folder', folder);
     return this.http.get<IMediaPageResponse>(`${this.apiUrl}media/search`, {
       params,
     });
   }
 
-  MediaUpload(file: File): Observable<IMediaUploadResponse> {
+  MediaFolders(): Observable<IMediaFolderResponse> {
+    return this.http.get<IMediaFolderResponse>(`${this.apiUrl}media/folders`);
+  }
+
+  MediaCreateFolder(path: string): Observable<IMediaFolderResponse> {
+    return this.http.post<IMediaFolderResponse>(`${this.apiUrl}media/folder`, {
+      Path: path,
+    });
+  }
+
+  MediaDeleteFolder(path: string): Observable<IBaseResponse<boolean>> {
+    const params = new HttpParams().set('path', path);
+    return this.http.delete<IBaseResponse<boolean>>(
+      `${this.apiUrl}media/folder`,
+      { params }
+    );
+  }
+
+  MediaUpload(file: File, folder = ''): Observable<IMediaUploadResponse> {
     const formData = new FormData();
     formData.append('file', file, file.name);
+    formData.append('folder', folder);
     return this.http.post<IMediaUploadResponse>(
       `${this.apiUrl}media/upload`,
       formData

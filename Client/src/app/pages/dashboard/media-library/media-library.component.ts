@@ -6,6 +6,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import {
   IMediaAsset,
+  IMediaFolder,
   IMediaUsage,
   MediaResourceType,
 } from '../../../interfaces';
@@ -34,6 +35,11 @@ export class MediaLibraryComponent {
   uploading = false;
   nextCursor = '';
   currentCursor = '';
+  folders: IMediaFolder[] = [];
+  selectedFolder = '';
+  folderName = '';
+  showFolderForm = false;
+  folderLoading = false;
   private cursorHistory: string[] = [];
 
   readonly resourceTypes: {
@@ -47,6 +53,7 @@ export class MediaLibraryComponent {
   ];
 
   constructor() {
+    this.loadFolders();
     this.loadAssets(true);
   }
 
@@ -91,7 +98,8 @@ export class MediaLibraryComponent {
         this.resourceType,
         24,
         this.currentCursor,
-        this.keyword.trim()
+        this.keyword.trim(),
+        this.selectedFolder
       )
       .subscribe({
         next: response => {
@@ -130,6 +138,64 @@ export class MediaLibraryComponent {
     this.fileInput?.nativeElement.click();
   }
 
+  selectFolder(path: string): void {
+    if (path === this.selectedFolder) return;
+    this.selectedFolder = path;
+    this.keyword = '';
+    this.loadAssets(true);
+  }
+
+  folderLevel(folder: IMediaFolder): number {
+    return Math.max(0, folder.Path.split('/').length - 1);
+  }
+
+  openFolderForm(): void {
+    this.folderName = '';
+    this.showFolderForm = true;
+  }
+
+  createFolder(): void {
+    const name = this.folderName.trim().replace(/^\/+|\/+$/g, '');
+    if (!name) {
+      this.message.warning('Vui lòng nhập tên thư mục');
+      return;
+    }
+
+    const path = this.selectedFolder ? `${this.selectedFolder}/${name}` : name;
+    this.folderLoading = true;
+    this.api.MediaCreateFolder(path).subscribe({
+      next: response => {
+        if (response?.Success) {
+          this.message.success('Đã tạo thư mục');
+          this.showFolderForm = false;
+          this.selectedFolder = response.Data?.Path || path;
+          this.loadFolders();
+          this.loadAssets(true);
+        } else {
+          this.message.error(response?.ErrorMessage || 'Không thể tạo thư mục');
+        }
+      },
+      error: err => {
+        this.folderLoading = false;
+        this.message.error(this.errorMessage(err));
+      },
+      complete: () => (this.folderLoading = false),
+    });
+  }
+
+  confirmDeleteFolder(): void {
+    if (!this.selectedFolder) return;
+    const path = this.selectedFolder;
+    this.modal.confirm({
+      nzTitle: 'Xóa thư mục?',
+      nzContent: `Chỉ thư mục rỗng mới có thể xóa. Bạn muốn xóa “${path}”?`,
+      nzOkText: 'Xóa thư mục',
+      nzOkDanger: true,
+      nzCancelText: 'Hủy',
+      nzOnOk: () => this.deleteFolder(path),
+    });
+  }
+
   uploadFiles(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
@@ -141,7 +207,9 @@ export class MediaLibraryComponent {
     }
 
     this.uploading = true;
-    forkJoin(files.map(file => this.api.MediaUpload(file))).subscribe({
+    forkJoin(
+      files.map(file => this.api.MediaUpload(file, this.selectedFolder))
+    ).subscribe({
       next: responses => {
         const uploaded = responses.filter(x => x?.Success).length;
         this.message.success(`Đã tải lên ${uploaded}/${files.length} file`);
@@ -227,6 +295,48 @@ export class MediaLibraryComponent {
     });
   }
 
+  private loadFolders(): void {
+    this.api.MediaFolders().subscribe({
+      next: response => {
+        if (response?.Success) {
+          this.folders = response.DataList || [];
+        } else {
+          this.message.error(response?.ErrorMessage || 'Không thể tải thư mục');
+        }
+      },
+      error: err => this.message.error(this.errorMessage(err)),
+    });
+  }
+
+  private deleteFolder(path: string): Promise<void> {
+    return new Promise(resolve => {
+      this.api.MediaDeleteFolder(path).subscribe({
+        next: response => {
+          if (response?.Success) {
+            this.message.success('Đã xóa thư mục');
+            this.selectedFolder = path.includes('/')
+              ? path.slice(0, path.lastIndexOf('/'))
+              : '';
+            this.loadFolders();
+            this.loadAssets(true);
+          } else {
+            this.message.error(
+              response?.ErrorMessage || 'Không thể xóa thư mục'
+            );
+          }
+          resolve();
+        },
+        error: err => {
+          this.message.error(
+            err?.error?.ErrorMessage ||
+              'Không thể xóa: thư mục có thể vẫn còn file hoặc thư mục con'
+          );
+          resolve();
+        },
+      });
+    });
+  }
+
   private showUsages(usages: IMediaUsage[]): void {
     const content = usages
       .map(x => `${x.Source}: ${x.Title || x.Id}`)
@@ -238,7 +348,14 @@ export class MediaLibraryComponent {
     });
   }
 
-  private errorMessage(err: any): string {
-    return err?.error?.ErrorMessage || err?.message || 'Đã có lỗi xảy ra';
+  private errorMessage(err: unknown): string {
+    if (!err || typeof err !== 'object') return 'Đã có lỗi xảy ra';
+
+    const response = err as {
+      error?: { ErrorMessage?: unknown };
+      message?: unknown;
+    };
+    const message = response.error?.ErrorMessage ?? response.message;
+    return typeof message === 'string' ? message : 'Đã có lỗi xảy ra';
   }
 }

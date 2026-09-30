@@ -22,6 +22,12 @@ export interface IMediaPage {
   NextCursor: string;
 }
 
+export interface IMediaFolder {
+  ExternalId: string;
+  Name: string;
+  Path: string;
+}
+
 export interface IMediaUsage {
   Source: string;
   Id: string;
@@ -42,3 +48,4 @@ export interface IMediaDeleteResult {
 export type IMediaPageResponse = IBaseResponse<IMediaPage>;
 export type IMediaUploadResponse = IBaseResponse<IMediaAsset>;
 export type IMediaDeleteResponse = IBaseResponse<IMediaDeleteResult>;
+export type IMediaFolderResponse = IBaseResponse<IMediaFolder>;

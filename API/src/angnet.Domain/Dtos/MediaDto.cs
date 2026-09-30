@@ -22,6 +22,18 @@ namespace angnet.Domain.Dtos
         public string NextCursor { get; set; } = string.Empty;
     }
 
+    public class MediaFolderDto
+    {
+        public string ExternalId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+    }
+
+    public class MediaFolderRequestDto
+    {
+        public string Path { get; set; } = string.Empty;
+    }
+
     public class MediaUsageDto
     {
         public string Source { get; set; } = string.Empty;
