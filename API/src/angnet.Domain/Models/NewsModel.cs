@@ -38,6 +38,6 @@ namespace angnet.Domain.Models
         // lưu lại là người đọc nhận thêm một mail nữa.
         public DateTime? NotifiedAt { get; set; }
         [Column(TypeName = "varchar(20)")]
-        public EWhoCanSee WhoCanSee { get; set; } // Loại chính sách (ví dụ: Chỉ tenant, Chỉ mình tôi, Public, v.v.) 
+        public EWhoCanSee WhoCanSee { get; set; } = EWhoCanSee.Public; // Ai được xem bài đã xuất bản
     }
 }

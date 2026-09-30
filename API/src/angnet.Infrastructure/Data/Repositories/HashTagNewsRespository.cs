@@ -1,5 +1,6 @@
 ﻿using angnet.Domain.Dtos;
 using angnet.Domain.Models;
+using angnet.Domain.Enums;
 using GuardAuth = angnet.Utility.CommonUtils.CheckAuthorized;
 using TConstValue = angnet.Utility.CommonUtils.ConstValue;
 using Microsoft.EntityFrameworkCore;
@@ -53,7 +54,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // vào sẽ ra danh sách rỗng vì Search đã lọc FlagActive.
             List<string> publishedNewsIds = await _dbContext.News
                         .AsNoTracking()
-                        .Where(n => n.FlagActive)
+                        .Where(n => n.FlagActive && n.WhoCanSee == EWhoCanSee.Public)
                         .Select(n => n.NewsId)
                         .ToListAsync();
 

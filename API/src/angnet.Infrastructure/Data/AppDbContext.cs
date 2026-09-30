@@ -255,6 +255,10 @@ namespace angnet.Infrastructure.Data
                         .HasForeignKey(p => p.CategoryNewsId)
                         .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<NewsModel>()
+                        .Property(x => x.WhoCanSee)
+                        .HasConversion<string>();
+
             // NewsCommentModel
             modelBuilder.Entity<NewsCommentModel>()
                         .HasOne<NewsModel>()

@@ -5,6 +5,7 @@ using angnet.Domain.Enums;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 
 namespace angnet.Infrastructure.Data.Services
@@ -39,6 +40,12 @@ namespace angnet.Infrastructure.Data.Services
             if (TCommonUtils.IsNullOrEmpty(newsId))
             {
                 apiResponse.CatchException(false, "NewsComment_Get.NewsIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            if (!await CanViewNews(user, newsId))
+            {
+                apiResponse.CatchException(false, "NewsComment_Get.NewsIsNotExists", requestClient);
                 return apiResponse;
             }
 
@@ -85,6 +92,17 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
+            string commentNewsId = await _dbContext.NewsComment.AsNoTracking()
+                    .Where(c => c.CommentId == commentId && c.FlagActive)
+                    .Select(c => c.NewsId)
+                    .FirstOrDefaultAsync();
+
+            if (TCommonUtils.IsNullOrEmpty(commentNewsId) || !await CanViewNews(user, commentNewsId))
+            {
+                apiResponse.CatchException(false, "NewsComment_Replies.CommentIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
             string currentUserId = GetCurrentUserId(user);
             int _pageIndex = pageIndex > 0 ? pageIndex : 0;
             int _pageSize = NormalizePageSize(pageSize, 5);
@@ -123,9 +141,7 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            var (isExistNews, _) = await _unitOfWork.NewsCommentRepository
-                                        .CheckRecordExist<NewsModel>(x => x.NewsId == data.NewsId && x.FlagActive);
-            if (isExistNews == false)
+            if (!await CanViewNews(user, data.NewsId))
             {
                 apiResponse.CatchException(false, "NewsComment_Create.NewsIsNotExists", requestClient);
                 return apiResponse;
@@ -339,6 +355,62 @@ namespace angnet.Infrastructure.Data.Services
             return user?.Identity?.IsAuthenticated == true
                 ? user.FindFirstValue(ClaimTypes.NameIdentifier)
                 : null;
+        }
+
+        /// <summary>
+        /// Bình luận là một phần nội dung của bài, vì vậy các endpoint bình luận phải
+        /// áp dụng cùng quy tắc Draft/WhoCanSee với endpoint chi tiết bài viết.
+        /// </summary>
+        private async Task<bool> CanViewNews(ClaimsPrincipal user, string newsId)
+        {
+            NewsModel news = await _dbContext.News.AsNoTracking()
+                    .FirstOrDefaultAsync(n => n.NewsId == newsId);
+
+            if (news is null)
+            {
+                return false;
+            }
+
+            string currentUserId = GetCurrentUserId(user);
+
+            if (!news.FlagActive)
+            {
+                return !TCommonUtils.IsNullOrEmpty(currentUserId)
+                       && (currentUserId == news.UserId || user.IsInRole("Admin"));
+            }
+
+            if (news.WhoCanSee == EWhoCanSee.Public)
+            {
+                return true;
+            }
+
+            if (TCommonUtils.IsNullOrEmpty(currentUserId))
+            {
+                return false;
+            }
+
+            if (currentUserId == news.UserId)
+            {
+                return true;
+            }
+
+            if (news.WhoCanSee != EWhoCanSee.Tenant)
+            {
+                return false;
+            }
+
+            int? viewerTenantId = await _dbContext.Users.AsNoTracking()
+                    .Where(u => u.Id == currentUserId)
+                    .Select(u => (int?)u.TenantId)
+                    .FirstOrDefaultAsync();
+            int? authorTenantId = await _dbContext.Users.AsNoTracking()
+                    .Where(u => u.Id == news.UserId)
+                    .Select(u => (int?)u.TenantId)
+                    .FirstOrDefaultAsync();
+
+            return viewerTenantId.HasValue
+                   && viewerTenantId.Value > 0
+                   && viewerTenantId == authorTenantId;
         }
 
         private static int NormalizePageSize(int pageSize, int defaultSize)

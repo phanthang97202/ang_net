@@ -1,0 +1,74 @@
+<article
+  class="post-card"
+  [class.is-refreshing]="refreshing"
+  appScrollReveal
+  [appScrollRevealDelay]="revealDelay">
+  <div class="post-card__thumb">
+    @if (post.Thumbnail) {
+      <img [src]="post.Thumbnail" [alt]="title" />
+    } @else {
+      <div
+        class="post-card__placeholder"
+        [style.background-color]="placeholderColor"></div>
+    }
+
+    <a
+      [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+      class="post-card__thumb-link"
+      [attr.aria-label]="title"></a>
+
+    @if (categoryName) {
+      <a
+        class="post-card__category"
+        routerLink="/news"
+        [queryParams]="{ categoryId: post.CategoryNewsId }">
+        {{ categoryName }}
+      </a>
+    }
+    <span class="post-card__readtime">
+      {{ readingTime }} {{ 'T_MINUTESREAD' | translate }}
+    </span>
+  </div>
+
+  <div class="post-card__body">
+    <p class="post-card__meta">
+      <span>
+        <strong>{{ post.FullName }}</strong>
+        {{ 'T_ON' | translate }}
+        {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
+      </span>
+      <span class="post-card__stats">
+        <span><span nz-icon nzType="eye" nzTheme="outline"></span>{{ formatCount(post.ViewCount) }}</span>
+        @if (post.LikeCount > 0) {
+          <span><span nz-icon nzType="heart" nzTheme="fill"></span>{{ formatCount(post.LikeCount) }}</span>
+        }
+      </span>
+    </p>
+
+    <a
+      [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
+      class="post-card__title">
+      {{ title }}
+    </a>
+
+    <p class="post-card__excerpt">{{ description }}</p>
+
+    @if (hashtags.length > 0) {
+      <div class="post-card__hashtags">
+        @for (hashtag of hashtags | slice: 0 : 2; track hashtag.HashTagNewsName) {
+          <a
+            class="post-card__hashtag"
+            routerLink="/news"
+            [queryParams]="{ hashTag: hashtag.HashTagNewsName }">
+            {{ hashtag.HashTagNewsName }}
+          </a>
+        }
+        @if (hashtags.length > 2) {
+          <span class="post-card__hashtag post-card__hashtag--more">
+            +{{ hashtags.length - 2 }} more
+          </span>
+        }
+      </div>
+    }
+  </div>
+</article>

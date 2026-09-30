@@ -1,4 +1,5 @@
 using angnet.Domain.Dtos;
+using angnet.Domain.Enums;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Mail.Producer;
 using angnet.Infrastructure.Mail.Service;
@@ -275,7 +276,7 @@ namespace angnet.Infrastructure.Data.Services
 
             // Bài nháp thì chặn: link trong mail sẽ dẫn tới trang 404 vì Detail từ
             // chối trả bài chưa xuất bản cho khách vãng lai.
-            if (!news.FlagActive)
+            if (!news.FlagActive || news.WhoCanSee != EWhoCanSee.Public)
             {
                 apiResponse.CatchException(false, "Notify.NewsIsNotPublished", requestClient);
                 return apiResponse;

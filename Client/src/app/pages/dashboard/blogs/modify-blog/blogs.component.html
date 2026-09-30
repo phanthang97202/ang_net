@@ -12,10 +12,17 @@
               'T_FLAGACTIVE' | translate
             }}</nz-form-label>
             <nz-form-control [nzXs]="24" [nzMd]="16">
-              <nz-switch
-                formControlName="FlagActive"
-                [nzCheckedChildren]="'T_PUBLISHED' | translate"
-                [nzUnCheckedChildren]="'T_DRAFT' | translate"></nz-switch>
+              <nz-select formControlName="PublicationOption">
+                <nz-option
+                  nzValue="Public"
+                  [nzLabel]="'T_NEWS_PUBLIC' | translate"></nz-option>
+                <nz-option
+                  nzValue="Draft"
+                  [nzLabel]="'T_DRAFT' | translate"></nz-option>
+                <nz-option
+                  nzValue="Private"
+                  [nzLabel]="'T_NEWS_PRIVATE' | translate"></nz-option>
+              </nz-select>
             </nz-form-control>
           </nz-form-item>
 

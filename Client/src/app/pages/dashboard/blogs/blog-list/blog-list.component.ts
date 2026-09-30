@@ -151,7 +151,14 @@ export class BlogListComponent implements OnInit {
     this.tableLoading = true;
     this.setLoading(true);
     this.api
-      .SearchNews(this.pageIndex - 1, this.pageSize, '', '', '', false)
+      .SearchNews(
+        this.pageIndex - 1,
+        this.pageSize,
+        '',
+        this.authService.isAdminPermission() ? '' : this.currentUserId,
+        '',
+        false
+      )
       .subscribe({
         next: response => {
           if (response?.Success) {
@@ -185,6 +192,20 @@ export class BlogListComponent implements OnInit {
 
   handleOpenCreate(): void {
     this.router.navigate(['/dashboard/blog/create']);
+  }
+
+  isPublic(data: IDetailNews): boolean {
+    return data.FlagActive && data.WhoCanSee === 'Public';
+  }
+
+  statusLabel(data: IDetailNews): string {
+    if (!data.FlagActive) return 'Bản nháp';
+    return data.WhoCanSee === 'Private' ? 'Chỉ mình tôi' : 'Công khai';
+  }
+
+  statusColor(data: IDetailNews): string {
+    if (!data.FlagActive) return 'default';
+    return data.WhoCanSee === 'Private' ? 'purple' : 'green';
   }
 
   /**

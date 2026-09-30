@@ -184,10 +184,11 @@ export class ApiService {
     onlyPublished = true,
     hashTag = '',
     sort = '',
-    pinnedFirst = false
+    pinnedFirst = false,
+    whoCanSee = ''
   ): Observable<INewsResponse> {
     return this.http.get<INewsResponse>(
-      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}&sort=${sort}&pinnedFirst=${pinnedFirst}`
+      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}&sort=${sort}&pinnedFirst=${pinnedFirst}&whoCanSee=${encodeURIComponent(whoCanSee)}`
     );
   }
 
@@ -305,6 +306,7 @@ export class ApiService {
       ContentBody: obj.ContentBody,
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
+      WhoCanSee: obj.WhoCanSee,
       LstHashTagNews: obj.LstHashTagNews,
       LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
@@ -326,6 +328,7 @@ export class ApiService {
       ContentBody: obj.ContentBody,
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
+      WhoCanSee: obj.WhoCanSee,
       LstHashTagNews: obj.LstHashTagNews,
       LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,
@@ -342,6 +345,7 @@ export class ApiService {
       ContentBody: obj.ContentBody,
       ContentBodyEn: obj.ContentBodyEn,
       FlagActive: obj.FlagActive,
+      WhoCanSee: obj.WhoCanSee,
       LstHashTagNews: obj.LstHashTagNews,
       LstHashTagNewsEn: obj.LstHashTagNewsEn,
       LstRefFileNews: obj.LstRefFileNews,

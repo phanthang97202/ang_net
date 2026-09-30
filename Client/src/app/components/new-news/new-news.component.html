@@ -1,9 +1,4 @@
 <section class="post-list">
-  <!-- Luôn có tiêu đề để khối này cùng hạng với "Bài viết nổi bật" và các khối
-       bên sidebar - thiếu nó thì cột trái mở đầu bằng mấy pill trơ, người đọc
-       không biết đang ở khối nào. Đang lọc (trang /news) thì tiêu đề nói rõ
-       lọc theo gì, còn lại là "Tất cả bài viết" - chữ này đúng với cả 3 tab,
-       không trùng tên tab nào. Kiểu chữ + gạch nối lấy theo khối bên sidebar. -->
   <p class="post-list-heading">
     <span *ngIf="filterLabelKey; else allPostsHeading">
       {{ filterLabelKey | translate }}
@@ -15,8 +10,6 @@
     <span class="post-list-heading-line"></span>
   </p>
 
-  <!-- Sắp xếp: đổi tab là đổi query param ?sort nên trạng thái nằm trên URL,
-       F5 hay chia sẻ link vẫn giữ đúng thứ tự đang xem. -->
   <div class="post-list-tabs" role="group">
     <button
       type="button"
@@ -29,10 +22,6 @@
     </button>
   </div>
 
-  <!-- Skeleton CHỈ cho lần tải đầu (chưa có gì để hiện). Lúc đổi tab/đổi trang
-       thì giữ nguyên danh sách cũ trên màn hình - tháo nó ra để thay bằng
-       skeleton làm trang sụp chiều cao rồi giãn lại, và card phải dựng lại từ
-       đầu nên appScrollReveal chạy lại từ opacity 0, nhìn như nháy trang. -->
   <ng-container *ngIf="isLoading && posts.length === 0">
     <div class="post-card post-card--skeleton" *ngFor="let i of [1, 2, 3]">
       <div class="post-card-thumb post-card-thumb--skeleton"></div>
@@ -45,111 +34,13 @@
     </div>
   </ng-container>
 
-  <!-- Post cards: không gắn điều kiện isLoading để danh sách ở lại trong DOM
-       suốt lúc tải lại. Nhờ vậy trackBy mới phát huy - bài nào có ở cả thứ tự
-       cũ và mới thì Angular DI CHUYỂN đúng node đó thay vì huỷ rồi dựng lại,
-       nên nó không fade lại từ đầu; chỉ bài thật sự mới mới fade vào. -->
   <ng-container *ngIf="posts.length > 0">
-    <article
-      class="post-card"
-      [class.is-refreshing]="isLoading"
+    <app-news-card
       *ngFor="let post of posts; trackBy: trackById; let i = index"
-      appScrollReveal
-      [appScrollRevealDelay]="(i % 3) * 90">
-      <!-- Khung ảnh là <div> chứ không phải <a>: badge danh mục bên trong cũng
-           là một link, mà <a> lồng trong <a> là HTML không hợp lệ. Link mở bài
-           nằm ở lớp phủ .post-card-thumb-link bên dưới, badge nằm đè lên nó. -->
-      <div class="post-card-thumb">
-        <img
-          *ngIf="post.Thumbnail"
-          [src]="post.Thumbnail"
-          [alt]="getTitle(post)" />
-        <div
-          *ngIf="!post.Thumbnail"
-          class="post-card-thumb-placeholder"
-          [style.background-color]="post._placeholderColor"></div>
-
-        <a
-          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-          class="post-card-thumb-link"
-          [attr.aria-label]="getTitle(post)"></a>
-
-        <div class="post-card-badges">
-          <a
-            *ngIf="getCategoryName(post)"
-            class="post-badge"
-            routerLink="/news"
-            [queryParams]="{ categoryId: post.CategoryNewsId }"
-            >{{ getCategoryName(post) }}</a
-          >
-        </div>
-        <span class="post-card-readtime">
-          {{ getReadingTime(post) }} {{ 'T_MINUTESREAD' | translate }}
-        </span>
-      </div>
-
-      <div class="post-card-body">
-        <p class="post-card-meta">
-          <span>
-            <span class="post-card-author">{{ post.FullName }}</span>
-            {{ 'T_ON' | translate }}
-            {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
-          </span>
-
-          <!-- Lượt thích ẩn khi bằng 0: bài mới đăng nào cũng kèm "0" thì dãy
-               số phản tác dụng. Lượt xem luôn hiện vì chỉ cần mở bài là tăng. -->
-          <span class="post-card-stats">
-            <span class="post-card-stat">
-              <svg
-                class="post-card-stat-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              {{ formatCount(post.ViewCount) }}
-            </span>
-            <span class="post-card-stat" *ngIf="post.LikeCount > 0">
-              <svg
-                class="post-card-stat-icon"
-                viewBox="0 0 24 24"
-                fill="currentColor">
-                <path
-                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-              </svg>
-              {{ formatCount(post.LikeCount) }}
-            </span>
-          </span>
-        </p>
-
-        <a
-          [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-          class="post-card-title">
-          {{ getTitle(post) }}
-        </a>
-
-        <p class="post-card-excerpt">{{ getDescription(post) }}</p>
-
-        <div class="post-card-hashtags" *ngIf="getHashtags(post).length > 0">
-          <a
-            *ngFor="let ht of getHashtags(post) | slice: 0 : 2"
-            class="post-hashtag"
-            routerLink="/news"
-            [queryParams]="{ hashTag: ht.HashTagNewsName }"
-            >{{ ht.HashTagNewsName }}</a
-          >
-          <span
-            *ngIf="getHashtags(post).length > 2"
-            class="post-hashtag post-hashtag--more">
-            +{{ getHashtags(post).length - 2 }} more
-          </span>
-        </div>
-      </div>
-    </article>
+      [post]="post"
+      [refreshing]="isLoading"
+      [revealDelay]="(i % 3) * 90"
+      [placeholderColor]="post._placeholderColor || '#5b4fe9'" />
 
     <div class="post-list-pagination" [class.is-refreshing]="isLoading">
       <pagination
@@ -160,7 +51,6 @@
     </div>
   </ng-container>
 
-  <!-- Empty state -->
   <ng-container *ngIf="!isLoading && posts.length === 0">
     <div class="post-list-empty">{{ 'T_NONEWS' | translate }}</div>
   </ng-container>

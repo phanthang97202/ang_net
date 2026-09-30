@@ -1,0 +1,72 @@
+<section class="my-posts" aria-labelledby="my-posts-title">
+  <header class="my-posts__header">
+    <div>
+      <h2 id="my-posts-title">{{ 'T_MYPOSTS' | translate }}</h2>
+      <p>{{ 'T_MYPOSTSDESC' | translate }}</p>
+    </div>
+    <span class="my-posts__count">{{ itemCount }}</span>
+  </header>
+
+  <div class="my-posts__tabs" role="tablist" [attr.aria-label]="'T_MYPOSTS' | translate">
+    @for (tab of tabs; track tab.value) {
+      <button
+        type="button"
+        role="tab"
+        class="my-posts__tab"
+        [class.is-active]="activeTab === tab.value"
+        [attr.aria-selected]="activeTab === tab.value"
+        [disabled]="isLoading"
+        (click)="changeTab(tab.value)">
+        {{ tab.labelKey | translate }}
+      </button>
+    }
+  </div>
+
+  @if (isLoading && posts.length === 0) {
+    <div class="my-posts__skeleton" aria-hidden="true">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="my-posts__skeleton-card">
+          <span class="my-posts__skeleton-image"></span>
+          <span class="my-posts__skeleton-lines"></span>
+        </div>
+      }
+    </div>
+  } @else if (posts.length === 0) {
+    <div class="my-posts__empty">
+      <span
+        class="my-posts__empty-icon"
+        nz-icon
+        nzType="file-text"
+        nzTheme="outline"
+        aria-hidden="true"></span>
+      <h3>
+        {{
+          (activeTab === 'Public' ? 'T_NOPUBLICPOSTS' : 'T_NOPRIVATEPOSTS')
+            | translate
+        }}
+      </h3>
+      <p>{{ 'T_MYPOSTSEMPTYDESC' | translate }}</p>
+    </div>
+  } @else {
+    <div class="my-posts__list" [class.is-loading]="isLoading">
+      @for (post of posts; track post.NewsId; let index = $index) {
+        <app-news-card
+          [post]="post"
+          [refreshing]="isLoading"
+          [revealDelay]="(index % 3) * 70"
+          [placeholderColor]="placeholderColor(index)" />
+      }
+    </div>
+
+    @if (itemCount > pageSize) {
+      <div class="my-posts__pagination" [class.is-loading]="isLoading">
+        <pagination
+          [pageIndex]="currentPage + 1"
+          [pageSize]="pageSize"
+          [itemCount]="itemCount"
+          [size]="'small'"
+          (onPageIndexChange)="changePage($event)" />
+      </div>
+    }
+  }
+</section>

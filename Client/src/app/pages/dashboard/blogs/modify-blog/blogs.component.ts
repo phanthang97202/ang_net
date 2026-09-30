@@ -16,7 +16,12 @@ import {
 } from '../../../../services';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { INewsCategory, IRefFileNews } from '../../../../interfaces';
+import {
+  INewsCategory,
+  IRefFileNews,
+  TNewsPublicationOption,
+  TWhoCanSee,
+} from '../../../../interfaces';
 import { NzTreeNode, NzTreeNodeOptions } from 'ng-zorro-antd/tree';
 import { Util } from '../../../../helpers';
 import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../../modules';
@@ -72,7 +77,7 @@ export class BlogsComponent implements OnInit {
     LstHashTagNewsEn: FormControl<string[]>;
     LstRefFileNews: FormControl<IRefFileNews[]>;
     CategoryNewsId: FormControl<string>;
-    FlagActive: FormControl<boolean>;
+    PublicationOption: FormControl<TNewsPublicationOption>;
   }>;
 
   listButtonsHeader: {
@@ -94,7 +99,7 @@ export class BlogsComponent implements OnInit {
       LstHashTagNews: [[] as string[]],
       LstHashTagNewsEn: [[] as string[]],
       LstRefFileNews: [[{ FileUrl: '' }]],
-      FlagActive: [true],
+      PublicationOption: this.fb.control<TNewsPublicationOption>('Public'),
     });
   }
 
@@ -159,7 +164,10 @@ export class BlogsComponent implements OnInit {
             ShortDescriptionEn: data.Data.ShortDescriptionEn,
             Thumbnail: data.Data.Thumbnail,
             LstRefFileNews: data.Data.LstRefFileNews,
-            FlagActive: data.Data.FlagActive,
+            PublicationOption: this.toPublicationOption(
+              data.Data.FlagActive,
+              data.Data.WhoCanSee
+            ),
           });
 
           this.validateForm.patchValue({
@@ -251,6 +259,14 @@ export class BlogsComponent implements OnInit {
       : category.NewsCategoryName;
   }
 
+  private toPublicationOption(
+    flagActive: boolean,
+    whoCanSee: TWhoCanSee
+  ): TNewsPublicationOption {
+    if (!flagActive) return 'Draft';
+    return whoCanSee === 'Private' ? 'Private' : 'Public';
+  }
+
   private fetchHashtagSuggestions() {
     this.apiService.GetTopHashTag('vi').subscribe({
       next: data => {
@@ -301,6 +317,8 @@ export class BlogsComponent implements OnInit {
   };
 
   submitForm() {
+    const publicationOption =
+      this.validateForm.value.PublicationOption ?? 'Public';
     const data = {
       Thumbnail: this.validateForm.value.Thumbnail ?? '',
       CategoryNewsId: this.validateForm.value.CategoryNewsId ?? '',
@@ -310,7 +328,10 @@ export class BlogsComponent implements OnInit {
       ShortDescriptionEn: this.validateForm.value.ShortDescriptionEn ?? '',
       ContentBody: this.validateForm.value.ContentBody ?? '',
       ContentBodyEn: this.validateForm.value.ContentBodyEn ?? '',
-      FlagActive: this.validateForm.value.FlagActive ?? true,
+      FlagActive: publicationOption !== 'Draft',
+      WhoCanSee: (publicationOption === 'Private'
+        ? 'Private'
+        : 'Public') as TWhoCanSee,
       LstHashTagNews: this.normalizeHashtags(
         this.validateForm.value.LstHashTagNews ?? []
       ).map(name => ({ HashTagNewsName: name })),
@@ -359,6 +380,7 @@ export class BlogsComponent implements OnInit {
               ContentBody: data.ContentBody ?? '',
               ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
+              WhoCanSee: data.WhoCanSee,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],
@@ -373,6 +395,7 @@ export class BlogsComponent implements OnInit {
               ContentBody: data.ContentBody ?? '',
               ContentBodyEn: data.ContentBodyEn ?? '',
               FlagActive: data.FlagActive,
+              WhoCanSee: data.WhoCanSee,
               LstHashTagNews: data.LstHashTagNews ?? '',
               LstHashTagNewsEn: data.LstHashTagNewsEn ?? '',
               LstRefFileNews: [],

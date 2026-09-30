@@ -12,6 +12,7 @@ import { IDetailNews } from '../../interfaces';
 import { CONSTANTS_APP } from '../../helpers';
 import { ScrollRevealDirective } from '../../directives';
 import { TranslateModule } from '@ngx-translate/core';
+import { NewsCardComponent } from '../news-card/news-card.component';
 
 export interface INewsWithPlaceholder extends IDetailNews {
   _placeholderColor?: string;
@@ -35,6 +36,7 @@ const PLACEHOLDER_COLORS = [
     PaginationComponent,
     ScrollRevealDirective,
     TranslateModule,
+    NewsCardComponent,
   ],
   templateUrl: './new-news.component.html',
   styleUrls: ['./new-news.component.scss'],

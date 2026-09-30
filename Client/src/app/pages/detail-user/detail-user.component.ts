@@ -8,6 +8,7 @@ import {
   REUSE_COMPONENT_MODULES,
   REUSE_PIPE_MODULE,
 } from '../../modules';
+import { MyPostsComponent } from './my-posts/my-posts.component';
 
 /**
  * Một mục trong sidebar. Thêm tab mới = thêm 1 phần tử vào profileNav rồi
@@ -30,7 +31,12 @@ export interface ProfileNavSection {
 @Component({
   selector: 'app-detail-user',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    ...REUSE_COMPONENT_MODULES,
+    ...REUSE_PIPE_MODULE,
+    MyPostsComponent,
+  ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
 })
@@ -56,7 +62,7 @@ export class DetailUserComponent implements OnInit {
       titleKey: 'T_CONTENT',
       items: [
         { id: 'reels', labelKey: 'T_MYREELS', icon: 'play-circle', available: false },
-        { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: false },
+        { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: true },
       ],
     },
   ];

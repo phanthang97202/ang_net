@@ -11,6 +11,7 @@
         public string ContentBody { get; set; } = string.Empty; // Nội dung bài viết
         public string ContentBodyEn { get; set; } = string.Empty; // Nội dung tiếng Anh (không bắt buộc)
         public bool FlagActive { get; set; } // Trạng thái bài viết
+        public angnet.Domain.Enums.EWhoCanSee WhoCanSee { get; set; } = angnet.Domain.Enums.EWhoCanSee.Public; // Phạm vi xem khi đã xuất bản
 
         public List<HashTagNewsDto> LstHashTagNews { get; set; } = new List<HashTagNewsDto>(); // Từ khóa bài viết
         public List<HashTagNewsDto> LstHashTagNewsEn { get; set; } = new List<HashTagNewsDto>(); // Từ khóa tiếng Anh
@@ -43,6 +44,7 @@
         public DateTime CreatedDTime { get; set; } // Thời gian đăng bài
         public DateTime UpdatedDTime { get; set; } // Thời gian sửa bài
         public bool FlagActive { get; set; } // Trạng thái bài viết
+        public angnet.Domain.Enums.EWhoCanSee WhoCanSee { get; set; } // Phạm vi xem khi đã xuất bản
         public int ViewCount { get; set; } // Số lượt xem
         public int ShareCount { get; set; } // Số lượt chia sẻ
         public int LikeCount { get; set; } // Số lượt thích

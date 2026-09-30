@@ -1,4 +1,8 @@
 import { IBaseResponse, IPageInfo } from './common';
+
+export type TWhoCanSee = 'Public' | 'Tenant' | 'Private';
+export type TNewsPublicationOption = 'Public' | 'Draft' | 'Private';
+
 export interface ICreateNews {
   Thumbnail: string;
   CategoryNewsId: string;
@@ -9,6 +13,7 @@ export interface ICreateNews {
   ContentBody: string;
   ContentBodyEn: string;
   FlagActive: boolean;
+  WhoCanSee: TWhoCanSee;
   LstHashTagNews: IHashTagNews[];
   LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
@@ -30,6 +35,7 @@ export interface INews {
   CreatedDTime: Date;
   UpdatedDTime: Date;
   FlagActive: boolean;
+  WhoCanSee: TWhoCanSee;
   ViewCount: number;
   EstimatedReadingTime: number;
   EstimatedReadingTimeEn: number;
@@ -89,6 +95,7 @@ export interface IDetailNews {
   CreatedDTime: string;
   UpdatedDTime: string;
   FlagActive: boolean;
+  WhoCanSee: TWhoCanSee;
   ViewCount: number;
   EstimatedReadingTime: number;
   EstimatedReadingTimeEn: number;

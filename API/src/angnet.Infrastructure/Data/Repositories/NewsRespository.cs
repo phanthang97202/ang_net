@@ -1,5 +1,6 @@
 ﻿using angnet.Application.Interfaces.Repositories;
 using angnet.Domain.Dtos;
+using angnet.Domain.Enums;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
 using Dapper;
@@ -77,6 +78,60 @@ namespace angnet.Infrastructure.Data.Repositories
 
             return !TCommonUtils.IsNullOrEmpty(authorUserId)
                    && user.FindFirstValue(ClaimTypes.NameIdentifier) == authorUserId;
+        }
+
+        /// <summary>
+        /// Kiểm tra phạm vi xem của một bài. Private đúng nghĩa "chỉ mình tôi":
+        /// Admin không được bỏ qua. Tenant chỉ cho người cùng tenant với tác giả.
+        /// </summary>
+        private bool CanViewByVisibility(NewsModel news)
+        {
+            if (news.WhoCanSee == EWhoCanSee.Public)
+            {
+                return true;
+            }
+
+            ClaimsPrincipal user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated != true)
+            {
+                return false;
+            }
+
+            string viewerUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (TCommonUtils.IsNullOrEmpty(viewerUserId))
+            {
+                return false;
+            }
+
+            if (viewerUserId == news.UserId)
+            {
+                return true;
+            }
+
+            if (news.WhoCanSee != EWhoCanSee.Tenant)
+            {
+                return false;
+            }
+
+            int? viewerTenantId = _dbContext.Users.AsNoTracking()
+                    .Where(u => u.Id == viewerUserId)
+                    .Select(u => (int?)u.TenantId)
+                    .FirstOrDefault();
+            int? authorTenantId = _dbContext.Users.AsNoTracking()
+                    .Where(u => u.Id == news.UserId)
+                    .Select(u => (int?)u.TenantId)
+                    .FirstOrDefault();
+
+            return viewerTenantId.HasValue
+                   && viewerTenantId.Value > 0
+                   && viewerTenantId == authorTenantId;
+        }
+
+        private bool CanViewNews(NewsModel news)
+        {
+            return news.FlagActive
+                ? CanViewByVisibility(news)
+                : CanViewUnpublished(news.UserId);
         }
 
         /// <summary>
@@ -269,6 +324,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.CreatedDTime = objNews.CreatedDTime;
             rsNews.UpdatedDTime = objNews.UpdatedDTime;
             rsNews.FlagActive = objNews.FlagActive;
+            rsNews.WhoCanSee = objNews.WhoCanSee;
             rsNews.ViewCount = objNews.ViewCount; // Luôn luôn trễ hơn 1 lượt xem
             rsNews.ShareCount = 0;
             rsNews.LikeCount = countLike;
@@ -330,7 +386,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false)
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false, string whoCanSee = "")
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -360,6 +416,20 @@ namespace angnet.Infrastructure.Data.Repositories
             string _categoryId = TCommonUtils.ConvertLowerCase(categoryId);
             string _hashTag = TCommonUtils.ConvertLowerCase(hashTag);
             string _sort = TCommonUtils.ConvertLowerCase(sort);
+            EWhoCanSee? visibilityFilter = Enum.TryParse(whoCanSee, true, out EWhoCanSee parsedVisibility)
+                    && Enum.IsDefined(parsedVisibility)
+                ? parsedVisibility
+                : null;
+            ClaimsPrincipal viewer = _httpContextAccessor.HttpContext?.User;
+            string viewerUserId = viewer?.Identity?.IsAuthenticated == true
+                    ? viewer.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty
+                    : string.Empty;
+            int? viewerTenantId = TCommonUtils.IsNullOrEmpty(viewerUserId)
+                    ? null
+                    : await _dbContext.Users.AsNoTracking()
+                            .Where(u => u.Id == viewerUserId)
+                            .Select(u => (int?)u.TenantId)
+                            .FirstOrDefaultAsync();
 
             if (pageIndex > 0)
             {
@@ -443,6 +513,36 @@ namespace angnet.Infrastructure.Data.Repositories
                 query = query.Where(i => i.FlagActive);
             }
 
+            if (visibilityFilter.HasValue)
+            {
+                query = query.Where(i => i.WhoCanSee == visibilityFilter.Value);
+            }
+
+            // Search public không bao giờ trả bài Private. Khi dashboard yêu cầu cả
+            // bài nháp, tác giả vẫn xem được bài Private của chính mình. Tenant được
+            // nhìn thấy bởi người đăng nhập cùng tenant với tác giả.
+            if (onlyPublished)
+            {
+                query = query.Where(i =>
+                    i.WhoCanSee == EWhoCanSee.Public
+                    || (i.WhoCanSee == EWhoCanSee.Tenant
+                        && viewerTenantId.HasValue
+                        && viewerTenantId.Value > 0
+                        && _dbContext.Users.Any(u =>
+                            u.Id == i.UserId && u.TenantId == viewerTenantId.Value)));
+            }
+            else
+            {
+                query = query.Where(i =>
+                    i.WhoCanSee == EWhoCanSee.Public
+                    || i.UserId == viewerUserId
+                    || (i.WhoCanSee == EWhoCanSee.Tenant
+                        && viewerTenantId.HasValue
+                        && viewerTenantId.Value > 0
+                        && _dbContext.Users.Any(u =>
+                            u.Id == i.UserId && u.TenantId == viewerTenantId.Value)));
+            }
+
             int itemCount = query.ToList().Count;
 
             //
@@ -460,7 +560,10 @@ namespace angnet.Infrastructure.Data.Repositories
             // v2 tách khỏi kết quả cũ vốn chỉ lọc đúng một CategoryNewsId. Nếu không
             // đổi field cache, sau khi deploy danh mục cha vẫn có thể trả dữ liệu cũ
             // trong tối đa 30 phút.
-            string primaryKey = $"v2|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst})";
+            string visibilityScope = onlyPublished
+                    ? $"tenant:{viewerTenantId?.ToString() ?? "anonymous"}"
+                    : $"viewer:{viewerUserId}|tenant:{viewerTenantId?.ToString() ?? "none"}";
+            string primaryKey = $"v4|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -532,7 +635,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // là request kế tiếp dùng payload mới ngay, không nhận bản cache cũ.
             string fieldKey = GenerateUniqueCacheKey(
                 keyStoreManager,
-                $"v3|({_take})|hotOnly={hotOnly}|config={configSignature}"
+                $"v4|({_take})|hotOnly={hotOnly}|config={configSignature}"
             );
             string rsCached = await GetFieldOfHashCacheAsync(keyStoreManager, fieldKey);
 
@@ -580,7 +683,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // mục con có số lượng chính xác mà không phát sinh thêm một query cho mỗi con.
             Dictionary<string, int> publishedCountByCategory = await _dbContext.News
                     .AsNoTracking()
-                    .Where(n => n.FlagActive)
+                    .Where(n => n.FlagActive && n.WhoCanSee == EWhoCanSee.Public)
                     .GroupBy(n => n.CategoryNewsId)
                     .Select(group => new
                     {
@@ -596,7 +699,9 @@ namespace angnet.Infrastructure.Data.Repositories
                 List<string> branchIds = CollectBranchIds(root.NewsCategoryId, categories);
 
                 IQueryable<NewsModel> query = _dbContext.News.AsNoTracking()
-                                                    .Where(n => n.FlagActive && branchIds.Contains(n.CategoryNewsId));
+                                                    .Where(n => n.FlagActive
+                                                                && n.WhoCanSee == EWhoCanSee.Public
+                                                                && branchIds.Contains(n.CategoryNewsId));
 
                 int totalCount = branchIds.Sum(id =>
                         publishedCountByCategory.TryGetValue(id, out int count) ? count : 0);
@@ -781,7 +886,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // Chặn bài chưa xuất bản. Phải nằm TRƯỚC phần tăng ViewCount và phần đọc cache:
             // cache key chỉ gồm newsId (không có user), nên nếu kiểm tra sau cache thì bản
             // admin đã cache sẽ bị trả cho khách vãng lai. objNews đọc tươi từ DB nên tin được.
-            if (!objNews.FlagActive && !CanViewUnpublished(objNews.UserId))
+            if (!CanViewNews(objNews))
             {
                 // Trả cùng thông báo với bài không tồn tại, tránh lộ việc bài đó có thật
                 apiResponse.CatchException(false, "News_Detail.NewsIsNotExist", requestClient);
@@ -863,6 +968,7 @@ namespace angnet.Infrastructure.Data.Repositories
             DateTime CreatedDTime = TCommonUtils.DTimeNow();
             DateTime UpdatedDTime = TCommonUtils.DTimeNow();
             bool FlagActive = data.FlagActive;
+            EWhoCanSee WhoCanSee = data.WhoCanSee;
             int ViewCount = 0;
             int ShareCount = 0;
             int LikeCount = 0;
@@ -895,6 +1001,12 @@ namespace angnet.Infrastructure.Data.Repositories
             if (TCommonUtils.IsNullOrEmpty(ContentBody))
             {
                 apiResponse.CatchException(false, "News_Create.ContentBodyIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            if (!Enum.IsDefined(WhoCanSee))
+            {
+                apiResponse.CatchException(false, "News_Create.WhoCanSeeIsNotValid", requestClient);
                 return apiResponse;
             }
 
@@ -986,6 +1098,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 CreatedDTime = CreatedDTime,
                 UpdatedDTime = UpdatedDTime,
                 FlagActive = FlagActive,
+                WhoCanSee = WhoCanSee,
                 ViewCount = ViewCount,
                 ShareCount = ShareCount,
                 LikeCount = LikeCount,
@@ -1036,6 +1149,14 @@ namespace angnet.Infrastructure.Data.Repositories
             if (existingNews is null)
             {
                 apiResponse.CatchException(false, "News_TogglePin.NewsWasNotExisted", requestClient);
+                return apiResponse;
+            }
+
+            // Chỉ bài đang công khai mới được ghim lên các danh sách công cộng.
+            // Vẫn cho phép thao tác bỏ ghim để xử lý dữ liệu cũ nếu có.
+            if (isPinned && (!existingNews.FlagActive || existingNews.WhoCanSee != EWhoCanSee.Public))
+            {
+                apiResponse.CatchException(false, "News_TogglePin.OnlyPublicNewsCanBePinned", requestClient);
                 return apiResponse;
             }
 
@@ -1093,6 +1214,12 @@ namespace angnet.Infrastructure.Data.Repositories
             bool isExistRecordNews = CheckNewsExist(newsId, ref objNews);
 
             if (!isExistRecordNews)
+            {
+                apiResponse.CatchException(false, "LikeNews.NewsIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            if (!CanViewNews(objNews))
             {
                 apiResponse.CatchException(false, "LikeNews.NewsIsNotExist", requestClient);
                 return apiResponse;
@@ -1202,6 +1329,12 @@ namespace angnet.Infrastructure.Data.Repositories
                 apiResponse.CatchException(false, "PointNews.NewsIsNotExist", requestClient);
                 return apiResponse;
             }
+
+            if (!CanViewNews(objNews))
+            {
+                apiResponse.CatchException(false, "PointNews.NewsIsNotExist", requestClient);
+                return apiResponse;
+            }
             #endregion
 
             #region // Save into Database
@@ -1274,6 +1407,7 @@ namespace angnet.Infrastructure.Data.Repositories
             string ContentBody = data.ContentBody;
             string ContentBodyEn = data.ContentBodyEn ?? string.Empty;
             DateTime UpdatedDTime = TCommonUtils.DTimeNow();
+            EWhoCanSee WhoCanSee = data.WhoCanSee;
             #endregion
 
             #region // Check Permission
@@ -1308,6 +1442,12 @@ namespace angnet.Infrastructure.Data.Repositories
             if (TCommonUtils.IsNullOrEmpty(ContentBody))
             {
                 apiResponse.CatchException(false, "News_Update.ContentBodyIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            if (!Enum.IsDefined(WhoCanSee))
+            {
+                apiResponse.CatchException(false, "News_Update.WhoCanSeeIsNotValid", requestClient);
                 return apiResponse;
             }
 
@@ -1371,6 +1511,15 @@ namespace angnet.Infrastructure.Data.Repositories
             existingNews.ContentBodyEn = ContentBodyEn;
             existingNews.UpdatedDTime = UpdatedDTime;
             existingNews.FlagActive = data.FlagActive;
+            existingNews.WhoCanSee = WhoCanSee;
+
+            // Khi chuyển bài đang ghim sang nháp/riêng tư, bỏ ghim ngay để bài
+            // không tự xuất hiện lại nếu sau này đổi trạng thái mà chưa duyệt lại.
+            if (!existingNews.FlagActive || existingNews.WhoCanSee != EWhoCanSee.Public)
+            {
+                existingNews.IsPinned = false;
+                existingNews.PinOrder = 0;
+            }
 
             _dbContext.News.Update(existingNews);
             #endregion

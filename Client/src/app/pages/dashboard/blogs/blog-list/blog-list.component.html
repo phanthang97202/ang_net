@@ -20,7 +20,7 @@
             <th nzColumnKey="FullName" [nzFilterFn]="true">FullName</th>
             <th nzColumnKey="ViewCount" [nzFilterFn]="true">ViewCount</th>
             <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true">FlagActive</th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true">Trạng thái</th>
             <th nzWidth="110px">Ghim</th>
             <!-- Ẩn cả cột khi không có quyền: để lại cột trống chỉ tổ khiến người
                  dùng tưởng chức năng hỏng. -->
@@ -54,10 +54,9 @@
             </td>
             <td>{{ data.CreatedDTime }}</td>
             <td>
-              <app-tag-status
-                [sttValue]="
-                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
-                "></app-tag-status>
+              <nz-tag [nzColor]="statusColor(data)">
+                {{ statusLabel(data) }}
+              </nz-tag>
             </td>
             <!-- Ghim là quyết định biên tập của cả trang, không giới hạn theo tác
                  giả như nút sửa - ai có quyền sửa bài đều ghim được bài bất kỳ. -->
@@ -65,6 +64,7 @@
               <nz-switch
                 [ngModel]="data.IsPinned"
                 (ngModelChange)="handleTogglePin(data, $event)"
+                [nzDisabled]="!isPublic(data)"
                 nzSize="small"></nz-switch>
               <span *ngIf="data.IsPinned" class="blog__pin-order">
                 #{{ data.PinOrder }}
@@ -84,11 +84,11 @@
                 nz-button
                 nzType="default"
                 nzSize="small"
-                [disabled]="!data.FlagActive"
+                [disabled]="!isPublic(data)"
                 [attr.title]="
-                  data.FlagActive
+                  isPublic(data)
                     ? 'Gửi mail báo bài này cho người đăng ký'
-                    : 'Bài chưa xuất bản thì chưa gửi được'
+                    : 'Chỉ bài công khai mới gửi thông báo được'
                 "
                 nz-popconfirm
                 [nzPopconfirmTitle]="

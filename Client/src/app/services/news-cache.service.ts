@@ -36,7 +36,8 @@ export class NewsCacheService {
     onlyPublished = true,
     hashTag = '',
     sort = '',
-    pinnedFirst = false
+    pinnedFirst = false,
+    whoCanSee = ''
   ): Observable<INewsResponse> {
     // pinnedFirst phải nằm trong khoá: nó đổi thứ tự kết quả, thiếu nó thì khối
     // "Bài viết nổi bật" và danh sách thường (cùng sort=views) dùng chung một ô
@@ -52,6 +53,7 @@ export class NewsCacheService {
       hashTag,
       sort,
       pinnedFirst,
+      whoCanSee,
     ].join('|');
 
     return this.through(key, () =>
@@ -64,7 +66,8 @@ export class NewsCacheService {
         onlyPublished,
         hashTag,
         sort,
-        pinnedFirst
+        pinnedFirst,
+        whoCanSee
       )
     );
   }
