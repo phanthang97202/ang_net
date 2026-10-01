@@ -17,6 +17,7 @@ $nz-content-gap: 130px;
 }
 
 .login__card {
+  position: relative;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
   width: 100%;
@@ -26,6 +27,46 @@ $nz-content-gap: 130px;
   overflow: hidden;
   background: var(--color-bg-card);
   box-shadow: 0 24px 60px rgba(20, 15, 60, 0.16);
+}
+
+.login__home {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(20, 15, 60, 0.08);
+  backdrop-filter: blur(10px);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(91, 79, 233, 0.16);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
 }
 
 // ── Cột ảnh ───────────────────────────────────────────────────────────
@@ -215,6 +256,19 @@ $nz-content-gap: 130px;
     padding: 24px;
   }
 
+  .login__home {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.38);
+    background: rgba(18, 15, 42, 0.42);
+    box-shadow: 0 6px 18px rgba(12, 10, 30, 0.18);
+
+    &:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.7);
+      background: rgba(18, 15, 42, 0.62);
+    }
+  }
+
   .login__hero-brand {
     font-size: 1.9rem;
     margin-bottom: 8px;
@@ -240,5 +294,12 @@ $nz-content-gap: 130px;
 
   .login__panel {
     padding: 24px 18px 20px;
+  }
+
+  .login__home {
+    top: 14px;
+    right: 14px;
+    min-height: 36px;
+    padding: 7px 12px;
   }
 }
