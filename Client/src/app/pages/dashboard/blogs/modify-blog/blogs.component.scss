@@ -1,85 +1,276 @@
-.blogpost__container {
-  margin: 0 !important;
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.blogpost {
+  min-height: 100%;
+  background: var(--admin-bg);
+}
+
+.blogpost__form {
+  width: min(100%, var(--admin-page-max));
+  margin: 0 auto;
+  padding: 22px 24px 32px;
+}
+
+.blogpost__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 20px;
+  align-items: start;
 }
 
 .blogpost__panel {
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  min-width: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow-card);
 }
 
 .blogpost__editor-panel {
-  min-height: 600px;
+  min-height: 640px;
+  padding: 0 24px 24px;
 }
 
 .blogpost__translation-pane {
-  padding-top: 8px;
+  padding-top: 18px;
 }
 
 .blogpost__translation-hint {
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: #f5f7fa;
-  color: rgba(0, 0, 0, 0.58);
+  margin: 0 0 18px;
+  padding: 11px 13px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f0f7ff;
+  color: var(--admin-text-secondary);
   font-size: 13px;
+  line-height: 1.5;
 }
 
-::ng-deep .blogpost__editor-panel .ant-form-item-label {
-  text-align: left;
+.blogpost__sidebar {
+  display: grid;
+  gap: 18px;
 }
 
-.status-toggle {
-  ::ng-deep .ant-form-item-control-input-content {
-    display: flex;
-    align-items: center;
-  }
+.blogpost__settings-card,
+.blogpost__thumbnail-card,
+.blogpost__files-card {
+  padding: 20px;
+}
+
+.blogpost__section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--admin-text);
+}
+
+.blogpost__section-heading > [nz-icon] {
+  color: var(--admin-text-secondary);
+  font-size: 17px;
+}
+
+.blogpost__section-heading h2 {
+  margin: 0;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.blogpost__section-heading h2 span {
+  color: var(--admin-danger);
+}
+
+.blogpost__status-select {
+  width: 100%;
+}
+
+.blogpost__status-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.blogpost__status-selected [nz-icon] {
+  color: var(--admin-text-secondary);
+  font-size: 16px;
+}
+
+.blogpost__status-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.blogpost__status-option > [nz-icon] {
+  flex: 0 0 auto;
+  color: var(--admin-text-secondary);
+  font-size: 17px;
+}
+
+.blogpost__status-option > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.blogpost__status-option strong {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.blogpost__status-option small,
+.blogpost__status-helper {
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.blogpost__status-helper {
+  margin: 7px 0 0;
+}
+
+.blogpost__helper {
+  margin: 8px 0 12px;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.blogpost__files-empty {
+  display: grid;
+  place-items: center;
+  min-height: 88px;
+  gap: 3px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface-subtle);
+  color: var(--admin-text-secondary);
+  text-align: center;
+}
+
+.blogpost__files-empty > [nz-icon] {
+  margin-bottom: 2px;
+  font-size: 18px;
+}
+
+.blogpost__files-empty strong {
+  color: var(--admin-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.blogpost__files-empty span:last-child {
+  font-size: 11px;
 }
 
 .loading-editor {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 360px;
 }
 
-// Ô chọn danh mục và ô hashtag phải chiếm trọn bề ngang, nếu không trên mobile
-// chúng co lại theo nội dung và rất khó bấm.
+::ng-deep .blogpost__editor-panel {
+  .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+
+  .ant-tabs-tab {
+    padding: 18px 12px 14px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ant-tabs-tab + .ant-tabs-tab {
+    margin-left: 18px;
+  }
+}
+
+::ng-deep .blogpost__related-upload .ant-upload-select {
+  display: inline-flex;
+}
+
+.blogpost__upload-trigger {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  height: 36px;
+  border-color: #bfdbfe;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+  font-weight: 600;
+  line-height: 34px;
+}
+
 ::ng-deep nz-tree-select,
 ::ng-deep nz-select {
   width: 100%;
 }
 
-// ── Mobile ────────────────────────────────────────────────────────────
-// Dưới nzMd, label và control đã tự xuống dòng nhờ nzXs=24 trong template;
-// phần còn lại là thu gọn khoảng đệm để không phí diện tích màn hình.
-@media (max-width: 767px) {
-  .blogpost__panel {
-    padding: 16px;
-    border-radius: 6px;
+@media (min-width: 1280px) {
+  .blogpost__sidebar {
+    position: sticky;
+    top: 18px;
+  }
+}
+
+@media (max-width: 1279px) {
+  .blogpost__layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  // Bỏ chiều cao tối thiểu cố định: trên mobile nó tạo ra một khoảng trắng
-  // dài phía dưới editor.
+  .blogpost__sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .blogpost__files-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .blogpost__form {
+    padding: 16px 12px 24px;
+  }
+
+  .blogpost__layout,
+  .blogpost__sidebar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .blogpost__files-card {
+    grid-column: auto;
+  }
+
   .blogpost__editor-panel {
     min-height: 0;
+    padding: 0 16px 18px;
+  }
+
+  .blogpost__settings-card,
+  .blogpost__thumbnail-card,
+  .blogpost__files-card {
+    padding: 16px;
+  }
+
+  .blogpost__section-heading {
+    margin-bottom: 14px;
   }
 
   .loading-editor {
-    min-height: 200px;
-  }
-
-  // Label đứng riêng một dòng nên không cần khoảng đệm đáy mặc định của antd.
-  ::ng-deep .ant-form-item-label {
-    padding-bottom: 4px;
-
-    > label {
-      height: auto;
-    }
-  }
-
-  ::ng-deep .ant-form-item {
-    margin-bottom: 16px;
+    min-height: 220px;
   }
 }

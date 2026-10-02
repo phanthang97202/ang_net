@@ -1,38 +1,25 @@
-<div class="master__container">
-  <app-breadcrumb title="Role" />
+<div class="master__container role-page">
+  <app-breadcrumb title="Vai trò & phân quyền" />
 
-  <div nz-row [nzGutter]="[24, 24]">
-    <!-- Cột trái: thao tác -->
-    <div nz-col [nzXs]="24" [nzLg]="10">
-      <nz-card nzTitle="Tạo vai trò mới" class="role__card">
-        <app-create-role (onCreateRole)="handleCreateRole($event)" />
-      </nz-card>
+  <main class="role-page__content">
+    <!-- Tác vụ chính là đọc/soát danh sách vai trò nên nó giữ cột rộng; hai thao
+         tác ngắn (tạo, gán) nằm ở rail bên phải thay vì đẩy bảng xuống dưới. -->
+    <div class="role-page__grid">
+      <section class="role-page__panel" aria-labelledby="role-list-title">
+        <header class="role-page__panel-header">
+          <div>
+            <h2 id="role-list-title">Danh sách vai trò</h2>
+            <p>Các vai trò đang có và số người dùng đang giữ từng vai trò.</p>
+          </div>
+          <span class="role-page__count">{{ lstRoles.length }} vai trò</span>
+        </header>
 
-      <nz-card nzTitle="Gán vai trò cho người dùng" class="role__card">
-        <app-assign-role
-          [lstRoles]="lstRoles"
-          [lstUsers]="lstUsers"
-          (onAssignRole)="handleAssignRole($event)"
-          (onUnassignRole)="handleUnassignRole($event)" />
-      </nz-card>
-    </div>
-
-    <!-- Phân quyền chiếm trọn chiều ngang: 9 nhóm checkbox không đủ chỗ trong
-         nửa cột bên trái. -->
-    <div nz-col [nzSpan]="24">
-      <nz-card nzTitle="Phân quyền cho vai trò" class="role__card">
-        <app-role-permission [lstRoles]="lstRoles" />
-      </nz-card>
-    </div>
-
-    <!-- Cột phải: danh sách vai trò -->
-    <div nz-col [nzXs]="24" [nzLg]="14">
-      <nz-card nzTitle="Danh sách vai trò" class="role__card">
         <!-- Bỏ nzTotal/nzPageIndex đặt cứng: với nzFrontPagination, ng-zorro tự
              đếm theo nzData. nzTotal="100" trước đây là con số bịa, còn
              nzPageIndex="0" không hợp lệ vì ng-zorro đếm trang từ 1. -->
         <nz-table
           #roleTable
+          class="role-page__table"
           [nzData]="lstRoles"
           [nzFrontPagination]="true"
           [nzPageSize]="10"
@@ -40,25 +27,39 @@
           [nzNoResult]="emptyRole">
           <thead>
             <tr>
-              <th nzColumnKey="Name" [nzSortFn]="sortByName">Tên vai trò</th>
-              <th nzColumnKey="TotalUsers" [nzSortFn]="sortByTotalUsers" nzWidth="140px">
-                Số người dùng
+              <th nzColumnKey="Name" [nzSortFn]="sortByName">Vai trò</th>
+              <th
+                nzColumnKey="TotalUsers"
+                [nzSortFn]="sortByTotalUsers"
+                nzWidth="150px">
+                Người dùng
               </th>
-              <th nzWidth="90px">Thao tác</th>
+              <th nzWidth="96px" class="role-page__action-heading">Thao tác</th>
             </tr>
           </thead>
           <tbody>
             @for (data of roleTable.data; track data.Id) {
               <tr>
                 <td>
-                  <strong>{{ data.Name }}</strong>
+                  <div class="role-page__identity">
+                    <span class="role-page__badge" aria-hidden="true">
+                      <span
+                        nz-icon
+                        nzType="safety-certificate"
+                        nzTheme="outline"></span>
+                    </span>
+                    <strong [title]="data.Name">{{ data.Name }}</strong>
+                  </div>
                 </td>
                 <td>
-                  <nz-tag [nzColor]="data.TotalUsers > 0 ? 'blue' : 'default'">
-                    {{ data.TotalUsers }}
-                  </nz-tag>
+                  <span
+                    class="role-page__users"
+                    [class.role-page__users--empty]="data.TotalUsers === 0">
+                    <span nz-icon nzType="team" nzTheme="outline"></span>
+                    {{ data.TotalUsers }} người
+                  </span>
                 </td>
-                <td>
+                <td class="role-page__actions">
                   <!-- Cảnh báo kèm số người đang giữ vai trò: xóa một vai trò
                        đang có người dùng là tước quyền của từng ấy người và
                        không hoàn tác được. -->
@@ -66,6 +67,9 @@
                     nz-button
                     nzType="text"
                     nzDanger
+                    type="button"
+                    class="role-page__action"
+                    [attr.aria-label]="'Xóa vai trò ' + data.Name"
                     nz-popconfirm
                     [nzPopconfirmTitle]="
                       data.TotalUsers > 0
@@ -78,7 +82,7 @@
                     [nzCancelText]="'Hủy'"
                     nzOkDanger
                     (nzOnConfirm)="handleDelete(data.Id)">
-                    <span nz-icon nzType="delete"></span>
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
                   </button>
                 </td>
               </tr>
@@ -87,9 +91,67 @@
         </nz-table>
 
         <ng-template #emptyRole>
-          <nz-empty nzNotFoundContent="Chưa có vai trò nào" />
+          <div class="role-page__empty">
+            <span nz-icon nzType="safety-certificate" nzTheme="outline"></span>
+            <strong>Chưa có vai trò nào</strong>
+            <p>Tạo vai trò đầu tiên ở ô bên phải để bắt đầu phân quyền.</p>
+          </div>
         </ng-template>
-      </nz-card>
+      </section>
+
+      <aside class="role-page__rail">
+        <section class="role-page__panel" aria-labelledby="role-create-title">
+          <header
+            class="role-page__panel-header role-page__panel-header--compact">
+            <span class="role-page__panel-icon" aria-hidden="true">
+              <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+            </span>
+            <div>
+              <h2 id="role-create-title">Tạo vai trò mới</h2>
+              <p>Đặt tên theo nhóm công việc, ví dụ Biên tập viên.</p>
+            </div>
+          </header>
+          <div class="role-page__panel-body">
+            <app-create-role (onCreateRole)="handleCreateRole($event)" />
+          </div>
+        </section>
+
+        <section class="role-page__panel" aria-labelledby="role-assign-title">
+          <header
+            class="role-page__panel-header role-page__panel-header--compact">
+            <span class="role-page__panel-icon" aria-hidden="true">
+              <span nz-icon nzType="usergroup-add" nzTheme="outline"></span>
+            </span>
+            <div>
+              <h2 id="role-assign-title">Gán vai trò cho người dùng</h2>
+              <p>Chọn người dùng rồi gán hoặc gỡ một vai trò.</p>
+            </div>
+          </header>
+          <div class="role-page__panel-body">
+            <app-assign-role
+              [lstRoles]="lstRoles"
+              [lstUsers]="lstUsers"
+              (onAssignRole)="handleAssignRole($event)"
+              (onUnassignRole)="handleUnassignRole($event)" />
+          </div>
+        </section>
+      </aside>
     </div>
-  </div>
+
+    <!-- Phân quyền chiếm trọn chiều ngang: 9 nhóm checkbox không đủ chỗ trong
+         rail bên phải. -->
+    <section class="role-page__panel" aria-labelledby="role-permission-title">
+      <header class="role-page__panel-header">
+        <div>
+          <h2 id="role-permission-title">Phân quyền cho vai trò</h2>
+          <p>
+            Chọn một vai trò để xem và chỉnh quyền theo từng nhóm chức năng.
+          </p>
+        </div>
+      </header>
+      <div class="role-page__panel-body">
+        <app-role-permission [lstRoles]="lstRoles" />
+      </div>
+    </section>
+  </main>
 </div>

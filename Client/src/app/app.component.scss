@@ -1,93 +1,165 @@
 nz-layout {
-    height: 100%;
+  height: 100%;
 }
 
 // ── Ánh sáng nền ở 2 rìa trang (chỉ trang user-facing) ──
 // 2 dải fixed, nằm sau nội dung (z-index âm, trên nền body), tỏa mềm
 // vào giữa để trang có chiều sâu & sức sống hơn.
 .ambient-glow {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 28vw;
-    max-width: 460px;
-    z-index: 0;
-    pointer-events: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 28vw;
+  max-width: 460px;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .ambient-glow--left {
-    left: 0;
-    background: radial-gradient(
-        50% 70% at 0% 42%,
-        var(--glow-left) 0%,
-        transparent 78%
-    );
+  left: 0;
+  background: radial-gradient(
+    50% 70% at 0% 42%,
+    var(--glow-left) 0%,
+    transparent 78%
+  );
 }
 
 .ambient-glow--right {
-    right: 0;
-    background: radial-gradient(
-        50% 70% at 100% 58%,
-        var(--glow-right) 0%,
-        transparent 78%
-    );
+  right: 0;
+  background: radial-gradient(
+    50% 70% at 100% 58%,
+    var(--glow-right) 0%,
+    transparent 78%
+  );
 }
 
 // Nội dung trang (routed page + footer) nổi lên trên lớp glow.
 // KHÔNG đụng app-navbar: navbar tự có position:sticky + z-index:100, nếu
 // ghi đè position:relative ở đây sẽ làm mất tính năng dính khi cuộn.
 .layout--user > router-outlet ~ * {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 nz-header {
-    position: fixed;
-    width: 100%;
-    padding: 0 !important;
-    z-index: 1;
+  position: fixed;
+  width: 100%;
+  padding: 0 !important;
+  z-index: 1;
 }
 
 nz-content {
-    margin: 64.8px 0;
-    width: 100%;
+  margin: 64.8px 0;
+  width: 100%;
 }
 
 .admin__layout--content {
-    margin: 0;
+  margin: 0;
+}
+
+.admin-ui {
+  min-height: 100vh;
+  background: var(--admin-bg);
+}
+
+.admin-sidebar__brand {
+  width: 68px;
+  height: 68px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar__brand a {
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+
+.admin-sidebar__logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.admin-sidebar__footer {
+  position: absolute;
+  right: 0;
+  bottom: 18px;
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.admin-sidebar__language,
+.admin-sidebar__logout {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+
+.admin-sidebar__logout {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: #9dacbf !important;
+}
+
+.admin-sidebar__logout:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 767px) {
+  .admin-sidebar__brand {
+    width: 56px;
+    height: 60px;
+    padding: 8px;
+  }
+
+  .admin-sidebar__brand a {
+    width: 40px;
+    height: 40px;
+  }
+
+  .admin-sidebar__footer {
+    bottom: 12px;
+  }
 }
 
 nz-footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 1;
-    height: max-content;
-
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 1;
+  height: max-content;
 }
 
 .app__loading {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    z-index: 100;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  z-index: 100;
 
-    app-spinner {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
+  app-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
-
 
 // =============
 
@@ -102,83 +174,83 @@ nz-footer {
 // Reels. Giờ quay lại được: cả cụm đã bọc trong *ngIf layoutType !== 'immersive'
 // nên ở Reels không còn render nữa.
 .chat-toggle-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1051;
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 !important;
-    border-radius: 50% !important;
-    // Tông trung tính thay cho tím accent: đây là tiện ích phụ, không nên hút
-    // mắt bằng nội dung chính. Chỉ chuyển sang accent khi rê chuột.
-    background: var(--color-bg-card) !important;
-    border: 1px solid var(--color-border) !important;
-    color: var(--color-text-muted) !important;
-    box-shadow: 0 4px 16px var(--color-card-shadow);
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1051;
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  // Tông trung tính thay cho tím accent: đây là tiện ích phụ, không nên hút
+  // mắt bằng nội dung chính. Chỉ chuyển sang accent khi rê chuột.
+  background: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 
-    &:hover {
-        background: var(--color-accent-bg) !important;
-        color: var(--color-accent) !important;
-        transform: translateY(-2px);
-    }
+  &:hover {
+    background: var(--color-accent-bg) !important;
+    color: var(--color-accent) !important;
+    transform: translateY(-2px);
+  }
 }
 
 .chat-box-container {
-    position: fixed;
-    // Mọc lên từ nút: đáy hộp nằm ngay trên nút (24px lề + 48px nút + 12px thở)
-    bottom: 84px;
-    right: 24px;
-    width: 400px;
-    max-width: calc(100vw - 48px);
-    z-index: 1050;
-    animation: slideInUp 0.3s ease;
+  position: fixed;
+  // Mọc lên từ nút: đáy hộp nằm ngay trên nút (24px lề + 48px nút + 12px thở)
+  bottom: 84px;
+  right: 24px;
+  width: 400px;
+  max-width: calc(100vw - 48px);
+  z-index: 1050;
+  animation: slideInUp 0.3s ease;
 }
 
 // app-article-rail chuyển thành thanh cố định ở ĐÁY màn hình từ mốc 768px
 // (xem article-rail.component.scss), nên nút phải nâng lên khỏi thanh đó -
 // cùng mốc, nếu không hai thứ chồng lên nhau.
 @media (max-width: 768px) {
-    .chat-toggle-btn {
-        // 55px thanh rail (54px nút + 1px viền trên) + 16px thở, cộng vùng an
-        // toàn của máy có notch đáy.
-        bottom: calc(71px + env(safe-area-inset-bottom, 0px));
-        right: 16px;
-        width: 44px;
-        height: 44px;
-        font-size: 16px;
-    }
+  .chat-toggle-btn {
+    // 55px thanh rail (54px nút + 1px viền trên) + 16px thở, cộng vùng an
+    // toàn của máy có notch đáy.
+    bottom: calc(71px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
 
-    .chat-box-container {
-        // Trên nút: 71px + 44px nút + 12px thở.
-        bottom: calc(127px + env(safe-area-inset-bottom, 0px));
-        // Màn hình hẹp: hộp chat chiếm gần trọn bề ngang cho dễ đọc
-        right: 8px;
-        left: 8px;
-        width: auto;
-        max-width: none;
-    }
+  .chat-box-container {
+    // Trên nút: 71px + 44px nút + 12px thở.
+    bottom: calc(127px + env(safe-area-inset-bottom, 0px));
+    // Màn hình hẹp: hộp chat chiếm gần trọn bề ngang cho dễ đọc
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-width: none;
+  }
 }
 
 // Quy tắc ẩn nút này khi có modal mở nằm ở styles.scss (global): selector phải
 // bắt từ <html> nên không viết được trong file có encapsulation.
 
 @keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

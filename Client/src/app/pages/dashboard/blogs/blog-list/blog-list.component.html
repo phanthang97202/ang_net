@@ -1,9 +1,22 @@
-<div class="master__container">
-  <app-breadcrumb title="Blog" [buttons]="listButtonsHeader" />
+<div class="master__container blog-list-page">
+  <app-breadcrumb title="Bài viết" [buttons]="listButtonsHeader" />
 
-  <nz-layout>
-    <nz-content>
+  <main class="blog-list-page__content">
+    <section class="blog-list-page__panel" aria-labelledby="blog-list-title">
+      <header class="blog-list-page__panel-header">
+        <div>
+          <h2 id="blog-list-title">Danh sách bài viết</h2>
+          <p>
+            Quản lý nội dung, trạng thái xuất bản và các bài viết được ghim.
+          </p>
+        </div>
+        <span class="blog-list-page__count">
+          {{ total | number }} bài viết
+        </span>
+      </header>
+
       <nz-table
+        class="blog-list-page__table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzFrontPagination]="false"
@@ -11,76 +24,112 @@
         [nzPageIndex]="pageIndex"
         [nzPageSize]="pageSize"
         [nzLoading]="tableLoading"
+        [nzScroll]="{ x: '1208px' }"
+        [nzNoResult]="emptyState"
         (nzQueryParams)="onQueryParamsChange($event)">
         <thead>
           <tr>
-            <th nzColumnKey="NewsId" [nzSortFn]="true"></th>
-            <th nzColumnKey="NewsId" [nzSortFn]="true">Idx</th>
-            <th nzColumnKey="ShortTitle" [nzSortFn]="true">ShortTitle</th>
-            <th nzColumnKey="FullName" [nzFilterFn]="true">FullName</th>
-            <th nzColumnKey="ViewCount" [nzFilterFn]="true">ViewCount</th>
-            <th nzColumnKey="CreatedDTime" [nzFilterFn]="true">CreatedDTime</th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true">Trạng thái</th>
-            <th nzWidth="110px">Ghim</th>
-            <!-- Ẩn cả cột khi không có quyền: để lại cột trống chỉ tổ khiến người
-                 dùng tưởng chức năng hỏng. -->
-            <th *ngIf="canNotify" nzWidth="150px">Gửi thư</th>
+            <th nzWidth="56px">STT</th>
+            <th nzColumnKey="ShortTitle" [nzSortFn]="true" nzWidth="360px">
+              Bài viết
+            </th>
+            <th nzColumnKey="FullName" [nzFilterFn]="true" nzWidth="120px">
+              Tác giả
+            </th>
+            <th nzColumnKey="ViewCount" [nzFilterFn]="true" nzWidth="92px">
+              Lượt xem
+            </th>
+            <th nzColumnKey="CreatedDTime" [nzFilterFn]="true" nzWidth="145px">
+              Ngày tạo
+            </th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="116px">
+              Trạng thái
+            </th>
+            <th nzWidth="90px">Ghim</th>
+            <th *ngIf="canNotify" nzWidth="152px">Thông báo</th>
+            <th nzRight nzWidth="76px" class="blog-list-page__action-heading">
+              Thao tác
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
-            <!-- Chỉ tác giả mới thấy nút sửa. Nút xóa đã bỏ hẳn: nó gọi nhầm API
-                 xóa tỉnh/thành (MstProvince/Delete) chứ chưa bao giờ xóa được
-                 bài, và backend cũng chưa có endpoint xóa bài viết. -->
-            <td>
-              <app-button-common
-                *ngIf="canEdit(data)"
-                [iconType]="'edit'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDetail(data)"></app-button-common>
-            </td>
-            <td>
+            <td class="blog-list-page__index">
               {{ (pageIndex - 1) * pageSize + i + 1 }}
             </td>
             <td>
-              {{ data.ShortTitle }}
+              <div class="blog-list-page__article">
+                <div class="blog-list-page__thumbnail" aria-hidden="true">
+                  <img
+                    *ngIf="data.Thumbnail; else thumbnailFallback"
+                    [src]="data.Thumbnail"
+                    alt=""
+                    loading="lazy" />
+                  <ng-template #thumbnailFallback>
+                    <span nz-icon nzType="file-text" nzTheme="outline"></span>
+                  </ng-template>
+                </div>
+                <div class="blog-list-page__article-copy">
+                  <strong [title]="data.ShortTitle">{{
+                    data.ShortTitle
+                  }}</strong>
+                  <span>Mã bài viết: {{ data.NewsId }}</span>
+                </div>
+              </div>
             </td>
             <td>
-              {{ data.FullName }}
+              <span class="blog-list-page__author">{{ data.FullName }}</span>
             </td>
             <td>
-              {{ data.ViewCount }}
+              <span class="blog-list-page__metric">
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+                {{ data.ViewCount | number }}
+              </span>
             </td>
-            <td>{{ data.CreatedDTime }}</td>
             <td>
-              <nz-tag [nzColor]="statusColor(data)">
+              <span class="blog-list-page__date">
+                {{ data.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+              </span>
+            </td>
+            <td>
+              <nz-tag
+                class="blog-list-page__status"
+                [ngClass]="statusClass(data)">
+                <span
+                  nz-icon
+                  [nzType]="statusIcon(data)"
+                  nzTheme="outline"></span>
                 {{ statusLabel(data) }}
               </nz-tag>
             </td>
-            <!-- Ghim là quyết định biên tập của cả trang, không giới hạn theo tác
-                 giả như nút sửa - ai có quyền sửa bài đều ghim được bài bất kỳ. -->
             <td>
-              <nz-switch
-                [ngModel]="data.IsPinned"
-                (ngModelChange)="handleTogglePin(data, $event)"
-                [nzDisabled]="!isPublic(data)"
-                nzSize="small"></nz-switch>
-              <span *ngIf="data.IsPinned" class="blog__pin-order">
-                #{{ data.PinOrder }}
-              </span>
+              <div class="blog-list-page__pin">
+                <label
+                  class="blog-list-page__sr-only"
+                  [for]="'pin-news-' + data.NewsId">
+                  Ghim bài viết {{ data.ShortTitle }}
+                </label>
+                <nz-switch
+                  [nzId]="'pin-news-' + data.NewsId"
+                  [ngModel]="data.IsPinned"
+                  (ngModelChange)="handleTogglePin(data, $event)"
+                  [nzDisabled]="!isPublic(data)"
+                  nzSize="small"></nz-switch>
+                <span *ngIf="data.IsPinned" class="blog__pin-order">
+                  #{{ data.PinOrder }}
+                </span>
+              </div>
             </td>
 
-            <!-- Gửi mail báo bài mới cho người đăng ký. Gửi xong là không thu hồi
-                 được nên nút khoá hẳn sau lần đầu, chỉ còn hiện ngày đã gửi. -->
             <td *ngIf="canNotify">
               <span *ngIf="data.NotifiedAt" class="blog__notified">
-                <span nz-icon nzType="check" nzTheme="outline"></span>
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
                 Đã gửi {{ data.NotifiedAt | localeDTime: 'dd-mm-yy' }}
               </span>
 
               <button
                 *ngIf="!data.NotifiedAt"
+                class="blog-list-page__mail-action"
                 nz-button
                 nzType="default"
                 nzSize="small"
@@ -98,12 +147,41 @@
                 nzCancelText="Huỷ"
                 (nzOnConfirm)="handleNotifySubscribers(data)">
                 <span nz-icon nzType="mail" nzTheme="outline"></span>
-                Gửi
+                Gửi thư
               </button>
+            </td>
+
+            <td nzRight class="blog-list-page__actions">
+              <button
+                *ngIf="canEdit(data)"
+                nz-button
+                nzType="text"
+                nz-tooltip
+                nzTooltipTitle="Sửa bài viết"
+                class="blog-list-page__edit-action"
+                aria-label="Sửa bài viết"
+                (click)="handleDetail(data)">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <span *ngIf="!canEdit(data)" class="blog-list-page__no-action"
+                >—</span
+              >
             </td>
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+
+      <ng-template #emptyState>
+        <div class="blog-list-page__empty">
+          <span nz-icon nzType="file-text" nzTheme="outline"></span>
+          <strong>Chưa có bài viết</strong>
+          <p>Tạo bài viết đầu tiên để bắt đầu xây dựng nội dung cho blog.</p>
+          <button nz-button nzType="primary" (click)="handleOpenCreate()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Tạo bài viết
+          </button>
+        </div>
+      </ng-template>
+    </section>
+  </main>
 </div>

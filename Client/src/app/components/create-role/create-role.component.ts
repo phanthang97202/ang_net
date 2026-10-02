@@ -9,6 +9,7 @@ import {
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ICreateRoleRequest } from '../../interfaces';
 
 @Component({
@@ -19,6 +20,7 @@ import { ICreateRoleRequest } from '../../interfaces';
     ReactiveFormsModule,
     NzButtonComponent,
     NzInputModule,
+    NzIconModule,
   ],
   templateUrl: './create-role.component.html',
   styleUrl: './create-role.component.scss',

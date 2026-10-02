@@ -14,28 +14,28 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid #ccced1;
+  border: 1px solid var(--admin-border, #ccced1);
   border-bottom: 0;
-  border-radius: 4px 4px 0 0;
-  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  background: var(--admin-surface-subtle, #f8f9fa);
 
   button {
     padding: 5px 10px;
-    border: 1px solid #c7cbd1;
-    border-radius: 4px;
-    background: #fff;
-    color: #30343b;
+    border: 1px solid var(--admin-border-strong, #c7cbd1);
+    border-radius: 7px;
+    background: var(--admin-surface, #fff);
+    color: var(--admin-text, #30343b);
     font-size: 13px;
     line-height: 1.4;
     cursor: pointer;
 
     &:hover {
-      border-color: #1677ff;
-      color: #1677ff;
+      border-color: var(--admin-primary, #1677ff);
+      color: var(--admin-primary, #1677ff);
     }
 
     &:focus-visible {
-      outline: 2px solid #1677ff;
+      outline: 2px solid var(--admin-focus, rgba(22, 119, 255, 0.24));
       outline-offset: 2px;
     }
   }
@@ -43,7 +43,7 @@
 
 .editor-help {
   margin: 8px 0 0;
-  color: #667085;
+  color: var(--admin-text-secondary, #667085);
   font-size: 12px;
   line-height: 1.5;
 }

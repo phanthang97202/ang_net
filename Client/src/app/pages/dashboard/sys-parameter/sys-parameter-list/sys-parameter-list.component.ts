@@ -52,7 +52,7 @@ export class SysParameterComponent implements OnInit {
 
   listButtonsHeader = [
     {
-      text: 'Create',
+      text: 'Tạo tham số',
       iconType: 'plus',
       onClick: () => this.handleOpenCreate(),
     },
@@ -129,7 +129,7 @@ export class SysParameterComponent implements OnInit {
     this.setLoading(true);
     this.api.SysParameterDelete(key).subscribe({
       next: () => {
-        this.message.success('Delete successfully');
+        this.message.success('Đã xóa tham số');
         this.fetchData();
       },
       error: err => this.handleApiError(err),

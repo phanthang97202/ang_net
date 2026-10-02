@@ -238,6 +238,13 @@ export class AppComponent implements OnInit {
           this.layoutType = 'user';
         }
 
+        // Overlay của NG-ZORRO được render dưới body, nằm ngoài .admin-ui.
+        // Marker này giúp overlay nhận đúng theme admin và được gỡ khi rời dashboard.
+        document.body.classList.toggle(
+          'admin-ui-active',
+          this.layoutType === 'admin'
+        );
+
         // 'immersive' (Reels) là trang user-facing như 'user', chỉ khác ở chỗ
         // không bọc qua nz-layout/nz-content - vẫn phải giữ theme người dùng chọn.
         this.themeService.applyForLayout(

@@ -1,0 +1,26 @@
+.create-role {
+  display: block;
+}
+
+// Nút là hành động cuối của cả khối nên không cần khoảng cách dưới của form-item
+// cuối cùng cộng thêm nữa.
+.create-role nz-form-item:last-of-type {
+  margin-bottom: 16px;
+}
+
+.create-role__submit {
+  display: inline-flex;
+  height: var(--admin-control-height, 40px);
+  align-items: center;
+  gap: 8px;
+  padding-inline: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .create-role__submit {
+    width: 100%;
+    justify-content: center;
+  }
+}

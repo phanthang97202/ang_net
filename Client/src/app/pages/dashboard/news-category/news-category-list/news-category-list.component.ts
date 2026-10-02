@@ -20,6 +20,12 @@ import {
 import { TTitlePopup } from '../type';
 import { SaveNewsCategoryPopupComponent } from '../save-news-category-popup/save-news-category-popup.component';
 
+/** Một dòng trong bảng cây: danh mục kèm độ sâu để thụt lề và số mục con. */
+interface INewsCategoryTreeRow extends INewsCategoryAdmin {
+  Depth: number;
+  ChildCount: number;
+}
+
 @Component({
   selector: 'app-news-category',
   standalone: true,
@@ -40,6 +46,8 @@ export class NewsCategoryComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
 
   dataSource: INewsCategoryAdmin[] = [];
+  /** Dữ liệu hiển thị: con nằm ngay dưới cha thay vì trộn lẫn như danh sách phẳng. */
+  treeRows: INewsCategoryTreeRow[] = [];
   titlePopup: TTitlePopup = '';
   formDataSource: IRequestNewsCategoryCreate = this.getDefaultFormData();
   _isOpenPopup = false;
@@ -50,7 +58,7 @@ export class NewsCategoryComponent implements OnInit {
 
   listButtonsHeader = [
     {
-      text: 'Create',
+      text: 'Tạo danh mục',
       iconType: 'plus',
       onClick: () => this.handleOpenCreate(),
     },
@@ -60,15 +68,61 @@ export class NewsCategoryComponent implements OnInit {
     this.fetchData();
   }
 
-  /** Tên danh mục cha để hiển thị trong bảng, tra từ chính danh sách đang có */
-  parentName(parentId: string): string {
-    if (!parentId) {
-      return '';
+  /**
+   * Xếp danh sách phẳng thành thứ tự cây: mỗi danh mục đứng ngay sau cha của nó,
+   * trong cùng một cấp thì sắp theo NewsCategoryIndex rồi tới tên.
+   */
+  private buildTreeRows(list: INewsCategoryAdmin[]): INewsCategoryTreeRow[] {
+    const ids = new Set(list.map(x => x.NewsCategoryId));
+    const childrenOf = new Map<string, INewsCategoryAdmin[]>();
+
+    for (const item of list) {
+      // Cha không nằm trong kết quả (ví dụ đang lọc theo từ khóa) hoặc tự trỏ
+      // vào chính mình thì coi như danh mục gốc, nếu không nó biến mất khỏi bảng.
+      const parentId =
+        item.NewsCategoryParentId &&
+        item.NewsCategoryParentId !== item.NewsCategoryId &&
+        ids.has(item.NewsCategoryParentId)
+          ? item.NewsCategoryParentId
+          : '';
+      const bucket = childrenOf.get(parentId);
+      if (bucket) {
+        bucket.push(item);
+      } else {
+        childrenOf.set(parentId, [item]);
+      }
     }
-    return (
-      this.dataSource.find(x => x.NewsCategoryId === parentId)
-        ?.NewsCategoryName || parentId
+
+    childrenOf.forEach(items =>
+      items.sort(
+        (a, b) =>
+          (a.NewsCategoryIndex || 0) - (b.NewsCategoryIndex || 0) ||
+          (a.NewsCategoryName || '').localeCompare(b.NewsCategoryName || '')
+      )
     );
+
+    const rows: INewsCategoryTreeRow[] = [];
+    const visited = new Set<string>();
+
+    const walk = (parentId: string, depth: number): void => {
+      for (const item of childrenOf.get(parentId) || []) {
+        if (visited.has(item.NewsCategoryId)) continue;
+        visited.add(item.NewsCategoryId);
+        const children = childrenOf.get(item.NewsCategoryId) || [];
+        rows.push({ ...item, Depth: depth, ChildCount: children.length });
+        walk(item.NewsCategoryId, depth + 1);
+      }
+    };
+    walk('', 0);
+
+    // Danh mục rơi vào vòng lặp cha-con vẫn phải hiện ra thì mới sửa được.
+    for (const item of list) {
+      if (!visited.has(item.NewsCategoryId)) {
+        rows.push({ ...item, Depth: 0, ChildCount: 0 });
+      }
+    }
+
+    return rows;
   }
 
   handleSearch(): void {
@@ -113,6 +167,7 @@ export class NewsCategoryComponent implements OnInit {
         next: response => {
           if (response?.Success) {
             this.dataSource = response.objResult?.DataList || [];
+            this.treeRows = this.buildTreeRows(this.dataSource);
           } else {
             this.showErrorService.setShowError({
               icon: 'warning',
@@ -158,7 +213,7 @@ export class NewsCategoryComponent implements OnInit {
       next: response => {
         // Backend trả HTTP 200 kèm Success=false khi danh mục còn bài viết
         if (response?.Success) {
-          this.message.success('Delete successfully');
+          this.message.success('Đã xóa danh mục');
           this.fetchData();
         } else {
           this.showErrorService.setShowError({

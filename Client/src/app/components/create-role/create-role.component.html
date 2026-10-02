@@ -1,12 +1,25 @@
-<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
-    <nz-form-item>
-        <nz-form-control [nzSpan]="24" nzErrorTip="RoleName is required!">
-            <input id="roleName" type="text" placeholder="Enter role name" nz-input formControlName="roleName" />
-        </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-        <nz-form-control>
-            <button nz-button nzType="primary">Create</button>
-        </nz-form-control>
-    </nz-form-item>
+<form
+  class="create-role"
+  nz-form
+  [nzLayout]="'vertical'"
+  [formGroup]="validateForm"
+  (ngSubmit)="submitForm()">
+  <nz-form-item>
+    <nz-form-label nzFor="roleName" nzRequired>Tên vai trò</nz-form-label>
+    <nz-form-control
+      nzErrorTip="Vui lòng nhập tên vai trò!"
+      nzExtra="Tên này hiển thị trong danh sách và khi gán cho người dùng.">
+      <input
+        id="roleName"
+        type="text"
+        nz-input
+        formControlName="roleName"
+        placeholder="Ví dụ: Biên tập viên" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <button class="create-role__submit" nz-button nzType="primary" type="submit">
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    Tạo vai trò
+  </button>
 </form>

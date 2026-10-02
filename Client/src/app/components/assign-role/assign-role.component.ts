@@ -11,7 +11,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { IAssignRoleRequest, IRole } from '../../interfaces';
 import { IUser } from '../../interfaces';
 
@@ -25,7 +25,7 @@ import { IUser } from '../../interfaces';
     NzButtonModule,
     NzInputModule,
     NzSelectModule,
-    NzTagModule,
+    NzIconModule,
   ],
   templateUrl: './assign-role.component.html',
   styleUrl: './assign-role.component.scss',

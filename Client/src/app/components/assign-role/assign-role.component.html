@@ -1,6 +1,6 @@
-<form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+<form class="assign" nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
   <nz-form-item>
-    <nz-form-label>Người dùng</nz-form-label>
+    <nz-form-label nzFor="UserId" nzRequired>Người dùng</nz-form-label>
     <nz-form-control nzErrorTip="Vui lòng chọn người dùng!">
       <!-- nzShowSearch: danh sách người dùng dài thì cuộn tay tìm email rất mệt. -->
       <nz-select
@@ -19,19 +19,21 @@
   <!-- Vai trò hiện có của người được chọn -->
   @if (validateForm.value.UserId) {
     <div class="assign__current">
-      <span class="assign__current-label">Hiện có:</span>
-      @if (selectedUserRoles.length) {
-        @for (roleName of selectedUserRoles; track roleName) {
-          <nz-tag nzColor="blue">{{ roleName }}</nz-tag>
+      <span class="assign__current-label">Vai trò hiện có</span>
+      <div class="assign__current-tags">
+        @if (selectedUserRoles.length) {
+          @for (roleName of selectedUserRoles; track roleName) {
+            <span class="assign__chip">{{ roleName }}</span>
+          }
+        } @else {
+          <span class="assign__current-empty">Chưa có vai trò nào</span>
         }
-      } @else {
-        <span class="assign__current-empty">chưa có vai trò nào</span>
-      }
+      </div>
     </div>
   }
 
   <nz-form-item>
-    <nz-form-label>Vai trò</nz-form-label>
+    <nz-form-label nzFor="RoleId" nzRequired>Vai trò</nz-form-label>
     <nz-form-control nzErrorTip="Vui lòng chọn vai trò!">
       <nz-select
         id="RoleId"
@@ -46,28 +48,29 @@
     </nz-form-control>
   </nz-form-item>
 
-  <nz-form-item>
-    <nz-form-control>
-      <!-- type="button" tường minh: mặc định của <button> trong <form> là
-           submit, Enter trong ô chọn sẽ kích hoạt nút đầu tiên. -->
-      <button
-        nz-button
-        type="button"
-        nzType="primary"
-        [disabled]="isRoleAlreadyAssigned"
-        (click)="handleAssign()">
-        Gán
-      </button>
-      <button
-        class="ml-1"
-        nz-button
-        type="button"
-        nzType="primary"
-        nzDanger
-        [disabled]="!!validateForm.value.RoleId && !isRoleAlreadyAssigned"
-        (click)="handleUnassign()">
-        Gỡ
-      </button>
-    </nz-form-control>
-  </nz-form-item>
+  <div class="assign__actions">
+    <!-- type="button" tường minh: mặc định của <button> trong <form> là
+         submit, Enter trong ô chọn sẽ kích hoạt nút đầu tiên. -->
+    <button
+      nz-button
+      type="button"
+      nzType="primary"
+      class="assign__action"
+      [disabled]="isRoleAlreadyAssigned"
+      (click)="handleAssign()">
+      <span nz-icon nzType="user-add" nzTheme="outline"></span>
+      Gán vai trò
+    </button>
+    <button
+      nz-button
+      type="button"
+      nzType="default"
+      nzDanger
+      class="assign__action"
+      [disabled]="!!validateForm.value.RoleId && !isRoleAlreadyAssigned"
+      (click)="handleUnassign()">
+      <span nz-icon nzType="user-delete" nzTheme="outline"></span>
+      Gỡ vai trò
+    </button>
+  </div>
 </form>

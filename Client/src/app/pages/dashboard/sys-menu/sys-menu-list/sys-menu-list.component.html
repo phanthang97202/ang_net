@@ -1,97 +1,148 @@
-<div class="master__container">
+<div class="master__container menu-list-page">
   <app-breadcrumb title="Menu trang chủ" [buttons]="listButtonsHeader" />
 
-  <nz-alert
-    nzType="info"
-    nzShowIcon
-    class="menu__alert"
-    nzMessage="Menu hiển thị ngoài trang chủ"
-    nzDescription="Tắt một mục là ẩn khỏi trang chủ, không xóa dữ liệu. Tắt menu cha thì cả nhóm con cũng ẩn theo." />
+  <main class="menu-list-page__content">
+    <section class="menu-list-page__panel" aria-labelledby="menu-list-title">
+      <header class="menu-list-page__panel-header">
+        <h2 id="menu-list-title">Danh sách menu</h2>
+        <span class="menu-list-page__count">
+          {{ rows.length | number }} mục
+        </span>
+      </header>
 
-  <nz-layout>
-    <nz-content>
       <nz-table
         #menuTable
+        class="menu-list-page__table"
         [nzData]="rows"
         [nzFrontPagination]="false"
         [nzShowPagination]="false"
-        [nzScroll]="{ x: '1000px' }"
+        [nzScroll]="{ x: '960px' }"
         [nzNoResult]="emptyMenu">
         <thead>
           <tr>
-            <th nzWidth="100px">Thao tác</th>
-            <th nzWidth="90px">Bật/Tắt</th>
-            <th>Tiêu đề (VI)</th>
-            <th nzWidth="180px">Tiêu đề (EN)</th>
-            <th nzWidth="220px">Đường dẫn</th>
-            <th nzWidth="110px">Icon</th>
-            <th nzWidth="80px">Thứ tự</th>
+            <th nzWidth="360px">Menu</th>
+            <th nzWidth="230px">Đường dẫn</th>
+            <th nzWidth="150px">Biểu tượng</th>
+            <th nzWidth="90px">Thứ tự</th>
+            <th nzWidth="130px">Hiển thị</th>
+            <th nzRight nzWidth="96px" class="menu-list-page__action-heading">
+              Thao tác
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of menuTable.data">
+          <tr
+            *ngFor="let row of menuTable.data"
+            [class.menu-list-page__child-row]="row.level > 0">
             <td>
-              <app-button-common
-                [iconType]="'edit'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDetail(row)"></app-button-common>
-              <!-- Cảnh báo kèm số menu con: backend xóa cascade nên xóa cha là
-                   mất luôn con. -->
+              <div
+                class="menu-list-page__identity"
+                [class.menu-list-page__identity--child]="row.level > 0">
+                <span
+                  *ngIf="row.level > 0"
+                  class="menu-list-page__branch"
+                  aria-hidden="true">
+                  └
+                </span>
+                <div class="menu-list-page__identity-copy">
+                  <strong [title]="row.TitleVi">{{ row.TitleVi }}</strong>
+                  <span>{{ row.TitleEn | showNullishValue }}</span>
+                </div>
+                <nz-tag
+                  *ngIf="row.level === 0"
+                  class="menu-list-page__group-tag">
+                  Nhóm chính
+                </nz-tag>
+              </div>
+            </td>
+            <td>
+              <code *ngIf="row.Path" class="menu-list-page__path">
+                {{ row.Path }}
+              </code>
+              <span *ngIf="!row.Path" class="menu-list-page__empty-value">
+                Nhóm menu
+              </span>
+            </td>
+            <td>
+              <div *ngIf="row.Icon; else noIcon" class="menu-list-page__icon">
+                <span nz-icon [nzType]="row.Icon" nzTheme="outline"></span>
+                <code>{{ row.Icon }}</code>
+              </div>
+              <ng-template #noIcon>
+                <span class="menu-list-page__empty-value">Chưa đặt</span>
+              </ng-template>
+            </td>
+            <td>
+              <span class="menu-list-page__sort-order">{{
+                row.SortOrder
+              }}</span>
+            </td>
+            <td>
+              <div class="menu-list-page__visibility">
+                <label
+                  class="menu-list-page__sr-only"
+                  [for]="'menu-active-' + row.MenuId">
+                  Hiển thị menu {{ row.TitleVi }}
+                </label>
+                <nz-switch
+                  [nzId]="'menu-active-' + row.MenuId"
+                  [ngModel]="row.FlagActive"
+                  (ngModelChange)="handleToggleActive(row, $event)"
+                  nzSize="small"></nz-switch>
+                <span>{{ row.FlagActive ? 'Đang bật' : 'Đang ẩn' }}</span>
+              </div>
+            </td>
+            <td nzRight class="menu-list-page__actions">
+              <button
+                nz-button
+                nzType="text"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Sửa menu"
+                class="menu-list-page__action menu-list-page__action--edit"
+                [attr.aria-label]="'Sửa menu ' + row.TitleVi"
+                (click)="handleDetail(row)">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
               <button
                 nz-button
                 nzType="text"
                 nzDanger
+                type="button"
+                class="menu-list-page__action"
+                [attr.aria-label]="'Xóa menu ' + row.TitleVi"
                 nz-popconfirm
                 [nzPopconfirmTitle]="
                   childCountOf(row) > 0
                     ? 'Menu này có ' +
                       childCountOf(row) +
                       ' menu con, xóa sẽ mất cả nhóm. Tiếp tục?'
-                    : 'Xóa menu ' + row.TitleVi + '?'
+                    : 'Xóa menu “' + row.TitleVi + '”?'
                 "
-                [nzOkText]="'Xóa'"
-                [nzCancelText]="'Hủy'"
+                nzOkText="Xóa"
+                nzCancelText="Hủy"
                 nzOkDanger
                 (nzOnConfirm)="handleDelete(row)">
-                <span nz-icon nzType="delete"></span>
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
               </button>
             </td>
-            <td>
-              <nz-switch
-                [ngModel]="row.FlagActive"
-                (ngModelChange)="handleToggleActive(row, $event)"
-                nzSize="small"></nz-switch>
-            </td>
-            <td>
-              <span
-                class="menu__title"
-                [class.menu__title--child]="row.level > 0">
-                <span *ngIf="row.level > 0" class="menu__branch">└</span>
-                <strong *ngIf="row.level === 0">{{ row.TitleVi }}</strong>
-                <span *ngIf="row.level > 0">{{ row.TitleVi }}</span>
-              </span>
-            </td>
-            <td>{{ row.TitleEn }}</td>
-            <td>
-              <code *ngIf="row.Path" class="menu__path">{{ row.Path }}</code>
-              <!-- Menu cha chỉ làm nhóm xổ xuống thì không có đường dẫn -->
-              <span *ngIf="!row.Path" class="menu__empty">(nhóm)</span>
-            </td>
-            <td>
-              <span *ngIf="row.Icon" nz-icon [nzType]="row.Icon"></span>
-              <code class="menu__icon-name">{{ row.Icon }}</code>
-            </td>
-            <td>{{ row.SortOrder }}</td>
           </tr>
         </tbody>
       </nz-table>
 
       <ng-template #emptyMenu>
-        <nz-empty nzNotFoundContent="Chưa có menu nào" />
+        <div class="menu-list-page__empty">
+          <span nz-icon nzType="menu" nzTheme="outline"></span>
+          <strong>Chưa có menu</strong>
+          <p>Tạo mục đầu tiên để xây dựng menu cho trang chủ.</p>
+          <button nz-button nzType="primary" (click)="handleOpenCreate()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Tạo menu
+          </button>
+        </div>
       </ng-template>
-    </nz-content>
-  </nz-layout>
+    </section>
+  </main>
 </div>
 
 <app-save-sys-menu-popup

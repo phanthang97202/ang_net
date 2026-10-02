@@ -1,13 +1,24 @@
 <nz-upload
-  [nzShowButton]="thumnail?.length !== 1"
+  class="article-image-upload"
+  nzType="drag"
+  nzAccept="image/jpeg,image/png,image/webp"
+  [nzShowUploadList]="false"
   formControlName="Thumbnail"
-  nzListType="picture-card"
   [(nzFileList)]="thumnail"
-  [nzPreview]="handlePreview"
   [nzBeforeUpload]="handleUploadFile">
-  <div>
-    <span nz-icon nzType="plus"></span>
-    <div style="margin-top: 8px">{{ 'T_UPLOAD' | translate }}</div>
+  <div *ngIf="!imageUrl" class="article-image-upload__empty">
+    <span nz-icon nzType="picture" class="article-image-upload__icon"></span>
+    <strong>Tải ảnh lên</strong>
+    <span>Kéo thả ảnh vào đây hoặc nhấn để chọn</span>
+    <small>JPG, PNG, WebP · Nên dùng tỷ lệ 16:9</small>
+  </div>
+
+  <div *ngIf="imageUrl" class="article-image-upload__preview">
+    <img [src]="imageUrl" alt="Ảnh bài viết" />
+    <div class="article-image-upload__replace">
+      <span nz-icon nzType="upload"></span>
+      <span>Thay ảnh</span>
+    </div>
   </div>
 </nz-upload>
 <nz-modal

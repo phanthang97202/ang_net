@@ -1,67 +1,225 @@
-.perm__picker {
+.perm {
+  display: block;
+}
+
+.perm__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+.perm__picker {
+  display: grid;
+  gap: 7px;
+  width: min(100%, 320px);
+}
+
+.perm__picker-label {
+  color: var(--admin-text, #172033);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .perm__picker-select {
   width: 100%;
-  max-width: 320px;
+}
+
+.perm__summary {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 6px;
+  padding-inline: 11px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: var(--admin-primary-soft, #eaf4ff);
+  color: var(--admin-primary, #0969da);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .perm__alert {
   margin-bottom: 16px;
+  border-radius: var(--admin-radius-md, 10px);
 }
 
 .perm__modules {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
 
 .perm__module {
-  border: 1px solid #f0f0f0;
-  border-radius: 6px;
-  padding: 12px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--admin-border, #e2e8f0);
+  border-radius: var(--admin-radius-md, 10px);
+  background: var(--admin-surface, #fff);
 }
 
 .perm__module-head {
   display: flex;
+  min-height: 46px;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-bottom: 8px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--admin-border, #e2e8f0);
+  background: var(--admin-surface-subtle, #f8fafc);
+}
+
+.perm__module-toggle {
+  min-width: 0;
+  color: var(--admin-text, #172033);
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .perm__module-count {
-  color: #8c8c8c;
-  font-size: 12px;
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border: 1px solid var(--admin-border, #e2e8f0);
+  border-radius: 999px;
+  background: var(--admin-surface, #fff);
+  color: var(--admin-text-secondary, #667085);
+  font-size: 11px;
+  font-weight: 600;
   white-space: nowrap;
+}
+
+.perm__module-count--on {
+  border-color: #bfdbfe;
+  background: var(--admin-primary-soft, #eaf4ff);
+  color: var(--admin-primary, #0969da);
 }
 
 .perm__items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  padding: 6px;
 }
 
 // ng-zorro đặt margin-left cho checkbox liền kề; ở đây mỗi cái một dòng nên bỏ đi.
 .perm__item {
+  display: flex;
+  align-items: flex-start;
   margin-left: 0 !important;
+  padding: 7px 8px;
+  border-radius: 8px;
+  color: var(--admin-text, #172033);
+  font-size: 13px;
+  line-height: 1.45;
+  transition: background 0.16s ease;
+}
+
+.perm__item:hover {
+  background: var(--admin-surface-subtle, #f8fafc);
+}
+
+.perm__item-name {
+  margin-right: 6px;
 }
 
 .perm__code {
-  margin-left: 6px;
+  color: var(--admin-text-tertiary, #8b97aa);
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   font-size: 11px;
-  color: #8c8c8c;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  border-radius: 3px;
-  padding: 0 4px;
+  white-space: nowrap;
 }
 
 .perm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--admin-border, #e2e8f0);
+}
+
+.perm__actions-hint {
+  margin: 0;
+  color: var(--admin-text-secondary, #667085);
+  font-size: 12px;
+}
+
+.perm__actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.perm__action {
+  display: inline-flex;
+  height: var(--admin-control-height, 40px);
+  align-items: center;
+  gap: 8px;
+  padding-inline: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.perm__empty {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  border: 1px dashed var(--admin-border-strong, #cbd5e1);
+  border-radius: var(--admin-radius-md, 10px);
+  background: var(--admin-surface-subtle, #f8fafc);
+  color: var(--admin-text-secondary, #667085);
+  text-align: center;
+}
+
+.perm__empty > [nz-icon] {
+  margin-bottom: 4px;
+  color: var(--admin-text-tertiary, #8b97aa);
+  font-size: 34px;
+}
+
+.perm__empty strong {
+  color: var(--admin-text, #172033);
+  font-size: 15px;
+}
+
+.perm__empty p {
+  max-width: 340px;
+  margin: 0;
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .perm__toolbar {
+    align-items: stretch;
+  }
+
+  .perm__picker {
+    width: 100%;
+  }
+
+  .perm__modules {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .perm__actions-buttons {
+    width: 100%;
+  }
+
+  .perm__action {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .perm__item {
+    transition: none;
+  }
 }

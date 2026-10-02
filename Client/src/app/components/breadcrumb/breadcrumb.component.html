@@ -1,6 +1,6 @@
 <nz-page-header
   class="breadcrumb__container"
-  nzBackIcon
+  [nzBackIcon]="backIcon"
   [nzGhost]="false"
   (nzBack)="handleBack()">
   <nz-page-header-title>{{ title }}</nz-page-header-title>
@@ -10,8 +10,15 @@
         *ngFor="let b of buttons"
         [text]="b.text"
         [iconType]="b.iconType"
+        [nzType]="b.nzType || 'primary'"
+        [nzDanger]="b.nzDanger || false"
+        [disabled]="b.disabled || false"
         (_onClick)="b.onClick($event)">
       </app-button-common>
     </div>
   </nz-page-header-extra>
 </nz-page-header>
+
+<ng-template #backIcon>
+  <span nz-icon nzType="arrow-left" aria-label="Quay lại"></span>
+</ng-template>

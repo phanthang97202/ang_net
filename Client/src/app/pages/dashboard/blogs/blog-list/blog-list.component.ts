@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import {
   ShowErrorService,
   LoadingService,
@@ -31,7 +37,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
   templateUrl: './blog-list.component.html',
   styleUrls: ['./blog-list.component.scss'],
 })
-export class BlogListComponent implements OnInit {
+export class BlogListComponent implements OnInit, AfterViewChecked {
   private api = inject(ApiService);
   private showErrorService = inject(ShowErrorService);
   private router = inject(Router);
@@ -40,6 +46,7 @@ export class BlogListComponent implements OnInit {
   private authService = inject(AuthService);
   private newsCacheService = inject(NewsCacheService);
   private modal = inject(NzModalService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // Id người đang đăng nhập, đọc một lần chứ không gọi trong template: template
   // chạy lại mỗi vòng change detection, mà getAccountInfo() thì giải mã JWT.
@@ -54,6 +61,8 @@ export class BlogListComponent implements OnInit {
   listButtonsHeader: {
     text: string;
     iconType: string;
+    nzType?: 'primary' | 'default';
+    nzDanger?: boolean;
     onClick: () => void;
   }[] = [];
 
@@ -65,17 +74,33 @@ export class BlogListComponent implements OnInit {
             {
               text: 'Xóa cache',
               iconType: 'clear',
+              nzType: 'default' as const,
+              nzDanger: true,
               onClick: () => this.confirmClearCache(),
             },
           ]
         : []),
       {
-        text: 'Create',
+        text: 'Tạo bài viết',
         iconType: 'plus',
+        nzType: 'primary',
         onClick: () => this.handleOpenCreate(),
       },
     ];
     this.fetchData();
+  }
+
+  ngAfterViewChecked(): void {
+    // NG-ZORRO 17 không truyền accessible name xuống input nội bộ của bộ chọn
+    // số dòng/trang. Pagination có thể render lại sau mỗi lần tải dữ liệu nên
+    // gắn nhãn sau view-check để luôn giữ được tên điều khiển cho screen reader.
+    const pageSizeInput =
+      this.host.nativeElement.querySelector<HTMLInputElement>(
+        '.ant-pagination-options-size-changer input'
+      );
+    if (pageSizeInput && !pageSizeInput.hasAttribute('aria-label')) {
+      pageSizeInput.setAttribute('aria-label', 'Số bài viết mỗi trang');
+    }
   }
 
   confirmClearCache(): void {
@@ -203,9 +228,16 @@ export class BlogListComponent implements OnInit {
     return data.WhoCanSee === 'Private' ? 'Chỉ mình tôi' : 'Công khai';
   }
 
-  statusColor(data: IDetailNews): string {
-    if (!data.FlagActive) return 'default';
-    return data.WhoCanSee === 'Private' ? 'purple' : 'green';
+  statusClass(data: IDetailNews): string {
+    if (!data.FlagActive) return 'blog-list-page__status--draft';
+    return data.WhoCanSee === 'Private'
+      ? 'blog-list-page__status--private'
+      : 'blog-list-page__status--public';
+  }
+
+  statusIcon(data: IDetailNews): string {
+    if (!data.FlagActive) return 'file-text';
+    return data.WhoCanSee === 'Private' ? 'lock' : 'global';
   }
 
   /**

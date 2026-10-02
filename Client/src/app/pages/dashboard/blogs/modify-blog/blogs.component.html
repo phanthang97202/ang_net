@@ -1,45 +1,227 @@
-<div class="master__container">
+<div class="master__container blogpost">
   <app-breadcrumb
-    [title]="mode === 'edit' ? 'Edit Blog' : 'Create Blog'"
+    [title]="mode === 'edit' ? 'Sửa bài viết' : 'Tạo bài viết'"
     [buttons]="listButtonsHeader" />
 
-  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
-    <div nz-row [nzGutter]="[24, 24]" class="items-start blogpost__container">
-      <div nz-col [nzXs]="24" [nzMd]="8">
-        <div class="blogpost__panel">
-          <nz-form-item class="status-toggle">
-            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
-              'T_FLAGACTIVE' | translate
-            }}</nz-form-label>
-            <nz-form-control [nzXs]="24" [nzMd]="16">
-              <nz-select formControlName="PublicationOption">
-                <nz-option
-                  nzValue="Public"
-                  [nzLabel]="'T_NEWS_PUBLIC' | translate"></nz-option>
-                <nz-option
-                  nzValue="Draft"
-                  [nzLabel]="'T_DRAFT' | translate"></nz-option>
+  <form
+    nz-form
+    nzLayout="vertical"
+    class="blogpost__form"
+    [formGroup]="validateForm"
+    (ngSubmit)="submitForm()">
+    <div class="blogpost__layout">
+      <main class="blogpost__panel blogpost__editor-panel">
+        <nz-tabset>
+          <nz-tab nzTitle="Tiếng Việt">
+            <div class="blogpost__translation-pane">
+              <nz-form-item>
+                <nz-form-label nzRequired>Tiêu đề bài viết</nz-form-label>
+                <nz-form-control nzErrorTip="Tiêu đề tiếng Việt là bắt buộc!">
+                  <input
+                    nz-input
+                    formControlName="ShortTitle"
+                    placeholder="Nhập tiêu đề bài viết..." />
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired>Mô tả ngắn</nz-form-label>
+                <nz-form-control nzErrorTip="Mô tả tiếng Việt là bắt buộc!">
+                  <nz-textarea-count [nzMaxCharacterCount]="100">
+                    <textarea
+                      rows="3"
+                      nz-input
+                      formControlName="ShortDescription"
+                      placeholder="Nhập mô tả ngắn..."></textarea>
+                  </nz-textarea-count>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired>Nội dung</nz-form-label>
+                <nz-form-control nzErrorTip="Nội dung tiếng Việt là bắt buộc!">
+                  <app-text-editor
+                    *ngIf="isDataLoaded"
+                    [initContentBody]="contentBody"
+                    (contentChanged)="handleContentChangedEditor($event)" />
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="hashtags-vi">Hashtag</nz-form-label>
+                <nz-form-control>
+                  <nz-select
+                    nzId="hashtags-vi"
+                    formControlName="LstHashTagNews"
+                    nzMode="tags"
+                    nzAllowClear
+                    [nzTokenSeparators]="[',']"
+                    nzPlaceHolder="Nhập hashtag tiếng Việt">
+                    <nz-option
+                      *ngFor="let tag of hashtagSuggestions"
+                      [nzValue]="tag"
+                      [nzLabel]="tag"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </nz-tab>
+
+          <nz-tab nzTitle="English">
+            <div class="blogpost__translation-pane">
+              <p class="blogpost__translation-hint">
+                Bản dịch không bắt buộc. Nếu bắt đầu nhập, hãy hoàn thành đầy đủ
+                tiêu đề, mô tả và nội dung tiếng Anh.
+              </p>
+
+              <nz-form-item>
+                <nz-form-label>Title</nz-form-label>
+                <nz-form-control>
+                  <input
+                    nz-input
+                    formControlName="ShortTitleEn"
+                    placeholder="Enter the English title..." />
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label>Short description</nz-form-label>
+                <nz-form-control>
+                  <nz-textarea-count [nzMaxCharacterCount]="100">
+                    <textarea
+                      rows="3"
+                      nz-input
+                      formControlName="ShortDescriptionEn"
+                      placeholder="Enter the English summary..."></textarea>
+                  </nz-textarea-count>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label>Content</nz-form-label>
+                <nz-form-control>
+                  <app-text-editor
+                    *ngIf="isDataLoaded"
+                    [initContentBody]="contentBodyEn"
+                    (contentChanged)="handleContentChangedEditorEn($event)" />
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzFor="hashtags-en">Hashtags</nz-form-label>
+                <nz-form-control>
+                  <nz-select
+                    nzId="hashtags-en"
+                    formControlName="LstHashTagNewsEn"
+                    nzMode="tags"
+                    nzAllowClear
+                    [nzTokenSeparators]="[',']"
+                    nzPlaceHolder="Enter English hashtags">
+                    <nz-option
+                      *ngFor="let tag of hashtagSuggestionsEn"
+                      [nzValue]="tag"
+                      [nzLabel]="tag"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </nz-tab>
+        </nz-tabset>
+
+        <div *ngIf="!isDataLoaded" class="loading-editor">
+          <app-spinner></app-spinner>
+        </div>
+      </main>
+
+      <aside class="blogpost__sidebar">
+        <section class="blogpost__panel blogpost__settings-card">
+          <header class="blogpost__section-heading">
+            <span nz-icon nzType="setting" nzTheme="outline"></span>
+            <h2>Thiết lập bài viết</h2>
+          </header>
+
+          <nz-form-item>
+            <nz-form-label nzFor="blog-status">Trạng thái</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                class="blogpost__status-select"
+                nzId="blog-status"
+                formControlName="PublicationOption"
+                [nzCustomTemplate]="selectedStatus"
+                [nzOptionHeightPx]="58"
+                nzDropdownClassName="admin-status-dropdown">
+                <nz-option nzValue="Public" nzLabel="Công khai" nzCustomContent>
+                  <div class="blogpost__status-option">
+                    <span nz-icon nzType="global" nzTheme="outline"></span>
+                    <span>
+                      <strong>Công khai</strong>
+                      <small>Mọi người đều có thể xem bài viết</small>
+                    </span>
+                  </div>
+                </nz-option>
+                <nz-option nzValue="Draft" nzLabel="Bản nháp" nzCustomContent>
+                  <div class="blogpost__status-option">
+                    <span nz-icon nzType="file-text" nzTheme="outline"></span>
+                    <span>
+                      <strong>Bản nháp</strong>
+                      <small>Chưa xuất bản, có thể tiếp tục chỉnh sửa</small>
+                    </span>
+                  </div>
+                </nz-option>
                 <nz-option
                   nzValue="Private"
-                  [nzLabel]="'T_NEWS_PRIVATE' | translate"></nz-option>
+                  nzLabel="Chỉ mình tôi"
+                  nzCustomContent>
+                  <div class="blogpost__status-option">
+                    <span nz-icon nzType="lock" nzTheme="outline"></span>
+                    <span>
+                      <strong>Chỉ mình tôi</strong>
+                      <small>Chỉ bạn mới có thể xem bài viết</small>
+                    </span>
+                  </div>
+                </nz-option>
               </nz-select>
+              <ng-template #selectedStatus let-selected>
+                <span class="blogpost__status-selected">
+                  <span
+                    nz-icon
+                    [nzType]="
+                      selected.nzValue === 'Public'
+                        ? 'global'
+                        : selected.nzValue === 'Draft'
+                          ? 'file-text'
+                          : 'lock'
+                    "
+                    nzTheme="outline"></span>
+                  {{ selected.nzLabel }}
+                </span>
+              </ng-template>
+              <p class="blogpost__status-helper">
+                <ng-container
+                  [ngSwitch]="validateForm.controls.PublicationOption.value">
+                  <span *ngSwitchCase="'Public'"
+                    >Bài viết hiển thị công khai sau khi lưu.</span
+                  >
+                  <span *ngSwitchCase="'Draft'"
+                    >Bài viết chỉ được lưu trong khu quản trị.</span
+                  >
+                  <span *ngSwitchDefault
+                    >Bài viết chỉ hiển thị với tài khoản của bạn.</span
+                  >
+                </ng-container>
+              </p>
             </nz-form-control>
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label
-              nzLabelAlign="left"
-              [nzXs]="24"
-              [nzMd]="8"
-              nzRequired
-              >{{ 'T_CATEGORYNEWSID' | translate }}</nz-form-label
+            <nz-form-label nzRequired nzFor="blog-category"
+              >Danh mục</nz-form-label
             >
             <nz-form-control
-              [nzXs]="24"
-              [nzMd]="16"
-              nzValidatingTip="Validating..."
-              nzErrorTip="Required!">
+              nzValidatingTip="Đang kiểm tra..."
+              nzErrorTip="Vui lòng chọn danh mục!">
               <nz-tree-select
+                nzId="blog-category"
                 formControlName="CategoryNewsId"
                 [nzNodes]="nodes"
                 nzShowSearch
@@ -47,169 +229,49 @@
                 [nzPlaceHolder]="'T_PLEASESELECT' | translate"></nz-tree-select>
             </nz-form-control>
           </nz-form-item>
+        </section>
 
+        <section class="blogpost__panel blogpost__thumbnail-card">
+          <header class="blogpost__section-heading">
+            <span nz-icon nzType="picture" nzTheme="outline"></span>
+            <h2>Ảnh bài viết <span aria-hidden="true">*</span></h2>
+          </header>
           <nz-form-item>
-            <nz-form-label
-              nzLabelAlign="left"
-              [nzXs]="24"
-              [nzMd]="8"
-              nzRequired
-              >{{ 'T_THUMNAIL' | translate }}</nz-form-label
-            >
-            <nz-form-control
-              [nzXs]="24"
-              [nzMd]="16"
-              nzValidatingTip="Validating..."
-              nzErrorTip="Required!">
+            <nz-form-control nzErrorTip="Vui lòng tải ảnh bài viết!">
               <app-upload-common
                 [imageUrl]="validateForm.value.Thumbnail || ''"
                 (_onClick)="handleUploadFile($event)" />
             </nz-form-control>
           </nz-form-item>
+        </section>
 
-          <nz-form-item>
-            <nz-form-label nzLabelAlign="left" [nzXs]="24" [nzMd]="8">{{
-              'T_LSTREFFILENEWS' | translate
-            }}</nz-form-label>
-            <nz-form-control [nzXs]="24" [nzMd]="16">
-              <nz-upload
-                nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                [(nzFileList)]="lstRefFileNews">
-                <button nz-button type="button">
-                  <span nz-icon nzType="upload"></span>
-                  {{ 'T_UPLOAD' | translate }}
-                </button>
-              </nz-upload>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-      </div>
+        <section class="blogpost__panel blogpost__files-card">
+          <header class="blogpost__section-heading">
+            <span nz-icon nzType="paper-clip" nzTheme="outline"></span>
+            <h2>File liên quan</h2>
+          </header>
 
-      <div nz-col [nzXs]="24" [nzMd]="16">
-        <div class="blogpost__panel blogpost__editor-panel">
-          <nz-tabset>
-            <nz-tab nzTitle="Tiếng Việt">
-              <div class="blogpost__translation-pane">
-                <nz-form-item>
-                  <nz-form-label nzRequired>Tiêu đề</nz-form-label>
-                  <nz-form-control nzErrorTip="Tiêu đề tiếng Việt là bắt buộc!">
-                    <input
-                      nz-input
-                      formControlName="ShortTitle"
-                      placeholder="Nhập tiêu đề bài viết" />
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label nzRequired>Mô tả ngắn</nz-form-label>
-                  <nz-form-control nzErrorTip="Mô tả tiếng Việt là bắt buộc!">
-                    <nz-textarea-count [nzMaxCharacterCount]="100">
-                      <textarea
-                        rows="3"
-                        nz-input
-                        formControlName="ShortDescription"
-                        placeholder="Nhập mô tả ngắn"></textarea>
-                    </nz-textarea-count>
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label nzRequired>Nội dung</nz-form-label>
-                  <nz-form-control
-                    nzErrorTip="Nội dung tiếng Việt là bắt buộc!">
-                    <app-text-editor
-                      *ngIf="isDataLoaded"
-                      [initContentBody]="contentBody"
-                      (contentChanged)="handleContentChangedEditor($event)" />
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label>Hashtag</nz-form-label>
-                  <nz-form-control>
-                    <nz-select
-                      formControlName="LstHashTagNews"
-                      nzMode="tags"
-                      nzAllowClear
-                      [nzTokenSeparators]="[',']"
-                      nzPlaceHolder="Nhập hashtag tiếng Việt">
-                      <nz-option
-                        *ngFor="let tag of hashtagSuggestions"
-                        [nzValue]="tag"
-                        [nzLabel]="tag"></nz-option>
-                    </nz-select>
-                  </nz-form-control>
-                </nz-form-item>
-              </div>
-            </nz-tab>
-
-            <nz-tab nzTitle="English">
-              <div class="blogpost__translation-pane">
-                <p class="blogpost__translation-hint">
-                  Optional. If you add an English translation, complete all
-                  three fields.
-                </p>
-
-                <nz-form-item>
-                  <nz-form-label>Title</nz-form-label>
-                  <nz-form-control>
-                    <input
-                      nz-input
-                      formControlName="ShortTitleEn"
-                      placeholder="Enter the English title" />
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label>Short description</nz-form-label>
-                  <nz-form-control>
-                    <nz-textarea-count [nzMaxCharacterCount]="100">
-                      <textarea
-                        rows="3"
-                        nz-input
-                        formControlName="ShortDescriptionEn"
-                        placeholder="Enter the English summary"></textarea>
-                    </nz-textarea-count>
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label>Content</nz-form-label>
-                  <nz-form-control>
-                    <app-text-editor
-                      *ngIf="isDataLoaded"
-                      [initContentBody]="contentBodyEn"
-                      (contentChanged)="
-                        handleContentChangedEditorEn($event)
-                      " />
-                  </nz-form-control>
-                </nz-form-item>
-
-                <nz-form-item>
-                  <nz-form-label>Hashtags</nz-form-label>
-                  <nz-form-control>
-                    <nz-select
-                      formControlName="LstHashTagNewsEn"
-                      nzMode="tags"
-                      nzAllowClear
-                      [nzTokenSeparators]="[',']"
-                      nzPlaceHolder="Enter English hashtags">
-                      <nz-option
-                        *ngFor="let tag of hashtagSuggestionsEn"
-                        [nzValue]="tag"
-                        [nzLabel]="tag"></nz-option>
-                    </nz-select>
-                  </nz-form-control>
-                </nz-form-item>
-              </div>
-            </nz-tab>
-          </nz-tabset>
-
-          <div *ngIf="!isDataLoaded" class="loading-editor">
-            <app-spinner></app-spinner>
+          <nz-upload
+            class="blogpost__related-upload"
+            nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            [(nzFileList)]="lstRefFileNews">
+            <span class="blogpost__upload-trigger">
+              <span nz-icon nzType="upload"></span>
+              {{ 'T_UPLOAD' | translate }}
+            </span>
+          </nz-upload>
+          <p class="blogpost__helper">
+            Đính kèm tài liệu, PDF hoặc file liên quan khác.
+          </p>
+          <div
+            *ngIf="lstRefFileNews.length === 0"
+            class="blogpost__files-empty">
+            <span nz-icon nzType="file" nzTheme="outline"></span>
+            <strong>Chưa có file nào</strong>
+            <span>Tải file để hiển thị cùng bài viết</span>
           </div>
-        </div>
-      </div>
+        </section>
+      </aside>
     </div>
   </form>
 </div>

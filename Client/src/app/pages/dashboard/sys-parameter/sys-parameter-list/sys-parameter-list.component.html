@@ -1,126 +1,202 @@
-<div class="master__container">
-  <app-breadcrumb title="System Parameter" [buttons]="listButtonsHeader" />
+<div class="master__container sysparam-page">
+  <app-breadcrumb title="Tham số hệ thống" [buttons]="listButtonsHeader" />
 
-  <!-- Thanh tìm kiếm -->
-  <form
-    class="sysparam__search"
-    nz-form
-    [formGroup]="searchForm"
-    [nzLayout]="'inline'"
-    (ngSubmit)="handleSearch()">
-    <nz-form-item>
-      <nz-form-control>
-        <input
-          nz-input
-          formControlName="Keyword"
-          placeholder="Tìm theo mã / tên..."
-          class="sysparam__search-keyword" />
-      </nz-form-control>
-    </nz-form-item>
+  <main class="sysparam-page__content">
+    <section class="sysparam-page__panel" aria-labelledby="sysparam-title">
+      <header class="sysparam-page__panel-header">
+        <div>
+          <h2 id="sysparam-title">Danh sách tham số</h2>
+          <p>Quản lý các giá trị cấu hình được sử dụng trong toàn hệ thống.</p>
+        </div>
+        <span class="sysparam-page__count">
+          {{ dataSource.length | number }} tham số
+        </span>
+      </header>
 
-    <nz-form-item>
-      <nz-form-control>
-        <nz-select
-          formControlName="Category"
-          nzAllowClear
-          nzPlaceHolder="Tất cả nhóm"
-          class="sysparam__search-category">
-          <nz-option
-            *ngFor="let c of categoryOptions"
-            [nzValue]="c"
-            [nzLabel]="c"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
+      <form
+        class="sysparam-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="sysparam-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm tham số"
+                placeholder="Tìm theo mã hoặc tên tham số..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button nz-button nzType="primary" type="submit">
-        <span nz-icon nzType="search"></span> Search
-      </button>
-    </nz-form-item>
+        <nz-form-item class="sysparam-page__category-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="Category"
+              nzAllowClear
+              nzPlaceHolder="Tất cả nhóm"
+              aria-label="Lọc theo nhóm">
+              <nz-option
+                *ngFor="let c of categoryOptions"
+                [nzValue]="c"
+                [nzLabel]="c"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button nz-button nzType="default" type="button" (click)="handleResetSearch()">
-        <span nz-icon nzType="reload"></span> Reset
-      </button>
-    </nz-form-item>
-  </form>
+        <nz-form-item>
+          <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        </nz-form-item>
 
-  <nz-layout>
-    <nz-content>
+        <nz-form-item>
+          <button
+            class="sysparam-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleResetSearch()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
+
       <nz-table
+        class="sysparam-page__table"
         nzShowSizeChanger
         [nzData]="dataSource"
-        [nzScroll]="{ x: '1100px' }"
+        [nzScroll]="{ x: '1280px' }"
         [nzFrontPagination]="true"
         [nzPageSize]="20"
-        [nzLoading]="false">
+        [nzLoading]="false"
+        [nzNoResult]="emptyState">
         <thead>
           <tr>
-            <th nzWidth="90px"></th>
-            <th nzWidth="60px">#</th>
-            <th nzColumnKey="ParameterCode" [nzSortFn]="true">Code</th>
-            <th nzColumnKey="ParameterNameVi" [nzSortFn]="true">Name (VI)</th>
-            <th nzColumnKey="ParameterValueVi" nzWidth="320px">Value (VI)</th>
-            <th nzColumnKey="DefaultValueVi" nzWidth="200px">Default (VI)</th>
-            <th nzColumnKey="DataType" [nzSortFn]="true">Data Type</th>
-            <th nzColumnKey="Category" [nzSortFn]="true">Category</th>
-            <th nzColumnKey="SortOrder" [nzSortFn]="true" nzWidth="80px">
-              Sort
+            <th nzWidth="56px">STT</th>
+            <th nzColumnKey="ParameterCode" [nzSortFn]="true" nzWidth="250px">
+              Tham số
             </th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="100px">
-              Active
+            <th nzColumnKey="ParameterValueVi" nzWidth="350px">
+              Giá trị hiện tại
+            </th>
+            <th nzColumnKey="DefaultValueVi" nzWidth="230px">
+              Giá trị mặc định
+            </th>
+            <th nzColumnKey="DataType" [nzSortFn]="true" nzWidth="90px">
+              Kiểu
+            </th>
+            <th nzColumnKey="Category" [nzSortFn]="true" nzWidth="120px">
+              Nhóm
+            </th>
+            <th nzColumnKey="SortOrder" [nzSortFn]="true" nzWidth="82px">
+              Thứ tự
+            </th>
+            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="118px">
+              Trạng thái
+            </th>
+            <th nzRight nzWidth="96px" class="sysparam-page__action-heading">
+              Thao tác
             </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
+            <td class="sysparam-page__index">{{ i + 1 }}</td>
             <td>
-              <app-button-common
-                [iconType]="'edit'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDetail(data)"></app-button-common>
-              <app-button-common
-                [isShowConfirm]="true"
-                [iconType]="'delete'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDelete(data)"></app-button-common>
+              <div class="sysparam-page__identity">
+                <strong [title]="data.ParameterCode">
+                  {{ data.ParameterCode }}
+                </strong>
+                <span>{{ data.ParameterNameVi }}</span>
+              </div>
             </td>
-            <td>{{ i + 1 }}</td>
             <td>
-              <strong>{{ data.ParameterCode }}</strong>
-            </td>
-            <td>{{ data.ParameterNameVi }}</td>
-            <td>
-              <div class="sysparam__cell" [title]="data.ParameterValueVi">
+              <div class="sysparam-page__value" [title]="data.ParameterValueVi">
                 {{ data.ParameterValueVi }}
               </div>
             </td>
             <td>
-              <div class="sysparam__cell" [title]="data.DefaultValueVi">
+              <div
+                class="sysparam-page__value sysparam-page__value--default"
+                [title]="data.DefaultValueVi">
                 {{ data.DefaultValueVi }}
               </div>
             </td>
             <td>
-              <nz-tag [nzColor]="'geekblue'">{{ data.DataType }}</nz-tag>
+              <nz-tag class="sysparam-page__type">{{ data.DataType }}</nz-tag>
             </td>
             <td>
-              <nz-tag [nzColor]="'purple'">{{ data.Category }}</nz-tag>
+              <nz-tag class="sysparam-page__category">
+                {{ data.Category }}
+              </nz-tag>
             </td>
-            <td>{{ data.SortOrder }}</td>
             <td>
-              <app-tag-status
-                [sttValue]="
-                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
-                "></app-tag-status>
+              <span class="sysparam-page__sort-order">
+                {{ data.SortOrder }}
+              </span>
+            </td>
+            <td>
+              <nz-tag
+                class="sysparam-page__status"
+                [ngClass]="{
+                  'sysparam-page__status--inactive': !data.FlagActive,
+                }">
+                <span
+                  nz-icon
+                  [nzType]="data.FlagActive ? 'check-circle' : 'stop'"
+                  nzTheme="outline"></span>
+                {{ data.FlagActive ? 'Hoạt động' : 'Tạm ẩn' }}
+              </nz-tag>
+            </td>
+            <td nzRight class="sysparam-page__actions">
+              <button
+                nz-button
+                nzType="text"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Sửa tham số"
+                class="sysparam-page__action sysparam-page__action--edit"
+                [attr.aria-label]="'Sửa tham số ' + data.ParameterCode"
+                (click)="handleDetail(data)">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <button
+                nz-button
+                nzType="text"
+                nzDanger
+                type="button"
+                class="sysparam-page__action"
+                [attr.aria-label]="'Xóa tham số ' + data.ParameterCode"
+                nz-popconfirm
+                [nzPopconfirmTitle]="
+                  'Xóa tham số “' + data.ParameterCode + '”?'
+                "
+                nzOkText="Xóa"
+                nzCancelText="Hủy"
+                nzOkDanger
+                (nzOnConfirm)="handleDelete(data)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
             </td>
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+
+      <ng-template #emptyState>
+        <div class="sysparam-page__empty">
+          <span nz-icon nzType="control" nzTheme="outline"></span>
+          <strong>Chưa có tham số</strong>
+          <p>Tạo tham số đầu tiên để bắt đầu cấu hình hệ thống.</p>
+          <button nz-button nzType="primary" (click)="handleOpenCreate()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Tạo tham số
+          </button>
+        </div>
+      </ng-template>
+    </section>
+  </main>
 </div>
 
 <app-save-sys-parameter-popup

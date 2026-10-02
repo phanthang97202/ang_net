@@ -1,125 +1,205 @@
-<div class="master__container">
-  <app-breadcrumb title="News Category" [buttons]="listButtonsHeader" />
+<div class="master__container category-list-page">
+  <app-breadcrumb title="Danh mục tin" [buttons]="listButtonsHeader" />
 
-  <!-- Thanh tìm kiếm -->
-  <form
-    class="newscate__search"
-    nz-form
-    [formGroup]="searchForm"
-    [nzLayout]="'inline'"
-    (ngSubmit)="handleSearch()">
-    <nz-form-item>
-      <nz-form-control>
-        <input
-          nz-input
-          formControlName="Keyword"
-          placeholder="Tìm theo mã / tên danh mục..."
-          class="newscate__search-keyword" />
-      </nz-form-control>
-    </nz-form-item>
+  <main class="category-list-page__content">
+    <section
+      class="category-list-page__panel"
+      aria-labelledby="category-list-title">
+      <header class="category-list-page__panel-header">
+        <div>
+          <h2 id="category-list-title">Danh sách danh mục</h2>
+          <p>
+            Quản lý cấu trúc, thứ tự và trạng thái hiển thị của danh mục tin.
+          </p>
+        </div>
+        <span class="category-list-page__count">
+          {{ dataSource.length | number }} danh mục
+        </span>
+      </header>
 
-    <nz-form-item>
-      <button nz-button nzType="primary" type="submit">
-        <span nz-icon nzType="search"></span> Search
-      </button>
-    </nz-form-item>
+      <form
+        class="category-list-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="category-list-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm danh mục"
+                placeholder="Tìm theo mã hoặc tên danh mục..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button
-        nz-button
-        nzType="default"
-        type="button"
-        (click)="handleResetSearch()">
-        <span nz-icon nzType="reload"></span> Reset
-      </button>
-    </nz-form-item>
-  </form>
+        <nz-form-item>
+          <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        </nz-form-item>
 
-  <nz-layout>
-    <nz-content>
+        <nz-form-item>
+          <button
+            class="category-list-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleResetSearch()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
+
       <nz-table
-        nzShowSizeChanger
-        [nzData]="dataSource"
-        [nzScroll]="{ x: '900px' }"
-        [nzFrontPagination]="true"
-        [nzPageSize]="20"
-        [nzLoading]="false">
+        class="category-list-page__table"
+        [nzData]="treeRows"
+        [nzScroll]="{ x: '1020px' }"
+        [nzFrontPagination]="false"
+        [nzLoading]="false"
+        [nzNoResult]="emptyState">
         <thead>
           <tr>
-            <th nzWidth="90px"></th>
-            <th nzWidth="60px">#</th>
-            <th nzColumnKey="NewsCategoryId" [nzSortFn]="true">Code</th>
-            <th nzWidth="72px">Logo</th>
-            <th nzColumnKey="NewsCategoryName" [nzSortFn]="true">
-              Vietnamese Name
-            </th>
-            <th nzColumnKey="NewsCategoryNameEn" [nzSortFn]="true">
-              English Name
-            </th>
-            <th nzWidth="200px">Parent</th>
+            <th nzWidth="320px">Danh mục</th>
+            <th nzWidth="76px">Logo</th>
+            <th nzWidth="190px">Tên tiếng Anh</th>
+            <th nzWidth="86px">Thứ tự</th>
+            <th nzWidth="112px">Phạm vi</th>
+            <th nzWidth="118px">Trạng thái</th>
             <th
-              nzColumnKey="NewsCategoryIndex"
-              [nzSortFn]="true"
-              nzWidth="80px">
-              Sort
-            </th>
-            <th nzWidth="100px">Global</th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="100px">
-              Active
+              nzRight
+              nzWidth="96px"
+              class="category-list-page__action-heading">
+              Thao tác
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let data of dataSource; let i = index">
+          <tr
+            *ngFor="let data of treeRows"
+            [class.category-list-page__row--child]="data.Depth > 0">
             <td>
-              <app-button-common
-                [iconType]="'edit'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDetail(data)"></app-button-common>
-              <app-button-common
-                [isShowConfirm]="true"
-                [iconType]="'delete'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleDelete(data)"></app-button-common>
+              <div
+                class="category-list-page__category"
+                [style.padding-left.px]="data.Depth * 24">
+                <span
+                  class="category-list-page__branch"
+                  *ngIf="data.Depth > 0"
+                  aria-hidden="true"></span>
+                <div class="category-list-page__category-text">
+                  <strong [title]="data.NewsCategoryName">
+                    {{ data.NewsCategoryName }}
+                  </strong>
+                  <span>{{ data.NewsCategoryId }}</span>
+                </div>
+                <span
+                  class="category-list-page__children"
+                  *ngIf="data.ChildCount">
+                  {{ data.ChildCount }} mục con
+                </span>
+              </div>
             </td>
-            <td>{{ i + 1 }}</td>
             <td>
-              <strong>{{ data.NewsCategoryId }}</strong>
+              <div class="category-list-page__logo" aria-hidden="true">
+                <img
+                  *ngIf="data.NewsCategoryLogo; else logoFallback"
+                  [src]="data.NewsCategoryLogo"
+                  alt=""
+                  loading="lazy" />
+                <ng-template #logoFallback>
+                  <span nz-icon nzType="folder" nzTheme="outline"></span>
+                </ng-template>
+              </div>
             </td>
             <td>
-              <img
-                *ngIf="data.NewsCategoryLogo"
-                class="newscate__logo"
-                [src]="data.NewsCategoryLogo"
-                [alt]="data.NewsCategoryName" />
-              <span *ngIf="!data.NewsCategoryLogo">—</span>
+              <span class="category-list-page__english-name">
+                {{ data.NewsCategoryNameEn | showNullishValue }}
+              </span>
             </td>
-            <td>{{ data.NewsCategoryName }}</td>
-            <td>{{ data.NewsCategoryNameEn }}</td>
             <td>
-              <span class="newscate__cell">{{
-                parentName(data.NewsCategoryParentId) | showNullishValue
-              }}</span>
+              <span class="category-list-page__sort-index">
+                {{ data.NewsCategoryIndex }}
+              </span>
             </td>
-            <td>{{ data.NewsCategoryIndex }}</td>
             <td>
-              <nz-tag [nzColor]="data.IsGlobal ? 'geekblue' : 'default'">
-                {{ data.IsGlobal ? 'Yes' : 'No' }}
+              <nz-tag
+                class="category-list-page__scope"
+                [ngClass]="{
+                  'category-list-page__scope--global': data.IsGlobal,
+                }">
+                <span
+                  nz-icon
+                  [nzType]="data.IsGlobal ? 'global' : 'lock'"
+                  nzTheme="outline"></span>
+                {{ data.IsGlobal ? 'Toàn cục' : 'Nội bộ' }}
               </nz-tag>
             </td>
             <td>
-              <app-tag-status
-                [sttValue]="
-                  data.FlagActive ? 'ACTIVE' : 'INACTIVE'
-                "></app-tag-status>
+              <nz-tag
+                class="category-list-page__status"
+                [ngClass]="{
+                  'category-list-page__status--inactive': !data.FlagActive,
+                }">
+                <span
+                  nz-icon
+                  [nzType]="data.FlagActive ? 'check-circle' : 'stop'"
+                  nzTheme="outline"></span>
+                {{ data.FlagActive ? 'Hoạt động' : 'Tạm ẩn' }}
+              </nz-tag>
+            </td>
+            <td nzRight class="category-list-page__actions">
+              <button
+                nz-button
+                nzType="text"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Sửa danh mục"
+                class="category-list-page__action category-list-page__action--edit"
+                [attr.aria-label]="'Sửa danh mục ' + data.NewsCategoryName"
+                (click)="handleDetail(data)">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <button
+                nz-button
+                nzType="text"
+                nzDanger
+                type="button"
+                class="category-list-page__action"
+                [attr.aria-label]="'Xóa danh mục ' + data.NewsCategoryName"
+                nz-popconfirm
+                [nzPopconfirmTitle]="
+                  data.ChildCount
+                    ? 'Danh mục “' +
+                      data.NewsCategoryName +
+                      '” đang có ' +
+                      data.ChildCount +
+                      ' mục con. Xóa danh mục này?'
+                    : 'Xóa danh mục “' + data.NewsCategoryName + '”?'
+                "
+                nzOkText="Xóa"
+                nzCancelText="Hủy"
+                (nzOnConfirm)="handleDelete(data)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
             </td>
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+
+      <ng-template #emptyState>
+        <div class="category-list-page__empty">
+          <span nz-icon nzType="folder-open" nzTheme="outline"></span>
+          <strong>Chưa có danh mục</strong>
+          <p>Tạo danh mục đầu tiên để bắt đầu tổ chức nội dung blog.</p>
+          <button nz-button nzType="primary" (click)="handleOpenCreate()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Tạo danh mục
+          </button>
+        </div>
+      </ng-template>
+    </section>
+  </main>
 </div>
 
 <app-save-news-category-popup

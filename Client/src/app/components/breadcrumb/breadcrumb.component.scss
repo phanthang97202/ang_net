@@ -1,34 +1,79 @@
 .breadcrumb__container {
-    padding: 16px 24px;
-    margin-bottom: 16px;
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
-    border-radius: 8px;
+  min-height: var(--admin-topbar-height, 68px);
+  padding: 14px 24px;
+  margin: 0;
+  background: var(--admin-surface, #fff);
+  border-bottom: 1px solid var(--admin-border, #e2e8f0);
+  border-radius: 0;
 
-    ::ng-deep {
-        .ant-page-header-back {
-            margin-right: 12px;
-        }
-
-        .ant-page-header-back-button {
-            color: #595959;
-            transition: color 0.2s ease;
-
-            &:hover {
-                color: #1677ff;
-            }
-        }
-
-        .ant-page-header-heading-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1f1f1f;
-        }
+  ::ng-deep {
+    .ant-page-header-heading {
+      min-height: 40px;
+      align-items: center;
     }
+
+    .ant-page-header-back {
+      margin-right: 14px;
+    }
+
+    .ant-page-header-back-button {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      color: var(--admin-text, #172033);
+      transition: color 0.2s ease;
+
+      &:hover {
+        background: var(--admin-primary-soft, #eaf4ff);
+        color: var(--admin-primary, #1677ff);
+      }
+    }
+
+    .ant-page-header-heading-title {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--admin-text, #172033);
+    }
+
+    .ant-page-header-heading-extra {
+      margin: 0;
+    }
+  }
 }
 
 .breadcrumb__actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  ::ng-deep .ant-btn {
+    min-width: 104px;
+    height: var(--admin-control-height, 40px);
+    padding-inline: 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .breadcrumb__container {
+    padding: 12px 16px;
+
+    ::ng-deep .ant-page-header-heading-title {
+      max-width: 46vw;
+      overflow: hidden;
+      font-size: 18px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .breadcrumb__actions ::ng-deep .ant-btn {
+    min-width: auto;
+    padding-inline: 12px;
+  }
 }

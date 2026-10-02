@@ -14,7 +14,6 @@ import {
 // AntdModule chỉ có ReactiveFormsModule, và không export NzEmpty. Bảng này dùng
 // [ngModel] cho switch bật/tắt (không nằm trong form nào) nên cần FormsModule.
 import { FormsModule } from '@angular/forms';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { SaveSysMenuPopupComponent } from '../save-sys-menu-popup/save-sys-menu-popup.component';
 
 /** Một dòng trong bảng phẳng, kèm cấp để thụt lề. */
@@ -31,7 +30,6 @@ interface MenuRow extends ISysMenuTree {
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
     FormsModule,
-    NzEmptyModule,
     SaveSysMenuPopupComponent,
   ],
   templateUrl: './sys-menu-list.component.html',
@@ -53,7 +51,7 @@ export class SysMenuComponent implements OnInit {
 
   listButtonsHeader = [
     {
-      text: 'Create',
+      text: 'Tạo menu',
       iconType: 'plus',
       onClick: () => this.handleOpenCreate(),
     },
@@ -120,7 +118,7 @@ export class SysMenuComponent implements OnInit {
     this.api.SysMenuDelete(row.MenuId).subscribe({
       next: response => {
         if (response?.Success) {
-          this.message.success('Delete successfully');
+          this.message.success('Đã xóa menu');
           this.fetchData();
         } else {
           this.handleApiFail(response);
@@ -169,7 +167,8 @@ export class SysMenuComponent implements OnInit {
   private createData(formValue: ISysMenuSave): void {
     this.setLoading(true);
     this.api.SysMenuCreate(formValue).subscribe({
-      next: response => this.handleSaveResponse(response, 'Create successfully'),
+      next: response =>
+        this.handleSaveResponse(response, 'Create successfully'),
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -178,7 +177,8 @@ export class SysMenuComponent implements OnInit {
   private updateData(formValue: ISysMenuSave): void {
     this.setLoading(true);
     this.api.SysMenuUpdate(formValue).subscribe({
-      next: response => this.handleSaveResponse(response, 'Update successfully'),
+      next: response =>
+        this.handleSaveResponse(response, 'Update successfully'),
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });

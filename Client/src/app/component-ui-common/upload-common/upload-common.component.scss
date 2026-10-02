@@ -1,0 +1,95 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.article-image-upload {
+  display: block;
+  width: 100%;
+}
+
+.article-image-upload__empty {
+  display: flex;
+  min-height: 154px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  color: var(--admin-text-secondary, #667085);
+
+  strong {
+    color: var(--admin-text, #172033);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  span:not(.article-image-upload__icon) {
+    font-size: 13px;
+  }
+
+  small {
+    color: var(--admin-text-tertiary, #8b97aa);
+    font-size: 12px;
+  }
+}
+
+.article-image-upload__icon {
+  margin-bottom: 6px;
+  color: var(--admin-text-tertiary, #8b97aa);
+  font-size: 28px;
+}
+
+.article-image-upload__preview {
+  position: relative;
+  min-height: 154px;
+  overflow: hidden;
+  border-radius: 9px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 154px;
+    object-fit: cover;
+  }
+}
+
+.article-image-upload__replace {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.58);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.article-image-upload__preview:hover .article-image-upload__replace {
+  opacity: 1;
+}
+
+:host ::ng-deep .article-image-upload .ant-upload.ant-upload-drag {
+  width: 100%;
+  min-height: 154px;
+  overflow: hidden;
+  border: 1px dashed var(--admin-border-strong, #cbd5e1);
+  border-radius: 10px;
+  background: var(--admin-surface-subtle, #f8fafc);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+:host ::ng-deep .article-image-upload .ant-upload.ant-upload-drag:hover {
+  border-color: var(--admin-primary, #1677ff);
+  background: var(--admin-primary-soft, #eaf4ff);
+}
+
+:host ::ng-deep .article-image-upload .ant-upload-btn {
+  padding: 0;
+}

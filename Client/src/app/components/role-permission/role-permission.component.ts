@@ -1,22 +1,24 @@
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import {
-  IPermissionModule,
-  IRole,
-} from '../../interfaces';
+import { IPermissionModule, IRole } from '../../interfaces';
 import { ApiService, ShowErrorService } from '../../services';
 import { AntdModule } from '../../modules';
-// AntdModule chỉ có ReactiveFormsModule, và không export NzEmpty/NzSpin - ba thứ
-// này phải khai báo riêng ở đây.
+// AntdModule chỉ có ReactiveFormsModule, và không export NzSpin - hai thứ này
+// phải khai báo riêng ở đây.
 import { FormsModule } from '@angular/forms';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 @Component({
   selector: 'app-role-permission',
   standalone: true,
-  imports: [CommonModule, AntdModule, FormsModule, NzEmptyModule, NzSpinModule],
+  imports: [CommonModule, AntdModule, FormsModule, NzSpinModule],
   templateUrl: './role-permission.component.html',
   styleUrl: './role-permission.component.scss',
 })
@@ -100,7 +102,9 @@ export class RolePermissionComponent implements OnChanges {
   // Tick/bỏ tick cả nhóm bằng một lần bấm - nhóm nào cũng 3-4 quyền nên bấm lẻ
   // từng cái khá mệt khi dựng một vai trò mới.
   toggleModule(mod: IPermissionModule, checked: boolean): void {
-    mod.Permissions.forEach(p => this.togglePermission(p.PermissionCode, checked));
+    mod.Permissions.forEach(p =>
+      this.togglePermission(p.PermissionCode, checked)
+    );
   }
 
   isModuleAllChecked(mod: IPermissionModule): boolean {

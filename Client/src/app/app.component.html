@@ -22,14 +22,20 @@
   <app-footer />
 </div>
 
-<nz-layout *ngIf="layoutType === 'admin'" class="layout">
-  <nz-sider [nzCollapsed]="true" nzCollapsible nzWidth="200px">
-    <div class="logo">
+<nz-layout *ngIf="layoutType === 'admin'" class="layout admin-ui">
+  <nz-sider
+    class="admin-sidebar"
+    [nzCollapsed]="true"
+    [nzCollapsedWidth]="68"
+    [nzTrigger]="null"
+    nzCollapsible
+    nzWidth="220px">
+    <div class="admin-sidebar__brand">
       <a routerLink="/">
         <img
-          class="w-full h-full p-[14px]"
+          class="admin-sidebar__logo"
           src="assets/images/logo.png"
-          alt="" />
+          alt="Trang chủ" />
       </a>
     </div>
     <!-- Menu dựng từ dashboardMenuFiltered: mục nào người dùng không có quyền thì
@@ -40,6 +46,7 @@
       <li
         *ngFor="let group of dashboardMenuFiltered"
         nz-submenu
+        routerLinkActive="admin-menu-active"
         [nzTitle]="group.title"
         [nzIcon]="group.icon">
         <ul>
@@ -49,21 +56,24 @@
         </ul>
       </li>
     </ul>
-    <div class="logo absolute bottom-[50px] w-full">
-      <div class="flex justify-center">
+    <div class="admin-sidebar__footer">
+      <div class="admin-sidebar__language">
         <app-switch-lang />
       </div>
       <button
-        class="w-full bg-transparent border-none"
+        class="admin-sidebar__logout"
         (click)="handleLogout()"
         nz-button
-        [nzType]="'primary'">
-        Logout
+        nz-tooltip
+        nzTooltipTitle="Đăng xuất"
+        [nzType]="'text'"
+        aria-label="Đăng xuất">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
       </button>
     </div>
   </nz-sider>
 
-  <nz-content class="admin__layout--content h-full overflow-y-auto">
+  <nz-content class="admin__layout--content">
     <router-outlet></router-outlet>
   </nz-content>
 </nz-layout>
