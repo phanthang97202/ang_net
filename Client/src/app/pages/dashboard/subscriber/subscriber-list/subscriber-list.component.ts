@@ -2,7 +2,11 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NonNullableFormBuilder } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ApiService, AuthService, ShowErrorService } from '../../../../services';
+import {
+  ApiService,
+  AuthService,
+  ShowErrorService,
+} from '../../../../services';
 import { ISubscriberItem } from '../../../../interfaces';
 import {
   AntdModule,
@@ -47,6 +51,15 @@ export class SubscriberComponent implements OnInit {
     Keyword: this.fb.control(''),
     Status: this.fb.control<TStatusFilter>(''),
   });
+
+  // Màn này không tạo dữ liệu; việc hay làm nhất là gom email để gửi thư tay.
+  listButtonsHeader = [
+    {
+      text: 'Chép email',
+      iconType: 'copy',
+      onClick: () => this.copyActiveEmails(),
+    },
+  ];
 
   ngOnInit(): void {
     this.fetchData();
@@ -112,7 +125,8 @@ export class SubscriberComponent implements OnInit {
             );
           } else {
             this.message.error(
-              response?.ErrorMessage || 'Không thể cập nhật trạng thái người đăng ký.'
+              response?.ErrorMessage ||
+                'Không thể cập nhật trạng thái người đăng ký.'
             );
           }
           this.fetchData();

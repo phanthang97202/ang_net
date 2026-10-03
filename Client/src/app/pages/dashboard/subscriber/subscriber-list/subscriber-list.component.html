@@ -1,68 +1,73 @@
-<div class="master__container">
-  <app-breadcrumb title="Người đăng ký nhận bài" />
+<div class="master__container subscriber-page">
+  <app-breadcrumb
+    title="Người đăng ký nhận bài"
+    [buttons]="listButtonsHeader" />
 
-  <!-- Thanh tìm kiếm -->
-  <form
-    class="subscriber__search"
-    nz-form
-    [formGroup]="searchForm"
-    [nzLayout]="'inline'"
-    (ngSubmit)="handleSearch()">
-    <nz-form-item>
-      <nz-form-control>
-        <input
-          nz-input
-          formControlName="Keyword"
-          placeholder="Tìm theo email..."
-          class="subscriber__search-keyword" />
-      </nz-form-control>
-    </nz-form-item>
+  <main class="subscriber-page__content">
+    <section class="subscriber-page__panel" aria-labelledby="subscriber-title">
+      <header class="subscriber-page__panel-header">
+        <div>
+          <h2 id="subscriber-title">Danh sách người đăng ký</h2>
+          <p>
+            Những địa chỉ email sẽ nhận thư mỗi khi có bài viết mới được đăng.
+          </p>
+        </div>
+        <span class="subscriber-page__count">
+          {{ itemCount | number }} người đăng ký
+        </span>
+      </header>
 
-    <nz-form-item>
-      <nz-form-control>
-        <nz-select
-          formControlName="Status"
-          nzPlaceHolder="Trạng thái"
-          class="subscriber__search-status">
-          <nz-option nzValue="" nzLabel="Tất cả"></nz-option>
-          <nz-option nzValue="active" nzLabel="Đang nhận"></nz-option>
-          <nz-option nzValue="inactive" nzLabel="Đã huỷ"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
+      <form
+        class="subscriber-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="subscriber-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm người đăng ký"
+                placeholder="Tìm theo email..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button nz-button nzType="primary" type="submit">
-        <span nz-icon nzType="search"></span> Tìm
-      </button>
-    </nz-form-item>
+        <nz-form-item class="subscriber-page__status-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="Status"
+              aria-label="Lọc theo trạng thái"
+              nzPlaceHolder="Trạng thái">
+              <nz-option nzValue="" nzLabel="Tất cả trạng thái"></nz-option>
+              <nz-option nzValue="active" nzLabel="Đang nhận"></nz-option>
+              <nz-option nzValue="inactive" nzLabel="Đã huỷ"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button
-        nz-button
-        nzType="default"
-        type="button"
-        (click)="handleResetSearch()">
-        <span nz-icon nzType="reload"></span> Đặt lại
-      </button>
-    </nz-form-item>
+        <nz-form-item>
+          <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button
-        nz-button
-        nzType="default"
-        type="button"
-        title="Chép email đang nhận ở trang này để dán vào ô BCC"
-        (click)="copyActiveEmails()">
-        <span nz-icon nzType="copy"></span> Chép email
-      </button>
-    </nz-form-item>
-  </form>
+        <nz-form-item>
+          <button
+            class="subscriber-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleResetSearch()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
 
-  <nz-layout>
-    <nz-content>
       <!-- Phân trang ở server nên tắt nzFrontPagination, tự truyền total/index. -->
       <nz-table
+        class="subscriber-page__table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzTotal]="itemCount"
@@ -70,44 +75,78 @@
         [nzPageSize]="pageSize"
         [nzFrontPagination]="false"
         [nzLoading]="isLoading"
-        [nzScroll]="{ x: '820px' }"
+        [nzScroll]="{ x: '880px' }"
+        [nzNoResult]="emptyState"
         (nzPageIndexChange)="onPageIndexChange($event)"
         (nzPageSizeChange)="onPageSizeChange($event)">
         <thead>
           <tr>
-            <th nzWidth="60px">#</th>
-            <th nzWidth="260px">Email</th>
-            <th nzWidth="120px">Trạng thái</th>
-            <th nzWidth="160px">Ngày đăng ký</th>
-            <th nzWidth="160px">Ngày huỷ</th>
-            <th nzWidth="120px">Thao tác</th>
+            <th nzWidth="56px">STT</th>
+            <th nzWidth="300px">Email</th>
+            <th nzWidth="130px">Trạng thái</th>
+            <th nzWidth="170px">Ngày đăng ký</th>
+            <th nzWidth="170px">Ngày huỷ</th>
+            <th nzRight nzWidth="124px" class="subscriber-page__action-heading">
+              Nhận thư
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
-            <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
-            <td>{{ data.Email }}</td>
+            <td class="subscriber-page__index">
+              {{ (pageIndex - 1) * pageSize + i + 1 }}
+            </td>
             <td>
-              <nz-tag [nzColor]="data.FlagActive ? 'green' : 'default'">
+              <div class="subscriber-page__identity">
+                <span class="subscriber-page__avatar" aria-hidden="true">
+                  <span nz-icon nzType="mail" nzTheme="outline"></span>
+                </span>
+                <strong [title]="data.Email">{{ data.Email }}</strong>
+              </div>
+            </td>
+            <td>
+              <nz-tag
+                class="subscriber-page__status"
+                [ngClass]="{
+                  'subscriber-page__status--inactive': !data.FlagActive,
+                }">
+                <span
+                  nz-icon
+                  [nzType]="data.FlagActive ? 'check-circle' : 'stop'"
+                  nzTheme="outline"></span>
                 {{ data.FlagActive ? 'Đang nhận' : 'Đã huỷ' }}
               </nz-tag>
             </td>
-            <td>{{ data.CreatedDTime | localeDTime }}</td>
-            <td>{{ data.UnsubscribedDTime | localeDTime | showNullishValue }}</td>
-            <td>
+            <td class="subscriber-page__time">
+              {{ data.CreatedDTime | localeDTime }}
+            </td>
+            <td class="subscriber-page__time">
+              {{ data.UnsubscribedDTime | localeDTime | showNullishValue }}
+            </td>
+            <td nzRight class="subscriber-page__actions">
               <!-- Người chỉ có subscriber.view vẫn thấy trạng thái nhưng không bấm
                    được - để bật thì bấm vào nhận ngay 403 từ API. -->
               <nz-switch
                 [ngModel]="data.FlagActive"
                 [nzDisabled]="!canUpdateSubscriber"
-                [nzCheckedChildren]="'Bật'"
-                [nzUnCheckedChildren]="'Tắt'"
                 nzSize="small"
+                [attr.aria-label]="'Bật/tắt nhận thư cho ' + data.Email"
                 (ngModelChange)="handleToggleActive(data, $event)"></nz-switch>
             </td>
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+
+      <ng-template #emptyState>
+        <div class="subscriber-page__empty">
+          <span nz-icon nzType="usergroup-add" nzTheme="outline"></span>
+          <strong>Chưa có người đăng ký</strong>
+          <p>
+            Chưa có địa chỉ nào khớp bộ lọc hiện tại. Thử đặt lại từ khóa hoặc
+            trạng thái.
+          </p>
+        </div>
+      </ng-template>
+    </section>
+  </main>
 </div>
