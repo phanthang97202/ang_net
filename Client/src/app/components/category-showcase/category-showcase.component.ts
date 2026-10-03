@@ -51,11 +51,13 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
     this.syncScrollState();
   }
 
-  // API đã lọc danh mục theo SysParameter và giữ đúng thứ tự ID admin cấu hình;
-  // ở đây không sắp xếp lại để giao diện phản ánh chính xác cấu hình đó.
+  // Không bật hotOnly: khối này giờ là dải điều hướng theo chủ đề ngay dưới
+  // banner (thay app-topic-nav), nên phải có đủ mọi danh mục gốc đang có bài,
+  // không chỉ vài mục được chọn làm "chủ đề hot" trong SysParameter. Cùng tham
+  // số với topic-nav cũ nên dùng chung bản cache của NewsCacheService.
   private loadCategories(): void {
     this.newsCacheService
-      .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE, true)
+      .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE)
       .subscribe({
         next: res => {
           this.categories = res.DataList || [];
@@ -76,14 +78,26 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Cuộn đi gần trọn một khung nhìn. Chừa lại 48px để thẻ ở mép vẫn còn thấy
-   * một phần sau khi cuộn - người đọc biết mình đang ở giữa một dải dài.
+   * Cuộn đúng một trang: N thẻ đang hiện ra hết, N thẻ kế tiếp vào trọn khung.
+   *
+   * Một trang = bề ngang vùng nội dung + một khe: N cột cộng N-1 khe lấp kín
+   * vùng nội dung (xem grid-auto-columns trong SCSS), thêm khe cuối là tới mép
+   * trái của thẻ đầu trang sau. Đọc padding và khe từ style thật thay vì gõ cứng
+   * vì cả hai đổi theo breakpoint.
    */
   scrollByPage(step: 1 | -1): void {
     const el = this.viewportRef?.nativeElement;
     if (!el) return;
 
-    const distance = Math.max(el.clientWidth - 48, 160);
+    const viewportStyle = getComputedStyle(el);
+    const padding =
+      parseFloat(viewportStyle.paddingLeft) +
+      parseFloat(viewportStyle.paddingRight);
+
+    const track = el.firstElementChild as HTMLElement | null;
+    const gap = track ? parseFloat(getComputedStyle(track).columnGap) || 0 : 0;
+
+    const distance = el.clientWidth - padding + gap;
     el.scrollBy({ left: step * distance, behavior: 'smooth' });
   }
 

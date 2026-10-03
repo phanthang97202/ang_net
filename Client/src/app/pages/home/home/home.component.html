@@ -1,9 +1,11 @@
 <div class="">
   <app-discovery-banner></app-discovery-banner>
 
-  <app-topic-nav></app-topic-nav>
+  <!-- Dải chủ đề thay cho app-topic-nav cũ: cùng vai trò điều hướng theo chủ đề
+       nhưng có số bài, nên không giữ cả hai trên cùng một trang. -->
+  <app-category-showcase></app-category-showcase>
 
-  <!-- Đặt sau topic-nav chứ không ngay dưới banner: banner cũng là ảnh lớn phủ
+  <!-- Đặt sau dải chủ đề chứ không ngay dưới banner: banner cũng là ảnh lớn phủ
        overlay tối, hai khối nằm liền nhau sẽ nặng và lặp. Dải chủ đề nền sáng
        chen vào giữa làm nhịp nghỉ. -->
   <app-featured-news></app-featured-news>
@@ -17,12 +19,7 @@
     </div>
   </div>
 
-  <!-- Đặt dưới danh sách bài, trên khối đăng ký: người mới đọc hết danh sách
-       mới nhất rồi thì đây là chỗ mời họ đào sâu tiếp theo chủ đề, chứ đẩy lên
-       trên sẽ chèn ép nội dung chính của blog. -->
-  <app-category-showcase></app-category-showcase>
-
-  <div class="mb-4 mt-8">
+  <div class="mb-4 mt-10">
     <app-subscribe-notify></app-subscribe-notify>
   </div>
 </div>

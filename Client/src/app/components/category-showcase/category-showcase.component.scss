@@ -2,76 +2,45 @@
   display: block;
 }
 
+// Padding trên/dưới 2rem như app-topic-nav cũ mà khối này thay thế: khối
+// "Bài viết nổi bật" ngay dưới không có padding trên, nó dựa vào đúng 2rem đáy
+// này để giữ khoảng cách.
 .topic-rail {
+  // Số thẻ hiện trọn trong một khung nhìn; đổi theo breakpoint ở cuối file.
+  // Thẻ lấy bề ngang từ con số này nên không bao giờ có thẻ bị cắt ở mép.
+  --topic-per-view: 6;
+  --topic-gap: 1rem;
+
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding-top: 2.5rem;
+  padding: 2rem 0;
 }
 
+// Tiêu đề ở giữa, hai vạch nhấn đối xứng hai bên.
 .topic-rail__head {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-
-.topic-rail__intro {
-  min-width: 0;
-  flex: 1;
-}
-
-// Cùng kiểu tiêu đề với .post-list-heading và khối bài nổi bật.
-.topic-rail__title {
-  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
+}
+
+.topic-rail__title {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.15px;
   color: var(--color-text);
+  text-align: center;
 }
 
-// Vạch nhấn ngắn thay vì kéo hết chiều ngang: hàng tiêu đề còn chỗ cho liên
-// kết "xem tất cả" bên phải.
 .topic-rail__title-line {
-  width: 44px;
+  width: 48px;
   height: 2px;
   flex-shrink: 0;
   border-radius: 999px;
   background: var(--color-accent);
-}
-
-.topic-rail__subtitle {
-  margin: 0.4rem 0 0;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-
-.topic-rail__all {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0.35rem;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-accent);
-  text-decoration: none;
-
-  svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s ease;
-  }
-
-  &:hover svg {
-    transform: translateX(3px);
-  }
 }
 
 .topic-rail__slider {
@@ -87,6 +56,8 @@
   flex: 1;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  // Snap tính theo mép nội dung chứ không theo mép padding bên dưới.
+  scroll-padding-inline: 0.5rem;
   scrollbar-width: none;
   -ms-overflow-style: none;
   // Thẻ có bóng đổ, cắt sát mép viewport sẽ mất bóng - chừa đệm rồi bù lại
@@ -99,9 +70,16 @@
   }
 }
 
+// Mỗi cột rộng đúng 1/N khung (trừ khe): N thẻ lấp kín khung, thẻ thứ N+1 bắt
+// đầu ngay sau mép phải, không có thẻ nào lộ một nửa.
 .topic-rail__track {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(
+    (100% - (var(--topic-per-view) - 1) * var(--topic-gap)) /
+      var(--topic-per-view)
+  );
+  gap: var(--topic-gap);
 }
 
 .topic-rail__track--skeleton {
@@ -111,8 +89,7 @@
 // Vỏ thẻ lấy nguyên .post-card của danh sách bài viết.
 .topic-chip {
   display: flex;
-  min-width: 190px;
-  flex: 0 0 auto;
+  min-width: 0;
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
@@ -200,10 +177,12 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-border);
+  padding: 0;
+  // Chỉ còn mũi tên; nền tròn hiện ra khi hover để báo là bấm được.
+  border: none;
   border-radius: 50%;
-  background: var(--color-bg-card);
-  color: var(--color-text);
+  background: transparent;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -211,19 +190,24 @@
     opacity 0.2s ease;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
-  &:hover:not(:disabled) {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #fff;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   &:disabled {
     cursor: default;
-    opacity: 0.35;
+    opacity: 0.3;
   }
 }
 
@@ -237,11 +221,51 @@
   }
 }
 
+// Số thẻ mỗi khung chọn sao cho thẻ không hẹp dưới ~165px: dưới mức đó tên
+// danh mục 2 chữ đã bị cắt bằng dấu "...".
+@media (max-width: 1439px) {
+  .topic-rail {
+    --topic-per-view: 5;
+  }
+}
+
+@media (max-width: 1199px) {
+  .topic-rail {
+    --topic-per-view: 4;
+  }
+}
+
+@media (max-width: 899px) {
+  .topic-rail {
+    --topic-per-view: 3;
+  }
+}
+
 @media (max-width: 767px) {
-  .topic-rail__head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .topic-rail {
+    --topic-gap: 0.75rem;
+
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .topic-rail__title {
+    font-size: 1.1rem;
+  }
+
+  .topic-rail__title-line {
+    width: 28px;
+  }
+
+  .topic-chip {
+    gap: 0.6rem;
+    padding: 0.75rem 0.8rem;
+  }
+
+  .topic-chip__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
   }
 
   // Trên cảm ứng vuốt là đủ, hai nút chỉ chiếm chỗ của thẻ.
@@ -250,9 +274,14 @@
   }
 }
 
+@media (max-width: 599px) {
+  .topic-rail {
+    --topic-per-view: 2;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .topic-chip,
-  .topic-rail__all svg,
   .topic-rail__nav {
     transition: none;
   }

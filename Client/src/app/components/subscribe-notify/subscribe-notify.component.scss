@@ -10,24 +10,48 @@
   position: relative;
   overflow: hidden;
   border-radius: 28px;
-  background-color: #f1f0fd;
-  background-image: url('/assets/images/bg_sub_mail.png');
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: cover;
+  // Nền mặc định (dưới 1100px) là dải màu cùng tông với ảnh; ảnh chỉ bật ở
+  // màn rộng, xem media query bên dưới.
+  background: linear-gradient(135deg, #f4f2ff 0%, #eae7fd 100%);
 }
 
 .newsletter__body {
   display: grid;
   align-items: center;
-  gap: 1.5rem 2rem;
-  // Cột trống đầu tiên là chỗ của minh hoạ trong ảnh nền.
-  grid-template-columns: 200px minmax(0, 1fr) minmax(0, 380px);
-  padding: 2.5rem 2.5rem 2.5rem 0;
+  gap: 1.25rem 2.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  padding: 2rem 2.25rem;
 }
 
 .newsletter__intro {
   min-width: 0;
+}
+
+/*
+ * Màn rộng: ảnh đã cắt sát khung (bg_sub_mail_card.png, tỉ lệ ~5.3:1) phủ cả
+ * card, phong bì chiếm khoảng 25% bề ngang bên trái. Cột đầu chừa đúng 25% đó;
+ * min-height giữ card không thấp hơn ~1/5.3 bề ngang, nếu không cover sẽ cắt
+ * mất đáy phong bì.
+ */
+@media (min-width: 1100px) {
+  .newsletter {
+    background: #f1f0fd url('/assets/images/bg_sub_mail_card.png') no-repeat
+      left center / cover;
+  }
+
+  .newsletter__body {
+    min-height: 230px;
+    grid-template-columns: 25% minmax(0, 1fr) minmax(300px, 400px);
+    padding: 2rem 2.5rem 2rem 0;
+  }
+
+  .newsletter__intro {
+    grid-column: 2;
+  }
+
+  .newsletter__action {
+    grid-column: 3;
+  }
 }
 
 .newsletter__title {
@@ -180,22 +204,10 @@
 
 // Dưới 1100px chữ và ô nhập chen nhau; xếp ô nhập xuống dưới, vẫn chừa dải
 // minh hoạ bên trái.
-@media (max-width: 1100px) {
-  .newsletter__body {
-    grid-template-columns: 170px minmax(0, 1fr);
-    padding: 2rem 2rem 2rem 0;
-  }
-
-  .newsletter__action {
-    grid-column: 2;
-  }
-}
-
-// Trên điện thoại khung quá hẹp để minh hoạ nằm cạnh chữ, mà thu nhỏ ảnh lại
-// thì phong bì bị cắt mất một nửa. Bỏ hẳn ảnh, giữ đúng dải màu của nó.
+// Điện thoại: chữ và ô nhập xếp chồng, ô nhập chiếm trọn bề ngang.
 @media (max-width: 767px) {
   .newsletter {
-    background-image: linear-gradient(135deg, #f4f2ff 0%, #eae7fd 100%);
+    border-radius: 22px;
   }
 
   .newsletter__body {
@@ -203,17 +215,83 @@
     padding: 1.75rem 1.25rem;
   }
 
-  .newsletter__action {
-    grid-column: 1;
-  }
-
   .newsletter__subtitle {
     max-width: none;
+  }
+}
+
+// Màn rất hẹp: nút Đăng ký nằm cạnh ô nhập sẽ bóp ô nhập chỉ còn vài chữ.
+@media (max-width: 400px) {
+  .newsletter__form {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.4rem;
+    border-radius: 20px;
+  }
+
+  .newsletter__btn {
+    width: 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .newsletter__btn {
     transition: none;
+  }
+}
+
+/*
+ * Dark mode. Ảnh minh hoạ nền sáng, đặt nguyên lên trang tối sẽ thành một mảng
+ * trắng chói. Giữ ảnh ở dải trái (chỗ phong bì) rồi phủ dần sang màu card tối,
+ * phần chữ và form nằm trên nền tối hoàn toàn.
+ * (data-theme nằm trên <html> nên dùng :host-context để bắt)
+ */
+:host-context(html[data-theme='dark']) {
+  .newsletter {
+    background: linear-gradient(135deg, #221f3d 0%, #191927 100%);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+  }
+
+  .newsletter__title,
+  .newsletter__success-title {
+    color: var(--color-text);
+  }
+
+  .newsletter__subtitle,
+  .newsletter__promise,
+  .newsletter__success-text {
+    color: var(--color-text-muted);
+  }
+
+  .newsletter__form {
+    border-color: var(--color-border);
+    background: var(--color-control-bg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .newsletter__input {
+    color: var(--color-text);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+
+  .newsletter__error {
+    color: #ff8a80;
+  }
+}
+
+@media (min-width: 1100px) {
+  :host-context(html[data-theme='dark']) .newsletter {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(25, 25, 39, 0.25) 0%,
+        rgba(25, 25, 39, 0.55) 20%,
+        rgba(25, 25, 39, 0.96) 34%,
+        #191927 100%
+      ),
+      url('/assets/images/bg_sub_mail_card.png') no-repeat left center / cover;
   }
 }

@@ -2,36 +2,16 @@
      gì để khám phá - ẩn cả khối thay vì hiện dải trống. -->
 <section class="topic-rail" *ngIf="isLoading || categories.length > 0">
   <header class="topic-rail__head">
-    <div class="topic-rail__intro">
-      <p class="topic-rail__title">
-        <span>{{ 'T_EXPLOREBYTOPIC' | translate }}</span>
-        <span class="topic-rail__title-line"></span>
-      </p>
-      <p class="topic-rail__subtitle">
-        {{ 'T_EXPLOREBYTOPICDESC' | translate }}
-      </p>
-    </div>
-
-    <a class="topic-rail__all" routerLink="/news">
-      {{ 'T_VIEWALLTOPICS' | translate }}
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-      </svg>
-    </a>
+    <span class="topic-rail__title-line" aria-hidden="true"></span>
+    <h2 class="topic-rail__title">{{ 'T_EXPLOREBYTOPIC' | translate }}</h2>
+    <span class="topic-rail__title-line" aria-hidden="true"></span>
   </header>
 
   <!-- Loading skeleton -->
   <div class="topic-rail__track topic-rail__track--skeleton" *ngIf="isLoading">
     <div
       class="topic-chip topic-chip--skeleton"
-      *ngFor="let i of [1, 2, 3, 4, 5]"></div>
+      *ngFor="let i of [1, 2, 3, 4, 5, 6]"></div>
   </div>
 
   <!-- Danh mục có thể khá dài nên dải này cuộn ngang: hai nút điều hướng trên
