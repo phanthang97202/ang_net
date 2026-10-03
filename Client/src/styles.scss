@@ -899,7 +899,40 @@ html.cdk-global-scrollblock {
   }
 }
 
-// Dashboard design system: scoped to the authenticated admin shell.
+// Dashboard design system. Token khai ở :root chứ không khai trong .admin-ui:
+// modal/dropdown của ng-zorro render qua CDK overlay, nằm ngoài cây .admin-ui
+// nên nếu token chỉ sống trong đó thì mọi var() trong popup đều rỗng.
+:root {
+  --admin-bg: #f4f7fb;
+  --admin-surface: #ffffff;
+  --admin-surface-subtle: #f8fafc;
+  --admin-sidebar: #14213a;
+  --admin-sidebar-hover: #1d2d4c;
+  --admin-text: #172033;
+  --admin-text-secondary: #667085;
+  --admin-text-tertiary: #667085;
+  --admin-border: #e2e8f0;
+  --admin-border-strong: #cbd5e1;
+  --admin-primary: #0969da;
+  --admin-primary-hover: #0757b8;
+  --admin-primary-soft: #eaf4ff;
+  --admin-danger: #dc2626;
+  --admin-success: #15803d;
+  --admin-warning: #b45309;
+  --admin-focus: rgba(22, 119, 255, 0.22);
+  --admin-radius-sm: 6px;
+  --admin-radius-md: 10px;
+  --admin-radius-lg: 12px;
+  --admin-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --admin-shadow-card: 0 8px 24px rgba(15, 23, 42, 0.05);
+  --admin-shadow-floating: 0 18px 48px rgba(15, 23, 42, 0.18);
+  --admin-control-height: 40px;
+  --admin-page-max: 1600px;
+  --admin-sidebar-width: 68px;
+  --admin-topbar-height: 68px;
+}
+
+// Scoped to the authenticated admin shell.
 .admin-ui {
   --admin-bg: #f4f7fb;
   --admin-surface: #ffffff;
@@ -1228,5 +1261,193 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
       max-height: none;
       padding: 14px;
     }
+  }
+}
+
+// Popup của dashboard. Modal render qua CDK overlay nên không nằm trong
+// .admin-ui; các màn admin bật style này bằng nzClassName="admin-modal".
+.admin-modal {
+  .ant-modal-content {
+    overflow: hidden;
+    border-radius: var(--admin-radius-lg);
+    box-shadow: var(--admin-shadow-floating);
+  }
+
+  .ant-modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+  }
+
+  .ant-modal-title {
+    color: var(--admin-text);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .ant-modal-close {
+    top: 10px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .ant-modal-close-x {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 8px;
+    color: var(--admin-text-secondary);
+    font-size: 15px;
+    line-height: 1;
+    transition:
+      background 0.16s ease,
+      color 0.16s ease;
+  }
+
+  .ant-modal-close:hover .ant-modal-close-x {
+    background: var(--admin-surface-subtle);
+    color: var(--admin-text);
+  }
+
+  .ant-modal-close:focus-visible .ant-modal-close-x {
+    outline: 2px solid var(--admin-primary);
+    outline-offset: 2px;
+  }
+
+  .ant-modal-body {
+    padding: 22px 24px;
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    max-height: calc(100vh - 220px);
+    overflow: auto;
+  }
+
+  .ant-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+  }
+
+  // ng-zorro đặt margin-left giữa các nút footer; đã có gap nên bỏ đi.
+  .ant-modal-footer .ant-btn + .ant-btn {
+    margin-bottom: 0;
+    margin-left: 0;
+  }
+
+  .ant-modal-footer .ant-btn {
+    height: var(--admin-control-height);
+    padding-inline: 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  .ant-modal-footer .ant-btn-primary {
+    border-color: var(--admin-primary);
+    background: var(--admin-primary);
+  }
+
+  .ant-modal-footer .ant-btn-primary:hover,
+  .ant-modal-footer .ant-btn-primary:focus {
+    border-color: var(--admin-primary-hover);
+    background: var(--admin-primary-hover);
+  }
+
+  // Form bên trong popup dùng chung thước đo với form ngoài trang.
+  .ant-form-vertical .ant-form-item-label {
+    padding: 0 0 7px;
+  }
+
+  .ant-form-vertical .ant-form-item-label > label {
+    height: auto;
+    color: var(--admin-text);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .ant-form-item {
+    margin-bottom: 18px;
+  }
+
+  .ant-form-item-explain,
+  .ant-form-item-extra {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-picker,
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-tree-select:not(.ant-select-customize-input) .ant-select-selector {
+    min-height: var(--admin-control-height);
+    border-color: var(--admin-border-strong);
+    border-radius: 8px;
+    color: var(--admin-text);
+    background: var(--admin-surface);
+    box-shadow: none;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: var(--admin-control-height);
+  }
+
+  .ant-select-single .ant-select-selector .ant-select-selection-item,
+  .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    line-height: 38px;
+  }
+
+  .ant-input:hover,
+  .ant-input-affix-wrapper:hover,
+  .ant-input-number:hover,
+  .ant-picker:hover,
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: var(--admin-primary);
+  }
+
+  .ant-input:focus,
+  .ant-input-focused,
+  .ant-input-affix-wrapper-focused,
+  .ant-input-number-focused,
+  .ant-picker-focused,
+  .ant-select-focused:not(.ant-select-disabled).ant-select:not(
+      .ant-select-customize-input
+    )
+    .ant-select-selector {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-focus);
+  }
+
+  .ant-btn {
+    border-radius: 8px;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-modal {
+    .ant-modal-header,
+    .ant-modal-body,
+    .ant-modal-footer {
+      padding-inline: 16px;
+    }
+
+    .ant-modal-footer .ant-btn {
+      flex: 1 1 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-modal .ant-modal-close-x {
+    transition: none;
   }
 }

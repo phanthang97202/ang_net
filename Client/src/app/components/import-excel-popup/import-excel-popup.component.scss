@@ -1,7 +1,68 @@
-::ng-deep .importexcel__container {
-    z-index: 10000000000 !important;
+:host {
+  display: contents;
 }
+
+// Modal này mở từ trang danh sách tỉnh thành, phải nằm trên mọi overlay khác.
+::ng-deep .importexcel {
+  z-index: 10000000000 !important;
+}
+
+.importexcel__dropzone-icon {
+  margin: 0 0 8px;
+  color: var(--admin-success);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.importexcel__dropzone-title {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.importexcel__dropzone-hint {
+  margin: 4px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
 .importexcel__footer {
-    display: flex;
-    justify-content: space-between;;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.importexcel__footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.importexcel__template {
+  padding-inline: 0;
+  color: var(--admin-primary);
+  font-weight: 600;
+}
+
+::ng-deep .importexcel .ant-upload.ant-upload-drag {
+  border: 1px dashed var(--admin-border-strong);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface);
+  transition: border-color 0.16s ease;
+}
+
+::ng-deep .importexcel .ant-upload.ant-upload-drag:hover {
+  border-color: var(--admin-primary);
+}
+
+::ng-deep .importexcel .ant-upload.ant-upload-drag .ant-upload-btn {
+  padding: 28px 16px;
+}
+
+::ng-deep .importexcel .ant-upload-list-item {
+  margin-top: 10px;
+  border-radius: var(--admin-radius-sm);
 }

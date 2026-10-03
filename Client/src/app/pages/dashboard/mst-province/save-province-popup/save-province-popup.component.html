@@ -1,57 +1,52 @@
 <nz-modal
+  nzClassName="admin-modal province-modal"
   [nzVisible]="isOpenPopup"
-  [nzTitle]="titlePopup"
+  [nzTitle]="titlePopup === 'Create' ? 'Thêm tỉnh thành' : 'Sửa tỉnh thành'"
+  [nzWidth]="560"
+  nzOkText="Lưu"
+  nzCancelText="Hủy"
   (nzOnOk)="handleSave()"
   (nzOnCancel)="handleCancel()">
-  <form *nzModalContent nz-form [formGroup]="validateForm">
-    <nz-form-item>
-      <nz-form-label
-        [nzLabelAlign]="'left'"
-        [nzNoColon]="true"
-        [nzSm]="6"
-        [nzXs]="24"
-        nzRequired
-        >ProvinceCode</nz-form-label
-      >
-      <nz-form-control [nzSm]="18" [nzXs]="24">
-        <input nz-input formControlName="ProvinceCode" id="ProvinceCode" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label
-        [nzLabelAlign]="'left'"
-        [nzNoColon]="true"
-        [nzSm]="6"
-        [nzXs]="24"
-        nzRequired
-        >ProvinceName</nz-form-label
-      >
-      <nz-form-control [nzSm]="18" [nzXs]="24">
-        <input nz-input formControlName="ProvinceName" id="ProvinceName" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label
-        [nzLabelAlign]="'left'"
-        [nzNoColon]="true"
-        [nzSm]="6"
-        [nzXs]="24"
-        nzRequired
-        >FlagActive</nz-form-label
-      >
-      <nz-form-control [nzSm]="18" [nzXs]="24">
-        <nz-switch
-          formControlName="FlagActive"
-          id="FlagActive"
-          [nzCheckedChildren]="checkedTemplate"
-          [nzUnCheckedChildren]="unCheckedTemplate"></nz-switch>
-        <ng-template #checkedTemplate
-          ><span nz-icon nzType="check"></span
-        ></ng-template>
-        <ng-template #unCheckedTemplate
-          ><span nz-icon nzType="close"></span
-        ></ng-template>
-      </nz-form-control>
-    </nz-form-item>
+  <form
+    *nzModalContent
+    class="province-form"
+    nz-form
+    [formGroup]="validateForm"
+    [nzLayout]="'vertical'">
+    <section class="province-form__section">
+      <nz-form-item>
+        <nz-form-label nzRequired [nzNoColon]="true" nzFor="ProvinceCode">
+          Mã tỉnh thành
+        </nz-form-label>
+        <nz-form-control>
+          <input
+            nz-input
+            id="ProvinceCode"
+            formControlName="ProvinceCode"
+            placeholder="Ví dụ: HN" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired [nzNoColon]="true" nzFor="ProvinceName">
+          Tên tỉnh thành
+        </nz-form-label>
+        <nz-form-control>
+          <input
+            nz-input
+            id="ProvinceName"
+            formControlName="ProvinceName"
+            placeholder="Ví dụ: Hà Nội" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <label class="province-form__switch">
+        <nz-switch formControlName="FlagActive" id="FlagActive"></nz-switch>
+        <span class="province-form__switch-text">
+          <strong>Hoạt động</strong>
+          <small>Tắt để ẩn tỉnh thành khỏi các danh sách chọn.</small>
+        </span>
+      </label>
+    </section>
   </form>
 </nz-modal>

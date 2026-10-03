@@ -1,0 +1,39 @@
+:host {
+  display: contents;
+}
+
+.province-form__section {
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface);
+}
+
+.province-form nz-form-item {
+  margin-bottom: 18px;
+}
+
+.province-form__switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.province-form__switch-text {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.province-form__switch-text strong {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.province-form__switch-text small {
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}

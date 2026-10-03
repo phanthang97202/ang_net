@@ -1,64 +1,65 @@
 <nz-modal
+  nzClassName="admin-modal category-modal"
   [nzVisible]="isOpenPopup"
-  [nzTitle]="titlePopup"
-  [nzWidth]="720"
+  [nzTitle]="titlePopup === 'Create' ? 'Tạo danh mục' : 'Cập nhật danh mục'"
+  [nzWidth]="760"
+  nzOkText="Lưu"
+  nzCancelText="Hủy"
   [nzOkLoading]="isUploadingLogo"
   (nzOnOk)="handleSave()"
   (nzOnCancel)="handleCancel()">
   <form
     *nzModalContent
+    class="category-form"
     nz-form
     [formGroup]="validateForm"
     [nzLayout]="'vertical'">
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzSpan]="12">
+    <section class="category-form__section" aria-labelledby="category-info">
+      <header class="category-form__section-header">
+        <h3 id="category-info">Thông tin danh mục</h3>
+        <p>Mã danh mục nằm trong đường dẫn bài viết nên đặt rồi thì nên giữ.</p>
+      </header>
+
+      <div class="category-form__grid">
         <nz-form-item>
           <nz-form-label nzRequired [nzNoColon]="true">
-            Category Code
+            Mã danh mục
           </nz-form-label>
-          <nz-form-control nzErrorTip="Category code is required!">
+          <nz-form-control nzErrorTip="Vui lòng nhập mã danh mục">
             <input
               nz-input
               formControlName="NewsCategoryId"
-              placeholder="VD: doi-song" />
+              placeholder="Ví dụ: doi-song" />
           </nz-form-control>
         </nz-form-item>
-      </div>
 
-      <div nz-col [nzSpan]="12">
         <nz-form-item>
           <nz-form-label nzRequired [nzNoColon]="true">
-            Vietnamese Name
+            Tên tiếng Việt
           </nz-form-label>
-          <nz-form-control nzErrorTip="Vietnamese name is required!">
+          <nz-form-control nzErrorTip="Vui lòng nhập tên tiếng Việt">
             <input
               nz-input
               formControlName="NewsCategoryName"
-              placeholder="VD: Đời sống" />
+              placeholder="Ví dụ: Đời sống" />
           </nz-form-control>
         </nz-form-item>
-      </div>
-    </div>
 
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzSpan]="12">
         <nz-form-item>
           <nz-form-label nzRequired [nzNoColon]="true">
-            English Name
+            Tên tiếng Anh
           </nz-form-label>
-          <nz-form-control nzErrorTip="English name is required!">
+          <nz-form-control nzErrorTip="Vui lòng nhập tên tiếng Anh">
             <input
               nz-input
               formControlName="NewsCategoryNameEn"
-              placeholder="E.g. Lifestyle" />
+              placeholder="Ví dụ: Lifestyle" />
           </nz-form-control>
         </nz-form-item>
-      </div>
 
-      <div nz-col [nzSpan]="12">
         <nz-form-item>
-          <nz-form-label [nzNoColon]="true">Parent Category</nz-form-label>
-          <nz-form-control>
+          <nz-form-label [nzNoColon]="true">Danh mục cha</nz-form-label>
+          <nz-form-control nzExtra="Để trống nếu đây là danh mục gốc.">
             <nz-select
               formControlName="NewsCategoryParentId"
               nzAllowClear
@@ -71,12 +72,17 @@
           </nz-form-control>
         </nz-form-item>
       </div>
-    </div>
+    </section>
 
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzSpan]="12">
+    <section class="category-form__section" aria-labelledby="category-display">
+      <header class="category-form__section-header">
+        <h3 id="category-display">Hiển thị</h3>
+        <p>Thứ tự nhỏ hơn đứng trước trong cùng một cấp.</p>
+      </header>
+
+      <div class="category-form__grid">
         <nz-form-item>
-          <nz-form-label [nzNoColon]="true">Sort Order</nz-form-label>
+          <nz-form-label [nzNoColon]="true">Thứ tự</nz-form-label>
           <nz-form-control>
             <input
               nz-input
@@ -85,62 +91,66 @@
               placeholder="0" />
           </nz-form-control>
         </nz-form-item>
-      </div>
 
-      <div nz-col [nzSpan]="12">
         <nz-form-item>
-          <nz-form-label [nzNoColon]="true">Category Logo</nz-form-label>
-          <nz-form-control>
-            <div class="category-logo-editor">
-              <img
-                *ngIf="logoUrl"
-                class="category-logo-preview"
-                [src]="logoUrl"
-                alt="Category logo preview" />
-              <nz-upload
-                nzAccept="image/*"
-                [nzShowUploadList]="false"
-                [nzBeforeUpload]="handleUploadLogo">
-                <button nz-button type="button" [disabled]="isUploadingLogo">
-                  <span
-                    nz-icon
-                    [nzType]="isUploadingLogo ? 'loading' : 'upload'"></span>
-                  {{ logoUrl ? 'Replace logo' : 'Upload logo' }}
+          <nz-form-label [nzNoColon]="true">Logo danh mục</nz-form-label>
+          <nz-form-control nzExtra="Ảnh bất kỳ, tối đa 5 MB.">
+            <div class="category-form__logo">
+              <span class="category-form__logo-preview" aria-hidden="true">
+                <img
+                  *ngIf="logoUrl; else logoPlaceholder"
+                  [src]="logoUrl"
+                  alt="" />
+                <ng-template #logoPlaceholder>
+                  <span nz-icon nzType="picture" nzTheme="outline"></span>
+                </ng-template>
+              </span>
+
+              <div class="category-form__logo-actions">
+                <nz-upload
+                  nzAccept="image/*"
+                  [nzShowUploadList]="false"
+                  [nzBeforeUpload]="handleUploadLogo">
+                  <button nz-button type="button" [disabled]="isUploadingLogo">
+                    <span
+                      nz-icon
+                      [nzType]="isUploadingLogo ? 'loading' : 'upload'"
+                      nzTheme="outline"></span>
+                    {{ logoUrl ? 'Đổi logo' : 'Tải logo lên' }}
+                  </button>
+                </nz-upload>
+                <button
+                  *ngIf="logoUrl"
+                  nz-button
+                  nzType="text"
+                  nzDanger
+                  type="button"
+                  (click)="handleRemoveLogo()">
+                  Gỡ logo
                 </button>
-              </nz-upload>
-              <button
-                *ngIf="logoUrl"
-                nz-button
-                nzDanger
-                type="button"
-                (click)="handleRemoveLogo()">
-                Remove
-              </button>
+              </div>
             </div>
-            <div class="category-logo-hint">Image file, maximum 5 MB.</div>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-    </div>
-
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzSpan]="12">
-        <nz-form-item>
-          <nz-form-label [nzNoColon]="true">Global</nz-form-label>
-          <nz-form-control>
-            <nz-switch formControlName="IsGlobal"></nz-switch>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col [nzSpan]="12">
-        <nz-form-item>
-          <nz-form-label [nzNoColon]="true">Active</nz-form-label>
-          <nz-form-control>
-            <nz-switch formControlName="FlagActive"></nz-switch>
-          </nz-form-control>
-        </nz-form-item>
+      <div class="category-form__switches">
+        <label class="category-form__switch">
+          <nz-switch formControlName="IsGlobal"></nz-switch>
+          <span class="category-form__switch-text">
+            <strong>Toàn cục</strong>
+            <small>Hiện ở mọi ngôn ngữ, không giới hạn theo vùng.</small>
+          </span>
+        </label>
+
+        <label class="category-form__switch">
+          <nz-switch formControlName="FlagActive"></nz-switch>
+          <span class="category-form__switch-text">
+            <strong>Hoạt động</strong>
+            <small>Tắt để ẩn danh mục khỏi trang công khai.</small>
+          </span>
+        </label>
       </div>
-    </div>
+    </section>
   </form>
 </nz-modal>

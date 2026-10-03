@@ -1,21 +1,128 @@
-.category-logo-editor {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+:host {
+  display: contents;
 }
 
-.category-logo-preview {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
-  border: 1px solid #d9d9d9;
-  border-radius: 50%;
+.category-form {
+  display: grid;
+  gap: 16px;
+}
+
+.category-form__section {
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface);
+}
+
+.category-form__section-header {
+  margin-bottom: 16px;
+}
+
+.category-form__section-header h3 {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.category-form__section-header p {
+  margin: 3px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.category-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.category-form nz-form-item {
+  min-width: 0;
+  margin: 0;
+}
+
+.category-form__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-form__logo-preview {
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface-subtle);
+  color: var(--admin-text-tertiary);
+  font-size: 18px;
+}
+
+.category-form__logo-preview img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.category-logo-hint {
-  margin-top: 0.35rem;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
+.category-form__logo-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-form__logo-actions button {
+  height: 36px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+/* Công tắc kèm nhãn và một dòng giải thích hậu quả, thay cho nhãn trống trơn. */
+.category-form__switches {
+  display: grid;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.category-form__switch {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.category-form__switch-text {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.category-form__switch-text strong {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.category-form__switch-text small {
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 767px) {
+  .category-form__grid,
+  .category-form__switches {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

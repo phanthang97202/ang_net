@@ -1,35 +1,50 @@
 <nz-modal
-  class="importexcel__container"
+  nzClassName="admin-modal importexcel"
   [nzVisible]="isOpenPopup"
-  nzTitle="Import excel"
+  nzTitle="Nhập dữ liệu từ Excel"
+  [nzWidth]="560"
   (nzOnCancel)="handleCancel()">
-  <div *nzModalContent>
-    <div class="text-center">
-      <nz-upload
-        nzListType="picture"
-        nzAccept=".xlsx"
-        nzMultiple="false"
-        [(nzFileList)]="fileList">
-        <app-button-common
-          *ngIf="fileList.length === 0"
-          [text]="'Import .xlsx file'"
-          [iconType]="'upload'"
-          [iconTheme]="'outline'"
-          [nzType]="'dashed'"></app-button-common>
-      </nz-upload>
-    </div>
+  <div *nzModalContent class="importexcel__body">
+    <nz-upload
+      class="importexcel__dropzone"
+      nzType="drag"
+      nzAccept=".xlsx"
+      nzMultiple="false"
+      [(nzFileList)]="fileList">
+      <p class="importexcel__dropzone-icon">
+        <span nz-icon nzType="file-excel" nzTheme="outline"></span>
+      </p>
+      <p class="importexcel__dropzone-title">
+        Kéo thả tệp vào đây hoặc bấm để chọn
+      </p>
+      <p class="importexcel__dropzone-hint">
+        Chỉ nhận một tệp .xlsx. Tải tệp mẫu bên dưới nếu chưa có.
+      </p>
+    </nz-upload>
   </div>
 
   <div class="importexcel__footer" *nzModalFooter>
-    <app-button-common
-      [class]="'underline'"
-      [text]="'Download template'"
-      [iconType]="'download'"
-      [iconTheme]="'outline'"
-      [nzType]="'link'"
-      (_onClick)="handleExportTemplateFile($event)"></app-button-common>
-    <app-button-common
-      [text]="'Upload'"
-      (_onClick)="handleUploadFile($event)"></app-button-common>
+    <button
+      nz-button
+      nzType="link"
+      type="button"
+      class="importexcel__template"
+      (click)="handleExportTemplateFile($event)">
+      <span nz-icon nzType="download" nzTheme="outline"></span>
+      Tải tệp mẫu
+    </button>
+
+    <div class="importexcel__footer-actions">
+      <button nz-button type="button" (click)="handleCancel()">Hủy</button>
+      <button
+        nz-button
+        nzType="primary"
+        type="button"
+        [disabled]="!fileList.length"
+        (click)="handleUploadFile($event)">
+        <span nz-icon nzType="upload" nzTheme="outline"></span>
+        Nhập dữ liệu
+      </button>
+    </div>
   </div>
 </nz-modal>
