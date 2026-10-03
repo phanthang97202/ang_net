@@ -1,8 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder } from '@angular/forms';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import {
   IEmailDeliveryItem,
   IEmailDeliverySummary,
@@ -20,13 +18,7 @@ type TStatusFilter = '' | TEmailDeliveryStatus;
 @Component({
   selector: 'app-email-report',
   standalone: true,
-  imports: [
-    AntdModule,
-    NzCardModule,
-    NzStatisticModule,
-    ...REUSE_COMPONENT_MODULES,
-    ...REUSE_PIPE_MODULE,
-  ],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
   templateUrl: './email-report.component.html',
   styleUrls: ['./email-report.component.scss'],
 })
@@ -53,6 +45,15 @@ export class EmailReportComponent implements OnInit {
     Keyword: this.fb.control(''),
     Status: this.fb.control<TStatusFilter>(''),
   });
+
+  // Màn này không tạo dữ liệu, hành động chính của trang là tải lại báo cáo.
+  listButtonsHeader = [
+    {
+      text: 'Làm mới',
+      iconType: 'sync',
+      onClick: () => this.fetchData(),
+    },
+  ];
 
   ngOnInit(): void {
     this.fetchData();
@@ -99,14 +100,25 @@ export class EmailReportComponent implements OnInit {
     return labels[status];
   }
 
-  statusColor(status: TEmailDeliveryStatus): string {
-    const colors: Record<TEmailDeliveryStatus, string> = {
-      Pending: 'gold',
-      Succeeded: 'green',
-      Failed: 'red',
-      Skipped: 'default',
+  /** Hậu tố class cho thẻ trạng thái, thay cho nzColor mặc định của ng-zorro. */
+  statusModifier(status: TEmailDeliveryStatus): string {
+    const modifiers: Record<TEmailDeliveryStatus, string> = {
+      Pending: 'pending',
+      Succeeded: 'success',
+      Failed: 'failed',
+      Skipped: 'skipped',
     };
-    return colors[status];
+    return modifiers[status];
+  }
+
+  statusIcon(status: TEmailDeliveryStatus): string {
+    const icons: Record<TEmailDeliveryStatus, string> = {
+      Pending: 'clock-circle',
+      Succeeded: 'check-circle',
+      Failed: 'close-circle',
+      Skipped: 'minus-circle',
+    };
+    return icons[status];
   }
 
   fetchData(): void {
