@@ -4,6 +4,7 @@ using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using angnet.Infrastructure.Data.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace angnet.Infrastructure.Data.Services
 {
@@ -260,6 +261,103 @@ namespace angnet.Infrastructure.Data.Services
             // save logging
             string action = flagActive ? "bật" : "tắt";
             await WriteAuditAsync(menuId, $"Đã {action} menu {menuId} ({existing.TitleVi})", oldSnapshot);
+
+            return apiResponse;
+        }
+
+        /// <summary>
+        /// Dời một mục menu lên/xuống một bậc TRONG CÙNG CẤP, rồi đánh lại SortOrder
+        /// của cả nhóm thành 0..n-1.
+        ///
+        /// Đánh lại cả nhóm chứ không hoán đổi hai giá trị: dữ liệu đang có nhóm
+        /// trùng số và nhóm thưa số, hoán đổi hai số bằng nhau thì bấm mũi tên
+        /// không có tác dụng gì. Lần dời đầu tiên sẽ chuẩn hoá luôn nhóm đó.
+        ///
+        /// Mục KHÔNG đổi cha ở đây: menu con chỉ đổi chỗ với menu con cùng cha, menu
+        /// cấp 1 chỉ đổi chỗ với menu cấp 1.
+        /// </summary>
+        public async Task<ApiResponse<SysMenuSaveDto>> Reorder(SysMenuReorderDto data)
+        {
+            ApiResponse<SysMenuSaveDto> apiResponse = new ApiResponse<SysMenuSaveDto>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
+
+            // Phân quyền do controller lo: [Authorize(Policy = "sysparameter.update")].
+
+            if (data is null || TCommonUtils.IsNullOrEmpty(data.MenuId))
+            {
+                apiResponse.CatchException(false, "SysMenu_Reorder.MenuIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            string direction = (data.Direction ?? string.Empty).Trim().ToLower();
+            if (direction != "up" && direction != "down")
+            {
+                apiResponse.CatchException(false, "SysMenu_Reorder.DirectionIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            List<SysMenuModel> allMenus = await _dbContext.SysMenu.ToListAsync();
+
+            SysMenuModel current = allMenus.FirstOrDefault(m => m.MenuId == data.MenuId);
+            if (current is null)
+            {
+                apiResponse.CatchException(false, "SysMenu_Reorder.MenuIsNotExist", requestClient);
+                return apiResponse;
+            }
+
+            // Anh em = cùng ParentId. Lấy cả mục đang tắt vì bảng quản trị hiện cả
+            // hai loại; bỏ qua mục tắt thì thứ tự nhìn thấy sẽ nhảy cóc.
+            //
+            // Thứ tự so sánh giống hệt SysMenuRespository.OrderedQuery (SortOrder rồi
+            // tới MenuId), nếu không thì vị trí server tính sẽ lệch với bảng.
+            // So sánh qua NormalizeParentId: Create/Update đã đổi chuỗi rỗng thành
+            // null, nhưng bản ghi cũ trong DB vẫn có thể mang "" - để nguyên thì một
+            // menu cấp 1 lại không cùng nhóm với các menu cấp 1 khác.
+            string? currentParentId = NormalizeParentId(current.ParentId);
+
+            List<SysMenuModel> siblings = allMenus
+                    .Where(m => NormalizeParentId(m.ParentId) == currentParentId)
+                    .OrderBy(m => m.SortOrder)
+                    .ThenBy(m => m.MenuId, StringComparer.Ordinal)
+                    .ToList();
+
+            int currentPosition = siblings.FindIndex(m => m.MenuId == current.MenuId);
+            int targetPosition = direction == "up" ? currentPosition - 1 : currentPosition + 1;
+
+            if (currentPosition < 0 || targetPosition < 0 || targetPosition >= siblings.Count)
+            {
+                apiResponse.CatchException(false, "SysMenu_Reorder.AlreadyAtEdgeOfItsLevel", requestClient);
+                return apiResponse;
+            }
+
+            object oldSnapshot = SnapshotOf(current);
+            SysMenuModel neighbour = siblings[targetPosition];
+
+            siblings.RemoveAt(currentPosition);
+            siblings.Insert(targetPosition, current);
+
+            DateTime now = TCommonUtils.DTimeNow();
+            for (int position = 0; position < siblings.Count; position++)
+            {
+                SysMenuModel sibling = siblings[position];
+                if (sibling.SortOrder == position)
+                {
+                    continue;
+                }
+
+                sibling.SortOrder = position;
+                sibling.UpdatedDTime = now;
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            // save logging
+            string movement = direction == "up" ? "lên trước" : "xuống sau";
+            await WriteAuditAsync(
+                current.MenuId,
+                $"Đã dời menu {current.MenuId} ({current.TitleVi}) {movement} {neighbour.MenuId} ({neighbour.TitleVi})",
+                oldSnapshot);
 
             return apiResponse;
         }

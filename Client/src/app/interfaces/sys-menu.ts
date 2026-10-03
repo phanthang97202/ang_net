@@ -31,3 +31,9 @@ export interface ISysMenuTreeResponse extends IBaseResponse<ISysMenuTree> {
 export interface ISysMenuSaveResponse extends IBaseResponse<ISysMenuSave> {
   Data: ISysMenuSave;
 }
+
+/** Dời một mục menu lên/xuống một bậc trong cùng cấp. */
+export interface ISysMenuReorderRequest {
+  MenuId: string;
+  Direction: 'up' | 'down';
+}

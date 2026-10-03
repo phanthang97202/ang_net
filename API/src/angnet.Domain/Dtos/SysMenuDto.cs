@@ -13,6 +13,20 @@ namespace angnet.Domain.Dtos
         public List<SysMenuTreeDto> Children { get; set; } = new List<SysMenuTreeDto>();
     }
 
+    /// <summary>
+    /// Yêu cầu dời một mục menu lên/xuống một bậc.
+    ///
+    /// Client chỉ nói hướng dời; SortOrder mới của cả nhóm do server tính, vì thứ
+    /// tự là của cả cấp chứ không của riêng một dòng.
+    /// </summary>
+    public class SysMenuReorderDto
+    {
+        public string MenuId { get; set; } = string.Empty;
+
+        /// <summary>"up" hoặc "down".</summary>
+        public string Direction { get; set; } = string.Empty;
+    }
+
     /// <summary>Dữ liệu tạo/sửa một mục menu.</summary>
     public class SysMenuSaveDto
     {

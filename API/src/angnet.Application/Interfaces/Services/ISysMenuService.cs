@@ -16,5 +16,8 @@ namespace angnet.Application.Interfaces.Services
 
         /// <summary>Bật/tắt nhanh một mục menu.</summary>
         Task<ApiResponse<SysMenuSaveDto>> ToggleActive(string menuId, bool flagActive);
+
+        /// <summary>Dời một mục lên/xuống một bậc trong cùng cấp.</summary>
+        Task<ApiResponse<SysMenuSaveDto>> Reorder(SysMenuReorderDto data);
     }
 }

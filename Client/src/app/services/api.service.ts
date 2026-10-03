@@ -27,6 +27,7 @@ import {
   IUpdateRolePermissionRequest,
   ISysMenuTreeResponse,
   ISysMenuSaveResponse,
+  ISysMenuReorderRequest,
   ISysMenuSave,
   IBaseResponse,
   IVisitStats,
@@ -608,6 +609,19 @@ export class ApiService {
         menuId
       )}&flagActive=${flagActive}`,
       {}
+    );
+  }
+
+  /**
+   * Dời một mục menu lên/xuống một bậc. Chỉ gửi hướng dời; SortOrder mới của cả
+   * cấp do server tính.
+   */
+  SysMenuReorder(
+    request: ISysMenuReorderRequest
+  ): Observable<ISysMenuSaveResponse> {
+    return this.http.patch<ISysMenuSaveResponse>(
+      `${this.apiUrl}SysMenu/Reorder`,
+      { ...request }
     );
   }
 

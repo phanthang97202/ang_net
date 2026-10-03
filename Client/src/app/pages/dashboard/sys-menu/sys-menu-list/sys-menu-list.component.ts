@@ -14,12 +14,18 @@ import {
 // AntdModule chỉ có ReactiveFormsModule, và không export NzEmpty. Bảng này dùng
 // [ngModel] cho switch bật/tắt (không nằm trong form nào) nên cần FormsModule.
 import { FormsModule } from '@angular/forms';
+// NzToolTipModule cũng không có trong hai module dùng chung; thiếu nó thì
+// nz-tooltip trên các nút icon im lặng không chạy.
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { SaveSysMenuPopupComponent } from '../save-sys-menu-popup/save-sys-menu-popup.component';
 
 /** Một dòng trong bảng phẳng, kèm cấp để thụt lề. */
 interface MenuRow extends ISysMenuTree {
   level: number;
   parentId: string;
+  /** Đầu/cuối trong CÙNG CẤP của nó, không phải đầu/cuối cả bảng. */
+  isFirstOfLevel: boolean;
+  isLastOfLevel: boolean;
 }
 
 @Component({
@@ -30,6 +36,7 @@ interface MenuRow extends ISysMenuTree {
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
     FormsModule,
+    NzToolTipModule,
     SaveSysMenuPopupComponent,
   ],
   templateUrl: './sys-menu-list.component.html',
@@ -44,6 +51,9 @@ export class SysMenuComponent implements OnInit {
   // Cây gốc giữ nguyên để popup dựng danh sách menu cha; bảng thì vẽ từ dạng phẳng.
   tree: ISysMenuTree[] = [];
   rows: MenuRow[] = [];
+
+  /** Mục đang chờ kết quả dời chỗ; rỗng là không có lệnh dời nào đang chạy. */
+  reorderingId = '';
 
   titlePopup: 'Create' | 'Update' = 'Create';
   formDataSource: ISysMenuSave = this.getDefaultFormData();
@@ -113,6 +123,34 @@ export class SysMenuComponent implements OnInit {
     });
   }
 
+  /**
+   * Dời một mục lên/xuống một bậc trong cùng cấp.
+   *
+   * Chỉ gửi hướng dời, không gửi SortOrder: số mới của cả cấp do server tính.
+   * reorderingId chặn bấm dồn - mỗi lần dời kéo theo một lần tải lại, bấm chồng
+   * lên nhau thì lệnh sau tính trên dữ liệu đã cũ.
+   */
+  handleMove(row: MenuRow, direction: 'up' | 'down'): void {
+    if (this.reorderingId) return;
+    if (direction === 'up' && row.isFirstOfLevel) return;
+    if (direction === 'down' && row.isLastOfLevel) return;
+
+    this.reorderingId = row.MenuId;
+    this.api
+      .SysMenuReorder({ MenuId: row.MenuId, Direction: direction })
+      .subscribe({
+        next: response => {
+          if (response?.Success) {
+            this.fetchData();
+          } else {
+            this.handleApiFail(response);
+          }
+        },
+        error: err => this.handleApiError(err),
+        complete: () => (this.reorderingId = ''),
+      });
+  }
+
   handleDelete(row: MenuRow): void {
     this.setLoading(true);
     this.api.SysMenuDelete(row.MenuId).subscribe({
@@ -155,10 +193,27 @@ export class SysMenuComponent implements OnInit {
   // bậc là đủ, mà lại giữ được một hàng nút thao tác thống nhất cho mọi dòng.
   private flatten(tree: ISysMenuTree[]): MenuRow[] {
     const rows: MenuRow[] = [];
-    for (const parent of tree) {
-      rows.push({ ...parent, level: 0, parentId: '' });
-      for (const child of parent.Children || []) {
-        rows.push({ ...child, level: 1, parentId: parent.MenuId });
+    for (let i = 0; i < tree.length; i++) {
+      const parent = tree[i];
+      rows.push({
+        ...parent,
+        level: 0,
+        parentId: '',
+        isFirstOfLevel: i === 0,
+        isLastOfLevel: i === tree.length - 1,
+      });
+
+      // Đầu/cuối tính trong nhóm con của chính menu cha này: mục con đầu tiên
+      // không dời lên để chui ra khỏi cha nó được.
+      const children = parent.Children || [];
+      for (let j = 0; j < children.length; j++) {
+        rows.push({
+          ...children[j],
+          level: 1,
+          parentId: parent.MenuId,
+          isFirstOfLevel: j === 0,
+          isLastOfLevel: j === children.length - 1,
+        });
       }
     }
     return rows;

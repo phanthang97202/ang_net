@@ -16,14 +16,14 @@
         [nzData]="rows"
         [nzFrontPagination]="false"
         [nzShowPagination]="false"
-        [nzScroll]="{ x: '960px' }"
+        [nzScroll]="{ x: '1020px' }"
         [nzNoResult]="emptyMenu">
         <thead>
           <tr>
             <th nzWidth="360px">Menu</th>
             <th nzWidth="230px">Đường dẫn</th>
             <th nzWidth="150px">Biểu tượng</th>
-            <th nzWidth="90px">Thứ tự</th>
+            <th nzWidth="150px">Thứ tự</th>
             <th nzWidth="130px">Hiển thị</th>
             <th nzRight nzWidth="96px" class="menu-list-page__action-heading">
               Thao tác
@@ -73,9 +73,38 @@
               </ng-template>
             </td>
             <td>
-              <span class="menu-list-page__sort-order">{{
-                row.SortOrder
-              }}</span>
+              <div class="menu-list-page__sort">
+                <span class="menu-list-page__sort-order">{{
+                  row.SortOrder
+                }}</span>
+                <!-- Dời chỗ trong cùng cấp; SortOrder do server tính lại. -->
+                <span class="menu-list-page__sort-move">
+                  <button
+                    nz-button
+                    nzType="text"
+                    type="button"
+                    class="menu-list-page__move"
+                    [disabled]="row.isFirstOfLevel || !!reorderingId"
+                    [attr.aria-label]="'Dời ' + row.TitleVi + ' lên một bậc'"
+                    nz-tooltip
+                    nzTooltipTitle="Dời lên một bậc"
+                    (click)="handleMove(row, 'up')">
+                    <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="text"
+                    type="button"
+                    class="menu-list-page__move"
+                    [disabled]="row.isLastOfLevel || !!reorderingId"
+                    [attr.aria-label]="'Dời ' + row.TitleVi + ' xuống một bậc'"
+                    nz-tooltip
+                    nzTooltipTitle="Dời xuống một bậc"
+                    (click)="handleMove(row, 'down')">
+                    <span nz-icon nzType="arrow-down" nzTheme="outline"></span>
+                  </button>
+                </span>
+              </div>
             </td>
             <td>
               <div class="menu-list-page__visibility">

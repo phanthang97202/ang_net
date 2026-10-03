@@ -111,6 +111,24 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        // Dời một bậc lên/xuống trong cùng cấp. Đi cùng quyền sửa vì nó ghi vào
+        // SortOrder giống hệt màn sửa menu.
+        [Authorize(Policy = "sysparameter.update")]
+        [EnableRateLimitingAttribute("API")]
+        [HttpPatch("Reorder")]
+        public async Task<IActionResult> Reorder([FromBody] SysMenuReorderDto reqData)
+        {
+            try
+            {
+                ApiResponse<SysMenuSaveDto> response = await _sysMenuService.Reorder(reqData);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         [Authorize(Policy = "sysparameter.delete")]
         [EnableRateLimitingAttribute("API")]
         [HttpDelete("Delete")]
