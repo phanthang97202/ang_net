@@ -189,7 +189,10 @@
 
 @media (max-width: 768px) {
   .hero {
-    min-height: 0;
+    // Giữ chiều cao banner ổn định giữa các slide. Trước đây min-height: 0
+    // khiến tiêu đề/mô tả dài đẩy toàn bộ nội dung phía dưới lên xuống.
+    height: 620px;
+    min-height: 620px;
     border-radius: 16px;
   }
 
@@ -202,9 +205,12 @@
   }
 
   .hero-content {
+    height: 100%;
     flex-direction: column;
     align-items: center;
-    padding: 2.5rem 1.5rem;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
   }
 
   .hero-dots {
@@ -212,13 +218,43 @@
   }
 
   .hero-text {
+    width: 100%;
     max-width: 100%;
     text-align: center;
+  }
+
+  .hero-text-inner {
+    display: flex;
+    min-height: 292px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-title {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: clamp(1.65rem, 7vw, 2rem);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .hero-subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
   }
 
   .hero-music {
     width: 100%;
     max-width: 280px;
     margin: 0 auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-content {
+    padding-right: 1rem;
+    padding-left: 1rem;
   }
 }
