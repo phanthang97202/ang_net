@@ -2,15 +2,27 @@
   display: block;
 }
 
-.topic-cards {
+.topic-rail {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding-top: 2.5rem;
 }
 
+.topic-rail__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.topic-rail__intro {
+  min-width: 0;
+  flex: 1;
+}
+
 // Cùng kiểu tiêu đề với .post-list-heading và khối bài nổi bật.
-.topic-cards-heading {
+.topic-rail__title {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -22,30 +34,93 @@
   color: var(--color-text);
 }
 
-.topic-cards-heading-line {
-  flex: 1;
+// Vạch nhấn ngắn thay vì kéo hết chiều ngang: hàng tiêu đề còn chỗ cho liên
+// kết "xem tất cả" bên phải.
+.topic-rail__title-line {
+  width: 44px;
   height: 2px;
+  flex-shrink: 0;
   border-radius: 999px;
   background: var(--color-accent);
 }
 
-// auto-fill thay vì cố định số cột: số danh mục có bài thay đổi theo thời gian
-// (API đã bỏ mục rỗng), khai cứng 3 cột thì thêm/bớt một mục là vỡ bố cục.
-.topic-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 1.5rem;
+.topic-rail__subtitle {
+  margin: 0.4rem 0 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.topic-rail__all {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-decoration: none;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+}
+
+.topic-rail__slider {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topic-rail__viewport {
+  min-width: 0;
+  flex: 1;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  // Thẻ có bóng đổ, cắt sát mép viewport sẽ mất bóng - chừa đệm rồi bù lại
+  // bằng margin âm để dải vẫn thẳng hàng với các khối khác.
+  margin: -0.5rem;
+  padding: 0.5rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.topic-rail__track {
+  display: flex;
+  gap: 1rem;
+}
+
+.topic-rail__track--skeleton {
+  overflow: hidden;
 }
 
 // Vỏ thẻ lấy nguyên .post-card của danh sách bài viết.
-.topic-cards-item {
+.topic-chip {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  min-width: 190px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
   background: var(--color-bg-card);
-  border-radius: 20px;
   box-shadow: 0 2px 16px var(--color-card-shadow);
-  padding: 1.25rem;
+  scroll-snap-align: start;
+  text-decoration: none;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -55,38 +130,33 @@
     box-shadow: 0 12px 28px var(--color-card-shadow);
   }
 
+  &:hover .topic-chip__name {
+    color: var(--color-accent);
+  }
+
   &--skeleton {
-    min-height: 320px;
+    height: 74px;
     background: var(--color-accent-bg);
     box-shadow: none;
     animation: pulse 1.4s ease-in-out infinite;
   }
 }
 
-.topic-cards-head {
+// Ô vuông bo góc thay cho huy hiệu tròn của thanh chọn chủ đề: ở cỡ này logo
+// danh mục (ảnh vuông) không bị cắt mất góc.
+.topic-chip__icon {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-decoration: none;
-
-  &:hover .topic-cards-name {
-    color: var(--color-accent);
-  }
-}
-
-// Cùng huy hiệu tròn với .topic-card-icon của thanh chọn chủ đề.
-.topic-cards-icon {
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 13px;
 
   svg {
-    width: 17px;
-    height: 17px;
+    width: 21px;
+    height: 21px;
   }
 
   img {
@@ -97,81 +167,63 @@
   }
 }
 
-.topic-cards-name {
-  flex: 1;
+.topic-chip__text {
+  display: flex;
   min-width: 0;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--color-text);
-  transition: color 0.2s ease;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.topic-cards-count {
-  flex-shrink: 0;
+.topic-chip__name {
+  overflow: hidden;
+  color: var(--color-text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.topic-chip__count {
+  color: var(--color-text-muted);
   font-family: 'Montserrat', sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
-.topic-cards-children {
+.topic-rail__nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-// Cùng viên thuốc với .post-hashtag trên card bài viết.
-.topic-cards-chip {
-  background: var(--color-accent-bg);
-  color: var(--color-accent);
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  text-decoration: none;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.topic-cards-posts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  // Đẩy "Xem tất cả" xuống đáy để các thẻ trên cùng một hàng kết thúc thẳng
-  // nhau, dù số bài xem trước lệch nhau (mục chỉ có 1-2 bài).
-  flex: 1;
-}
-
-.topic-cards-more {
-  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   align-items: center;
-  gap: 0.35rem;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--color-accent);
-  text-decoration: none;
-  padding-top: 0.25rem;
-  border-top: 1px solid var(--color-border);
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
 
   svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s ease;
+    width: 16px;
+    height: 16px;
   }
 
-  &:hover svg {
-    transform: translateX(3px);
+  &:hover:not(:disabled) {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
   }
 }
 
@@ -185,10 +237,23 @@
   }
 }
 
-@media (max-width: 640px) {
-  .topic-cards-grid {
-    // minmax 310px trên máy hẹp sẽ tràn ngang; 1 cột cho chắc.
-    grid-template-columns: 1fr;
-    gap: 1rem;
+@media (max-width: 767px) {
+  .topic-rail__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  // Trên cảm ứng vuốt là đủ, hai nút chỉ chiếm chỗ của thẻ.
+  .topic-rail__nav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topic-chip,
+  .topic-rail__all svg,
+  .topic-rail__nav {
+    transition: none;
   }
 }

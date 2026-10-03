@@ -1,55 +1,82 @@
 <section class="newsletter" appScrollReveal>
-  <h2 class="newsletter-title">
-    {{ 'T_NEWSLETTERTITLE' | translate }}
-    <span class="accent">{{ 'T_NEWSLETTERTITLEACCENT' | translate }}</span>
-  </h2>
-  <p class="newsletter-subtitle">{{ 'T_NEWSLETTERSUBTITLE' | translate }}</p>
-
-  <!-- Success state -->
-  <div *ngIf="isSuccess" class="newsletter-success">
-    <span class="text-3xl">🎉</span>
-    <p class="newsletter-success-title">
-      {{ 'T_SUBSCRIBESUCCESS' | translate }}
-    </p>
-    <p class="newsletter-success-text">
-      {{ 'T_SUBSCRIBESUCCESSDESC' | translate }}
-    </p>
-  </div>
-
-  <!-- Form -->
-  <ng-container *ngIf="!isSuccess">
-    <div class="newsletter-form">
-      <input
-        type="email"
-        [placeholder]="'T_ENTERYOUREMAIL' | translate"
-        [(ngModel)]="form.email"
-        [disabled]="isLoading"
-        (keyup.enter)="handleSubmit()"
-        class="newsletter-input" />
-      <button
-        (click)="handleSubmit()"
-        [disabled]="isLoading"
-        class="newsletter-btn">
-        <span *ngIf="!isLoading">{{ 'T_SUBSCRIBE' | translate }}</span>
-        <span *ngIf="isLoading" class="flex items-center gap-2">
-          <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4" />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z" />
-          </svg>
-          {{ 'T_SENDING' | translate }}
+  <div class="newsletter__body">
+    <div class="newsletter__intro">
+      <h2 class="newsletter__title">
+        {{ 'T_NEWSLETTERTITLE' | translate }}
+        <span class="newsletter__title-accent">
+          {{ 'T_NEWSLETTERTITLEACCENT' | translate }}
         </span>
-      </button>
+      </h2>
+      <p class="newsletter__subtitle">
+        {{ 'T_NEWSLETTERSUBTITLE' | translate }}
+      </p>
     </div>
 
-    <p *ngIf="errorMsg" class="newsletter-error">{{ errorMsg }}</p>
-  </ng-container>
+    <div class="newsletter__action">
+      <!-- Success state -->
+      <div *ngIf="isSuccess" class="newsletter__success">
+        <span class="newsletter__success-icon" aria-hidden="true">🎉</span>
+        <p class="newsletter__success-title">
+          {{ 'T_SUBSCRIBESUCCESS' | translate }}
+        </p>
+        <p class="newsletter__success-text">
+          {{ 'T_SUBSCRIBESUCCESSDESC' | translate }}
+        </p>
+      </div>
+
+      <!-- Form -->
+      <ng-container *ngIf="!isSuccess">
+        <div class="newsletter__form">
+          <label class="newsletter__sr-only" for="newsletter-email">
+            {{ 'T_ENTERYOUREMAIL' | translate }}
+          </label>
+          <input
+            id="newsletter-email"
+            type="email"
+            [placeholder]="'T_ENTERYOUREMAIL' | translate"
+            [(ngModel)]="form.email"
+            [disabled]="isLoading"
+            (keyup.enter)="handleSubmit()"
+            class="newsletter__input" />
+          <button
+            type="button"
+            (click)="handleSubmit()"
+            [disabled]="isLoading"
+            class="newsletter__btn">
+            <span *ngIf="!isLoading">{{ 'T_SUBSCRIBE' | translate }}</span>
+            <span *ngIf="isLoading" class="newsletter__btn-loading">
+              <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4" />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              {{ 'T_SENDING' | translate }}
+            </span>
+          </button>
+        </div>
+
+        <p *ngIf="errorMsg" class="newsletter__error">{{ errorMsg }}</p>
+
+        <p class="newsletter__promise">
+          <svg
+            class="newsletter__promise-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true">
+            <path
+              d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 14.2-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7z"></path>
+          </svg>
+          {{ 'T_NEWSLETTERPROMISE' | translate }}
+        </p>
+      </ng-container>
+    </div>
+  </div>
 </section>

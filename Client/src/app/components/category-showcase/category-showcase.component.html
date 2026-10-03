@@ -1,82 +1,110 @@
 <!-- API đã loại sẵn danh mục chưa có bài, nên rỗng ở đây nghĩa là blog chưa có
-     gì để khám phá - ẩn cả khối thay vì hiện lưới trống. -->
-<section class="topic-cards" *ngIf="isLoading || categories.length > 0">
-  <p class="topic-cards-heading">
-    <span>{{ 'T_EXPLOREBYTOPIC' | translate }}</span>
-    <span class="topic-cards-heading-line"></span>
-  </p>
+     gì để khám phá - ẩn cả khối thay vì hiện dải trống. -->
+<section class="topic-rail" *ngIf="isLoading || categories.length > 0">
+  <header class="topic-rail__head">
+    <div class="topic-rail__intro">
+      <p class="topic-rail__title">
+        <span>{{ 'T_EXPLOREBYTOPIC' | translate }}</span>
+        <span class="topic-rail__title-line"></span>
+      </p>
+      <p class="topic-rail__subtitle">
+        {{ 'T_EXPLOREBYTOPICDESC' | translate }}
+      </p>
+    </div>
+
+    <a class="topic-rail__all" routerLink="/news">
+      {{ 'T_VIEWALLTOPICS' | translate }}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </a>
+  </header>
 
   <!-- Loading skeleton -->
-  <div class="topic-cards-grid" *ngIf="isLoading">
+  <div class="topic-rail__track topic-rail__track--skeleton" *ngIf="isLoading">
     <div
-      class="topic-cards-item topic-cards-item--skeleton"
-      *ngFor="let i of [1, 2, 3]"></div>
+      class="topic-chip topic-chip--skeleton"
+      *ngFor="let i of [1, 2, 3, 4, 5]"></div>
   </div>
 
-  <div class="topic-cards-grid" *ngIf="!isLoading">
-    <article
-      class="topic-cards-item"
-      *ngFor="let category of categories; trackBy: trackById; let i = index"
-      appScrollReveal
-      [appScrollRevealDelay]="(i % 3) * 90">
-      <a
-        class="topic-cards-head"
-        routerLink="/news"
-        [queryParams]="{ categoryId: category.NewsCategoryId }">
-        <span class="topic-cards-icon" [style.background]="getTopicColor(i)">
-          <img
-            *ngIf="category.NewsCategoryLogo; else fallbackCategoryIcon"
-            [src]="category.NewsCategoryLogo"
-            [alt]="getCategoryName(category)" />
-          <ng-template #fallbackCategoryIcon>
-            <svg viewBox="0 0 24 24" fill="#fff">
-              <path
-                [attr.d]="
-                  getTopicIconPath(getCategoryName(category), i)
-                "></path>
-            </svg>
-          </ng-template>
-        </span>
-        <span class="topic-cards-name">{{ getCategoryName(category) }}</span>
-        <span class="topic-cards-count">
-          {{ category.TotalCount }} {{ 'T_POSTSUNIT' | translate }}
-        </span>
-      </a>
+  <!-- Danh mục có thể khá dài nên dải này cuộn ngang: hai nút điều hướng trên
+       desktop, vuốt tay trên cảm ứng, và luôn snap vào mép thẻ. -->
+  <div class="topic-rail__slider" *ngIf="!isLoading">
+    <button
+      type="button"
+      class="topic-rail__nav topic-rail__nav--prev"
+      [disabled]="!canScrollPrev"
+      [attr.aria-label]="'T_PREVIOUSTOPICS' | translate"
+      (click)="scrollByPage(-1)">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
 
-      <!-- Chỉ hiện khi danh mục có con. Hiện tại blog chưa dùng phân cấp nên
-           hàng này không xuất hiện; thêm danh mục con ở trang admin là tự có. -->
-      <div class="topic-cards-children" *ngIf="category.Children.length > 0">
+    <div class="topic-rail__viewport" #viewport (scroll)="syncScrollState()">
+      <div class="topic-rail__track">
         <a
-          class="topic-cards-chip"
-          *ngFor="let child of category.Children"
+          class="topic-chip"
+          *ngFor="let category of categories; trackBy: trackById; let i = index"
           routerLink="/news"
-          [queryParams]="{ categoryId: child.NewsCategoryId }">
-          {{ getCategoryName(child) }}
+          [queryParams]="{ categoryId: category.NewsCategoryId }"
+          appScrollReveal
+          [appScrollRevealDelay]="(i % 6) * 60">
+          <span class="topic-chip__icon" [style.background]="getTopicColor(i)">
+            <img
+              *ngIf="category.NewsCategoryLogo; else fallbackCategoryIcon"
+              [src]="category.NewsCategoryLogo"
+              [alt]="getCategoryName(category)" />
+            <ng-template #fallbackCategoryIcon>
+              <svg viewBox="0 0 24 24" fill="#fff">
+                <path
+                  [attr.d]="
+                    getTopicIconPath(getCategoryName(category), i)
+                  "></path>
+              </svg>
+            </ng-template>
+          </span>
+
+          <span class="topic-chip__text">
+            <strong class="topic-chip__name">
+              {{ getCategoryName(category) }}
+            </strong>
+            <small class="topic-chip__count">
+              {{ category.TotalCount }} {{ 'T_POSTSUNIT' | translate }}
+            </small>
+          </span>
         </a>
       </div>
+    </div>
 
-      <div class="topic-cards-posts">
-        <app-news-item-sm
-          *ngFor="let post of category.Posts"
-          [item]="post"></app-news-item-sm>
-      </div>
-
-      <a
-        class="topic-cards-more"
-        routerLink="/news"
-        [queryParams]="{ categoryId: category.NewsCategoryId }">
-        {{ 'T_VIEWALL' | translate }}
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
-      </a>
-    </article>
+    <button
+      type="button"
+      class="topic-rail__nav topic-rail__nav--next"
+      [disabled]="!canScrollNext"
+      [attr.aria-label]="'T_NEXTTOPICS' | translate"
+      (click)="scrollByPage(1)">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 </section>
