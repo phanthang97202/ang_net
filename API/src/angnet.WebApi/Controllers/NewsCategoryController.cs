@@ -103,6 +103,24 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        // Dời một bậc lên/xuống trong cùng nhóm anh em. Đi cùng quyền sửa vì nó ghi
+        // vào NewsCategoryIndex giống hệt màn sửa danh mục.
+        [Authorize(Policy = "newscategory.update")]
+        [EnableRateLimitingAttribute("API")]
+        [HttpPatch("Reorder")]
+        public async Task<IActionResult> Reorder([FromBody] NewsCategoryReorderDto data)
+        {
+            try
+            {
+                ApiResponse<NewsCategoryModel> response = await _newsCategoryService.Reorder(data);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         [Authorize(Policy = "newscategory.delete")]
         [EnableRateLimitingAttribute("API")]
         [HttpDelete("Delete")]

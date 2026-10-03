@@ -55,7 +55,7 @@
       <nz-table
         class="category-list-page__table"
         [nzData]="treeRows"
-        [nzScroll]="{ x: '1020px' }"
+        [nzScroll]="{ x: '1090px' }"
         [nzFrontPagination]="false"
         [nzLoading]="false"
         [nzNoResult]="emptyState">
@@ -64,7 +64,7 @@
             <th nzWidth="320px">Danh mục</th>
             <th nzWidth="76px">Logo</th>
             <th nzWidth="190px">Tên tiếng Anh</th>
-            <th nzWidth="86px">Thứ tự</th>
+            <th nzWidth="150px">Thứ tự</th>
             <th nzWidth="112px">Phạm vi</th>
             <th nzWidth="118px">Trạng thái</th>
             <th
@@ -118,9 +118,52 @@
               </span>
             </td>
             <td>
-              <span class="category-list-page__sort-index">
-                {{ data.NewsCategoryIndex }}
-              </span>
+              <div class="category-list-page__sort">
+                <span class="category-list-page__sort-index">
+                  {{ data.NewsCategoryIndex }}
+                </span>
+                <!-- Dời chỗ trong cùng nhóm anh em; số thứ tự do server tính lại. -->
+                <span class="category-list-page__sort-move">
+                  <button
+                    nz-button
+                    nzType="text"
+                    type="button"
+                    class="category-list-page__move"
+                    [disabled]="
+                      data.IsFirstOfLevel || !!reorderingId || isFiltering
+                    "
+                    [attr.aria-label]="
+                      'Dời ' + data.NewsCategoryName + ' lên một bậc'
+                    "
+                    nz-tooltip
+                    [nzTooltipTitle]="
+                      isFiltering ? 'Xóa bộ lọc để sắp xếp' : 'Dời lên một bậc'
+                    "
+                    (click)="handleMove(data, 'up')">
+                    <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="text"
+                    type="button"
+                    class="category-list-page__move"
+                    [disabled]="
+                      data.IsLastOfLevel || !!reorderingId || isFiltering
+                    "
+                    [attr.aria-label]="
+                      'Dời ' + data.NewsCategoryName + ' xuống một bậc'
+                    "
+                    nz-tooltip
+                    [nzTooltipTitle]="
+                      isFiltering
+                        ? 'Xóa bộ lọc để sắp xếp'
+                        : 'Dời xuống một bậc'
+                    "
+                    (click)="handleMove(data, 'down')">
+                    <span nz-icon nzType="arrow-down" nzTheme="outline"></span>
+                  </button>
+                </span>
+              </div>
             </td>
             <td>
               <nz-tag

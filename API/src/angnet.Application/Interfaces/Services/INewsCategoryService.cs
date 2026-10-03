@@ -10,6 +10,7 @@ namespace angnet.Application.Interfaces.Services
         public ApiResponse<NewsCategoryModel> Search(int pageIndex, int pageSize, string keyword);
         public Task<ApiResponse<NewsCategoryModel>> Detail(string newsCategoryId);
         public Task<ApiResponse<NewsCategoryModel>> Update(NewsCategoryModel data);
+        public Task<ApiResponse<NewsCategoryModel>> Reorder(NewsCategoryReorderDto data);
         public Task<ApiResponse<NewsCategoryModel>> Delete(string newsCategoryId);
     }
 }

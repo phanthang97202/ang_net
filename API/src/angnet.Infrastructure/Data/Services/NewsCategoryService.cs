@@ -308,6 +308,123 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        /// <summary>
+        /// Dời một danh mục lên/xuống một bậc TRONG CÙNG NHÓM ANH EM, rồi đánh lại
+        /// số thứ tự của cả nhóm thành 0..n-1.
+        ///
+        /// Vì sao đánh lại cả nhóm chứ không chỉ hoán đổi hai số: dữ liệu đang có
+        /// nhiều nhóm trùng số (hai danh mục cùng index 0) và nhóm thưa số (0, 1, 5).
+        /// Hoán đổi hai giá trị trùng nhau thì bấm mũi tên không có tác dụng gì.
+        /// Đánh lại cả nhóm làm thứ tự thành liên tục và duy nhất ngay lần dời đầu.
+        ///
+        /// Danh mục KHÔNG BAO GIỜ đổi cha ở đây: lên/xuống chỉ đổi chỗ với anh em
+        /// cùng cha, không nhảy sang nhánh khác và không nhảy cấp.
+        /// </summary>
+        public async Task<ApiResponse<NewsCategoryModel>> Reorder(NewsCategoryReorderDto data)
+        {
+            ApiResponse<NewsCategoryModel> apiResponse = new ApiResponse<NewsCategoryModel>();
+            List<RequestClient> requestClient = new List<RequestClient>();
+            TCommonUtils.GetKeyValuePairRequestClient(data, ref requestClient);
+
+            // Check Permission
+            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            if (!isAuthorized)
+            {
+                apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
+                return apiResponse;
+            }
+
+            if (data is null || TCommonUtils.IsNullOrEmpty(data.NewsCategoryId))
+            {
+                apiResponse.CatchException(false, "NewsCategory_Reorder.NewsCategoryIdIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            string direction = (data.Direction ?? string.Empty).Trim().ToLower();
+            if (direction != "up" && direction != "down")
+            {
+                apiResponse.CatchException(false, "NewsCategory_Reorder.DirectionIsNotValid", requestClient);
+                return apiResponse;
+            }
+
+            List<NewsCategoryModel> allCategories = await _dbContext.NewsCategory.ToListAsync();
+
+            NewsCategoryModel current = allCategories
+                    .FirstOrDefault(c => c.NewsCategoryId == data.NewsCategoryId);
+
+            if (current is null)
+            {
+                apiResponse.CatchException(false, "NewsCategory_Reorder.NewsCategoryNotExistInSystem", requestClient);
+                return apiResponse;
+            }
+
+            HashSet<string> existingIds = allCategories
+                    .Select(c => c.NewsCategoryId)
+                    .ToHashSet();
+
+            // Cha trỏ tới danh mục đã bị xoá, hoặc tự trỏ vào chính mình, thì coi như
+            // danh mục gốc - đúng cách bảng ở màn quản trị đang vẽ cây, nếu không hai
+            // bên sẽ hiểu "anh em" khác nhau và số thứ tự đánh ra vô nghĩa.
+            string EffectiveParentId(NewsCategoryModel category)
+            {
+                string parentId = category.NewsCategoryParentId ?? string.Empty;
+                bool isUsableParent = !TCommonUtils.IsNullOrEmpty(parentId)
+                        && parentId != category.NewsCategoryId
+                        && existingIds.Contains(parentId);
+                return isUsableParent ? parentId : string.Empty;
+            }
+
+            string currentParentId = EffectiveParentId(current);
+
+            // Anh em = cùng cha hiệu dụng. Lấy cả danh mục đang tắt: bảng quản trị
+            // hiện cả hai loại, bỏ qua bản ghi tắt thì thứ tự nhìn thấy sẽ nhảy cóc.
+            List<NewsCategoryModel> siblings = allCategories
+                    .Where(c => EffectiveParentId(c) == currentParentId)
+                    .OrderBy(c => c.NewsCategoryIndex)
+                    .ThenBy(c => c.NewsCategoryName, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(c => c.NewsCategoryId, StringComparer.Ordinal)
+                    .ToList();
+
+            int currentPosition = siblings.FindIndex(c => c.NewsCategoryId == current.NewsCategoryId);
+            int targetPosition = direction == "up" ? currentPosition - 1 : currentPosition + 1;
+
+            if (currentPosition < 0 || targetPosition < 0 || targetPosition >= siblings.Count)
+            {
+                apiResponse.CatchException(false, "NewsCategory_Reorder.AlreadyAtEdgeOfItsLevel", requestClient);
+                return apiResponse;
+            }
+
+            siblings.RemoveAt(currentPosition);
+            siblings.Insert(targetPosition, current);
+
+            DateTime now = TCommonUtils.DTimeNow();
+            string updatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? string.Empty;
+
+            for (int position = 0; position < siblings.Count; position++)
+            {
+                NewsCategoryModel sibling = siblings[position];
+                if (sibling.NewsCategoryIndex == position)
+                {
+                    continue;
+                }
+
+                sibling.NewsCategoryIndex = position;
+                sibling.UpdatedDTime = now;
+                if (!TCommonUtils.IsNullOrEmpty(updatedBy))
+                {
+                    sibling.UpdatedBy = updatedBy;
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await InvalidateCategoryCaches();
+
+            apiResponse.Data = current;
+
+            return apiResponse;
+        }
+
         public async Task<ApiResponse<NewsCategoryModel>> Delete(string newsCategoryId)
         {
             ApiResponse<NewsCategoryModel> apiResponse = new ApiResponse<NewsCategoryModel>();

@@ -18,12 +18,18 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../../modules';
 import { TTitlePopup } from '../type';
+// NzToolTipModule không nằm trong AntdModule lẫn REUSE_COMPONENT_MODULES; thiếu
+// nó thì nz-tooltip trên hai nút mũi tên im lặng không chạy.
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { SaveNewsCategoryPopupComponent } from '../save-news-category-popup/save-news-category-popup.component';
 
 /** Một dòng trong bảng cây: danh mục kèm độ sâu để thụt lề và số mục con. */
 interface INewsCategoryTreeRow extends INewsCategoryAdmin {
   Depth: number;
   ChildCount: number;
+  /** Đầu/cuối trong NHÓM ANH EM của nó, không phải đầu/cuối cả bảng. */
+  IsFirstOfLevel: boolean;
+  IsLastOfLevel: boolean;
 }
 
 @Component({
@@ -33,6 +39,7 @@ interface INewsCategoryTreeRow extends INewsCategoryAdmin {
     AntdModule,
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
+    NzToolTipModule,
     SaveNewsCategoryPopupComponent,
   ],
   templateUrl: './news-category-list.component.html',
@@ -48,6 +55,21 @@ export class NewsCategoryComponent implements OnInit {
   dataSource: INewsCategoryAdmin[] = [];
   /** Dữ liệu hiển thị: con nằm ngay dưới cha thay vì trộn lẫn như danh sách phẳng. */
   treeRows: INewsCategoryTreeRow[] = [];
+  /** Danh mục đang chờ kết quả dời chỗ; rỗng là không có lệnh dời nào đang chạy. */
+  reorderingId = '';
+  /**
+   * Từ khóa của lần tải gần nhất (không phải giá trị đang gõ trong ô tìm kiếm).
+   *
+   * Khi đang lọc, bảng chỉ còn một phần cây: danh mục có cha bị lọc mất sẽ hiện
+   * như danh mục gốc, nên hai dòng cạnh nhau trên màn hình có thể thuộc hai
+   * nhánh khác nhau. Server thì luôn dời trong nhóm anh em THẬT, kết quả sẽ
+   * không khớp với thứ tự người dùng đang nhìn - nên khóa nút dời khi đang lọc.
+   */
+  appliedKeyword = '';
+
+  get isFiltering(): boolean {
+    return !!this.appliedKeyword;
+  }
   titlePopup: TTitlePopup = '';
   formDataSource: IRequestNewsCategoryCreate = this.getDefaultFormData();
   _isOpenPopup = false;
@@ -105,24 +127,75 @@ export class NewsCategoryComponent implements OnInit {
     const visited = new Set<string>();
 
     const walk = (parentId: string, depth: number): void => {
-      for (const item of childrenOf.get(parentId) || []) {
+      const siblings = childrenOf.get(parentId) || [];
+      for (const item of siblings) {
         if (visited.has(item.NewsCategoryId)) continue;
         visited.add(item.NewsCategoryId);
         const children = childrenOf.get(item.NewsCategoryId) || [];
-        rows.push({ ...item, Depth: depth, ChildCount: children.length });
+        // Đầu/cuối tính trong nhóm anh em này, nên nút mũi tên tắt đúng chỗ:
+        // mục con đầu tiên không dời lên để chui ra ngoài cha nó được.
+        rows.push({
+          ...item,
+          Depth: depth,
+          ChildCount: children.length,
+          IsFirstOfLevel: item === siblings[0],
+          IsLastOfLevel: item === siblings[siblings.length - 1],
+        });
         walk(item.NewsCategoryId, depth + 1);
       }
     };
     walk('', 0);
 
-    // Danh mục rơi vào vòng lặp cha-con vẫn phải hiện ra thì mới sửa được.
+    // Danh mục rơi vào vòng lặp cha-con vẫn phải hiện ra thì mới sửa được. Khóa
+    // luôn hai nút dời: server không xếp chúng vào nhóm anh em nào cả.
     for (const item of list) {
       if (!visited.has(item.NewsCategoryId)) {
-        rows.push({ ...item, Depth: 0, ChildCount: 0 });
+        rows.push({
+          ...item,
+          Depth: 0,
+          ChildCount: 0,
+          IsFirstOfLevel: true,
+          IsLastOfLevel: true,
+        });
       }
     }
 
     return rows;
+  }
+
+  /**
+   * Dời một danh mục lên/xuống một bậc trong nhóm anh em của nó.
+   *
+   * Chỉ gửi hướng dời, không gửi số thứ tự: số mới của cả nhóm do server tính.
+   * reorderingId chặn bấm liên tiếp - mỗi lần dời đều kéo theo một lần tải lại,
+   * bấm chồng lên nhau thì lần sau tính trên dữ liệu đã cũ.
+   */
+  handleMove(data: INewsCategoryTreeRow, direction: 'up' | 'down'): void {
+    if (this.reorderingId || this.isFiltering) return;
+    if (direction === 'up' && data.IsFirstOfLevel) return;
+    if (direction === 'down' && data.IsLastOfLevel) return;
+
+    this.reorderingId = data.NewsCategoryId;
+    this.api
+      .NewsCategoryReorder({
+        NewsCategoryId: data.NewsCategoryId,
+        Direction: direction,
+      })
+      .subscribe({
+        next: response => {
+          if (response?.Success) {
+            this.fetchData();
+          } else {
+            this.showErrorService.setShowError({
+              icon: 'warning',
+              message: JSON.stringify(response, null, 2),
+              title: response?.ErrorMessage || 'Error',
+            });
+          }
+        },
+        error: err => this.handleApiError(err),
+        complete: () => (this.reorderingId = ''),
+      });
   }
 
   handleSearch(): void {
@@ -168,6 +241,7 @@ export class NewsCategoryComponent implements OnInit {
           if (response?.Success) {
             this.dataSource = response.objResult?.DataList || [];
             this.treeRows = this.buildTreeRows(this.dataSource);
+            this.appliedKeyword = keyword;
           } else {
             this.showErrorService.setShowError({
               icon: 'warning',

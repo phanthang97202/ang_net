@@ -170,6 +170,39 @@
   font-size: 12px;
 }
 
+.category-list-page__sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-list-page__sort-move {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.category-list-page__move {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  place-items: center;
+  padding: 0;
+  border-radius: 7px;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
+.category-list-page__move:not([disabled]):hover {
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+}
+
+.category-list-page__move[disabled] {
+  color: var(--admin-border-strong);
+}
+
 .category-list-page__sort-index {
   display: inline-grid;
   min-width: 30px;

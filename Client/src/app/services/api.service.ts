@@ -37,6 +37,7 @@ import {
   ISearchNewsCategoryRequest,
   IResponseNewsCategorySearch,
   IRequestNewsCategoryCreate,
+  IRequestNewsCategoryReorder,
   IResponseNewsCategoryCreate,
   IReelFeedResponse,
   IReelLikeResponse,
@@ -529,6 +530,19 @@ export class ApiService {
   ): Observable<IResponseNewsCategoryCreate> {
     return this.http.patch<IResponseNewsCategoryCreate>(
       `${this.apiUrl}newscategory/update`,
+      { ...request }
+    );
+  }
+
+  /**
+   * Dời danh mục lên/xuống một bậc. Client chỉ gửi hướng dời, số thứ tự mới của
+   * cả nhóm anh em do server tính.
+   */
+  NewsCategoryReorder(
+    request: IRequestNewsCategoryReorder
+  ): Observable<IResponseNewsCategoryCreate> {
+    return this.http.patch<IResponseNewsCategoryCreate>(
+      `${this.apiUrl}newscategory/reorder`,
       { ...request }
     );
   }

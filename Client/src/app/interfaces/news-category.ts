@@ -68,3 +68,9 @@ export type IRequestNewsCategoryCreate = Omit<
 >;
 
 export type IResponseNewsCategoryCreate = IBaseResponse<INewsCategoryAdmin>;
+
+/** Dời danh mục lên/xuống một bậc trong cùng nhóm anh em. */
+export interface IRequestNewsCategoryReorder {
+  NewsCategoryId: string;
+  Direction: 'up' | 'down';
+}
