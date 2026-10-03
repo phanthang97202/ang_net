@@ -1,76 +1,89 @@
-<div class="master__container">
+<div class="master__container audit-page">
   <app-breadcrumb title="Audit Trail" />
 
-  <!-- Thanh tìm kiếm -->
-  <form
-    class="audit__search"
-    nz-form
-    [formGroup]="searchForm"
-    [nzLayout]="'inline'"
-    (ngSubmit)="handleSearch()">
-    <nz-form-item>
-      <nz-form-control>
-        <input
-          nz-input
-          formControlName="Keyword"
-          placeholder="Tìm theo mô tả / người làm / mã bản ghi..."
-          class="audit__search-keyword" />
-      </nz-form-control>
-    </nz-form-item>
+  <main class="audit-page__content">
+    <section class="audit-page__panel" aria-labelledby="audit-title">
+      <header class="audit-page__panel-header">
+        <div>
+          <h2 id="audit-title">Nhật ký hệ thống</h2>
+          <p>
+            Lịch sử thao tác ghi lại từ API: ai làm, làm gì, lúc nào và dữ liệu
+            thay đổi ra sao.
+          </p>
+        </div>
+        <span class="audit-page__count">{{ total | number }} bản ghi</span>
+      </header>
 
-    <nz-form-item>
-      <nz-form-control>
-        <nz-select
-          formControlName="Level"
-          nzAllowClear
-          nzPlaceHolder="Tất cả mức độ"
-          class="audit__search-select">
-          <nz-option
-            *ngFor="let l of levelOptions"
-            [nzValue]="l"
-            [nzLabel]="l"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
+      <form
+        class="audit-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="audit-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm nhật ký"
+                placeholder="Tìm theo mô tả / người làm / mã bản ghi..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <nz-form-control>
-        <nz-select
-          formControlName="TrailType"
-          nzAllowClear
-          nzPlaceHolder="Tất cả thao tác"
-          class="audit__search-select">
-          <nz-option
-            *ngFor="let t of trailTypeOptions"
-            [nzValue]="t"
-            [nzLabel]="t"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
+        <nz-form-item class="audit-page__select-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="Level"
+              nzAllowClear
+              aria-label="Lọc theo mức độ"
+              nzPlaceHolder="Tất cả mức độ">
+              <nz-option
+                *ngFor="let l of levelOptions"
+                [nzValue]="l"
+                [nzLabel]="l"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button nz-button nzType="primary" type="submit">
-        <span nz-icon nzType="search"></span> Search
-      </button>
-    </nz-form-item>
+        <nz-form-item class="audit-page__select-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="TrailType"
+              nzAllowClear
+              aria-label="Lọc theo thao tác"
+              nzPlaceHolder="Tất cả thao tác">
+              <nz-option
+                *ngFor="let t of trailTypeOptions"
+                [nzValue]="t"
+                [nzLabel]="t"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
 
-    <nz-form-item>
-      <button
-        nz-button
-        nzType="default"
-        type="button"
-        (click)="handleResetSearch()">
-        <span nz-icon nzType="reload"></span> Reset
-      </button>
-    </nz-form-item>
-  </form>
+        <nz-form-item>
+          <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        </nz-form-item>
 
-  <nz-layout>
-    <nz-content>
+        <nz-form-item>
+          <button
+            class="audit-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleResetSearch()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
+
       <!-- Phân trang phía server: nzFrontPagination=false + nzTotal để nz-table
            vẽ thanh phân trang theo tổng số bản ghi thật thay vì theo số dòng
            đang có trong dataSource. -->
       <nz-table
+        class="audit-page__table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzFrontPagination]="false"
@@ -78,48 +91,88 @@
         [nzPageIndex]="pageIndex"
         [nzPageSize]="pageSize"
         [nzLoading]="isLoading"
-        [nzScroll]="{ x: '1000px' }"
+        [nzScroll]="{ x: '1060px' }"
+        [nzNoResult]="emptyState"
         (nzPageIndexChange)="handlePageIndexChange($event)"
         (nzPageSizeChange)="handlePageSizeChange($event)">
         <thead>
           <tr>
-            <th nzWidth="60px">#</th>
-            <th nzWidth="170px">Thời gian</th>
-            <th nzWidth="120px">Mức độ</th>
-            <th nzWidth="100px">Thao tác</th>
+            <th nzWidth="56px">STT</th>
+            <th nzWidth="150px">Thời gian</th>
+            <th nzWidth="124px">Mức độ</th>
+            <th nzWidth="96px">Thao tác</th>
             <th>Mô tả</th>
             <th nzWidth="180px">Người làm</th>
-            <th nzWidth="90px">Chi tiết</th>
+            <th nzRight nzWidth="88px" class="audit-page__action-heading">
+              Chi tiết
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let data of dataSource; let i = index">
-            <td>{{ (pageIndex - 1) * pageSize + i + 1 }}</td>
-            <td>{{ data.ChangedDTime | localeDTime }}</td>
-            <td>
-              <app-tag-status [sttValue]="data.Level"></app-tag-status>
+            <td class="audit-page__index">
+              {{ (pageIndex - 1) * pageSize + i + 1 }}
+            </td>
+            <td class="audit-page__time">
+              {{ data.ChangedDTime | localeDTime }}
             </td>
             <td>
-              <app-tag-status [sttValue]="data.TrailType"></app-tag-status>
+              <span
+                class="audit-page__level"
+                [ngClass]="'audit-page__level--' + levelModifier(data.Level)">
+                {{ data.Level }}
+              </span>
             </td>
             <td>
-              <div class="audit__desc" [title]="data.Description">
+              <span
+                class="audit-page__method"
+                [ngClass]="
+                  'audit-page__method--' + methodModifier(data.TrailType)
+                ">
+                {{ data.TrailType }}
+              </span>
+            </td>
+            <td>
+              <div class="audit-page__desc" [title]="data.Description">
                 {{ data.Description }}
               </div>
             </td>
-            <td>{{ data.ChangedBy || '-' }}</td>
             <td>
-              <app-button-common
-                [iconType]="'eye'"
-                [iconTheme]="'outline'"
-                [nzType]="'text'"
-                (_onClick)="handleOpenDetail(data)"></app-button-common>
+              <span
+                class="audit-page__actor"
+                [class.audit-page__actor--empty]="!data.ChangedBy">
+                {{ data.ChangedBy || 'Hệ thống' }}
+              </span>
+            </td>
+            <td nzRight class="audit-page__actions">
+              <button
+                nz-button
+                nzType="text"
+                type="button"
+                class="audit-page__action"
+                [attr.aria-label]="
+                  'Xem chi tiết bản ghi ' + (data.RecordId || '')
+                "
+                (click)="handleOpenDetail(data)">
+                <span nz-icon nzType="eye" nzTheme="outline"></span>
+              </button>
             </td>
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+
+      <ng-template #emptyState>
+        <div class="audit-page__empty">
+          <span nz-icon nzType="file-search" nzTheme="outline"></span>
+          <strong>Không có bản ghi nào</strong>
+          <p>
+            Chưa có nhật ký nào khớp bộ lọc hiện tại. Thử đặt lại từ khóa, mức
+            độ hoặc thao tác.
+          </p>
+        </div>
+      </ng-template>
+    </section>
+  </main>
 </div>
 
 <!-- Popup chi tiết: các cột ít dùng (IP, URL, mã bản ghi) và JSON giá trị
@@ -128,48 +181,55 @@
   [nzVisible]="!!detailRow"
   nzTitle="Chi tiết nhật ký"
   nzWidth="760px"
+  nzClassName="audit-detail-modal"
   [nzFooter]="null"
   (nzOnCancel)="handleCloseDetail()">
   <ng-container *nzModalContent>
-    <div *ngIf="detailRow" class="audit__detail">
-      <div class="audit__detail-grid">
-        <div class="audit__detail-label">Thời gian</div>
-        <div>{{ detailRow.ChangedDTime | localeDTime }}</div>
-
-        <div class="audit__detail-label">Mức độ</div>
-        <div><app-tag-status [sttValue]="detailRow.Level"></app-tag-status></div>
-
-        <div class="audit__detail-label">Thao tác</div>
-        <div>
-          <app-tag-status [sttValue]="detailRow.TrailType"></app-tag-status>
-        </div>
-
-        <div class="audit__detail-label">Người làm</div>
-        <div>{{ detailRow.ChangedBy || '-' }}</div>
-
-        <div class="audit__detail-label">Mã bản ghi</div>
-        <div>{{ detailRow.RecordId || '-' }}</div>
-
-        <div class="audit__detail-label">Địa chỉ IP</div>
-        <div>{{ detailRow.IPAddress || '-' }}</div>
-
-        <div class="audit__detail-label">Request URL</div>
-        <div>{{ detailRow.RequestUrl || '-' }}</div>
-
-        <div class="audit__detail-label">Mô tả</div>
-        <div>{{ detailRow.Description || '-' }}</div>
+    <div *ngIf="detailRow" class="audit-detail">
+      <div class="audit-detail__summary">
+        <span
+          class="audit-page__level"
+          [ngClass]="'audit-page__level--' + levelModifier(detailRow.Level)">
+          {{ detailRow.Level }}
+        </span>
+        <span
+          class="audit-page__method"
+          [ngClass]="
+            'audit-page__method--' + methodModifier(detailRow.TrailType)
+          ">
+          {{ detailRow.TrailType }}
+        </span>
+        <span class="audit-detail__time">
+          {{ detailRow.ChangedDTime | localeDTime }}
+        </span>
       </div>
 
-      <div class="audit__detail-section">
-        <div class="audit__detail-title">Giá trị trước (OldValues)</div>
-        <pre class="audit__json">{{
+      <p class="audit-detail__desc">{{ detailRow.Description || '-' }}</p>
+
+      <dl class="audit-detail__grid">
+        <dt>Người làm</dt>
+        <dd>{{ detailRow.ChangedBy || 'Hệ thống' }}</dd>
+
+        <dt>Mã bản ghi</dt>
+        <dd>{{ detailRow.RecordId || '-' }}</dd>
+
+        <dt>Địa chỉ IP</dt>
+        <dd>{{ detailRow.IPAddress || '-' }}</dd>
+
+        <dt>Request URL</dt>
+        <dd>{{ detailRow.RequestUrl || '-' }}</dd>
+      </dl>
+
+      <div class="audit-detail__section">
+        <h3>Giá trị trước</h3>
+        <pre class="audit-detail__json">{{
           formatJson(detailRow.OldValues) || '(không có)'
         }}</pre>
       </div>
 
-      <div class="audit__detail-section">
-        <div class="audit__detail-title">Giá trị sau (NewValues)</div>
-        <pre class="audit__json">{{
+      <div class="audit-detail__section">
+        <h3>Giá trị sau</h3>
+        <pre class="audit-detail__json">{{
           formatJson(detailRow.NewValues) || '(không có)'
         }}</pre>
       </div>

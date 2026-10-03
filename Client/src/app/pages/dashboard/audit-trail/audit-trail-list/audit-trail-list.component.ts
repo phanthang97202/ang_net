@@ -99,6 +99,39 @@ export class AuditTrailComponent implements OnInit {
       });
   }
 
+  /**
+   * Gom 6 mức độ log về 4 nhóm màu: TRACE/DEBUG là tiếng ồn nên để xám, còn
+   * ERROR và CRITICAL cùng là chuyện phải xử lý nên dùng chung màu đỏ.
+   */
+  levelModifier(level: string): string {
+    switch ((level || '').toUpperCase()) {
+      case 'INFORMATION':
+        return 'info';
+      case 'WARNING':
+        return 'warning';
+      case 'ERROR':
+      case 'CRITICAL':
+        return 'error';
+      default:
+        return 'muted';
+    }
+  }
+
+  /** Màu HTTP method theo mức độ tác động: đọc < tạo < sửa < xoá. */
+  methodModifier(trailType: string): string {
+    switch ((trailType || '').toUpperCase()) {
+      case 'POST':
+        return 'create';
+      case 'PUT':
+      case 'PATCH':
+        return 'update';
+      case 'DELETE':
+        return 'delete';
+      default:
+        return 'read';
+    }
+  }
+
   handleSearch(): void {
     // Lọc mới thì phải về trang 1: giữ nguyên trang hiện tại có thể rơi vào
     // vùng không còn bản ghi nào và hiện ra bảng trống.
