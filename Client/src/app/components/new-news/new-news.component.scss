@@ -17,6 +17,10 @@
   // mép trên cột nên chữ bị cao hơn đúng 24px. Chừa lại bằng ngần ấy để hai
   // dòng chữ thẳng hàng nhau.
   padding-top: 1.5rem;
+  // Khoá chiều cao dòng thay vì để "normal" (tuỳ font): .card-head bên sidebar
+  // cũng cao đúng 1.5rem, nên tâm hai tiêu đề - và hai vạch kẻ - trùng nhau dù
+  // cỡ chữ hai bên khác nhau.
+  line-height: 1.5rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;

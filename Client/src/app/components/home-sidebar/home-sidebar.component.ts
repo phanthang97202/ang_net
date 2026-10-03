@@ -1,15 +1,29 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { catchError, finalize, of, switchMap } from 'rxjs';
 import { SocialLinksComponent } from '../social-links/social-links.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzImageModule, NzImageService } from 'ng-zorro-antd/image';
-import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
+import {
+  ApiService,
+  LangService,
+  SysParameterConfigService,
+  SYS_PARAM_CODE,
+} from '../../services';
 import {
   IHomeIntro,
   ISocialLink,
   IHomeFeaturedImage,
+  IHashTagNews,
 } from '../../interfaces';
 
 // Giá trị mặc định khi tham số chưa cấu hình ở admin.
@@ -58,6 +72,7 @@ const SLIDE_INTERVAL_MS = 4000;
   // module, thiếu nó là inject ra NullInjectorError.
   imports: [
     CommonModule,
+    RouterLink,
     SocialLinksComponent,
     TranslateModule,
     NzIconModule,
@@ -70,6 +85,8 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
   private imageService = inject(NzImageService);
+  private api = inject(ApiService);
+  private langService = inject(LangService);
 
   intro: IHomeIntro = DEFAULT_INTRO;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
@@ -78,7 +95,13 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   activeIndex = 0;
   private intervalId?: ReturnType<typeof setInterval>;
 
+  // Khối "Từ khóa hot": top hashtag xếp theo số bài đã xuất bản đang dùng.
+  hotTags: IHashTagNews[] = [];
+  isHotTagsLoading = true;
+
   ngOnInit(): void {
+    this.loadHotTags();
+
     this.config
       .getJson<IHomeIntro>(SYS_PARAM_CODE.HOME_INTRO)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -113,8 +136,51 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
     this.stopAutoplay();
   }
 
+  /**
+   * Tải lại khi đổi ngôn ngữ: hashtag lưu riêng cho vi/en. Luồng ngôn ngữ là
+   * BehaviorSubject nên lần subscribe đầu đã có giá trị, không cần gọi thêm một
+   * lần lúc khởi tạo. switchMap huỷ request cũ nếu người dùng đổi ngôn ngữ liên
+   * tiếp, tránh kết quả về muộn ghi đè kết quả mới.
+   *
+   * Lỗi thì ẩn khối thay vì bật popup lỗi như phần lớn trang: đây là khối trang
+   * trí ở sidebar, hỏng nó không đáng làm phiền người đang đọc.
+   */
+  private loadHotTags(): void {
+    this.langService.$langSubjectObservable
+      .pipe(
+        switchMap(lang => {
+          this.isHotTagsLoading = true;
+          return this.api.GetTopHashTag(lang === 'en' ? 'en' : 'vi').pipe(
+            catchError(() => of(null)),
+            finalize(() => (this.isHotTagsLoading = false))
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(res => {
+        this.hotTags = res?.DataList || [];
+      });
+  }
+
   setActive(index: number): void {
     this.activeIndex = index;
+  }
+
+  // Hai mũi tên trên ảnh. Khởi động lại autoplay sau mỗi lần bấm: không thì
+  // interval cũ có thể bắn ngay sau đó và nhảy tiếp một ảnh nữa, người xem chưa
+  // kịp nhìn ảnh mình vừa chọn.
+  prevSlide(): void {
+    const total = this.featuredImages.length;
+    if (total < 2) return;
+    this.activeIndex = (this.activeIndex - 1 + total) % total;
+    this.startAutoplay();
+  }
+
+  nextSlide(): void {
+    const total = this.featuredImages.length;
+    if (total < 2) return;
+    this.activeIndex = (this.activeIndex + 1) % total;
+    this.startAutoplay();
   }
 
   // Mở lightbox với CẢ danh sách ảnh chứ không riêng ảnh đang hiện, để người xem

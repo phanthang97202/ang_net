@@ -1,7 +1,15 @@
 <aside class="sidebar">
   <!-- About -->
-  <div class="sidebar-card">
-    <span class="sidebar-label">{{ 'T_INTRODUCTION' | translate }}</span>
+  <section class="sidebar-card about-card" aria-labelledby="sidebar-about">
+    <!-- Cùng font nghiêng của chữ "Thang" trên logo, chỉ để trang trí. -->
+    <span class="about-hello" aria-hidden="true">Hello!</span>
+
+    <header class="card-head">
+      <h2 class="card-head__title" id="sidebar-about">
+        {{ 'T_INTRODUCTION' | translate }}
+      </h2>
+      <span class="card-head__line" aria-hidden="true"></span>
+    </header>
 
     <div class="about-head">
       <img
@@ -9,9 +17,10 @@
         class="about-avatar"
         [src]="intro.avatar"
         [alt]="intro.name" />
-      <div>
+      <div class="about-identity">
         <p class="about-name">{{ intro.name }}</p>
         <p class="about-role" *ngIf="intro.shortDescription">
+          <span nz-icon nzType="calendar" nzTheme="outline"></span>
           {{ intro.shortDescription }}
         </p>
       </div>
@@ -20,15 +29,26 @@
     <p class="about-bio" *ngIf="intro.description">{{ intro.description }}</p>
 
     <p class="about-location" *ngIf="intro.address">
-      <span class="about-icon">📍</span> {{ intro.address }}
+      <span class="about-icon" aria-hidden="true">📍</span>
+      {{ intro.address }}
     </p>
 
-    <app-social-links [items]="socials"></app-social-links>
-  </div>
+    <app-social-links
+      class="about-socials"
+      [items]="socials"></app-social-links>
+  </section>
 
-  <!-- Featured Posts -->
-  <div class="sidebar-card" *ngIf="featuredImages.length > 0">
-    <span class="sidebar-label">{{ 'T_FEATUREDIMAGES' | translate }}</span>
+  <!-- Featured images -->
+  <section
+    class="sidebar-card"
+    *ngIf="featuredImages.length > 0"
+    aria-labelledby="sidebar-featured">
+    <header class="card-head">
+      <h2 class="card-head__title" id="sidebar-featured">
+        {{ 'T_FEATUREDIMAGES' | translate }}
+      </h2>
+      <span class="card-head__line" aria-hidden="true"></span>
+    </header>
 
     <div class="featured-post">
       <!-- Các layer ảnh xếp chồng, crossfade opacity khi đổi slide (giống
@@ -44,16 +64,36 @@
       <div class="featured-post-overlay"></div>
 
       <!-- Nút phủ kín ảnh để bấm đâu cũng mở xem chi tiết. Dùng <button> thay vì
-           (click) trên div để còn tab/Enter tới được. Dots được kéo lên trên nút
-           này bằng z-index (xem .featured-post-dots) nên bấm dots vẫn đổi slide
-           chứ không mở lightbox. -->
+           (click) trên div để còn tab/Enter tới được. Mũi tên và dots được kéo
+           lên trên nút này bằng z-index nên bấm chúng vẫn đổi slide chứ không
+           mở lightbox. -->
       <button
         type="button"
         class="featured-post-zoom"
         [attr.aria-label]="'T_VIEWFULLIMAGE' | translate"
         (click)="openPreview()">
-        <span class="featured-post-zoom-icon" nz-icon nzType="fullscreen"></span>
+        <span
+          class="featured-post-zoom-icon"
+          nz-icon
+          nzType="fullscreen"></span>
       </button>
+
+      <ng-container *ngIf="featuredImages.length > 1">
+        <button
+          type="button"
+          class="featured-post-nav featured-post-nav--prev"
+          [attr.aria-label]="'T_PREVIOUSIMAGE' | translate"
+          (click)="prevSlide()">
+          <span nz-icon nzType="left" nzTheme="outline"></span>
+        </button>
+        <button
+          type="button"
+          class="featured-post-nav featured-post-nav--next"
+          [attr.aria-label]="'T_NEXTIMAGE' | translate"
+          (click)="nextSlide()">
+          <span nz-icon nzType="right" nzTheme="outline"></span>
+        </button>
+      </ng-container>
 
       <div class="featured-post-content">
         <p class="featured-post-title">
@@ -68,5 +108,48 @@
           (click)="setActive(i)"></span>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Hot keywords: không có tag nào thì ẩn cả khối, không để thẻ trống. -->
+  <section
+    class="sidebar-card"
+    *ngIf="isHotTagsLoading || hotTags.length > 0"
+    aria-labelledby="sidebar-hot-tags">
+    <header class="card-head">
+      <h2 class="card-head__title" id="sidebar-hot-tags">
+        {{ 'T_HOTKEYWORDS' | translate }}
+      </h2>
+      <span class="card-head__line" aria-hidden="true"></span>
+    </header>
+
+    <div class="hot-tags" *ngIf="isHotTagsLoading" aria-hidden="true">
+      <span
+        class="hot-tag hot-tag--skeleton"
+        *ngFor="let w of [78, 92, 70, 104, 86, 74]"
+        [style.width.px]="w"></span>
+    </div>
+
+    <!-- Tag phổ biến nhất được tô đặc kèm ngọn lửa; các tag sau là viên viền
+         nhạt, có số bài bên cạnh. -->
+    <ul class="hot-tags" *ngIf="!isHotTagsLoading">
+      <li *ngFor="let tag of hotTags; let i = index">
+        <a
+          class="hot-tag"
+          [class.hot-tag--top]="i === 0"
+          routerLink="/news"
+          [queryParams]="{ hashTag: tag.HashTagNewsName }">
+          <span
+            *ngIf="i === 0"
+            class="hot-tag__fire"
+            nz-icon
+            nzType="fire"
+            nzTheme="fill"></span>
+          <span class="hot-tag__name">#{{ tag.HashTagNewsName }}</span>
+          <span class="hot-tag__count" *ngIf="tag.Count">
+            {{ tag.Count }}
+          </span>
+        </a>
+      </li>
+    </ul>
+  </section>
 </aside>
