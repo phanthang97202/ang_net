@@ -141,7 +141,7 @@ namespace angnet.Infrastructure.Data.Repositories
         /// đánh theo newsId / tham số tìm kiếm chứ không theo user, nên phần riêng
         /// của từng người không được phép nằm trong dữ liệu đem đi cache.
         /// </summary>
-        private void FillMyInteractions(List<RPNewsDto> lstNews)
+        private async Task FillMyInteractions(List<RPNewsDto> lstNews)
         {
             ClaimsPrincipal user = _httpContextAccessor.HttpContext?.User;
             if (user?.Identity?.IsAuthenticated != true || lstNews.Count == 0)
@@ -156,13 +156,14 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             List<string> lstNewsId = lstNews.Select(i => i.NewsId).ToList();
-            Dictionary<string, double> myPoints = _dbContext.PointNews.AsNoTracking()
+            Dictionary<string, double> myPoints = await _dbContext.PointNews.AsNoTracking()
                 .Where(i => i.UserId == userId && lstNewsId.Contains(i.NewsId))
-                .ToDictionary(i => i.NewsId, i => i.Point);
+                .ToDictionaryAsync(i => i.NewsId, i => i.Point);
 
-            HashSet<string> myLikes = _dbContext.LikeNews.AsNoTracking()
+            HashSet<string> myLikes = (await _dbContext.LikeNews.AsNoTracking()
                 .Where(i => i.UserId == userId && lstNewsId.Contains(i.NewsId))
                 .Select(i => i.NewsId)
+                .ToListAsync())
                 .ToHashSet();
 
             foreach (RPNewsDto item in lstNews)
@@ -231,19 +232,105 @@ namespace angnet.Infrastructure.Data.Repositories
                 .ToList();
         }
 
+        /// <summary>
+        /// Dữ liệu liên quan của MỘT LÔ bài viết, nạp sẵn để dựng DTO mà không
+        /// phải xuống DB lần nữa.
+        ///
+        /// Trước đây mỗi bài tự đi lấy user, danh mục, hashtag, file, điểm và like
+        /// của riêng nó: một trang 10 bài là 60 lượt round-trip nối đuôi nhau. Với
+        /// DB đặt ở xa, chừng đó lượt đi về chiếm gần hết thời gian của request.
+        /// </summary>
+        private sealed class NewsRelatedData
+        {
+            public Dictionary<string, AppUser> Users = new Dictionary<string, AppUser>();
+            public Dictionary<string, NewsCategoryModel> Categories = new Dictionary<string, NewsCategoryModel>();
+            public Dictionary<string, List<HashTagNewsModel>> HashTags = new Dictionary<string, List<HashTagNewsModel>>();
+            public Dictionary<string, List<RefFileNewsModel>> RefFiles = new Dictionary<string, List<RefFileNewsModel>>();
+            public Dictionary<string, (int Count, double Avg)> Points = new Dictionary<string, (int, double)>();
+            public Dictionary<string, int> LikeCounts = new Dictionary<string, int>();
+        }
+
+        /// <summary>
+        /// Nạp toàn bộ dữ liệu liên quan của lô bài viết bằng 6 truy vấn, bất kể lô
+        /// có bao nhiêu bài.
+        /// </summary>
+        private async Task<NewsRelatedData> LoadNewsRelatedData(List<NewsModel> lstNews)
+        {
+            NewsRelatedData related = new NewsRelatedData();
+
+            if (lstNews is null || lstNews.Count == 0)
+            {
+                return related;
+            }
+
+            List<string> newsIds = lstNews.Select(i => i.NewsId).Distinct().ToList();
+            List<string> userIds = lstNews.Select(i => i.UserId).Distinct().ToList();
+            List<string> categoryIds = lstNews.Select(i => i.CategoryNewsId).Distinct().ToList();
+
+            related.Users = await _dbContext.Users.AsNoTracking()
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id);
+
+            related.Categories = await _dbContext.NewsCategory.AsNoTracking()
+                    .Where(c => categoryIds.Contains(c.NewsCategoryId))
+                    .ToDictionaryAsync(c => c.NewsCategoryId);
+
+            related.HashTags = (await _dbContext.HashTagNews.AsNoTracking()
+                    .Where(h => newsIds.Contains(h.NewsId))
+                    .ToListAsync())
+                    .GroupBy(h => h.NewsId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+            related.RefFiles = (await _dbContext.RefFileNews.AsNoTracking()
+                    .Where(f => newsIds.Contains(f.NewsId))
+                    .ToListAsync())
+                    .GroupBy(f => f.NewsId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Gom ngay trong SQL: chỉ cần số lượt chấm và điểm trung bình, không cần
+            // kéo từng dòng chấm điểm về.
+            related.Points = (await _dbContext.PointNews.AsNoTracking()
+                    .Where(p => newsIds.Contains(p.NewsId))
+                    .GroupBy(p => p.NewsId)
+                    .Select(g => new { NewsId = g.Key, Count = g.Count(), Avg = g.Average(x => x.Point) })
+                    .ToListAsync())
+                    .ToDictionary(x => x.NewsId, x => (x.Count, x.Avg));
+
+            related.LikeCounts = await _dbContext.LikeNews.AsNoTracking()
+                    .Where(l => newsIds.Contains(l.NewsId))
+                    .GroupBy(l => l.NewsId)
+                    .Select(g => new { NewsId = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.NewsId, x => x.Count);
+
+            return related;
+        }
+
         public async Task<RPNewsDto> FactoryNewsRecord(NewsModel objNews, List<string> excludeFields)
         {
-            // 
+            NewsRelatedData related = await LoadNewsRelatedData(new List<NewsModel> { objNews });
+            return BuildNewsRecord(objNews, excludeFields, related);
+        }
+
+        /// <summary>
+        /// Dựng DTO từ dữ liệu đã nạp sẵn. Hàm này không chạm vào DB nên gọi được
+        /// trong vòng lặp mà không sinh thêm truy vấn nào.
+        /// </summary>
+        private RPNewsDto BuildNewsRecord(NewsModel objNews, List<string> excludeFields, NewsRelatedData related)
+        {
+            //
             RPNewsDto rsNews = new RPNewsDto();
 
-            // Get detail News  
-            AppUser userDetail = await _userManager.FindByIdAsync(objNews.UserId);
-
-            NewsCategoryModel categoryDetail = await _dbContext.NewsCategory.AsNoTracking().FirstOrDefaultAsync(item => item.NewsCategoryId == objNews.CategoryNewsId);
+            // Tác giả hoặc danh mục có thể đã bị xoá khỏi bảng gốc. Trước đây gặp ca
+            // đó là NullReferenceException làm hỏng cả trang; giờ bài vẫn hiện ra với
+            // ô trống để còn sửa được.
+            related.Users.TryGetValue(objNews.UserId ?? string.Empty, out AppUser userDetail);
+            related.Categories.TryGetValue(objNews.CategoryNewsId ?? string.Empty, out NewsCategoryModel categoryDetail);
 
             // Get HashTag of News
-            List<HashTagNewsModel> dtHashTagNews = new List<HashTagNewsModel>();
-            dtHashTagNews = _dbContext.HashTagNews.AsNoTracking().Where(item => item.NewsId == objNews.NewsId).ToList();
+            List<HashTagNewsModel> dtHashTagNews =
+                    related.HashTags.TryGetValue(objNews.NewsId, out List<HashTagNewsModel> hashTagsOfNews)
+                            ? hashTagsOfNews
+                            : new List<HashTagNewsModel>();
 
             List<HashTagNewsDto> lstHashTagNews = dtHashTagNews
                 .Where(i => i.LanguageCode == "vi")
@@ -260,8 +347,10 @@ namespace angnet.Infrastructure.Data.Repositories
                 }).ToList();
 
             // Get File of News
-            List<RefFileNewsModel> dtRefFileNews = new List<RefFileNewsModel>();
-            dtRefFileNews = _dbContext.RefFileNews.AsNoTracking().Where(item => item.NewsId == objNews.NewsId).ToList();
+            List<RefFileNewsModel> dtRefFileNews =
+                    related.RefFiles.TryGetValue(objNews.NewsId, out List<RefFileNewsModel> filesOfNews)
+                            ? filesOfNews
+                            : new List<RefFileNewsModel>();
 
             List<RefFileNewsDto> lstRefFileNews = dtRefFileNews.Select(i => new RefFileNewsDto
             {
@@ -269,16 +358,8 @@ namespace angnet.Infrastructure.Data.Repositories
             }).ToList();
 
             // Get AvgPoint of News
-            List<PointNewsModel> dtPointNews = _dbContext.PointNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
-            double avgPoint;
-            if (dtPointNews.Count > 0)
-            {
-                avgPoint = dtPointNews.Average(i => i.Point);
-            }
-            else
-            {
-                avgPoint = 0;
-            }
+            related.Points.TryGetValue(objNews.NewsId, out (int Count, double Avg) pointSummary);
+            double avgPoint = pointSummary.Count > 0 ? pointSummary.Avg : 0;
 
             // MyPoint KHÔNG tính ở đây: kết quả của factory bị cache theo newsId /
             // tham số tìm kiếm chứ không theo user, gán điểm riêng của người này vào
@@ -286,16 +367,9 @@ namespace angnet.Infrastructure.Data.Repositories
             // FillMyInteractions() sau khi đã lấy dữ liệu (kể cả từ cache) thay cho việc này.
 
             // Get LikeCount of News
-            List<LikeNewsModel> dtLikeNews = _dbContext.LikeNews.AsNoTracking().Where(i => i.NewsId == objNews.NewsId).ToList();
-            int countLike;
-            if (dtLikeNews.Count > 0)
-            {
-                countLike = dtLikeNews.Count();
-            }
-            else
-            {
-                countLike = 0;
-            }
+            int countLike = related.LikeCounts.TryGetValue(objNews.NewsId, out int likeCountOfNews)
+                    ? likeCountOfNews
+                    : 0;
 
             // Estimated Reading Time 
             (int estimatedReadingTime, int wordCountContent) = TCommonUtils.CalculateReadingTime(objNews.ContentBody);
@@ -303,12 +377,12 @@ namespace angnet.Infrastructure.Data.Repositories
             //
             rsNews.NewsId = objNews.NewsId;
             rsNews.UserId = objNews.UserId;
-            rsNews.UserName = userDetail.UserName;
-            rsNews.FullName = userDetail.FullName;
-            rsNews.Avatar = userDetail.Avatar;
+            rsNews.UserName = userDetail?.UserName;
+            rsNews.FullName = userDetail?.FullName;
+            rsNews.Avatar = userDetail?.Avatar;
             rsNews.CategoryNewsId = objNews.CategoryNewsId;
-            rsNews.CategoryNewsName = categoryDetail.NewsCategoryName;
-            rsNews.CategoryNewsNameEn = categoryDetail.NewsCategoryNameEn;
+            rsNews.CategoryNewsName = categoryDetail?.NewsCategoryName;
+            rsNews.CategoryNewsNameEn = categoryDetail?.NewsCategoryNameEn;
             rsNews.Slug = objNews.Slug;
             rsNews.SlugEn = objNews.SlugEn;
             rsNews.Thumbnail = objNews.Thumbnail;
@@ -332,7 +406,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.IsPinned = objNews.IsPinned;
             rsNews.NotifiedAt = objNews.NotifiedAt;
             rsNews.PinOrder = objNews.PinOrder;
-            rsNews.TotalPoint = dtPointNews.Count;
+            rsNews.TotalPoint = pointSummary.Count;
             rsNews.LstHashTagNews = lstHashTagNews;
             rsNews.LstHashTagNewsEn = lstHashTagNewsEn;
             rsNews.LstRefFileNews = excludeFields.Contains("LstRefFileNews") ? null : lstRefFileNews;
@@ -550,7 +624,11 @@ namespace angnet.Infrastructure.Data.Repositories
                             u.Id == i.UserId && u.TenantId == viewerTenantId.Value)));
             }
 
-            int itemCount = query.ToList().Count;
+            // CountAsync chứ không phải ToList().Count: bản cũ kéo MỌI bài khớp điều
+            // kiện về RAM - kèm cả ContentBody/ContentBodyEn là toàn bộ HTML nội dung -
+            // chỉ để đếm số dòng. Nó lại nằm trước nhánh đọc cache nên trang nào cũng
+            // phải trả giá đó dù dữ liệu đã nằm sẵn trong Redis.
+            int itemCount = await query.CountAsync();
 
             //
             List<RPNewsDto> dataResponse = new List<RPNewsDto>();
@@ -578,15 +656,17 @@ namespace angnet.Infrastructure.Data.Repositories
 
             if (rsNewsCached is null)
             {
-                dataResult = ApplySort(query, _sort, pinnedFirst)
+                dataResult = await ApplySort(query, _sort, pinnedFirst)
                               .Skip(_pageIndex * _pageSize)
                               .Take(_pageSize)
-                              .ToList();
-                foreach (var item in dataResult)
-                {
-                    RPNewsDto obj = await FactoryNewsRecord(item, excludeFields);
-                    dataResponse.Add(obj);
-                }
+                              .ToListAsync();
+
+                // Nạp dữ liệu liên quan của cả trang một lần rồi mới dựng DTO: 6 truy
+                // vấn cho cả trang thay vì 6 truy vấn cho mỗi bài.
+                NewsRelatedData relatedData = await LoadNewsRelatedData(dataResult);
+                dataResponse = dataResult
+                        .Select(item => BuildNewsRecord(item, excludeFields, relatedData))
+                        .ToList();
                 string jsonDataResult = TCommonUtils.ConvertToJsonStringify(dataResponse);
                 await HashCacheAsync(keyStoreManager, fieldKey, jsonDataResult);
             }
@@ -597,7 +677,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
-            FillMyInteractions(dataResponse);
+            await FillMyInteractions(dataResponse);
 
             PageInfo<RPNewsDto> pageInfo = new PageInfo<RPNewsDto>();
             pageInfo.PageIndex = pageIndex;
@@ -935,7 +1015,7 @@ namespace angnet.Infrastructure.Data.Repositories
             rsNews.ViewCount = viewCount;
 
             // Sau cache: điểm riêng của người đang xem không nằm trong bản cache chung.
-            FillMyInteractions(new List<RPNewsDto> { rsNews });
+            await FillMyInteractions(new List<RPNewsDto> { rsNews });
 
             apiResponse.Data = rsNews;
 
