@@ -193,6 +193,7 @@
     <nz-modal
       nzClassName="blog-modal"
       [nzAutofocus]="null"
+      [nzCentered]="true"
       [nzVisible]="viewingItem !== null"
       [nzTitle]="viewingItem?.Title || collection.Name"
       [nzFooter]="null"
@@ -234,6 +235,7 @@
     <nz-modal
       nzClassName="blog-modal"
       [nzAutofocus]="null"
+      [nzCentered]="true"
       [nzVisible]="pendingConfirm !== null"
       [nzTitle]="pendingConfirm?.title ?? ''"
       [nzWidth]="440"

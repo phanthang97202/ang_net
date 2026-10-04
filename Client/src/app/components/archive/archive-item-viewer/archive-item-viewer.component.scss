@@ -8,6 +8,16 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  // Chiều cao tối đa của ảnh/video: phần màn hình còn lại sau tiêu đề popup,
+  // ngày + ghi chú (đã giới hạn bên dưới), hàng điều hướng và lề - cộng lại
+  // khoảng 360px. Để cả popup lọt trong một màn hình, không phải cuộn.
+  // dvh: trên điện thoại vh tính cả phần thanh địa chỉ đang che.
+  --viewer-media-max: max(220px, calc(100vh - 360px));
+
+  @supports (height: 100dvh) {
+    --viewer-media-max: max(220px, calc(100dvh - 360px));
+  }
 }
 
 .viewer__stage {
@@ -22,7 +32,7 @@
 .viewer__video {
   display: block;
   max-width: 100%;
-  max-height: 62vh;
+  max-height: var(--viewer-media-max);
   object-fit: contain;
 }
 
@@ -33,19 +43,19 @@
 .viewer__embed {
   display: block;
   width: 100%;
-  max-height: 62vh;
+  max-height: var(--viewer-media-max);
   border: 0;
   background: var(--color-bg-card);
 
   // Video dọc 9:16 mà kéo full bề ngang thì cao quá màn hình - giới hạn theo chiều cao
   &.is-vertical {
     width: auto;
-    height: 62vh;
+    height: var(--viewer-media-max);
     max-width: 100%;
   }
 
   &.is-fixed-height {
-    height: 620px;
+    height: min(620px, var(--viewer-media-max));
   }
 }
 
@@ -58,7 +68,7 @@
 
   img {
     width: 100%;
-    max-height: 60vh;
+    max-height: var(--viewer-media-max);
     object-fit: cover;
   }
 }
@@ -132,4 +142,9 @@
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
+  // Ghi chú dài cuộn trong khung riêng (tối đa 4 dòng) thay vì đẩy popup cao
+  // quá màn hình - phần 360px dành cho chữ ở --viewer-media-max tính theo mức này.
+  max-height: calc(1.7em * 4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
