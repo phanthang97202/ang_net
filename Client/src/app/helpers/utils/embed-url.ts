@@ -139,7 +139,8 @@ export function resolveLinkEmbed(rawUrl: string): ResolvedLinkEmbed {
       if (video) {
         result.embedSrc = `https://www.youtube-nocookie.com/embed/${video.id}`;
         result.aspectRatio = video.isShort ? '9 / 16' : '16 / 9';
-        result.thumbnailUrl = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`;
+        // mqdefault là ảnh 16:9 thật; hqdefault 4:3 có sẵn dải đen trên dưới
+        result.thumbnailUrl = `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`;
       }
       break;
     }

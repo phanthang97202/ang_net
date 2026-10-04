@@ -9,14 +9,10 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { lastValueFrom, tap } from 'rxjs';
 import {
   IArchiveCollection,
@@ -28,6 +24,7 @@ import {
   ResolvedLinkEmbed,
   resolveLinkEmbed,
 } from '../../../helpers/utils/embed-url';
+import { ArchiveProviderIconComponent } from '../archive-provider-icon/archive-provider-icon.component';
 
 type ItemFormMode = 'upload' | 'link';
 
@@ -52,14 +49,10 @@ const MAX_FILES_PER_BATCH = 20;
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     ReactiveFormsModule,
     NzModalModule,
-    NzButtonModule,
-    NzInputModule,
     NzIconModule,
-    NzDatePickerModule,
-    NzSelectModule,
+    ArchiveProviderIconComponent,
   ],
   templateUrl: './archive-item-form.component.html',
   styleUrl: './archive-item-form.component.scss',
@@ -88,7 +81,8 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     Title: ['', [Validators.maxLength(300)]],
     Note: ['', [Validators.maxLength(10000)]],
     ThumbnailUrl: [''],
-    TakenAt: [null as Date | null],
+    // Chuỗi yyyy-MM-dd của <input type="date">
+    TakenAt: [''],
     CollectionId: [''],
   });
 
@@ -103,7 +97,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
       Title: this.item?.Title ?? '',
       Note: this.item?.Note ?? '',
       ThumbnailUrl: this.item?.Kind === 'Link' ? this.item.ThumbnailUrl : '',
-      TakenAt: this.item?.TakenAt ? new Date(this.item.TakenAt) : null,
+      TakenAt: this.item?.TakenAt ? this.item.TakenAt.slice(0, 10) : '',
       CollectionId: this.item?.CollectionId ?? this.collectionId,
     });
     if (this.item?.Kind === 'Link') {
@@ -282,7 +276,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   private buildUploadRequest(
     pending: PendingFile,
     uploaded: Extract<ArchiveUploadEvent, { type: 'done' }>,
-    value: { Title: string; Note: string; TakenAt: Date | null },
+    value: { Title: string; Note: string; TakenAt: string },
     batchSize: number
   ): IArchiveItemCreate {
     // Tải nhiều file một lúc thì tiêu đề chung không còn ý nghĩa, lấy tên file
@@ -302,7 +296,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
       Height: uploaded.height || null,
       DurationSeconds: uploaded.durationSeconds,
       Bytes: uploaded.bytes || null,
-      TakenAt: value.TakenAt ? value.TakenAt.toISOString() : null,
+      TakenAt: this.toTakenAt(value.TakenAt),
     };
   }
 
@@ -328,7 +322,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         Height: null,
         DurationSeconds: null,
         Bytes: null,
-        TakenAt: value.TakenAt ? value.TakenAt.toISOString() : null,
+        TakenAt: this.toTakenAt(value.TakenAt),
       })
       .subscribe({
         next: response => this.afterSave(response?.Success, response?.ErrorMessage),
@@ -346,7 +340,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         Title: value.Title.trim(),
         Note: value.Note.trim(),
         ThumbnailUrl: value.ThumbnailUrl.trim(),
-        TakenAt: value.TakenAt ? value.TakenAt.toISOString() : null,
+        TakenAt: this.toTakenAt(value.TakenAt),
       })
       .subscribe({
         next: response => this.afterSave(response?.Success, response?.ErrorMessage),
@@ -363,6 +357,14 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     this.message.success('Đã lưu');
     this.saved.emit();
     this.closed.emit();
+  }
+
+  /**
+   * Ngày kỷ niệm chỉ có ngày, không có giờ: lưu nửa đêm UTC và hiển thị theo
+   * UTC, để người ở múi giờ nào xem cũng thấy đúng ngày đã chọn.
+   */
+  private toTakenAt(value: string): string | null {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : null;
   }
 
   /** Cloudinary trả lỗi dạng { error: { message } } trong HttpErrorResponse.error */

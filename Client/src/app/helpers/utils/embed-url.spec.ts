@@ -38,7 +38,7 @@ describe('resolveLinkEmbed', () => {
     const watch = resolveLinkEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     expect(watch.embedSrc).toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
     expect(watch.aspectRatio).toBe('16 / 9');
-    expect(watch.thumbnailUrl).toBe('https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg');
+    expect(watch.thumbnailUrl).toBe('https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
 
     expect(resolveLinkEmbed('https://youtube.com/shorts/dQw4w9WgXcQ').aspectRatio).toBe('9 / 16');
   });

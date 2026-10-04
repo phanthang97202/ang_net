@@ -1548,6 +1548,240 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
   }
 }
 
+// ── Blog UI primitives ──────────────────────────────────────────────────
+// Nút, ô nhập và menu thả xuống kiểu blog cho các trang công khai, thay cho
+// nz-button / nz-input / nz-select mang dáng Ant mặc định. Cùng ngôn ngữ với
+// nút "Đăng ký" và popup báo cáo bình luận: viên thuốc, chữ Montserrat, hover
+// nhấc nhẹ lên, focus là vòng accent. Dùng biến --color-* nên dark mode tự đổi.
+.blog-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.blog-btn--primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(99, 85, 230, 0.35);
+  }
+}
+
+.blog-btn--danger {
+  border-color: #e0524a;
+  background: #e0524a;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    border-color: #e0524a;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(224, 82, 74, 0.32);
+  }
+}
+
+// Nút chỉ có icon: tròn, không viền, nền accent nhạt khi hover - như các nút
+// tìm kiếm / đổi theme trên menu.
+.blog-icon-btn {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+}
+
+.blog-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: blog-spin 0.7s linear infinite;
+}
+
+@keyframes blog-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.blog-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--color-text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.blog-label__optional {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.blog-input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  // Không inherit: ô nhập trong popup kế thừa DM Sans của body, mà DM Sans
+  // không có bộ ký tự tiếng Việt (gõ "ữ", "ệ" sẽ ra chữ Arial).
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-bg);
+    outline: none;
+  }
+}
+
+textarea.blog-input {
+  min-height: 92px;
+  resize: vertical;
+}
+
+select.blog-input {
+  padding-right: 2.4rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%238a8a99' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0.9rem center;
+  background-repeat: no-repeat;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+// Lịch của <input type="date"> và danh sách <select> do trình duyệt vẽ: báo
+// cho nó biết đang ở nền tối.
+html[data-theme='dark'] .blog-input {
+  color-scheme: dark;
+}
+
+// Menu thả xuống (nz-dropdown) phía blog: gắn nzOverlayClassName="blog-dropdown".
+.blog-dropdown {
+  .ant-dropdown-menu {
+    min-width: 190px;
+    padding: 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-bg-card);
+    box-shadow: 0 16px 40px var(--color-card-shadow);
+  }
+
+  .ant-dropdown-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 10px;
+    color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    &:hover,
+    &.ant-dropdown-menu-item-active {
+      background: var(--color-accent-bg);
+      color: var(--color-accent);
+    }
+  }
+
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger {
+    color: #e0524a;
+
+    &:hover,
+    &.ant-dropdown-menu-item-active {
+      background: rgba(224, 82, 74, 0.12);
+      color: #e0524a;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-btn {
+    transition: none;
+
+    &:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
 // Toast (NzMessageService) phía blog. Toast render thẳng dưới <body>, nên
 // tách blog/admin bằng marker body.admin-ui-active mà app.component bật khi
 // đang ở dashboard - admin giữ nguyên toast mặc định.

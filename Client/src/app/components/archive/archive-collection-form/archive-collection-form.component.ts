@@ -8,9 +8,7 @@ import {
   inject,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { IArchiveCollection, TArchiveVisibility } from '../../../interfaces';
@@ -25,8 +23,6 @@ import { ARCHIVE_VISIBILITY_OPTIONS } from '../archive-visibility';
     CommonModule,
     ReactiveFormsModule,
     NzModalModule,
-    NzButtonModule,
-    NzInputModule,
     NzIconModule,
   ],
   templateUrl: './archive-collection-form.component.html',
@@ -62,10 +58,6 @@ export class ArchiveCollectionFormComponent implements OnChanges {
 
   get isEdit(): boolean {
     return !!this.collection;
-  }
-
-  setVisibility(value: TArchiveVisibility): void {
-    this.form.controls.Visibility.setValue(value);
   }
 
   submit(): void {

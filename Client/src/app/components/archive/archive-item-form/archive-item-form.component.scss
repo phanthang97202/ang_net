@@ -1,9 +1,13 @@
+// Phần khung modal ở .blog-modal (styles.scss); đây chỉ là nội dung bên trong.
 .item-form {
+  // Montserrat như popup báo cáo bình luận; DM Sans không có tiếng Việt
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
+// Công tắc hai chế độ: cùng kiểu tab "Công khai / Riêng tư" ở Bài viết của tôi
 .item-form__modes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -18,14 +22,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--color-text-muted);
-  font-weight: 600;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(.is-active):not(:disabled) {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 
   &.is-active {
     background: var(--color-bg-card);
@@ -39,21 +58,25 @@
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
-  padding: 1.5rem 1rem;
+  padding: 1.6rem 1rem;
   border: 1.5px dashed var(--color-border);
-  border-radius: 12px;
+  border-radius: 20px;
   color: var(--color-text);
-  text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  text-align: center;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 
-  [nz-icon] {
-    font-size: 2rem;
-    color: var(--color-accent);
+  strong {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
 
   small {
     color: var(--color-text-muted);
+    font-size: 0.76rem;
   }
 
   &:hover,
@@ -61,12 +84,38 @@
     border-color: var(--color-accent);
     background: var(--color-accent-bg);
   }
+
+  &:has(.item-form__file-input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+// Ẩn input nhưng vẫn nhận focus bàn phím (hidden thì không tab tới được)
+.item-form__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.item-form__drop-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  margin-bottom: 0.35rem;
+  border-radius: 50%;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 1.35rem;
 }
 
 .item-form__files {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -75,8 +124,8 @@
 .item-form__file {
   position: relative;
   aspect-ratio: 1;
-  border-radius: 8px;
   overflow: hidden;
+  border-radius: 14px;
   background: var(--color-control-bg);
 
   img,
@@ -87,89 +136,131 @@
   }
 
   &.is-error {
-    outline: 2px solid #e5484d;
+    outline: 2px solid #e0524a;
+    outline-offset: -2px;
   }
 }
 
-.item-form__progress,
-.item-form__file-error {
+.item-form__file-kind {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
+  bottom: 6px;
+  left: 6px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
   color: #fff;
-  font-weight: 700;
+  font-size: 11px;
 }
 
-.item-form__file-error {
-  background: rgba(229, 72, 77, 0.55);
+.item-form__file-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 15, 60, 0.45);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+
+  &.is-error {
+    background: rgba(224, 82, 74, 0.6);
+  }
 }
 
 .item-form__remove {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 5px;
+  right: 5px;
+  display: grid;
   width: 22px;
   height: 22px;
+  place-items: center;
+  padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
   color: #fff;
-  font-size: 11px;
   cursor: pointer;
-}
-
-.item-form__field {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.4rem;
-  min-width: 0;
-
-  nz-date-picker,
-  nz-select {
-    width: 100%;
-  }
-}
-
-.item-form__label {
-  color: var(--color-text);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.item-form__row {
-  display: flex;
-  gap: 0.75rem;
-
-  @media (max-width: 520px) {
-    flex-direction: column;
-  }
+  font-size: 10px;
 }
 
 .item-form__preview {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   padding: 0.6rem;
-  border-radius: 10px;
-  background: var(--color-control-bg);
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
 
-  img {
-    width: 96px;
+  img,
+  .item-form__preview-icon {
+    width: 104px;
+    flex-shrink: 0;
     aspect-ratio: 16 / 9;
-    border-radius: 6px;
+    border-radius: 12px;
     object-fit: cover;
   }
+}
+
+.item-form__preview-icon {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #5b4fe9, #8c7cf0);
+  color: #fff;
+  font-size: 1.4rem;
+
+  &[data-provider='YouTube'] {
+    background: linear-gradient(135deg, #e62117, #ff5a4f);
+  }
+
+  &[data-provider='TikTok'] {
+    background: linear-gradient(135deg, #111, #2b2b2b);
+  }
+
+  &[data-provider='Facebook'] {
+    background: linear-gradient(135deg, #1877f2, #4f9bff);
+  }
+
+  &[data-provider='Instagram'] {
+    background: linear-gradient(135deg, #f58529, #dd2a7b 55%, #8134af);
+  }
+}
+
+.item-form__preview-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
 
   strong {
     color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  small {
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+}
+
+.item-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.item-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
   }
 }

@@ -46,14 +46,14 @@
   </div>
 
   <div class="viewer__meta">
-    @if (item.Title) {
+    @if (showTitle && item.Title) {
       <h3 class="viewer__title">{{ item.Title }}</h3>
     }
     <p class="viewer__sub">
       @if (item.TakenAt) {
         <span>
           <span nz-icon nzType="calendar" nzTheme="outline"></span>
-          {{ item.TakenAt | date: 'dd/MM/yyyy' }}
+          {{ item.TakenAt | date: 'dd/MM/yyyy' : 'UTC' }}
         </span>
       }
       @if (item.Kind === 'Link') {

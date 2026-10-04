@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { IArchiveCollection } from '../../../interfaces';
@@ -19,7 +18,6 @@ import { archiveVisibilityOption } from '../../../components/archive/archive-vis
   standalone: true,
   imports: [
     CommonModule,
-    NzButtonModule,
     NzIconModule,
     ArchiveCollectionFormComponent,
     ArchiveCollectionViewComponent,

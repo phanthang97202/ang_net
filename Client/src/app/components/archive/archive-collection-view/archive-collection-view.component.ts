@@ -8,12 +8,11 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
-import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { EMPTY, Observable, catchError, finalize, tap } from 'rxjs';
 import { IArchiveCollection, IArchiveItem } from '../../../interfaces';
 import { ArchiveService } from '../../../services';
 import { ArchiveCollectionFormComponent } from '../archive-collection-form/archive-collection-form.component';
@@ -34,11 +33,9 @@ const PAGE_SIZE = 24;
   standalone: true,
   imports: [
     CommonModule,
-    NzButtonModule,
     NzDropDownModule,
     NzIconModule,
     NzModalModule,
-    NzSkeletonModule,
     ArchiveCollectionFormComponent,
     ArchiveItemFormComponent,
     ArchiveItemViewerComponent,
@@ -57,7 +54,10 @@ export class ArchiveCollectionViewComponent implements OnChanges {
 
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
-  private modal = inject(NzModalService);
+
+  /** Hộp xác nhận xoá đang mở; run trả Observable để biết khi nào đóng hộp */
+  pendingConfirm: { title: string; message: string; run: () => Observable<unknown> } | null = null;
+  isConfirming = false;
 
   collection: IArchiveCollection | null = null;
   items: IArchiveItem[] = [];
@@ -159,32 +159,45 @@ export class ArchiveCollectionViewComponent implements OnChanges {
   }
 
   confirmDeleteItem(item: IArchiveItem): void {
-    this.modal.confirm({
-      nzTitle: 'Xoá mục này?',
-      nzContent:
+    this.pendingConfirm = {
+      title: 'Xoá mục này?',
+      message:
         item.Kind === 'Link'
-          ? 'Chỉ xoá khỏi thư viện, nội dung gốc không bị ảnh hưởng.'
-          : 'File ảnh/video sẽ bị xoá vĩnh viễn.',
-      nzOkText: 'Xoá',
-      nzOkDanger: true,
-      nzCancelText: 'Huỷ',
-      nzOnOk: () => this.deleteItem(item),
-    });
+          ? 'Mục chỉ bị xoá khỏi thư viện, nội dung gốc không bị ảnh hưởng.'
+          : 'File ảnh/video sẽ bị xoá vĩnh viễn, không thể khôi phục.',
+      run: () => this.deleteItem(item),
+    };
   }
 
   confirmDeleteCollection(): void {
-    this.modal.confirm({
-      nzTitle: `Xoá bộ sưu tập "${this.collection?.Name ?? ''}"?`,
-      nzContent: `Toàn bộ ${this.itemCount} mục bên trong và các file ảnh/video sẽ bị xoá vĩnh viễn.`,
-      nzOkText: 'Xoá',
-      nzOkDanger: true,
-      nzCancelText: 'Huỷ',
-      nzOnOk: () => this.deleteCollection(),
-    });
+    this.pendingConfirm = {
+      title: `Xoá "${this.collection?.Name ?? ''}"?`,
+      message: `Toàn bộ ${this.itemCount} mục bên trong cùng các file ảnh/video sẽ bị xoá vĩnh viễn, không thể khôi phục.`,
+      run: () => this.deleteCollection(),
+    };
   }
 
-  private deleteItem(item: IArchiveItem): void {
-    this.archiveService.deleteItem(item.ItemId).subscribe({
+  runConfirm(): void {
+    if (!this.pendingConfirm || this.isConfirming) return;
+    this.isConfirming = true;
+    this.pendingConfirm
+      .run()
+      .pipe(
+        finalize(() => {
+          this.isConfirming = false;
+          this.pendingConfirm = null;
+        })
+      )
+      .subscribe();
+  }
+
+  cancelConfirm(): void {
+    if (this.isConfirming) return;
+    this.pendingConfirm = null;
+  }
+
+  private deleteItem(item: IArchiveItem): Observable<unknown> {
+    return this.archiveService.deleteItem(item.ItemId).pipe(tap({
       next: response => {
         if (!response?.Success) {
           this.message.error(response?.ErrorMessage || 'Không xoá được mục');
@@ -196,7 +209,7 @@ export class ArchiveCollectionViewComponent implements OnChanges {
         this.changed.emit();
       },
       error: () => this.message.error('Không xoá được mục'),
-    });
+    }), catchError(() => EMPTY));
   }
 
   setAsCover(item: IArchiveItem): void {
@@ -230,8 +243,8 @@ export class ArchiveCollectionViewComponent implements OnChanges {
     this.changed.emit();
   }
 
-  private deleteCollection(): void {
-    this.archiveService.deleteCollection(this.collectionId).subscribe({
+  private deleteCollection(): Observable<unknown> {
+    return this.archiveService.deleteCollection(this.collectionId).pipe(tap({
       next: response => {
         if (!response?.Success) {
           this.message.error(response?.ErrorMessage || 'Không xoá được bộ sưu tập');
@@ -241,7 +254,7 @@ export class ArchiveCollectionViewComponent implements OnChanges {
         this.deleted.emit();
       },
       error: () => this.message.error('Không xoá được bộ sưu tập'),
-    });
+    }), catchError(() => EMPTY));
   }
 
   copyShareLink(): void {

@@ -12,24 +12,32 @@
         <h2 id="archive-title">Thư viện lưu trữ</h2>
         <p>Lưu ảnh, video kỷ niệm và những link hay từ YouTube, TikTok, Facebook, Instagram.</p>
       </div>
-      <button nz-button nzType="primary" type="button" (click)="isFormOpen = true">
-        <span nz-icon nzType="plus" nzTheme="outline"></span>
-        Bộ sưu tập mới
-      </button>
+      @if (collections.length > 0) {
+        <button type="button" class="blog-btn blog-btn--primary" (click)="isFormOpen = true">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          Bộ sưu tập mới
+        </button>
+      }
     </header>
 
     @if (isLoading) {
       <div class="archive__grid" aria-hidden="true">
         @for (placeholder of [1, 2, 3]; track placeholder) {
-          <span class="archive__card archive__card--skeleton"></span>
+          <span class="archive__card archive__card--skeleton">
+            <span class="archive__shimmer archive__shimmer--cover"></span>
+            <span class="archive__shimmer archive__shimmer--line"></span>
+            <span class="archive__shimmer archive__shimmer--line is-short"></span>
+          </span>
         }
       </div>
     } @else if (collections.length === 0) {
       <div class="archive__empty">
-        <span nz-icon nzType="folder-open" nzTheme="outline" aria-hidden="true"></span>
+        <span class="archive__empty-icon">
+          <span nz-icon nzType="folder-open" nzTheme="outline" aria-hidden="true"></span>
+        </span>
         <h3>Bạn chưa có bộ sưu tập nào</h3>
-        <p>Tạo một bộ sưu tập, ví dụ "Kỷ niệm gia đình" hay "Kiến thức lập trình", rồi thêm nội dung vào.</p>
-        <button nz-button nzType="primary" type="button" (click)="isFormOpen = true">
+        <p>Tạo một bộ sưu tập, ví dụ "Kỷ niệm gia đình" hay "Kiến thức lập trình", rồi thêm ảnh, video hoặc link vào.</p>
+        <button type="button" class="blog-btn blog-btn--primary" (click)="isFormOpen = true">
           <span nz-icon nzType="plus" nzTheme="outline"></span>
           Tạo bộ sưu tập đầu tiên
         </button>
@@ -41,19 +49,29 @@
             <button
               type="button"
               class="archive__card-open"
+              [attr.aria-label]="'Mở bộ sưu tập ' + collection.Name"
               (click)="openCollection(collection.CollectionId)">
               <span class="archive__cover">
                 @if (collection.CoverUrl) {
                   <img [src]="collection.CoverUrl" alt="" loading="lazy" />
                 } @else {
-                  <span nz-icon nzType="folder" nzTheme="outline" aria-hidden="true"></span>
+                  <span class="archive__cover-empty">
+                    <span nz-icon nzType="folder" nzTheme="outline" aria-hidden="true"></span>
+                  </span>
                 }
+                <span class="archive__badge">
+                  <span nz-icon [nzType]="visibilityOf(collection).icon" nzTheme="outline"></span>
+                  {{ visibilityOf(collection).label }}
+                </span>
+                <span class="archive__count">{{ collection.ItemCount }} mục</span>
               </span>
               <span class="archive__card-body">
-                <strong>{{ collection.Name }}</strong>
-                <span class="archive__card-meta">
-                  <span nz-icon [nzType]="visibilityOf(collection).icon" nzTheme="outline"></span>
-                  {{ visibilityOf(collection).label }} · {{ collection.ItemCount }} mục
+                <strong class="archive__card-title">{{ collection.Name }}</strong>
+                @if (collection.Description) {
+                  <span class="archive__card-desc">{{ collection.Description }}</span>
+                }
+                <span class="archive__card-date">
+                  Cập nhật {{ collection.UpdatedDTime | date: 'dd/MM/yyyy' }}
                 </span>
               </span>
             </button>
@@ -78,6 +96,13 @@
             }
           </article>
         }
+
+        <button type="button" class="archive__new" (click)="isFormOpen = true">
+          <span class="archive__new-icon">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+          </span>
+          Bộ sưu tập mới
+        </button>
       </div>
     }
   </section>

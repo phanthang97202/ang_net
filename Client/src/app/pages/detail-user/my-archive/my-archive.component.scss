@@ -3,11 +3,15 @@
 }
 
 .archive {
+  // Chữ thân cũng dùng Montserrat như thẻ bài viết ở trang chủ: DM Sans (font
+  // mặc định của body) không có bộ ký tự tiếng Việt, chữ như ữ, ệ bị vẽ bằng Arial.
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
+// Cùng kiểu đầu mục "Bài viết của tôi"
 .archive__header {
   display: flex;
   align-items: flex-start;
@@ -35,21 +39,28 @@
 
 .archive__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.25rem;
 }
 
+// Thẻ bộ sưu tập: cùng khuôn thẻ bài viết ở trang chủ - nền thẻ, bo 20px,
+// ảnh bo 16px bên trong, hover nhấc lên và ảnh phóng nhẹ.
 .archive__card {
   position: relative;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  overflow: hidden;
+  border-radius: 20px;
   background: var(--color-bg-card);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 2px 16px var(--color-card-shadow);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 
   &:hover {
-    box-shadow: 0 8px 24px var(--color-card-shadow);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px var(--color-card-shadow);
+
+    .archive__cover img {
+      transform: scale(1.06);
+    }
   }
 
   &:hover .archive__order,
@@ -58,99 +69,259 @@
   }
 }
 
-.archive__card--skeleton {
-  display: block;
-  aspect-ratio: 4 / 3.6;
-  background: var(--color-control-bg);
-  animation: card-pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes card-pulse {
-  50% {
-    opacity: 0.55;
-  }
-}
-
 .archive__card-open {
   display: flex;
   flex-direction: column;
+  gap: 0.85rem;
   width: 100%;
-  padding: 0;
+  padding: 0.75rem 0.75rem 1rem;
   border: 0;
+  border-radius: 20px;
   background: transparent;
   color: inherit;
-  text-align: left;
   cursor: pointer;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
 }
 
 .archive__cover {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  display: block;
   aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 16px;
   background: var(--color-accent-bg);
-  color: var(--color-accent);
-  font-size: 2.5rem;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.6s ease;
   }
+}
+
+.archive__cover-empty {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--color-accent);
+  font-size: 2.4rem;
+  opacity: 0.8;
+}
+
+// Badge như danh mục / thời gian đọc trên thẻ bài viết
+.archive__badge,
+.archive__count {
+  position: absolute;
+  top: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.archive__badge {
+  left: 0.65rem;
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+}
+
+.archive__count {
+  right: 0.65rem;
+  background: rgba(20, 15, 40, 0.55);
+  backdrop-filter: blur(4px);
+  color: #fff;
 }
 
 .archive__card-body {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.75rem 0.9rem 0.9rem;
+  gap: 0.35rem;
+  padding: 0 0.35rem;
+}
 
-  strong {
-    color: var(--color-text);
-    font-size: 0.95rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.archive__card-title {
+  overflow: hidden;
+  color: var(--color-text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  .archive__card:hover & {
+    color: var(--color-accent);
   }
 }
 
-.archive__card-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+.archive__card-desc {
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
+.archive__card-date {
+  color: var(--color-text-muted);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+// Nút đổi thứ tự: góc dưới bên phải thẻ, ngang dòng ngày cập nhật; hiện khi hover
 .archive__order {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  right: 0.85rem;
+  bottom: 0.7rem;
   display: flex;
-  gap: 4px;
+  gap: 2px;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease;
 
   @media (hover: none) {
     opacity: 1;
   }
 
   button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
     width: 28px;
     height: 28px;
+    place-items: center;
+    padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
+    background: transparent;
+    color: var(--color-text-muted);
     cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-bg);
+      color: var(--color-accent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
 
     &:disabled {
-      opacity: 0.35;
       cursor: not-allowed;
+      opacity: 0.35;
     }
+  }
+}
+
+// Ô "Bộ sưu tập mới" cuối lưới
+.archive__new {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border: 1.5px dashed var(--color-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.archive__new-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 1.2rem;
+}
+
+// ── Trạng thái tải / trống ─────────────────────────────────────────────
+.archive__card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.75rem 0.75rem 1rem;
+
+  &:hover {
+    transform: none;
+  }
+}
+
+.archive__shimmer {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-control-bg) 0%,
+    var(--color-control-bg-hover) 50%,
+    var(--color-control-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: archive-shimmer 1.4s ease-in-out infinite;
+}
+
+.archive__shimmer--cover {
+  aspect-ratio: 16 / 10;
+  border-radius: 16px;
+}
+
+.archive__shimmer--line {
+  width: 70%;
+  height: 14px;
+
+  &.is-short {
+    width: 40%;
+  }
+}
+
+@keyframes archive-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
   }
 }
 
@@ -158,28 +329,56 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 2.5rem 1rem;
-  border: 1px dashed var(--color-border);
-  border-radius: 14px;
+  gap: 0.55rem;
+  padding: 3rem 1.25rem;
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
   text-align: center;
 
-  > [nz-icon] {
-    font-size: 2rem;
-    color: var(--color-text-muted);
-  }
-
   h3 {
-    margin: 0;
+    margin: 0.35rem 0 0;
     color: var(--color-text);
-    font-size: 1rem;
-    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
   }
 
   p {
-    max-width: 420px;
-    margin: 0;
+    max-width: 440px;
+    margin: 0 0 0.6rem;
     color: var(--color-text-muted);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+}
+
+.archive__empty-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive__card,
+  .archive__cover img {
+    transition: none;
+  }
+
+  .archive__card:hover {
+    transform: none;
+
+    .archive__cover img {
+      transform: none;
+    }
+  }
+
+  .archive__shimmer {
+    animation: none;
   }
 }

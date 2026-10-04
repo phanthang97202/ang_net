@@ -15,6 +15,8 @@ import { resolveLinkEmbed } from '../../../helpers/utils/embed-url';
 })
 export class ArchiveItemViewerComponent implements OnChanges {
   @Input({ required: true }) item!: IArchiveItem;
+  /** false khi tiêu đề đã nằm ở header của modal bọc ngoài */
+  @Input() showTitle = true;
 
   private sanitizer = inject(DomSanitizer);
 

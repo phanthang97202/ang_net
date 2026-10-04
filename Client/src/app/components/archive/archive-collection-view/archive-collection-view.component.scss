@@ -3,32 +3,47 @@
 }
 
 .collection {
+  // Chữ thân cũng dùng Montserrat như thẻ bài viết ở trang chủ: DM Sans (font
+  // mặc định của body) không có bộ ký tự tiếng Việt, chữ như ữ, ệ bị vẽ bằng Arial.
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
+// ── Đầu trang ──────────────────────────────────────────────────────────
 .collection__header {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 .collection__back {
   display: inline-flex;
   align-self: flex-start;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.6rem;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
-  font-weight: 600;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 
   &:hover {
+    background: var(--color-accent-bg);
     color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 }
 
@@ -50,8 +65,9 @@
     margin: 0;
     color: var(--color-text);
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.35rem;
+    font-size: 1.6rem;
     font-weight: 800;
+    line-height: 1.25;
     word-break: break-word;
   }
 }
@@ -60,31 +76,43 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0.4rem 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
 }
 
-.collection__badge {
+// Viên nhỏ giống badge danh mục / thời gian đọc trên thẻ bài viết
+.collection__pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.15rem 0.6rem;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 999px;
+  background: var(--color-control-bg);
+  color: var(--color-text-muted);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.collection__pill--accent {
   background: var(--color-accent-bg);
   color: var(--color-accent);
-  font-weight: 600;
 }
 
 .collection__owner {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
+  margin-left: 0.25rem;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
 
   img {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     object-fit: cover;
   }
@@ -93,52 +121,57 @@
 .collection__actions {
   display: flex;
   flex-shrink: 0;
+  align-items: center;
   gap: 0.5rem;
 }
 
 .collection__description {
+  max-width: 720px;
   margin: 0;
-  color: var(--color-text);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
   white-space: pre-wrap;
 }
 
+// ── Lưới ───────────────────────────────────────────────────────────────
 .collection__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1rem;
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
   }
 }
 
+// Ô vuông như ảnh trên thẻ bài viết: bo 16px, bóng mềm, hover nhấc lên và
+// ảnh phóng nhẹ.
 .collection__tile {
   position: relative;
+  display: block;
   aspect-ratio: 1;
-  border-radius: 12px;
   overflow: hidden;
+  border-radius: 16px;
   background: var(--color-control-bg);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px var(--color-card-shadow);
+
+    img {
+      transform: scale(1.06);
+    }
+  }
 
   &:hover .collection__tile-menu,
   &:focus-within .collection__tile-menu {
     opacity: 1;
-  }
-
-  &:hover img {
-    transform: scale(1.04);
-  }
-}
-
-.collection__tile--skeleton {
-  animation: tile-pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes tile-pulse {
-  50% {
-    opacity: 0.55;
   }
 }
 
@@ -156,58 +189,76 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.25s ease;
+    transition: transform 0.6s ease;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: -3px;
   }
 }
 
 .collection__tile-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
   width: 100%;
   height: 100%;
-  color: #fff;
-  font-size: 2.5rem;
+  place-items: center;
   background: linear-gradient(135deg, #5b4fe9, #8c7cf0);
+  color: #fff;
+  font-size: 2.4rem;
 
   &[data-provider='YouTube'] {
     background: linear-gradient(135deg, #e62117, #ff5a4f);
   }
+
   &[data-provider='TikTok'] {
     background: linear-gradient(135deg, #111, #2b2b2b);
   }
+
   &[data-provider='Facebook'] {
     background: linear-gradient(135deg, #1877f2, #4f9bff);
   }
+
   &[data-provider='Instagram'] {
     background: linear-gradient(135deg, #f58529, #dd2a7b 55%, #8134af);
   }
 }
 
+// Nút play: đĩa trắng mờ kính, cùng tinh thần nút trên banner
 .collection__tile-play {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 2.25rem;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  padding-left: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 1.3rem;
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .collection__tile-source {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 0.6rem;
+  left: 0.6rem;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.2rem 0.45rem;
+  padding: 0.28rem 0.55rem;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(20, 15, 40, 0.55);
+  backdrop-filter: blur(4px);
   color: #fff;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
 }
 
 .collection__tile-title {
@@ -215,33 +266,47 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 1.5rem 0.6rem 0.5rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-align: left;
-  white-space: nowrap;
   overflow: hidden;
+  padding: 2rem 0.75rem 0.65rem;
+  background: linear-gradient(transparent, rgba(10, 8, 25, 0.78));
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .collection__tile-menu {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(20, 15, 40, 0.55);
+  backdrop-filter: blur(4px);
   color: #fff;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    background: var(--color-accent);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
 
   // Màn cảm ứng không có hover - luôn hiện
   @media (hover: none) {
@@ -254,44 +319,138 @@
   justify-content: center;
 }
 
+// ── Trạng thái tải / trống ─────────────────────────────────────────────
+.collection__header-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.collection__shimmer {
+  display: block;
+  border-radius: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--color-control-bg) 0%,
+    var(--color-control-bg-hover) 50%,
+    var(--color-control-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: collection-shimmer 1.4s ease-in-out infinite;
+  box-shadow: none;
+}
+
+.collection__shimmer--title {
+  width: min(320px, 70%);
+  height: 30px;
+  border-radius: 10px;
+}
+
+.collection__shimmer--meta {
+  width: 160px;
+  height: 20px;
+  border-radius: 999px;
+}
+
+@keyframes collection-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
 .collection__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 2.5rem 1rem;
-  border: 1px dashed var(--color-border);
-  border-radius: 14px;
+  gap: 0.55rem;
+  padding: 3rem 1.25rem;
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
   text-align: center;
 
-  > [nz-icon] {
-    font-size: 2rem;
-    color: var(--color-text-muted);
-  }
-
   h3 {
-    margin: 0;
+    margin: 0.35rem 0 0;
     color: var(--color-text);
-    font-size: 1rem;
-    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
   }
 
   p {
-    margin: 0;
+    max-width: 420px;
+    margin: 0 0 0.6rem;
     color: var(--color-text-muted);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
+    line-height: 1.6;
   }
 }
 
+.collection__empty-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 1.5rem;
+}
+
+// ── Popup xem mục / xác nhận (nội dung; khung ở .blog-modal) ───────────
 .collection__viewer-nav {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.35rem;
   margin-top: 1rem;
+}
+
+.collection__viewer-count {
+  min-width: 3.5rem;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
 }
 
 .collection__viewer-edit {
   margin-left: auto;
+}
+
+.collection__confirm-text {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.collection__confirm-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collection__tile,
+  .collection__tile-open img {
+    transition: none;
+  }
+
+  .collection__tile:hover {
+    transform: none;
+
+    img {
+      transform: none;
+    }
+  }
+
+  .collection__shimmer {
+    animation: none;
+  }
 }
