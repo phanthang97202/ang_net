@@ -1,10 +1,10 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using angnet.Domain.Dtos;
 using angnet.Infrastructure.Data;
+using angnet.WebApi.Cloudinary;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -386,76 +386,29 @@ namespace angnet.WebApi.Controllers
                 .Where(x => x.TenantLogo == url)
                 .Select(x => new MediaUsageDto { Source = "Tenant", Id = x.TenantId.ToString(), Title = x.TenantName })
                 .Take(10).ToListAsync());
+            usages.AddRange(await _dbContext.ArchiveItem.AsNoTracking()
+                .Where(x => x.SourceUrl == url || x.ThumbnailUrl == url)
+                .Select(x => new MediaUsageDto { Source = "Thư viện lưu trữ", Id = x.ItemId, Title = x.Title })
+                .Take(10).ToListAsync());
+            usages.AddRange(await _dbContext.ArchiveCollection.AsNoTracking()
+                .Where(x => x.CoverUrl == url)
+                .Select(x => new MediaUsageDto { Source = "Ảnh bìa bộ sưu tập", Id = x.CollectionId, Title = x.Name })
+                .Take(10).ToListAsync());
 
             return usages.Take(20).ToList();
         }
 
-        private bool TryGetCloudinarySettings(out string cloudName, out string apiKey, out string apiSecret)
-        {
-            cloudName = _configuration["Cloudinary:CloudName"] ?? string.Empty;
-            apiKey = _configuration["Cloudinary:ApiKey"] ?? string.Empty;
-            apiSecret = _configuration["Cloudinary:ApiSecret"] ?? string.Empty;
+        private bool TryGetCloudinarySettings(out string cloudName, out string apiKey, out string apiSecret) =>
+            CloudinaryAccount.TryGetSettings(_configuration, out cloudName, out apiKey, out apiSecret);
 
-            // Cloudinary/Render thường cung cấp một biến duy nhất dạng
-            // cloudinary://api_key:api_secret@cloud_name. Vẫn ưu tiên ba biến tách
-            // riêng ở trên để dễ cấu hình trên máy phát triển.
-            string cloudinaryUrl = _configuration["CLOUDINARY_URL"] ?? string.Empty;
-            if ((string.IsNullOrWhiteSpace(cloudName) ||
-                 string.IsNullOrWhiteSpace(apiKey) ||
-                 string.IsNullOrWhiteSpace(apiSecret)) &&
-                Uri.TryCreate(cloudinaryUrl, UriKind.Absolute, out Uri? uri) &&
-                uri.Scheme.Equals("cloudinary", StringComparison.OrdinalIgnoreCase))
-            {
-                string[] credentials = uri.UserInfo.Split(':', 2);
-                if (credentials.Length == 2)
-                {
-                    apiKey = Uri.UnescapeDataString(credentials[0]);
-                    apiSecret = Uri.UnescapeDataString(credentials[1]);
-                    cloudName = uri.Host;
-                }
-            }
+        private HttpClient CreateCloudinaryClient(string apiKey, string apiSecret) =>
+            CloudinaryAccount.CreateAdminClient(_httpClientFactory, apiKey, apiSecret);
 
-            return !string.IsNullOrWhiteSpace(cloudName) &&
-                   !string.IsNullOrWhiteSpace(apiKey) &&
-                   !string.IsNullOrWhiteSpace(apiSecret);
-        }
+        private static Task<bool> UsesDynamicFolders(HttpClient client, string cloudName) =>
+            CloudinaryAccount.UsesDynamicFolders(client, cloudName);
 
-        private HttpClient CreateCloudinaryClient(string apiKey, string apiSecret)
-        {
-            HttpClient client = _httpClientFactory.CreateClient();
-            string credential = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{apiKey}:{apiSecret}"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credential);
-            return client;
-        }
-
-        private static async Task<bool> UsesDynamicFolders(HttpClient client, string cloudName)
-        {
-            using HttpResponseMessage response = await client.GetAsync(
-                $"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/config?settings=true");
-            if (!response.IsSuccessStatusCode)
-            {
-                // New Cloudinary environments use dynamic folders. Keep that as the safe fallback
-                // if this account cannot expose its configuration through the Admin API.
-                return true;
-            }
-
-            string json = await response.Content.ReadAsStringAsync();
-            using JsonDocument document = JsonDocument.Parse(json);
-            if (document.RootElement.TryGetProperty("settings", out JsonElement settings) &&
-                settings.TryGetProperty("folder_mode", out JsonElement folderMode) &&
-                folderMode.ValueKind == JsonValueKind.String)
-            {
-                return !string.Equals(folderMode.GetString(), "fixed", StringComparison.OrdinalIgnoreCase);
-            }
-
-            return true;
-        }
-
-        private static string SignCloudinaryParameters(string parameters, string apiSecret)
-        {
-            byte[] hash = SHA1.HashData(Encoding.UTF8.GetBytes(parameters + apiSecret));
-            return Convert.ToHexString(hash).ToLowerInvariant();
-        }
+        private static string SignCloudinaryParameters(string parameters, string apiSecret) =>
+            CloudinaryAccount.Sign(parameters, apiSecret);
 
         private static string NormalizeFolderPath(string path) =>
             string.Join('/', (path ?? string.Empty).Split(

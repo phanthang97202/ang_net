@@ -86,6 +86,8 @@ namespace angnet.Infrastructure
 
             services.AddScoped<ISubscriberService, SubscriberService>();
 
+            services.AddScoped<IArchiveService, ArchiveService>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register services

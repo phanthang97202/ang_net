@@ -1,0 +1,169 @@
+<nz-modal
+  [nzVisible]="visible"
+  [nzTitle]="title"
+  [nzMaskClosable]="!isSaving"
+  [nzClosable]="!isSaving"
+  [nzFooter]="footer"
+  nzWidth="600px"
+  (nzOnCancel)="close()">
+  <ng-container *nzModalContent>
+    <form class="item-form" [formGroup]="form" (ngSubmit)="submit()">
+      @if (!isEdit) {
+        <div class="item-form__modes" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            class="item-form__mode"
+            [class.is-active]="mode === 'upload'"
+            [attr.aria-selected]="mode === 'upload'"
+            (click)="setMode('upload')">
+            <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
+            Tải ảnh / video
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="item-form__mode"
+            [class.is-active]="mode === 'link'"
+            [attr.aria-selected]="mode === 'link'"
+            (click)="setMode('link')">
+            <span nz-icon nzType="link" nzTheme="outline"></span>
+            Dán link
+          </button>
+        </div>
+      }
+
+      @if (!isEdit && mode === 'upload') {
+        <label
+          class="item-form__drop"
+          [class.is-over]="isDragOver"
+          (dragover)="onDragOver($event, true)"
+          (dragleave)="onDragOver($event, false)"
+          (drop)="onDrop($event)">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            hidden
+            [disabled]="isSaving"
+            (change)="onFileInput($event)" />
+          <span nz-icon nzType="inbox" nzTheme="outline"></span>
+          <strong>Chọn hoặc kéo thả ảnh, video vào đây</strong>
+          <small>Ảnh tối đa 10 MB, video tối đa 100 MB. Mỗi file sẽ thành một mục.</small>
+        </label>
+
+        @if (files.length > 0) {
+          <ul class="item-form__files">
+            @for (pending of files; track pending.previewUrl) {
+              <li class="item-form__file" [class.is-error]="pending.status === 'error'">
+                @if (pending.kind === 'Image') {
+                  <img [src]="pending.previewUrl" alt="" />
+                } @else {
+                  <video [src]="pending.previewUrl" muted preload="metadata"></video>
+                }
+                @if (pending.status === 'uploading') {
+                  <span class="item-form__progress">{{ pending.percent }}%</span>
+                }
+                @if (pending.status === 'done') {
+                  <span class="item-form__progress">✓</span>
+                }
+                @if (pending.status === 'error') {
+                  <span class="item-form__file-error" [title]="pending.error">Lỗi</span>
+                }
+                @if (!isSaving) {
+                  <button
+                    type="button"
+                    class="item-form__remove"
+                    aria-label="Bỏ file"
+                    (click)="removeFile(pending)">
+                    <span nz-icon nzType="close" nzTheme="outline"></span>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @if (!isEdit && mode === 'link') {
+        <label class="item-form__field">
+          <span class="item-form__label">Link</span>
+          <input
+            nz-input
+            formControlName="SourceUrl"
+            placeholder="Dán link YouTube, TikTok, Facebook, Instagram hoặc trang web bất kỳ"
+            (input)="onLinkChange()" />
+        </label>
+      }
+
+      @if (linkPreview && mode === 'link') {
+        <div class="item-form__preview">
+          @if (linkPreview.thumbnailUrl) {
+            <img [src]="linkPreview.thumbnailUrl" alt="" />
+          }
+          <span>
+            Nhận diện: <strong>{{ linkPreview.provider === 'Web' ? 'Trang web' : linkPreview.provider }}</strong>
+            @if (!linkPreview.embedSrc && linkPreview.provider !== 'Web') {
+              — không xem trực tiếp được, sẽ lưu dạng link
+            }
+          </span>
+        </div>
+      }
+
+      @if (isEdit && collections.length > 1) {
+        <div class="item-form__field">
+          <span class="item-form__label" id="item-form-collection">Bộ sưu tập</span>
+          <nz-select formControlName="CollectionId" aria-labelledby="item-form-collection">
+            @for (collection of collections; track collection.CollectionId) {
+              <nz-option [nzValue]="collection.CollectionId" [nzLabel]="collection.Name"></nz-option>
+            }
+          </nz-select>
+        </div>
+      }
+
+      @if (isEdit || mode === 'link' || files.length <= 1) {
+        <label class="item-form__field">
+          <span class="item-form__label">Tiêu đề</span>
+          <input nz-input formControlName="Title" maxlength="300" placeholder="Không bắt buộc" />
+        </label>
+      }
+
+      <label class="item-form__field">
+        <span class="item-form__label">Ghi chú</span>
+        <textarea
+          nz-input
+          formControlName="Note"
+          rows="4"
+          maxlength="10000"
+          placeholder="Kỷ niệm gì, hay bạn học được điều gì từ nội dung này?"></textarea>
+      </label>
+
+      <div class="item-form__row">
+        <div class="item-form__field">
+          <span class="item-form__label" id="item-form-taken-at">Ngày diễn ra</span>
+          <nz-date-picker
+            formControlName="TakenAt"
+            nzFormat="dd/MM/yyyy"
+            nzPlaceHolder="Không bắt buộc"
+            aria-labelledby="item-form-taken-at"></nz-date-picker>
+        </div>
+
+        @if (mode === 'link') {
+          <label class="item-form__field">
+            <span class="item-form__label">Link ảnh đại diện</span>
+            <input nz-input formControlName="ThumbnailUrl" placeholder="Không bắt buộc" />
+          </label>
+        }
+      </div>
+
+      <button type="submit" hidden></button>
+    </form>
+  </ng-container>
+
+  <ng-template #footer>
+    <button nz-button type="button" [disabled]="isSaving" (click)="close()">Huỷ</button>
+    <button nz-button nzType="primary" type="button" [nzLoading]="isSaving" (click)="submit()">
+      {{ isSaving && mode === 'upload' && !isEdit ? 'Đang tải lên...' : 'Lưu' }}
+    </button>
+  </ng-template>
+</nz-modal>

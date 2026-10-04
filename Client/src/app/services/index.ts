@@ -14,3 +14,4 @@ export * from './ws-chat.service';
 export * from './chess-game.service';
 export * from './visit-tracking.service';
 export * from './toc-panel.service';
+export * from './archive.service';

@@ -78,6 +78,10 @@ namespace angnet.Infrastructure.Data
         public DbSet<LikeReelModel> LikeReel { get; set; }
         public DbSet<ReelCommentModel> ReelComment { get; set; }
 
+        // Thư viện lưu trữ (bộ sưu tập cá nhân)
+        public DbSet<ArchiveCollectionModel> ArchiveCollection { get; set; }
+        public DbSet<ArchiveItemModel> ArchiveItem { get; set; }
+
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -379,6 +383,47 @@ namespace angnet.Infrastructure.Data
                         .WithMany()
                         .HasForeignKey(p => p.ParentCommentId)
                         .OnDelete(DeleteBehavior.Cascade);
+
+            // ArchiveCollectionModel
+            modelBuilder.Entity<ArchiveCollectionModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.OwnerId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArchiveCollectionModel>()
+                        .Property(x => x.Visibility)
+                        .HasConversion<string>();
+
+            modelBuilder.Entity<ArchiveCollectionModel>()
+                        .HasIndex(x => new { x.OwnerId, x.SortOrder });
+
+            // ArchiveItemModel
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .HasOne<ArchiveCollectionModel>()
+                        .WithMany()
+                        .HasForeignKey(p => p.CollectionId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .HasOne<AppUser>()
+                        .WithMany()
+                        .HasForeignKey(p => p.OwnerId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .Property(x => x.Kind)
+                        .HasConversion<string>();
+
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .Property(x => x.Provider)
+                        .HasConversion<string>();
+
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .HasIndex(x => new { x.CollectionId, x.CreatedDTime });
+
+            modelBuilder.Entity<ArchiveItemModel>()
+                        .HasIndex(x => x.OwnerId);
 
             // Subscriber: chặn trùng email ngay ở DB thay vì chỉ kiểm tra trong code -
             // hai request đăng ký cùng lúc cùng một email đều thấy "chưa tồn tại" rồi

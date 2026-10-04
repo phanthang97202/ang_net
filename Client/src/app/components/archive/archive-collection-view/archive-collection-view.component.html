@@ -1,0 +1,223 @@
+<section class="collection">
+  @if (notFound) {
+    <div class="collection__empty">
+      <span nz-icon nzType="lock" nzTheme="outline" aria-hidden="true"></span>
+      <h3>Không tìm thấy bộ sưu tập</h3>
+      <p>Bộ sưu tập không tồn tại, đã bị xoá hoặc đang ở chế độ riêng tư.</p>
+      @if (showBack) {
+        <button nz-button type="button" (click)="back.emit()">Quay lại</button>
+      }
+    </div>
+  } @else if (!collection) {
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 4 }"></nz-skeleton>
+  } @else {
+    <header class="collection__header">
+      @if (showBack) {
+        <button type="button" class="collection__back" (click)="back.emit()">
+          <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+          Thư viện
+        </button>
+      }
+
+      <div class="collection__title-row">
+        <div class="collection__identity">
+          <h2>{{ collection.Name }}</h2>
+          <p class="collection__meta">
+            <span class="collection__badge">
+              <span nz-icon [nzType]="visibility.icon" nzTheme="outline"></span>
+              {{ visibility.label }}
+            </span>
+            <span>{{ collection.ItemCount }} mục</span>
+            @if (!collection.IsOwner) {
+              <span class="collection__owner">
+                @if (collection.OwnerAvatar) {
+                  <img [src]="collection.OwnerAvatar" alt="" />
+                }
+                {{ collection.OwnerFullName }}
+              </span>
+            }
+          </p>
+        </div>
+
+        @if (collection.IsOwner) {
+          <div class="collection__actions">
+            <button nz-button nzType="primary" type="button" (click)="openAddItem()">
+              <span nz-icon nzType="plus" nzTheme="outline"></span>
+              Thêm
+            </button>
+            @if (collection.Visibility !== 'Private') {
+              <button nz-button type="button" (click)="copyShareLink()">
+                <span nz-icon nzType="share-alt" nzTheme="outline"></span>
+                Chia sẻ
+              </button>
+            }
+            <button
+              nz-button
+              type="button"
+              nz-dropdown
+              [nzDropdownMenu]="collectionMenu"
+              nzTrigger="click"
+              nzPlacement="bottomRight"
+              aria-label="Tuỳ chọn bộ sưu tập">
+              <span nz-icon nzType="ellipsis" nzTheme="outline"></span>
+            </button>
+            <nz-dropdown-menu #collectionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item tabindex="0" (click)="isCollectionFormOpen = true" (keydown.enter)="isCollectionFormOpen = true">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>&nbsp; Sửa thông tin
+                </li>
+                <li nz-menu-item nzDanger tabindex="0" (click)="confirmDeleteCollection()" (keydown.enter)="confirmDeleteCollection()">
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>&nbsp; Xoá bộ sưu tập
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </div>
+        }
+      </div>
+
+      @if (collection.Description) {
+        <p class="collection__description">{{ collection.Description }}</p>
+      }
+    </header>
+
+    @if (isLoading) {
+      <div class="collection__grid" aria-hidden="true">
+        @for (placeholder of [1, 2, 3, 4, 5, 6]; track placeholder) {
+          <span class="collection__tile collection__tile--skeleton"></span>
+        }
+      </div>
+    } @else if (items.length === 0) {
+      <div class="collection__empty">
+        <span nz-icon nzType="folder-open" nzTheme="outline" aria-hidden="true"></span>
+        <h3>Bộ sưu tập còn trống</h3>
+        @if (collection.IsOwner) {
+          <p>Tải ảnh, video lên hoặc dán link YouTube, TikTok, Facebook, Instagram.</p>
+          <button nz-button nzType="primary" type="button" (click)="openAddItem()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            Thêm mục đầu tiên
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="collection__grid">
+        @for (item of items; track item.ItemId; let index = $index) {
+          <article class="collection__tile">
+            <button
+              type="button"
+              class="collection__tile-open"
+              [attr.aria-label]="item.Title || 'Xem mục'"
+              (click)="open(index)">
+              @if (item.ThumbnailUrl) {
+                <img [src]="item.ThumbnailUrl" [alt]="item.Title" loading="lazy" />
+              } @else {
+                <span class="collection__tile-placeholder" [attr.data-provider]="item.Provider">
+                  <app-archive-provider-icon [provider]="item.Provider" [kind]="item.Kind" />
+                </span>
+              }
+
+              @if (item.Kind === 'Video' || (item.Kind === 'Link' && item.Provider !== 'Web')) {
+                <span class="collection__tile-play">
+                  <span nz-icon nzType="play-circle" nzTheme="fill"></span>
+                </span>
+              }
+
+              <span class="collection__tile-source">
+                <app-archive-provider-icon [provider]="item.Provider" [kind]="item.Kind" />
+                @if (item.DurationSeconds) {
+                  {{ formatDuration(item.DurationSeconds) }}
+                }
+              </span>
+
+              @if (item.Title) {
+                <span class="collection__tile-title">{{ item.Title }}</span>
+              }
+            </button>
+
+            @if (collection.IsOwner) {
+              <button
+                type="button"
+                class="collection__tile-menu"
+                nz-dropdown
+                [nzDropdownMenu]="itemMenu"
+                nzTrigger="click"
+                nzPlacement="bottomRight"
+                aria-label="Tuỳ chọn mục">
+                <span nz-icon nzType="more" nzTheme="outline"></span>
+              </button>
+              <nz-dropdown-menu #itemMenu="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item tabindex="0" (click)="openEditItem(item)" (keydown.enter)="openEditItem(item)">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>&nbsp; Sửa
+                  </li>
+                  @if (item.ThumbnailUrl) {
+                    <li nz-menu-item tabindex="0" (click)="setAsCover(item)" (keydown.enter)="setAsCover(item)">
+                      <span nz-icon nzType="picture" nzTheme="outline"></span>&nbsp; Đặt làm ảnh bìa
+                    </li>
+                  }
+                  <li nz-menu-item nzDanger tabindex="0" (click)="confirmDeleteItem(item)" (keydown.enter)="confirmDeleteItem(item)">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>&nbsp; Xoá
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            }
+          </article>
+        }
+      </div>
+
+      @if (hasMore) {
+        <div class="collection__more">
+          <button nz-button type="button" [nzLoading]="isLoadingMore" (click)="loadMore()">
+            Xem thêm
+          </button>
+        </div>
+      }
+    }
+
+    <nz-modal
+      [nzVisible]="viewingItem !== null"
+      [nzFooter]="null"
+      nzWidth="920px"
+      nzClassName="archive-viewer-modal"
+      (nzOnCancel)="closeViewer()">
+      <ng-container *nzModalContent>
+        @if (viewingItem; as item) {
+          <app-archive-item-viewer [item]="item" />
+          <div class="collection__viewer-nav">
+            <button nz-button type="button" [disabled]="viewingIndex === 0" (click)="step(-1)">
+              <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+            </button>
+            <span>{{ (viewingIndex ?? 0) + 1 }} / {{ itemCount }}</span>
+            <button
+              nz-button
+              type="button"
+              [disabled]="(viewingIndex ?? 0) >= items.length - 1"
+              (click)="step(1)">
+              <span nz-icon nzType="arrow-left" nzTheme="outline" [nzRotate]="180"></span>
+            </button>
+            @if (collection.IsOwner) {
+              <button nz-button type="button" class="collection__viewer-edit" (click)="openEditItem(item)">
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+                Sửa
+              </button>
+            }
+          </div>
+        }
+      </ng-container>
+    </nz-modal>
+
+    @if (collection.IsOwner) {
+      <app-archive-item-form
+        [visible]="isItemFormOpen"
+        [collectionId]="collectionId"
+        [item]="editingItem"
+        (saved)="onItemsSaved()"
+        (closed)="isItemFormOpen = false" />
+
+      <app-archive-collection-form
+        [visible]="isCollectionFormOpen"
+        [collection]="collection"
+        (saved)="onCollectionSaved($event)"
+        (closed)="isCollectionFormOpen = false" />
+    }
+  }
+</section>

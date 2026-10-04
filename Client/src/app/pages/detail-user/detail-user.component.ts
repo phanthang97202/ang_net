@@ -9,6 +9,7 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../modules';
 import { MyPostsComponent } from './my-posts/my-posts.component';
+import { MyArchiveComponent } from './my-archive/my-archive.component';
 
 /**
  * Một mục trong sidebar. Thêm tab mới = thêm 1 phần tử vào profileNav rồi
@@ -36,6 +37,7 @@ export interface ProfileNavSection {
     ...REUSE_COMPONENT_MODULES,
     ...REUSE_PIPE_MODULE,
     MyPostsComponent,
+    MyArchiveComponent,
   ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
@@ -63,6 +65,10 @@ export class DetailUserComponent implements OnInit {
       items: [
         { id: 'reels', labelKey: 'T_MYREELS', icon: 'play-circle', available: false },
         { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: true },
+        // Admin cấp quyền dùng thư viện theo vai trò; không có quyền thì ẩn hẳn
+        ...(this.authService.hasPermission('archive.use')
+          ? [{ id: 'archive', labelKey: 'T_MYARCHIVE', icon: 'folder-open', available: true }]
+          : []),
       ],
     },
   ];
@@ -108,7 +114,8 @@ export class DetailUserComponent implements OnInit {
     }
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
-      queryParams: { tab: item.id },
+      // Bỏ bộ sưu tập đang mở để quay lại tab thư viện thì về danh sách
+      queryParams: { tab: item.id, collection: null },
       queryParamsHandling: 'merge',
     });
   }

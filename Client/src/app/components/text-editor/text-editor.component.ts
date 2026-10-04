@@ -56,6 +56,12 @@ import {
   type EditorConfig,
 } from 'ckeditor5';
 import viTranslations from 'ckeditor5/translations/vi.js';
+import {
+  extractInstagramPermalink,
+  extractTiktokVideoId,
+  toFacebookPluginSrc,
+  toInstagramEmbedSrc,
+} from '../../helpers/utils/embed-url';
 
 type EmbedType = 'iframe' | 'pdf';
 
@@ -266,15 +272,15 @@ export class TextEditorComponent implements OnChanges {
     if (!raw) return null;
 
     if (type === 'iframe') {
-      const tiktokId = this.extractTiktokVideoId(raw);
+      const tiktokId = extractTiktokVideoId(raw);
       if (tiktokId) return `https://www.tiktok.com/player/v1/${tiktokId}`;
 
-      const facebookSrc = this.toFacebookPluginSrc(raw);
+      const facebookSrc = toFacebookPluginSrc(raw);
       if (facebookSrc) return facebookSrc;
 
-      const instagramLink = this.extractInstagramPermalink(raw);
+      const instagramLink = extractInstagramPermalink(raw);
       if (instagramLink) {
-        return this.toInstagramEmbedSrc(
+        return toInstagramEmbedSrc(
           instagramLink,
           /data-instgrm-captioned/i.test(raw)
         );
@@ -289,84 +295,6 @@ export class TextEditorComponent implements OnChanges {
     } catch {
       return null;
     }
-  }
-
-  private extractTiktokVideoId(input: string): string | null {
-    const match =
-      input.match(/tiktok\.com\/(?:@[^/]+\/video|player\/v1)\/(\d+)/) ??
-      input.match(/data-video-id=["'](\d+)["']/);
-    return match ? match[1] : null;
-  }
-
-  private toFacebookPluginSrc(input: string): string | null {
-    const href = this.extractFacebookHref(input);
-    if (!href) return null;
-
-    if (/facebook\.com\/plugins\/(video|post)\.php/.test(href)) {
-      return href;
-    }
-
-    const isVideo =
-      /\/(videos|reel|reels|watch)\//.test(href) ||
-      /\/share\/[vr]\//.test(href) ||
-      /fb\.watch\//.test(href) ||
-      /[?&]v=\d/.test(href);
-    const encoded = encodeURIComponent(href);
-
-    return isVideo
-      ? `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false`
-      : `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true`;
-  }
-
-  private extractFacebookHref(input: string): string | null {
-    const embedded =
-      input.match(/<iframe[^>]+src=["']([^"']+)["']/i) ??
-      input.match(/data-href=["']([^"']+)["']/i) ??
-      input.match(/\scite=["']([^"']+)["']/i);
-    const candidate = (embedded ? embedded[1] : input).replace(/&amp;/g, '&');
-
-    try {
-      const url = new URL(candidate.trim());
-      return /(^|\.)(facebook\.com|fb\.watch)$/i.test(url.hostname)
-        ? url.href
-        : null;
-    } catch {
-      return null;
-    }
-  }
-
-  private extractInstagramPermalink(input: string): string | null {
-    const embedded =
-      input.match(/data-instgrm-permalink=["']([^"']+)["']/i) ??
-      input.match(/<iframe[^>]+src=["']([^"']+)["']/i);
-    const candidate = (embedded ? embedded[1] : input.trim()).replace(
-      /&amp;/g,
-      '&'
-    );
-
-    try {
-      const url = new URL(candidate);
-      return /(^|\.)instagram\.com$/i.test(url.hostname) ? url.href : null;
-    } catch {
-      return null;
-    }
-  }
-
-  private toInstagramEmbedSrc(
-    permalink: string,
-    captioned: boolean
-  ): string | null {
-    if (/instagram\.com\/share\//i.test(permalink)) return null;
-
-    const match = permalink.match(
-      /instagram\.com\/(?:[^/?#]+\/)?(p|reels?|tv)\/([A-Za-z0-9_-]+)/i
-    );
-    if (!match) return null;
-
-    const type = match[1].toLowerCase();
-    const kind = type === 'reels' ? 'reel' : type;
-    const suffix = captioned ? '/captioned' : '';
-    return `https://www.instagram.com/${kind}/${match[2]}/embed${suffix}`;
   }
 
   private escapeAttribute(value: string): string {

@@ -46,6 +46,16 @@ export const routes: Routes = [
     canActivate: [canActive],
   },
   {
+    // Link chia sẻ bộ sưu tập (Public / Unlisted). Không gác đăng nhập: quyền
+    // xem do server quyết định theo Visibility.
+    title: 'T_PAGE_ARCHIVE',
+    path: 'archive/:collectionId',
+    loadComponent: () =>
+      import('./pages/archive-public/archive-public.component').then(
+        p => p.ArchivePublicComponent
+      ),
+  },
+  {
     title: 'T_PAGE_TOOLS',
     path: 'tools',
     // canActivate: [canActive],

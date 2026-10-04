@@ -104,17 +104,59 @@ export class CloudinaryService {
     );
   }
 
+  /**
+   * Tải file bằng chữ ký server cấp (không dùng preset unsigned). Mọi tham số
+   * đã ký phải gửi y nguyên, thiếu hoặc sai một cái là Cloudinary từ chối.
+   */
+  uploadSignedWithProgress(
+    file: File,
+    signature: {
+      UploadUrl: string;
+      ApiKey: string;
+      Timestamp: number;
+      Signature: string;
+      PublicId: string;
+      AssetFolder: string;
+      AllowedFormats: string;
+      ReturnDeleteToken: boolean;
+    }
+  ): Observable<CloudinaryUploadEvent> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('api_key', signature.ApiKey);
+    formData.append('timestamp', String(signature.Timestamp));
+    formData.append('signature', signature.Signature);
+    formData.append('public_id', signature.PublicId);
+    formData.append('allowed_formats', signature.AllowedFormats);
+    if (signature.AssetFolder) {
+      formData.append('asset_folder', signature.AssetFolder);
+    }
+    if (signature.ReturnDeleteToken) {
+      formData.append('return_delete_token', 'true');
+    }
+    return this.postWithProgress(signature.UploadUrl, formData);
+  }
+
   private uploadWithProgress(
     file: File,
     preset: string,
     resourceType: 'image' | 'video'
   ): Observable<CloudinaryUploadEvent> {
+    return this.postWithProgress(
+      `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
+      this.buildFormData(file, preset)
+    );
+  }
+
+  private postWithProgress(
+    url: string,
+    formData: FormData
+  ): Observable<CloudinaryUploadEvent> {
     return this.http
-      .post<CloudinaryUploadResult>(
-        `https://api.cloudinary.com/v1_1/${this.cloudName}/${resourceType}/upload`,
-        this.buildFormData(file, preset),
-        { reportProgress: true, observe: 'events' }
-      )
+      .post<CloudinaryUploadResult>(url, formData, {
+        reportProgress: true,
+        observe: 'events',
+      })
       .pipe(
         filter(
           event =>

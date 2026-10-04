@@ -1,0 +1,63 @@
+<nz-modal
+  [nzVisible]="visible"
+  [nzTitle]="isEdit ? 'Sửa bộ sưu tập' : 'Bộ sưu tập mới'"
+  [nzMaskClosable]="!isSaving"
+  [nzClosable]="!isSaving"
+  [nzFooter]="footer"
+  nzWidth="520px"
+  (nzOnCancel)="close()">
+  <ng-container *nzModalContent>
+    <form class="collection-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="collection-form__field">
+        <span class="collection-form__label">Tên bộ sưu tập</span>
+        <input
+          nz-input
+          formControlName="Name"
+          maxlength="150"
+          placeholder="VD: Kỷ niệm Đà Lạt 2026, Kiến thức Angular..." />
+        @if (form.controls.Name.touched && form.controls.Name.invalid) {
+          <span class="collection-form__error">Vui lòng nhập tên (tối đa 150 ký tự)</span>
+        }
+      </label>
+
+      <label class="collection-form__field">
+        <span class="collection-form__label">Mô tả</span>
+        <textarea
+          nz-input
+          formControlName="Description"
+          rows="3"
+          maxlength="2000"
+          placeholder="Bộ sưu tập này lưu gì?"></textarea>
+      </label>
+
+      <div class="collection-form__field">
+        <span class="collection-form__label">Ai được xem?</span>
+        <div class="collection-form__visibility" role="radiogroup">
+          @for (option of visibilityOptions; track option.value) {
+            <button
+              type="button"
+              role="radio"
+              class="collection-form__option"
+              [class.is-active]="form.controls.Visibility.value === option.value"
+              [attr.aria-checked]="form.controls.Visibility.value === option.value"
+              (click)="setVisibility(option.value)">
+              <span nz-icon [nzType]="option.icon" nzTheme="outline"></span>
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.description }}</small>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Enter trong ô tên vẫn submit được -->
+      <button type="submit" hidden></button>
+    </form>
+  </ng-container>
+
+  <ng-template #footer>
+    <button nz-button type="button" [disabled]="isSaving" (click)="close()">Huỷ</button>
+    <button nz-button nzType="primary" type="button" [nzLoading]="isSaving" (click)="submit()">
+      {{ isEdit ? 'Lưu thay đổi' : 'Tạo bộ sưu tập' }}
+    </button>
+  </ng-template>
+</nz-modal>

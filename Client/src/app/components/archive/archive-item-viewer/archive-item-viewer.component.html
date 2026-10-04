@@ -1,0 +1,70 @@
+<div class="viewer">
+  <div class="viewer__stage">
+    @switch (item.Kind) {
+      @case ('Image') {
+        <img class="viewer__image" [src]="item.SourceUrl" [alt]="item.Title" />
+      }
+      @case ('Video') {
+        <video
+          class="viewer__video"
+          [src]="item.SourceUrl"
+          [poster]="item.ThumbnailUrl"
+          controls
+          playsinline
+          preload="metadata"></video>
+      }
+      @case ('Link') {
+        @if (embedSrc) {
+          <iframe
+            class="viewer__embed"
+            [class.is-fixed-height]="!aspectRatio"
+            [class.is-vertical]="aspectRatio === '9 / 16'"
+            [style.aspect-ratio]="aspectRatio"
+            [src]="embedSrc"
+            [title]="item.Title || hostname"
+            frameborder="0"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        } @else {
+          <a
+            class="viewer__link-card"
+            [href]="item.SourceUrl"
+            target="_blank"
+            rel="noopener noreferrer">
+            @if (item.ThumbnailUrl) {
+              <img [src]="item.ThumbnailUrl" alt="" />
+            }
+            <span class="viewer__link-host">
+              <span nz-icon nzType="link" nzTheme="outline"></span>
+              {{ hostname }}
+            </span>
+          </a>
+        }
+      }
+    }
+  </div>
+
+  <div class="viewer__meta">
+    @if (item.Title) {
+      <h3 class="viewer__title">{{ item.Title }}</h3>
+    }
+    <p class="viewer__sub">
+      @if (item.TakenAt) {
+        <span>
+          <span nz-icon nzType="calendar" nzTheme="outline"></span>
+          {{ item.TakenAt | date: 'dd/MM/yyyy' }}
+        </span>
+      }
+      @if (item.Kind === 'Link') {
+        <a [href]="item.SourceUrl" target="_blank" rel="noopener noreferrer">
+          <span nz-icon nzType="link" nzTheme="outline"></span>
+          Mở link gốc
+        </a>
+      }
+    </p>
+    @if (item.Note) {
+      <p class="viewer__note">{{ item.Note }}</p>
+    }
+  </div>
+</div>

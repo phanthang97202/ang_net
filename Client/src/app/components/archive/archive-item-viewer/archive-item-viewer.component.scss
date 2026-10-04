@@ -1,0 +1,113 @@
+:host {
+  display: block;
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.viewer__stage {
+  display: flex;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.viewer__image,
+.viewer__video {
+  display: block;
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+}
+
+.viewer__video {
+  width: 100%;
+}
+
+.viewer__embed {
+  display: block;
+  width: 100%;
+  max-height: 72vh;
+  border: 0;
+  background: var(--color-bg-card);
+
+  // Video dọc 9:16 mà kéo full bề ngang thì cao quá màn hình - giới hạn theo chiều cao
+  &.is-vertical {
+    width: auto;
+    height: 72vh;
+    max-width: 100%;
+  }
+
+  &.is-fixed-height {
+    height: 620px;
+  }
+}
+
+.viewer__link-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+
+  img {
+    width: 100%;
+    max-height: 60vh;
+    object-fit: cover;
+  }
+}
+
+.viewer__link-host {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.viewer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.viewer__title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.viewer__sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+
+  span,
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+}
+
+.viewer__note {
+  margin: 0.25rem 0 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
