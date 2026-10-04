@@ -379,6 +379,20 @@ namespace angnet.Infrastructure.Data.Services
                        && (currentUserId == news.UserId || user.IsInRole("Admin"));
             }
 
+            // Bài thuộc danh mục đang tắt: như bài nháp, chỉ tác giả hoặc Admin.
+            // Khớp NewsRespository.CanViewNewsAsync - nếu không thì bài đã bị chặn ở
+            // trang chi tiết mà bình luận của nó vẫn đọc/gửi được qua API. Không
+            // return true ở đây: các bước WhoCanSee bên dưới vẫn phải chạy tiếp.
+            bool isCategoryActive = await _dbContext.NewsCategory.AsNoTracking()
+                    .AnyAsync(c => c.NewsCategoryId == news.CategoryNewsId && c.FlagActive);
+
+            if (!isCategoryActive
+                && (TCommonUtils.IsNullOrEmpty(currentUserId)
+                    || (currentUserId != news.UserId && !user.IsInRole("Admin"))))
+            {
+                return false;
+            }
+
             if (news.WhoCanSee == EWhoCanSee.Public)
             {
                 return true;

@@ -52,9 +52,16 @@ namespace angnet.Infrastructure.Data.Repositories
             // Chỉ tính hashtag của bài ĐÃ XUẤT BẢN. Trước đây query không join sang
             // News nên khối "Thẻ nổi bật" hiện cả tag của bài nháp; người dùng bấm
             // vào sẽ ra danh sách rỗng vì Search đã lọc FlagActive.
+            //
+            // Cũng bỏ bài thuộc danh mục đang tắt, khớp với NewsRespository.Search:
+            // tag chỉ có ở bài của danh mục bị ẩn mà vẫn lên top thì bấm vào sẽ ra
+            // danh sách rỗng.
             List<string> publishedNewsIds = await _dbContext.News
                         .AsNoTracking()
-                        .Where(n => n.FlagActive && n.WhoCanSee == EWhoCanSee.Public)
+                        .Where(n => n.FlagActive
+                                    && n.WhoCanSee == EWhoCanSee.Public
+                                    && _dbContext.NewsCategory.Any(c =>
+                                            c.NewsCategoryId == n.CategoryNewsId && c.FlagActive))
                         .Select(n => n.NewsId)
                         .ToListAsync();
 

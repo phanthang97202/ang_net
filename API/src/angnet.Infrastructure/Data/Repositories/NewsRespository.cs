@@ -127,11 +127,33 @@ namespace angnet.Infrastructure.Data.Repositories
                    && viewerTenantId == authorTenantId;
         }
 
-        private bool CanViewNews(NewsModel news)
+        /// <summary>
+        /// Người đang gọi có được xem (và thích, chấm điểm) bài này không. Dùng
+        /// chung cho Detail, Like và Point.
+        ///
+        /// Bài thuộc danh mục đang tắt xử lý như bài nháp: chỉ Admin và chính tác
+        /// giả mở được. Trước đây ẩn danh mục chỉ làm bài biến khỏi danh sách,
+        /// ai nhớ đường dẫn vẫn đọc được. Phải cho Admin/tác giả qua vì trang sửa
+        /// bài ở dashboard gọi chung endpoint Detail. Vẫn áp CanViewByVisibility
+        /// lên trên: bài Private của người khác thì Admin cũng không xem được.
+        /// </summary>
+        private async Task<bool> CanViewNewsAsync(NewsModel news)
         {
-            return news.FlagActive
-                ? CanViewByVisibility(news)
-                : CanViewUnpublished(news.UserId);
+            if (!news.FlagActive)
+            {
+                return CanViewUnpublished(news.UserId);
+            }
+
+            bool isCategoryActive = await _dbContext.NewsCategory
+                    .AsNoTracking()
+                    .AnyAsync(c => c.NewsCategoryId == news.CategoryNewsId && c.FlagActive);
+
+            if (!isCategoryActive)
+            {
+                return CanViewUnpublished(news.UserId) && CanViewByVisibility(news);
+            }
+
+            return CanViewByVisibility(news);
         }
 
         /// <summary>
@@ -585,6 +607,19 @@ namespace angnet.Infrastructure.Data.Repositories
             if (onlyPublished)
             {
                 query = query.Where(i => i.FlagActive);
+
+                // Bài thuộc danh mục đang tắt không được lên các danh sách công khai.
+                // Trước đây danh mục chỉ được xét khi lọc THEO danh mục (nhánh
+                // categoryId ở trên), nên "Tất cả bài viết", "Bài viết nổi bật", tìm
+                // theo từ khoá/hashtag... vẫn trả bài của danh mục admin đã ẩn.
+                //
+                // Chỉ xét danh mục của chính bài, không xét danh mục cha: cùng quy tắc
+                // với CategoryPreview, nơi danh mục con của một cha đang tắt được coi
+                // là danh mục gốc chứ không bị ẩn theo.
+                //
+                // Dashboard gọi với onlyPublished = false nên vẫn thấy đủ bài để quản lý.
+                query = query.Where(i => _dbContext.NewsCategory
+                        .Any(c => c.NewsCategoryId == i.CategoryNewsId && c.FlagActive));
             }
 
             if (visibilityFilter.HasValue)
@@ -648,7 +683,9 @@ namespace angnet.Infrastructure.Data.Repositories
             string visibilityScope = onlyPublished
                     ? $"tenant:{viewerTenantId?.ToString() ?? "anonymous"}"
                     : $"viewer:{viewerUserId}|tenant:{viewerTenantId?.ToString() ?? "none"}";
-            string primaryKey = $"v6|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
+            // v7: bản cache v6 được ghi khi Search chưa loại bài thuộc danh mục đang
+            // tắt. Đổi phiên bản để sau deploy không trả lại các trang cũ đó.
+            string primaryKey = $"v7|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -973,7 +1010,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // Chặn bài chưa xuất bản. Phải nằm TRƯỚC phần tăng ViewCount và phần đọc cache:
             // cache key chỉ gồm newsId (không có user), nên nếu kiểm tra sau cache thì bản
             // admin đã cache sẽ bị trả cho khách vãng lai. objNews đọc tươi từ DB nên tin được.
-            if (!CanViewNews(objNews))
+            if (!await CanViewNewsAsync(objNews))
             {
                 // Trả cùng thông báo với bài không tồn tại, tránh lộ việc bài đó có thật
                 apiResponse.CatchException(false, "News_Detail.NewsIsNotExist", requestClient);
@@ -1306,7 +1343,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            if (!CanViewNews(objNews))
+            if (!await CanViewNewsAsync(objNews))
             {
                 apiResponse.CatchException(false, "LikeNews.NewsIsNotExist", requestClient);
                 return apiResponse;
@@ -1417,7 +1454,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            if (!CanViewNews(objNews))
+            if (!await CanViewNewsAsync(objNews))
             {
                 apiResponse.CatchException(false, "PointNews.NewsIsNotExist", requestClient);
                 return apiResponse;
