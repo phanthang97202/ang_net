@@ -7,7 +7,7 @@ import {
   ShowErrorService,
 } from '../../services';
 import { IDetailNews } from '../../interfaces';
-import { ScrollRevealDirective } from '../../directives';
+import { ScrollRevealDirective, newsBackgroundImage } from '../../directives';
 import { TranslateModule } from '@ngx-translate/core';
 import { INewsWithPlaceholder } from '../new-news/new-news.component';
 
@@ -83,6 +83,14 @@ export class FeaturedNewsComponent implements OnInit {
           throw new Error(err);
         },
       });
+  }
+
+  /**
+   * Ô bài nổi bật vẽ ảnh bằng background-image nên không bắt được lỗi tải như
+   * thẻ <img>: xếp ảnh mặc định làm lớp nền dưới, ảnh thật lỗi thì lớp dưới lộ ra.
+   */
+  bgImage(url: string | null | undefined): string {
+    return newsBackgroundImage(url);
   }
 
   trackById(_: number, post: IDetailNews): string {

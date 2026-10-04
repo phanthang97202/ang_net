@@ -31,7 +31,7 @@
 
       <article *ngIf="!isLoading" class="detail-card">
         <div class="detail-thumb">
-          <img [src]="slides[activeSlide]" [alt]="getTitle()" />
+          <img [appNewsImg]="slides[activeSlide]" [alt]="getTitle()" />
 
           <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
                để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển

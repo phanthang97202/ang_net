@@ -4,13 +4,8 @@
   appScrollReveal
   [appScrollRevealDelay]="revealDelay">
   <div class="post-card__thumb">
-    @if (post.Thumbnail) {
-      <img [src]="post.Thumbnail" [alt]="title" />
-    } @else {
-      <div
-        class="post-card__placeholder"
-        [style.background-color]="placeholderColor"></div>
-    }
+    <!-- Không có ảnh hoặc ảnh lỗi thì appNewsImg tự thay bằng ảnh mặc định. -->
+    <img [appNewsImg]="post.Thumbnail" [alt]="title" />
 
     <a
       [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
@@ -38,9 +33,15 @@
         {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
       </span>
       <span class="post-card__stats">
-        <span><span nz-icon nzType="eye" nzTheme="outline"></span>{{ formatCount(post.ViewCount) }}</span>
+        <span
+          ><span nz-icon nzType="eye" nzTheme="outline"></span
+          >{{ formatCount(post.ViewCount) }}</span
+        >
         @if (post.LikeCount > 0) {
-          <span><span nz-icon nzType="heart" nzTheme="fill"></span>{{ formatCount(post.LikeCount) }}</span>
+          <span
+            ><span nz-icon nzType="heart" nzTheme="fill"></span
+            >{{ formatCount(post.LikeCount) }}</span
+          >
         }
       </span>
     </p>
@@ -55,7 +56,10 @@
 
     @if (hashtags.length > 0) {
       <div class="post-card__hashtags">
-        @for (hashtag of hashtags | slice: 0 : 2; track hashtag.HashTagNewsName) {
+        @for (
+          hashtag of hashtags | slice: 0 : 2;
+          track hashtag.HashTagNewsName
+        ) {
           <a
             class="post-card__hashtag"
             routerLink="/news"

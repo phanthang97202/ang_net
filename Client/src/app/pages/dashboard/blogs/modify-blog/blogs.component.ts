@@ -169,6 +169,7 @@ export class BlogsComponent implements OnInit {
               data.Data.WhoCanSee
             ),
           });
+          this.initThumbnailMode(data.Data.Thumbnail || '');
 
           this.validateForm.patchValue({
             LstHashTagNews: this.normalizeHashtags(
@@ -302,6 +303,124 @@ export class BlogsComponent implements OnInit {
       result.push(name);
     });
     return result;
+  }
+
+  // ── Ảnh bài viết: tải lên Cloudinary hoặc dùng link ngoài ──────────────
+  // Cả hai đều chỉ ghi một URL vào Thumbnail; backend không phân biệt nguồn.
+  thumbnailMode: 'upload' | 'url' = 'upload';
+  thumbnailUrlInput = '';
+  thumbnailUrlState: 'idle' | 'checking' | 'error' = 'idle';
+  thumbnailUrlError = '';
+  // Mỗi lần kiểm tra link được đánh số: người dùng bấm "Dùng ảnh" cho link A
+  // rồi đổi sang link B trước khi A tải xong, kết quả của A về muộn không
+  // được ghi đè lên B.
+  private thumbnailCheckSeq = 0;
+
+  setThumbnailMode(mode: 'upload' | 'url'): void {
+    this.thumbnailMode = mode;
+    if (mode === 'url' && !this.thumbnailUrlInput) {
+      // Đang có ảnh (vd vừa tải lên) thì điền sẵn link để sửa tiếp được.
+      this.thumbnailUrlInput = this.validateForm.value.Thumbnail || '';
+    }
+    this.thumbnailUrlState = 'idle';
+    this.thumbnailUrlError = '';
+  }
+
+  onThumbnailUrlInput(value: string): void {
+    this.thumbnailUrlInput = value;
+    if (this.thumbnailUrlState === 'error') {
+      this.thumbnailUrlState = 'idle';
+      this.thumbnailUrlError = '';
+    }
+  }
+
+  /**
+   * Kiểm tra link rồi mới ghi vào form:
+   * - Phải là https: trang blog chạy https, ảnh http sẽ bị trình duyệt chặn hoặc
+   *   báo nội dung không an toàn.
+   * - Phải tải được thật: nhiều trang chặn nhúng ảnh sang site khác (hotlink),
+   *   link nhìn đúng mà ngoài trang chủ vẫn ra ảnh vỡ. Thử tải bằng new Image()
+   *   để bắt lỗi ngay ở đây thay vì sau khi đã đăng bài.
+   */
+  applyThumbnailUrl(): void {
+    const raw = this.thumbnailUrlInput.trim();
+    if (!raw) return;
+
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      this.setThumbnailUrlError(
+        'Link không hợp lệ. Hãy dán đầy đủ, ví dụ https://example.com/anh.jpg'
+      );
+      return;
+    }
+
+    if (url.protocol !== 'https:') {
+      this.setThumbnailUrlError(
+        'Chỉ nhận link https:// - trang blog chạy https nên ảnh http sẽ bị trình duyệt chặn.'
+      );
+      return;
+    }
+
+    const seq = ++this.thumbnailCheckSeq;
+    this.thumbnailUrlState = 'checking';
+    this.thumbnailUrlError = '';
+
+    const probe = new Image();
+    // Không chờ mãi với máy chủ treo: 15 giây không xong coi như lỗi.
+    const timer = setTimeout(() => {
+      if (seq !== this.thumbnailCheckSeq) return;
+      probe.src = '';
+      this.setThumbnailUrlError(
+        'Tải ảnh quá lâu. Kiểm tra lại link hoặc thử link khác.'
+      );
+    }, 15000);
+
+    probe.onload = () => {
+      clearTimeout(timer);
+      if (seq !== this.thumbnailCheckSeq) return;
+      this.thumbnailUrlState = 'idle';
+      this.thumbnailUrlInput = url.href;
+      this.validateForm.patchValue({ Thumbnail: url.href });
+      this.validateForm.controls.Thumbnail.markAsDirty();
+    };
+    probe.onerror = () => {
+      clearTimeout(timer);
+      if (seq !== this.thumbnailCheckSeq) return;
+      this.setThumbnailUrlError(
+        'Không tải được ảnh từ link này. Link có thể không phải ảnh, hoặc trang gốc chặn nhúng ảnh sang site khác.'
+      );
+    };
+    probe.src = url.href;
+  }
+
+  clearThumbnail(): void {
+    ++this.thumbnailCheckSeq;
+    this.thumbnailUrlInput = '';
+    this.thumbnailUrlState = 'idle';
+    this.thumbnailUrlError = '';
+    this.validateForm.patchValue({ Thumbnail: '' });
+    this.validateForm.controls.Thumbnail.markAsDirty();
+    this.validateForm.controls.Thumbnail.updateValueAndValidity();
+  }
+
+  private setThumbnailUrlError(message: string): void {
+    this.thumbnailUrlState = 'error';
+    this.thumbnailUrlError = message;
+  }
+
+  /**
+   * Mở bài cũ để sửa: ảnh không nằm trên Cloudinary nghĩa là trước đó đã dùng
+   * link ngoài, nên mở sẵn chế độ link với link đó thay vì ô tải ảnh.
+   */
+  private initThumbnailMode(thumbnail: string): void {
+    const isExternal =
+      !!thumbnail && !/^https:\/\/res\.cloudinary\.com\//i.test(thumbnail);
+    this.thumbnailMode = isExternal ? 'url' : 'upload';
+    this.thumbnailUrlInput = isExternal ? thumbnail : '';
+    this.thumbnailUrlState = 'idle';
+    this.thumbnailUrlError = '';
   }
 
   handleUploadFile = (file: any) => {

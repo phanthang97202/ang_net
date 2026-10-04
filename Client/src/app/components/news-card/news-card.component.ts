@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { IDetailNews } from '../../interfaces';
-import { ScrollRevealDirective } from '../../directives';
+import { NewsImgDirective, ScrollRevealDirective } from '../../directives';
 import { LangService } from '../../services';
 
 @Component({
@@ -16,6 +16,7 @@ import { LangService } from '../../services';
     TranslateModule,
     NzIconModule,
     ScrollRevealDirective,
+    NewsImgDirective,
   ],
   templateUrl: './news-card.component.html',
   styleUrl: './news-card.component.scss',

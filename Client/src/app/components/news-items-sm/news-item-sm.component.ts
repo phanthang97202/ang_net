@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { SubString, LocalDTime, SizeImgCloudinary } from '../../pipes';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { INewsItemSm } from '../../interfaces';
-import { ScrollRevealDirective } from '../../directives';
+import { NewsImgDirective, ScrollRevealDirective } from '../../directives';
 import { LangService } from '../../services';
 
 @Component({
@@ -20,6 +20,7 @@ import { LangService } from '../../services';
     LocalDTime,
     SizeImgCloudinary,
     ScrollRevealDirective,
+    NewsImgDirective,
   ],
   templateUrl: './news-item-sm.component.html',
   styleUrl: './news-item-sm.component.scss',

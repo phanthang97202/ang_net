@@ -13,11 +13,9 @@
       [routerLink]="['/news', post.CategoryNewsId, post.NewsId]">
       <div class="related-thumb">
         <img
-          *ngIf="post.Thumbnail"
-          [src]="post.Thumbnail"
+          [appNewsImg]="post.Thumbnail"
           [alt]="getTitle(post)"
           loading="lazy" />
-        <div *ngIf="!post.Thumbnail" class="related-thumb-placeholder"></div>
       </div>
 
       <div class="related-body">

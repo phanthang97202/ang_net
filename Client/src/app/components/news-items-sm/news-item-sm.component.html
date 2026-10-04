@@ -3,7 +3,7 @@
     <a [routerLink]="['/news', item.CategoryNewsId, item.NewsId]">
       <img
         class="h-full w-full object-cover"
-        [src]="item.Thumbnail | sizeImgCloudinary"
+        [appNewsImg]="item.Thumbnail | sizeImgCloudinary"
         [alt]="title" />
     </a>
   </div>

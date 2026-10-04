@@ -236,11 +236,100 @@
             <span nz-icon nzType="picture" nzTheme="outline"></span>
             <h2>Ảnh bài viết <span aria-hidden="true">*</span></h2>
           </header>
+          <!-- Hai nguồn ảnh: tải lên Cloudinary, hoặc dán link ảnh có sẵn ở nơi
+               khác. Cả hai cuối cùng đều chỉ ghi một URL vào Thumbnail. -->
+          <div
+            class="blogpost__thumb-mode"
+            role="radiogroup"
+            aria-label="Nguồn ảnh bài viết">
+            <button
+              type="button"
+              role="radio"
+              class="blogpost__thumb-mode-btn"
+              [class.is-active]="thumbnailMode === 'upload'"
+              [attr.aria-checked]="thumbnailMode === 'upload'"
+              (click)="setThumbnailMode('upload')">
+              <span nz-icon nzType="upload" nzTheme="outline"></span>
+              Tải ảnh lên
+            </button>
+            <button
+              type="button"
+              role="radio"
+              class="blogpost__thumb-mode-btn"
+              [class.is-active]="thumbnailMode === 'url'"
+              [attr.aria-checked]="thumbnailMode === 'url'"
+              (click)="setThumbnailMode('url')">
+              <span nz-icon nzType="link" nzTheme="outline"></span>
+              Dùng link ảnh
+            </button>
+          </div>
+
           <nz-form-item>
-            <nz-form-control nzErrorTip="Vui lòng tải ảnh bài viết!">
-              <app-upload-common
-                [imageUrl]="validateForm.value.Thumbnail || ''"
-                (_onClick)="handleUploadFile($event)" />
+            <nz-form-control nzErrorTip="Vui lòng chọn ảnh bài viết!">
+              @if (thumbnailMode === 'upload') {
+                <app-upload-common
+                  [imageUrl]="validateForm.value.Thumbnail || ''"
+                  (_onClick)="handleUploadFile($event)" />
+              } @else {
+                <div class="blogpost__thumb-url">
+                  <label class="blogpost__thumb-url-label" for="thumbnail-url">
+                    Link ảnh
+                  </label>
+                  <div class="blogpost__thumb-url-row">
+                    <input
+                      #thumbUrlInput
+                      id="thumbnail-url"
+                      nz-input
+                      type="url"
+                      inputmode="url"
+                      autocomplete="off"
+                      placeholder="https://example.com/anh.jpg"
+                      [value]="thumbnailUrlInput"
+                      [attr.aria-invalid]="thumbnailUrlState === 'error'"
+                      aria-describedby="thumbnail-url-hint"
+                      (input)="onThumbnailUrlInput(thumbUrlInput.value)"
+                      (keydown.enter)="
+                        $event.preventDefault(); applyThumbnailUrl()
+                      " />
+                    <button
+                      nz-button
+                      nzType="primary"
+                      type="button"
+                      [nzLoading]="thumbnailUrlState === 'checking'"
+                      [disabled]="!thumbnailUrlInput.trim()"
+                      (click)="applyThumbnailUrl()">
+                      Dùng ảnh
+                    </button>
+                  </div>
+
+                  @if (thumbnailUrlState === 'error') {
+                    <p class="blogpost__thumb-url-error" role="alert">
+                      <span nz-icon nzType="warning" nzTheme="outline"></span>
+                      {{ thumbnailUrlError }}
+                    </p>
+                  } @else {
+                    <p class="blogpost__thumb-url-hint" id="thumbnail-url-hint">
+                      Dán link ảnh bắt đầu bằng https://. Ảnh được kiểm tra tải
+                      được trước khi dùng.
+                    </p>
+                  }
+
+                  @if (validateForm.value.Thumbnail) {
+                    <figure class="blogpost__thumb-preview">
+                      <img
+                        [src]="validateForm.value.Thumbnail"
+                        alt="Xem trước ảnh bài viết" />
+                      <button
+                        type="button"
+                        class="blogpost__thumb-remove"
+                        aria-label="Gỡ ảnh bài viết"
+                        (click)="clearThumbnail()">
+                        <span nz-icon nzType="delete" nzTheme="outline"></span>
+                      </button>
+                    </figure>
+                  }
+                </div>
+              }
             </nz-form-control>
           </nz-form-item>
         </section>

@@ -26,9 +26,7 @@
       appScrollReveal>
       <div
         class="featured-tile-bg"
-        [style.background-image]="
-          mainPost.Thumbnail ? 'url(' + mainPost.Thumbnail + ')' : 'none'
-        "
+        [style.background-image]="bgImage(mainPost.Thumbnail)"
         [style.background-color]="mainPost._placeholderColor"></div>
       <div class="featured-tile-overlay"></div>
 
@@ -67,9 +65,7 @@
       [appScrollRevealDelay]="(i + 1) * 90">
       <div
         class="featured-tile-bg"
-        [style.background-image]="
-          post.Thumbnail ? 'url(' + post.Thumbnail + ')' : 'none'
-        "
+        [style.background-image]="bgImage(post.Thumbnail)"
         [style.background-color]="post._placeholderColor"></div>
       <div class="featured-tile-overlay"></div>
 

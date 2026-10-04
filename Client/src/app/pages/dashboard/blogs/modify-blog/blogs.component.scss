@@ -219,6 +219,146 @@
   width: 100%;
 }
 
+// ── Ảnh bài viết: chọn nguồn ─────────────────────────────
+// Công tắc 2 nấc kiểu segmented: nền xám nhạt, nấc đang chọn là thẻ trắng nổi.
+.blogpost__thumb-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--admin-surface-subtle);
+  border: 1px solid var(--admin-border);
+}
+
+.blogpost__thumb-mode-btn {
+  display: inline-flex;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+
+  &:hover:not(.is-active) {
+    color: var(--admin-text);
+  }
+
+  &.is-active {
+    background: var(--admin-surface);
+    box-shadow:
+      var(--admin-shadow-sm),
+      0 0 0 1px var(--admin-border);
+    color: var(--admin-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--admin-primary);
+    outline-offset: 1px;
+  }
+}
+
+.blogpost__thumb-url {
+  display: grid;
+  gap: 8px;
+}
+
+.blogpost__thumb-url-label {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.blogpost__thumb-url-row {
+  display: flex;
+  gap: 8px;
+
+  input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+  }
+}
+
+.blogpost__thumb-url-hint,
+.blogpost__thumb-url-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.blogpost__thumb-url-hint {
+  color: var(--admin-text-secondary);
+}
+
+.blogpost__thumb-url-error {
+  color: var(--admin-danger);
+
+  [nz-icon] {
+    margin-top: 2px;
+  }
+}
+
+// Xem trước đúng tỉ lệ 16:9 như ảnh bìa ngoài trang bài viết.
+.blogpost__thumb-preview {
+  position: relative;
+  margin: 6px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface-subtle);
+  aspect-ratio: 16 / 9;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.blogpost__thumb-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.16s ease;
+
+  &:hover {
+    background: var(--admin-danger);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}
+
 @media (min-width: 1280px) {
   .blogpost__sidebar {
     position: sticky;

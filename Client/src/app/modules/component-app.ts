@@ -35,7 +35,7 @@ import {
 } from '../components';
 import { AsideNewsComponent } from '../pages/home/aside-news/aside-news.component';
 import { SaveProvincePopupComponent } from '../pages/dashboard/mst-province/save-province-popup/save-province-popup.component';
-import { ScrollRevealDirective } from '../directives';
+import { NewsImgDirective, ScrollRevealDirective } from '../directives';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
@@ -104,4 +104,5 @@ export const REUSE_COMPONENT_MODULES = [
   NzSiderComponent,
   //
   ScrollRevealDirective,
+  NewsImgDirective,
 ];

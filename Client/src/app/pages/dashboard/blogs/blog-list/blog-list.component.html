@@ -62,7 +62,7 @@
                 <div class="blog-list-page__thumbnail" aria-hidden="true">
                   <img
                     *ngIf="data.Thumbnail; else thumbnailFallback"
-                    [src]="data.Thumbnail"
+                    [appNewsImg]="data.Thumbnail"
                     alt=""
                     loading="lazy" />
                   <ng-template #thumbnailFallback>

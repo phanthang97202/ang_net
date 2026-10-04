@@ -12,7 +12,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LangService, NewsCacheService } from '../../services';
 import { IDetailNews } from '../../interfaces';
-import { ScrollRevealDirective } from '../../directives';
+import { NewsImgDirective, ScrollRevealDirective } from '../../directives';
 
 // Lấy dư rồi mới lọc bài đang đọc: nếu lấy đúng 3 mà một trong số đó chính là
 // bài này thì chỉ còn 2 ô, lưới bị hụt.
@@ -22,7 +22,13 @@ const SHOW_COUNT = 3;
 @Component({
   selector: 'app-related-posts',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, ScrollRevealDirective],
+  imports: [
+    CommonModule,
+    RouterLink,
+    TranslateModule,
+    ScrollRevealDirective,
+    NewsImgDirective,
+  ],
   templateUrl: './related-posts.component.html',
   styleUrl: './related-posts.component.scss',
 })
