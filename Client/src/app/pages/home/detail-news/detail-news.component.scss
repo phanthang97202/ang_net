@@ -262,6 +262,12 @@
     }
 }
 
+// Breadcrumb nằm trong thẻ, ngay trên tiêu đề: cùng mép trái với tiêu đề và
+// phần meta bên dưới.
+.news__breadcrumb {
+    margin-bottom: 0.6rem;
+}
+
 .detail-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.9rem;
@@ -295,44 +301,103 @@
     color: var(--color-text-muted);
 }
 
-.detail-hashtags {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-}
-
-.detail-hashtag {
-    background: var(--color-accent-bg);
-    color: var(--color-accent);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.6rem;
-    border-radius: 999px;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease;
-
-    // Cùng cách phản hồi với .detail-badge: cả hai đều là link lọc danh sách.
-    &:hover {
-        background: var(--color-accent);
-        color: #fff;
-    }
-}
-
 .detail-content {
     font-family: 'Montserrat', sans-serif;
 }
 
+// ── Thẻ cuối bài ───────────────────────────────────────
+// Hàng nhãn + nút, cùng nhịp với hàng Chia sẻ ngay dưới: nhãn in hoa giãn chữ
+// như "CHIA SẺ" và cùng bề ngang nhãn, nên các nút hai hàng thẳng một cột.
+.detail-tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    margin-top: 2.5rem;
+    padding-bottom: 1rem;
+}
+
+.detail-tags__label {
+    min-width: 5.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.detail-tags__list {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+// Giống hệt nút "Chép liên kết" của hàng Chia sẻ bên dưới (.share-btn--copy):
+// cùng chiều cao, viền, cỡ chữ, màu xám nhạt; hover chỉ đổi chữ + viền sang
+// accent. Hai hàng nhìn như một bộ, không hàng nào nổi hơn hàng nào.
+.detail-tag {
+    display: inline-flex;
+    max-width: 100%;
+    height: 36px;
+    align-items: center;
+    padding: 0 0.85rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg-card);
+    color: var(--color-text-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+
+    &:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+    }
+}
+
+// Hàng Chia sẻ sát ngay dưới hàng Thẻ thì bỏ khoảng trên, để vạch kẻ của nó
+// làm đường ngăn giữa hai hàng.
 .detail-share {
     display: block;
     margin-top: 2rem;
+}
+
+.detail-tags + .detail-share {
+    margin-top: 0;
+}
+
+@media (max-width: 640px) {
+    .detail-tags {
+        gap: 0.6rem;
+        margin-top: 2rem;
+    }
+
+    // Màn hẹp: nhãn đứng riêng một dòng, các thẻ xuống dưới.
+    .detail-tags__label {
+        min-width: 0;
+        flex-basis: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .detail-tag {
+        transition: none;
+    }
 }
 
 .detail-rating {

@@ -30,6 +30,10 @@
           type="button"
           class="cmt__action"
           [class.is-active]="comment.IsLikedByMe"
+          [attr.aria-label]="comment.IsLikedByMe ? 'Bỏ thích' : 'Thích'"
+          [attr.aria-pressed]="comment.IsLikedByMe"
+          nz-tooltip
+          [nzTooltipTitle]="comment.IsLikedByMe ? 'Bỏ thích' : 'Thích'"
           (click)="liked.emit(comment)">
           <span
             nz-icon
@@ -43,26 +47,32 @@
         <button
           type="button"
           class="cmt__action"
+          aria-label="Trả lời"
+          nz-tooltip
+          nzTooltipTitle="Trả lời"
           (click)="replied.emit(comment)">
           <span nz-icon nzType="message" nzTheme="outline"></span>
-          Trả lời
         </button>
 
         @if (comment.IsOwnedByMe) {
           <button
             type="button"
             class="cmt__action cmt__action--danger"
+            aria-label="Xóa"
+            nz-tooltip
+            nzTooltipTitle="Xóa"
             (click)="deleted.emit(comment)">
             <span nz-icon nzType="delete" nzTheme="outline"></span>
-            Xóa
           </button>
         } @else {
           <button
             type="button"
             class="cmt__action"
+            aria-label="Báo cáo"
+            nz-tooltip
+            nzTooltipTitle="Báo cáo"
             (click)="reported.emit(comment)">
             <span nz-icon nzType="flag" nzTheme="outline"></span>
-            Báo cáo
           </button>
         }
       </div>

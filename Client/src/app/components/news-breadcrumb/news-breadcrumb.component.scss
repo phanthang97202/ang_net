@@ -1,0 +1,98 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.crumbs__list {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.crumbs__item {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  color: var(--color-text-muted);
+
+  // Dấu › giữa các cấp vẽ bằng CSS: không lọt vào nội dung đọc của screen
+  // reader như ký tự gõ tay.
+  & + &::before {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin: 0 0.65rem 0 0.55rem;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    content: '';
+    opacity: 0.55;
+    transform: rotate(45deg);
+  }
+}
+
+.crumbs__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.1rem;
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.crumbs__home-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+// Tiêu đề bài: màu chữ chính để biết "đang ở đây", cắt "..." khi quá dài vì
+// tiêu đề đầy đủ đã nằm ngay bên dưới.
+.crumbs__item--current {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--color-text);
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Điện thoại: chỉ giữ đường đi tới danh mục, bỏ tiêu đề - bề ngang quá chật,
+// và tiêu đề to đã nằm ngay dưới.
+@media (max-width: 640px) {
+  .crumbs__list {
+    font-size: 0.75rem;
+  }
+
+  .crumbs__item--current {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crumbs__link {
+    transition: none;
+  }
+}

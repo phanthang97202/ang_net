@@ -1,0 +1,34 @@
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol class="crumbs__list">
+    <li class="crumbs__item">
+      <a class="crumbs__link crumbs__link--home" routerLink="/">
+        <svg
+          class="crumbs__home-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5"></path>
+          <path d="M5 9.5V21h14V9.5"></path>
+        </svg>
+        {{ 'T_HOME' | translate }}
+      </a>
+    </li>
+
+    <li class="crumbs__item" *ngFor="let crumb of crumbs; trackBy: trackById">
+      <a
+        class="crumbs__link"
+        routerLink="/news"
+        [queryParams]="{ categoryId: crumb.id }">
+        {{ crumb.name }}
+      </a>
+    </li>
+
+    <li class="crumbs__item crumbs__item--current" *ngIf="title">
+      <span aria-current="page" [title]="title">{{ title }}</span>
+    </li>
+  </ol>
+</nav>

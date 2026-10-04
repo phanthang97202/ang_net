@@ -86,25 +86,46 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 4px;
+  // Lùi trái bằng đúng phần đệm của nút, để icon đầu tiên thẳng mép với chữ
+  // bình luận phía trên.
+  margin: 6px 0 0 -7px;
 }
 
+// Nút chỉ có icon (tên nằm ở aria-label + tooltip): bình thường chỉ thấy icon,
+// hover mới hiện nền tròn - cùng cách các nút icon trên menu. Nút Thích có số
+// lượt thích nên giãn ra thành viên thuốc.
 .cmt__action {
   display: inline-flex;
+  min-width: 30px;
+  height: 30px;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   border: none;
+  border-radius: 999px;
   background: transparent;
-  padding: 0;
+  padding: 0 7px;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+
+  [nz-icon] {
+    font-size: 15px;
+  }
 
   &:hover {
-    color: var(--color-text);
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
   }
 
   &.is-active {

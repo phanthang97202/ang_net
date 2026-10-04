@@ -110,9 +110,10 @@ $nav-height: 64px;
         padding: 0.5rem 0.9rem;
         border-radius: 999px;
         font-family: $font-sans;
-        font-size: 0.75rem;
+        // Chữ thường không giãn chữ: giãn chỉ hợp chữ IN HOA, áp vào chữ thường
+        // thì trông như bị kéo dãn. Cùng cỡ/độ đậm với tab "Mới nhất".
+        font-size: 0.85rem;
         font-weight: 600;
-        letter-spacing: 0.06em;
         color: $color-dark;
         text-decoration: none;
         cursor: pointer;
@@ -162,10 +163,8 @@ $nav-height: 64px;
         align-items: center;
         padding: 0.6rem 1.25rem;
         font-family: $font-sans;
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
         color: $color-dark;
         text-decoration: none;
         transition: background 0.15s, color 0.15s;
@@ -193,11 +192,12 @@ $nav-height: 64px;
 // ── Follow / Login Button ──────────────────────────────
 .btn-follow {
     font-family: $font-sans;
-    font-size: 0.7rem;
+    // Viết thường, chữ đậm như các nút chính khác ("Khám phá", "Đăng ký") -
+    // trước đây đây là nút in hoa duy nhất trên blog nên trông "to giọng" hơn
+    // mọi thứ xung quanh.
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0.55rem 1.4rem;
+    padding: 0.6rem 1.35rem;
     background: $color-accent;
     color: #fff;
     border: none;
@@ -212,7 +212,7 @@ $nav-height: 64px;
 
     &--sm {
         padding: 0.45rem 1rem;
-        font-size: 0.65rem;
+        font-size: 0.78rem;
     }
 }
 
@@ -280,10 +280,8 @@ $nav-height: 64px;
     flex-shrink: 0;
     padding: 0.65rem 1.4rem;
     font-family: $font-sans;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     background: $color-accent;
     color: #fff;
     border: none;
@@ -437,10 +435,8 @@ $nav-height: 64px;
         gap: 0.6rem;
         padding: 0.75rem 1.5rem;
         font-family: $font-sans;
-        font-size: 0.78rem;
+        font-size: 0.9rem;
         font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
         color: $color-dark;
         text-decoration: none;
         cursor: pointer;

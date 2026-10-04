@@ -1,26 +1,38 @@
+<!-- nzClassName="blog-modal": khung modal (header, nút đóng, bo góc) render qua
+     CDK overlay, nằm ngoài component nên style của khung ở styles.scss. -->
 <nz-modal
+  nzClassName="blog-modal"
   [nzVisible]="isOpen"
   nzTitle="Báo cáo bình luận"
-  nzOkText="Gửi báo cáo"
-  nzCancelText="Hủy"
-  [nzOkLoading]="isSending"
-  (nzOnOk)="send()"
+  [nzWidth]="560"
   (nzOnCancel)="cancel()">
   <div *nzModalContent class="report">
     <p class="report__hint">
       Chọn lý do bạn cho rằng bình luận này vi phạm tiêu chuẩn cộng đồng.
     </p>
 
-    <nz-radio-group [(ngModel)]="reason" class="report__reasons">
+    <!-- Radio thật (ẩn đi) bọc trong label: giữ nguyên điều hướng bằng phím
+         mũi tên và cách screen reader đọc của một nhóm radio, chỉ đổi phần
+         nhìn thấy thành các ô chọn. -->
+    <div class="report__reasons" role="radiogroup" aria-label="Lý do báo cáo">
       @for (item of reasons; track item.value) {
-        <!-- span thay vì label: nz-radio là attribute directive và tự render
-             <input type="radio"> bên trong, dùng label sẽ vi phạm rule a11y -->
-        <span nz-radio [nzValue]="item.value">{{ item.label }}</span>
+        <label
+          class="report__reason"
+          [class.report__reason--active]="reason === item.value">
+          <input
+            class="report__radio"
+            type="radio"
+            name="report-reason"
+            [value]="item.value"
+            [(ngModel)]="reason" />
+          <span class="report__dot" aria-hidden="true"></span>
+          <span class="report__reason-text">{{ item.label }}</span>
+        </label>
       }
-    </nz-radio-group>
+    </div>
 
     <label class="report__label" for="report-description">
-      Mô tả thêm (không bắt buộc)
+      Mô tả thêm <span class="report__optional">(không bắt buộc)</span>
     </label>
     <textarea
       id="report-description"
@@ -29,5 +41,24 @@
       maxlength="500"
       [(ngModel)]="description"
       [placeholder]="'T_REPORTDESCRIPTION' | translate"></textarea>
+    <p class="report__counter">{{ description.length }}/500</p>
+  </div>
+
+  <div *nzModalFooter class="report__footer">
+    <button type="button" class="report__btn report__btn--ghost" (click)="cancel()">
+      Hủy
+    </button>
+    <button
+      type="button"
+      class="report__btn report__btn--primary"
+      [disabled]="isSending"
+      (click)="send()">
+      @if (isSending) {
+        <span class="report__spinner" aria-hidden="true"></span>
+        Đang gửi...
+      } @else {
+        Gửi báo cáo
+      }
+    </button>
   </div>
 </nz-modal>

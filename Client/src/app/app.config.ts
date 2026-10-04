@@ -7,6 +7,7 @@ import {
 import { routes } from './app.routes';
 import { AppTitleStrategy } from './services/app-title-strategy.service';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
+import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +38,12 @@ export const appConfig: ApplicationConfig = {
     ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideNzI18n(en_US),
+    // Toast (NzMessageService):
+    // - nzMaxStack 1: mỗi lúc chỉ một toast. Trước đây bấm liên tục vào nút cần
+    //   đăng nhập (thích bình luận, chấm sao...) sinh mỗi lần một toast, chồng
+    //   thành cả cột. Giờ toast mới thay toast cũ.
+    // - nzTop 80: hạ xuống dưới thanh menu (cao 64px) thay vì đè lên nó.
+    provideNzConfig({ message: { nzMaxStack: 1, nzTop: 80 } }),
     importProvidersFrom(FormsModule),
     provideAnimationsAsync(),
     // using interceptor with DI

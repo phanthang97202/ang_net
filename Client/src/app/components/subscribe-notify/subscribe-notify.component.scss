@@ -122,12 +122,22 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
+  // Hover nhấc nhẹ lên + bóng tím, cùng nhịp với thẻ ở dải "Khám phá theo chủ
+  // đề". Nút nằm trong viên ô nhập nên chỉ nhấc 2px, nhấc nhiều sẽ lòi ra mép.
   transition:
     background 0.2s ease,
-    opacity 0.2s ease;
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
-    opacity: 0.88;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(99, 85, 230, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(99, 85, 230, 0.25);
   }
 
   &:disabled {
@@ -140,24 +150,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.newsletter__promise {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0.8rem 0 0;
-  color: #55527a;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.newsletter__promise-icon {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-  color: var(--color-accent);
 }
 
 .newsletter__error {
@@ -258,7 +250,6 @@
   }
 
   .newsletter__subtitle,
-  .newsletter__promise,
   .newsletter__success-text {
     color: var(--color-text-muted);
   }

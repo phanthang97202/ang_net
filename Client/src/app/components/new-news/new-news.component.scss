@@ -62,11 +62,25 @@
   font-weight: 600;
   color: var(--color-text);
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  // Hover nhấc nhẹ lên + bóng đổ, cùng nhịp với thẻ ở dải "Khám phá theo chủ
+  // đề" (.topic-chip) để các nút bấm trên trang chủ chuyển động như nhau.
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(.active) {
     color: var(--color-accent);
     border-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px var(--color-card-shadow);
+  }
+
+  &:active:not(.active) {
+    transform: translateY(0);
+    box-shadow: none;
   }
 
   &.active {
@@ -384,4 +398,14 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-list-tab {
+    transition: none;
+
+    &:hover:not(.active) {
+      transform: none;
+    }
+  }
 }

@@ -349,20 +349,28 @@ body {
   flex-shrink: 0;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
+  // Không viền: cùng cách với mũi tên của dải chủ đề và ảnh nổi bật - chỉ có
+  // icon, nền tròn accent nhạt chỉ hiện khi hover/focus. (Sidebar admin cũng
+  // dùng class này qua app-switch-lang nhưng đã tự ghi đè nền/viền bằng
+  // !important trong app.component.scss nên không bị ảnh hưởng.)
+  border: none;
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
   overflow: hidden;
   transition:
     background 0.2s,
-    color 0.2s,
-    border-color 0.2s;
+    color 0.2s;
 
-  // Chỉ đổi màu icon khi hover, không đổi viền/nền - tránh hiệu ứng "vòng
-  // tròn nổi bật" bao quanh nút.
-  &:hover {
+  &:hover,
+  &:focus-visible {
+    background: var(--color-accent-bg);
     color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   img {
@@ -1449,5 +1457,162 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
 @media (prefers-reduced-motion: reduce) {
   .admin-modal .ant-modal-close-x {
     transition: none;
+  }
+}
+
+// Popup phía blog (trang công khai). Khung modal render qua CDK overlay nên
+// phải đặt ở đây; modal nào muốn đúng style blog thì gắn
+// nzClassName="blog-modal". Dùng biến --color-* nên dark mode tự đổi theo.
+.blog-modal {
+  .ant-modal-content {
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--color-bg-card);
+    box-shadow: 0 24px 64px rgba(15, 12, 40, 0.22);
+  }
+
+  .ant-modal-header {
+    padding: 1.4rem 1.5rem 0.25rem;
+    border-bottom: none;
+    background: transparent;
+  }
+
+  .ant-modal-title {
+    color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+
+  // Nút đóng: chỉ icon, nền tròn accent nhạt khi hover/focus - cùng cách các
+  // nút icon trên menu. Bỏ khung focus vuông mặc định của trình duyệt.
+  .ant-modal-close {
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--color-text-muted);
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      background: var(--color-accent-bg);
+      color: var(--color-accent);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  .ant-modal-close-x {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .ant-modal-body {
+    padding: 0.75rem 1.5rem 0.5rem;
+    color: var(--color-text);
+  }
+
+  .ant-modal-footer {
+    padding: 1rem 1.5rem 1.4rem;
+    border-top: none;
+    background: transparent;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-modal {
+    .ant-modal-content {
+      border-radius: 20px;
+    }
+
+    .ant-modal-header,
+    .ant-modal-body,
+    .ant-modal-footer {
+      padding-inline: 1.1rem;
+    }
+  }
+}
+
+// Toast (NzMessageService) phía blog. Toast render thẳng dưới <body>, nên
+// tách blog/admin bằng marker body.admin-ui-active mà app.component bật khi
+// đang ở dashboard - admin giữ nguyên toast mặc định.
+// Viên bo tròn, chữ Montserrat, icon theo màu ngữ nghĩa; dùng biến --color-*
+// nên dark mode tự đổi theo.
+body:not(.admin-ui-active) .ant-message {
+  .ant-message-notice-content {
+    padding: 0.7rem 1.1rem 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg-card);
+    box-shadow: 0 12px 32px var(--color-card-shadow);
+    color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .ant-message-custom-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  // Icon nằm trong vòng tròn nền nhạt cùng màu, như icon trạng thái ở các thẻ.
+  .ant-message-custom-content > .anticon {
+    display: grid;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    place-items: center;
+    margin: 0;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    top: 0;
+  }
+
+  .ant-message-info > .anticon,
+  .ant-message-loading > .anticon {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  .ant-message-success > .anticon {
+    background: rgba(34, 160, 107, 0.14);
+    color: #22a06b;
+  }
+
+  .ant-message-warning > .anticon {
+    background: rgba(217, 140, 18, 0.15);
+    color: #d98c12;
+  }
+
+  .ant-message-error > .anticon {
+    background: rgba(224, 82, 74, 0.14);
+    color: #e0524a;
+  }
+}
+
+@media (max-width: 480px) {
+  // Trên điện thoại, câu thông báo dài sẽ xuống dòng: viên thuốc tròn hẳn hai
+  // đầu nhìn méo, nên bo nhỏ lại.
+  body:not(.admin-ui-active) .ant-message .ant-message-notice-content {
+    max-width: calc(100vw - 2rem);
+    border-radius: 18px;
+    text-align: left;
   }
 }

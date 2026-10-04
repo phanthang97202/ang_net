@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+// Nút thao tác chỉ có icon, tên của nút hiện qua tooltip khi rê chuột.
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { INewsCommentDto } from '../../../../interfaces';
 import { TimeAgo } from '../../../../pipes';
 
 @Component({
   selector: 'app-news-comment-item',
   standalone: true,
-  imports: [NzIconModule, TimeAgo, TranslateModule],
+  imports: [NzIconModule, NzToolTipModule, TimeAgo, TranslateModule],
   templateUrl: './news-comment-item.component.html',
   styleUrl: './news-comment-item.component.scss',
 })

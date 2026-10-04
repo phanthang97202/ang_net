@@ -20,6 +20,7 @@ import {
 import { NewsCommentsComponent } from './news-comments/news-comments.component';
 import { NewsRatingComponent } from '../../../components/news-rating/news-rating.component';
 import { ShareButtonsComponent } from '../../../components/share-buttons/share-buttons.component';
+import { NewsBreadcrumbComponent } from '../../../components/news-breadcrumb/news-breadcrumb.component';
 import { buildNewsSlides, stepSlide } from '../../../helpers';
 
 @Component({
@@ -32,6 +33,7 @@ import { buildNewsSlides, stepSlide } from '../../../helpers';
     NewsCommentsComponent,
     NewsRatingComponent,
     ShareButtonsComponent,
+    NewsBreadcrumbComponent,
   ],
   templateUrl: './detail-news.component.html',
   styleUrl: './detail-news.component.scss',

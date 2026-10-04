@@ -1,37 +1,252 @@
+// Nội dung trong modal vẫn nhận style của component (template khai báo ở đây);
+// phần khung modal thì ở .blog-modal trong styles.scss.
+
+.report {
+  font-family: 'Montserrat', sans-serif;
+}
+
 .report__hint {
-  margin: 0 0 14px;
-  font-size: 13px;
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
   color: var(--color-text-muted);
 }
 
+// Ô chọn lý do: hai cột, viền mảnh như tab "Mới nhất / Đọc nhiều"; ô đang
+// chọn nền accent nhạt + viền accent.
 .report__reasons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.report__reason {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.35;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  // Focus bàn phím rơi vào input đã ẩn, nên vẽ vòng focus lên cả ô.
+  &:has(.report__radio:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.report__reason--active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+
+.report__radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Chấm tròn tự vẽ: rỗng khi chưa chọn, đặc accent khi chọn.
+.report__dot {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  transition: border-color 0.2s ease;
+
+  &::after {
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    content: '';
+    transform: scale(0);
+    transition: transform 0.2s ease;
+  }
+
+  .report__reason--active & {
+    border-color: var(--color-accent);
+
+    &::after {
+      transform: scale(1);
+    }
+  }
+}
+
+.report__reason-text {
+  min-width: 0;
 }
 
 .report__label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-bottom: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--color-text);
 }
 
+.report__optional {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .report__description {
+  display: block;
   width: 100%;
-  padding: 9px 12px;
+  min-height: 92px;
+  padding: 0.75rem 0.9rem;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-bg-page);
+  border-radius: 14px;
+  background: var(--color-bg-card);
   color: var(--color-text);
-  font-size: 14px;
   font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.55;
   resize: vertical;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
 
   &:focus {
-    outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-bg);
+    outline: none;
+  }
+}
+
+.report__counter {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+// ── Footer ─────────────────────────────────────────────
+.report__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+// Viên thuốc như nút "Đăng ký": hover nhấc nhẹ lên.
+.report__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.report__btn--ghost {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text);
+
+  &:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+}
+
+.report__btn--primary {
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 8px 18px rgba(99, 85, 230, 0.35);
+    transform: translateY(-2px);
+  }
+}
+
+.report__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: report-spin 0.7s linear infinite;
+}
+
+@keyframes report-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .report__reasons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report__footer {
+    flex-direction: column-reverse;
+
+    .report__btn {
+      justify-content: center;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report__reason,
+  .report__btn,
+  .report__dot,
+  .report__dot::after {
+    transition: none;
+  }
+
+  .report__reason:hover,
+  .report__btn:hover {
+    transform: none;
   }
 }

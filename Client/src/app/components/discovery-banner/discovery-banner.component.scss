@@ -1,5 +1,9 @@
 :host {
   display: block;
+  // Chừa khoảng thở dưới menu: ở đầu trang menu trong suốt, không có khoảng
+  // này thì mép trên banner dính sát hàng menu, trông chật so với nhịp 2rem
+  // giữa các khối bên dưới.
+  margin-top: 1rem;
 }
 
 .hero {

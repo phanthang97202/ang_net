@@ -83,6 +83,12 @@
         </div>
 
         <div class="detail-body">
+          <!-- Breadcrumb ngay trên tiêu đề: Trang chủ › danh mục cha › danh mục
+               của bài. Không kèm tiêu đề bài vì tiêu đề đã nằm ngay bên dưới. -->
+          <app-news-breadcrumb
+            class="news__breadcrumb"
+            [categoryId]="detailNews.CategoryNewsId"
+            [categoryName]="getCategoryName()"></app-news-breadcrumb>
           <h1 class="detail-title">{{ getTitle() }}</h1>
 
           <p class="detail-meta">
@@ -95,20 +101,32 @@
             {{ detailNews.ViewCount }}
           </p>
 
-          <div class="detail-hashtags" *ngIf="getHashtags().length > 0">
-            <a
-              *ngFor="let ht of getHashtags()"
-              class="detail-hashtag"
-              routerLink="/news"
-              [queryParams]="{ hashTag: ht.HashTagNewsName }"
-              >{{ ht.HashTagNewsName }}</a
-            >
-          </div>
-
           <div class="detail-content">
             <app-news-content [content]="getContent()" [showToc]="true">
             </app-news-content>
           </div>
+
+          <!-- Thẻ đặt cuối bài, ngay trên hàng Chia sẻ: đọc xong mới là lúc người
+               ta muốn tìm thêm bài cùng chủ đề. Cùng bố cục nhãn + nút với hàng
+               Chia sẻ để hai hàng thẳng cột với nhau. -->
+          <nav
+            class="detail-tags"
+            *ngIf="getHashtags().length > 0"
+            [attr.aria-label]="'T_HASHTAGTITLE' | translate">
+            <span class="detail-tags__label">{{
+              'T_HASHTAGTITLE' | translate
+            }}</span>
+            <div class="detail-tags__list">
+              <a
+                *ngFor="let ht of getHashtags()"
+                class="detail-tag"
+                routerLink="/news"
+                [queryParams]="{ hashTag: ht.HashTagNewsName }"
+                [title]="'#' + ht.HashTagNewsName"
+                >#{{ ht.HashTagNewsName }}</a
+              >
+            </div>
+          </nav>
 
           <!-- Chia sẻ đặt ngay cuối bài: đọc xong mới là lúc người ta muốn gửi
                cho người khác. Trước khối đánh giá vì chia sẻ là thao tác một
