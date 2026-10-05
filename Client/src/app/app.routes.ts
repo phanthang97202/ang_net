@@ -37,6 +37,12 @@ export const routes: Routes = [
       ),
   },
   {
+    title: 'T_PAGE_NOTE',
+    path: 'note',
+    loadComponent: () =>
+      import('./pages/note/note.component').then(p => p.NoteComponent),
+  },
+  {
     title: 'T_PAGE_CREATE_REEL',
     path: 'reels/create',
     loadComponent: () =>
@@ -204,6 +210,14 @@ export const routes: Routes = [
           import('./pages/dashboard/blogs/blog-list/blog-list.component').then(
             p => p.BlogListComponent
           ),
+        canActivate: [canActivePermission('blog.view')],
+      },
+      {
+        path: 'note',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/note/note-list/note-list.component'
+          ).then(p => p.NoteListComponent),
         canActivate: [canActivePermission('blog.view')],
       },
       {

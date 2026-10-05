@@ -28,6 +28,7 @@ interface RouteItem {
   // điều hướng trong ứng dụng nên những link này phải render bằng <a href>
   // thường - xem splitPath().
   externalUrl?: string;
+  openInNewTab?: boolean;
   title: string;
   icon: string;
   isActive?: boolean;
@@ -209,6 +210,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         path,
         queryParams,
         externalUrl,
+        openInNewTab: path === '/note',
         title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
         icon: m.Icon,
         children: m.Children?.length ? m.Children.map(toItem) : undefined,

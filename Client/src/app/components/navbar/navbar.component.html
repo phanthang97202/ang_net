@@ -31,6 +31,8 @@
             <a
               [routerLink]="route.path"
               [queryParams]="route.queryParams || {}"
+              [target]="route.openInNewTab ? '_blank' : '_self'"
+              [attr.rel]="route.openInNewTab ? 'noopener noreferrer' : null"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }">
               {{
@@ -77,6 +79,8 @@
                 <a
                   [routerLink]="child.path"
                   [queryParams]="child.queryParams || {}"
+                  [target]="child.openInNewTab ? '_blank' : '_self'"
+                  [attr.rel]="child.openInNewTab ? 'noopener noreferrer' : null"
                   routerLinkActive="active"
                   (click)="closeDropdown(route)">
                   <span nz-icon [nzType]="child.icon" class="mr-1"></span>
@@ -208,6 +212,8 @@
             <a
               [routerLink]="route.path"
               [queryParams]="route.queryParams || {}"
+              [target]="route.openInNewTab ? '_blank' : '_self'"
+              [attr.rel]="route.openInNewTab ? 'noopener noreferrer' : null"
               routerLinkActive="active"
               (click)="closeMobileMenu()">
               <span nz-icon [nzType]="route.icon"></span>
@@ -250,6 +256,8 @@
                 <a
                   [routerLink]="child.path"
                   [queryParams]="child.queryParams || {}"
+                  [target]="child.openInNewTab ? '_blank' : '_self'"
+                  [attr.rel]="child.openInNewTab ? 'noopener noreferrer' : null"
                   routerLinkActive="active"
                   (click)="closeMobileMenu()">
                   <span nz-icon [nzType]="child.icon"></span>

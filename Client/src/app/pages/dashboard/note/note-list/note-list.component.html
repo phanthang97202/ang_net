@@ -1,0 +1,160 @@
+<div class="master__container note-admin-page">
+  <app-breadcrumb title="Ghi chú" [buttons]="[]" />
+
+  <main class="note-admin-page__content">
+    <section class="note-admin-page__panel" aria-labelledby="note-admin-title">
+      <header class="note-admin-page__panel-header">
+        <div>
+          <h2 id="note-admin-title">Danh sách ghi chú</h2>
+          <p>
+            Kiểm duyệt nội dung do khách đăng. Ghi chú không thể chỉnh sửa sau
+            khi tạo.
+          </p>
+        </div>
+        <span class="note-admin-page__count">
+          {{ itemCount | number }} ghi chú
+        </span>
+      </header>
+
+      <form
+        class="note-admin-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="note-admin-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm ghi chú"
+                placeholder="Tìm theo bí danh hoặc nội dung..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="note-admin-page__status-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="Status"
+              aria-label="Lọc trạng thái ghi chú"
+              nzPlaceHolder="Trạng thái">
+              <nz-option nzValue="" nzLabel="Tất cả trạng thái"></nz-option>
+              <nz-option nzValue="active" nzLabel="Đang hiển thị"></nz-option>
+              <nz-option nzValue="inactive" nzLabel="Đã ẩn"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        </nz-form-item>
+
+        <nz-form-item>
+          <button
+            class="note-admin-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleResetSearch()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
+
+      <nz-table
+        class="note-admin-page__table"
+        nzShowSizeChanger
+        [nzData]="dataSource"
+        [nzTotal]="itemCount"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzFrontPagination]="false"
+        [nzLoading]="isLoading"
+        [nzScroll]="{ x: '980px' }"
+        [nzNoResult]="emptyState"
+        (nzPageIndexChange)="onPageIndexChange($event)"
+        (nzPageSizeChange)="onPageSizeChange($event)">
+        <thead>
+          <tr>
+            <th nzWidth="56px">STT</th>
+            <th nzWidth="190px">Người viết</th>
+            <th nzWidth="420px">Nội dung</th>
+            <th nzWidth="170px">Thời gian tạo</th>
+            <th nzWidth="130px">Trạng thái</th>
+            <th nzRight nzWidth="130px" class="note-admin-page__action-heading">
+              Thao tác
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let note of dataSource; let i = index">
+            <td class="note-admin-page__index">
+              {{ (pageIndex - 1) * pageSize + i + 1 }}
+            </td>
+            <td>
+              <div class="note-admin-page__identity">
+                <span class="note-admin-page__avatar" aria-hidden="true">
+                  {{ note.Alias.charAt(0).toUpperCase() }}
+                </span>
+                <strong [title]="note.Alias">{{ note.Alias }}</strong>
+              </div>
+            </td>
+            <td>
+              <p class="note-admin-page__preview" [title]="note.Preview">
+                {{ note.Preview }}
+              </p>
+            </td>
+            <td class="note-admin-page__time">
+              {{ note.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+            </td>
+            <td>
+              <nz-tag
+                class="note-admin-page__status"
+                [class.note-admin-page__status--inactive]="!note.FlagActive">
+                <span
+                  nz-icon
+                  [nzType]="note.FlagActive ? 'check-circle' : 'stop'"
+                  nzTheme="outline"></span>
+                {{ note.FlagActive ? 'Đang hiện' : 'Đã ẩn' }}
+              </nz-tag>
+            </td>
+            <td nzRight class="note-admin-page__actions">
+              <nz-switch
+                [ngModel]="note.FlagActive"
+                [nzDisabled]="!canUpdate"
+                nzSize="small"
+                [attr.aria-label]="'Bật/tắt ghi chú của ' + note.Alias"
+                (ngModelChange)="handleToggleActive(note, $event)"></nz-switch>
+
+              <button
+                *ngIf="canDelete"
+                nz-button
+                nzType="text"
+                nzDanger
+                nz-popconfirm
+                nzPopconfirmTitle="Xóa vĩnh viễn ghi chú này?"
+                nzOkText="Xóa"
+                nzOkDanger
+                nzCancelText="Hủy"
+                aria-label="Xóa ghi chú"
+                (nzOnConfirm)="handleDelete(note)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+
+      <ng-template #emptyState>
+        <div class="note-admin-page__empty">
+          <span nz-icon nzType="form" nzTheme="outline"></span>
+          <strong>Chưa có ghi chú</strong>
+          <p>Chưa có nội dung nào khớp với bộ lọc hiện tại.</p>
+        </div>
+      </ng-template>
+    </section>
+  </main>
+</div>

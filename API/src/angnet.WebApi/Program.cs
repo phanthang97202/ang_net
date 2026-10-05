@@ -193,6 +193,18 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0
             }));
 
+    // Ghi chú cho phép gửi ẩn danh nên dùng bucket riêng, theo IP, chặt hơn các
+    // API đọc thông thường. Danh sách không dùng bucket này để cuộn không bị nghẽn.
+    options.AddPolicy("NoteCreate", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(10),
+                PermitLimit = 3,
+                QueueLimit = 0
+            }));
+
     // Tùy chọn: thay vì trả 503, trả 429 Too Many Requests
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 

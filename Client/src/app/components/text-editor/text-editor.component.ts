@@ -64,6 +64,7 @@ import {
 } from '../../helpers/utils/embed-url';
 
 type EmbedType = 'iframe' | 'pdf';
+type EditorVariant = 'full' | 'note';
 
 @Component({
   selector: 'app-text-editor',
@@ -74,12 +75,14 @@ type EmbedType = 'iframe' | 'pdf';
 })
 export class TextEditorComponent implements OnChanges {
   @Input() initContentBody = '';
+  @Input() variant: EditorVariant = 'full';
+  @Input() resetKey = 0;
 
   @Output()
   readonly contentChanged = new EventEmitter<{ content: string }>();
 
   readonly Editor = ClassicEditor;
-  readonly editorConfig: EditorConfig = {
+  readonly fullEditorConfig: EditorConfig = {
     language: 'vi',
     translations: [viTranslations],
     plugins: [
@@ -218,15 +221,72 @@ export class TextEditorComponent implements OnChanges {
     },
   };
 
+  readonly noteEditorConfig: EditorConfig = {
+    language: 'vi',
+    translations: [viTranslations],
+    plugins: [
+      Alignment,
+      Autoformat,
+      BlockQuote,
+      Bold,
+      Code,
+      Essentials,
+      Heading,
+      Indent,
+      IndentBlock,
+      Italic,
+      Link,
+      List,
+      Paragraph,
+      PasteFromOffice,
+      RemoveFormat,
+      Strikethrough,
+      Underline,
+    ],
+    toolbar: {
+      items: [
+        'undo',
+        'redo',
+        '|',
+        'heading',
+        '|',
+        'bold',
+        'italic',
+        'underline',
+        'strikethrough',
+        'code',
+        '|',
+        'link',
+        'blockQuote',
+        '|',
+        'bulletedList',
+        'numberedList',
+        'outdent',
+        'indent',
+        '|',
+        'alignment',
+        'removeFormat',
+      ],
+      shouldNotGroupWhenFull: false,
+    },
+  };
+
+  get editorConfig(): EditorConfig {
+    return this.variant === 'note'
+      ? this.noteEditorConfig
+      : this.fullEditorConfig;
+  }
+
   content = '';
   private editorInstance?: ClassicEditor;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes['initContentBody']) return;
+    if (!changes['initContentBody'] && !changes['resetKey']) return;
 
-    const newContent = changes['initContentBody'].currentValue ?? '';
+    const newContent = this.initContentBody ?? '';
     if (newContent !== this.content) {
       this.content = newContent;
+      this.editorInstance?.setData(newContent);
     }
   }
 

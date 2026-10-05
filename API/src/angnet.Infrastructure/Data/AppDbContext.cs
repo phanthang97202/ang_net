@@ -72,6 +72,9 @@ namespace angnet.Infrastructure.Data
         // Menu điều hướng ngoài trang chủ (2 cấp qua ParentId tự tham chiếu).
         public DbSet<SysMenuModel> SysMenu { get; set; }
 
+        // Ghi chú công khai
+        public DbSet<NoteModel> Note { get; set; }
+
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
         public DbSet<ReelMediaModel> ReelMedia { get; set; }

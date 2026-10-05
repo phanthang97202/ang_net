@@ -20,3 +20,4 @@ export * from './reel';
 export * from './news-comment';
 export * from './media';
 export * from './archive';
+export * from './note';

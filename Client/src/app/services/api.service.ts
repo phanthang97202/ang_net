@@ -53,6 +53,10 @@ import {
   INewsCommentCreateRequest,
   INewsCommentCreateResponse,
   INewsCommentLikeResponse,
+  INoteAdminSearchResponse,
+  INoteCreateRequest,
+  INoteFeedResponse,
+  INoteResponse,
   INewsCommentReportRequest,
   INewsCommentReportResponse,
   IMediaPageResponse,
@@ -628,6 +632,48 @@ export class ApiService {
   SysMenuDelete(menuId: string): Observable<ISysMenuSaveResponse> {
     return this.http.delete<ISysMenuSaveResponse>(
       `${this.apiUrl}SysMenu/Delete?menuId=${encodeURIComponent(menuId)}`
+    );
+  }
+
+  // Note (trang ghi chú công khai + kiểm duyệt trong dashboard)
+  NoteFeed(pageSize: number, cursor: string | null): Observable<INoteFeedResponse> {
+    const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+    return this.http.get<INoteFeedResponse>(
+      `${this.apiUrl}note/feed?pageSize=${pageSize}${cursorParam}`
+    );
+  }
+
+  NoteCreate(request: INoteCreateRequest): Observable<INoteResponse> {
+    return this.http.post<INoteResponse>(`${this.apiUrl}note/create`, request);
+  }
+
+  NoteAdminSearch(
+    pageIndex: number,
+    pageSize: number,
+    keyword = '',
+    onlyActive?: boolean
+  ): Observable<INoteAdminSearchResponse> {
+    const activeParam =
+      onlyActive === undefined ? '' : `&onlyActive=${onlyActive}`;
+    return this.http.get<INoteAdminSearchResponse>(
+      `${this.apiUrl}note/adminsearch?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${encodeURIComponent(
+        keyword
+      )}${activeParam}`
+    );
+  }
+
+  NoteToggleActive(noteId: string, flagActive: boolean): Observable<INoteResponse> {
+    return this.http.patch<INoteResponse>(
+      `${this.apiUrl}note/toggleactive?noteId=${encodeURIComponent(
+        noteId
+      )}&flagActive=${flagActive}`,
+      {}
+    );
+  }
+
+  NoteDelete(noteId: string): Observable<IBaseResponse<boolean>> {
+    return this.http.delete<IBaseResponse<boolean>>(
+      `${this.apiUrl}note/delete?noteId=${encodeURIComponent(noteId)}`
     );
   }
 

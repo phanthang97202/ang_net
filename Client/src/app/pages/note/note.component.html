@@ -1,0 +1,129 @@
+<main class="note-page">
+  <header class="note-page__hero">
+    <span class="note-page__eyebrow">{{ 'T_NOTE_EYEBROW' | translate }}</span>
+    <h1>{{ 'T_NOTE_TITLE' | translate }}</h1>
+    <p>{{ 'T_NOTE_SUBTITLE' | translate }}</p>
+  </header>
+
+  <section *ngIf="featureUnavailable; else noteContent" class="note-page__unavailable">
+    <span nz-icon nzType="lock" nzTheme="outline"></span>
+    <h2>{{ 'T_NOTE_UNAVAILABLE_TITLE' | translate }}</h2>
+    <p>{{ 'T_NOTE_UNAVAILABLE_DESC' | translate }}</p>
+    <a routerLink="/">{{ 'T_NOTE_BACK_HOME' | translate }}</a>
+  </section>
+
+  <ng-template #noteContent>
+    <div class="note-page__layout">
+      <aside class="note-composer">
+        <div class="note-composer__heading">
+          <span nz-icon nzType="edit" nzTheme="outline"></span>
+          <div>
+            <h2>{{ 'T_NOTE_WRITE_TITLE' | translate }}</h2>
+            <p>{{ 'T_NOTE_WRITE_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <label for="note-alias">{{ 'T_NOTE_ALIAS' | translate }}</label>
+          <input
+            id="note-alias"
+            nz-input
+            formControlName="Alias"
+            maxlength="100"
+            [placeholder]="'T_NOTE_ALIAS_PLACEHOLDER' | translate" />
+          <p
+            *ngIf="form.controls.Alias.touched && form.controls.Alias.invalid"
+            class="note-composer__error">
+            {{ 'T_NOTE_ALIAS_ERROR' | translate }}
+          </p>
+
+          <span class="note-composer__content-label">
+            {{ 'T_NOTE_CONTENT' | translate }}
+          </span>
+          <app-text-editor
+            variant="note"
+            [resetKey]="editorResetKey"
+            [initContentBody]="form.controls.ContentBody.value"
+            (contentChanged)="handleContentChanged($event)" />
+          <p *ngIf="contentError" class="note-composer__error">
+            {{ contentError }}
+          </p>
+
+          <div class="note-composer__footer">
+            <span>{{ 'T_NOTE_IMMUTABLE_HINT' | translate }}</span>
+            <button
+              nz-button
+              nzType="primary"
+              type="submit"
+              [nzLoading]="isSubmitting">
+              <span nz-icon nzType="send" nzTheme="outline"></span>
+              {{ 'T_NOTE_PUBLISH' | translate }}
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="note-feed" aria-labelledby="note-feed-title">
+        <div class="note-feed__heading">
+          <div>
+            <span class="note-feed__kicker">{{ 'T_NOTE_FEED_KICKER' | translate }}</span>
+            <h2 id="note-feed-title">{{ 'T_NOTE_FEED_TITLE' | translate }}</h2>
+          </div>
+          <span class="note-feed__count" *ngIf="notes.length">
+            {{ notes.length }}+
+          </span>
+        </div>
+
+        <article
+          *ngFor="let note of notes; trackBy: trackNote"
+          class="note-card">
+          <header class="note-card__header">
+            <span class="note-card__avatar" aria-hidden="true">
+              {{ initialOf(note.Alias) }}
+            </span>
+            <div>
+              <h3>{{ note.Alias }}</h3>
+              <time [attr.datetime]="note.CreatedDTime">
+                {{ note.CreatedDTime | timeAgo }}
+              </time>
+            </div>
+          </header>
+
+          <div
+            class="note-card__body"
+            [class.note-card__body--collapsed]="
+              shouldTruncate(note) && !isExpanded(note.NoteId)
+            "
+            [innerHTML]="note.ContentBody"></div>
+
+          <button
+            *ngIf="shouldTruncate(note)"
+            class="note-card__more"
+            type="button"
+            (click)="toggleExpanded(note.NoteId)">
+            {{
+              (isExpanded(note.NoteId) ? 'T_NOTE_COLLAPSE' : 'T_NOTE_READ_MORE')
+                | translate
+            }}
+            <span
+              nz-icon
+              [nzType]="isExpanded(note.NoteId) ? 'up' : 'down'"
+              nzTheme="outline"></span>
+          </button>
+        </article>
+
+        <div *ngIf="!isLoading && notes.length === 0" class="note-feed__empty">
+          <span nz-icon nzType="form" nzTheme="outline"></span>
+          <h3>{{ 'T_NOTE_EMPTY_TITLE' | translate }}</h3>
+          <p>{{ 'T_NOTE_EMPTY_DESC' | translate }}</p>
+        </div>
+
+        <div *ngIf="isLoading" class="note-feed__loading" aria-live="polite">
+          <span nz-icon nzType="loading" nzTheme="outline"></span>
+          {{ 'T_LOADING' | translate }}
+        </div>
+        <div #loadMoreSentinel class="note-feed__sentinel" aria-hidden="true"></div>
+      </section>
+    </div>
+  </ng-template>
+</main>

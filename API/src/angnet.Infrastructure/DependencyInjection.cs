@@ -73,6 +73,8 @@ namespace angnet.Infrastructure
             services.AddScoped<ISysMenuRespository, SysMenuRespository>();
             services.AddScoped<ISysMenuService, SysMenuService>();
 
+            services.AddScoped<INoteService, NoteService>();
+
             services.AddScoped<IReelRespository, ReelRespository>();
             services.AddScoped<IReelCommentRespository, ReelCommentRespository>();
             services.AddScoped<IReelService, ReelService>();

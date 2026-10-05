@@ -1,0 +1,302 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.note-admin-page {
+  min-height: 100%;
+  background: var(--admin-bg);
+}
+
+.note-admin-page__content {
+  width: min(100%, var(--admin-page-max));
+  margin: 0 auto;
+  padding: 22px 24px 32px;
+}
+
+.note-admin-page__panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow-card);
+}
+
+.note-admin-page__panel-header {
+  display: flex;
+  min-height: 82px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.note-admin-page__panel-header h2 {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.note-admin-page__panel-header p {
+  margin: 4px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
+.note-admin-page__count {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.note-admin-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.note-admin-page__toolbar nz-form-item {
+  margin: 0;
+}
+
+.note-admin-page__search-field {
+  width: min(100%, 360px);
+}
+
+.note-admin-page__status-field {
+  width: 190px;
+}
+
+.note-admin-page__search-field nz-form-control,
+.note-admin-page__search-field nz-input-group,
+.note-admin-page__status-field nz-form-control,
+.note-admin-page__status-field nz-select {
+  width: 100%;
+}
+
+.note-admin-page__toolbar button {
+  height: 36px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.note-admin-page__reset {
+  color: var(--admin-text-secondary);
+}
+
+.note-admin-page__identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.note-admin-page__identity strong {
+  overflow: hidden;
+  color: var(--admin-text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-admin-page__avatar {
+  display: grid;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.note-admin-page__preview {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.note-admin-page__index,
+.note-admin-page__time {
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.note-admin-page__status {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding-inline: 8px;
+  border-color: #bbf7d0;
+  border-radius: 999px;
+  background: #f0fdf4;
+  color: var(--admin-success);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.note-admin-page__status--inactive {
+  border-color: var(--admin-border);
+  background: var(--admin-surface-subtle);
+  color: var(--admin-text-secondary);
+}
+
+.note-admin-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.note-admin-page__actions button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.note-admin-page__action-heading {
+  text-align: center;
+}
+
+.note-admin-page__empty {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 32px;
+  color: var(--admin-text-secondary);
+  text-align: center;
+}
+
+.note-admin-page__empty > [nz-icon] {
+  color: var(--admin-text-tertiary);
+  font-size: 36px;
+}
+
+.note-admin-page__empty strong {
+  color: var(--admin-text);
+  font-size: 15px;
+}
+
+.note-admin-page__empty p {
+  margin: 0;
+  font-size: 12px;
+}
+
+::ng-deep .note-admin-page__toolbar {
+  .ant-input-affix-wrapper,
+  .ant-select-selector {
+    height: 36px;
+    border-color: var(--admin-border-strong);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .ant-select-single .ant-select-selector .ant-select-selection-item,
+  .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+    line-height: 34px;
+  }
+}
+
+::ng-deep .note-admin-page__table {
+  .ant-table {
+    color: var(--admin-text);
+    font-size: 13px;
+  }
+
+  .ant-table-thead > tr > th {
+    height: 44px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-surface-subtle);
+    color: var(--admin-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .ant-table-tbody > tr > td {
+    height: 64px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    vertical-align: middle;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #f8fbff;
+  }
+
+  .ant-table-cell-fix-right {
+    background: var(--admin-surface);
+  }
+
+  .ant-table-thead .ant-table-cell-fix-right {
+    background: var(--admin-surface-subtle);
+  }
+
+  .ant-table-pagination.ant-pagination {
+    margin: 16px 20px;
+  }
+
+  .ant-pagination-item,
+  .ant-pagination-prev .ant-pagination-item-link,
+  .ant-pagination-next .ant-pagination-item-link,
+  .ant-select-selector {
+    border-radius: 7px;
+  }
+
+  .ant-table-placeholder .ant-table-cell {
+    padding: 0;
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .note-admin-page__content {
+    padding: 16px 12px 24px;
+  }
+
+  .note-admin-page__panel-header {
+    min-height: 0;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .note-admin-page__toolbar {
+    padding: 12px 16px;
+  }
+
+  .note-admin-page__search-field,
+  .note-admin-page__status-field {
+    width: 100%;
+  }
+}
