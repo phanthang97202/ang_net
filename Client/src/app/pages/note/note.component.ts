@@ -35,10 +35,7 @@ export class NoteComponent
   private loadMoreSentinel?: ElementRef<HTMLElement>;
 
   readonly form = this.fb.group({
-    Alias: this.fb.control('', [
-      Validators.required,
-      Validators.maxLength(100),
-    ]),
+    Alias: this.fb.control('', Validators.maxLength(100)),
     ContentBody: this.fb.control('', Validators.required),
   });
 

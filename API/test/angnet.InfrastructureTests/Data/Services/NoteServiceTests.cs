@@ -68,6 +68,53 @@ namespace angnet.Infrastructure.Data.Services.Tests
             Assert.AreEqual(0, await dbContext.Note.CountAsync());
         }
 
+        [TestMethod]
+        public async Task Create_WhenAliasIsBlank_GeneratesAliasAndSaves()
+        {
+            using SqliteConnection connection = new SqliteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+            await using AppDbContext dbContext = CreateContext(connection);
+            await dbContext.Database.EnsureCreatedAsync();
+            await EnableFeature(dbContext);
+
+            NoteService service = new NoteService(dbContext);
+            ApiResponse<NoteDto> response = await service.Create(new NoteCreateDto
+            {
+                Alias = "   ",
+                ContentBody = "<p>Một ghi chú không nhập bí danh.</p>"
+            });
+
+            Assert.IsTrue(response.Success);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(response.Data.Alias));
+            Assert.AreEqual(response.Data.Alias, (await dbContext.Note.SingleAsync()).Alias);
+        }
+
+        [TestMethod]
+        public async Task Create_AllowsDuplicateAliases()
+        {
+            using SqliteConnection connection = new SqliteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+            await using AppDbContext dbContext = CreateContext(connection);
+            await dbContext.Database.EnsureCreatedAsync();
+            await EnableFeature(dbContext);
+
+            NoteService service = new NoteService(dbContext);
+            ApiResponse<NoteDto> first = await service.Create(new NoteCreateDto
+            {
+                Alias = "Người quen",
+                ContentBody = "<p>Ghi chú thứ nhất.</p>"
+            });
+            ApiResponse<NoteDto> second = await service.Create(new NoteCreateDto
+            {
+                Alias = "Người quen",
+                ContentBody = "<p>Ghi chú thứ hai.</p>"
+            });
+
+            Assert.IsTrue(first.Success);
+            Assert.IsTrue(second.Success);
+            Assert.AreEqual(2, await dbContext.Note.CountAsync(note => note.Alias == "Người quen"));
+        }
+
         private static AppDbContext CreateContext(SqliteConnection connection)
         {
             DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()

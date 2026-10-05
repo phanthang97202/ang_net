@@ -1,0 +1,7 @@
+interface:
+  display_name: "AngNet Dashboard UI"
+  short_description: "Modern SaaS rules for the AngNet admin UI"
+  brand_color: "#1677FF"
+  default_prompt: "Use $angnet-dashboard-ui to redesign this AngNet dashboard screen while preserving its business behavior."
+policy:
+  allow_implicit_invocation: true

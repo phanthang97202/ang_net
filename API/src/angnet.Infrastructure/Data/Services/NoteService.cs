@@ -18,6 +18,17 @@ namespace angnet.Infrastructure.Data.Services
         private const int MaxPageSize = 30;
         private const string FeatureDisabled = "Tính năng ghi chú hiện đang tạm tắt.";
         private const string NoteNotFound = "Ghi chú không tồn tại.";
+        private static readonly string[] GeneratedAliases =
+        {
+            "Người qua đường",
+            "Kẻ mộng mơ",
+            "Người kể chuyện",
+            "Vị khách nhỏ",
+            "Người thích viết",
+            "Một người bạn",
+            "Kẻ hay nghĩ",
+            "Người lạ thân quen",
+        };
 
         private readonly AppDbContext _dbContext;
         private readonly HtmlSanitizer _sanitizer;
@@ -92,7 +103,7 @@ namespace angnet.Infrastructure.Data.Services
             string alias = NormalizeAlias(data.Alias);
             if (string.IsNullOrWhiteSpace(alias))
             {
-                return new ApiResponse<NoteDto>("Vui lòng nhập bí danh.");
+                alias = GenerateAlias();
             }
             if (alias.Length > AliasMaxLength)
             {
@@ -269,6 +280,11 @@ namespace angnet.Infrastructure.Data.Services
         private static string NormalizeAlias(string? alias)
         {
             return Regex.Replace((alias ?? string.Empty).Trim(), @"\s+", " ");
+        }
+
+        private static string GenerateAlias()
+        {
+            return GeneratedAliases[Random.Shared.Next(GeneratedAliases.Length)];
         }
 
         private static string PlainTextOf(string html)
