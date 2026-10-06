@@ -1,7 +1,5 @@
 <!-- Navbar Wrapper -->
-<div
-  class="navbar-wrapper"
-  [class.scrolled]="isScrolled || isMobileMenuOpen">
+<div class="navbar-wrapper" [class.scrolled]="isScrolled || isMobileMenuOpen">
   <!-- Desktop Navbar -->
   <nav class="navbar-desktop">
     <!-- Logo -->
@@ -40,6 +38,14 @@
                   ? titleOf(route)
                   : ('T_' + route.title | uppercase | translate)
               }}
+              <ng-container *ngIf="route.openInNewTab">
+                <span
+                  *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
+                  class="note-unread-badge"
+                  [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                  {{ formatUnreadCount(unreadCount) }}
+                </span>
+              </ng-container>
             </a>
           </ng-template>
         </li>
@@ -89,6 +95,14 @@
                       ? titleOf(child)
                       : ('T_' + child.title | uppercase | translate)
                   }}
+                  <ng-container *ngIf="child.openInNewTab">
+                    <span
+                      *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
+                      class="note-unread-badge"
+                      [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                      {{ formatUnreadCount(unreadCount) }}
+                    </span>
+                  </ng-container>
                 </a>
               </ng-template>
             </li>
@@ -222,6 +236,14 @@
                   ? titleOf(route)
                   : ('T_' + route.title | uppercase | translate)
               }}
+              <ng-container *ngIf="route.openInNewTab">
+                <span
+                  *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
+                  class="note-unread-badge"
+                  [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                  {{ formatUnreadCount(unreadCount) }}
+                </span>
+              </ng-container>
             </a>
           </ng-template>
         </li>
@@ -266,6 +288,14 @@
                       ? titleOf(child)
                       : ('T_' + child.title | uppercase | translate)
                   }}
+                  <ng-container *ngIf="child.openInNewTab">
+                    <span
+                      *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
+                      class="note-unread-badge"
+                      [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                      {{ formatUnreadCount(unreadCount) }}
+                    </span>
+                  </ng-container>
                 </a>
               </ng-template>
             </li>
@@ -289,10 +319,7 @@
   (click)="closeMobileMenu()"></div>
 
 <!-- Search Popup -->
-<div
-  *ngIf="isSearchOpen"
-  class="search-overlay"
-  (click)="closeSearch()"></div>
+<div *ngIf="isSearchOpen" class="search-overlay" (click)="closeSearch()"></div>
 
 <div class="search-popup" [class.visible]="isSearchOpen">
   <div class="search-popup-row">
@@ -323,7 +350,9 @@
         {{ authService.getAccountInfo().shortname }}
       </span>
       <div class="account-menu__identity">
-        <p class="account-menu__name">{{ authService.getAccountInfo().name }}</p>
+        <p class="account-menu__name">
+          {{ authService.getAccountInfo().name }}
+        </p>
         <p class="account-menu__email">
           {{ authService.getAccountInfo().email }}
         </p>

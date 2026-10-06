@@ -88,6 +88,33 @@ namespace angnet.Infrastructure.Data.Services
             };
         }
 
+        public async Task<ApiResponse<NoteUnreadStateDto>> GetUnreadState(DateTime? lastReadAt)
+        {
+            if (!await IsFeatureEnabled())
+            {
+                return new ApiResponse<NoteUnreadStateDto>(FeatureDisabled);
+            }
+
+            DateTime serverDTime = TCommonUtils.DTimeNow();
+            int unreadCount = 0;
+
+            // Trình duyệt chưa từng vào trang ghi chú sẽ lấy thời điểm hiện tại làm mốc.
+            // Nhờ vậy người dùng mới không bị báo toàn bộ lịch sử là chưa đọc.
+            if (lastReadAt.HasValue)
+            {
+                unreadCount = await _dbContext.Note.AsNoTracking().CountAsync(note =>
+                    note.FlagActive
+                    && note.CreatedDTime > lastReadAt.Value
+                    && note.CreatedDTime <= serverDTime);
+            }
+
+            return new ApiResponse<NoteUnreadStateDto>(new NoteUnreadStateDto
+            {
+                UnreadCount = unreadCount,
+                ServerDTime = serverDTime,
+            });
+        }
+
         public async Task<ApiResponse<NoteDto>> Create(NoteCreateDto data)
         {
             if (!await IsFeatureEnabled())

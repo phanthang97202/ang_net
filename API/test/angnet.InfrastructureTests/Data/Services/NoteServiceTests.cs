@@ -115,12 +115,69 @@ namespace angnet.Infrastructure.Data.Services.Tests
             Assert.AreEqual(2, await dbContext.Note.CountAsync(note => note.Alias == "Người quen"));
         }
 
+        [TestMethod]
+        public async Task GetUnreadState_WithoutReadMarker_StartsAtZero()
+        {
+            using SqliteConnection connection = new SqliteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+            await using AppDbContext dbContext = CreateContext(connection);
+            await dbContext.Database.EnsureCreatedAsync();
+            await EnableFeature(dbContext);
+
+            dbContext.Note.Add(NewNote(DateTime.UtcNow.AddMinutes(-1), true));
+            await dbContext.SaveChangesAsync();
+
+            NoteService service = new NoteService(dbContext);
+            ApiResponse<NoteUnreadStateDto> response = await service.GetUnreadState(null);
+
+            Assert.IsTrue(response.Success);
+            Assert.AreEqual(0, response.Data.UnreadCount);
+            Assert.AreNotEqual(default, response.Data.ServerDTime);
+        }
+
+        [TestMethod]
+        public async Task GetUnreadState_CountsOnlyActiveNotesAfterReadMarker()
+        {
+            using SqliteConnection connection = new SqliteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+            await using AppDbContext dbContext = CreateContext(connection);
+            await dbContext.Database.EnsureCreatedAsync();
+            await EnableFeature(dbContext);
+
+            DateTime readMarker = DateTime.UtcNow.AddMinutes(-5);
+            dbContext.Note.AddRange(
+                NewNote(readMarker.AddMinutes(-1), true),
+                NewNote(readMarker.AddMinutes(1), false),
+                NewNote(readMarker.AddMinutes(2), true));
+            await dbContext.SaveChangesAsync();
+
+            NoteService service = new NoteService(dbContext);
+            ApiResponse<NoteUnreadStateDto> response = await service.GetUnreadState(readMarker);
+
+            Assert.IsTrue(response.Success);
+            Assert.AreEqual(1, response.Data.UnreadCount);
+        }
+
         private static AppDbContext CreateContext(SqliteConnection connection)
         {
             DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlite(connection)
                 .Options;
             return new AppDbContext(options);
+        }
+
+        private static NoteModel NewNote(DateTime createdDTime, bool active)
+        {
+            return new NoteModel
+            {
+                Alias = "Khách",
+                ContentBody = "<p>Ghi chú kiểm thử</p>",
+                FlagActive = active,
+                CreatedBy = "anonymous",
+                UpdatedBy = "anonymous",
+                CreatedDTime = createdDTime,
+                UpdatedDTime = createdDTime,
+            };
         }
 
         private static async Task EnableFeature(AppDbContext dbContext)

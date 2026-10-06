@@ -15,7 +15,14 @@ export interface INoteCreateRequest {
   ContentBody: string;
 }
 
+export interface INoteUnreadState {
+  UnreadCount: number;
+  ServerDTime: string;
+}
+
 export type INoteResponse = IBaseResponse<INote>;
+
+export type INoteUnreadStateResponse = IBaseResponse<INoteUnreadState>;
 
 export type INoteFeedResponse = Omit<IBaseResponse<INote>, 'objResult'> & {
   objResult: ICursorPageInfo<INote>;

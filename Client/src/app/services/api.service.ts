@@ -57,6 +57,7 @@ import {
   INoteCreateRequest,
   INoteFeedResponse,
   INoteResponse,
+  INoteUnreadStateResponse,
   INewsCommentReportRequest,
   INewsCommentReportResponse,
   IMediaPageResponse,
@@ -636,7 +637,10 @@ export class ApiService {
   }
 
   // Note (trang ghi chú công khai + kiểm duyệt trong dashboard)
-  NoteFeed(pageSize: number, cursor: string | null): Observable<INoteFeedResponse> {
+  NoteFeed(
+    pageSize: number,
+    cursor: string | null
+  ): Observable<INoteFeedResponse> {
     const cursorParam = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
     return this.http.get<INoteFeedResponse>(
       `${this.apiUrl}note/feed?pageSize=${pageSize}${cursorParam}`
@@ -645,6 +649,17 @@ export class ApiService {
 
   NoteCreate(request: INoteCreateRequest): Observable<INoteResponse> {
     return this.http.post<INoteResponse>(`${this.apiUrl}note/create`, request);
+  }
+
+  NoteUnreadState(
+    lastReadAt: string | null
+  ): Observable<INoteUnreadStateResponse> {
+    const lastReadParam = lastReadAt
+      ? `?lastReadAt=${encodeURIComponent(lastReadAt)}`
+      : '';
+    return this.http.get<INoteUnreadStateResponse>(
+      `${this.apiUrl}note/unreadstate${lastReadParam}`
+    );
   }
 
   NoteAdminSearch(
@@ -662,7 +677,10 @@ export class ApiService {
     );
   }
 
-  NoteToggleActive(noteId: string, flagActive: boolean): Observable<INoteResponse> {
+  NoteToggleActive(
+    noteId: string,
+    flagActive: boolean
+  ): Observable<INoteResponse> {
     return this.http.patch<INoteResponse>(
       `${this.apiUrl}note/toggleactive?noteId=${encodeURIComponent(
         noteId

@@ -14,7 +14,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AntdModule, REUSE_PIPE_MODULE } from '../../modules';
 import { TextEditorComponent } from '../../components/text-editor/text-editor.component';
 import { INote } from '../../interfaces';
-import { ApiService } from '../../services';
+import { ApiService, NoteRealtimeService } from '../../services';
 
 @Component({
   selector: 'app-note',
@@ -23,13 +23,12 @@ import { ApiService } from '../../services';
   templateUrl: './note.component.html',
   styleUrl: './note.component.scss',
 })
-export class NoteComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly noteRealtime = inject(NoteRealtimeService);
 
   @ViewChild('loadMoreSentinel')
   private loadMoreSentinel?: ElementRef<HTMLElement>;
@@ -53,6 +52,11 @@ export class NoteComponent
   private readonly pageSize = 10;
 
   ngOnInit(): void {
+    this.noteRealtime.newNote$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(note => this.prependNote(note));
+    this.noteRealtime.initialize();
+    void this.noteRealtime.markAllAsRead();
     this.loadMore();
   }
 
@@ -83,7 +87,9 @@ export class NoteComponent
   }
 
   submit(): void {
-    const plainLength = this.plainText(this.form.controls.ContentBody.value).length;
+    const plainLength = this.plainText(
+      this.form.controls.ContentBody.value
+    ).length;
     if (plainLength === 0) {
       this.contentError = 'Vui lòng nhập nội dung ghi chú.';
     } else if (plainLength > 20_000) {
@@ -108,7 +114,7 @@ export class NoteComponent
             return;
           }
 
-          this.notes = [response.Data, ...this.notes];
+          this.prependNote(response.Data);
           this.form.reset({ Alias: '', ContentBody: '' });
           this.editorResetKey += 1;
           this.contentError = '';
@@ -142,7 +148,11 @@ export class NoteComponent
           }
 
           const page = response.objResult;
-          this.notes = [...this.notes, ...(page?.DataList || [])];
+          const existingIds = new Set(this.notes.map(note => note.NoteId));
+          const nextNotes = (page?.DataList || []).filter(
+            note => !existingIds.has(note.NoteId)
+          );
+          this.notes = [...this.notes, ...nextNotes];
           this.nextCursor = page?.NextCursor || null;
           this.hasMore = page?.HasMore || false;
         },
@@ -179,6 +189,13 @@ export class NoteComponent
 
   trackNote(_: number, note: INote): string {
     return note.NoteId;
+  }
+
+  private prependNote(note: INote): void {
+    if (!note?.NoteId || this.notes.some(item => item.NoteId === note.NoteId)) {
+      return;
+    }
+    this.notes = [note, ...this.notes];
   }
 
   private plainText(html: string): string {

@@ -410,6 +410,7 @@ app.MapMethods("/api/health", new[] { "HEAD" }, () => Results.Ok("Alive")); // s
 
 app.MapHub<ChatHub>("chat-hub");
 app.MapHub<angnet.WebApi.SignalR.Chess.ChessHub>("chess-hub");
+app.MapHub<NoteHub>("note-hub");
 
 // -----------Auto tracking port in production----------------------
 if (app.Environment.IsProduction())

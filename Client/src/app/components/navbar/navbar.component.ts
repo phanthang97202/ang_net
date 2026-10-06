@@ -13,7 +13,12 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { TranslateModule } from '@ngx-translate/core';
-import { ApiService, AuthService, LangService } from '../../services';
+import {
+  ApiService,
+  AuthService,
+  LangService,
+  NoteRealtimeService,
+} from '../../services';
 import { ISysMenuTree } from '../../interfaces';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
@@ -59,6 +64,7 @@ interface RouteItem {
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
+  readonly noteRealtime = inject(NoteRealtimeService);
   isMobileMenuOpen = false;
   isSearchOpen = false;
   searchKeyword = '';
@@ -111,9 +117,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     {
       title: 'Game',
       icon: 'trophy',
-      children: [
-        { path: '/game/chess', title: 'Chess', icon: 'appstore' },
-      ],
+      children: [{ path: '/game/chess', title: 'Chess', icon: 'appstore' }],
     },
     // Tạm ẩn cùng route /about (xem app.routes.ts)
     // { path: '/about', title: 'AboutMe', icon: 'user' },
@@ -178,6 +182,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return route.title;
   }
 
+  formatUnreadCount(count: number): string {
+    return count > 99 ? '99+' : `${count}`;
+  }
+
   private fetchMenu(): void {
     this.api.SysMenuGetActive().subscribe({
       next: response => {
@@ -192,6 +200,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.menuTree = tree;
         this.listRoute = this.toRouteItems(tree);
         this.isMenuFromApi = true;
+
+        if (this.hasNoteRoute(this.listRoute)) {
+          this.noteRealtime.initialize();
+        }
       },
       // Nuốt lỗi có chủ đích: API menu hỏng thì vẫn còn menu dự phòng.
       error: () => undefined,
@@ -218,6 +230,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
 
     return tree.map(toItem);
+  }
+
+  private hasNoteRoute(routes: RouteItem[]): boolean {
+    return routes.some(
+      route =>
+        route.path === '/note' ||
+        (route.children ? this.hasNoteRoute(route.children) : false)
+    );
   }
 
   /**

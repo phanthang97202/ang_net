@@ -15,4 +15,10 @@ namespace angnet.Domain.Dtos
         public string Alias { get; set; } = string.Empty;
         public string ContentBody { get; set; } = string.Empty;
     }
+
+    public class NoteUnreadStateDto
+    {
+        public int UnreadCount { get; set; }
+        public DateTime ServerDTime { get; set; }
+    }
 }
