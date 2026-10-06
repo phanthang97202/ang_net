@@ -5,6 +5,15 @@ import { environment } from '../../environments/environment';
 import { INote, INoteUnreadState } from '../interfaces';
 import { ApiService } from './api.service';
 
+type RealtimeNote = Partial<INote> & {
+  noteId?: string;
+  alias?: string;
+  contentBody?: string;
+  flagActive?: boolean;
+  createdDTime?: string;
+  updatedDTime?: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class NoteRealtimeService {
   private readonly api = inject(ApiService);
@@ -77,8 +86,11 @@ export class NoteRealtimeService {
       .withAutomaticReconnect([0, 2_000, 10_000, 30_000])
       .build();
 
-    connection.on('NoteCreated', (note: INote) => {
-      this.zone.run(() => this.handleNewNote(note));
+    connection.on('NoteCreated', (note: RealtimeNote) => {
+      this.zone.run(() => {
+        const normalizedNote = this.normalizeNote(note);
+        if (normalizedNote) this.handleNewNote(normalizedNote);
+      });
     });
     connection.onreconnected(() => {
       this.zone.run(() => void this.refreshUnreadCount());
@@ -113,7 +125,10 @@ export class NoteRealtimeService {
         }
         return this.refreshUnreadCount();
       })
-      .catch(() => this.scheduleReconnect())
+      .catch(error => {
+        console.warn('Không thể kết nối realtime ghi chú.', error);
+        this.scheduleReconnect();
+      })
       .finally(() => {
         if (this.connectionStart === start) {
           this.connectionStart = undefined;
@@ -145,6 +160,19 @@ export class NoteRealtimeService {
 
     // Đối soát lại với DB thay vì chỉ +1 để vẫn đúng nếu tab vừa bị mất mạng.
     void this.refreshUnreadCount();
+  }
+
+  private normalizeNote(note: RealtimeNote): INote | null {
+    const normalized: INote = {
+      NoteId: note.NoteId ?? note.noteId ?? '',
+      Alias: note.Alias ?? note.alias ?? '',
+      ContentBody: note.ContentBody ?? note.contentBody ?? '',
+      FlagActive: note.FlagActive ?? note.flagActive ?? true,
+      CreatedDTime: note.CreatedDTime ?? note.createdDTime ?? '',
+      UpdatedDTime: note.UpdatedDTime ?? note.updatedDTime ?? '',
+    };
+
+    return normalized.NoteId ? normalized : null;
   }
 
   private async refreshUnreadCount(): Promise<void> {

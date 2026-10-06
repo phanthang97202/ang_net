@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
+using System.Text.Json;
 using StackExchange.Redis;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 using angnet.WebApi.MIddlewares;
@@ -344,8 +345,13 @@ builder.Services.AddControllers().AddJsonOptions(o =>
     o.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
-// config signalR
-builder.Services.AddSignalR();
+// Giữ nguyên PascalCase giống JSON của REST API. SignalR mặc định dùng camelCase,
+// trong khi các interface hiện tại của frontend nhận NoteId, CreatedDTime, ...
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+    });
 builder.Services.AddSingleton<angnet.WebApi.SignalR.Chess.ChessRoomStore>();
 
 var app = builder.Build();
