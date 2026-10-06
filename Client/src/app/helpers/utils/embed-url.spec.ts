@@ -43,6 +43,22 @@ describe('resolveLinkEmbed', () => {
     expect(resolveLinkEmbed('https://youtube.com/shorts/dQw4w9WgXcQ').aspectRatio).toBe('9 / 16');
   });
 
+  it('only enables autoplay when requested by the media viewer', () => {
+    expect(
+      resolveLinkEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ', true)
+        .embedSrc
+    ).toContain('autoplay=1');
+    expect(
+      resolveLinkEmbed(
+        'https://www.tiktok.com/@someone/video/7312345678901234567',
+        true
+      ).embedSrc
+    ).toContain('autoplay=1');
+    expect(
+      resolveLinkEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ').embedSrc
+    ).not.toContain('autoplay=1');
+  });
+
   it('TikTok: link đầy đủ nhúng được, link rút gọn thì không', () => {
     const full = resolveLinkEmbed('https://www.tiktok.com/@someone/video/7312345678901234567');
     expect(full.embedSrc).toBe('https://www.tiktok.com/player/v1/7312345678901234567');

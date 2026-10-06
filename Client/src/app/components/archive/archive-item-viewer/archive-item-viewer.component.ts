@@ -37,12 +37,28 @@ export class ArchiveItemViewerComponent implements OnChanges {
       this.hostname = this.item.SourceUrl;
     }
 
-    const embed = resolveLinkEmbed(this.item.SourceUrl);
+    const embed = resolveLinkEmbed(this.item.SourceUrl, true);
     // Chỉ những src do resolveLinkEmbed tự dựng (đúng domain nhúng của từng
     // mạng) mới được tin; link "Web" bất kỳ không bao giờ vào iframe.
     if (embed.embedSrc) {
       this.embedSrc = this.sanitizer.bypassSecurityTrustResourceUrl(embed.embedSrc);
       this.aspectRatio = embed.aspectRatio;
     }
+  }
+
+  /**
+   * Phát ngay khi video mới đã sẵn sàng. Trình duyệt thường cho phép phát có
+   * tiếng vì người xem vừa bấm mở/prev/next; nếu chính sách autoplay vẫn chặn,
+   * chuyển sang muted để video không bị đứng ở nút Play.
+   */
+  autoplayVideo(event: Event): void {
+    const video = event.currentTarget as HTMLVideoElement | null;
+    if (!video) return;
+
+    video.muted = false;
+    void video.play().catch(() => {
+      video.muted = true;
+      void video.play().catch(() => undefined);
+    });
   }
 }

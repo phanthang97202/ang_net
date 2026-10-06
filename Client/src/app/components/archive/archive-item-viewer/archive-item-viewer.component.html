@@ -10,8 +10,10 @@
           [src]="item.SourceUrl"
           [poster]="item.ThumbnailUrl"
           controls
+          autoplay
           playsinline
-          preload="metadata"></video>
+          preload="auto"
+          (loadedmetadata)="autoplayVideo($event)"></video>
       }
       @case ('Link') {
         @if (embedSrc) {

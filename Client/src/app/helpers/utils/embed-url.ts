@@ -123,7 +123,10 @@ export function extractYoutubeVideoId(
  * Link bất kỳ -> cách hiển thị. Không nhận ra thì vẫn trả provider để giao
  * diện vẽ thẻ link đúng biểu tượng.
  */
-export function resolveLinkEmbed(rawUrl: string): ResolvedLinkEmbed {
+export function resolveLinkEmbed(
+  rawUrl: string,
+  autoplay = false
+): ResolvedLinkEmbed {
   const raw = (rawUrl ?? '').trim();
   const provider = detectLinkProvider(raw);
   const result: ResolvedLinkEmbed = {
@@ -137,7 +140,8 @@ export function resolveLinkEmbed(rawUrl: string): ResolvedLinkEmbed {
     case 'YouTube': {
       const video = extractYoutubeVideoId(raw);
       if (video) {
-        result.embedSrc = `https://www.youtube-nocookie.com/embed/${video.id}`;
+        const params = autoplay ? '?autoplay=1&playsinline=1' : '';
+        result.embedSrc = `https://www.youtube-nocookie.com/embed/${video.id}${params}`;
         result.aspectRatio = video.isShort ? '9 / 16' : '16 / 9';
         // mqdefault là ảnh 16:9 thật; hqdefault 4:3 có sẵn dải đen trên dưới
         result.thumbnailUrl = `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`;
@@ -148,7 +152,8 @@ export function resolveLinkEmbed(rawUrl: string): ResolvedLinkEmbed {
       // Link rút gọn vt.tiktok.com không chứa mã video, không nhúng được
       const id = extractTiktokVideoId(raw);
       if (id) {
-        result.embedSrc = `https://www.tiktok.com/player/v1/${id}`;
+        const params = autoplay ? '?autoplay=1' : '';
+        result.embedSrc = `https://www.tiktok.com/player/v1/${id}${params}`;
         result.aspectRatio = '9 / 16';
       }
       break;
@@ -157,6 +162,7 @@ export function resolveLinkEmbed(rawUrl: string): ResolvedLinkEmbed {
       result.embedSrc = toFacebookPluginSrc(raw);
       const href = extractFacebookHref(raw);
       if (result.embedSrc && href && isFacebookVideo(href)) {
+        if (autoplay) result.embedSrc += '&autoplay=true';
         result.aspectRatio = /\/(reel|reels)\//i.test(href) ? '9 / 16' : '16 / 9';
       }
       break;
