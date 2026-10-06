@@ -15,6 +15,7 @@ using angnet.Utility.CommonUtils;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http.Timeouts;
+using Microsoft.AspNetCore.HttpOverrides;
 using angnet.WebApi.Authorization_Policy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -149,6 +150,18 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Render terminates HTTPS at its reverse proxy. Process the forwarding headers
+// before IP-based middleware so each visitor gets an independent rate-limit bucket
+// instead of every request appearing to originate from the loopback address (::1).
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 1;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // Prevent DDoS attack (free) // [EnableRateLimitingAttribute("API")]
 builder.Services.AddRateLimiter(options =>
 {
@@ -201,7 +214,7 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 Window = TimeSpan.FromMinutes(10),
-                PermitLimit = 3,
+                PermitLimit = 10,
                 QueueLimit = 0
             }));
 
@@ -336,6 +349,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<angnet.WebApi.SignalR.Chess.ChessRoomStore>();
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 app.UseRateLimiter(); // Prevent DDoS attack (free)
 app.Use(async (context, next) =>
 {
