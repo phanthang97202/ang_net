@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  ChangeDetectorRef,
   EventEmitter,
   HostListener,
   Input,
   OnChanges,
   Output,
+  ViewChild,
   inject,
 } from '@angular/core';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -54,6 +56,10 @@ export class ArchiveCollectionViewComponent implements OnChanges {
 
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
+  private changeDetector = inject(ChangeDetectorRef);
+
+  @ViewChild(ArchiveItemViewerComponent)
+  private itemViewer?: ArchiveItemViewerComponent;
 
   /** Hộp xác nhận xoá đang mở; run trả Observable để biết khi nào đóng hộp */
   pendingConfirm: { title: string; message: string; run: () => Observable<unknown> } | null = null;
@@ -121,6 +127,7 @@ export class ArchiveCollectionViewComponent implements OnChanges {
 
   open(index: number): void {
     this.viewingIndex = index;
+    this.activateViewerSound();
   }
 
   closeViewer(): void {
@@ -132,7 +139,15 @@ export class ArchiveCollectionViewComponent implements OnChanges {
     const next = this.viewingIndex + delta;
     if (next >= 0 && next < this.items.length) {
       this.viewingIndex = next;
+      this.activateViewerSound();
     }
+  }
+
+  private activateViewerSound(): void {
+    // Render media mới ngay trong chính thao tác click/phím của người dùng để
+    // lời gọi play() vẫn được trình duyệt coi là có user activation.
+    this.changeDetector.detectChanges();
+    this.itemViewer?.playWithSound();
   }
 
   @HostListener('document:keydown', ['$event'])

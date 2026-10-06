@@ -152,7 +152,7 @@ export function resolveLinkEmbed(
       // Link rút gọn vt.tiktok.com không chứa mã video, không nhúng được
       const id = extractTiktokVideoId(raw);
       if (id) {
-        const params = autoplay ? '?autoplay=1' : '';
+        const params = autoplay ? '?autoplay=1&muted=0' : '';
         result.embedSrc = `https://www.tiktok.com/player/v1/${id}${params}`;
         result.aspectRatio = '9 / 16';
       }

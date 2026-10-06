@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnChanges,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { IArchiveItem } from '../../../interfaces';
@@ -19,6 +27,11 @@ export class ArchiveItemViewerComponent implements OnChanges {
   @Input() showTitle = true;
 
   private sanitizer = inject(DomSanitizer);
+
+  @ViewChild('nativeVideo')
+  private nativeVideo?: ElementRef<HTMLVideoElement>;
+  @ViewChild('embedFrame')
+  private embedFrame?: ElementRef<HTMLIFrameElement>;
 
   embedSrc: SafeResourceUrl | null = null;
   aspectRatio: string | null = null;
@@ -47,18 +60,50 @@ export class ArchiveItemViewerComponent implements OnChanges {
   }
 
   /**
-   * Phát ngay khi video mới đã sẵn sàng. Trình duyệt thường cho phép phát có
-   * tiếng vì người xem vừa bấm mở/prev/next; nếu chính sách autoplay vẫn chặn,
-   * chuyển sang muted để video không bị đứng ở nút Play.
+   * Phát ngay khi video mới đã sẵn sàng và luôn ưu tiên giữ âm thanh. Không tự
+   * chuyển sang muted vì người xem đã chủ động mở/chuyển nội dung.
    */
   autoplayVideo(event: Event): void {
     const video = event.currentTarget as HTMLVideoElement | null;
     if (!video) return;
 
     video.muted = false;
-    void video.play().catch(() => {
-      video.muted = true;
+    void video.play().catch(() => undefined);
+  }
+
+  playWithSound(): void {
+    const video = this.nativeVideo?.nativeElement;
+    if (video) {
+      video.muted = false;
       void video.play().catch(() => undefined);
-    });
+    }
+
+    this.controlTikTok('unMute');
+    this.controlTikTok('play');
+  }
+
+  @HostListener('window:message', ['$event'])
+  onEmbedMessage(event: MessageEvent): void {
+    const frameWindow = this.embedFrame?.nativeElement.contentWindow;
+    if (
+      this.item?.Provider !== 'TikTok' ||
+      event.origin !== 'https://www.tiktok.com' ||
+      event.source !== frameWindow ||
+      event.data?.['x-tiktok-player'] !== true ||
+      event.data?.type !== 'onPlayerReady'
+    ) {
+      return;
+    }
+
+    this.playWithSound();
+  }
+
+  private controlTikTok(type: 'play' | 'unMute'): void {
+    if (this.item?.Provider !== 'TikTok') return;
+
+    this.embedFrame?.nativeElement.contentWindow?.postMessage(
+      { type, 'x-tiktok-player': true },
+      'https://www.tiktok.com'
+    );
   }
 }

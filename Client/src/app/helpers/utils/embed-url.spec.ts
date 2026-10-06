@@ -55,6 +55,12 @@ describe('resolveLinkEmbed', () => {
       ).embedSrc
     ).toContain('autoplay=1');
     expect(
+      resolveLinkEmbed(
+        'https://www.tiktok.com/@someone/video/7312345678901234567',
+        true
+      ).embedSrc
+    ).toContain('muted=0');
+    expect(
       resolveLinkEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ').embedSrc
     ).not.toContain('autoplay=1');
   });

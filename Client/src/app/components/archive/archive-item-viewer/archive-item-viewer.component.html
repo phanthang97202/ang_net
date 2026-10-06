@@ -6,6 +6,7 @@
       }
       @case ('Video') {
         <video
+          #nativeVideo
           class="viewer__video"
           [src]="item.SourceUrl"
           [poster]="item.ThumbnailUrl"
@@ -18,6 +19,7 @@
       @case ('Link') {
         @if (embedSrc) {
           <iframe
+            #embedFrame
             class="viewer__embed"
             [class.is-fixed-height]="!aspectRatio"
             [class.is-vertical]="aspectRatio === '9 / 16'"
