@@ -158,7 +158,9 @@ $nav-height: 64px;
 // Dropdown menu
 .dropdown-menu {
     position: absolute;
-    top: calc(100% + 0.75rem);
+    // Giữ dropdown sát nút cha để con trỏ không đi qua một "khoảng chết" làm
+    // mouseleave đóng menu trước khi người dùng kịp rê xuống lựa chọn.
+    top: calc(100% + 0.25rem);
     left: 0;
     min-width: 200px;
     background: $color-bg;
@@ -171,6 +173,17 @@ $nav-height: 64px;
     visibility: hidden;
     transform: translateY(-6px);
     transition: opacity 0.2s, transform 0.2s;
+
+    // Cầu hover trong suốt nối nút cha và dropdown. Phần tử giả vẫn thuộc
+    // dropdown nên khi con trỏ đi qua khe 4px, nav-item không bị mouseleave.
+    &::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 100%;
+        left: 0;
+        height: 0.25rem;
+    }
 
     &.visible {
         opacity: 1;

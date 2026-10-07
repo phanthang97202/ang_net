@@ -95,14 +95,6 @@ export class DetailUserComponent implements OnInit {
     });
   }
 
-  get avatarUrl(): string | null {
-    return this.userInfo?.Avatar || null;
-  }
-
-  get displayInitial(): string {
-    return (this.userInfo?.FullName || '?').charAt(0).toUpperCase();
-  }
-
   get rolesLabel(): string {
     return this.userInfo?.Roles?.join(', ') || '';
   }

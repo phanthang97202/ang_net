@@ -29,21 +29,8 @@
 
   <section class="profile__content">
     @if (!userInfo) {
-      <nz-skeleton [nzAvatar]="true" [nzParagraph]="{ rows: 6 }"></nz-skeleton>
+      <nz-skeleton [nzParagraph]="{ rows: 6 }"></nz-skeleton>
     } @else {
-      <header class="profile__header">
-        @if (avatarUrl) {
-          <img class="profile__avatar" [src]="avatarUrl" alt="" />
-        } @else {
-          <span class="profile__avatar profile__avatar--fallback">{{
-            displayInitial
-          }}</span>
-        }
-        <div class="profile__identity">
-          <h1 class="profile__name">{{ userInfo.FullName }}</h1>
-        </div>
-      </header>
-
       @switch (activeTab) {
         @case ('profile') {
           <div class="profile__details">
