@@ -1,6 +1,6 @@
 <div class="profile">
   <!-- Sidebar: sinh ra từ profileNav nên thêm tab mới chỉ cần sửa mảng đó -->
-  <aside class="profile__sidebar">
+  <aside class="profile__sidebar" [attr.aria-label]="'T_ACCOUNT' | translate">
     @for (section of profileNav; track section.titleKey) {
       <div class="profile__nav-section">
         <p class="profile__nav-title">{{ section.titleKey | translate }}</p>
@@ -10,9 +10,17 @@
             class="profile__nav-item"
             [class.is-active]="item.id === activeTab"
             [class.is-disabled]="!item.available"
+            [attr.aria-pressed]="item.id === activeTab"
             (click)="selectTab(item)">
             <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
-            <span class="profile__nav-label">{{ item.labelKey | translate }}</span>
+            <span class="profile__nav-label">{{
+              item.labelKey | translate
+            }}</span>
+            @if (!item.available) {
+              <span class="profile__soon">{{
+                'T_COMINGSOON' | translate
+              }}</span>
+            }
           </button>
         }
       </div>
@@ -33,69 +41,90 @@
         }
         <div class="profile__identity">
           <h1 class="profile__name">{{ userInfo.FullName }}</h1>
-          <p class="profile__email">{{ userInfo.Email | showNullishValue }}</p>
         </div>
       </header>
 
       @switch (activeTab) {
         @case ('profile') {
-          <article class="profile__card">
-            <h2 class="profile__card-title">
-              {{ 'T_PERSONALDETAILS' | translate }}
-            </h2>
-            <dl class="profile__rows">
-              <div class="profile__row">
-                <dt>{{ 'T_FULLNAME' | translate }}</dt>
-                <dd>{{ userInfo.FullName | showNullishValue }}</dd>
-              </div>
-              <div class="profile__row">
-                <dt>Email</dt>
-                <dd>{{ userInfo.Email | showNullishValue }}</dd>
-              </div>
-              <div class="profile__row">
-                <dt>{{ 'T_ROLE' | translate }}</dt>
-                <dd>{{ rolesLabel | showNullishValue }}</dd>
-              </div>
-              <div class="profile__row">
-                <dt>{{ 'T_PHONENUMBER' | translate }}</dt>
-                <dd>{{ userInfo.PhoneNumber | showNullishValue }}</dd>
-              </div>
-            </dl>
-          </article>
+          <div class="profile__details">
+            <article
+              class="profile__card"
+              aria-labelledby="profile-personal-title">
+              <h2 id="profile-personal-title" class="profile__card-title">
+                {{ 'T_PERSONALDETAILS' | translate }}
+              </h2>
+              <dl class="profile__fields">
+                <div class="profile__row">
+                  <dt>{{ 'T_FULLNAME' | translate }}</dt>
+                  <dd>{{ userInfo.FullName | showNullishValue }}</dd>
+                </div>
+                <div class="profile__row">
+                  <dt>Email</dt>
+                  <dd>{{ userInfo.Email | showNullishValue }}</dd>
+                </div>
+                <div class="profile__row">
+                  <dt>{{ 'T_ROLE' | translate }}</dt>
+                  <dd class="profile__roles">
+                    @for (role of userInfo.Roles; track $index) {
+                      <span class="profile__role">{{ role }}</span>
+                    } @empty {
+                      {{ rolesLabel | showNullishValue }}
+                    }
+                  </dd>
+                </div>
+                <div class="profile__row">
+                  <dt>{{ 'T_PHONENUMBER' | translate }}</dt>
+                  <dd>{{ userInfo.PhoneNumber | showNullishValue }}</dd>
+                </div>
+              </dl>
+            </article>
 
-          <article class="profile__card">
-            <h2 class="profile__card-title">{{ 'T_SECURITY' | translate }}</h2>
-            <dl class="profile__rows">
-              <div class="profile__row">
-                <dt>{{ 'T_TWOFACTORAUTH' | translate }}</dt>
-                <dd>
-                  <span
-                    class="profile__badge"
-                    [class.is-on]="userInfo.TwoFacotrEnabled">
-                    {{ userInfo.TwoFacotrEnabled ? 'Đang bật' : 'Đang tắt' }}
-                  </span>
-                </dd>
-              </div>
-              <div class="profile__row">
-                <dt>{{ 'T_PHONEVERIFIED' | translate }}</dt>
-                <dd>
-                  <span
-                    class="profile__badge"
-                    [class.is-on]="userInfo.PhoneNumberConfirmed">
-                    {{
-                      userInfo.PhoneNumberConfirmed
-                        ? 'Đã xác minh'
-                        : 'Chưa xác minh'
-                    }}
-                  </span>
-                </dd>
-              </div>
-              <div class="profile__row">
-                <dt>{{ 'T_ACCESSFAILEDCOUNT' | translate }}</dt>
-                <dd>{{ userInfo.AccessFailedCount }}</dd>
-              </div>
-            </dl>
-          </article>
+            <article
+              class="profile__card profile__card--security"
+              aria-labelledby="profile-security-title">
+              <h2 id="profile-security-title" class="profile__card-title">
+                {{ 'T_SECURITY' | translate }}
+              </h2>
+              <dl class="profile__security-rows">
+                <div class="profile__row">
+                  <dt>{{ 'T_TWOFACTORAUTH' | translate }}</dt>
+                  <dd>
+                    <span
+                      class="profile__badge"
+                      [class.is-on]="userInfo.TwoFacotrEnabled">
+                      {{
+                        (userInfo.TwoFacotrEnabled
+                          ? 'T_PROFILE_ENABLED'
+                          : 'T_PROFILE_DISABLED'
+                        ) | translate
+                      }}
+                    </span>
+                  </dd>
+                </div>
+                <div class="profile__row">
+                  <dt>{{ 'T_PHONEVERIFIED' | translate }}</dt>
+                  <dd>
+                    <span
+                      class="profile__badge"
+                      [class.is-on]="userInfo.PhoneNumberConfirmed">
+                      {{
+                        (userInfo.PhoneNumberConfirmed
+                          ? 'T_PROFILE_VERIFIED'
+                          : 'T_PROFILE_UNVERIFIED'
+                        ) | translate
+                      }}
+                    </span>
+                  </dd>
+                </div>
+                <div class="profile__row">
+                  <dt>{{ 'T_ACCESSFAILEDCOUNT' | translate }}</dt>
+                  <dd class="profile__security-count">
+                    {{ userInfo.AccessFailedCount }}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          </div>
         }
         @case ('posts') {
           <app-my-posts />
