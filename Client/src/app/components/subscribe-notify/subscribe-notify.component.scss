@@ -92,6 +92,7 @@
 }
 
 .newsletter__input {
+  min-height: 44px;
   min-width: 0;
   flex: 1;
   padding: 0.65rem 1rem;
@@ -99,7 +100,7 @@
   background: transparent;
   color: #1f1d3d;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
+  font-size: 1rem;
   outline: none;
 
   &::placeholder {
@@ -112,6 +113,7 @@
 }
 
 .newsletter__btn {
+  min-height: 44px;
   flex-shrink: 0;
   padding: 0.7rem 1.5rem;
   border: none;
@@ -154,7 +156,7 @@
 
 .newsletter__error {
   margin: 0.7rem 0 0;
-  color: #d93a30;
+  color: #b42318;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
 }

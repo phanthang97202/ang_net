@@ -96,6 +96,10 @@
 
   <!-- Chat Box -->
   <div class="chat-box-container" *ngIf="isChatOpen">
-    <app-chat-box (closeChat)="isChatOpen = false"></app-chat-box>
+    @defer (when isChatOpen) {
+      <app-chat-box (closeChat)="isChatOpen = false"></app-chat-box>
+    } @placeholder {
+      <app-spinner></app-spinner>
+    }
   </div>
 </ng-container>

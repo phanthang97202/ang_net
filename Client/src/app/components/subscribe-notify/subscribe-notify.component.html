@@ -14,7 +14,7 @@
 
     <div class="newsletter__action">
       <!-- Success state -->
-      <div *ngIf="isSuccess" class="newsletter__success">
+      <div *ngIf="isSuccess" class="newsletter__success" role="status">
         <span class="newsletter__success-icon" aria-hidden="true">🎉</span>
         <p class="newsletter__success-title">
           {{ 'T_SUBSCRIBESUCCESS' | translate }}
@@ -33,6 +33,10 @@
           <input
             id="newsletter-email"
             type="email"
+            autocomplete="email"
+            inputmode="email"
+            [attr.aria-invalid]="errorMsg ? 'true' : null"
+            [attr.aria-describedby]="errorMsg ? 'newsletter-error' : null"
             [placeholder]="'T_ENTERYOUREMAIL' | translate"
             [(ngModel)]="form.email"
             [disabled]="isLoading"
@@ -63,7 +67,13 @@
           </button>
         </div>
 
-        <p *ngIf="errorMsg" class="newsletter__error">{{ errorMsg }}</p>
+        <p
+          *ngIf="errorMsg"
+          id="newsletter-error"
+          class="newsletter__error"
+          role="alert">
+          {{ errorMsg }}
+        </p>
       </ng-container>
     </div>
   </div>

@@ -31,7 +31,11 @@
 
       <article *ngIf="!isLoading" class="detail-card">
         <div class="detail-thumb">
-          <img [appNewsImg]="slides[activeSlide]" [alt]="getTitle()" />
+          <img
+            [appNewsImg]="slides[activeSlide]"
+            [alt]="getTitle()"
+            fetchpriority="high"
+            decoding="async" />
 
           <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
                để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
@@ -79,7 +83,9 @@
               >{{ getCategoryName() }}</a
             >
           </div>
-          <span class="detail-readtime"> {{ getReadingTime() }} Min Read </span>
+          <span class="detail-readtime">
+            {{ getReadingTime() }} {{ 'T_MINUTESREAD' | translate }}
+          </span>
         </div>
 
         <div class="detail-body">
@@ -93,9 +99,9 @@
 
           <p class="detail-meta">
             <span class="detail-author">{{ detailNews.FullName }}</span>
-            on {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+            · {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
             <span class="detail-meta-sep">—</span>
-            {{ getReadingTime() }} mins read
+            {{ getReadingTime() }} {{ 'T_MINUTESREAD' | translate }}
             <span class="detail-meta-sep">—</span>
             <span nz-icon nzType="eye" nzTheme="outline"></span>
             {{ detailNews.ViewCount }}
@@ -148,11 +154,17 @@
       <!-- Khối bình luận cần NewsId của bài, mà detailNews chỉ có sau khi API trả
            về - render sớm hơn thì binding đọc thuộc tính trên undefined và ném
            lỗi ngay giữa change detection. -->
-      <app-news-comments
-        *ngIf="!isLoading"
-        id="news-comments"
-        [newsId]="detailNews.NewsId"
-        (totalCountChange)="commentCount = $event" />
+      <section *ngIf="!isLoading" id="news-comments" aria-label="Bình luận">
+        @defer (on viewport) {
+          <app-news-comments
+            [newsId]="detailNews.NewsId"
+            (totalCountChange)="commentCount = $event" />
+        } @placeholder {
+          <div class="detail-comments-placeholder" role="status">
+            {{ 'T_LOADINGCOMMENTS' | translate }}
+          </div>
+        }
+      </section>
     </div>
   </div>
 

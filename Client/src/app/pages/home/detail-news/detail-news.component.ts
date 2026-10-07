@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NzImageService } from 'ng-zorro-antd/image';
+import { NzImageModule, NzImageService } from 'ng-zorro-antd/image';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   ApiService,
@@ -10,13 +10,17 @@ import {
   SITE_TITLE,
 } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, Title } from '@angular/platform-browser';
-import {
-  REUSE_COMPONENT_MODULES,
-  AntdModule,
-  REUSE_PIPE_MODULE,
-} from '../../../modules';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { LocalDTime } from '../../../pipes/localeDTime.pipe';
+import { NewsImgDirective } from '../../../directives/news-img.directive';
+import { ArticleRailComponent } from '../../../components/article-rail/article-rail.component';
+import { NewsContentComponent } from '../../../components/news-content/news-content.component';
+import { AsideNewsComponent } from '../aside-news/aside-news.component';
 import { NewsCommentsComponent } from './news-comments/news-comments.component';
 import { NewsRatingComponent } from '../../../components/news-rating/news-rating.component';
 import { ShareButtonsComponent } from '../../../components/share-buttons/share-buttons.component';
@@ -27,9 +31,17 @@ import { buildNewsSlides, stepSlide } from '../../../helpers';
   selector: 'app-detail-news-page',
   standalone: true,
   imports: [
-    AntdModule,
-    ...REUSE_COMPONENT_MODULES,
-    ...REUSE_PIPE_MODULE,
+    CommonModule,
+    RouterLink,
+    TranslateModule,
+    NzImageModule,
+    NzSkeletonModule,
+    NzIconModule,
+    LocalDTime,
+    NewsImgDirective,
+    ArticleRailComponent,
+    NewsContentComponent,
+    AsideNewsComponent,
     NewsCommentsComponent,
     NewsRatingComponent,
     ShareButtonsComponent,
@@ -56,7 +68,7 @@ export class DetailNewsComponent implements OnInit {
 
   // Số bình luận do app-news-comments đếm (gồm cả trả lời lồng nhau), chuyển
   // sang thanh công cụ bên trái để hiện cạnh icon bình luận.
-  commentCount = 0;
+  commentCount: number | null = null;
 
   // Giữ điểm mới ngay trên detailNews để nếu có chỗ khác trong trang cùng đọc
   // AvgPoint thì không bị lệch với con số khối đánh giá đang hiện.
@@ -216,6 +228,7 @@ export class DetailNewsComponent implements OnInit {
 
   loadData(newsId: string): void {
     this.isLoading = true;
+    this.commentCount = null;
     this.apiService.GetNewsByKey(newsId).subscribe({
       next: res => {
         this.detailNews = res.Data;

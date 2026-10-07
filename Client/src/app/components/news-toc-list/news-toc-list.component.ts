@@ -1,184 +1,166 @@
 import {
+  AfterViewInit,
   Component,
+  HostListener,
   Input,
-  OnInit,
+  NgZone,
   OnChanges,
   OnDestroy,
-  SimpleChanges,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AntdModule } from '../../modules';
+import { TranslateModule } from '@ngx-translate/core';
 import { TocPanelService } from '../../services';
 
 interface TocItem {
   id: string;
   text: string;
   level: number;
-  element?: HTMLElement;
+  element: HTMLElement;
 }
 
 @Component({
   selector: 'app-news-toc-list',
   standalone: true,
-  imports: [CommonModule, AntdModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './news-toc-list.component.html',
   styleUrl: './news-toc-list.component.scss',
 })
-export class NewsTocListComponent implements OnInit, OnChanges, OnDestroy {
+export class NewsTocListComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   @Input() content = '';
   @Input() containerId = 'content-container';
-
   tocItems: TocItem[] = [];
   activeId = '';
-
-  // Trạng thái mở nằm ở service vì nút bấm nằm ở app-article-rail (thanh công
-  // cụ bên trái bài viết trên desktop, thanh ngang dính đáy trên mobile) -
-  // component này chỉ còn lo phần panel.
   tocPanel = inject(TocPanelService);
+  private zone = inject(NgZone);
+  private refreshTimer?: ReturnType<typeof setTimeout>;
+  private highlightTimer?: ReturnType<typeof setTimeout>;
+  private highlighted?: HTMLElement;
+  private frame = 0;
 
-  ngOnInit() {
-    this.generateToc();
-    this.setupScrollListener();
+  private readonly onScroll = () => {
+    if (this.frame) return;
+    this.frame = requestAnimationFrame(() => {
+      this.frame = 0;
+      let current = this.tocItems[0]?.id || '';
+      for (const item of this.tocItems) {
+        if (item.element.getBoundingClientRect().top > 110) break;
+        current = item.id;
+      }
+      if (current !== this.activeId) {
+        this.zone.run(() => (this.activeId = current));
+      }
+    });
+  };
+
+  ngAfterViewInit(): void {
+    this.scheduleRefresh();
+    this.zone.runOutsideAngular(() =>
+      window.addEventListener('scroll', this.onScroll, { passive: true })
+    );
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['content'] && !changes['content'].firstChange) {
-      setTimeout(() => {
-        this.generateToc();
-      }, 100);
-    }
+  ngOnChanges(): void {
+    this.scheduleRefresh();
   }
 
-  generateToc() {
+  private scheduleRefresh(): void {
+    clearTimeout(this.refreshTimer);
+    // Đợi innerHTML của component cha cập nhật rồi đọc chính heading thật.
+    this.refreshTimer = setTimeout(() => this.generateToc(), 0);
+  }
+
+  generateToc(): void {
+    const container = document.getElementById(this.containerId);
+    const headings =
+      container?.querySelectorAll<HTMLElement>('h1,h2,h3,h4,h5,h6');
+    const usedIds = new Set<string>();
     this.tocItems = [];
-
-    // Tạo temporary div để parse HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.content;
-
-    // Tìm tất cả các heading
-    const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
-
-    headings.forEach((heading, index) => {
-      const level = parseInt(heading.tagName.charAt(1));
+    headings?.forEach((heading, index) => {
       const text = heading.textContent?.trim() || '';
-      const id = this.generateId(text, index);
-
-      // Thêm id vào heading trong content thật
-      this.addIdToHeading(text, id, index);
-
+      if (!text) return;
+      // Giữ anchor có sẵn trong nội dung, chỉ đổi ID trống hoặc bị trùng.
+      let id = heading.id;
+      if (!id || usedIds.has(id) || document.getElementById(id) !== heading) {
+        const baseId = this.generateId(text, index);
+        id = baseId;
+        let suffix = 1;
+        while (
+          usedIds.has(id) ||
+          (document.getElementById(id) &&
+            document.getElementById(id) !== heading)
+        ) {
+          id = `${baseId}-${suffix++}`;
+        }
+        heading.id = id;
+      }
+      usedIds.add(id);
       this.tocItems.push({
         id,
         text,
-        level,
-        element: heading as HTMLElement,
+        level: Number(heading.tagName[1]),
+        element: heading,
       });
     });
-
+    this.activeId = this.tocItems[0]?.id || '';
     this.tocPanel.setHasItems(this.tocItems.length > 0);
-  }
-
-  // Service là singleton ở gốc ứng dụng nên trạng thái sống lâu hơn component:
-  // rời bài viết lúc panel đang mở, không dọn thì sang bài sau thanh công cụ vẫn
-  // tưởng panel đang mở và bài không có mục lục vẫn thấy nút.
-  ngOnDestroy() {
-    this.tocPanel.close();
-    this.tocPanel.setHasItems(false);
+    if (!this.tocItems.length) this.close();
   }
 
   generateId(text: string, index: number): string {
-    // Tạo id từ text, loại bỏ ký tự đặc biệt
-    const baseId = text
+    const slug = text
       .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-
-    return baseId || `heading-${index}`;
+    return `toc-${slug || 'heading'}-${index}`;
   }
 
-  addIdToHeading(text: string, id: string, index: number) {
-    // Tìm và thêm id vào heading trong DOM thật
-    setTimeout(() => {
-      const container = document.getElementById(this.containerId);
-      if (container) {
-        const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        const heading = Array.from(headings).find(
-          (h, i) => h.textContent?.trim() === text && i === index
-        );
-
-        if (heading && !heading.id) {
-          heading.id = id;
-        }
-      }
-    }, 50);
-  }
-
-  close() {
+  @HostListener('document:keydown.escape')
+  close(): void {
     this.tocPanel.close();
   }
 
-  onItemClick(id: string) {
-    this.scrollToElement(id);
+  onItemClick(id: string): void {
     this.close();
+    this.scrollToElement(id);
   }
 
-  scrollToElement(id: string) {
-    const element = document.getElementById(id);
-    if (element) {
-      // Smooth scroll với offset để tránh bị che bởi header
-      const offsetTop = element.offsetTop - 80;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth',
-      });
-
-      // Highlight element
-      this.highlightElement(element);
-      this.activeId = id;
-    }
-  }
-
-  highlightElement(element: HTMLElement) {
-    // Thêm class highlight tạm thời
+  scrollToElement(id: string): void {
+    const element = this.tocItems.find(item => item.id === id)?.element;
+    if (!element) return;
+    // offsetTop phụ thuộc offsetParent; rect + scrollY là vị trí trong trang.
+    const top = element.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+    element.tabIndex = -1;
+    element.focus({ preventScroll: true });
+    this.highlighted?.classList.remove('toc-highlight');
+    clearTimeout(this.highlightTimer);
     element.classList.add('toc-highlight');
-    setTimeout(() => {
-      element.classList.remove('toc-highlight');
-    }, 2000);
+    this.highlighted = element;
+    this.highlightTimer = setTimeout(
+      () => element.classList.remove('toc-highlight'),
+      2000
+    );
+    this.activeId = id;
   }
 
-  setupScrollListener() {
-    let ticking = false;
-
-    const updateActiveId = () => {
-      const container = document.getElementById(this.containerId);
-      if (!container) return;
-
-      const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      let currentId = '';
-
-      headings.forEach(heading => {
-        const rect = heading.getBoundingClientRect();
-        if (rect.top <= 100 && rect.bottom >= 0) {
-          currentId = heading.id;
-        }
-      });
-
-      if (currentId && currentId !== this.activeId) {
-        this.activeId = currentId;
-      }
-
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updateActiveId);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
+  ngOnDestroy(): void {
+    clearTimeout(this.refreshTimer);
+    clearTimeout(this.highlightTimer);
+    cancelAnimationFrame(this.frame);
+    window.removeEventListener('scroll', this.onScroll);
+    this.highlighted?.classList.remove('toc-highlight');
+    this.close();
+    this.tocPanel.setHasItems(false);
   }
 }

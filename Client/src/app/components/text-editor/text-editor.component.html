@@ -11,12 +11,14 @@
   </div>
 
   <ckeditor
+    *ngIf="editorStylesReady"
     [editor]="Editor"
     [config]="editorConfig"
     [(ngModel)]="content"
     (ready)="onReady($event)"
     (change)="handleContentChanged($event)">
   </ckeditor>
+  <p *ngIf="editorStylesError" role="alert">{{ editorStylesError }}</p>
 
   <p *ngIf="variant === 'full'" class="editor-help">
     Chọn biểu tượng <strong>&lt;/&gt;</strong> (Sửa mã nguồn) để dán HTML, sau

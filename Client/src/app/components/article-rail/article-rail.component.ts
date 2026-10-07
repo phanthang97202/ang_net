@@ -30,7 +30,7 @@ const COMMENTS_ANCHOR_ID = 'news-comments';
   styleUrls: ['./article-rail.component.scss'],
 })
 export class ArticleRailComponent implements OnInit {
-  @Input() commentCount = 0;
+  @Input() commentCount: number | null = null;
   @Input() likeCount = 0;
   @Input() isLiked = false;
 

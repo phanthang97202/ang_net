@@ -28,7 +28,9 @@ export class SubscribeNotifyComponent {
   errorMsg = '';
 
   handleSubmit(): void {
+    if (this.isLoading || this.isSuccess) return;
     this.errorMsg = '';
+    this.form.email = this.form.email.trim();
 
     // ── Validate client-side ────────────────────────────
     if (!this.isValidEmail(this.form.email)) {

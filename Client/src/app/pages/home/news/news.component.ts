@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
+import { NewNewsComponent } from '../../../components/new-news/new-news.component';
+import { AsideNewsComponent } from '../aside-news/aside-news.component';
 
 // Danh sách bài viết (kể cả phần lọc theo categoryId/keyword/hashTag trên URL,
 // phân trang và trạng thái loading) nằm hết trong app-new-news - cùng component
@@ -8,7 +9,7 @@ import { AntdModule, REUSE_COMPONENT_MODULES } from '../../../modules';
 @Component({
   selector: 'app-news-page',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES],
+  imports: [NewNewsComponent, AsideNewsComponent],
   templateUrl: './news.component.html',
   styleUrl: './news.component.scss',
 })

@@ -29,6 +29,11 @@
               "src/robots.txt",
               "src/assets",
               {
+                "glob": "ckeditor5-editor.css",
+                "input": "node_modules/ckeditor5/dist",
+                "output": "assets/styles"
+              },
+              {
                 "glob": "**/*",
                 "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
                 "output": "/assets/"

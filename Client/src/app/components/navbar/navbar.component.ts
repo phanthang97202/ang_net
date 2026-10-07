@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  ElementRef,
   HostListener,
   inject,
   NgZone,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -77,6 +79,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isAccountMenuOpen = false;
   isMobileAccountMenuOpen = false;
   searchKeyword = '';
+  @ViewChild('searchInput') private searchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('mobileSearchInput')
+  private mobileSearchInput?: ElementRef<HTMLInputElement>;
+  private searchTrigger?: HTMLElement;
+  private searchFocusTimer?: ReturnType<typeof setTimeout>;
 
   // Ở đầu trang navbar để trong suốt; chỉ khi nội dung bắt đầu chui xuống dưới
   // nó mới cần nền kính để chữ không chồng lên nhau.
@@ -176,6 +183,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    clearTimeout(this.searchFocusTimer);
     window.removeEventListener('scroll', this.onWindowScroll);
     this.langSub?.unsubscribe();
   }
@@ -292,6 +300,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // ── Mobile menu ──────────────────────────────────────
   toggleMobileMenu(): void {
+    this.closeSearch();
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
@@ -321,12 +330,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   // ── Search popup ─────────────────────────────────────
-  toggleSearch(): void {
+  toggleSearch(event?: Event): void {
+    this.searchTrigger = event?.currentTarget as HTMLElement;
+    this.closeMobileMenu();
     this.isSearchOpen = !this.isSearchOpen;
+    if (this.isSearchOpen) {
+      this.searchFocusTimer = setTimeout(() => {
+        if (this.isSearchOpen) this.searchInput?.nativeElement.focus();
+      }, 0);
+    }
   }
 
   closeSearch(): void {
+    clearTimeout(this.searchFocusTimer);
+    if (this.isSearchOpen) this.searchTrigger?.focus();
     this.isSearchOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  closeNavigationPanels(): void {
+    this.closeSearch();
+    this.closeMobileMenu();
+    this.closeAccountMenu();
   }
 
   handleSearch(): void {
@@ -335,6 +360,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate(['/news'], { queryParams: { keyword } });
+    this.searchInput?.nativeElement.blur();
+    this.mobileSearchInput?.nativeElement.blur();
     this.searchKeyword = '';
     this.isSearchOpen = false;
     this.isMobileMenuOpen = false;

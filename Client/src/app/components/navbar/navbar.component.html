@@ -116,8 +116,11 @@
       <!-- Search -->
       <button
         class="navbar-icon-btn"
-        (click)="toggleSearch()"
-        aria-label="Search">
+        type="button"
+        (click)="toggleSearch($event)"
+        [attr.aria-label]="'T_SEARCH' | translate"
+        [attr.aria-expanded]="isSearchOpen"
+        aria-controls="navbar-search">
         <span nz-icon nzType="search" nzTheme="outline"></span>
       </button>
 
@@ -165,6 +168,15 @@
     <a routerLink="/" class="navbar-logo">Phan<span>Thang</span></a>
 
     <div class="mobile-right">
+      <button
+        type="button"
+        class="navbar-icon-btn"
+        (click)="toggleSearch($event)"
+        [attr.aria-label]="'T_SEARCH' | translate"
+        [attr.aria-expanded]="isSearchOpen"
+        aria-controls="navbar-search">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+      </button>
       <app-theme-toggle></app-theme-toggle>
 
       <button
@@ -196,7 +208,10 @@
 
       <button
         class="hamburger-btn"
+        type="button"
         (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-controls="navbar-mobile-menu"
         [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'">
         <span class="hamburger-icon" [class.open]="isMobileMenuOpen">
           <span></span><span></span><span></span>
@@ -206,11 +221,17 @@
   </nav>
 
   <!-- Mobile Menu Dropdown -->
-  <div class="mobile-menu" [class.visible]="isMobileMenuOpen">
+  <div
+    *ngIf="isMobileMenuOpen"
+    id="navbar-mobile-menu"
+    class="mobile-menu"
+    [class.visible]="isMobileMenuOpen"
+    [attr.inert]="isMobileMenuOpen ? null : ''">
     <!-- Inline search -->
     <div class="mobile-menu-search">
       <span nz-icon nzType="search" nzTheme="outline"></span>
       <input
+        #mobileSearchInput
         type="text"
         class="mobile-menu-search-input"
         [placeholder]="'T_TYPINGSEARCHKEYWORD' | translate"
@@ -279,7 +300,10 @@
             }}
             <span class="ml-auto">{{ route['_mobileOpen'] ? '−' : '+' }}</span>
           </span>
-          <ul class="mobile-submenu" [class.visible]="route['_mobileOpen']">
+          <ul
+            class="mobile-submenu"
+            [class.visible]="route['_mobileOpen']"
+            [attr.inert]="route['_mobileOpen'] ? null : ''">
             <li *ngFor="let child of route.children">
               <a
                 *ngIf="child.externalUrl; else internalChildMobile"
@@ -341,15 +365,34 @@
 <!-- Search Popup -->
 <div *ngIf="isSearchOpen" class="search-overlay" (click)="closeSearch()"></div>
 
-<div class="search-popup" [class.visible]="isSearchOpen">
+<div
+  *ngIf="isSearchOpen"
+  id="navbar-search"
+  class="search-popup"
+  [class.visible]="isSearchOpen"
+  [attr.inert]="isSearchOpen ? null : ''"
+  role="search"
+  [attr.aria-label]="'T_SEARCH' | translate">
+  <div class="search-popup-head">
+    <span>{{ 'T_SEARCH' | translate }}</span>
+    <button
+      type="button"
+      class="navbar-icon-btn"
+      (click)="closeSearch()"
+      aria-label="Đóng tìm kiếm">
+      <span nz-icon nzType="close" nzTheme="outline"></span>
+    </button>
+  </div>
   <div class="search-popup-row">
     <input
+      #searchInput
       type="text"
       class="search-popup-input"
+      [attr.aria-label]="'T_TYPINGSEARCHKEYWORD' | translate"
       [placeholder]="'T_TYPINGSEARCHKEYWORD' | translate"
       [(ngModel)]="searchKeyword"
       (keyup.enter)="handleSearch()" />
-    <button class="search-popup-btn" (click)="handleSearch()">
+    <button type="button" class="search-popup-btn" (click)="handleSearch()">
       {{ 'T_SEARCH' | translate }}
     </button>
   </div>

@@ -38,7 +38,7 @@
     [attr.aria-label]="'T_COMMENTS' | translate"
     (click)="scrollToComments()">
     <span nz-icon nzType="message" nzTheme="outline"></span>
-    <span class="rail-count">{{ commentCount }}</span>
+    <span *ngIf="commentCount !== null" class="rail-count">{{ commentCount }}</span>
     <span class="rail-tip">{{ 'T_COMMENTS' | translate }}</span>
   </button>
 

@@ -110,11 +110,18 @@ $color-accent-bg: var(--color-accent-bg);
 
 .toc-link {
     display: block;
+    width: 100%;
+    min-height: 44px;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    font: inherit;
     padding: 6px 12px;
     text-decoration: none;
     color: $color-muted;
     cursor: pointer;
     transition: color 0.2s ease;
+    &:focus-visible { outline: 2px solid $color-accent; outline-offset: -2px; }
 }
 
 /* Styling cho các cấp độ heading */

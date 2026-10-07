@@ -9,11 +9,11 @@ import {
 } from '@angular/core';
 import { ShowErrorService, ApiService, LangService } from '../../../services';
 import { IDetailNews, IHashTagNews } from '../../../interfaces';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../../modules';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { ScrollRevealDirective } from '../../../directives/scroll-reveal.directive';
+import { NewsItemSmComponent } from '../../../components/news-items-sm/news-item-sm.component';
+import { HashTagComponent } from '../../../components/hash-tag/hash-tag.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CategoryTreeComponent } from '../../../components/category-tree/category-tree.component';
 import { Subscription, finalize } from 'rxjs';
@@ -22,10 +22,12 @@ import { Subscription, finalize } from 'rxjs';
   selector: 'app-aside-news',
   standalone: true,
   imports: [
-    AntdModule,
+    CommonModule,
+    TranslateModule,
     CategoryTreeComponent,
-    ...REUSE_COMPONENT_MODULES,
-    ...REUSE_PIPE_MODULE,
+    ScrollRevealDirective,
+    NewsItemSmComponent,
+    HashTagComponent,
   ],
   templateUrl: './aside-news.component.html',
   styleUrl: './aside-news.component.scss',

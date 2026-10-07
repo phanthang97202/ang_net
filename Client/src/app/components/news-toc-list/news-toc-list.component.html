@@ -6,6 +6,8 @@
 <aside
   class="toc-panel"
   *ngIf="tocItems.length > 0"
+  [attr.inert]="(tocPanel.isOpen$ | async) ? null : ''"
+  [attr.aria-label]="'T_MUCLUC' | translate"
   [class.is-open]="tocPanel.isOpen$ | async">
   <h3 class="toc-title">{{ 'T_MUCLUC' | translate }}</h3>
   <div class="toc-scroll">
@@ -13,11 +15,14 @@
       <li
         *ngFor="let item of tocItems"
         [class]="'toc-item toc-level-' + item.level"
-        [class.active]="activeId === item.id"
-        (click)="onItemClick(item.id)">
-        <a href="javascript:void(0)" class="toc-link">
+        [class.active]="activeId === item.id">
+        <button
+          type="button"
+          class="toc-link"
+          (click)="onItemClick(item.id)"
+          [attr.aria-current]="activeId === item.id ? 'location' : null">
           {{ item.text }}
-        </a>
+        </button>
       </li>
     </ul>
   </div>

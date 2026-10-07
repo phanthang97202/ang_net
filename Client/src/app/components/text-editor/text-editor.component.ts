@@ -5,6 +5,7 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -56,6 +57,7 @@ import {
   type EditorConfig,
 } from 'ckeditor5';
 import viTranslations from 'ckeditor5/translations/vi.js';
+import { EditorStylesService } from './editor-styles.service';
 import {
   extractInstagramPermalink,
   extractTiktokVideoId,
@@ -74,6 +76,16 @@ type EditorVariant = 'full' | 'note';
   styleUrl: './text-editor.component.scss',
 })
 export class TextEditorComponent implements OnChanges {
+  private editorStyles = inject(EditorStylesService);
+  editorStylesReady = false;
+  editorStylesError = '';
+
+  constructor() {
+    this.editorStyles.load().then(
+      () => (this.editorStylesReady = true),
+      error => (this.editorStylesError = error.message)
+    );
+  }
   @Input() initContentBody = '';
   @Input() variant: EditorVariant = 'full';
   @Input() resetKey = 0;

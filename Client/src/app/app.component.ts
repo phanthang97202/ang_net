@@ -8,21 +8,45 @@ import {
   VisitTrackingService,
   ThemeService,
 } from './services';
-import { filter, Observable } from 'rxjs';
+import { asapScheduler, filter, Observable, observeOn } from 'rxjs';
 import { IErrorInfo } from './interfaces';
 import { LayoutType } from './types';
 import posthog from 'posthog-js';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from './modules';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
+import { SpinnerComponent } from './components/spinner/spinner.component';
+import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
+import { ChatBoxComponent } from './components/chat-box/chat-box.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    NzLayoutModule,
+    NzMenuModule,
+    NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
+    NavbarComponent,
+    FooterComponent,
+    ErrorPopupComponent,
+    SpinnerComponent,
+    SwitchLangComponent,
+    ChatBoxComponent,
+  ],
   providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -168,7 +192,11 @@ export class AppComponent implements OnInit {
     this.translate.use(curLang);
     this.themeService.init();
 
-    this.isLoading$ = this.loadingService.getLoading();
+    // Trang con có thể bật loading ngay trong ngOnInit sau khi shell đã được
+    // kiểm tra. Đưa cập nhật spinner sang microtask để hoàn tất vòng render đó.
+    this.isLoading$ = this.loadingService
+      .getLoading()
+      .pipe(observeOn(asapScheduler));
     // Subscribe đơn giản
     this.errorInfoService.getErrorInfo().subscribe({
       next: value => {
@@ -180,14 +208,6 @@ export class AppComponent implements OnInit {
       filter((event: Event) => event instanceof NavigationEnd)
     ) as Observable<NavigationEnd>;
 
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-      }
-    });
   }
 
   // Iframe nhúng của Instagram (.../embed) tự đo nội dung rồi postMessage chiều

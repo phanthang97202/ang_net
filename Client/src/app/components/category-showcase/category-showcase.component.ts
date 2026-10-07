@@ -48,7 +48,7 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.syncScrollState();
+    queueMicrotask(() => this.syncScrollState());
   }
 
   // Không bật hotOnly: khối này giờ là dải điều hướng theo chủ đề ngay dưới

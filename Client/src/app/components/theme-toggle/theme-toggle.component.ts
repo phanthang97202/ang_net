@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { AntdModule } from '../../modules';
 import { ThemeService } from '../../services';
 
 @Component({
   standalone: true,
   selector: 'app-theme-toggle',
-  imports: [AntdModule],
+  imports: [],
   templateUrl: './theme-toggle.component.html',
 })
 export class ThemeToggleComponent {
