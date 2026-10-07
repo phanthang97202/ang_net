@@ -25,7 +25,10 @@
           [class.is-active]="playerColor === 'white'"
           [attr.aria-pressed]="playerColor === 'white'"
           (click)="playerColor = 'white'">
-          <span class="chess-option__piece" aria-hidden="true">♔</span>
+          <img
+            class="chess-option__piece"
+            [src]="preferences.pieceUrl('w', 'k')"
+            alt="" />
           {{ 'T_CHESS_COLOR_WHITE' | translate }}
         </button>
         <button
@@ -34,7 +37,10 @@
           [class.is-active]="playerColor === 'black'"
           [attr.aria-pressed]="playerColor === 'black'"
           (click)="playerColor = 'black'">
-          <span class="chess-option__piece" aria-hidden="true">♚</span>
+          <img
+            class="chess-option__piece"
+            [src]="preferences.pieceUrl('b', 'k')"
+            alt="" />
           {{ 'T_CHESS_COLOR_BLACK' | translate }}
         </button>
       </div>
@@ -68,6 +74,7 @@
         </button>
       </div>
     </fieldset>
+    <app-chess-piece-picker class="chess-piece-settings" />
     <button
       type="button"
       class="blog-btn blog-btn--primary chess-submit"
@@ -130,6 +137,9 @@
           </dd>
         </div>
       </dl>
+      <app-chess-piece-picker
+        class="chess-piece-settings chess-piece-settings--panel"
+        [compact]="true" />
       <button
         type="button"
         class="blog-btn chess-resign"

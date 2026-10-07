@@ -14,6 +14,7 @@ import {
   ChessBoardComponent,
   ChessLastMove,
 } from '../chess-board/chess-board.component';
+import { ChessPiecePickerComponent } from '../chess-piece-picker/chess-piece-picker.component';
 
 type GameResult = 'win' | 'lose' | 'draw' | null;
 type LeaveReason = 'resign' | 'disconnected' | 'left';
@@ -21,7 +22,12 @@ type LeaveReason = 'resign' | 'disconnected' | 'left';
 @Component({
   selector: 'app-chess-room',
   standalone: true,
-  imports: [AntdModule, FormsModule, ChessBoardComponent],
+  imports: [
+    AntdModule,
+    FormsModule,
+    ChessBoardComponent,
+    ChessPiecePickerComponent,
+  ],
   templateUrl: './chess-room.component.html',
   styleUrl: './chess-room.component.scss',
 })

@@ -10,19 +10,27 @@ import {
   ChessLastMove,
 } from '../chess-board/chess-board.component';
 import { AiLevel, getBestMove } from '../chess-ai';
+import { ChessPiecePickerComponent } from '../chess-piece-picker/chess-piece-picker.component';
+import { ChessPieceThemeService } from '../chess-piece-theme.service';
 
 type GameResult = 'win' | 'lose' | 'draw' | null;
 
 @Component({
   selector: 'app-chess-vs-computer',
   standalone: true,
-  imports: [AntdModule, FormsModule, ChessBoardComponent],
+  imports: [
+    AntdModule,
+    FormsModule,
+    ChessBoardComponent,
+    ChessPiecePickerComponent,
+  ],
   templateUrl: './chess-vs-computer.component.html',
   styleUrl: './chess-vs-computer.component.scss',
 })
 export class ChessVsComputerComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
+  readonly preferences = inject(ChessPieceThemeService);
 
   started = false;
   playerColor: ChessColor = 'white';

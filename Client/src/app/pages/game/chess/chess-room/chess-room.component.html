@@ -69,6 +69,10 @@
         </div>
       </div>
     </div>
+    <details class="chess-card chess-room__appearance">
+      <summary>{{ 'T_CHESS_PIECE_SET' | translate }}</summary>
+      <app-chess-piece-picker />
+    </details>
     <p class="chess-room__notice" *ngIf="opponentLeftMessage" role="status">
       {{ opponentLeftMessage }}
     </p>

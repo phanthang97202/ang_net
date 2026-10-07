@@ -2,8 +2,14 @@
   display: block;
   width: 100%;
 }
+.chess-board-frame {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  grid-template-rows: auto 20px;
+  width: 100%;
+  user-select: none;
+}
 .chess-board {
-  container-type: inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -27,33 +33,33 @@
     padding: 0;
     border: 0;
     border-radius: 0;
-    color: #30284b;
+    color: #393a36;
     opacity: 1;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     &--light {
-      background: #f2eefb;
+      background: #f2eee6;
     }
     &--dark {
-      background: #a092cf;
+      background: #b9b3a7;
     }
     &--last-move-to {
-      box-shadow: inset 0 0 0 3px #6650b8;
+      box-shadow: inset 0 0 0 2px #73846f;
     }
     &--selected,
     &:focus-visible {
-      outline: 3px solid #5b3bc2;
-      outline-offset: -3px;
+      outline: 2px solid #66775f;
+      outline-offset: -2px;
       z-index: 1;
     }
     &--selected {
-      background: #cfbff3;
+      background: #cbd4bf;
     }
     &--capture::after {
       content: '';
       position: absolute;
       inset: 6%;
-      border: 3px solid rgba(55, 38, 98, 0.6);
+      border: 3px solid rgba(65, 75, 59, 0.55);
       border-radius: 50%;
       pointer-events: none;
     }
@@ -67,35 +73,34 @@
   &__piece {
     position: relative;
     z-index: 1;
-    font-family: 'Segoe UI Symbol', 'DejaVu Sans', serif;
-    font-size: min(9cqw, 48px);
-    line-height: 1;
-    color: #30284b;
-    -webkit-text-stroke: 0.6px #f2eefb;
-    filter: drop-shadow(0 2px 1px rgba(25, 16, 50, 0.2));
+    width: 86%;
+    height: 86%;
+    object-fit: contain;
     pointer-events: none;
-    &--white {
-      color: #fff;
-      -webkit-text-stroke: 1px #30284b;
+  }
+  &__ranks,
+  &__files {
+    display: grid;
+    color: var(--color-text-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
-  &__rank,
-  &__file {
-    position: absolute;
-    z-index: 2;
-    font-family: 'Montserrat', sans-serif;
-    font-size: clamp(8px, 1.8vw, 11px);
-    font-weight: 700;
-    line-height: 1;
-    pointer-events: none;
+  &__ranks {
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    padding-block: 1px;
   }
-  &__rank {
-    top: 5px;
-    left: 5px;
-  }
-  &__file {
-    right: 5px;
-    bottom: 4px;
+  &__files {
+    grid-column: 2;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    padding-inline: 1px;
   }
   &__dot,
   &__last-move-dot {
@@ -103,7 +108,7 @@
     width: 22%;
     height: 22%;
     border-radius: 50%;
-    background: rgba(48, 40, 75, 0.3);
+    background: rgba(65, 75, 59, 0.3);
     pointer-events: none;
   }
   &__last-move-dot {
@@ -114,7 +119,7 @@
     position: absolute;
     z-index: 3;
     inset: 0;
-    background: rgba(25, 16, 50, 0.55);
+    background: rgba(40, 38, 32, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -137,17 +142,17 @@
     padding: 2px;
     border: 1px solid var(--color-border);
     border-radius: 12px;
-    background: #f2eefb;
-    color: #30284b;
-    font-family: 'Segoe UI Symbol', serif;
-    font-size: 30px;
+    background: #f2eee6;
+    color: #393a36;
     cursor: pointer;
-    &--white {
-      color: #fff;
-      -webkit-text-stroke: 1px #30284b;
+    img {
+      width: 100%;
+      height: 36px;
+      object-fit: contain;
+      pointer-events: none;
     }
     &:hover {
-      background: #cfbff3;
+      background: #cbd4bf;
     }
   }
   &__promotion-cancel {

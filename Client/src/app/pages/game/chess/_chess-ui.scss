@@ -82,6 +82,13 @@
   width: 100%;
   margin-top: 24px;
 }
+.chess-piece-settings {
+  display: block;
+  margin-top: 24px;
+  &--panel {
+    margin: 0 0 24px;
+  }
+}
 .chess-error {
   margin: 12px 0 0;
   color: #d34141;

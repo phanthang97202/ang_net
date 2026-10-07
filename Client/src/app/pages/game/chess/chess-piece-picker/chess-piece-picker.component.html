@@ -1,0 +1,32 @@
+<fieldset class="piece-picker" [class.piece-picker--compact]="compact">
+  <legend>{{ 'T_CHESS_PIECE_SET' | translate }}</legend>
+  <div class="piece-picker__options">
+    <button
+      *ngFor="let theme of themes"
+      type="button"
+      class="piece-picker__option"
+      [class.is-active]="preferences.theme() === theme.id"
+      [attr.aria-pressed]="preferences.theme() === theme.id"
+      [attr.aria-label]="theme.name + ' — ' + (theme.description | translate)"
+      (click)="preferences.select(theme.id)">
+      <span class="piece-picker__preview" aria-hidden="true">
+        <img
+          [src]="preferences.pieceUrl('w', 'n', theme.id)"
+          alt=""
+          width="36"
+          height="36"
+          draggable="false" />
+        <img
+          [src]="preferences.pieceUrl('b', 'q', theme.id)"
+          alt=""
+          width="36"
+          height="36"
+          draggable="false" />
+      </span>
+      <span class="piece-picker__label">
+        <strong>{{ theme.name }}</strong>
+        <span>{{ theme.description | translate }}</span>
+      </span>
+    </button>
+  </div>
+</fieldset>

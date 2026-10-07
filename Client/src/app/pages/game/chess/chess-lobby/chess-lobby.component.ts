@@ -6,11 +6,17 @@ import { Chess } from 'chess.js';
 import { AntdModule } from '../../../../modules';
 import { ChessGameService } from '../../../../services';
 import { ChessBoardComponent } from '../chess-board/chess-board.component';
+import { ChessPiecePickerComponent } from '../chess-piece-picker/chess-piece-picker.component';
 
 @Component({
   selector: 'app-chess-lobby',
   standalone: true,
-  imports: [AntdModule, FormsModule, ChessBoardComponent],
+  imports: [
+    AntdModule,
+    FormsModule,
+    ChessBoardComponent,
+    ChessPiecePickerComponent,
+  ],
   templateUrl: './chess-lobby.component.html',
   styleUrl: './chess-lobby.component.scss',
 })

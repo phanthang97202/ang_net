@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   Component,
+  inject,
   EventEmitter,
   Input,
   OnChanges,
@@ -9,10 +10,11 @@ import {
 } from '@angular/core';
 import { Chess, Square } from 'chess.js';
 import { ChessColor } from '../../../../interfaces';
+import { ChessPieceThemeService } from '../chess-piece-theme.service';
 
 interface BoardSquare {
   square: string;
-  piece: string; // ký hiệu unicode quân cờ, rỗng nếu ô trống
+  piece: string; // chess.js piece type, empty for an unoccupied square
   pieceColor: 'w' | 'b' | null;
   isLight: boolean;
   isLastMoveFrom: boolean;
@@ -26,21 +28,6 @@ export interface ChessLastMove {
   to: string;
 }
 
-const PIECE_GLYPHS: Record<string, string> = {
-  wk: '♚',
-  wq: '♛',
-  wr: '♜',
-  wb: '♝',
-  wn: '♞',
-  wp: '♟',
-  bk: '♚',
-  bq: '♛',
-  br: '♜',
-  bb: '♝',
-  bn: '♞',
-  bp: '♟',
-};
-
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 @Component({
@@ -51,6 +38,7 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   styleUrl: './chess-board.component.scss',
 })
 export class ChessBoardComponent implements OnChanges {
+  readonly preferences = inject(ChessPieceThemeService);
   @Input({ required: true }) fen!: string;
   @Input() orientation: ChessColor = 'white';
   @Input() interactive = false;
@@ -117,11 +105,6 @@ export class ChessBoardComponent implements OnChanges {
     this.clearSelection();
   }
 
-  promotionGlyph(piece: string): string {
-    const colorPrefix = this.orientation === 'white' ? 'w' : 'b';
-    return PIECE_GLYPHS[`${colorPrefix}${piece}`];
-  }
-
   private tryMove(chess: Chess, from: string, to: string): void {
     const movingPiece = chess.get(from as Square);
     const isPromotion =
@@ -171,9 +154,7 @@ export class ChessBoardComponent implements OnChanges {
         const fileIndex = FILES.indexOf(file);
         return {
           square,
-          piece: piece
-            ? PIECE_GLYPHS[`${piece.color}${piece.type}`] + '\uFE0E'
-            : '',
+          piece: piece?.type || '',
           pieceColor: piece?.color || null,
           // a1 luôn là ô tối theo quy ước bàn cờ chuẩn.
           isLight: (fileIndex + rank) % 2 === 0,

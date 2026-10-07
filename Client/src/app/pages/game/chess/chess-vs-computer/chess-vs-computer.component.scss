@@ -46,10 +46,7 @@
   }
 }
 .chess-option__piece {
-  font-family: 'Segoe UI Symbol', serif;
-  font-size: 1.5rem;
-  line-height: 1;
-}
-.chess-form-card .chess-submit {
-  margin-top: 0;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
 }
