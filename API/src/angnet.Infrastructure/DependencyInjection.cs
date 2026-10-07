@@ -29,6 +29,8 @@ namespace angnet.Infrastructure
 
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
+            services.AddMemoryCache();
+
             // Add services to the container.
             //AddTransient: Tạo mới mỗi khi được yêu cầu.
             //AddScoped: Tạo một instance cho mỗi HTTP request.
@@ -89,6 +91,8 @@ namespace angnet.Infrastructure
             services.AddScoped<ISubscriberService, SubscriberService>();
 
             services.AddScoped<IArchiveService, ArchiveService>();
+
+            services.AddScoped<IAnimeService, AnimeService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

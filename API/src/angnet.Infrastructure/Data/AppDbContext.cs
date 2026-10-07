@@ -85,6 +85,11 @@ namespace angnet.Infrastructure.Data
         public DbSet<ArchiveCollectionModel> ArchiveCollection { get; set; }
         public DbSet<ArchiveItemModel> ArchiveItem { get; set; }
 
+        // Anime: metadata tách khỏi tập và nguồn phát để có thể mở rộng provider sau này.
+        public DbSet<AnimeModel> Anime { get; set; }
+        public DbSet<AnimeEpisodeModel> AnimeEpisode { get; set; }
+        public DbSet<AnimeSourceModel> AnimeSource { get; set; }
+
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -406,6 +411,25 @@ namespace angnet.Infrastructure.Data
                         .HasOne<ArchiveCollectionModel>()
                         .WithMany()
                         .HasForeignKey(p => p.CollectionId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AnimeModel>()
+                        .HasIndex(x => x.AniListId)
+                        .IsUnique();
+
+            modelBuilder.Entity<AnimeEpisodeModel>()
+                        .HasOne<AnimeModel>()
+                        .WithMany()
+                        .HasForeignKey(x => x.AnimeId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<AnimeEpisodeModel>()
+                        .HasIndex(x => new { x.AnimeId, x.EpisodeNumber })
+                        .IsUnique();
+
+            modelBuilder.Entity<AnimeSourceModel>()
+                        .HasOne<AnimeEpisodeModel>()
+                        .WithMany()
+                        .HasForeignKey(x => x.EpisodeId)
                         .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ArchiveItemModel>()

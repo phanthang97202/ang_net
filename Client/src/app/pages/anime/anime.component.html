@@ -1,0 +1,163 @@
+<main class="anime-page">
+  <section *ngIf="!detail" class="anime-search-view">
+    <header class="anime-hero">
+      <span class="anime-eyebrow">THƯ VIỆN ANIME</span>
+      <h1>Tìm bộ phim bạn muốn xem</h1>
+      <p>
+        Tìm kiếm nhanh theo tên anime, sau đó chọn phim để xem danh sách tập.
+      </p>
+
+      <form class="anime-search" (ngSubmit)="search()">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+        <input
+          [(ngModel)]="keyword"
+          name="keyword"
+          type="search"
+          autocomplete="off"
+          placeholder="Nhập tên anime..."
+          aria-label="Tên anime cần tìm" />
+        <button
+          class="blog-btn blog-btn--primary"
+          type="submit"
+          [disabled]="keyword.trim().length < 2 || isSearching">
+          <span *ngIf="isSearching" class="blog-spinner"></span>
+          {{ isSearching ? 'Đang tìm' : 'Tìm kiếm' }}
+        </button>
+      </form>
+    </header>
+
+    <section *ngIf="results.length" class="anime-results">
+      <div class="section-heading">
+        <div>
+          <span>KẾT QUẢ TÌM KIẾM</span>
+          <h2>Anime phù hợp</h2>
+        </div>
+        <strong>{{ results.length }}</strong>
+      </div>
+
+      <div class="anime-grid">
+        <a
+          *ngFor="let anime of results; trackBy: trackAnime"
+          class="anime-card"
+          [routerLink]="['/anime', anime.AniListId]">
+          <div class="anime-card__poster">
+            <img [src]="anime.CoverImageUrl" [alt]="anime.Title" loading="lazy" />
+            <span *ngIf="anime.AverageScore" class="anime-card__score">
+              ★ {{ anime.AverageScore / 10 | number: '1.1-1' }}
+            </span>
+            <span class="anime-card__action">
+              <span nz-icon nzType="play-circle" nzTheme="fill"></span>
+            </span>
+          </div>
+          <div class="anime-card__body">
+            <h3>{{ anime.Title }}</h3>
+            <p>{{ anime.NativeTitle || 'Anime' }}</p>
+            <div class="anime-card__meta">
+              <span>{{ anime.ReleaseYear || '—' }}</span>
+              <span>{{ anime.EpisodeCount ? anime.EpisodeCount + ' tập' : 'Đang cập nhật' }}</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <div *ngIf="hasSearched && !isSearching && !results.length" class="anime-empty">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      <h2>Chưa tìm thấy anime phù hợp</h2>
+      <p>Thử tìm bằng tên tiếng Anh, tên Romaji hoặc một từ khóa ngắn hơn.</p>
+    </div>
+  </section>
+
+  <section *ngIf="isLoadingDetail" class="anime-loading">
+    <span class="anime-loading__mark"></span>
+    <p>Đang tải thông tin anime...</p>
+  </section>
+
+  <article *ngIf="detail" class="anime-detail">
+    <a class="anime-back" routerLink="/anime">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+      Tìm anime khác
+    </a>
+
+    <section
+      class="anime-detail__hero"
+      [style.background-image]="detail.BannerImageUrl ? 'url(' + detail.BannerImageUrl + ')' : null">
+      <div class="anime-detail__overlay"></div>
+      <div class="anime-detail__content">
+        <img class="anime-detail__poster" [src]="detail.CoverImageUrl" [alt]="detail.Title" />
+        <div class="anime-detail__info">
+          <span class="anime-eyebrow">ANIME</span>
+          <h1>{{ detail.Title }}</h1>
+          <p class="anime-detail__native">{{ detail.NativeTitle }}</p>
+          <div class="anime-detail__badges">
+            <span>{{ detail.ReleaseYear || 'Đang cập nhật' }}</span>
+            <span>{{ formatStatus(detail.Status) }}</span>
+            <span *ngIf="detail.AverageScore">★ {{ detail.AverageScore / 10 | number: '1.1-1' }}</span>
+          </div>
+          <p class="anime-detail__description">{{ detail.Description }}</p>
+          <div class="anime-detail__genres">
+            <span *ngFor="let genre of detail.Genres">{{ genre }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="playback" class="anime-player">
+      <div class="section-heading section-heading--player">
+        <div>
+          <span>ĐANG XEM</span>
+          <h2>{{ detail.Title }} · Tập {{ playback.EpisodeNumber }}</h2>
+        </div>
+      </div>
+      <div class="anime-player__screen">
+        <iframe
+          *ngIf="playback.IsEmbed && safeEmbedUrl"
+          [src]="safeEmbedUrl"
+          [title]="playback.Title"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen></iframe>
+        <video
+          *ngIf="!playback.IsEmbed"
+          [src]="playback.Url"
+          controls
+          autoplay
+          playsinline></video>
+      </div>
+    </section>
+
+    <section class="anime-episodes">
+      <div class="section-heading">
+        <div>
+          <span>DANH SÁCH TẬP</span>
+          <h2>{{ detail.EpisodeCount || 0 }} tập phim</h2>
+        </div>
+        <strong>{{ detail.Episodes.length }}</strong>
+      </div>
+
+      <div *ngIf="detail.Episodes.length; else noEpisodes" class="episode-grid">
+        <button
+          *ngFor="let episode of detail.Episodes; trackBy: trackEpisode"
+          type="button"
+          class="episode-item"
+          [class.episode-item--active]="selectedEpisode === episode.EpisodeNumber"
+          [class.episode-item--unavailable]="!episode.HasSource"
+          [disabled]="isLoadingPlayback"
+          (click)="playEpisode(episode)">
+          <span class="episode-item__number">{{ episode.EpisodeNumber }}</span>
+          <span class="episode-item__label">{{ episode.Title }}</span>
+          <span
+            nz-icon
+            [nzType]="episode.HasSource ? 'play-circle' : 'clock-circle'"
+            nzTheme="outline"></span>
+        </button>
+      </div>
+
+      <ng-template #noEpisodes>
+        <div class="anime-empty anime-empty--compact">
+          <h2>Danh sách tập đang được cập nhật</h2>
+          <p>AniList chưa công bố số tập của anime này.</p>
+        </div>
+      </ng-template>
+    </section>
+  </article>
+</main>

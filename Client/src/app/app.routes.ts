@@ -43,6 +43,20 @@ export const routes: Routes = [
       import('./pages/note/note.component').then(p => p.NoteComponent),
   },
   {
+    title: 'Anime',
+    path: 'anime',
+    loadComponent: () =>
+      import('./pages/anime/anime.component').then(p => p.AnimeComponent),
+    canActivate: [canActivePermission('anime.view')],
+  },
+  {
+    title: 'Anime',
+    path: 'anime/:aniListId',
+    loadComponent: () =>
+      import('./pages/anime/anime.component').then(p => p.AnimeComponent),
+    canActivate: [canActivePermission('anime.view')],
+  },
+  {
     title: 'T_PAGE_CREATE_REEL',
     path: 'reels/create',
     loadComponent: () =>

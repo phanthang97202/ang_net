@@ -230,6 +230,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {
     const isVi = this.langService.getLang() !== 'en';
 
+    // Menu anime chỉ dành cho tài khoản có quyền. API Anime vẫn kiểm tra lại
+    // quyền ở server; lọc tại đây chỉ để người không có quyền không nhìn thấy lối vào.
+    const canShow = (menu: ISysMenuTree): boolean =>
+      menu.Path !== '/anime' || this.authService.hasPermission('anime.view');
+
     const toItem = (m: ISysMenuTree): RouteItem => {
       const { path, queryParams, externalUrl } = this.splitPath(m.Path);
 
@@ -242,11 +247,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
         openInNewTab: path === '/note',
         title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
         icon: m.Icon,
-        children: m.Children?.length ? m.Children.map(toItem) : undefined,
+        children: m.Children?.length
+          ? m.Children.filter(canShow).map(toItem)
+          : undefined,
       };
     };
 
-    return tree.map(toItem);
+    return tree.filter(canShow).map(toItem);
   }
 
   private hasNoteRoute(routes: RouteItem[]): boolean {

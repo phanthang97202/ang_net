@@ -16,3 +16,4 @@ export * from './visit-tracking.service';
 export * from './toc-panel.service';
 export * from './archive.service';
 export * from './note-realtime.service';
+export * from './anime.service';
