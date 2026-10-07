@@ -1,26 +1,21 @@
 <main class="anime-page">
   <section *ngIf="!slug" class="anime-search-view">
-    <header class="anime-hero">
-      <span class="anime-eyebrow">THƯ VIỆN ANIME</span>
-      <h1>Một thế giới để khám phá</h1>
-      <p>Chọn bộ phim bạn thích, mở danh sách tập và bắt đầu xem.</p>
-      <form class="anime-search" (ngSubmit)="search()">
-        <span nz-icon nzType="search" nzTheme="outline"></span>
-        <input
-          [(ngModel)]="keyword"
-          name="keyword"
-          type="search"
-          maxlength="100"
-          placeholder="Tìm anime theo tên Việt hoặc tên gốc..."
-          aria-label="Tên anime cần tìm" />
-        <button
-          class="blog-btn blog-btn--primary"
-          type="submit"
-          [disabled]="loading">
-          Tìm kiếm
-        </button>
-      </form>
-    </header>
+    <form class="anime-search" (ngSubmit)="search()">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      <input
+        [(ngModel)]="keyword"
+        name="keyword"
+        type="search"
+        maxlength="100"
+        placeholder="Tìm anime theo tên Việt hoặc tên gốc..."
+        aria-label="Tên anime cần tìm" />
+      <button
+        class="blog-btn blog-btn--primary"
+        type="submit"
+        [disabled]="loading">
+        Tìm kiếm
+      </button>
+    </form>
 
     <section *ngIf="catalog as list" class="anime-results">
       <div class="section-heading">
@@ -182,8 +177,7 @@
     <section class="anime-episodes">
       <div class="section-heading">
         <div>
-          <span>DANH SÁCH TẬP</span>
-          <h2>Chọn tập để xem</h2>
+          <h2>Danh sách tập</h2>
         </div>
         <strong>{{ server?.Episodes?.length || 0 }} tập</strong>
       </div>
