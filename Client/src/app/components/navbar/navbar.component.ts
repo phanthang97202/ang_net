@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ActivatedRoute,
@@ -67,6 +74,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly noteRealtime = inject(NoteRealtimeService);
   isMobileMenuOpen = false;
   isSearchOpen = false;
+  isAccountMenuOpen = false;
+  isMobileAccountMenuOpen = false;
   searchKeyword = '';
 
   // Ở đầu trang navbar để trong suốt; chỉ khi nội dung bắt đầu chui xuống dưới
@@ -336,7 +345,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  @HostListener('window:resize')
+  closeAccountMenu(): void {
+    this.isAccountMenuOpen = false;
+    this.isMobileAccountMenuOpen = false;
+  }
+
   handleLogout(): void {
+    this.closeAccountMenu();
     this.authService.logout();
   }
 }

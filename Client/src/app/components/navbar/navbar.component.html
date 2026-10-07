@@ -137,15 +137,25 @@
 
       <!-- Avatar with popover -->
       <div *ngIf="authService.isLoggedIn()" class="avatar-wrapper">
-        <nz-avatar
+        <button
+          type="button"
+          class="account-trigger"
+          [class.account-trigger--open]="isAccountMenuOpen"
+          [attr.aria-label]="'T_MYPROFILE' | translate"
+          [attr.aria-expanded]="isAccountMenuOpen"
+          aria-controls="navbar-account-menu"
           nz-popover
           nzPopoverTrigger="click"
           [nzPopoverContent]="contentTemplate"
+          [(nzPopoverVisible)]="isAccountMenuOpen"
+          nzPopoverOverlayClassName="blog-account-popover"
           nzPopoverPlacement="bottomRight"
-          [nzSrc]="authService.getAccountInfo().avatar || null"
-          [nzText]="authService.getAccountInfo().shortname"
-          class="cursor-pointer">
-        </nz-avatar>
+          (keydown.escape)="isAccountMenuOpen = false">
+          <nz-avatar
+            [nzSrc]="authService.getAccountInfo().avatar || undefined"
+            [nzText]="authService.getAccountInfo().shortname">
+          </nz-avatar>
+        </button>
       </div>
     </div>
   </nav>
@@ -163,16 +173,26 @@
         (click)="handleNavigateLogin()">
         {{ 'T_LOGIN' | translate }}
       </button>
-      <nz-avatar
+      <button
         *ngIf="authService.isLoggedIn()"
+        type="button"
+        class="account-trigger"
+        [class.account-trigger--open]="isMobileAccountMenuOpen"
+        [attr.aria-label]="'T_MYPROFILE' | translate"
+        [attr.aria-expanded]="isMobileAccountMenuOpen"
+        aria-controls="navbar-account-menu"
         nz-popover
         nzPopoverTrigger="click"
         [nzPopoverContent]="contentTemplate"
-        nzPopoverPlacement="bottomLeft"
-        [nzSrc]="authService.getAccountInfo().avatar || null"
-        [nzText]="authService.getAccountInfo().shortname"
-        class="cursor-pointer">
-      </nz-avatar>
+        [(nzPopoverVisible)]="isMobileAccountMenuOpen"
+        nzPopoverOverlayClassName="blog-account-popover"
+        nzPopoverPlacement="bottomRight"
+        (keydown.escape)="closeAccountMenu()">
+        <nz-avatar
+          [nzSrc]="authService.getAccountInfo().avatar || undefined"
+          [nzText]="authService.getAccountInfo().shortname">
+        </nz-avatar>
+      </button>
 
       <button
         class="hamburger-btn"
@@ -337,7 +357,10 @@
 
 <!-- Avatar Popover Content -->
 <ng-template #contentTemplate>
-  <div class="account-menu">
+  <div
+    id="navbar-account-menu"
+    class="account-menu"
+    (keydown.escape)="closeAccountMenu()">
     <div class="account-menu__head">
       <img
         *ngIf="authService.getAccountInfo().avatar"
@@ -350,18 +373,29 @@
         {{ authService.getAccountInfo().shortname }}
       </span>
       <div class="account-menu__identity">
-        <p class="account-menu__name">
+        <p
+          class="account-menu__name"
+          [title]="authService.getAccountInfo().name">
           {{ authService.getAccountInfo().name }}
         </p>
-        <p class="account-menu__email">
+        <p
+          class="account-menu__email"
+          [title]="authService.getAccountInfo().email">
           {{ authService.getAccountInfo().email }}
         </p>
       </div>
     </div>
 
     <nav class="account-menu__list">
-      <a routerLink="/userinfor" class="account-menu__item">
-        <span nz-icon nzType="user" nzTheme="outline"></span>
+      <a
+        routerLink="/userinfor"
+        class="account-menu__item"
+        (click)="closeAccountMenu()">
+        <span
+          class="account-menu__icon"
+          nz-icon
+          nzType="user"
+          nzTheme="outline"></span>
         <span class="account-menu__item-label">{{
           'T_MYPROFILE' | translate
         }}</span>
@@ -375,8 +409,13 @@
       <a
         *ngIf="authService.hasAnyPermissionAtAll()"
         routerLink="/dashboard"
-        class="account-menu__item">
-        <span nz-icon nzType="dashboard" nzTheme="outline"></span>
+        class="account-menu__item"
+        (click)="closeAccountMenu()">
+        <span
+          class="account-menu__icon"
+          nz-icon
+          nzType="dashboard"
+          nzTheme="outline"></span>
         <span class="account-menu__item-label">{{
           'T_DASHBOARD' | translate
         }}</span>
@@ -391,7 +430,11 @@
         type="button"
         class="account-menu__item account-menu__item--danger"
         (click)="handleLogout()">
-        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        <span
+          class="account-menu__icon"
+          nz-icon
+          nzType="logout"
+          nzTheme="outline"></span>
         <span class="account-menu__item-label">{{
           'T_LOGOUT' | translate
         }}</span>

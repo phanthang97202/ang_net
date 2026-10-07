@@ -551,25 +551,90 @@ a {
 // Đặt ở global thay vì navbar.component.scss vì 2 lý do: nội dung popover
 // render qua CDK overlay ra ngoài DOM của navbar, và navbar.component.scss
 // đã chạm trần budget "anyComponentStyle" (8kB) của bản build production.
+.account-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    border-color 0.18s;
+
+  &:hover,
+  &--open {
+    background: var(--color-accent-bg);
+    border-color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  .ant-avatar {
+    background: var(--color-accent);
+    color: #fff;
+  }
+}
+
+// The CDK overlay sits outside the navbar: scope its shell to this popup only.
+.blog-account-popover {
+  max-width: calc(100vw - 32px);
+
+  .ant-popover-arrow {
+    display: none;
+  }
+
+  .ant-popover-inner {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    background: var(--color-bg-card);
+    box-shadow:
+      0 16px 48px var(--color-card-shadow),
+      0 4px 16px var(--color-card-shadow);
+  }
+
+  .ant-popover-inner-content {
+    padding: 0;
+    color: var(--color-text);
+  }
+}
+
 .account-menu {
-  min-width: 250px;
+  width: 304px;
+  max-width: calc(100vw - 34px);
+  font-family: 'Montserrat', sans-serif;
 }
 
 .account-menu__head {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.25rem 0 0.75rem;
-  margin-bottom: 0.5rem;
+  gap: 14px;
+  padding: 22px 20px;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-bg),
+    var(--color-bg-card)
+  );
   border-bottom: 1px solid var(--color-border);
 }
 
 .account-menu__avatar {
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
+  box-sizing: border-box;
+  border: 3px solid var(--color-bg-card);
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 0 0 1px var(--color-border);
 }
 
 .account-menu__avatar--fallback {
@@ -583,12 +648,14 @@ a {
 }
 
 .account-menu__identity {
+  flex: 1;
   min-width: 0;
 }
 
 .account-menu__name {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
+  line-height: 1.5;
   font-weight: 700;
   color: var(--color-text);
   white-space: nowrap;
@@ -597,8 +664,9 @@ a {
 }
 
 .account-menu__email {
-  margin: 0;
-  font-size: 0.78rem;
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.6;
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -608,34 +676,58 @@ a {
 .account-menu__list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  padding: 10px;
 }
 
 .account-menu__item {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 12px;
   width: 100%;
-  padding: 0.55rem 0.6rem;
+  min-height: 52px;
+  padding: 8px 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: 14px;
   background: transparent;
   color: var(--color-text);
-  font-size: 0.88rem;
-  font-weight: 500;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.15s;
+  transition:
+    background 0.18s,
+    color 0.18s;
 
   &:hover {
-    background: var(--color-control-bg);
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    background: var(--color-accent-bg);
   }
 
   [nz-icon] {
     font-size: 1rem;
     flex-shrink: 0;
   }
+}
+
+.account-menu__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
 }
 
 .account-menu__item-label {
@@ -649,12 +741,33 @@ a {
 }
 
 .account-menu__item--danger {
-  margin-top: 2px;
-  color: #c0392b;
+  margin-top: 6px;
+  position: relative;
+  color: #b93838;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 10px;
+    right: 10px;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  .account-menu__icon {
+    background: rgba(185, 56, 56, 0.08);
+    color: inherit;
+  }
 
   &:hover {
-    background: rgba(192, 57, 43, 0.1);
+    background: rgba(185, 56, 56, 0.08);
+    color: #b93838;
   }
+}
+
+html[data-theme='dark'] .account-menu__item--danger {
+  color: #ff9696;
 }
 
 // ── Nhúng iframe / PDF (blot 'iframeEmbed' của text-editor) ───────────────────
