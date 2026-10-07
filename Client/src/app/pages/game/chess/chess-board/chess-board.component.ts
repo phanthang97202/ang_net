@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   Component,
   EventEmitter,
@@ -12,6 +13,7 @@ import { ChessColor } from '../../../../interfaces';
 interface BoardSquare {
   square: string;
   piece: string; // ký hiệu unicode quân cờ, rỗng nếu ô trống
+  pieceColor: 'w' | 'b' | null;
   isLight: boolean;
   isLastMoveFrom: boolean;
   isLastMoveTo: boolean;
@@ -25,12 +27,12 @@ export interface ChessLastMove {
 }
 
 const PIECE_GLYPHS: Record<string, string> = {
-  wk: '♔',
-  wq: '♕',
-  wr: '♖',
-  wb: '♗',
-  wn: '♘',
-  wp: '♙',
+  wk: '♚',
+  wq: '♛',
+  wr: '♜',
+  wb: '♝',
+  wn: '♞',
+  wp: '♟',
   bk: '♚',
   bq: '♛',
   br: '♜',
@@ -44,7 +46,7 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 @Component({
   selector: 'app-chess-board',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './chess-board.component.html',
   styleUrl: './chess-board.component.scss',
 })
@@ -169,7 +171,10 @@ export class ChessBoardComponent implements OnChanges {
         const fileIndex = FILES.indexOf(file);
         return {
           square,
-          piece: piece ? PIECE_GLYPHS[`${piece.color}${piece.type}`] : '',
+          piece: piece
+            ? PIECE_GLYPHS[`${piece.color}${piece.type}`] + '\uFE0E'
+            : '',
+          pieceColor: piece?.color || null,
           // a1 luôn là ô tối theo quy ước bàn cờ chuẩn.
           isLight: (fileIndex + rank) % 2 === 0,
           isLastMoveFrom: square === this.lastMove?.from,

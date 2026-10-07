@@ -2,13 +2,15 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { Chess } from 'chess.js';
 import { AntdModule } from '../../../../modules';
 import { ChessGameService } from '../../../../services';
+import { ChessBoardComponent } from '../chess-board/chess-board.component';
 
 @Component({
   selector: 'app-chess-lobby',
   standalone: true,
-  imports: [AntdModule, FormsModule],
+  imports: [AntdModule, FormsModule, ChessBoardComponent],
   templateUrl: './chess-lobby.component.html',
   styleUrl: './chess-lobby.component.scss',
 })
@@ -20,6 +22,7 @@ export class ChessLobbyComponent {
   playerName = sessionStorage.getItem('chessPlayerName') || '';
   isCreating = false;
   errorMessage = '';
+  readonly previewFen = new Chess().fen();
 
   async createRoom(): Promise<void> {
     const name = this.playerName.trim();

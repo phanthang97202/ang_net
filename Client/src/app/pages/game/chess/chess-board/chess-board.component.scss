@@ -1,114 +1,168 @@
+:host {
+  display: block;
+  width: 100%;
+}
 .chess-board {
+  container-type: inline-size;
   position: relative;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px var(--color-card-shadow);
   user-select: none;
 
   &__row {
     display: flex;
   }
-
   &__square {
     position: relative;
-    width: min(11.5vw, 64px);
-    height: min(11.5vw, 64px);
     display: flex;
     align-items: center;
     justify-content: center;
-
+    flex: 1 1 0;
+    min-width: 0;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #30284b;
+    opacity: 1;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     &--light {
-      background: #eeeed2;
+      background: #f2eefb;
     }
-
     &--dark {
-      background: #769656;
+      background: #a092cf;
     }
-
     &--last-move-to {
-      background: #e5e99a;
+      box-shadow: inset 0 0 0 3px #6650b8;
     }
-
-    &--selected {
-      outline: 3px solid var(--color-accent);
+    &--selected,
+    &:focus-visible {
+      outline: 3px solid #5b3bc2;
       outline-offset: -3px;
+      z-index: 1;
+    }
+    &--selected {
+      background: #cfbff3;
+    }
+    &--capture::after {
+      content: '';
+      position: absolute;
+      inset: 6%;
+      border: 3px solid rgba(55, 38, 98, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
     }
   }
-
   &--interactive &__square {
     cursor: pointer;
+    &:hover:not(.chess-board__square--selected) {
+      filter: brightness(0.96);
+    }
   }
-
   &__piece {
-    font-size: min(8vw, 46px);
+    position: relative;
+    z-index: 1;
+    font-family: 'Segoe UI Symbol', 'DejaVu Sans', serif;
+    font-size: min(9cqw, 48px);
     line-height: 1;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+    color: #30284b;
+    -webkit-text-stroke: 0.6px #f2eefb;
+    filter: drop-shadow(0 2px 1px rgba(25, 16, 50, 0.2));
+    pointer-events: none;
+    &--white {
+      color: #fff;
+      -webkit-text-stroke: 1px #30284b;
+    }
   }
-
-  &__dot {
+  &__rank,
+  &__file {
+    position: absolute;
+    z-index: 2;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(8px, 1.8vw, 11px);
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+  &__rank {
+    top: 5px;
+    left: 5px;
+  }
+  &__file {
+    right: 5px;
+    bottom: 4px;
+  }
+  &__dot,
+  &__last-move-dot {
     position: absolute;
     width: 22%;
     height: 22%;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.28);
-  }
-
-  &__last-move-dot {
-    position: absolute;
-    width: 18%;
-    height: 18%;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.38);
+    background: rgba(48, 40, 75, 0.3);
     pointer-events: none;
   }
-
+  &__last-move-dot {
+    width: 16%;
+    height: 16%;
+  }
   &__promotion {
     position: absolute;
+    z-index: 3;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(25, 16, 50, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
   &__promotion-panel {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    width: calc(100% - 24px);
+    max-width: 320px;
+    padding: 12px;
+    border-radius: 18px;
     background: var(--color-bg-card);
-    border-radius: 8px;
-    padding: 10px;
     box-shadow: 0 8px 24px var(--color-card-shadow);
   }
-
   &__promotion-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 32px;
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 2px;
     border: 1px solid var(--color-border);
-    border-radius: 6px;
-    background: var(--color-bg-page);
+    border-radius: 12px;
+    background: #f2eefb;
+    color: #30284b;
+    font-family: 'Segoe UI Symbol', serif;
+    font-size: 30px;
     cursor: pointer;
-
+    &--white {
+      color: #fff;
+      -webkit-text-stroke: 1px #30284b;
+    }
     &:hover {
-      background: var(--color-accent-bg);
+      background: #cfbff3;
     }
   }
-
   &__promotion-cancel {
     width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 50%;
+    height: 44px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 999px;
     background: var(--color-control-bg);
     color: var(--color-text);
     cursor: pointer;
-
-    &:hover {
-      background: var(--color-control-bg-hover);
-    }
+  }
+  &__promotion-btn:focus-visible,
+  &__promotion-cancel:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 }

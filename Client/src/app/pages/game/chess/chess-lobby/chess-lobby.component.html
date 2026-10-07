@@ -1,36 +1,55 @@
-<div class="chess-lobby">
-  <div class="chess-lobby__card">
-    <h1 class="chess-lobby__title">{{ 'T_CHESS' | translate }}</h1>
-    <p class="chess-lobby__desc">{{ 'T_CHESS_LOBBY_DESC' | translate }}</p>
+<div class="chess-page chess-lobby">
+  <section class="chess-lobby__intro" aria-labelledby="chess-lobby-title">
+    <h1 id="chess-lobby-title">{{ 'T_CHESS' | translate }}</h1>
+    <p class="chess-description">{{ 'T_CHESS_LOBBY_DESC' | translate }}</p>
+    <div class="chess-lobby__preview" aria-hidden="true">
+      <app-chess-board [fen]="previewFen" />
+    </div>
+  </section>
 
-    <label class="chess-lobby__label">{{ 'T_CHESS_YOUR_NAME' | translate }}</label>
+  <section
+    class="chess-card chess-lobby__card"
+    aria-labelledby="chess-create-title">
+    <h2 id="chess-create-title" class="chess-card-title">
+      {{ 'T_CHESS_CREATE_ROOM' | translate }}
+    </h2>
+    <label for="chess-player-name" class="blog-label">{{
+      'T_CHESS_YOUR_NAME' | translate
+    }}</label>
     <input
-      nz-input
+      id="chess-player-name"
+      class="blog-input"
       [(ngModel)]="playerName"
       [placeholder]="'T_CHESS_YOUR_NAME_PLACEHOLDER' | translate"
+      [disabled]="isCreating"
+      [attr.aria-invalid]="!!errorMessage"
+      [attr.aria-describedby]="errorMessage ? 'chess-create-error' : null"
       (keyup.enter)="createRoom()"
-      maxlength="30" />
-
-    <p class="chess-lobby__error" *ngIf="errorMessage">{{ errorMessage }}</p>
-
+      maxlength="30"
+      autocomplete="nickname" />
+    <p
+      id="chess-create-error"
+      class="chess-error"
+      *ngIf="errorMessage"
+      role="alert">
+      {{ errorMessage }}
+    </p>
     <button
-      nz-button
-      nzType="primary"
-      nzSize="large"
-      class="chess-lobby__submit"
-      [nzLoading]="isCreating"
+      type="button"
+      class="blog-btn blog-btn--primary chess-submit"
+      [disabled]="isCreating"
+      [attr.aria-busy]="isCreating"
       (click)="createRoom()">
+      <span *ngIf="isCreating" class="blog-spinner" aria-hidden="true"></span>
+      <span *ngIf="!isCreating" nz-icon nzType="plus" aria-hidden="true"></span>
       {{ 'T_CHESS_CREATE_ROOM' | translate }}
     </button>
-
     <div class="chess-lobby__divider">{{ 'T_CHESS_OR' | translate }}</div>
-
-    <button
-      nz-button
-      nzSize="large"
-      class="chess-lobby__vs-computer"
+    <a
+      class="blog-btn chess-lobby__computer"
       routerLink="/game/chess/vs-computer">
+      <span nz-icon nzType="desktop" aria-hidden="true"></span>
       {{ 'T_CHESS_VS_COMPUTER' | translate }}
-    </button>
-  </div>
+    </a>
+  </section>
 </div>

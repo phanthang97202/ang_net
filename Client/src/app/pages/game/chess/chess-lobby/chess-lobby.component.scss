@@ -1,68 +1,65 @@
+@use '../chess-ui';
+
 .chess-lobby {
-  min-height: calc(100vh - 80px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: 64px;
+  align-items: center;
+  min-height: 580px;
+}
+.chess-lobby__intro h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+.chess-lobby__intro .chess-description {
+  max-width: 420px;
+}
+.chess-lobby__preview {
+  max-width: 320px;
+  padding: 12px;
+  border-radius: 24px;
+  background: var(--color-bg-card);
+  box-shadow: 0 12px 32px var(--color-card-shadow);
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+.chess-lobby__card {
+  background: linear-gradient(
+    150deg,
+    var(--color-accent-bg),
+    var(--color-bg-card) 45%
+  );
+}
+.chess-lobby__divider {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 24px;
-
-  &__card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px var(--color-card-shadow);
-    padding: 32px;
+  gap: 12px;
+  margin: 22px 0;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
   }
-
-  &__title {
-    margin: 0 0 8px;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-text);
+}
+.chess-lobby__computer {
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .chess-lobby {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    min-height: 0;
+    max-width: 480px;
   }
-
-  &__desc {
-    margin: 0 0 24px;
-    color: var(--color-text-muted);
-  }
-
-  &__label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-  }
-
-  &__error {
-    margin: 10px 0 0;
-    color: #e5484d;
-    font-size: 13px;
-  }
-
-  &__submit {
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  &__divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 20px 0;
-    color: var(--color-text-muted);
-    font-size: 12px;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--color-border);
-    }
-  }
-
-  &__vs-computer {
-    width: 100%;
+  .chess-lobby__preview {
+    display: none;
   }
 }

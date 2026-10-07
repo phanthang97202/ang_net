@@ -1,109 +1,155 @@
-<div class="chess-vs-computer">
-  <!-- Màn hình cài đặt -->
-  <div class="chess-vs-computer__setup" *ngIf="!started">
-    <div class="chess-vs-computer__card">
-      <h1 class="chess-vs-computer__title">
-        {{ 'T_CHESS_VS_COMPUTER' | translate }}
-      </h1>
+<div class="chess-page">
+  <header class="chess-heading">
+    <h1>{{ 'T_CHESS_VS_COMPUTER' | translate }}</h1>
+    <a class="chess-back" routerLink="/game/chess">
+      <span nz-icon nzType="arrow-left" aria-hidden="true"></span>
+      {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
+    </a>
+  </header>
 
-      <label class="chess-vs-computer__label">{{
-        'T_CHESS_CHOOSE_COLOR' | translate
-      }}</label>
-      <div class="chess-vs-computer__options">
+  <section
+    class="chess-card chess-form-card"
+    *ngIf="!started"
+    aria-labelledby="chess-setup-title">
+    <h2 id="chess-setup-title" class="chess-card-title">
+      {{ 'T_CHESS_GAME_SETTINGS' | translate }}
+    </h2>
+    <fieldset class="chess-choices">
+      <legend class="blog-label">
+        {{ 'T_CHESS_CHOOSE_COLOR' | translate }}
+      </legend>
+      <div class="chess-options">
         <button
           type="button"
-          class="chess-vs-computer__option"
-          [class.chess-vs-computer__option--active]="playerColor === 'white'"
+          class="chess-option"
+          [class.is-active]="playerColor === 'white'"
+          [attr.aria-pressed]="playerColor === 'white'"
           (click)="playerColor = 'white'">
+          <span class="chess-option__piece" aria-hidden="true">♔</span>
           {{ 'T_CHESS_COLOR_WHITE' | translate }}
         </button>
         <button
           type="button"
-          class="chess-vs-computer__option"
-          [class.chess-vs-computer__option--active]="playerColor === 'black'"
+          class="chess-option"
+          [class.is-active]="playerColor === 'black'"
+          [attr.aria-pressed]="playerColor === 'black'"
           (click)="playerColor = 'black'">
+          <span class="chess-option__piece" aria-hidden="true">♚</span>
           {{ 'T_CHESS_COLOR_BLACK' | translate }}
         </button>
       </div>
-
-      <label class="chess-vs-computer__label">{{
-        'T_CHESS_DIFFICULTY' | translate
-      }}</label>
-      <div class="chess-vs-computer__options">
+    </fieldset>
+    <fieldset class="chess-choices">
+      <legend class="blog-label">{{ 'T_CHESS_DIFFICULTY' | translate }}</legend>
+      <div class="chess-options">
         <button
           type="button"
-          class="chess-vs-computer__option"
-          [class.chess-vs-computer__option--active]="difficulty === 'easy'"
+          class="chess-option"
+          [class.is-active]="difficulty === 'easy'"
+          [attr.aria-pressed]="difficulty === 'easy'"
           (click)="difficulty = 'easy'">
           {{ 'T_CHESS_DIFFICULTY_EASY' | translate }}
         </button>
         <button
           type="button"
-          class="chess-vs-computer__option"
-          [class.chess-vs-computer__option--active]="difficulty === 'medium'"
+          class="chess-option"
+          [class.is-active]="difficulty === 'medium'"
+          [attr.aria-pressed]="difficulty === 'medium'"
           (click)="difficulty = 'medium'">
           {{ 'T_CHESS_DIFFICULTY_MEDIUM' | translate }}
         </button>
         <button
           type="button"
-          class="chess-vs-computer__option"
-          [class.chess-vs-computer__option--active]="difficulty === 'hard'"
+          class="chess-option"
+          [class.is-active]="difficulty === 'hard'"
+          [attr.aria-pressed]="difficulty === 'hard'"
           (click)="difficulty = 'hard'">
           {{ 'T_CHESS_DIFFICULTY_HARD' | translate }}
         </button>
       </div>
-
-      <button
-        nz-button
-        nzType="primary"
-        nzSize="large"
-        class="chess-vs-computer__submit"
-        (click)="startGame()">
-        {{ 'T_CHESS_START_GAME' | translate }}
-      </button>
-    </div>
-  </div>
-
-  <!-- Bàn cờ -->
-  <div class="chess-vs-computer__content" *ngIf="started">
-    <p class="chess-vs-computer__turn" *ngIf="!gameResult">
-      {{
-        (isThinking
-          ? 'T_CHESS_THINKING'
-          : isMyTurn
-            ? 'T_CHESS_YOUR_TURN'
-            : 'T_CHESS_OPPONENT_TURN'
-        ) | translate
-      }}
-    </p>
-
-    <app-chess-board
-      [fen]="chess.fen()"
-      [orientation]="playerColor"
-      [interactive]="canMove"
-      [lastMove]="lastMove"
-      (move)="onLocalMove($event)">
-    </app-chess-board>
-
+    </fieldset>
     <button
-      nz-button
-      nzDanger
-      class="chess-vs-computer__resign"
-      *ngIf="!gameResult"
-      (click)="resign()">
-      {{ 'T_CHESS_RESIGN' | translate }}
+      type="button"
+      class="blog-btn blog-btn--primary chess-submit"
+      (click)="startGame()">
+      <span nz-icon nzType="play-circle" aria-hidden="true"></span>
+      {{ 'T_CHESS_START_GAME' | translate }}
     </button>
+  </section>
 
-    <div class="chess-vs-computer__result" *ngIf="gameResult">
-      <p>{{ resultKey | translate }}</p>
-      <div class="chess-vs-computer__result-actions">
-        <button nz-button nzType="primary" (click)="playAgain()">
+  <div class="chess-game-layout" *ngIf="started">
+    <section class="chess-card chess-board-stage">
+      <p
+        class="chess-turn"
+        *ngIf="!gameResult"
+        role="status"
+        aria-live="polite">
+        <span
+          nz-icon
+          [nzType]="isThinking ? 'loading' : 'play-circle'"
+          aria-hidden="true"></span>
+        {{
+          (isThinking
+            ? 'T_CHESS_THINKING'
+            : isMyTurn
+              ? 'T_CHESS_YOUR_TURN'
+              : 'T_CHESS_OPPONENT_TURN'
+          ) | translate
+        }}
+      </p>
+      <app-chess-board
+        [fen]="chess.fen()"
+        [orientation]="playerColor"
+        [interactive]="canMove"
+        [lastMove]="lastMove"
+        (move)="onLocalMove($event)" />
+      <p class="chess-hint" *ngIf="!gameResult">
+        {{ 'T_CHESS_BOARD_HINT' | translate }}
+      </p>
+    </section>
+    <aside class="chess-card chess-panel" aria-labelledby="chess-game-title">
+      <h2 id="chess-game-title" class="chess-card-title">
+        {{ 'T_CHESS_GAME_SETTINGS' | translate }}
+      </h2>
+      <dl class="chess-summary">
+        <div>
+          <dt>{{ 'T_CHESS_CHOOSE_COLOR' | translate }}</dt>
+          <dd>
+            {{
+              (playerColor === 'white'
+                ? 'T_CHESS_COLOR_WHITE'
+                : 'T_CHESS_COLOR_BLACK'
+              ) | translate
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'T_CHESS_DIFFICULTY' | translate }}</dt>
+          <dd>
+            {{ 'T_CHESS_DIFFICULTY_' + difficulty | uppercase | translate }}
+          </dd>
+        </div>
+      </dl>
+      <button
+        type="button"
+        class="blog-btn chess-resign"
+        *ngIf="!gameResult"
+        (click)="resign()">
+        <span nz-icon nzType="flag" aria-hidden="true"></span>
+        {{ 'T_CHESS_RESIGN' | translate }}
+      </button>
+      <div class="chess-result" *ngIf="gameResult" role="status">
+        <h2>{{ resultKey | translate }}</h2>
+        <button
+          type="button"
+          class="blog-btn blog-btn--primary"
+          (click)="playAgain()">
           {{ 'T_CHESS_PLAY_AGAIN' | translate }}
         </button>
-        <button nz-button (click)="backToLobby()">
+        <button type="button" class="blog-btn" (click)="backToLobby()">
           {{ 'T_CHESS_BACK_TO_LOBBY' | translate }}
         </button>
       </div>
-    </div>
+    </aside>
   </div>
 </div>

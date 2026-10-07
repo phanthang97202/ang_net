@@ -1,0 +1,214 @@
+// Shared public blog styling for the chess lobby, setup and online rooms.
+:host {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--color-text);
+}
+
+.chess-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 0 48px;
+
+  .blog-btn {
+    min-height: 44px;
+  }
+}
+
+.chess-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    line-height: 1.35;
+  }
+}
+
+.chess-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+}
+
+.chess-card {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-bg-card);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
+}
+
+.chess-card-title {
+  margin: 0 0 24px;
+  color: var(--color-text);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.chess-description {
+  margin: 12px 0 24px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.85;
+}
+
+.chess-form-card {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.chess-submit {
+  width: 100%;
+  margin-top: 24px;
+}
+.chess-error {
+  margin: 12px 0 0;
+  color: #d34141;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+.chess-game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.chess-board-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px;
+
+  app-chess-board {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+  }
+}
+
+.chess-turn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.chess-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  text-align: center;
+}
+.chess-panel .blog-btn {
+  width: 100%;
+}
+
+.chess-summary {
+  display: grid;
+  gap: 20px;
+  margin: 0 0 28px;
+  dt {
+    margin-bottom: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+  }
+  dd {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+}
+
+.chess-result {
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--color-accent-bg);
+  text-align: center;
+
+  h2,
+  p {
+    margin: 0 0 16px;
+    color: var(--color-text);
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+  .blog-btn {
+    white-space: normal;
+    line-height: 1.5;
+  }
+  .blog-btn + .blog-btn {
+    margin-top: 10px;
+  }
+}
+
+.chess-resign {
+  color: var(--color-text-muted);
+  &:hover:not(:disabled) {
+    color: #d34141;
+    border-color: #d34141;
+  }
+}
+
+@media (max-width: 760px) {
+  .chess-page {
+    padding-top: 24px;
+  }
+  .chess-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .chess-game-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .chess-panel .chess-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .chess-card {
+    padding: 22px 20px;
+  }
+  .chess-board-stage {
+    padding: 12px;
+  }
+}
