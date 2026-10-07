@@ -16,6 +16,7 @@ export const SYS_PARAM_CODE = {
   FOOTER_CONTENT: 'FOOTER_CONTENT',
   FOOTER_MAP_EMBED: 'FOOTER_MAP_EMBED',
   SHIFT_ROOM_PRICES: 'SHIFT_ROOM_PRICES',
+  DASHBOARD_BACKGROUND_IMAGE: 'DASHBOARD_BACKGROUND_IMAGE',
 } as const;
 
 @Injectable({
@@ -69,6 +70,15 @@ export class SysParameterConfigService {
         return raw || null;
       })
     );
+  }
+
+  invalidate(code?: string): void {
+    if (code) {
+      this.cache.delete(code);
+      return;
+    }
+
+    this.cache.clear();
   }
 
   private getRaw(code: string): Observable<string | null> {

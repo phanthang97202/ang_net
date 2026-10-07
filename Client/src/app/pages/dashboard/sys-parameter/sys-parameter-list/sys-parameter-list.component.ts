@@ -3,6 +3,7 @@ import {
   ShowErrorService,
   LoadingService,
   ApiService,
+  SysParameterConfigService,
 } from '../../../../services';
 import {
   ISysParameter,
@@ -38,6 +39,7 @@ export class SysParameterComponent implements OnInit {
   private message = inject(NzMessageService);
   private loadingService = inject(LoadingService);
   private fb = inject(NonNullableFormBuilder);
+  private parameterConfig = inject(SysParameterConfigService);
 
   dataSource: ISysParameter[] = [];
   categoryOptions: string[] = [];
@@ -102,11 +104,15 @@ export class SysParameterComponent implements OnInit {
   private createData(formValue: IRequestSysParameterCreate): void {
     this.setLoading(true);
     this.api.SysParameterCreate(formValue).subscribe({
-      next: response =>
+      next: response => {
+        if (response?.Success) {
+          this.parameterConfig.invalidate(formValue.ParameterCode);
+        }
         this.handleApiResponse<IResponseSysParameterCreate>(
           response,
           'Create successfully'
-        ),
+        );
+      },
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -115,11 +121,15 @@ export class SysParameterComponent implements OnInit {
   private updateData(formValue: IRequestSysParameterCreate): void {
     this.setLoading(true);
     this.api.SysParameterUpdate(formValue).subscribe({
-      next: response =>
+      next: response => {
+        if (response?.Success) {
+          this.parameterConfig.invalidate(formValue.ParameterCode);
+        }
         this.handleApiResponse<IResponseSysParameterCreate>(
           response,
           'Update successfully'
-        ),
+        );
+      },
       error: err => this.handleApiError(err),
       complete: () => this.setLoading(false),
     });
@@ -129,6 +139,7 @@ export class SysParameterComponent implements OnInit {
     this.setLoading(true);
     this.api.SysParameterDelete(key).subscribe({
       next: () => {
+        this.parameterConfig.invalidate(key);
         this.message.success('Đã xóa tham số');
         this.fetchData();
       },
