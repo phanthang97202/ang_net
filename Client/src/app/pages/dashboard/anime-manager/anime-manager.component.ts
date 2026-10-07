@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { AntdModule } from '../../../modules';
 import { BreadcrumbComponent } from '../../../components';
 import {
@@ -18,7 +20,14 @@ import { AnimeService } from '../../../services';
 @Component({
   selector: 'app-anime-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, AntdModule, BreadcrumbComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AntdModule,
+    NzEmptyModule,
+    NzSpinModule,
+    BreadcrumbComponent,
+  ],
   templateUrl: './anime-manager.component.html',
   styleUrl: './anime-manager.component.scss',
 })
