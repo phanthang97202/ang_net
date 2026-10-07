@@ -14,52 +14,54 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import {
-  IAnimeLibraryCatalog,
-  IAnimeLibraryDetail,
-  IAnimeLibraryEpisode,
-  IAnimeLibraryPlayback,
-  IAnimeLibraryServer,
-} from '../../interfaces/anime';
-import { AnimeService } from '../../services';
-import { AnimeVideoComponent } from './anime-video.component';
+  IMovieLibraryCatalog,
+  IMovieLibraryDetail,
+  IMovieLibraryEpisode,
+  IMovieLibraryPlayback,
+  IMovieLibraryServer,
+} from '../../interfaces/movie';
+import { MovieService } from '../../services';
+import { MovieVideoComponent } from './movie-video.component';
 
 @Component({
-  selector: 'app-anime',
+  selector: 'app-movie',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterLink,
     NzIconModule,
-    AnimeVideoComponent,
+    MovieVideoComponent,
   ],
-  templateUrl: './anime.component.html',
-  styleUrl: './anime.component.scss',
+  templateUrl: './movie.component.html',
+  styleUrl: './movie.component.scss',
 })
-export class AnimeComponent implements OnInit {
-  private readonly api = inject(AnimeService);
+export class MovieComponent implements OnInit {
+  private readonly api = inject(MovieService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
   private request?: Subscription;
   private playbackRequest?: Subscription;
+  private embedFallbackAttempted = false;
   @ViewChild('player') private player?: ElementRef<HTMLElement>;
 
   keyword = '';
   query = '';
   page = 1;
   slug = '';
-  catalog: IAnimeLibraryCatalog | null = null;
-  detail: IAnimeLibraryDetail | null = null;
-  server: IAnimeLibraryServer | null = null;
-  playback: IAnimeLibraryPlayback | null = null;
+  catalog: IMovieLibraryCatalog | null = null;
+  detail: IMovieLibraryDetail | null = null;
+  server: IMovieLibraryServer | null = null;
+  playback: IMovieLibraryPlayback | null = null;
   selectedEpisode = '';
   safeEmbedUrl: SafeResourceUrl | null = null;
   loading = false;
   loadingPlayback = false;
   error = '';
   playbackError = '';
+  playbackNotice = '';
 
   ngOnInit(): void {
     this.destroyRef.onDestroy(() => {
@@ -91,13 +93,13 @@ export class AnimeComponent implements OnInit {
   }
 
   search(): void {
-    void this.router.navigate(['/anime'], {
+    void this.router.navigate(['/phim'], {
       queryParams: { q: this.keyword.trim() || null, page: null },
     });
   }
 
   changePage(page: number): void {
-    void this.router.navigate(['/anime'], {
+    void this.router.navigate(['/phim'], {
       queryParams: { q: this.query || null, page },
     });
   }
@@ -115,7 +117,7 @@ export class AnimeComponent implements OnInit {
         next: response => {
           this.loading = false;
           if (!response.Success || !response.Data) {
-            this.error = response.ErrorMessage || 'Không thể tải anime.';
+            this.error = response.ErrorMessage || 'Không thể tải phim.';
             return;
           }
           this.detail = response.Data;
@@ -142,7 +144,7 @@ export class AnimeComponent implements OnInit {
     }
   }
 
-  selectServer(server: IAnimeLibraryServer): void {
+  selectServer(server: IMovieLibraryServer): void {
     if (this.server?.Id === server.Id) return;
     const current = this.selectedEpisode;
     this.resetPlayback();
@@ -151,7 +153,7 @@ export class AnimeComponent implements OnInit {
     if (match) this.playEpisode(match);
   }
 
-  playEpisode(episode: IAnimeLibraryEpisode): void {
+  playEpisode(episode: IMovieLibraryEpisode): void {
     if (!this.detail || !this.server || !episode.HasSource) return;
     this.resetPlayback();
     this.selectedEpisode = episode.Slug;
@@ -173,7 +175,13 @@ export class AnimeComponent implements OnInit {
             return;
           }
           this.playback = response.Data;
-          if (!this.playback.Url) this.useEmbed();
+          // Prefer the provider's player; use HLS only when no valid embed exists.
+          if (this.playback.EmbedUrl) this.useEmbed();
+          if (!this.safeEmbedUrl && this.playback.Url) this.playbackError = '';
+          if (!this.safeEmbedUrl && !this.playback.Url) {
+            this.playbackError =
+              'Tập phim chưa có trình phát khả dụng. Hãy thử nguồn khác.';
+          }
         },
         error: err => {
           this.loadingPlayback = false;
@@ -185,7 +193,7 @@ export class AnimeComponent implements OnInit {
   }
 
   useEmbed(): void {
-    if (!this.playback?.EmbedUrl) return;
+    if (!this.playback?.EmbedUrl || this.safeEmbedUrl) return;
     // Never trust an arbitrary iframe URL, even when returned by the backend.
     try {
       const url = new URL(this.playback.EmbedUrl);
@@ -199,14 +207,33 @@ export class AnimeComponent implements OnInit {
         url.href
       );
       this.playbackError = '';
+      this.playbackNotice = '';
     } catch {
-      this.playbackError = 'Nguồn phát dự phòng không hợp lệ.';
+      this.playbackError = 'Nguồn trình phát mặc định không hợp lệ.';
     }
   }
 
   videoError(): void {
+    // Ignore duplicate/late errors from a player that has already been removed.
+    if (!this.playback || this.safeEmbedUrl) return;
+    if (!this.embedFallbackAttempted && this.playback.EmbedUrl) {
+      this.embedFallbackAttempted = true;
+      this.useEmbed();
+      if (this.safeEmbedUrl) {
+        this.playbackNotice =
+          'HLS gặp lỗi, đã tự chuyển sang trình phát mặc định.';
+        return;
+      }
+    }
     this.playbackError =
-      'Trình phát không tải được video. Thử nguồn khác hoặc trình phát dự phòng.';
+      'Không thể phát video bằng HLS. Hãy chọn trình phát mặc định hoặc thử nguồn khác.';
+  }
+
+  useHls(): void {
+    if (!this.playback?.Url || !this.safeEmbedUrl) return;
+    this.safeEmbedUrl = null;
+    this.playbackError = '';
+    this.playbackNotice = '';
   }
 
   private resetPlayback(): void {
@@ -216,6 +243,8 @@ export class AnimeComponent implements OnInit {
     this.selectedEpisode = '';
     this.loadingPlayback = false;
     this.playbackError = '';
+    this.playbackNotice = '';
+    this.embedFallbackAttempted = false;
   }
 
   private loadError(err: { error?: { ErrorMessage?: string } }): void {

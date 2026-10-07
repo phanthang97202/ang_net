@@ -21,4 +21,4 @@ export * from './news-comment';
 export * from './media';
 export * from './archive';
 export * from './note';
-export * from './anime';
+export * from './movie';

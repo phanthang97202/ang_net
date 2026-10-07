@@ -1,7 +1,7 @@
 namespace angnet.Domain.Dtos;
 
-// Live catalog is independent from the optional AniList/admin store.
-public class AnimeLibraryItemDto
+// Live catalog is independent from the retired manual store.
+public class MovieLibraryItemDto
 {
     public string Slug { get; set; } = "";
     public string Title { get; set; } = "";
@@ -14,36 +14,36 @@ public class AnimeLibraryItemDto
     public string Language { get; set; } = "";
 }
 
-public class AnimeLibraryCatalogDto
+public class MovieLibraryCatalogDto
 {
-    public List<AnimeLibraryItemDto> Items { get; set; } = [];
+    public List<MovieLibraryItemDto> Items { get; set; } = [];
     public int Page { get; set; }
     public int TotalPages { get; set; }
     public int TotalItems { get; set; }
 }
 
-public class AnimeLibraryDetailDto : AnimeLibraryItemDto
+public class MovieLibraryDetailDto : MovieLibraryItemDto
 {
     public string Description { get; set; } = "";
     public List<string> Genres { get; set; } = [];
-    public List<AnimeLibraryServerDto> Servers { get; set; } = [];
+    public List<MovieLibraryServerDto> Servers { get; set; } = [];
 }
 
-public class AnimeLibraryServerDto
+public class MovieLibraryServerDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
-    public List<AnimeLibraryEpisodeDto> Episodes { get; set; } = [];
+    public List<MovieLibraryEpisodeDto> Episodes { get; set; } = [];
 }
 
-public class AnimeLibraryEpisodeDto
+public class MovieLibraryEpisodeDto
 {
     public string Slug { get; set; } = "";
     public string Name { get; set; } = "";
     public bool HasSource { get; set; }
 }
 
-public class AnimeLibraryPlaybackDto
+public class MovieLibraryPlaybackDto
 {
     public string Title { get; set; } = "";
     public string Url { get; set; } = "";

@@ -43,18 +43,28 @@ export const routes: Routes = [
       import('./pages/note/note.component').then(p => p.NoteComponent),
   },
   {
-    title: 'Anime',
-    path: 'anime',
+    title: 'Phim',
+    path: 'phim',
     loadComponent: () =>
-      import('./pages/anime/anime.component').then(p => p.AnimeComponent),
-    canActivate: [canActivePermission('anime.view')],
+      import('./pages/movie/movie.component').then(p => p.MovieComponent),
+    canActivate: [canActivePermission('movie.view')],
   },
   {
-    title: 'Anime',
-    path: 'anime/:slug',
+    title: 'Phim',
+    path: 'phim/:slug',
     loadComponent: () =>
-      import('./pages/anime/anime.component').then(p => p.AnimeComponent),
-    canActivate: [canActivePermission('anime.view')],
+      import('./pages/movie/movie.component').then(p => p.MovieComponent),
+    canActivate: [canActivePermission('movie.view')],
+  },
+  {
+    path: 'anime',
+    redirectTo: 'phim',
+    pathMatch: 'full',
+  },
+  {
+    path: 'anime/:slug',
+    redirectTo: 'phim/:slug',
+    pathMatch: 'full',
   },
   {
     title: 'T_PAGE_CREATE_REEL',
@@ -241,14 +251,6 @@ export const routes: Routes = [
             './pages/dashboard/media-library/media-library.component'
           ).then(p => p.MediaLibraryComponent),
         canActivate: [canActivePermission('media.view')],
-      },
-      {
-        path: 'anime',
-        loadComponent: () =>
-          import(
-            './pages/dashboard/anime-manager/anime-manager.component'
-          ).then(p => p.AnimeManagerComponent),
-        canActivate: [canActivePermission('anime.manage')],
       },
 
       {

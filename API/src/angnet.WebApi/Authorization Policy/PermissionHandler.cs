@@ -52,7 +52,9 @@ namespace angnet.WebApi.Authorization_Policy
 
             var hasPermission = context.User.Claims.Any(
                 c => c.Type == PermissionClaimType
-                     && string.Equals(c.Value, requirement.Permission, StringComparison.Ordinal));
+                     && (string.Equals(c.Value, requirement.Permission, StringComparison.Ordinal)
+                         // Previously issued JWTs keep working until they expire.
+                         || (requirement.Permission == "movie.view" && c.Value == "anime.view")));
 
             if (hasPermission)
             {

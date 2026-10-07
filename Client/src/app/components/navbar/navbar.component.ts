@@ -230,10 +230,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {
     const isVi = this.langService.getLang() !== 'en';
 
-    // Menu anime chỉ dành cho tài khoản có quyền. API Anime vẫn kiểm tra lại
+    // Menu phim chỉ dành cho tài khoản có quyền. API Movie vẫn kiểm tra lại
     // quyền ở server; lọc tại đây chỉ để người không có quyền không nhìn thấy lối vào.
-    const canShow = (menu: ISysMenuTree): boolean =>
-      menu.Path !== '/anime' || this.authService.hasPermission('anime.view');
+    const canShow = (menu: ISysMenuTree): boolean => {
+      const path = this.splitPath(menu.Path).path;
+      return (
+        (path !== '/phim' && path !== '/anime') ||
+        this.authService.hasPermission('movie.view')
+      );
+    };
 
     const toItem = (m: ISysMenuTree): RouteItem => {
       const { path, queryParams, externalUrl } = this.splitPath(m.Path);

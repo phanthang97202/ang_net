@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionHandler.cs" Link="Support\PermissionHandler.cs" />
   </ItemGroup>
 
 </Project>

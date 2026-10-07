@@ -7,50 +7,49 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace angnet.Infrastructure.Data.Services;
 
-public class AnimeLibraryService(IHttpClientFactory clients, IMemoryCache cache) : IAnimeLibraryService
+public class MovieLibraryService(IHttpClientFactory clients, IMemoryCache cache) : IMovieLibraryService
 {
     private const string Endpoint = "https://phimapi.com/";
     private const int PageSize = 24;
 
-    public async Task<AnimeLibraryCatalogDto> Browse(string keyword, int page, CancellationToken cancellationToken)
+    public async Task<MovieLibraryCatalogDto> Browse(string keyword, int page, CancellationToken cancellationToken)
     {
         keyword = (keyword ?? "").Trim();
         if (keyword.Length > 100 || page is < 1 or > 10000)
             throw new ArgumentException("Từ khóa hoặc số trang không hợp lệ.");
         string path = keyword.Length == 0
-            ? $"v1/api/danh-sach/hoat-hinh?country=nhat-ban&page={page}&limit={PageSize}"
-            : $"v1/api/tim-kiem?keyword={Uri.EscapeDataString(keyword)}&category=hoat-hinh&country=nhat-ban&page={page}&limit={PageSize}";
+            ? $"v1/api/danh-sach?page={page}&limit={PageSize}"
+            : $"v1/api/tim-kiem?keyword={Uri.EscapeDataString(keyword)}&page={page}&limit={PageSize}";
         JsonElement root = await Fetch(path, cancellationToken);
         JsonElement data = root.GetProperty("data");
         JsonElement pagination = data.GetProperty("params").GetProperty("pagination");
         string imageBase = Text(data, "APP_DOMAIN_CDN_IMAGE");
-        return new AnimeLibraryCatalogDto
+        return new MovieLibraryCatalogDto
         {
-            // Enforce anime-only at the backend even if upstream ignores a filter.
-            Items = Elements(data, "items").Where(IsAnime).Select(m => MapItem(m, imageBase)).ToList(),
+            Items = Elements(data, "items").Select(m => MapItem(m, imageBase)).ToList(),
             Page = Number(pagination, "currentPage"),
             TotalPages = Math.Max(1, Number(pagination, "totalPages")),
             TotalItems = Number(pagination, "totalItems")
         };
     }
 
-    public async Task<AnimeLibraryDetailDto> Detail(string slug, CancellationToken cancellationToken)
+    public async Task<MovieLibraryDetailDto> Detail(string slug, CancellationToken cancellationToken)
     {
         JsonElement root = await Movie(slug, cancellationToken);
         JsonElement movie = root.GetProperty("movie");
-        AnimeLibraryItemDto item = MapItem(movie, "");
-        return new AnimeLibraryDetailDto
+        MovieLibraryItemDto item = MapItem(movie, "");
+        return new MovieLibraryDetailDto
         {
             Slug = item.Slug, Title = item.Title, OriginalTitle = item.OriginalTitle,
             PosterUrl = item.PosterUrl, BannerUrl = item.BannerUrl, Year = item.Year,
             Quality = item.Quality, Language = item.Language, EpisodeStatus = item.EpisodeStatus,
             Description = WebUtility.HtmlDecode(Regex.Replace(Text(movie, "content"), "<[^>]*>", " ")),
             Genres = Elements(movie, "category").Select(c => Text(c, "name")).ToList(),
-            Servers = Elements(root, "episodes").Select((s, index) => new AnimeLibraryServerDto
+            Servers = Elements(root, "episodes").Select((s, index) => new MovieLibraryServerDto
             {
                 Id = index, Name = Text(s, "server_name"),
                 Episodes = Elements(s, "server_data").Where(e => Text(e, "slug").Length > 0)
-                    .Select(e => new AnimeLibraryEpisodeDto
+                    .Select(e => new MovieLibraryEpisodeDto
                     {
                         Slug = Text(e, "slug"), Name = Text(e, "name"),
                         HasSource = Https(Text(e, "link_m3u8")).Length > 0 || Embed(Text(e, "link_embed")).Length > 0
@@ -59,7 +58,7 @@ public class AnimeLibraryService(IHttpClientFactory clients, IMemoryCache cache)
         };
     }
 
-    public async Task<AnimeLibraryPlaybackDto> Playback(string slug, int server, string episode, CancellationToken cancellationToken)
+    public async Task<MovieLibraryPlaybackDto> Playback(string slug, int server, string episode, CancellationToken cancellationToken)
     {
         if (server < 0 || string.IsNullOrWhiteSpace(episode) || episode.Length > 200)
             throw new ArgumentException("Tập phim không hợp lệ.");
@@ -68,7 +67,7 @@ public class AnimeLibraryService(IHttpClientFactory clients, IMemoryCache cache)
         if (server >= servers.Count) throw new KeyNotFoundException("Nguồn phát không tồn tại.");
         JsonElement selected = Elements(servers[server], "server_data").FirstOrDefault(e => Text(e, "slug") == episode);
         if (selected.ValueKind == JsonValueKind.Undefined) throw new KeyNotFoundException("Tập phim không tồn tại.");
-        var result = new AnimeLibraryPlaybackDto
+        var result = new MovieLibraryPlaybackDto
         {
             Title = Text(selected, "name"), Url = Https(Text(selected, "link_m3u8")),
             EmbedUrl = Embed(Text(selected, "link_embed"))
@@ -83,14 +82,14 @@ public class AnimeLibraryService(IHttpClientFactory clients, IMemoryCache cache)
         if (string.IsNullOrEmpty(slug) || slug.Length > 200 || !Regex.IsMatch(slug, "^[a-z0-9]+(?:-[a-z0-9]+)*$"))
             throw new ArgumentException("Mã phim không hợp lệ.");
         JsonElement root = await Fetch($"phim/{slug}", cancellationToken);
-        if (!root.TryGetProperty("movie", out var movie) || !IsAnime(movie))
-            throw new KeyNotFoundException("Không tìm thấy anime trong nguồn phim.");
+        if (!root.TryGetProperty("movie", out var movie) || movie.ValueKind != JsonValueKind.Object)
+            throw new KeyNotFoundException("Không tìm thấy phim trong nguồn.");
         return root;
     }
 
     private async Task<JsonElement> Fetch(string path, CancellationToken cancellationToken)
     {
-        string key = "anime-library:" + path;
+        string key = "movie-library:" + path;
         if (cache.TryGetValue(key, out JsonElement cached)) return cached;
         using var client = clients.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(15);
@@ -106,11 +105,7 @@ public class AnimeLibraryService(IHttpClientFactory clients, IMemoryCache cache)
         return root;
     }
 
-    private static bool IsAnime(JsonElement movie) =>
-        (Text(movie, "type") == "hoathinh" || Elements(movie, "category").Any(c => Text(c, "slug") == "hoat-hinh"))
-        && Elements(movie, "country").Any(c => Text(c, "slug") == "nhat-ban");
-
-    private static AnimeLibraryItemDto MapItem(JsonElement m, string imageBase) => new()
+    private static MovieLibraryItemDto MapItem(JsonElement m, string imageBase) => new()
     {
         Slug = Text(m, "slug"), Title = Text(m, "name"), OriginalTitle = Text(m, "origin_name"),
         PosterUrl = Image(Text(m, "poster_url"), imageBase), BannerUrl = Image(Text(m, "thumb_url"), imageBase),

@@ -216,7 +216,12 @@ export class AuthService {
    */
   hasPermission(code: string): boolean {
     if (this.isAdminPermission()) return true;
-    return this.getPermissions().includes(code);
+    const permissions = this.getPermissions();
+    // Preserve access for sessions issued before Anime became the Movie module.
+    return (
+      permissions.includes(code) ||
+      (code === 'movie.view' && permissions.includes('anime.view'))
+    );
   }
 
   /** Có ít nhất một trong các quyền truyền vào. */

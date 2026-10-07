@@ -138,11 +138,6 @@ export class AppComponent implements OnInit {
           permission: 'media.view',
         },
         {
-          path: '/dashboard/anime',
-          title: 'Quản lý anime',
-          permission: 'anime.manage',
-        },
-        {
           path: '/dashboard/newscategory',
           title: 'Danh mục tin',
           permission: 'newscategory.view',

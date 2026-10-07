@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace angnet.WebApi.Controllers;
 
 [ApiController]
-[Route("api/Anime/Library")]
-[Authorize(Policy = "anime.view")]
+[Route("api/Movie/Library")]
+[Route("api/Anime/Library")] // Compatibility for already-open clients; same permission gate.
+[Authorize(Policy = "movie.view")]
 [EnableRateLimiting("API")]
-public class AnimeLibraryController(IAnimeLibraryService library, ILogger<AnimeLibraryController> logger) : ControllerBase
+public class MovieLibraryController(IMovieLibraryService library, ILogger<MovieLibraryController> logger) : ControllerBase
 {
     [HttpGet]
     public Task<IActionResult> Browse(string keyword = "", int page = 1, CancellationToken cancellationToken = default) =>
@@ -33,7 +34,7 @@ public class AnimeLibraryController(IAnimeLibraryService library, ILogger<AnimeL
         catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested) { return StatusCode(499); }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or JsonException or InvalidOperationException)
         {
-            logger.LogWarning(ex, "Anime provider request failed");
+            logger.LogWarning(ex, "Movie provider request failed");
             return StatusCode(503, new ApiResponse<T>("Nguồn phim đang bận hoặc tạm thời không khả dụng. Vui lòng thử lại."));
         }
     }
