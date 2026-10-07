@@ -37,6 +37,47 @@ export interface IAnimePlayback {
   MimeType: string;
 }
 
+export interface IAnimeAdminCatalog extends IAnimeSearchItem {
+  AnimeId: string;
+  StoredEpisodeCount: number;
+  PlayableEpisodeCount: number;
+  FlagActive: boolean;
+  UpdatedDTime: Date;
+}
+
+export interface IAnimeSource {
+  SourceId: string;
+  Provider: 'youtube' | 'mp4' | 'hls';
+  SourceValue: string;
+  Quality: string;
+  Language: string;
+  Priority: number;
+  FlagActive: boolean;
+}
+
+export interface IAnimeAdminEpisode {
+  EpisodeId: string;
+  EpisodeNumber: number;
+  Title: string;
+  ThumbnailUrl: string;
+  DurationSeconds: number | null;
+  FlagActive: boolean;
+  Sources: IAnimeSource[];
+}
+
+export interface IAnimeSourceSave {
+  SourceId: string;
+  AniListId: number;
+  EpisodeNumber: number;
+  EpisodeTitle: string;
+  Provider: 'youtube' | 'mp4' | 'hls';
+  SourceValue: string;
+  Quality: string;
+  Language: string;
+  Priority: number;
+  FlagActive: boolean;
+}
+
 export interface IAnimeSearchResponse
   extends IBaseResponse<IAnimeSearchItem> {}
 
@@ -44,3 +85,13 @@ export interface IAnimeDetailResponse extends IBaseResponse<IAnimeDetail> {}
 
 export interface IAnimePlaybackResponse
   extends IBaseResponse<IAnimePlayback> {}
+
+export interface IAnimeAdminCatalogResponse
+  extends IBaseResponse<IAnimeAdminCatalog> {}
+
+export interface IAnimeAdminEpisodeResponse
+  extends IBaseResponse<IAnimeAdminEpisode> {}
+
+export interface IAnimeSourceResponse extends IBaseResponse<IAnimeSource> {}
+
+export interface IAnimeDeleteResponse extends IBaseResponse<boolean> {}

@@ -242,6 +242,14 @@ export const routes: Routes = [
           ).then(p => p.MediaLibraryComponent),
         canActivate: [canActivePermission('media.view')],
       },
+      {
+        path: 'anime',
+        loadComponent: () =>
+          import(
+            './pages/dashboard/anime-manager/anime-manager.component'
+          ).then(p => p.AnimeManagerComponent),
+        canActivate: [canActivePermission('anime.manage')],
+      },
 
       {
         path: 'blog/create',

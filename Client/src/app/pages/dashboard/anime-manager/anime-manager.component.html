@@ -1,0 +1,303 @@
+<div class="master__container anime-admin">
+  <app-breadcrumb title="Quản lý anime" />
+
+  <section class="anime-admin__panel anime-discovery">
+    <header class="anime-admin__header">
+      <div>
+        <h2>Tìm và nhập anime</h2>
+        <p>Tìm metadata từ AniList, sau đó nhập phim và danh sách tập vào hệ thống.</p>
+      </div>
+    </header>
+
+    <div class="anime-discovery__search">
+      <nz-input-group [nzPrefix]="searchIcon">
+        <input
+          nz-input
+          [(ngModel)]="searchKeyword"
+          placeholder="Nhập tên anime..."
+          (keyup.enter)="searchAniList()" />
+      </nz-input-group>
+      <ng-template #searchIcon>
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+      </ng-template>
+      <button
+        nz-button
+        nzType="primary"
+        [nzLoading]="searching"
+        [disabled]="searchKeyword.trim().length < 2"
+        (click)="searchAniList()">
+        Tìm trên AniList
+      </button>
+    </div>
+
+    <div *ngIf="searchResults.length" class="anime-discovery__results">
+      <article *ngFor="let item of searchResults; trackBy: trackSearch" class="anime-result">
+        <img [src]="item.CoverImageUrl" [alt]="item.Title" loading="lazy" />
+        <div>
+          <h3 [title]="item.Title">{{ item.Title }}</h3>
+          <p>{{ item.ReleaseYear || '—' }} · {{ item.EpisodeCount || '?' }} tập</p>
+        </div>
+        <button
+          nz-button
+          nzType="default"
+          nzSize="small"
+          [nzLoading]="importingId === item.AniListId"
+          [disabled]="importingId !== null && importingId !== item.AniListId"
+          (click)="importAnime(item)">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          Nhập phim
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <section class="anime-admin__panel anime-workspace">
+    <aside class="anime-catalog">
+      <div class="anime-catalog__heading">
+        <div>
+          <strong>Kho anime</strong>
+          <small>{{ catalog.length }} phim</small>
+        </div>
+        <button
+          type="button"
+          class="anime-admin__icon-button"
+          aria-label="Tải lại kho anime"
+          (click)="loadCatalog()">
+          <span nz-icon nzType="reload" nzTheme="outline"></span>
+        </button>
+      </div>
+
+      <nz-input-group class="anime-catalog__search" [nzSuffix]="catalogSuffix">
+        <input
+          nz-input
+          [(ngModel)]="catalogKeyword"
+          placeholder="Lọc kho anime..."
+          (keyup.enter)="loadCatalog()" />
+      </nz-input-group>
+      <ng-template #catalogSuffix>
+        <button
+          type="button"
+          class="anime-admin__suffix-button"
+          [attr.aria-label]="catalogKeyword ? 'Xóa bộ lọc' : 'Tìm kiếm'"
+          (click)="catalogKeyword ? clearCatalogSearch() : loadCatalog()">
+          <span nz-icon [nzType]="catalogKeyword ? 'close' : 'search'" nzTheme="outline"></span>
+        </button>
+      </ng-template>
+
+      <nz-spin [nzSpinning]="loadingCatalog">
+        <div class="anime-catalog__list">
+          <button
+            *ngFor="let anime of catalog; trackBy: trackCatalog"
+            type="button"
+            class="anime-catalog__item"
+            [class.anime-catalog__item--active]="selectedAnime?.AnimeId === anime.AnimeId"
+            (click)="selectAnime(anime)">
+            <img [src]="anime.CoverImageUrl" [alt]="anime.Title" loading="lazy" />
+            <span class="anime-catalog__info">
+              <strong>{{ anime.Title }}</strong>
+              <small>{{ anime.PlayableEpisodeCount }}/{{ anime.StoredEpisodeCount }} tập có nguồn</small>
+            </span>
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+          </button>
+
+          <nz-empty
+            *ngIf="!loadingCatalog && !catalog.length"
+            nzNotFoundContent="Chưa có anime trong kho" />
+        </div>
+      </nz-spin>
+    </aside>
+
+    <main class="anime-episodes-admin">
+      <ng-container *ngIf="selectedAnime; else selectAnimeState">
+        <header class="anime-episodes-admin__header">
+          <div class="anime-episodes-admin__identity">
+            <img [src]="selectedAnime.CoverImageUrl" [alt]="selectedAnime.Title" />
+            <div>
+              <small>ĐANG QUẢN LÝ</small>
+              <h2>{{ selectedAnime.Title }}</h2>
+              <p>{{ selectedAnime.StoredEpisodeCount }} tập · {{ selectedAnime.PlayableEpisodeCount }} tập có nguồn</p>
+            </div>
+          </div>
+        </header>
+
+        <nz-table
+          #episodeTable
+          class="admin-table anime-episode-table"
+          [nzData]="episodes"
+          [nzLoading]="loadingEpisodes"
+          [nzFrontPagination]="false"
+          [nzScroll]="{ x: '860px' }">
+          <thead>
+            <tr>
+              <th nzWidth="90px">Tập</th>
+              <th>Tiêu đề</th>
+              <th nzWidth="360px">Nguồn phát</th>
+              <th nzWidth="130px" nzAlign="right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let episode of episodeTable.data">
+              <td><span class="episode-number">{{ episode.EpisodeNumber }}</span></td>
+              <td><strong>{{ episode.Title }}</strong></td>
+              <td>
+                <div *ngIf="episode.Sources.length; else noSource" class="source-list">
+                  <div *ngFor="let source of episode.Sources" class="source-chip">
+                    <button type="button" class="source-chip__edit" (click)="openSourceModal(episode, source)">
+                      <strong>{{ providerLabel(source.Provider) }}</strong>
+                      <span>{{ source.Quality || 'Mặc định' }} · {{ source.Language || 'Không rõ' }}</span>
+                    </button>
+                    <nz-switch
+                      nzSize="small"
+                      [ngModel]="source.FlagActive"
+                      (ngModelChange)="toggleSource(source, $event)"></nz-switch>
+                    <button
+                      type="button"
+                      class="source-chip__delete"
+                      aria-label="Xóa nguồn phát"
+                      (click)="confirmDeleteSource(source)">
+                      <span nz-icon nzType="delete" nzTheme="outline"></span>
+                    </button>
+                  </div>
+                </div>
+                <ng-template #noSource>
+                  <span class="source-empty">Chưa có nguồn phát</span>
+                </ng-template>
+              </td>
+              <td nzAlign="right">
+                <button nz-button nzType="default" nzSize="small" (click)="openSourceModal(episode)">
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                  Thêm nguồn
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </ng-container>
+
+      <ng-template #selectAnimeState>
+        <div class="anime-admin__empty">
+          <span nz-icon nzType="play-circle" nzTheme="outline"></span>
+          <h2>Chọn một anime để quản lý tập</h2>
+          <p>Nếu kho đang trống, hãy tìm và nhập anime ở phía trên.</p>
+        </div>
+      </ng-template>
+    </main>
+  </section>
+</div>
+
+<nz-modal
+  [(nzVisible)]="sourceModalVisible"
+  nzClassName="admin-modal anime-source-modal"
+  [nzWidth]="760"
+  [nzTitle]="editingSource ? 'Cập nhật nguồn phát' : 'Thêm nguồn phát'"
+  [nzFooter]="sourceFooter"
+  (nzOnCancel)="closeSourceModal()">
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical" class="source-form">
+      <div class="source-form__context">
+        <span nz-icon nzType="play-circle" nzTheme="outline"></span>
+        <div>
+          <small>{{ selectedAnime?.Title }}</small>
+          <strong>Tập {{ selectedEpisode?.EpisodeNumber }} · {{ selectedEpisode?.Title }}</strong>
+        </div>
+      </div>
+
+      <div class="source-form__grid">
+        <nz-form-item>
+          <nz-form-label>Loại nguồn</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="sourceForm.Provider" name="provider">
+              <nz-option nzValue="youtube" nzLabel="YouTube chính thức"></nz-option>
+              <nz-option nzValue="mp4" nzLabel="Video MP4"></nz-option>
+              <nz-option nzValue="hls" nzLabel="Luồng HLS (.m3u8)"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>Tiêu đề tập</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="sourceForm.EpisodeTitle" name="episodeTitle" maxlength="300" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label>Nguồn phát</nz-form-label>
+        <nz-form-control
+          [nzExtra]="sourceForm.Provider === 'youtube' ? 'Nhập video ID hoặc URL YouTube.' : 'Nhập URL HTTPS trực tiếp tới file/playlist.'">
+          <input
+            nz-input
+            [(ngModel)]="sourceForm.SourceValue"
+            name="sourceValue"
+            maxlength="2000"
+            [placeholder]="sourceForm.Provider === 'youtube' ? 'https://www.youtube.com/watch?v=...' : 'https://cdn.example.com/video...'" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="source-form__grid source-form__grid--three">
+        <nz-form-item>
+          <nz-form-label>Chất lượng</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="sourceForm.Quality" name="quality" maxlength="30" placeholder="1080p" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Ngôn ngữ</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="sourceForm.Language" name="language" maxlength="100" placeholder="Vietsub" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Độ ưu tiên</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" min="0" [(ngModel)]="sourceForm.Priority" name="priority" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div class="source-form__status">
+        <div>
+          <strong>Cho phép phát</strong>
+          <p>Nguồn đang tắt sẽ không xuất hiện ngoài blog.</p>
+        </div>
+        <nz-switch [(ngModel)]="sourceForm.FlagActive" name="flagActive"></nz-switch>
+      </div>
+
+      <div *ngIf="previewVisible" class="source-preview">
+        <iframe
+          *ngIf="previewIsEmbed"
+          [src]="previewUrl"
+          title="Xem thử nguồn anime"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen></iframe>
+        <video
+          *ngIf="!previewIsEmbed"
+          [src]="previewUrl"
+          controls
+          autoplay
+          playsinline></video>
+        <p *ngIf="!previewIsEmbed && sourceForm.Provider === 'hls'">
+          HLS có thể không phát trực tiếp trên một số trình duyệt; nguồn vẫn được lưu để player hỗ trợ sau.
+        </p>
+      </div>
+    </form>
+  </ng-container>
+
+  <ng-template #sourceFooter>
+    <button nz-button (click)="showPreview()">
+      <span nz-icon nzType="play-circle" nzTheme="outline"></span>
+      Xem thử
+    </button>
+    <button nz-button (click)="closeSourceModal()" [disabled]="savingSource">Hủy</button>
+    <button
+      nz-button
+      nzType="primary"
+      [nzLoading]="savingSource"
+      [disabled]="!sourceForm.SourceValue.trim()"
+      (click)="saveSource()">
+      <span nz-icon nzType="save" nzTheme="outline"></span>
+      Lưu nguồn
+    </button>
+  </ng-template>
+</nz-modal>

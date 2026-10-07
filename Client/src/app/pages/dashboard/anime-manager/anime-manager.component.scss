@@ -1,0 +1,430 @@
+.anime-admin {
+  padding-bottom: var(--admin-space-8);
+}
+
+.anime-admin__panel {
+  margin: 0 var(--admin-space-4) var(--admin-space-5);
+  padding: var(--admin-space-6);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow-card);
+}
+
+.anime-admin__header {
+  margin-bottom: var(--admin-space-5);
+}
+
+.anime-admin__header h2,
+.anime-episodes-admin__header h2 {
+  margin: 0 0 4px;
+  color: var(--admin-text);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.anime-admin__header p,
+.anime-episodes-admin__header p {
+  margin: 0;
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+}
+
+.anime-discovery__search {
+  display: grid;
+  grid-template-columns: minmax(240px, 560px) auto;
+  gap: var(--admin-space-3);
+  align-items: center;
+}
+
+.anime-discovery__results {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--admin-space-3);
+  margin-top: var(--admin-space-5);
+  padding-top: var(--admin-space-5);
+  border-top: 1px solid var(--admin-border);
+}
+
+.anime-result {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface-subtle);
+}
+
+.anime-result img {
+  width: 52px;
+  height: 72px;
+  grid-row: span 2;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.anime-result h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anime-result p {
+  margin: 3px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
+.anime-result .ant-btn {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.anime-workspace {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--admin-space-5);
+  min-height: 560px;
+}
+
+.anime-catalog {
+  min-width: 0;
+  padding: var(--admin-space-3);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface-subtle);
+}
+
+.anime-catalog__heading,
+.anime-episodes-admin__identity,
+.source-form__context,
+.source-form__status {
+  display: flex;
+  align-items: center;
+}
+
+.anime-catalog__heading {
+  justify-content: space-between;
+  padding: 2px 4px var(--admin-space-3);
+}
+
+.anime-catalog__heading > div {
+  display: grid;
+}
+
+.anime-catalog__heading strong {
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.anime-catalog__heading small,
+.anime-catalog__item small {
+  color: var(--admin-text-tertiary);
+  font-size: 11px;
+}
+
+.anime-admin__icon-button,
+.anime-admin__suffix-button,
+.source-chip__delete {
+  display: grid;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  place-items: center;
+}
+
+.anime-admin__icon-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: var(--admin-text-secondary);
+}
+
+.anime-admin__icon-button:hover {
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+}
+
+.anime-catalog__search {
+  margin-bottom: var(--admin-space-3);
+}
+
+.anime-admin__suffix-button {
+  color: var(--admin-text-tertiary);
+}
+
+.anime-catalog__list {
+  display: grid;
+  gap: 6px;
+  max-height: 610px;
+  overflow-y: auto;
+}
+
+.anime-catalog__item {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.anime-catalog__item:hover,
+.anime-catalog__item--active {
+  border-color: #cfe3ff;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+}
+
+.anime-catalog__item img {
+  width: 42px;
+  height: 58px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.anime-catalog__info {
+  display: grid;
+  min-width: 0;
+}
+
+.anime-catalog__info strong {
+  overflow: hidden;
+  color: var(--admin-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anime-episodes-admin {
+  min-width: 0;
+}
+
+.anime-episodes-admin__header {
+  margin-bottom: var(--admin-space-4);
+  padding-bottom: var(--admin-space-4);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.anime-episodes-admin__identity {
+  gap: var(--admin-space-3);
+}
+
+.anime-episodes-admin__identity img {
+  width: 54px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.anime-episodes-admin__identity small {
+  color: var(--admin-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.episode-number {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.source-list {
+  display: grid;
+  gap: 6px;
+}
+
+.source-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface-subtle);
+}
+
+.source-chip__edit {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.source-chip__edit strong {
+  color: var(--admin-text);
+  font-size: 12px;
+}
+
+.source-chip__edit span,
+.source-empty {
+  color: var(--admin-text-tertiary);
+  font-size: 11px;
+}
+
+.source-chip__delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--admin-text-tertiary);
+}
+
+.source-chip__delete:hover {
+  background: #fff1f0;
+  color: var(--admin-danger);
+}
+
+.anime-admin__empty {
+  display: grid;
+  min-height: 480px;
+  place-items: center;
+  align-content: center;
+  color: var(--admin-text-secondary);
+  text-align: center;
+}
+
+.anime-admin__empty > .anticon {
+  margin-bottom: 12px;
+  color: var(--admin-primary);
+  font-size: 36px;
+}
+
+.anime-admin__empty h2,
+.anime-admin__empty p {
+  margin: 0;
+}
+
+.anime-admin__empty h2 {
+  color: var(--admin-text);
+  font-size: 16px;
+}
+
+.anime-admin__empty p {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.source-form__context {
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
+}
+
+.source-form__context > .anticon {
+  font-size: 22px;
+}
+
+.source-form__context div {
+  display: grid;
+}
+
+.source-form__context small {
+  color: var(--admin-text-secondary);
+}
+
+.source-form__context strong {
+  color: var(--admin-text);
+}
+
+.source-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.source-form__grid--three {
+  grid-template-columns: 1fr 1fr 140px;
+}
+
+.source-form__status {
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+}
+
+.source-form__status strong {
+  color: var(--admin-text);
+}
+
+.source-form__status p {
+  margin: 2px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
+.source-preview {
+  margin-top: 18px;
+}
+
+.source-preview iframe,
+.source-preview video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 10px;
+  background: #080b12;
+}
+
+.source-preview p {
+  margin: 8px 0 0;
+  color: var(--admin-warning);
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .anime-discovery__results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .anime-workspace {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .anime-admin__panel {
+    margin-inline: 8px;
+    padding: 16px;
+  }
+
+  .anime-discovery__search,
+  .anime-discovery__results,
+  .anime-workspace,
+  .source-form__grid,
+  .source-form__grid--three {
+    grid-template-columns: 1fr;
+  }
+
+  .anime-catalog__list {
+    max-height: 320px;
+  }
+}

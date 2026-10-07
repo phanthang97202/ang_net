@@ -40,4 +40,49 @@ namespace angnet.Domain.Dtos
         public bool IsEmbed { get; set; }
         public string MimeType { get; set; } = string.Empty;
     }
+
+    public class AnimeAdminCatalogDto : AnimeSearchItemDto
+    {
+        public string AnimeId { get; set; } = string.Empty;
+        public int StoredEpisodeCount { get; set; }
+        public int PlayableEpisodeCount { get; set; }
+        public bool FlagActive { get; set; }
+        public DateTime UpdatedDTime { get; set; }
+    }
+
+    public class AnimeAdminEpisodeDto
+    {
+        public string EpisodeId { get; set; } = string.Empty;
+        public int EpisodeNumber { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string ThumbnailUrl { get; set; } = string.Empty;
+        public int? DurationSeconds { get; set; }
+        public bool FlagActive { get; set; }
+        public List<AnimeSourceDto> Sources { get; set; } = new();
+    }
+
+    public class AnimeSourceDto
+    {
+        public string SourceId { get; set; } = string.Empty;
+        public string Provider { get; set; } = string.Empty;
+        public string SourceValue { get; set; } = string.Empty;
+        public string Quality { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public int Priority { get; set; }
+        public bool FlagActive { get; set; }
+    }
+
+    public class AnimeSourceSaveDto
+    {
+        public string SourceId { get; set; } = string.Empty;
+        public int AniListId { get; set; }
+        public int EpisodeNumber { get; set; }
+        public string EpisodeTitle { get; set; } = string.Empty;
+        public string Provider { get; set; } = string.Empty;
+        public string SourceValue { get; set; } = string.Empty;
+        public string Quality { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public int Priority { get; set; }
+        public bool FlagActive { get; set; } = true;
+    }
 }
