@@ -1,5 +1,48 @@
 import { IBaseResponse } from './common';
 
+export interface IAnimeLibraryItem {
+  Slug: string;
+  Title: string;
+  OriginalTitle: string;
+  PosterUrl: string;
+  BannerUrl: string;
+  Year: number;
+  EpisodeStatus: string;
+  Quality: string;
+  Language: string;
+}
+
+export interface IAnimeLibraryCatalog {
+  Items: IAnimeLibraryItem[];
+  Page: number;
+  TotalPages: number;
+  TotalItems: number;
+}
+
+export interface IAnimeLibraryEpisode {
+  Slug: string;
+  Name: string;
+  HasSource: boolean;
+}
+
+export interface IAnimeLibraryServer {
+  Id: number;
+  Name: string;
+  Episodes: IAnimeLibraryEpisode[];
+}
+
+export interface IAnimeLibraryDetail extends IAnimeLibraryItem {
+  Description: string;
+  Genres: string[];
+  Servers: IAnimeLibraryServer[];
+}
+
+export interface IAnimeLibraryPlayback {
+  Title: string;
+  Url: string;
+  EmbedUrl: string;
+}
+
 export interface IAnimeSearchItem {
   AniListId: number;
   Title: string;
@@ -78,13 +121,11 @@ export interface IAnimeSourceSave {
   FlagActive: boolean;
 }
 
-export interface IAnimeSearchResponse
-  extends IBaseResponse<IAnimeSearchItem> {}
+export interface IAnimeSearchResponse extends IBaseResponse<IAnimeSearchItem> {}
 
 export interface IAnimeDetailResponse extends IBaseResponse<IAnimeDetail> {}
 
-export interface IAnimePlaybackResponse
-  extends IBaseResponse<IAnimePlayback> {}
+export interface IAnimePlaybackResponse extends IBaseResponse<IAnimePlayback> {}
 
 export interface IAnimeAdminCatalogResponse
   extends IBaseResponse<IAnimeAdminCatalog> {}

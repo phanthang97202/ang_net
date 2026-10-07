@@ -1,178 +1,227 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import {
-  IAnimeDetail,
-  IAnimeEpisode,
-  IAnimePlayback,
-  IAnimeSearchItem,
-} from '../../interfaces';
+  IAnimeLibraryCatalog,
+  IAnimeLibraryDetail,
+  IAnimeLibraryEpisode,
+  IAnimeLibraryPlayback,
+  IAnimeLibraryServer,
+} from '../../interfaces/anime';
 import { AnimeService } from '../../services';
+import { AnimeVideoComponent } from './anime-video.component';
 
 @Component({
   selector: 'app-anime',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NzIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    NzIconModule,
+    AnimeVideoComponent,
+  ],
   templateUrl: './anime.component.html',
   styleUrl: './anime.component.scss',
 })
 export class AnimeComponent implements OnInit {
-  private readonly animeService = inject(AnimeService);
+  private readonly api = inject(AnimeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly message = inject(NzMessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private request?: Subscription;
+  private playbackRequest?: Subscription;
+  @ViewChild('player') private player?: ElementRef<HTMLElement>;
 
   keyword = '';
-  results: IAnimeSearchItem[] = [];
-  detail: IAnimeDetail | null = null;
-  playback: IAnimePlayback | null = null;
+  query = '';
+  page = 1;
+  slug = '';
+  catalog: IAnimeLibraryCatalog | null = null;
+  detail: IAnimeLibraryDetail | null = null;
+  server: IAnimeLibraryServer | null = null;
+  playback: IAnimeLibraryPlayback | null = null;
+  selectedEpisode = '';
   safeEmbedUrl: SafeResourceUrl | null = null;
-  selectedEpisode: number | null = null;
-  isSearching = false;
-  isLoadingDetail = false;
-  isLoadingPlayback = false;
-  hasSearched = false;
+  loading = false;
+  loadingPlayback = false;
+  error = '';
+  playbackError = '';
 
   ngOnInit(): void {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = Number(params.get('aniListId'));
-        if (Number.isInteger(id) && id > 0) {
-          this.loadDetail(id);
-        } else {
-          this.detail = null;
-          this.playback = null;
-          this.safeEmbedUrl = null;
-          const query = this.route.snapshot.queryParamMap.get('q') || '';
-          this.keyword = query;
-          if (query.trim().length >= 2) this.search(false);
-        }
+    this.destroyRef.onDestroy(() => {
+      this.request?.unsubscribe();
+      this.playbackRequest?.unsubscribe();
+    });
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(
+        map(([params, query]) => ({
+          slug: params.get('slug') || '',
+          keyword: (query.get('q') || '').slice(0, 100),
+          page: Math.max(
+            1,
+            Math.min(10000, Math.trunc(Number(query.get('page'))) || 1)
+          ),
+        })),
+        distinctUntilChanged(
+          (a, b) =>
+            a.slug === b.slug && a.keyword === b.keyword && a.page === b.page
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(state => {
+        this.slug = state.slug;
+        this.query = this.keyword = state.keyword;
+        this.page = state.page;
+        this.load();
       });
   }
 
-  search(updateUrl = true): void {
-    const keyword = this.keyword.trim();
-    if (keyword.length < 2 || this.isSearching) return;
-
-    if (updateUrl) {
-      void this.router.navigate(['/anime'], {
-        queryParams: { q: keyword },
-        replaceUrl: true,
-      });
-    }
-
-    this.isSearching = true;
-    this.hasSearched = true;
-    this.results = [];
-    this.animeService
-      .search(keyword)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          if (!response.Success) {
-            this.message.error(response.ErrorMessage || 'Không thể tìm anime.');
-            return;
-          }
-          this.results = response.DataList || [];
-        },
-        error: () => {
-          this.isSearching = false;
-          this.message.error('Không thể kết nối dịch vụ tìm kiếm.');
-        },
-        complete: () => (this.isSearching = false),
-      });
+  search(): void {
+    void this.router.navigate(['/anime'], {
+      queryParams: { q: this.keyword.trim() || null, page: null },
+    });
   }
 
-  playEpisode(episode: IAnimeEpisode): void {
-    if (!this.detail || this.isLoadingPlayback) return;
-    if (!episode.HasSource) {
-      this.message.info('Tập phim này chưa có nguồn phát.');
-      return;
-    }
-
-    this.isLoadingPlayback = true;
-    this.selectedEpisode = episode.EpisodeNumber;
-    this.animeService
-      .playback(this.detail.AniListId, episode.EpisodeNumber)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          if (!response.Success) {
-            this.playback = null;
-            this.safeEmbedUrl = null;
-            this.message.info(response.ErrorMessage || 'Chưa có nguồn phát.');
-            return;
-          }
-          this.playback = response.Data;
-          this.safeEmbedUrl = response.Data.IsEmbed
-            ? this.sanitizer.bypassSecurityTrustResourceUrl(response.Data.Url)
-            : null;
-          setTimeout(
-            () =>
-              document
-                .querySelector('.anime-player')
-                ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
-            0
-          );
-        },
-        error: () => {
-          this.isLoadingPlayback = false;
-          this.message.error('Không thể mở tập phim này.');
-        },
-        complete: () => (this.isLoadingPlayback = false),
-      });
+  changePage(page: number): void {
+    void this.router.navigate(['/anime'], {
+      queryParams: { q: this.query || null, page },
+    });
   }
 
-  trackAnime(_: number, anime: IAnimeSearchItem): number {
-    return anime.AniListId;
-  }
-
-  trackEpisode(_: number, episode: IAnimeEpisode): number {
-    return episode.EpisodeNumber;
-  }
-
-  formatStatus(status: string): string {
-    const labels: Record<string, string> = {
-      FINISHED: 'Đã hoàn thành',
-      RELEASING: 'Đang phát sóng',
-      NOT_YET_RELEASED: 'Sắp phát hành',
-      CANCELLED: 'Đã hủy',
-      HIATUS: 'Tạm dừng',
-    };
-    return labels[status] || status || 'Đang cập nhật';
-  }
-
-  private loadDetail(aniListId: number): void {
-    this.isLoadingDetail = true;
+  load(): void {
+    this.request?.unsubscribe();
+    this.resetPlayback();
+    this.loading = true;
+    this.error = '';
     this.detail = null;
-    this.playback = null;
-    this.safeEmbedUrl = null;
-    this.selectedEpisode = null;
-
-    this.animeService
-      .detail(aniListId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    this.catalog = null;
+    this.server = null;
+    if (this.slug) {
+      this.request = this.api.libraryDetail(this.slug).subscribe({
         next: response => {
-          if (!response.Success) {
-            this.message.error(response.ErrorMessage || 'Không thể tải anime.');
+          this.loading = false;
+          if (!response.Success || !response.Data) {
+            this.error = response.ErrorMessage || 'Không thể tải anime.';
             return;
           }
           this.detail = response.Data;
+          this.server =
+            this.detail.Servers.find(s => s.Episodes.some(e => e.HasSource)) ||
+            this.detail.Servers[0] ||
+            null;
         },
-        error: () => {
-          this.isLoadingDetail = false;
-          this.message.error('Không thể tải thông tin anime.');
-        },
-        complete: () => (this.isLoadingDetail = false),
+        error: err => this.loadError(err),
       });
+    } else {
+      this.request = this.api.library(this.query, this.page).subscribe({
+        next: response => {
+          this.loading = false;
+          if (!response.Success || !response.Data) {
+            this.error =
+              response.ErrorMessage || 'Không thể tải danh sách phim.';
+            return;
+          }
+          this.catalog = response.Data;
+        },
+        error: err => this.loadError(err),
+      });
+    }
+  }
+
+  selectServer(server: IAnimeLibraryServer): void {
+    if (this.server?.Id === server.Id) return;
+    const current = this.selectedEpisode;
+    this.resetPlayback();
+    this.server = server;
+    const match = server.Episodes.find(e => e.Slug === current && e.HasSource);
+    if (match) this.playEpisode(match);
+  }
+
+  playEpisode(episode: IAnimeLibraryEpisode): void {
+    if (!this.detail || !this.server || !episode.HasSource) return;
+    this.resetPlayback();
+    this.selectedEpisode = episode.Slug;
+    this.loadingPlayback = true;
+    requestAnimationFrame(() =>
+      this.player?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    );
+    this.playbackRequest = this.api
+      .libraryPlayback(this.detail.Slug, this.server.Id, episode.Slug)
+      .subscribe({
+        next: response => {
+          this.loadingPlayback = false;
+          if (!response.Success || !response.Data) {
+            this.playbackError =
+              response.ErrorMessage || 'Tập phim chưa có nguồn phát.';
+            return;
+          }
+          this.playback = response.Data;
+          if (!this.playback.Url) this.useEmbed();
+        },
+        error: err => {
+          this.loadingPlayback = false;
+          this.playbackError =
+            err?.error?.ErrorMessage ||
+            'Không thể mở tập phim. Hãy thử lại hoặc chọn nguồn khác.';
+        },
+      });
+  }
+
+  useEmbed(): void {
+    if (!this.playback?.EmbedUrl) return;
+    // Never trust an arbitrary iframe URL, even when returned by the backend.
+    try {
+      const url = new URL(this.playback.EmbedUrl);
+      if (
+        url.protocol !== 'https:' ||
+        url.hostname !== 'player.phimapi.com' ||
+        !url.pathname.startsWith('/player/')
+      )
+        return;
+      this.safeEmbedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        url.href
+      );
+      this.playbackError = '';
+    } catch {
+      this.playbackError = 'Nguồn phát dự phòng không hợp lệ.';
+    }
+  }
+
+  videoError(): void {
+    this.playbackError =
+      'Trình phát không tải được video. Thử nguồn khác hoặc trình phát dự phòng.';
+  }
+
+  private resetPlayback(): void {
+    this.playbackRequest?.unsubscribe();
+    this.playback = null;
+    this.safeEmbedUrl = null;
+    this.selectedEpisode = '';
+    this.loadingPlayback = false;
+    this.playbackError = '';
+  }
+
+  private loadError(err: { error?: { ErrorMessage?: string } }): void {
+    this.loading = false;
+    this.error =
+      err?.error?.ErrorMessage ||
+      'Không thể kết nối nguồn phim. Vui lòng thử lại.';
   }
 }

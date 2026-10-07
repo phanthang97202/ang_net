@@ -51,7 +51,7 @@ export const routes: Routes = [
   },
   {
     title: 'Anime',
-    path: 'anime/:aniListId',
+    path: 'anime/:slug',
     loadComponent: () =>
       import('./pages/anime/anime.component').then(p => p.AnimeComponent),
     canActivate: [canActivePermission('anime.view')],

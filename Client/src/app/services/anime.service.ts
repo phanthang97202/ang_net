@@ -1,6 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { IBaseResponse } from '../interfaces/common';
+import {
+  IAnimeLibraryCatalog,
+  IAnimeLibraryDetail,
+  IAnimeLibraryPlayback,
+} from '../interfaces/anime';
 import {
   IAnimeDetailResponse,
   IAnimeDeleteResponse,
@@ -18,6 +24,30 @@ export class AnimeService {
 
   constructor(private readonly http: HttpClient) {}
 
+  library(keyword = '', page = 1) {
+    return this.http.get<IBaseResponse<IAnimeLibraryCatalog>>(
+      `${this.apiUrl}/Library`,
+      {
+        params: new HttpParams().set('keyword', keyword).set('page', page),
+      }
+    );
+  }
+
+  libraryDetail(slug: string) {
+    return this.http.get<IBaseResponse<IAnimeLibraryDetail>>(
+      `${this.apiUrl}/Library/${encodeURIComponent(slug)}`
+    );
+  }
+
+  libraryPlayback(slug: string, server: number, episode: string) {
+    return this.http.get<IBaseResponse<IAnimeLibraryPlayback>>(
+      `${this.apiUrl}/Library/${encodeURIComponent(slug)}/playback`,
+      {
+        params: new HttpParams().set('server', server).set('episode', episode),
+      }
+    );
+  }
+
   search(keyword: string, page = 1, pageSize = 18) {
     const params = new HttpParams()
       .set('keyword', keyword)
@@ -29,9 +59,7 @@ export class AnimeService {
   }
 
   detail(aniListId: number) {
-    return this.http.get<IAnimeDetailResponse>(
-      `${this.apiUrl}/${aniListId}`
-    );
+    return this.http.get<IAnimeDetailResponse>(`${this.apiUrl}/${aniListId}`);
   }
 
   playback(aniListId: number, episodeNumber: number) {

@@ -1,163 +1,228 @@
 <main class="anime-page">
-  <section *ngIf="!detail" class="anime-search-view">
+  <section *ngIf="!slug" class="anime-search-view">
     <header class="anime-hero">
       <span class="anime-eyebrow">THƯ VIỆN ANIME</span>
-      <h1>Tìm bộ phim bạn muốn xem</h1>
-      <p>
-        Tìm kiếm nhanh theo tên anime, sau đó chọn phim để xem danh sách tập.
-      </p>
-
+      <h1>Một thế giới để khám phá</h1>
+      <p>Chọn bộ phim bạn thích, mở danh sách tập và bắt đầu xem.</p>
       <form class="anime-search" (ngSubmit)="search()">
         <span nz-icon nzType="search" nzTheme="outline"></span>
         <input
           [(ngModel)]="keyword"
           name="keyword"
           type="search"
-          autocomplete="off"
-          placeholder="Nhập tên anime..."
+          maxlength="100"
+          placeholder="Tìm anime theo tên Việt hoặc tên gốc..."
           aria-label="Tên anime cần tìm" />
         <button
           class="blog-btn blog-btn--primary"
           type="submit"
-          [disabled]="keyword.trim().length < 2 || isSearching">
-          <span *ngIf="isSearching" class="blog-spinner"></span>
-          {{ isSearching ? 'Đang tìm' : 'Tìm kiếm' }}
+          [disabled]="loading">
+          Tìm kiếm
         </button>
       </form>
     </header>
 
-    <section *ngIf="results.length" class="anime-results">
+    <section *ngIf="catalog as list" class="anime-results">
       <div class="section-heading">
         <div>
-          <span>KẾT QUẢ TÌM KIẾM</span>
-          <h2>Anime phù hợp</h2>
+          <span>{{ query ? 'KẾT QUẢ TÌM KIẾM' : 'MỚI CẬP NHẬT' }}</span>
+          <h2>
+            {{ query ? 'Kết quả cho “' + query + '”' : 'Khám phá anime' }}
+          </h2>
         </div>
-        <strong>{{ results.length }}</strong>
+        <strong>{{ list.TotalItems | number }} phim</strong>
       </div>
-
       <div class="anime-grid">
         <a
-          *ngFor="let anime of results; trackBy: trackAnime"
+          *ngFor="let anime of list.Items"
           class="anime-card"
-          [routerLink]="['/anime', anime.AniListId]">
+          [routerLink]="['/anime', anime.Slug]"
+          [queryParams]="{ q: query || null, page: page }">
           <div class="anime-card__poster">
-            <img [src]="anime.CoverImageUrl" [alt]="anime.Title" loading="lazy" />
-            <span *ngIf="anime.AverageScore" class="anime-card__score">
-              ★ {{ anime.AverageScore / 10 | number: '1.1-1' }}
-            </span>
-            <span class="anime-card__action">
-              <span nz-icon nzType="play-circle" nzTheme="fill"></span>
-            </span>
+            <img [src]="anime.PosterUrl" [alt]="anime.Title" loading="lazy" />
+            <span class="anime-card__score"
+              >{{ anime.Quality }} · {{ anime.Language }}</span
+            >
+            <span class="anime-card__action"
+              ><span nz-icon nzType="play-circle" nzTheme="fill"></span
+            ></span>
           </div>
           <div class="anime-card__body">
             <h3>{{ anime.Title }}</h3>
-            <p>{{ anime.NativeTitle || 'Anime' }}</p>
+            <p>{{ anime.OriginalTitle }}</p>
             <div class="anime-card__meta">
-              <span>{{ anime.ReleaseYear || '—' }}</span>
-              <span>{{ anime.EpisodeCount ? anime.EpisodeCount + ' tập' : 'Đang cập nhật' }}</span>
+              <span>{{ anime.Year || '—' }}</span
+              ><span>{{ anime.EpisodeStatus }}</span>
             </div>
           </div>
         </a>
       </div>
+      <div *ngIf="!list.Items.length" class="anime-empty">
+        <h2>Chưa tìm thấy anime phù hợp</h2>
+        <p>
+          Thử tên tiếng Việt, tên gốc hoặc một từ khóa ngắn hơn. Nguồn phim có
+          thể chưa có bộ này.
+        </p>
+        <a routerLink="/anime" class="blog-btn">Xem tất cả anime</a>
+      </div>
+      <nav
+        *ngIf="list.TotalPages > 1"
+        class="anime-pagination"
+        aria-label="Phân trang anime">
+        <button
+          class="blog-btn"
+          type="button"
+          [disabled]="list.Page <= 1"
+          (click)="changePage(list.Page - 1)">
+          Trang trước
+        </button>
+        <span>Trang {{ list.Page }} / {{ list.TotalPages }}</span>
+        <button
+          class="blog-btn blog-btn--primary"
+          type="button"
+          [disabled]="list.Page >= list.TotalPages"
+          (click)="changePage(list.Page + 1)">
+          Trang sau
+        </button>
+      </nav>
     </section>
-
-    <div *ngIf="hasSearched && !isSearching && !results.length" class="anime-empty">
-      <span nz-icon nzType="search" nzTheme="outline"></span>
-      <h2>Chưa tìm thấy anime phù hợp</h2>
-      <p>Thử tìm bằng tên tiếng Anh, tên Romaji hoặc một từ khóa ngắn hơn.</p>
-    </div>
   </section>
 
-  <section *ngIf="isLoadingDetail" class="anime-loading">
+  <div *ngIf="loading" class="anime-loading" role="status">
     <span class="anime-loading__mark"></span>
-    <p>Đang tải thông tin anime...</p>
-  </section>
+    <p>Đang tải từ nguồn phim...</p>
+  </div>
+  <div *ngIf="error" class="anime-empty" role="alert">
+    <h2>{{ error }}</h2>
+    <button type="button" class="blog-btn blog-btn--primary" (click)="load()">
+      Thử lại
+    </button>
+    <a *ngIf="slug" routerLink="/anime" class="anime-back">Về thư viện anime</a>
+  </div>
 
-  <article *ngIf="detail" class="anime-detail">
-    <a class="anime-back" routerLink="/anime">
-      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-      Tìm anime khác
+  <article *ngIf="detail as movie" class="anime-detail">
+    <a
+      class="anime-back"
+      routerLink="/anime"
+      [queryParams]="{ q: query || null, page: page }">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span> Về thư viện
+      anime
     </a>
-
     <section
       class="anime-detail__hero"
-      [style.background-image]="detail.BannerImageUrl ? 'url(' + detail.BannerImageUrl + ')' : null">
+      [style.background-image]="
+        movie.BannerUrl ? 'url(' + movie.BannerUrl + ')' : null
+      ">
       <div class="anime-detail__overlay"></div>
       <div class="anime-detail__content">
-        <img class="anime-detail__poster" [src]="detail.CoverImageUrl" [alt]="detail.Title" />
+        <img
+          class="anime-detail__poster"
+          [src]="movie.PosterUrl"
+          [alt]="movie.Title" />
         <div class="anime-detail__info">
           <span class="anime-eyebrow">ANIME</span>
-          <h1>{{ detail.Title }}</h1>
-          <p class="anime-detail__native">{{ detail.NativeTitle }}</p>
+          <h1>{{ movie.Title }}</h1>
+          <p class="anime-detail__native">{{ movie.OriginalTitle }}</p>
           <div class="anime-detail__badges">
-            <span>{{ detail.ReleaseYear || 'Đang cập nhật' }}</span>
-            <span>{{ formatStatus(detail.Status) }}</span>
-            <span *ngIf="detail.AverageScore">★ {{ detail.AverageScore / 10 | number: '1.1-1' }}</span>
+            <span>{{ movie.Year || 'Đang cập nhật' }}</span
+            ><span>{{ movie.EpisodeStatus }}</span>
+            <span>{{ movie.Quality }} · {{ movie.Language }}</span>
           </div>
-          <p class="anime-detail__description">{{ detail.Description }}</p>
+          <p class="anime-detail__description">{{ movie.Description }}</p>
           <div class="anime-detail__genres">
-            <span *ngFor="let genre of detail.Genres">{{ genre }}</span>
+            <span *ngFor="let genre of movie.Genres">{{ genre }}</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section *ngIf="playback" class="anime-player">
-      <div class="section-heading section-heading--player">
+    <section
+      #player
+      *ngIf="playback || loadingPlayback || playbackError"
+      class="anime-player">
+      <div class="section-heading">
         <div>
           <span>ĐANG XEM</span>
-          <h2>{{ detail.Title }} · Tập {{ playback.EpisodeNumber }}</h2>
+          <h2>{{ playback?.Title || 'Đang mở tập phim…' }}</h2>
         </div>
       </div>
-      <div class="anime-player__screen">
-        <iframe
-          *ngIf="playback.IsEmbed && safeEmbedUrl"
-          [src]="safeEmbedUrl"
-          [title]="playback.Title"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen></iframe>
-        <video
-          *ngIf="!playback.IsEmbed"
-          [src]="playback.Url"
-          controls
-          autoplay
-          playsinline></video>
+      <div *ngIf="loadingPlayback" class="anime-loading" role="status">
+        <span class="anime-loading__mark"></span>
+        <p>Đang lấy nguồn phát...</p>
       </div>
+      <div
+        *ngIf="playbackError"
+        class="anime-empty anime-empty--compact"
+        role="alert">
+        <p>{{ playbackError }}</p>
+      </div>
+      <div *ngIf="playback" class="anime-player__screen">
+        <app-anime-video
+          *ngIf="playback.Url && !safeEmbedUrl"
+          [url]="playback.Url"
+          (failed)="videoError()" />
+        <iframe
+          *ngIf="safeEmbedUrl"
+          [src]="safeEmbedUrl"
+          [title]="movie.Title + ' · ' + playback.Title"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowfullscreen></iframe>
+      </div>
+      <button
+        *ngIf="playback?.EmbedUrl && !safeEmbedUrl"
+        type="button"
+        class="blog-btn"
+        (click)="useEmbed()">
+        Dùng trình phát dự phòng
+      </button>
     </section>
 
     <section class="anime-episodes">
       <div class="section-heading">
         <div>
           <span>DANH SÁCH TẬP</span>
-          <h2>{{ detail.EpisodeCount || 0 }} tập phim</h2>
+          <h2>Chọn tập để xem</h2>
         </div>
-        <strong>{{ detail.Episodes.length }}</strong>
+        <strong>{{ server?.Episodes?.length || 0 }} tập</strong>
       </div>
-
-      <div *ngIf="detail.Episodes.length; else noEpisodes" class="episode-grid">
+      <div class="anime-servers" role="group" aria-label="Chọn nguồn phát">
         <button
-          *ngFor="let episode of detail.Episodes; trackBy: trackEpisode"
+          *ngFor="let item of movie.Servers"
+          type="button"
+          class="blog-btn"
+          [class.blog-btn--primary]="server?.Id === item.Id"
+          [attr.aria-pressed]="server?.Id === item.Id"
+          (click)="selectServer(item)">
+          {{ item.Name }}
+        </button>
+      </div>
+      <div
+        *ngIf="server?.Episodes?.length; else noEpisodes"
+        class="episode-grid">
+        <button
+          *ngFor="let episode of server?.Episodes"
           type="button"
           class="episode-item"
-          [class.episode-item--active]="selectedEpisode === episode.EpisodeNumber"
+          [class.episode-item--active]="selectedEpisode === episode.Slug"
           [class.episode-item--unavailable]="!episode.HasSource"
-          [disabled]="isLoadingPlayback"
+          [disabled]="!episode.HasSource"
+          [attr.aria-pressed]="selectedEpisode === episode.Slug"
           (click)="playEpisode(episode)">
-          <span class="episode-item__number">{{ episode.EpisodeNumber }}</span>
-          <span class="episode-item__label">{{ episode.Title }}</span>
           <span
             nz-icon
             [nzType]="episode.HasSource ? 'play-circle' : 'clock-circle'"
             nzTheme="outline"></span>
+          <span class="episode-item__label">{{ episode.Name }}</span>
         </button>
       </div>
-
-      <ng-template #noEpisodes>
-        <div class="anime-empty anime-empty--compact">
-          <h2>Danh sách tập đang được cập nhật</h2>
-          <p>AniList chưa công bố số tập của anime này.</p>
-        </div>
-      </ng-template>
+      <ng-template #noEpisodes
+        ><div class="anime-empty anime-empty--compact">
+          <h2>Nguồn phim chưa cập nhật tập</h2>
+          <p>Bạn có thể quay lại sau hoặc chọn anime khác.</p>
+        </div></ng-template
+      >
     </section>
   </article>
 </main>

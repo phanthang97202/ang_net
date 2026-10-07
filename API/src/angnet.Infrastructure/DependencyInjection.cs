@@ -93,6 +93,7 @@ namespace angnet.Infrastructure
             services.AddScoped<IArchiveService, ArchiveService>();
 
             services.AddScoped<IAnimeService, AnimeService>();
+            services.AddScoped<IAnimeLibraryService, AnimeLibraryService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
