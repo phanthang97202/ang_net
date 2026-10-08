@@ -230,16 +230,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {
     const isVi = this.langService.getLang() !== 'en';
 
-    // Menu phim chỉ dành cho tài khoản có quyền. API Movie vẫn kiểm tra lại
-    // quyền ở server; lọc tại đây chỉ để người không có quyền không nhìn thấy lối vào.
-    const canShow = (menu: ISysMenuTree): boolean => {
-      const path = this.splitPath(menu.Path).path;
-      return (
-        (path !== '/phim' && path !== '/anime') ||
-        this.authService.hasPermission('movie.view')
-      );
-    };
-
     const toItem = (m: ISysMenuTree): RouteItem => {
       const { path, queryParams, externalUrl } = this.splitPath(m.Path);
 
@@ -252,13 +242,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
         openInNewTab: path === '/note',
         title: (isVi ? m.TitleVi : m.TitleEn) || m.TitleVi,
         icon: m.Icon,
-        children: m.Children?.length
-          ? m.Children.filter(canShow).map(toItem)
-          : undefined,
+        children: m.Children?.length ? m.Children.map(toItem) : undefined,
       };
     };
 
-    return tree.filter(canShow).map(toItem);
+    return tree.map(toItem);
+  }
+
+  // Lọc lúc render cho cả menu API và dự phòng; giữ đối tượng menu để không
+  // mất trạng thái dropdown. API và route guard vẫn kiểm tra quyền độc lập.
+  visibleRoutes(routes: RouteItem[]): RouteItem[] {
+    return routes.filter(route => {
+      const path = route.path?.replace(/\/$/, '');
+      const permission =
+        path === '/tools/shift-report'
+          ? 'shiftreport.view'
+          : path === '/tools/revenue-report'
+            ? 'revenuereport.view'
+            : path === '/phim' || path === '/anime'
+              ? 'movie.view'
+              : null;
+      if (
+        permission &&
+        (!this.authService.isLoggedIn() ||
+          !this.authService.hasPermission(permission))
+      ) {
+        return false;
+      }
+      return !route.children || this.visibleRoutes(route.children).length > 0;
+    });
   }
 
   private hasNoteRoute(routes: RouteItem[]): boolean {

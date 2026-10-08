@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using angnet.Application.Interfaces.Services;
 using angnet.Infrastructure.Mail.Service;
+using angnet.Infrastructure.Data.Services;
 using angnet.Infrastructure.Mail.Producer; 
 using System.Security.Cryptography;
 using Irony.Parsing;
@@ -106,6 +107,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 new (JwtRegisteredClaimNames.Email, user.Email ?? "") ,
                 new (JwtRegisteredClaimNames.Name, user.FullName ?? "") ,
                 new (JwtRegisteredClaimNames.NameId, user.Id ?? "") ,
+                new (AccountSessionService.VersionClaim, user.SessionVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 // Không có claim chuẩn nào trong JwtRegisteredClaimNames cho avatar nên dùng
                 // tên riêng "avatar" khớp với AppUser.Avatar. Thiếu claim này thì client chỉ
                 // hiển thị được chữ cái đầu dù DB đã có sẵn ảnh.
@@ -171,6 +173,8 @@ namespace angnet.Infrastructure.Data.Repositories
                                                         .FirstOrDefaultAsync(rt =>
                                                             rt.RefreshToken == refreshToken
                                                             && rt.UserId == userId
+                                                            && _dbContext.Users.Any(u => u.Id == userId && u.FlagActive
+                                                                && u.SessionVersion == rt.SessionVersion)
                                                         );
 
             if (dtRefreshToken is null)
@@ -439,7 +443,9 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             // Dismiss failed count history
-            await _userManager.ResetAccessFailedCountAsync(user);
+            var clearedFailures = await _userManager.ResetAccessFailedCountAsync(user);
+            if (!clearedFailures.Succeeded)
+                return new ApiResponse<AuthResponseDto>("Tài khoản vừa thay đổi trạng thái. Hãy đăng nhập lại.");
 
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -451,6 +457,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = user.Id,
                 ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
                 IsRevoked = false,
+                SessionVersion = user.SessionVersion,
             };
 
             _dbContext.RefreshToken.Add(dtRefreshToken);
@@ -480,7 +487,11 @@ namespace angnet.Infrastructure.Data.Repositories
         }
 
         public async Task<ApiResponse<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
+            => await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(() => RefreshTokenCore(refreshTokenDto));
+
+        private async Task<ApiResponse<AuthResponseDto>> RefreshTokenCore(RefreshTokenDto refreshTokenDto)
         {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             ApiResponse<AuthResponseDto> apiResponse = new ApiResponse<AuthResponseDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
 
@@ -512,6 +523,15 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
+            // Consume once before issuing the replacement. Concurrent refreshes
+            // cannot both reuse a token that passed the earlier validation.
+            var now = TCommonUtils.DTimeNow();
+            var consumed = await _dbContext.RefreshToken.Where(t =>
+                t.RefreshToken == refreshTokenDto.RefreshToken && t.UserId == user.Id
+                && !t.IsRevoked && t.ExpiryDate >= now && t.SessionVersion == user.SessionVersion)
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.IsRevoked, true));
+            if (consumed != 1) return new ApiResponse<AuthResponseDto>("Account.RefreshTokenInvalid");
+
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
             var refreshTokenExpired = Convert.ToDouble(_configuration.GetSection("JWTSetting").GetSection("refreshTokenExpired").Value!);
@@ -522,11 +542,12 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = user.Id,
                 ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
                 IsRevoked = false,
+                SessionVersion = user.SessionVersion,
             };
 
             _dbContext.RefreshToken.Add(dtRefreshToken);
-            await RevokeRefreshToken(refreshTokenDto.RefreshToken, refreshTokenDto.UserId);
             await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             AuthResponseDto data = new AuthResponseDto
             {
@@ -603,6 +624,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = user.Id,
                 ExpiryDate = TCommonUtils.DTimeAddDay(refreshTokenExpired),
                 IsRevoked = false,
+                SessionVersion = user.SessionVersion,
             };
 
             _dbContext.RefreshToken.Add(dtRefreshToken);
@@ -894,12 +916,11 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            await _dbContext.RefreshToken
-                                .Where(rt => rt.UserId == userId)
-                                .ExecuteUpdateAsync(setter =>
-                                                                        setter.SetProperty(r => r.IsRevoked, true)
-                                                                      );
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () => {
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                await AccountSessionService.RevokeAll(_dbContext, userId);
+                await transaction.CommitAsync();
+            });
 
             apiResponse.Data = "LogoutFromAllDeviceSuccessfully!";
             return apiResponse;

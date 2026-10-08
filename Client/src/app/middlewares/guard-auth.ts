@@ -61,7 +61,10 @@ export const canActiveDashboard = () => {
  * Người vào được khu quản trị nhưng không có quyền của trang này thì quay về
  * trang tổng quan - trang đó ai qua cửa cũng xem được.
  */
-export const canActivePermission = (permission: string): CanActivateFn => {
+export const canActivePermission = (
+  permission: string,
+  deniedRedirect = '/dashboard'
+): CanActivateFn => {
   return () => {
     const router = inject(Router);
     const authService = inject(AuthService);
@@ -75,7 +78,7 @@ export const canActivePermission = (permission: string): CanActivateFn => {
       return true;
     }
 
-    router.navigate(['/dashboard']);
+    router.navigate([deniedRedirect]);
     return false;
   };
 };

@@ -101,6 +101,7 @@ export const routes: Routes = [
       {
         title: 'T_PAGE_SHIFT_REPORT',
         path: 'shift-report',
+        canActivate: [canActivePermission('shiftreport.view', '/')],
         loadChildren: () =>
           import('./pages/tools/shift-report/shift-report.module').then(
             p => p.ShiftReportModule
@@ -109,6 +110,7 @@ export const routes: Routes = [
       {
         title: 'T_PAGE_REVENUE_REPORT',
         path: 'revenue-report',
+        canActivate: [canActivePermission('revenuereport.view', '/')],
         loadChildren: () =>
           import('./pages/tools/revenue-report/revenue-report.module').then(
             p => p.RevenueReportModule

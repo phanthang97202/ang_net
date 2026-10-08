@@ -10,8 +10,13 @@
         </div>
         <div class="user-page__actions">
           <span class="user-page__count">{{ lstUsers.length }} người dùng</span>
-          <button *ngIf="authService.isAdminPermission()" nz-button nzType="primary" (click)="editCredentials(null)">
-            <span nz-icon nzType="user-add" nzTheme="outline"></span> Tạo tài khoản
+          <button
+            *ngIf="authService.isAdminPermission()"
+            nz-button
+            nzType="primary"
+            (click)="editCredentials(null)">
+            <span nz-icon nzType="user-add" nzTheme="outline"></span> Tạo tài
+            khoản
           </button>
         </div>
       </header>
@@ -37,7 +42,9 @@
             <th nzColumnKey="flagActive" [nzSortFn]="true" nzWidth="130px">
               Trạng thái
             </th>
-            <th *ngIf="authService.isAdminPermission()" nzWidth="190px">Thao tác</th>
+            <th *ngIf="authService.isAdminPermission()" nzWidth="240px">
+              Thao tác
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -50,7 +57,9 @@
                     nzIcon="user"
                     [nzSrc]="data.Avatar"></nz-avatar>
                   <div class="user-page__identity-text">
-                    <strong [title]="data.Email || data.UserName">{{ data.Email || data.UserName }}</strong>
+                    <strong [title]="data.Email || data.UserName">{{
+                      data.Email || data.UserName
+                    }}</strong>
                     @if (data.Id === me) {
                       <span class="user-page__me">Tài khoản của bạn</span>
                     }
@@ -62,7 +71,9 @@
               </td>
               <td>
                 <span>{{ data.UserName }}</span>
-                <small class="user-page__login-type">{{ data.HasPassword ? 'Có mật khẩu' : 'Chưa có mật khẩu' }}</small>
+                <small class="user-page__login-type">{{
+                  data.HasPassword ? 'Có mật khẩu' : 'Chưa có mật khẩu'
+                }}</small>
               </td>
               <td>
                 <div class="user-page__roles">
@@ -83,13 +94,54 @@
                     nz-icon
                     [nzType]="data.FlagActive ? 'check-circle' : 'stop'"
                     nzTheme="outline"></span>
-                  {{ data.FlagActive ? 'Hoạt động' : 'Tạm khóa' }}
+                  {{ data.FlagActive ? 'Hoạt động' : 'Đã khóa' }}
                 </nz-tag>
               </td>
               <td *ngIf="authService.isAdminPermission()">
-                <button nz-button nzType="default" (click)="editCredentials(data)">
-                  {{ data.HasPassword ? 'Đặt lại mật khẩu' : 'Thêm đăng nhập' }}
-                </button>
+                <div class="user-page__row-actions">
+                  <button
+                    nz-button
+                    nzType="default"
+                    (click)="editCredentials(data)">
+                    {{
+                      data.HasPassword ? 'Đặt lại mật khẩu' : 'Thêm đăng nhập'
+                    }}
+                  </button>
+                  <button
+                    nz-button
+                    nz-dropdown
+                    nzTrigger="click"
+                    [nzDropdownMenu]="securityMenu"
+                    nz-tooltip
+                    nzTooltipTitle="Bảo mật tài khoản"
+                    aria-label="Bảo mật tài khoản">
+                    <span
+                      nz-icon
+                      nzType="safety-certificate"
+                      nzTheme="outline"></span>
+                  </button>
+                  <nz-dropdown-menu #securityMenu="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item (click)="openSecurity(data, 'revoke')">
+                        Thu hồi mọi phiên
+                      </li>
+                      <li
+                        *ngIf="data.FlagActive"
+                        nz-menu-item
+                        nzDanger
+                        [nzDisabled]="data.Id === me"
+                        (click)="openSecurity(data, 'lock')">
+                        Khóa tài khoản
+                      </li>
+                      <li
+                        *ngIf="!data.FlagActive"
+                        nz-menu-item
+                        (click)="openSecurity(data, 'unlock')">
+                        Mở khóa tài khoản
+                      </li>
+                    </ul>
+                  </nz-dropdown-menu>
+                </div>
               </td>
             </tr>
           }
@@ -106,4 +158,12 @@
     </section>
   </main>
 </div>
-<app-account-credentials-popup [(visible)]="credentialsVisible" [user]="selectedUser" (saved)="loadUsers()" />
+<app-account-credentials-popup
+  [(visible)]="credentialsVisible"
+  [user]="selectedUser"
+  (saved)="loadUsers()" />
+<app-account-security-popup
+  [(visible)]="securityVisible"
+  [user]="securityUser"
+  [action]="securityAction"
+  (saved)="loadUsers()" />

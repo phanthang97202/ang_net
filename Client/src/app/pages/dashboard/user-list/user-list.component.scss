@@ -66,6 +66,12 @@
   align-items: center;
   gap: 12px;
 }
+
+.user-page__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .user-page__login-type {
   display: block;
   margin-top: 4px;

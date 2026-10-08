@@ -4,6 +4,7 @@ import {
   RevenueReportResponse,
 } from './types/revenue-report-type';
 import { RevenueReportService } from './services/revenue-report.service';
+import { AuthService } from '../../../services';
 
 @Component({
   selector: 'app-revenue-report',
@@ -27,7 +28,17 @@ export class RevenueReportComponent implements OnInit {
   chartViewShiftType: [number, number] = [400, 300];
   chartViewReceptionist: [number, number] = [600, 400];
 
-  constructor(private revenueReportService: RevenueReportService) {}
+  constructor(
+    private revenueReportService: RevenueReportService,
+    private authService: AuthService
+  ) {}
+
+  get canView(): boolean {
+    return (
+      this.authService.isLoggedIn() &&
+      this.authService.hasPermission('revenuereport.view')
+    );
+  }
 
   ngOnInit(): void {
     // Load report with default: current month
@@ -40,6 +51,10 @@ export class RevenueReportComponent implements OnInit {
   }
 
   loadReport(): void {
+    if (!this.canView) {
+      this.reportData = null;
+      return;
+    }
     this.isLoading = true;
 
     const params: RevenueReportQueryParams = {};
@@ -119,11 +134,13 @@ export class RevenueReportComponent implements OnInit {
   }
 
   exportToExcel(): void {
+    if (!this.canView) return;
     // TODO: Implement Excel export for revenue report
     console.log('Export revenue report to Excel');
   }
 
   printReport(): void {
+    if (!this.canView) return;
     window.print();
   }
 

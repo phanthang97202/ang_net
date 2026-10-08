@@ -23,6 +23,10 @@
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionPolicyProvider.cs" Link="Support\PermissionPolicyProvider.cs" />
+    <Compile Include="..\..\src\angnet.WebApi\Controllers\ShiftReportController.cs" Link="Support\ShiftReportController.cs" />
+    <Compile Include="..\..\src\angnet.WebApi\Controllers\RevenueReportController.cs" Link="Support\RevenueReportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionHandler.cs" Link="Support\PermissionHandler.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\MovieWishlistController.cs" Link="Support\MovieWishlistController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\AdminAccountsController.cs" Link="Support\AdminAccountsController.cs" />

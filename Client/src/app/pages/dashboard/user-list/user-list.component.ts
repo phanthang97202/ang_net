@@ -4,18 +4,32 @@ import {
   ShowErrorService,
   LoadingService,
 } from '../../../services';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../../modules';
+import { AntdModule } from '../../../modules/antd.module';
+import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { IUser } from '../../../interfaces';
 import { AccountCredentialsPopupComponent } from './account-credentials-popup.component';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import {
+  AccountSecurityAction,
+  AccountSecurityPopupComponent,
+} from './account-security-popup.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, REUSE_PIPE_MODULE, AccountCredentialsPopupComponent],
+  imports: [
+    AntdModule,
+    BreadcrumbComponent,
+    NzAvatarModule,
+    NzMenuModule,
+    AccountCredentialsPopupComponent,
+    NzDropDownModule,
+    NzToolTipModule,
+    AccountSecurityPopupComponent,
+  ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
@@ -27,6 +41,21 @@ export class UserListComponent implements OnInit {
   lstUsers: IUser[] = [];
   credentialsVisible = false;
   selectedUser: IUser | null = null;
+  securityVisible = false;
+  securityUser: IUser | null = null;
+  securityAction: AccountSecurityAction = 'revoke';
+
+  openSecurity(user: IUser, action: AccountSecurityAction): void {
+    if (
+      !this.authService.isLoggedIn() ||
+      !this.authService.isAdminPermission() ||
+      (action === 'lock' && user.Id === this.me)
+    )
+      return;
+    this.securityUser = user;
+    this.securityAction = action;
+    this.securityVisible = true;
+  }
 
   ngOnInit() {
     this.loadUsers();

@@ -12,5 +12,6 @@ namespace angnet.Domain.Models
         public required string UserId { get; set; }
         public DateTime ExpiryDate { get; set; }
         public bool IsRevoked { get; set; } = false;
+        public int SessionVersion { get; set; }
     }
 }

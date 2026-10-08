@@ -52,7 +52,11 @@
               <span nz-icon nzType="reload"></span>
               <span>Làm mới</span>
             </button>
-            <button nz-button nzType="primary" (click)="showCreateModal()">
+            <button
+              *ngIf="canCreate"
+              nz-button
+              nzType="primary"
+              (click)="showCreateModal()">
               <span nz-icon nzType="plus"></span>
               <span>Tạo báo cáo</span>
             </button>
@@ -130,6 +134,7 @@
               nzType="primary"
               nzSize="small"
               (click)="showEditModal(item.Id)"
+              *ngIf="canUpdate"
               nz-tooltip="Chỉnh sửa"
               style="margin-right: 8px">
               <span nz-icon nzType="edit"></span>
@@ -140,6 +145,7 @@
               nzDanger
               nzSize="small"
               (click)="deleteReport(item.Id)"
+              *ngIf="canDelete"
               nz-tooltip="Xóa">
               <span nz-icon nzType="delete"></span>
             </button>
@@ -560,7 +566,14 @@
                       style="width: 100%">
                       <nz-option
                         *ngFor="let d of drinkStocks"
-                        [nzLabel]="d.ProductName + ' (còn ' + d.Remaining + ' ' + d.Unit + ')'"
+                        [nzLabel]="
+                          d.ProductName +
+                          ' (còn ' +
+                          d.Remaining +
+                          ' ' +
+                          d.Unit +
+                          ')'
+                        "
                         [nzValue]="d.ProductCode"></nz-option>
                     </nz-select>
                   </td>
@@ -572,8 +585,11 @@
                       [nzMin]="1"
                       [nzStep]="1"
                       style="width: 100%"></nz-input-number>
-                    <div *ngIf="isDrinkOverStock(i)" class="drink-stock-warning">
-                      Chỉ còn {{ getAvailableStock(drink.value.productCode, i) }}
+                    <div
+                      *ngIf="isDrinkOverStock(i)"
+                      class="drink-stock-warning">
+                      Chỉ còn
+                      {{ getAvailableStock(drink.value.productCode, i) }}
                     </div>
                   </td>
                   <td>
@@ -585,7 +601,9 @@
                       style="width: 100%"></nz-input-number>
                   </td>
                   <td>
-                    <nz-select formControlName="paymentMethod" style="width: 100%">
+                    <nz-select
+                      formControlName="paymentMethod"
+                      style="width: 100%">
                       <nz-option
                         *ngFor="let m of drinkPaymentMethods"
                         [nzLabel]="m"
@@ -626,6 +644,7 @@
           nz-button
           nzType="primary"
           (click)="handleSubmit()"
+          *ngIf="canSave"
           [nzLoading]="isLoading">
           {{ editingId ? 'Cập nhật' : 'Tạo mới' }}
         </button>

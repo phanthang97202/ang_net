@@ -53,25 +53,52 @@ export class AuthService {
   }
 
   findAdminUserByEmail(email: string): Observable<IUserResponse> {
-    return this.http.get<IUserResponse>(`${this.apiUrl}account/admin/users/by-email`, {
-      params: { email },
-    });
-  }
-
-  createAdminUser(data: IAdminAccountCreate): Observable<IUserResponse> {
-    return this.http.post<IUserResponse>(`${this.apiUrl}account/admin/users`, data);
-  }
-
-  addAccountCredentials(userId: string, data: IAccountCredentials): Observable<IUserResponse> {
-    return this.http.put<IUserResponse>(
-      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/credentials`, data
+    return this.http.get<IUserResponse>(
+      `${this.apiUrl}account/admin/users/by-email`,
+      {
+        params: { email },
+      }
     );
   }
 
-  resetAccountPassword(userId: string, password: string): Observable<IUserResponse> {
+  createAdminUser(data: IAdminAccountCreate): Observable<IUserResponse> {
+    return this.http.post<IUserResponse>(
+      `${this.apiUrl}account/admin/users`,
+      data
+    );
+  }
+
+  addAccountCredentials(
+    userId: string,
+    data: IAccountCredentials
+  ): Observable<IUserResponse> {
+    return this.http.put<IUserResponse>(
+      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/credentials`,
+      data
+    );
+  }
+
+  resetAccountPassword(
+    userId: string,
+    password: string
+  ): Observable<IUserResponse> {
     return this.http.post<IUserResponse>(
       `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/reset-password`,
       { Password: password }
+    );
+  }
+
+  revokeAccountSessions(userId: string): Observable<IUserResponse> {
+    return this.http.post<IUserResponse>(
+      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/revoke-sessions`,
+      {}
+    );
+  }
+
+  setAccountLocked(userId: string, locked: boolean): Observable<IUserResponse> {
+    return this.http.post<IUserResponse>(
+      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/${locked ? 'lock' : 'unlock'}`,
+      {}
     );
   }
 

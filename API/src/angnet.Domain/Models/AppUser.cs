@@ -9,6 +9,7 @@ namespace angnet.Domain.Models
         public string Avatar { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public bool FlagActive { get; set; }
+        public int SessionVersion { get; set; }
         public DateTime CreatedDTime { get; set; } // Thời gian tạo
         public DateTime UpdatedDTime { get; set; } // Thời gian tạo
     }

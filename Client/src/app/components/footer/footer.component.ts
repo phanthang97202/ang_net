@@ -7,6 +7,7 @@ import {
   VisitTrackingService,
   SysParameterConfigService,
   SYS_PARAM_CODE,
+  AuthService,
 } from '../../services';
 import { IFooterContent, ISocialLink } from '../../interfaces';
 import { SocialLinksComponent } from '../social-links/social-links.component';
@@ -16,8 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 // đúng dạng URL nhúng Google Maps chính chủ trước khi bypass Angular sanitizer
 // cho iframe[src] - nếu không, một giá trị bị nhập sai/độc hại có thể nhúng
 // domain tuỳ ý ngay trên trang chính chủ.
-const GOOGLE_MAPS_EMBED_PATTERN =
-  /^https:\/\/www\.google\.com\/maps\/embed\?/;
+const GOOGLE_MAPS_EMBED_PATTERN = /^https:\/\/www\.google\.com\/maps\/embed\?/;
 
 const DEFAULT_SOCIALS: ISocialLink[] = [
   { icon: 'twitter', link: '#' },
@@ -42,6 +42,7 @@ const DEFAULT_FOOTER_CONTENT: IFooterContent = {
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent implements OnInit {
+  private authService = inject(AuthService);
   private visitTrackingService = inject(VisitTrackingService);
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
@@ -51,6 +52,13 @@ export class FooterComponent implements OnInit {
   stats$ = this.visitTrackingService.stats$;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
   footerContent: IFooterContent = DEFAULT_FOOTER_CONTENT;
+
+  canViewReport(permission: string): boolean {
+    return (
+      this.authService.isLoggedIn() &&
+      this.authService.hasPermission(permission)
+    );
+  }
 
   get copyrightText(): string {
     return this.footerContent.copyright.replace(

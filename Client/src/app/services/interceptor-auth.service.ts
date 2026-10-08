@@ -10,12 +10,12 @@ import {
 import { Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  BehaviorSubject,
   catchError,
-  filter,
+  finalize,
   Observable,
+  shareReplay,
   switchMap,
-  take,
+  tap,
   throwError,
 } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -28,9 +28,7 @@ export class AuthInterceptor implements HttpInterceptor {
   private tokenKey = environment.tokenKey;
   private refreshTokenKey = environment.refreshTokenKey;
 
-  private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<string | null> =
-    new BehaviorSubject<string | null>(null);
+  private refreshRequest$?: Observable<AuthResponse>;
   private readonly refreshHttp: HttpClient;
 
   constructor(
@@ -115,62 +113,49 @@ export class AuthInterceptor implements HttpInterceptor {
       });
     }
 
-    // nếu đang refresh token thì return next
-    if (this.isRefreshing) {
-      return this.refreshTokenSubject.pipe(
-        filter(t => t !== null),
-        take(1),
-        switchMap(t => {
-          const clonedRequest = req.clone({
-            headers: req.headers.set('Authorization', `Bearer ${t}`),
-          });
-          return next.handle(clonedRequest);
-        })
-      );
-    } else {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
-
-      return this.refreshHttp
+    // Share both success and failure with every waiting request; revoked
+    // sessions must not leave requests waiting forever for a new token.
+    if (!this.refreshRequest$) {
+      this.refreshRequest$ = this.refreshHttp
         .post<AuthResponse>(`${environment.apiUrl}account/refreshtoken`, {
           UserId: userid,
           RefreshToken: refreshToken,
         })
         .pipe(
-          switchMap(response => {
-            if (!response?.Success) {
-              return this.handleCatchExpiredToken({
-                ErrorMessage: response.ErrorMessage,
-              });
-            }
-
-            const newAccessToken = response.Data.AccessToken;
-            const newRefreshToken = response.Data.RefreshToken;
-
-            this.isRefreshing = false;
-            this.refreshTokenSubject.next(newAccessToken);
-
-            // Save the new tokens
-            localStorage.setItem(this.tokenKey, newAccessToken);
-            localStorage.setItem(this.refreshTokenKey, newRefreshToken);
-
-            // Retry the failed request with the new access token
-            const clonedRequest = req.clone({
-              headers: req.headers.set(
-                'Authorization',
-                `Bearer ${newAccessToken}`
-              ),
-            });
-
-            return next.handle(clonedRequest);
+          tap(response => {
+            if (
+              !response?.Success ||
+              !response.Data?.AccessToken ||
+              !response.Data?.RefreshToken
+            )
+              throw {
+                ErrorMessage:
+                  response?.ErrorMessage ||
+                  'Phiên đăng nhập đã bị thu hồi hoặc tài khoản bị khóa.',
+              };
+            localStorage.setItem(this.tokenKey, response.Data.AccessToken);
+            localStorage.setItem(
+              this.refreshTokenKey,
+              response.Data.RefreshToken
+            );
           }),
-          catchError(err => {
-            this.isRefreshing = false;
-            this.refreshTokenSubject.next(null);
-            return this.handleCatchExpiredToken(err);
-          })
+          catchError(err => this.handleCatchExpiredToken(err)),
+          finalize(() => (this.refreshRequest$ = undefined)),
+          shareReplay({ bufferSize: 1, refCount: false })
         );
     }
+    return this.refreshRequest$.pipe(
+      switchMap(response =>
+        next.handle(
+          req.clone({
+            headers: req.headers.set(
+              'Authorization',
+              `Bearer ${response.Data.AccessToken}`
+            ),
+          })
+        )
+      )
+    );
   }
 
   // bắt lỗi

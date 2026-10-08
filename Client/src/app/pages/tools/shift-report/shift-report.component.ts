@@ -102,6 +102,35 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     private config: SysParameterConfigService
   ) {}
 
+  get canCreate(): boolean {
+    return this.hasPermission('shiftreport.create');
+  }
+
+  get canUpdate(): boolean {
+    return this.hasPermission('shiftreport.update');
+  }
+
+  get canDelete(): boolean {
+    return this.hasPermission('shiftreport.delete');
+  }
+
+  get canSave(): boolean {
+    return this.editingId !== null ? this.canUpdate : this.canCreate;
+  }
+
+  private hasPermission(permission: string): boolean {
+    return (
+      this.authService.isLoggedIn() &&
+      this.authService.hasPermission(permission)
+    );
+  }
+
+  private requirePermission(permission: string): boolean {
+    if (this.hasPermission(permission)) return true;
+    this.message.warning('Bạn không có quyền thực hiện thao tác này.');
+    return false;
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.loadReports();
@@ -300,6 +329,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   // Tồn kho dùng để chặn bán vượt ngay trên UI; backend vẫn validate lại.
   loadDrinkStock(): void {
+    if (!this.hasPermission('shiftreport.view')) return;
     this.shiftReportService.getDrinkStock().subscribe({
       next: data => {
         this.drinkStocks = Array.isArray(data) ? data : [];
@@ -430,12 +460,16 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   showCreateModal(): void {
+    if (!this.requirePermission('shiftreport.create')) return;
     this.modalTitle = 'Tạo báo cáo ca mới';
     this.editingId = null;
 
     const today = new Date();
     const suggestedShiftType = this.getSuggestedShiftType();
-    const { start, end } = this.getSuggestedTimeRange(suggestedShiftType, today);
+    const { start, end } = this.getSuggestedTimeRange(
+      suggestedShiftType,
+      today
+    );
 
     this.reportForm.reset({
       shiftDate: today,
@@ -456,6 +490,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   showEditModal(id: number): void {
+    if (!this.requirePermission('shiftreport.update')) return;
     this.modalTitle = 'Chỉnh sửa báo cáo ca';
     this.editingId = id;
     this.isLoading = true;
@@ -530,7 +565,10 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
                 drink.UnitPrice || null,
                 [Validators.required, Validators.min(0)],
               ],
-              paymentMethod: [drink.PaymentMethod || 'Tiền mặt', Validators.required],
+              paymentMethod: [
+                drink.PaymentMethod || 'Tiền mặt',
+                Validators.required,
+              ],
             })
           );
         });
@@ -553,7 +591,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   showAiAssistant(): void {
     if (!this.isAdmin) {
-      this.message.warning('Bạn cần đăng nhập với quyền Admin để dùng trợ lý AI');
+      this.message.warning(
+        'Bạn cần đăng nhập với quyền Admin để dùng trợ lý AI'
+      );
       return;
     }
     this.isAiAssistantVisible = true;
@@ -564,6 +604,12 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   handleSubmit(): void {
+    if (
+      !this.requirePermission(
+        this.editingId !== null ? 'shiftreport.update' : 'shiftreport.create'
+      )
+    )
+      return;
     if (this.reportForm.invalid) {
       Object.values(this.reportForm.controls).forEach(control => {
         if (control.invalid) {
@@ -647,6 +693,11 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   loadReports(): void {
+    if (!this.hasPermission('shiftreport.view')) {
+      this.reports = [];
+      this.totalRecords = 0;
+      return;
+    }
     this.isLoading = true;
     // debugger;
 
@@ -709,6 +760,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel(id: number): void {
+    if (!this.requirePermission('shiftreport.view')) return;
     this.isLoading = true;
     // Lấy báo cáo và tồn kho cùng lúc để cột "Còn lại" là số mới nhất, không
     // phải số đã nạp từ lúc mở trang.
@@ -731,6 +783,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   printReport(id: number): void {
+    if (!this.requirePermission('shiftreport.view')) return;
     this.isLoading = true;
     forkJoin({
       report: this.shiftReportService.getById(id),
@@ -751,6 +804,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   deleteReport(id: number): void {
+    if (!this.requirePermission('shiftreport.delete')) return;
     this.modal.confirm({
       nzTitle: 'Xác nhận xóa',
       nzContent: 'Bạn có chắc chắn muốn xóa báo cáo này?',
@@ -758,6 +812,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       nzOkDanger: true,
       nzCancelText: 'Hủy',
       nzOnOk: () => {
+        if (!this.requirePermission('shiftreport.delete')) return;
         this.shiftReportService.delete(id).subscribe({
           next: () => {
             this.message.success('Xóa thành công');

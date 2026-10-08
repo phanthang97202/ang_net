@@ -94,13 +94,38 @@ public class AdminAccountService(AppDbContext db, UserManager<AppUser> users,
             if (!unlocked.Succeeded) return Failure(unlocked);
             var cleared = await users.ResetAccessFailedCountAsync(user);
             if (!cleared.Succeeded) return Failure(cleared);
-            await db.RefreshToken.Where(x => x.UserId == user.Id && !x.IsRevoked)
-                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsRevoked, true));
+            await AccountSessionService.RevokeAll(db, user.Id);
+            await db.Entry(user).ReloadAsync();
             // An older emailed reset code must not undo an admin password reset.
             if (!string.IsNullOrWhiteSpace(user.Email))
                 await db.GenerationAuthCode.Where(x => x.UserId == user.Email && !x.IsUsed)
                     .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsUsed, true));
             await Record(actorId, user.Id, "Đặt lại mật khẩu và thu hồi refresh token");
+            return new ApiResponse<UserDetailDto>(await ToDto(user));
+        });
+    }
+
+    public async Task<ApiResponse<UserDetailDto>> RevokeSessions(ClaimsPrincipal actor, string userId)
+        => await SecurityAction(actor, userId, null);
+
+    public async Task<ApiResponse<UserDetailDto>> SetLocked(ClaimsPrincipal actor, string userId, bool locked)
+        => await SecurityAction(actor, userId, !locked);
+
+    private async Task<ApiResponse<UserDetailDto>> SecurityAction(ClaimsPrincipal actor, string userId, bool? active)
+    {
+        var actorId = EnsureAdmin(actor);
+        if (active == false && actorId == userId)
+            return new("Không thể tự khóa tài khoản quản trị đang sử dụng.");
+        var user = await users.FindByIdAsync(userId);
+        if (user is null) return new("Tài khoản không tồn tại.");
+        return await Transaction(async () => {
+            await AccountSessionService.RevokeAll(db, userId, active);
+            await db.Entry(user).ReloadAsync();
+            await Record(actorId, userId, active switch {
+                false => "Khóa tài khoản vô thời hạn và thu hồi mọi phiên đăng nhập",
+                true => "Mở khóa tài khoản; yêu cầu đăng nhập bằng phiên mới",
+                null => "Thu hồi mọi phiên đăng nhập"
+            });
             return new ApiResponse<UserDetailDto>(await ToDto(user));
         });
     }

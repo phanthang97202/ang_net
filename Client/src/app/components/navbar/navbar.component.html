@@ -7,7 +7,7 @@
 
     <!-- Nav Links -->
     <ul class="navbar-links">
-      <ng-container *ngFor="let route of listRoute">
+      <ng-container *ngFor="let route of visibleRoutes(listRoute)">
         <!-- No children -->
         <li *ngIf="!route.children" class="nav-item">
           <!-- Link ra ngoài site: routerLink không điều hướng ra khỏi ứng dụng
@@ -67,7 +67,7 @@
             <span class="dropdown-arrow">▾</span>
           </span>
           <ul class="dropdown-menu" [class.visible]="route['_open']">
-            <li *ngFor="let child of route.children">
+            <li *ngFor="let child of visibleRoutes(route.children)">
               <a
                 *ngIf="child.externalUrl; else internalChild"
                 [href]="child.externalUrl"
@@ -248,7 +248,7 @@
     </div>
 
     <ul class="mobile-nav-list">
-      <ng-container *ngFor="let route of listRoute">
+      <ng-container *ngFor="let route of visibleRoutes(listRoute)">
         <li *ngIf="!route.children" class="mobile-nav-item">
           <a
             *ngIf="route.externalUrl; else internalRouteMobile"
@@ -304,7 +304,7 @@
             class="mobile-submenu"
             [class.visible]="route['_mobileOpen']"
             [attr.inert]="route['_mobileOpen'] ? null : ''">
-            <li *ngFor="let child of route.children">
+            <li *ngFor="let child of visibleRoutes(route.children)">
               <a
                 *ngIf="child.externalUrl; else internalChildMobile"
                 [href]="child.externalUrl"

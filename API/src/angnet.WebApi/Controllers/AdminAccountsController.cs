@@ -23,6 +23,12 @@ public class AdminAccountsController(IAdminAccountService accounts, ILogger<Admi
     public Task<IActionResult> AddCredentials(string userId, AccountCredentialsDto request) => Respond(() => accounts.AddCredentials(User, userId, request));
     [HttpPost("{userId}/reset-password")]
     public Task<IActionResult> ResetPassword(string userId, AdminPasswordResetDto request) => Respond(() => accounts.ResetPassword(User, userId, request));
+    [HttpPost("{userId}/revoke-sessions")]
+    public Task<IActionResult> RevokeSessions(string userId) => Respond(() => accounts.RevokeSessions(User, userId));
+    [HttpPost("{userId}/lock")]
+    public Task<IActionResult> Lock(string userId) => Respond(() => accounts.SetLocked(User, userId, true));
+    [HttpPost("{userId}/unlock")]
+    public Task<IActionResult> Unlock(string userId) => Respond(() => accounts.SetLocked(User, userId, false));
 
     private async Task<IActionResult> Respond(Func<Task<ApiResponse<UserDetailDto>>> action)
     {

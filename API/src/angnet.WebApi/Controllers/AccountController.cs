@@ -114,10 +114,13 @@ namespace angnet.WebApi.Controllers
             }
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("logoutalldevice")]
         public async Task<ActionResult<string>> LogoutAllDevice(string userId)
         {
+            var actorId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(actorId) || (actorId != userId && !User.IsInRole("Admin")))
+                return Forbid();
             try
             {
                 ApiResponse<string> response = await _accountRespository.LogoutAllDevice(userId);

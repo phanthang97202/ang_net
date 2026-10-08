@@ -37,10 +37,8 @@ namespace angnet.Infrastructure.Data.Services
         // Bọc try/catch: đây là nghiệp vụ tiền bạc, ghi log hỏng (DB log lỗi, hết
         // kết nối...) không được phép làm mất báo cáo ca vừa lưu thành công.
         //
-        // AuditTrail.ChangedBy lấy từ HttpContext.User nên sẽ rỗng: các route
-        // Create/Update của báo cáo ca đang [AllowAnonymous] (lễ tân dùng không cần
-        // đăng nhập). Vì vậy tên lễ tân nhập trên form được ghi thẳng vào
-        // Description - đó là danh tính duy nhất hệ thống có ở thời điểm này.
+        // AuditTrail.ChangedBy lấy từ tài khoản đã đăng nhập trong HttpContext.User.
+        // Tên lễ tân trên form vẫn được giữ trong Description để đối chiếu ca trực.
         private async Task WriteAuditAsync(string recordId, string description, object oldValues)
         {
             try

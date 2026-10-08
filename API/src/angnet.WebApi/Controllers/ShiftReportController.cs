@@ -7,6 +7,7 @@ namespace angnet.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ShiftReportController : ControllerBase
     {
         private readonly IShiftReportService _service;
@@ -24,7 +25,7 @@ namespace angnet.WebApi.Controllers
         /// Get all shift reports with filtering and pagination
         /// </summary>
         [HttpGet("GetAll")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.view")]
         public async Task<ActionResult<PagedResult<ShiftReportListDto>>> GetAll([FromQuery] ShiftReportQueryParams queryParams)
         {
             try
@@ -44,7 +45,7 @@ namespace angnet.WebApi.Controllers
         /// trừ đi tổng đã bán trên toàn bộ lịch sử báo cáo ca.
         /// </summary>
         [HttpGet("GetDrinkStock")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.view")]
         public async Task<ActionResult<List<DrinkStockDto>>> GetDrinkStock()
         {
             try
@@ -63,7 +64,7 @@ namespace angnet.WebApi.Controllers
         /// Get shift report by ID
         /// </summary>
         [HttpGet("GetById/{id}")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.view")]
         public async Task<ActionResult<ShiftReportResponseDto>> GetById(int id)
         {
             try
@@ -86,7 +87,7 @@ namespace angnet.WebApi.Controllers
         /// Create new shift report
         /// </summary>
         [HttpPost("Create")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.create")]
         public async Task<ActionResult<ShiftReportResponseDto>> Create([FromBody] CreateShiftReportDto dto)
         {
             try
@@ -112,7 +113,7 @@ namespace angnet.WebApi.Controllers
         /// Update existing shift report
         /// </summary>
         [HttpPut("Update/{id}")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.update")]
         public async Task<ActionResult<ShiftReportResponseDto>> Update(int id, [FromBody] UpdateShiftReportDto dto)
         {
             try
@@ -145,6 +146,7 @@ namespace angnet.WebApi.Controllers
         /// Delete shift report
         /// </summary>
         [HttpDelete("Delete/{id}")]
+        [Authorize(Policy = "shiftreport.delete")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -166,7 +168,7 @@ namespace angnet.WebApi.Controllers
         /// Get shift report summary by date range
         /// </summary>
         [HttpGet("GetSummary")]
-        [AllowAnonymous]
+        [Authorize(Policy = "shiftreport.view")]
         public async Task<ActionResult> GetSummary([FromQuery] DateOnly? fromDate, [FromQuery] DateOnly? toDate)
         {
             try

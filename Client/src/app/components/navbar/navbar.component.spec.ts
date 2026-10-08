@@ -81,3 +81,106 @@ describe('NavbarComponent search keyboard flow', () => {
     fixture.destroy();
   }));
 });
+
+describe('Navbar report permissions', () => {
+  for (const fromApi of [false, true]) {
+    it(`filters ${fromApi ? 'API' : 'fallback'} report menus on desktop and mobile as the session changes`, () => {
+      let loggedIn = false;
+      let admin = false;
+      const permissions = new Set<string>();
+      const reportMenu = {
+        TitleVi: 'Báo cáo',
+        TitleEn: 'Reports',
+        Path: '',
+        Icon: 'tool',
+        Children: [
+          {
+            TitleVi: 'Ca trực',
+            Path: '/tools/shift-report',
+            Icon: 'file-text',
+            Children: [],
+          },
+          {
+            TitleVi: 'Doanh thu',
+            Path: '/tools/revenue-report',
+            Icon: 'dollar',
+            Children: [],
+          },
+        ],
+      };
+      TestBed.configureTestingModule({
+        imports: [NavbarComponent, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          {
+            provide: NZ_ICONS,
+            useValue: [
+              HomeOutline,
+              ToolOutline,
+              CalculatorOutline,
+              FileTextOutline,
+              DollarOutline,
+              PlayCircleOutline,
+              TrophyOutline,
+              AppstoreOutline,
+            ],
+          },
+          {
+            provide: ApiService,
+            useValue: {
+              SysMenuGetActive: () =>
+                of({ Success: fromApi, DataList: [reportMenu] }),
+            },
+          },
+          {
+            provide: LangService,
+            useValue: { getLang: () => 'vi', $langSubjectObservable: of('vi') },
+          },
+          { provide: NoteRealtimeService, useValue: { unreadCount$: of(0) } },
+          {
+            provide: AuthService,
+            useValue: {
+              isLoggedIn: () => loggedIn,
+              hasPermission: (code: string) => admin || permissions.has(code),
+              getAccountInfo: () => ({
+                avatar: '',
+                shortname: 'T',
+                name: 'Test',
+              }),
+              hasAnyPermissionAtAll: () => admin || permissions.size > 0,
+            },
+          },
+        ],
+      });
+      const fixture = TestBed.createComponent(NavbarComponent);
+      fixture.componentInstance.isMobileMenuOpen = true;
+      const links = (path: string) =>
+        fixture.nativeElement.querySelectorAll(`a[href="${path}"]`).length;
+      fixture.detectChanges();
+      expect(links('/tools/shift-report')).toBe(0);
+      expect(links('/tools/revenue-report')).toBe(0);
+      if (fromApi)
+        expect(fixture.nativeElement.querySelector('.nav-dropdown')).toBeNull();
+
+      loggedIn = true;
+      permissions.add('shiftreport.view');
+      fixture.detectChanges();
+      expect(links('/tools/shift-report')).toBe(2);
+      expect(links('/tools/revenue-report')).toBe(0);
+      permissions.clear();
+      permissions.add('revenuereport.view');
+      fixture.detectChanges();
+      expect(links('/tools/shift-report')).toBe(0);
+      expect(links('/tools/revenue-report')).toBe(2);
+      admin = true;
+      fixture.detectChanges();
+      expect(links('/tools/shift-report')).toBe(2);
+      expect(links('/tools/revenue-report')).toBe(2);
+      loggedIn = false;
+      fixture.detectChanges();
+      expect(links('/tools/shift-report')).toBe(0);
+      expect(links('/tools/revenue-report')).toBe(0);
+      fixture.destroy();
+    });
+  }
+});

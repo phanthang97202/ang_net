@@ -106,6 +106,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddUserValidator<OptionalEmailUserValidator>()
                 .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<AccountSessionService>();
+
 // config jwt 
 builder.Services
         .AddAuthorization(op =>
@@ -120,6 +122,13 @@ builder.Services
         })
        .AddJwtBearer(opt =>
         {
+            opt.Events = new JwtBearerEvents {
+                OnTokenValidated = async context => {
+                    var sessions = context.HttpContext.RequestServices.GetRequiredService<AccountSessionService>();
+                    if (context.Principal is null || !await sessions.IsCurrent(context.Principal))
+                        context.Fail("Account is locked or session has been revoked.");
+                }
+            };
             opt.SaveToken = true; // Thiết lập để lưu lại token sau khi xác thực thành công. Điều này hữu ích khi bạn cần truy cập token trong suốt vòng đời của yêu cầu HTTP.
             opt.RequireHttpsMetadata = false; // Đặt giá trị này thành false để ứng dụng không yêu cầu sử dụng HTTPS trong môi trường phát triển (không nên sử dụng trong sản xuất vì thiếu an toàn). Khi true, ứng dụng sẽ yêu cầu HTTPS.
             opt.TokenValidationParameters = new TokenValidationParameters // Đây là nơi thiết lập các tham số để xác thực và hợp lệ hóa token JWT.

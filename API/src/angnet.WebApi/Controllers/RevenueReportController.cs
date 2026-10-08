@@ -7,6 +7,7 @@ namespace angnet.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "revenuereport.view")]
     public class RevenueReportsController : ControllerBase
     {
         private readonly IRevenueReportService _service;
@@ -24,7 +25,6 @@ namespace angnet.WebApi.Controllers
         /// Get revenue report with filters
         /// </summary>
         [HttpGet]
-        [AllowAnonymous]
         public async Task<ActionResult<RevenueReportResponse>> GetRevenueReport([FromQuery] RevenueReportQueryParams queryParams)
         {
             try
