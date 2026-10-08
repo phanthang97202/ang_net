@@ -32,7 +32,7 @@ export class AccountCredentialsPopupComponent implements OnChanges {
   notice = '';
   error = '';
   form = this.fb.group({
-    Email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
+    Email: ['', [Validators.email, Validators.maxLength(256)]],
     FullName: ['', [Validators.required, Validators.maxLength(100)]],
     UserName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9][a-zA-Z0-9._-]{2,31}$/)]],
     Password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
@@ -80,6 +80,7 @@ export class AccountCredentialsPopupComponent implements OnChanges {
 
   save(): void {
     if (this.saving) return;
+    this.form.controls.Email.setValue(this.form.controls.Email.value.trim());
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     const data = this.form.getRawValue();
@@ -88,7 +89,9 @@ export class AccountCredentialsPopupComponent implements OnChanges {
     this.error = '';
     this.saving = true;
     const request = this.mode === 'create'
-      ? this.api.findAdminUserByEmail(data.Email).pipe(switchMap(response => {
+      ? !data.Email
+        ? this.api.createAdminUser({ ...data, Email: null })
+        : this.api.findAdminUserByEmail(data.Email).pipe(switchMap(response => {
           if (!response.Success) {
             this.error = response.ErrorMessage || 'Không thể kiểm tra email.';
             return EMPTY;

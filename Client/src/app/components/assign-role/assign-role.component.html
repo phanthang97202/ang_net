@@ -10,7 +10,7 @@
         nzAllowClear
         nzPlaceHolder="Chọn người dùng">
         @for (user of lstUsers; track user.Id) {
-          <nz-option [nzValue]="user.Id" [nzLabel]="user.Email" />
+          <nz-option [nzValue]="user.Id" [nzLabel]="user.Email || user.UserName" />
         }
       </nz-select>
     </nz-form-control>

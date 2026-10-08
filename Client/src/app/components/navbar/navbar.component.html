@@ -422,6 +422,7 @@
           {{ authService.getAccountInfo().name }}
         </p>
         <p
+          *ngIf="authService.getAccountInfo().email"
           class="account-menu__email"
           [title]="authService.getAccountInfo().email">
           {{ authService.getAccountInfo().email }}

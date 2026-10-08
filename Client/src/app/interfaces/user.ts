@@ -7,7 +7,7 @@ export interface IUser {
   UserName: string;
   HasPassword: boolean;
   FullName: string;
-  Email: string;
+  Email: string | null;
   Avatar: string;
   Roles: string[];
   PhoneNumber: string;
@@ -23,7 +23,7 @@ export interface IAccountCredentials {
 }
 
 export interface IAdminAccountCreate extends IAccountCredentials {
-  Email: string;
+  Email?: string | null;
   FullName: string;
 }
 // dashboard

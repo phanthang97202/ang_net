@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using angnet.Application.Interfaces.Repositories;
 using angnet.Application.Interfaces.Services;
 using angnet.Domain.Dtos;
@@ -16,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace angnet.InfrastructureTests.Data.Services;
@@ -179,5 +182,81 @@ public class AdminAccountTests
         var user = db.Model.FindEntityType(typeof(AppUser))!;
         Assert.IsTrue(user.GetIndexes().Single(x => x.GetDatabaseName() == "EmailIndex").IsUnique);
         Assert.AreEqual("Id", user.FindPrimaryKey()!.Properties.Single().Name);
+    }
+
+    [DataTestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("   ")]
+    public async Task CreateAndLogin_SupportMultipleAccountsWithoutEmail(string? email)
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=:memory:"));
+        services.AddIdentityCore<AppUser>(options => options.User.RequireUniqueEmail = false)
+            .AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDbContext>()
+            .AddUserValidator<OptionalEmailUserValidator>();
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.OpenConnectionAsync();
+        await db.Database.EnsureCreatedAsync();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+        var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        Assert.IsTrue((await roles.CreateAsync(new IdentityRole("User"))).Succeeded);
+        var audit = new Mock<IAuditTrailService>();
+        audit.Setup(x => x.Create(It.IsAny<AuditTrailDto>())).ReturnsAsync(new ApiResponse<AuditTrailDto>());
+        var service = new AdminAccountService(db, users, roles, audit.Object);
+        for (var i = 1; i <= 2; i++)
+        {
+            var request = CreateRequest();
+            request.Email = email;
+            request.UserName = $"user00{i}";
+            Assert.IsTrue(Validator.TryValidateObject(request, new ValidationContext(request), new List<ValidationResult>(), true));
+            var response = await service.Create(Actor(), request);
+            Assert.IsTrue(response.Success, response.ErrorMessage);
+            Assert.IsNull(response.Data.Email);
+            var user = (await users.FindByNameAsync(request.UserName))!;
+            Assert.IsNull(user.NormalizedEmail);
+            Assert.IsTrue(await users.CheckPasswordAsync(user, request.Password));
+            Assert.IsTrue(await users.IsInRoleAsync(user, "User"));
+            Assert.IsFalse(await users.IsInRoleAsync(user, "Admin"));
+        }
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["AspIdentity:MaxFailedAccessAttempts"] = "5",
+            ["JWTSetting:securityKey"] = new string('x', 64),
+            ["JWTSetting:validAudience"] = "test-audience",
+            ["JWTSetting:validIssuer"] = "test-issuer",
+            ["JWTSetting:accessTokenExpired"] = "1",
+            ["JWTSetting:refreshTokenExpired"] = "7",
+        }).Build();
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        var repository = new AccountRespository(users, new RabbitMqEmailProducer(config), roles,
+            accessor, config, db, new WriteLog(Mock.Of<ILogger<WriteLog>>(), accessor), audit.Object);
+        var login = await repository.Login(new LoginDto { Email = "USER001", Password = "TestPass123!" });
+        Assert.IsTrue(login.Success, login.ErrorMessage);
+        var token = new JwtSecurityTokenHandler().ReadJwtToken(login.Data.AccessToken);
+        Assert.AreEqual((await users.FindByNameAsync("user001"))!.Id,
+            token.Claims.Single(x => x.Type == JwtRegisteredClaimNames.NameId).Value);
+        Assert.AreEqual(1, await db.RefreshToken.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task OptionalEmailValidator_PreservesUniquenessAndAllowsCurrentOwner()
+    {
+        var users = Users();
+        var user = new AppUser { Id = "current", Email = "existing@example.com" };
+        users.Object.ErrorDescriber = new IdentityErrorDescriber();
+        users.Setup(x => x.GetEmailAsync(user)).ReturnsAsync(user.Email);
+        users.Setup(x => x.GetUserIdAsync(It.IsAny<AppUser>())).ReturnsAsync((AppUser u) => u.Id);
+        users.Setup(x => x.FindByEmailAsync(user.Email)).ReturnsAsync(user);
+        var validator = new OptionalEmailUserValidator();
+        Assert.IsTrue((await validator.ValidateAsync(users.Object, user)).Succeeded);
+        users.Setup(x => x.FindByEmailAsync(user.Email)).ReturnsAsync(new AppUser { Id = "other" });
+        Assert.AreEqual("DuplicateEmail", (await validator.ValidateAsync(users.Object, user)).Errors.Single().Code);
+        users.Setup(x => x.GetEmailAsync(user)).ReturnsAsync("invalid-email");
+        Assert.AreEqual("InvalidEmail", (await validator.ValidateAsync(users.Object, user)).Errors.Single().Code);
     }
 }

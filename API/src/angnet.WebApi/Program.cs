@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using angnet.Domain.Models;
 using angnet.Infrastructure;
+using angnet.Infrastructure.Data.Services;
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
@@ -87,7 +88,8 @@ builder.Services.AddSingleton(typeof(WriteLog));
 // Identity ASP NET CORE
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.User.RequireUniqueEmail = true;
+    // OptionalEmailUserValidator enforces uniqueness only when an email exists.
+    options.User.RequireUniqueEmail = false;
     options.Password.RequiredLength = 8;
     // Số lần nhập sai tối đa trước khi khóa
     options.Lockout.MaxFailedAccessAttempts = Convert.ToInt32(AspIdentity["MaxFailedAccessAttempts"]);
@@ -101,6 +103,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
+                .AddUserValidator<OptionalEmailUserValidator>()
                 .AddDefaultTokenProviders();
 
 // config jwt 

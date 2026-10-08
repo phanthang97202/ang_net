@@ -23,12 +23,12 @@ public class AdminAccountService(AppDbContext db, UserManager<AppUser> users,
     public async Task<ApiResponse<UserDetailDto>> Create(ClaimsPrincipal actor, AdminAccountCreateDto request)
     {
         var actorId = EnsureAdmin(actor);
-        if (!ValidEmail(request.Email) || string.IsNullOrWhiteSpace(request.FullName) || request.FullName.Length > 100)
+        if ((request.Email != null && !ValidEmail(request.Email)) || string.IsNullOrWhiteSpace(request.FullName) || request.FullName.Length > 100)
             return new("Vui lòng nhập email và họ tên hợp lệ.");
         if (!ValidCredentials(request)) return new("Tên tài khoản hoặc mật khẩu không hợp lệ.");
-        var email = request.Email.Trim();
+        var email = request.Email;
         var username = request.UserName.Trim();
-        if (await users.FindByEmailAsync(email) != null)
+        if (email != null && await users.FindByEmailAsync(email) != null)
             return new("Email đã có tài khoản. Hãy chọn Thêm đăng nhập trên tài khoản hiện có; không tạo tài khoản thứ hai.");
         if (await users.FindByNameAsync(username) != null) return new("Tên tài khoản đã được sử dụng.");
         if (!await roles.RoleExistsAsync("User")) return new("Chưa cấu hình vai trò User trong hệ thống.");
@@ -97,8 +97,9 @@ public class AdminAccountService(AppDbContext db, UserManager<AppUser> users,
             await db.RefreshToken.Where(x => x.UserId == user.Id && !x.IsRevoked)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsRevoked, true));
             // An older emailed reset code must not undo an admin password reset.
-            await db.GenerationAuthCode.Where(x => x.UserId == user.Email && !x.IsUsed)
-                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsUsed, true));
+            if (!string.IsNullOrWhiteSpace(user.Email))
+                await db.GenerationAuthCode.Where(x => x.UserId == user.Email && !x.IsUsed)
+                    .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsUsed, true));
             await Record(actorId, user.Id, "Đặt lại mật khẩu và thu hồi refresh token");
             return new ApiResponse<UserDetailDto>(await ToDto(user));
         });

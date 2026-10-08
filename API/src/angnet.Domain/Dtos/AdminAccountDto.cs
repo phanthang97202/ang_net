@@ -12,8 +12,13 @@ public class AccountCredentialsDto
 
 public class AdminAccountCreateDto : AccountCredentialsDto
 {
-    [Required, EmailAddress, MaxLength(256)]
-    public string Email { get; set; } = "";
+    private string? email;
+    [EmailAddress, MaxLength(256)]
+    public string? Email
+    {
+        get => email;
+        set => email = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
     [Required, MaxLength(100)]
     public string FullName { get; set; } = "";
 }

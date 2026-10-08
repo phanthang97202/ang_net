@@ -471,7 +471,7 @@ namespace angnet.Infrastructure.Data.Repositories
             await _auditTrailService.Create(new AuditTrailDto
             {
                 RecordId = "",
-                Description = $"{user.Email} has login successfully!",
+                Description = $"{user.Email ?? user.UserName} has login successfully!",
                 ChangedColumns = "",
                 OldValues = ""
             });
@@ -958,8 +958,9 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
-        public async Task DisableAllTokenNotUse(string userEmail, string type)
+        public async Task DisableAllTokenNotUse(string? userEmail, string type)
         {
+            if (string.IsNullOrWhiteSpace(userEmail)) return;
             // disable tất cả token cũ
             await _dbContext.GenerationAuthCode
                     .Where(x => x.UserId == userEmail && x.Type == type && !x.IsUsed)

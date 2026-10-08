@@ -50,8 +50,8 @@
                     nzIcon="user"
                     [nzSrc]="data.Avatar"></nz-avatar>
                   <div class="user-page__identity-text">
-                    <strong [title]="data.Email">{{ data.Email }}</strong>
-                    @if (data.Email === me) {
+                    <strong [title]="data.Email || data.UserName">{{ data.Email || data.UserName }}</strong>
+                    @if (data.Id === me) {
                       <span class="user-page__me">Tài khoản của bạn</span>
                     }
                   </div>

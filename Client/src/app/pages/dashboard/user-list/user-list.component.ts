@@ -40,7 +40,7 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     this.loadingService.setLoading(true);
-    this.me = this.authService.getAccountInfo().email;
+    this.me = this.authService.getAccountInfo().nameid;
     this.authService
       .getAllUsers()
       // .pipe(delay(2000))

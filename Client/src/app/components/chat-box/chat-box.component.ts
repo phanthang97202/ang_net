@@ -65,7 +65,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   messages: IChat[] = [];
   newMessage: string = '';
   typeMessage: TypeMessage = 'string';
-  userId: string = this.detailUser.getAccountInfo().email!;
+  // Keep existing email-based chat history; no-email accounts use a distinct ID.
+  userId: string = this.detailUser.getAccountInfo().email || `account:${this.detailUser.getAccountInfo().nameid}`;
 
   fileList: any[] = [];
   previewImage: string | undefined = '';
