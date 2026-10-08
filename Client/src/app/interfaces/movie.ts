@@ -8,6 +8,7 @@ export interface IMovieLibraryItem {
   EpisodeStatus: string;
   Quality: string;
   Language: string;
+  IsWishlisted: boolean;
 }
 
 export interface IMovieLibraryCatalog {

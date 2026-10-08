@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Claims;
 using angnet.Application.Interfaces.Services;
 using angnet.Domain.Dtos;
 using Microsoft.AspNetCore.Authorization;
@@ -12,15 +13,25 @@ namespace angnet.WebApi.Controllers;
 [Route("api/Anime/Library")] // Compatibility for already-open clients; same permission gate.
 [Authorize(Policy = "movie.view")]
 [EnableRateLimiting("API")]
-public class MovieLibraryController(IMovieLibraryService library, ILogger<MovieLibraryController> logger) : ControllerBase
+public class MovieLibraryController(IMovieLibraryService library, IMovieWishlistService wishlist, ILogger<MovieLibraryController> logger) : ControllerBase
 {
     [HttpGet]
     public Task<IActionResult> Browse(string keyword = "", int page = 1, CancellationToken cancellationToken = default) =>
-        Respond(() => library.Browse(keyword, page, cancellationToken));
+        Respond(async () =>
+        {
+            var result = await library.Browse(keyword, page, cancellationToken);
+            await wishlist.MarkSaved(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "", result.Items, cancellationToken);
+            return result;
+        });
 
     [HttpGet("{slug}")]
     public Task<IActionResult> Detail(string slug, CancellationToken cancellationToken) =>
-        Respond(() => library.Detail(slug, cancellationToken));
+        Respond(async () =>
+        {
+            var result = await library.Detail(slug, cancellationToken);
+            await wishlist.MarkSaved(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "", [result], cancellationToken);
+            return result;
+        });
 
     [HttpGet("{slug}/playback")]
     public Task<IActionResult> Playback(string slug, int server, string episode, CancellationToken cancellationToken) =>
@@ -28,6 +39,7 @@ public class MovieLibraryController(IMovieLibraryService library, ILogger<MovieL
 
     private async Task<IActionResult> Respond<T>(Func<Task<T>> request)
     {
+        if (string.IsNullOrWhiteSpace(User.FindFirstValue(ClaimTypes.NameIdentifier))) return Unauthorized();
         try { return Ok(new ApiResponse<T>(await request())); }
         catch (ArgumentException ex) { return BadRequest(new ApiResponse<T>(ex.Message)); }
         catch (KeyNotFoundException ex) { return NotFound(new ApiResponse<T>(ex.Message)); }

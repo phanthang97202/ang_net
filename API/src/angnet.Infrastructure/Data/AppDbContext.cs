@@ -90,10 +90,22 @@ namespace angnet.Infrastructure.Data
         public DbSet<AnimeEpisodeModel> AnimeEpisode { get; set; }
         public DbSet<AnimeSourceModel> AnimeSource { get; set; }
 
+        public DbSet<MovieWishlistModel> MovieWishlist { get; set; }
+
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<MovieWishlistModel>()
+                .HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MovieWishlistModel>()
+                .HasIndex(x => new { x.UserId, x.Provider, x.MovieSlug }).IsUnique();
+            modelBuilder.Entity<MovieWishlistModel>()
+                .HasIndex(x => new { x.UserId, x.Provider, x.FlagActive, x.CreatedDTime, x.WishlistId })
+                .HasDatabaseName("IX_MovieWishlist_Owner_Feed")
+                .IsDescending(false, false, false, true, true);
 
             // TenantModel
             modelBuilder.Entity<TenantModel>(

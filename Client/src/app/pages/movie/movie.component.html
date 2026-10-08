@@ -1,5 +1,12 @@
 <main class="movie-page">
   <section *ngIf="!slug" class="movie-search-view">
+    <nav class="movie-tabs" aria-label="Thư viện phim">
+      <a routerLink="/phim" class="blog-btn" [class.blog-btn--primary]="!wishlistView"
+        [attr.aria-current]="!wishlistView ? 'page' : null">Khám phá</a>
+      <a routerLink="/phim" [queryParams]="{ view: 'wishlist' }" class="blog-btn"
+        [class.blog-btn--primary]="wishlistView"
+        [attr.aria-current]="wishlistView ? 'page' : null">Yêu thích</a>
+    </nav>
     <form class="movie-search" (ngSubmit)="search()">
       <span nz-icon nzType="search" nzTheme="outline"></span>
       <input
@@ -20,22 +27,23 @@
     <section *ngIf="catalog as list" class="movie-results">
       <div class="section-heading">
         <div>
-          <span>{{ query ? 'KẾT QUẢ TÌM KIẾM' : 'MỚI CẬP NHẬT' }}</span>
+          <span>{{ wishlistView ? 'ĐÃ LƯU' : query ? 'KẾT QUẢ TÌM KIẾM' : 'MỚI CẬP NHẬT' }}</span>
           <h2>
-            {{ query ? 'Kết quả cho “' + query + '”' : 'Khám phá phim' }}
+            {{ query ? 'Kết quả cho “' + query + '”' : wishlistView ? 'Phim yêu thích' : 'Khám phá phim' }}
           </h2>
         </div>
         <strong>{{ list.TotalItems | number }} phim</strong>
       </div>
       <div class="movie-grid">
-        <a
+        <article
           *ngFor="let movie of list.Items"
-          class="movie-card"
+          class="movie-card">
+          <a class="movie-card__link"
           [routerLink]="['/phim', movie.Slug]"
-          [queryParams]="{ q: query || null, page: page }">
+          [queryParams]="{ q: query || null, page: page, view: wishlistView ? 'wishlist' : null }">
           <div class="movie-card__poster">
             <img [src]="movie.PosterUrl" [alt]="movie.Title" loading="lazy" />
-            <span class="movie-card__score"
+            <span *ngIf="movie.Quality || movie.Language" class="movie-card__score"
               >{{ movie.Quality }} · {{ movie.Language }}</span
             >
             <span class="movie-card__action"
@@ -50,20 +58,27 @@
               ><span>{{ movie.EpisodeStatus }}</span>
             </div>
           </div>
-        </a>
+          </a>
+          <button type="button" class="movie-save" [class.movie-save--active]="movie.IsWishlisted"
+            [disabled]="wishlistPending.has(movie.Slug)" [attr.aria-pressed]="movie.IsWishlisted"
+            [attr.aria-label]="(movie.IsWishlisted ? 'Bỏ yêu thích: ' : 'Lưu yêu thích: ') + movie.Title"
+            [title]="movie.IsWishlisted ? 'Bỏ yêu thích' : 'Lưu yêu thích'"
+            (click)="toggleWishlist(movie)">
+            <span nz-icon nzType="heart" [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
+          </button>
+        </article>
       </div>
       <div *ngIf="!list.Items.length" class="movie-empty">
-        <h2>Chưa tìm thấy phim phù hợp</h2>
+        <h2>{{ wishlistView && !query ? 'Chưa có phim yêu thích' : 'Chưa tìm thấy phim phù hợp' }}</h2>
         <p>
-          Thử tên tiếng Việt, tên gốc hoặc một từ khóa ngắn hơn. Nguồn phim có
-          thể chưa có bộ này.
+          {{ wishlistView ? 'Nhấn nút trái tim trên phim bạn thích để lưu vào đây.' : 'Thử tên tiếng Việt, tên gốc hoặc một từ khóa ngắn hơn.' }}
         </p>
-        <a routerLink="/phim" class="blog-btn">Xem tất cả movie</a>
+        <a routerLink="/phim" class="blog-btn">Khám phá phim</a>
       </div>
       <nav
         *ngIf="list.TotalPages > 1"
         class="movie-pagination"
-        aria-label="Phân trang movie">
+        aria-label="Phân trang phim">
         <button
           class="blog-btn"
           type="button"
@@ -85,7 +100,7 @@
 
   <div *ngIf="loading" class="movie-loading" role="status">
     <span class="movie-loading__mark"></span>
-    <p>Đang tải từ nguồn phim...</p>
+    <p>{{ wishlistView && !slug ? 'Đang tải phim yêu thích...' : 'Đang tải từ nguồn phim...' }}</p>
   </div>
   <div *ngIf="error" class="movie-empty" role="alert">
     <h2>{{ error }}</h2>
@@ -99,9 +114,9 @@
     <a
       class="movie-back"
       routerLink="/phim"
-      [queryParams]="{ q: query || null, page: page }">
-      <span nz-icon nzType="arrow-left" nzTheme="outline"></span> Về thư viện
-      movie
+      [queryParams]="{ q: query || null, page: page, view: wishlistView ? 'wishlist' : null }">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+      {{ wishlistView ? 'Về phim yêu thích' : 'Về thư viện phim' }}
     </a>
     <section
       class="movie-detail__hero"
@@ -127,6 +142,12 @@
           <div class="movie-detail__genres">
             <span *ngFor="let genre of movie.Genres">{{ genre }}</span>
           </div>
+          <button type="button" class="blog-btn blog-btn--primary movie-save-detail"
+            [disabled]="wishlistPending.has(movie.Slug)" [attr.aria-pressed]="movie.IsWishlisted"
+            (click)="toggleWishlist(movie)">
+            <span nz-icon nzType="heart" [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
+            {{ movie.IsWishlisted ? 'Đã yêu thích' : 'Lưu yêu thích' }}
+          </button>
         </div>
       </div>
     </section>

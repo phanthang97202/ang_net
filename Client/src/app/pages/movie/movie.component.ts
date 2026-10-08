@@ -11,12 +11,14 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
+import { combineLatest, distinctUntilChanged, finalize, map, Subscription } from 'rxjs';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   IMovieLibraryCatalog,
   IMovieLibraryDetail,
   IMovieLibraryEpisode,
+  IMovieLibraryItem,
   IMovieLibraryPlayback,
   IMovieLibraryServer,
 } from '../../interfaces/movie';
@@ -34,7 +36,7 @@ import { MovieVideoComponent } from './movie-video.component';
     MovieVideoComponent,
   ],
   templateUrl: './movie.component.html',
-  styleUrl: './movie.component.scss',
+  styleUrls: ['./movie.component.scss', './movie-wishlist.scss'],
 })
 export class MovieComponent implements OnInit {
   private readonly api = inject(MovieService);
@@ -42,12 +44,15 @@ export class MovieComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messages = inject(NzMessageService);
   private request?: Subscription;
   private playbackRequest?: Subscription;
   private embedFallbackAttempted = false;
   @ViewChild('player') private player?: ElementRef<HTMLElement>;
 
   keyword = '';
+  wishlistView = false;
+  readonly wishlistPending = new Set<string>();
   query = '';
   page = 1;
   slug = '';
@@ -73,6 +78,7 @@ export class MovieComponent implements OnInit {
         map(([params, query]) => ({
           slug: params.get('slug') || '',
           keyword: (query.get('q') || '').slice(0, 100),
+          wishlist: query.get('view') === 'wishlist',
           page: Math.max(
             1,
             Math.min(10000, Math.trunc(Number(query.get('page'))) || 1)
@@ -80,12 +86,13 @@ export class MovieComponent implements OnInit {
         })),
         distinctUntilChanged(
           (a, b) =>
-            a.slug === b.slug && a.keyword === b.keyword && a.page === b.page
+            a.slug === b.slug && a.keyword === b.keyword && a.page === b.page && a.wishlist === b.wishlist
         ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(state => {
         this.slug = state.slug;
+        this.wishlistView = state.wishlist;
         this.query = this.keyword = state.keyword;
         this.page = state.page;
         this.load();
@@ -94,13 +101,13 @@ export class MovieComponent implements OnInit {
 
   search(): void {
     void this.router.navigate(['/phim'], {
-      queryParams: { q: this.keyword.trim() || null, page: null },
+      queryParams: { q: this.keyword.trim() || null, page: null, view: this.wishlistView ? 'wishlist' : null },
     });
   }
 
   changePage(page: number): void {
     void this.router.navigate(['/phim'], {
-      queryParams: { q: this.query || null, page },
+      queryParams: { q: this.query || null, page, view: this.wishlistView ? 'wishlist' : null },
     });
   }
 
@@ -129,7 +136,10 @@ export class MovieComponent implements OnInit {
         error: err => this.loadError(err),
       });
     } else {
-      this.request = this.api.library(this.query, this.page).subscribe({
+      const source = this.wishlistView
+        ? this.api.wishlist(this.query, this.page)
+        : this.api.library(this.query, this.page);
+      this.request = source.subscribe({
         next: response => {
           this.loading = false;
           if (!response.Success || !response.Data) {
@@ -138,10 +148,38 @@ export class MovieComponent implements OnInit {
             return;
           }
           this.catalog = response.Data;
+          this.page = response.Data.Page;
         },
         error: err => this.loadError(err),
       });
     }
+  }
+
+  toggleWishlist(movie: IMovieLibraryItem): void {
+    if (this.wishlistPending.has(movie.Slug)) return;
+    this.wishlistPending.add(movie.Slug);
+    const request = movie.IsWishlisted
+      ? this.api.removeWishlist(movie.Slug)
+      : this.api.saveWishlist(movie.Slug);
+    request.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.wishlistPending.delete(movie.Slug))
+    ).subscribe({
+      next: response => {
+        if (!response.Success) {
+          this.messages.error(response.ErrorMessage || 'Không thể cập nhật yêu thích.');
+          return;
+        }
+        movie.IsWishlisted = response.Data;
+        this.catalog?.Items.filter(item => item.Slug === movie.Slug)
+          .forEach(item => item.IsWishlisted = response.Data);
+        if (this.detail?.Slug === movie.Slug) this.detail.IsWishlisted = response.Data;
+        if (!response.Data && this.wishlistView && !this.slug) this.load();
+      },
+      error: err => this.messages.error(
+        err?.error?.ErrorMessage || 'Không thể cập nhật yêu thích. Vui lòng thử lại.'
+      ),
+    });
   }
 
   selectServer(server: IMovieLibraryServer): void {

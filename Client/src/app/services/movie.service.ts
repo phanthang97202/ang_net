@@ -23,6 +23,25 @@ export class MovieService {
     );
   }
 
+  wishlist(keyword = '', page = 1) {
+    return this.http.get<IBaseResponse<IMovieLibraryCatalog>>(
+      `${this.apiUrl}/Wishlist`,
+      { params: new HttpParams().set('keyword', keyword).set('page', page) }
+    );
+  }
+
+  saveWishlist(slug: string) {
+    return this.http.put<IBaseResponse<boolean>>(
+      `${this.apiUrl}/Wishlist/${encodeURIComponent(slug)}`, {}
+    );
+  }
+
+  removeWishlist(slug: string) {
+    return this.http.delete<IBaseResponse<boolean>>(
+      `${this.apiUrl}/Wishlist/${encodeURIComponent(slug)}`
+    );
+  }
+
   libraryDetail(slug: string) {
     return this.http.get<IBaseResponse<IMovieLibraryDetail>>(
       `${this.apiUrl}/Library/${encodeURIComponent(slug)}`

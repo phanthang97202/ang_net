@@ -16,6 +16,14 @@ The migration changes the default menu path/title to `/phim` / Phim (Movies), pr
 
 The admin anime-manager screen, its dashboard route/menu, AniList importer, manual-source APIs and their client bindings have been removed. The obsolete `anime.manage` permission is inactive. No Anime, AnimeEpisode or AnimeSource tables or data are deleted; those historical migrations/models are retained to avoid destroying existing records.
 
+## Personal wishlist
+
+Each account with `movie.view` can save and remove favorites from the catalog cards or movie detail. `/phim?view=wishlist` lists their own saved films, with optional title search and 24 items per page. The API adds `IsWishlisted` to catalog/detail responses.
+
+`GET /api/Movie/Wishlist`, `PUT /api/Movie/Wishlist/{slug}` and `DELETE /api/Movie/Wishlist/{slug}` all require `movie.view` and derive the owner exclusively from the authenticated NameIdentifier claim. No client UserId is accepted. Saving resolves metadata from the provider server-side. The new `MovieWishlist` table stores title/poster snapshots so listing favorites does not depend on provider uptime. Opening a favorite still resolves current detail/episodes from the provider.
+
+Migration `0036_TaoBangMovieWishlist.sql` runs through the normal startup migrator. It includes the standard master fields, an owner foreign key, a unique owner/provider/slug index and a feed index. Removal deactivates the entry; the atomic upsert reactivates it on save without duplicate rows. Deploy Client and API together.
+
 ## Provider and playback
 
 The backend uses the fixed `https://phimapi.com` host, validates movie slugs, caches successful responses for three minutes and times out calls after 15 seconds. No video download, full-catalog import or provider API key is required.

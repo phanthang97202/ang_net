@@ -12,6 +12,7 @@ public class MovieLibraryItemDto
     public string EpisodeStatus { get; set; } = "";
     public string Quality { get; set; } = "";
     public string Language { get; set; } = "";
+    public bool IsWishlisted { get; set; }
 }
 
 public class MovieLibraryCatalogDto
