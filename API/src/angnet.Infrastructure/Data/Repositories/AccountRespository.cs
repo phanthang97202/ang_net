@@ -265,6 +265,8 @@ namespace angnet.Infrastructure.Data.Repositories
                     result.Add(new UserDetailDto
                     {
                         Id = u.Id,
+                        UserName = u.UserName ?? "",
+                        HasPassword = !string.IsNullOrEmpty(u.PasswordHash),
                         Email = u.Email,
                         FullName = u.FullName,
                         Avatar = u.Avatar,
@@ -302,6 +304,8 @@ namespace angnet.Infrastructure.Data.Repositories
             UserDetailDto data = new UserDetailDto()
             {
                 Id = user.Id,
+                UserName = user.UserName ?? "",
+                HasPassword = !string.IsNullOrEmpty(user.PasswordHash),
                 Email = user.Email,
                 FullName = user.FullName,
                 Avatar = user.Avatar,
@@ -326,13 +330,18 @@ namespace angnet.Infrastructure.Data.Repositories
 
             var MaxFailedAccessAttempts = Convert.ToInt32(_configuration.GetSection("AspIdentity").GetSection("MaxFailedAccessAttempts").Value!);
 
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            // Keep the legacy Email field so already-open clients remain compatible.
+            // Local usernames cannot contain @, avoiding ambiguity with email login.
+            var identifier = (loginDto.Email ?? "").Trim();
+            var user = identifier.Contains('@')
+                ? await _userManager.FindByEmailAsync(identifier)
+                : await _userManager.FindByNameAsync(identifier);
 
             // Check user is existed and actived ?
             if (user is null)
             {
                 apiResponse.CatchException(false, "Account.EmailIsNotExist", requestClient);
-                var logMsg = $"========LOGIN FAILED: Account.EmailIsNotExist=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}";
+                var logMsg = $"LOGIN FAILED: Account not found at {TCommonUtils.DTimeNow()}";
                 _logger.LogWarning(logMsg);
                 await _auditTrailService.Create(new AuditTrailDto
                 {
@@ -400,7 +409,7 @@ namespace angnet.Infrastructure.Data.Repositories
                     var remainTryLogin = MaxFailedAccessAttempts - failedCount;
                     apiResponse.CatchException(false, $"Account.PasswordIsNotValid(YouHave{remainTryLogin}TimesRemain)", requestClient);
 
-                    var logMsgs = $"========LOGIN FAILED: Account.PasswordIsNotValid=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}";
+                    var logMsgs = $"LOGIN FAILED: Invalid password for user {user.Id} at {TCommonUtils.DTimeNow()}";
                     _logger.LogWarning(logMsgs);
 
                     await _auditTrailService.Create(new AuditTrailDto
@@ -416,7 +425,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
                 apiResponse.CatchException(false, $"Account.PasswordIsNotValid", requestClient);
 
-                var logMsg = $"========LOGIN FAILED: Account.PasswordIsNotValid=======\n user: {user} | password: {loginDto.Password} at DTime: {TCommonUtils.DTimeNow()}";
+                var logMsg = $"LOGIN FAILED: Invalid password for user {user.Id} at {TCommonUtils.DTimeNow()}";
                 _logger.LogWarning(logMsg);
                 await _auditTrailService.Create(new AuditTrailDto
                 {
@@ -537,6 +546,9 @@ namespace angnet.Infrastructure.Data.Repositories
 
             var payload = await VerifyGoogleToken(request.IdToken);
 
+            if (payload == null || !payload.EmailVerified || string.IsNullOrWhiteSpace(payload.Email))
+                return new ApiResponse<AuthResponseDto>("Không thể xác minh tài khoản Google. Hãy đăng nhập lại.");
+
 
             // Kiểm tra email, tạo user nếu chưa có, v.v.
             //var user = await _userService.FindOrCreateUser(payload.Email, payload.Name);
@@ -557,12 +569,16 @@ namespace angnet.Infrastructure.Data.Repositories
             if (userExist is null)
             {
 
-                await _userManager.CreateAsync(user);
-                IdentityResult result = await _userManager.AddToRoleAsync(user, "User");
-                if (result.Succeeded)
+                var created = await _userManager.CreateAsync(user);
+                if (!created.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
+                    // A concurrent admin creation/Google login may have claimed this email.
+                    user = await _userManager.FindByEmailAsync(payload.Email);
+                    if (user == null || !user.FlagActive)
+                        return new ApiResponse<AuthResponseDto>("Không thể tạo tài khoản Google. Vui lòng thử lại.");
                 }
+                else if (!(await _userManager.AddToRoleAsync(user, "User")).Succeeded)
+                    return new ApiResponse<AuthResponseDto>("Không thể gán vai trò cho tài khoản. Vui lòng liên hệ quản trị viên.");
             }
             else
             {
@@ -727,7 +743,7 @@ namespace angnet.Infrastructure.Data.Repositories
             if (!result.Succeeded)
             {
                 apiResponse.CatchException(false, "Account.OccurErrorWhileCreateNewUser", requestClient);
-                var logMsg = $"========REGISTER FAILED: Account.OccurErrorWhileCreateNewUser=======\n user: {user} | password: {registerDto.Password} at DTime: {TCommonUtils.DTimeNow()}";
+                var logMsg = $"REGISTER FAILED: Could not create user at {TCommonUtils.DTimeNow()}";
                 _logger.LogWarning(logMsg);
 
                 await _auditTrailService.Create(new AuditTrailDto
@@ -1029,19 +1045,13 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            var result = await _userManager.RemovePasswordAsync(user);
+            // Validate and replace atomically in Identity; never remove a working
+            // password before finding out that the replacement is invalid.
+            var identityResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, identityResetToken, newPassword);
 
             if (result.Succeeded)
             {
-                var changedPass = await _userManager.AddPasswordAsync(user, newPassword);
-
-                if (!changedPass.Succeeded)
-                {
-                    string msg = string.Join(", ", changedPass.Errors.Select(x => x.Description));
-                    apiResponse.CatchException(false, $"ChangePassword. {msg}", requestClient);
-                    return apiResponse;
-                } 
-
                 // logout all device
                 await LogoutAllDevice(user.Id);
 
@@ -1055,6 +1065,11 @@ namespace angnet.Infrastructure.Data.Repositories
                     ChangedColumns = "",
                     OldValues = ""
                 });
+            }
+
+            else
+            {
+                apiResponse.CatchException(false, "Mật khẩu mới không đáp ứng yêu cầu bảo mật.", requestClient);
             }
 
             return apiResponse;

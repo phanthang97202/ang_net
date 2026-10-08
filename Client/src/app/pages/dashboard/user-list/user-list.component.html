@@ -8,7 +8,12 @@
           <h2 id="user-list-title">Danh sách người dùng</h2>
           <p>Tài khoản đã đăng nhập hệ thống và vai trò đang được gán.</p>
         </div>
-        <span class="user-page__count">{{ lstUsers.length }} người dùng</span>
+        <div class="user-page__actions">
+          <span class="user-page__count">{{ lstUsers.length }} người dùng</span>
+          <button *ngIf="authService.isAdminPermission()" nz-button nzType="primary" (click)="editCredentials(null)">
+            <span nz-icon nzType="user-add" nzTheme="outline"></span> Tạo tài khoản
+          </button>
+        </div>
       </header>
 
       <nz-table
@@ -17,7 +22,7 @@
         [nzData]="lstUsers"
         [nzFrontPagination]="false"
         [nzLoading]="false"
-        [nzScroll]="{ x: '860px' }"
+        [nzScroll]="{ x: '1100px' }"
         [nzNoResult]="emptyState">
         <thead>
           <tr>
@@ -27,10 +32,12 @@
             <th nzColumnKey="fullName" [nzFilterFn]="true" nzWidth="220px">
               Họ tên
             </th>
+            <th nzWidth="180px">Tên đăng nhập</th>
             <th nzColumnKey="roles" [nzSortFn]="true">Vai trò</th>
             <th nzColumnKey="flagActive" [nzSortFn]="true" nzWidth="130px">
               Trạng thái
             </th>
+            <th *ngIf="authService.isAdminPermission()" nzWidth="190px">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -54,6 +61,10 @@
                 <span class="user-page__name">{{ data.FullName }}</span>
               </td>
               <td>
+                <span>{{ data.UserName }}</span>
+                <small class="user-page__login-type">{{ data.HasPassword ? 'Có mật khẩu' : 'Chưa có mật khẩu' }}</small>
+              </td>
+              <td>
                 <div class="user-page__roles">
                   @for (role of data.Roles; track role) {
                     <span class="user-page__role">{{ role }}</span>
@@ -75,6 +86,11 @@
                   {{ data.FlagActive ? 'Hoạt động' : 'Tạm khóa' }}
                 </nz-tag>
               </td>
+              <td *ngIf="authService.isAdminPermission()">
+                <button nz-button nzType="default" (click)="editCredentials(data)">
+                  {{ data.HasPassword ? 'Đặt lại mật khẩu' : 'Thêm đăng nhập' }}
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -90,3 +106,4 @@
     </section>
   </main>
 </div>
+<app-account-credentials-popup [(visible)]="credentialsVisible" [user]="selectedUser" (saved)="loadUsers()" />

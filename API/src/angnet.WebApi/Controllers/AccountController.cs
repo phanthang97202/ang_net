@@ -9,6 +9,7 @@ using angnet.Application.Interfaces.Repositories;
 
 using Microsoft.AspNetCore.RateLimiting;
 using angnet.Infrastructure.Mail.Service;
+using Microsoft.Extensions.Configuration;
 
 namespace angnet.WebApi.Controllers
 {
@@ -37,17 +38,9 @@ namespace angnet.WebApi.Controllers
         [AllowAnonymous]
         [HttpGet("getregistercode")]
         [EnableRateLimitingAttribute("API")]
-        public async Task<ActionResult<RegisterDto>> GetRegisterCode(string email)
+        public ActionResult<RegisterDto> GetRegisterCode(string email)
         {
-            try
-            {
-                ApiResponse<string> response = await _accountRespository.GetRegisterCode(email);
-                return Ok(response);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return StatusCode(403, new ApiResponse<string>("Đăng ký bằng mật khẩu đã tắt. Hãy đăng nhập Google hoặc liên hệ quản trị viên."));
         }
 
         [AllowAnonymous]
@@ -69,17 +62,9 @@ namespace angnet.WebApi.Controllers
         [AllowAnonymous]
         [HttpPost("register")]
         [EnableRateLimitingAttribute("API")]
-        public async Task<ActionResult<RegisterDto>> Register(RegisterDto registerDto)
+        public ActionResult<RegisterDto> Register(RegisterDto registerDto)
         {
-            try
-            {
-                ApiResponse<RegisterDto> response = await _accountRespository.Register(registerDto);
-                return Ok(response);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return StatusCode(403, new ApiResponse<RegisterDto>("Chỉ quản trị viên được tạo tài khoản bằng mật khẩu. Bạn vẫn có thể đăng nhập Google."));
         }
 
         [AllowAnonymous]

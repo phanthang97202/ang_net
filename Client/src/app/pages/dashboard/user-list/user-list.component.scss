@@ -60,6 +60,19 @@
   white-space: nowrap;
 }
 
+.user-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.user-page__login-type {
+  display: block;
+  margin-top: 4px;
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+}
+
 .user-page__identity {
   display: flex;
   min-width: 0;

@@ -4,6 +4,8 @@ export interface IUserResponse extends IBaseResponse<IUser> {}
 
 export interface IUser {
   Id: string;
+  UserName: string;
+  HasPassword: boolean;
   FullName: string;
   Email: string;
   Avatar: string;
@@ -13,6 +15,16 @@ export interface IUser {
   PhoneNumberConfirmed: boolean;
   AccessFailedCount: number;
   FlagActive: boolean;
+}
+
+export interface IAccountCredentials {
+  UserName: string;
+  Password: string;
+}
+
+export interface IAdminAccountCreate extends IAccountCredentials {
+  Email: string;
+  FullName: string;
 }
 // dashboard
 export interface IUserInfo {

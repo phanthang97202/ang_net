@@ -10,11 +10,12 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../../modules';
 import { IUser } from '../../../interfaces';
+import { AccountCredentialsPopupComponent } from './account-credentials-popup.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, REUSE_PIPE_MODULE],
+  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, REUSE_PIPE_MODULE, AccountCredentialsPopupComponent],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
@@ -24,8 +25,20 @@ export class UserListComponent implements OnInit {
   loadingService = inject(LoadingService);
   me = '';
   lstUsers: IUser[] = [];
+  credentialsVisible = false;
+  selectedUser: IUser | null = null;
 
   ngOnInit() {
+    this.loadUsers();
+  }
+
+  editCredentials(user: IUser | null): void {
+    if (!this.authService.isAdminPermission()) return;
+    this.selectedUser = user;
+    this.credentialsVisible = true;
+  }
+
+  loadUsers(): void {
     this.loadingService.setLoading(true);
     this.me = this.authService.getAccountInfo().email;
     this.authService
@@ -33,7 +46,7 @@ export class UserListComponent implements OnInit {
       // .pipe(delay(2000))
       .subscribe({
         next: data => {
-          this.lstUsers = data.DataList;
+          this.lstUsers = data.DataList || [];
           this.loadingService.setLoading(false);
         },
         error: err => {

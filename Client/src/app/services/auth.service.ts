@@ -21,6 +21,7 @@ import {
   IUnassignRoleRequest,
 } from '../interfaces';
 import { Router } from '@angular/router';
+import { IAccountCredentials, IAdminAccountCreate } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +50,29 @@ export class AuthService {
           return response;
         })
       );
+  }
+
+  findAdminUserByEmail(email: string): Observable<IUserResponse> {
+    return this.http.get<IUserResponse>(`${this.apiUrl}account/admin/users/by-email`, {
+      params: { email },
+    });
+  }
+
+  createAdminUser(data: IAdminAccountCreate): Observable<IUserResponse> {
+    return this.http.post<IUserResponse>(`${this.apiUrl}account/admin/users`, data);
+  }
+
+  addAccountCredentials(userId: string, data: IAccountCredentials): Observable<IUserResponse> {
+    return this.http.put<IUserResponse>(
+      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/credentials`, data
+    );
+  }
+
+  resetAccountPassword(userId: string, password: string): Observable<IUserResponse> {
+    return this.http.post<IUserResponse>(
+      `${this.apiUrl}account/admin/users/${encodeURIComponent(userId)}/reset-password`,
+      { Password: password }
+    );
   }
 
   signInWithGoogle(idToken: string): Observable<AuthResponse> {

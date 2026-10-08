@@ -87,6 +87,8 @@ builder.Services.AddSingleton(typeof(WriteLog));
 // Identity ASP NET CORE
 builder.Services.Configure<IdentityOptions>(options =>
 {
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 8;
     // Số lần nhập sai tối đa trước khi khóa
     options.Lockout.MaxFailedAccessAttempts = Convert.ToInt32(AspIdentity["MaxFailedAccessAttempts"]);
 

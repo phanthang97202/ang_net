@@ -38,6 +38,7 @@ namespace angnet.Infrastructure
             services.AddScoped<IChatRepository, ChatRespository>();
             services.AddScoped<INewsRespository, NewsRespository>();
             services.AddScoped<IAccountRespository, AccountRespository>();
+            services.AddScoped<IAdminAccountService, AdminAccountService>();
             services.AddScoped<IHashTagNewsRespository, HashTagNewsRespository>();
 
             services.AddScoped<IAuditTrailRespository, AuditTrailRespository>();

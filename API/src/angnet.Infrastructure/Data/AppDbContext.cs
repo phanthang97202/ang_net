@@ -97,6 +97,9 @@ namespace angnet.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<AppUser>().HasIndex(x => x.NormalizedEmail)
+                .HasDatabaseName("EmailIndex").IsUnique().HasFilter("\"NormalizedEmail\" IS NOT NULL");
+
             modelBuilder.Entity<MovieWishlistModel>()
                 .HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
