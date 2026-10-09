@@ -731,6 +731,21 @@ export class ApiService {
   }
 
   // Reel
+  MyReels(
+    pageSize: number,
+    cursor: string | null
+  ): Observable<IReelFeedResponse> {
+    return this.http.get<IReelFeedResponse>(`${this.apiUrl}reel/mine`, {
+      params: { pageSize, ...(cursor ? { cursor } : {}) },
+    });
+  }
+
+  ReelDetail(reelId: string): Observable<IReelCreateResponse> {
+    return this.http.get<IReelCreateResponse>(`${this.apiUrl}reel/detail`, {
+      params: { reelId },
+    });
+  }
+
   ReelFeed(
     pageSize: number,
     cursor: string | null

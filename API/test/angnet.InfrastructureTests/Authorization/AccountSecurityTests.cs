@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using angnet.Application.Interfaces.Repositories;
 using angnet.Application.Interfaces.Services;
 using angnet.Domain.Dtos;
@@ -12,12 +13,14 @@ using angnet.Infrastructure.Data;
 using angnet.Infrastructure.Data.Repositories;
 using angnet.Infrastructure.Data.Services;
 using angnet.Infrastructure.Mail.Producer;
+using angnet.Infrastructure.Data.UnitOfWork;
 using angnet.Utility.CommonUtils;
 using angnet.WebApi.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Data.Sqlite;
@@ -205,6 +208,91 @@ public class AccountSecurityTests
         Assert.AreEqual("", (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target")).Avatar);
     }
 
+    [DataTestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task OwnSecurity_RevokesEverySessionAndCannotTargetSomeoneElse(bool locked)
+    {
+        var first = await _f.Login();
+        var second = await _f.Login();
+        var path = locked ? "lock" : "revoke-sessions";
+        // Forged query/body IDs must be ignored: only the JWT owner can be affected.
+        using var response = await _f.Send($"/api/Account/me/{path}?userId=admin", first.Data.AccessToken,
+            new { UserId = "admin", Locked = false });
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.IsTrue((await response.Content.ReadFromJsonAsync<ApiResponse<string>>())!.Success);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await _f.Probe(first.Data.AccessToken));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await _f.Probe(second.Data.AccessToken));
+        Assert.IsFalse((await _f.Refresh(first.Data.RefreshToken)).Success);
+        Assert.IsFalse((await _f.Refresh(second.Data.RefreshToken)).Success);
+        var target = await _f.Db.Users.AsNoTracking().SingleAsync(u => u.Id == "target");
+        Assert.AreEqual(!locked, target.FlagActive);
+        Assert.AreEqual(1, target.SessionVersion);
+        var admin = await _f.Db.Users.AsNoTracking().SingleAsync(u => u.Id == "admin");
+        Assert.IsTrue(admin.FlagActive);
+        Assert.AreEqual(0, admin.SessionVersion);
+        Assert.AreEqual(!locked, (await _f.Login()).Success);
+        if (locked)
+        {
+            Assert.IsTrue((await _f.Action("unlock")).Success);
+            Assert.IsTrue((await _f.Login()).Success);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, await _f.Probe(first.Data.AccessToken));
+            Assert.IsFalse((await _f.Refresh(first.Data.RefreshToken)).Success);
+        }
+        _f.Audit.Verify(a => a.Create(It.Is<AuditTrailDto>(x =>
+            x.RecordId == "target" && x.ChangedColumns == "AccountSecurity")), Times.Once);
+    }
+
+    [DataTestMethod]
+    [DataRow("lock")]
+    [DataRow("revoke-sessions")]
+    public async Task OwnSecurity_RequiresAuthenticationAndRollsBackWhenAuditFails(string action)
+    {
+        using var anonymous = await _f.Send($"/api/Account/me/{action}");
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        var login = await _f.Login();
+        _f.Audit.Setup(a => a.Create(It.IsAny<AuditTrailDto>()))
+            .ReturnsAsync(new ApiResponse<AuditTrailDto>("Audit unavailable"));
+        using var failed = await _f.Send($"/api/Account/me/{action}", login.Data.AccessToken);
+        Assert.AreEqual(HttpStatusCode.ServiceUnavailable, failed.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, await _f.Probe(login.Data.AccessToken));
+        Assert.IsTrue((await _f.Refresh(login.Data.RefreshToken)).Success);
+        var actual = await _f.Db.Users.AsNoTracking().SingleAsync(u => u.Id == "target");
+        Assert.IsTrue(actual.FlagActive);
+        Assert.AreEqual(0, actual.SessionVersion);
+    }
+
+    [TestMethod]
+    public async Task OwnSecurity_PreservesAdminSelfLockSafeguard()
+    {
+        var token = await _f.AdminToken();
+        using var response = await _f.Send("/api/Account/me/lock", token);
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, await _f.Probe(token));
+        _f.Audit.Verify(a => a.Create(It.IsAny<AuditTrailDto>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MyReelsEndpoint_RequiresLoginAndIgnoresForgedOwnerWithNoCursor()
+    {
+        var now = DateTime.UtcNow;
+        _f.Db.Reel.AddRange(
+            new ReelModel { ReelId = "own", UserId = "target", FlagActive = true, CreatedDTime = now },
+            new ReelModel { ReelId = "other", UserId = "admin", FlagActive = true, CreatedDTime = now },
+            new ReelModel { ReelId = "deleted", UserId = "target", FlagActive = false, CreatedDTime = now });
+        await _f.Db.SaveChangesAsync();
+        using var anonymous = await _f.Send("/api/Reel/mine", method: HttpMethod.Get);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        var login = await _f.Login();
+        using var response = await _f.Send("/api/Reel/mine?userId=admin", login.Data.AccessToken, method: HttpMethod.Get);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        var envelope = (await response.Content.ReadFromJsonAsync<ApiResponse<ReelDto>>())!;
+        var page = ((System.Text.Json.JsonElement)envelope.objResult)
+            .Deserialize<CursorPageInfo<ReelDto>>(new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        Assert.IsTrue(envelope.Success);
+        CollectionAssert.AreEqual(new[] { "own" }, page.DataList.Select(r => r.ReelId).ToArray());
+    }
+
     private sealed class Fixture : IAsyncDisposable
     {
         private const string Secret = "test-only-account-session-security-signing-key-2026-0123456789";
@@ -239,6 +327,14 @@ public class AccountSecurityTests
             builder.Services.AddSingleton(f.Audit.Object);
             builder.Services.AddScoped<IAccountRespository, AccountRespository>();
             builder.Services.AddScoped<IAdminAccountService, AdminAccountService>();
+            builder.Services.AddScoped<IUnitOfWork>(provider =>
+            {
+                var uow = new Mock<IUnitOfWork>();
+                uow.SetupGet(x => x.ReelRespository).Returns(new ReelRespository(
+                    provider.GetRequiredService<AppDbContext>(), provider.GetRequiredService<IHttpContextAccessor>()));
+                return uow.Object;
+            });
+            builder.Services.AddScoped<IReelService, ReelService>();
             builder.Services.AddScoped<AccountSessionService>();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => {
                 o.TokenValidationParameters = new TokenValidationParameters {

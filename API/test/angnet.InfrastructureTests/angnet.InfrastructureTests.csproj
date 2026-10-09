@@ -32,6 +32,7 @@
     <Compile Include="..\..\src\angnet.WebApi\Controllers\MovieWishlistController.cs" Link="Support\MovieWishlistController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\AdminAccountsController.cs" Link="Support\AdminAccountsController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\AccountController.cs" Link="Support\AccountController.cs" />
+    <Compile Include="..\..\src\angnet.WebApi\Controllers\ReelController.cs" Link="Support\ReelController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ChatController.cs" Link="Support\ChatController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\SignalR\ChatHub.cs" Link="Support\ChatHub.cs" />
     <Compile Include="..\..\src\angnet.WebApi\SignalR\ChatIdentity.cs" Link="Support\ChatIdentity.cs" />

@@ -54,13 +54,14 @@ namespace angnet.Infrastructure.Data.Repositories
             };
         }
 
-        public async Task<(List<ReelDto> Data, string NextCursor, bool HasMore)> GetFeed(int pageSize, string cursor, string currentUserId)
+        public async Task<(List<ReelDto> Data, string NextCursor, bool HasMore)> GetFeed(int pageSize, string cursor, string currentUserId, string? ownerId = null)
         {
             // Ẩn reel của tài khoản đã bị vô hiệu hoá (áp dụng chung với bình luận)
             IQueryable<ReelModel> query = _dbContext.Reel.AsNoTracking()
                                             .Where(r => r.FlagActive)
                                             .Where(r => _dbContext.Users.Any(u => u.Id == r.UserId && u.FlagActive));
 
+            if (ownerId != null) query = query.Where(r => r.UserId == ownerId);
             var _cursor = ReelCursor.Decode(cursor);
             if (_cursor != null)
             {

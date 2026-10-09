@@ -26,6 +26,15 @@ namespace angnet.WebApi.Controllers
             return Ok(response);
         }
 
+        [Authorize]
+        [HttpGet("Mine")]
+        public async Task<IActionResult> Mine(int pageSize = 12, string? cursor = null)
+        {
+            if (string.IsNullOrWhiteSpace(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value))
+                return Unauthorized();
+            return Ok(await _reelService.GetMine(User, pageSize, cursor ?? string.Empty));
+        }
+
         [AllowAnonymous]
         [HttpGet("Detail")]
         public async Task<IActionResult> Detail(string reelId)

@@ -222,6 +222,15 @@ export class AuthService {
     );
   }
 
+  protectOwnAccount(
+    locked: boolean
+  ): Observable<{ Success: boolean; ErrorMessage: string }> {
+    return this.http.post<{ Success: boolean; ErrorMessage: string }>(
+      `${this.apiUrl}account/me/${locked ? 'lock' : 'revoke-sessions'}`,
+      {}
+    );
+  }
+
   // gọi lúc app khởi động: nếu access token hết hạn nhưng còn refresh token thì chủ động refresh
   // để menu hiển thị đúng trạng thái đăng nhập ngay cả khi trang đầu tiên chỉ gọi API public
   tryRefreshOnInit(): void {

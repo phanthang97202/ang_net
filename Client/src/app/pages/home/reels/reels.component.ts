@@ -10,7 +10,7 @@ import {
   inject,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Subscription } from 'rxjs';
@@ -45,6 +45,7 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private showErrorService = inject(ShowErrorService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private message = inject(NzMessageService);
 
   menuItems: ReelMenuItem[] = [
@@ -93,7 +94,25 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.readAccount();
-    this.loadNextPage();
+    const reelId = this.route.snapshot.queryParamMap.get('reelId');
+    if (!reelId) {
+      this.loadNextPage();
+      return;
+    }
+    this.isLoading = true;
+    this.feedSub = this.apiService.ReelDetail(reelId).subscribe({
+      next: response => {
+        if (response.Success && response.Data) this.lstReels = [response.Data];
+        else this.message.info('Reel không còn khả dụng.');
+        this.isLoading = false;
+        this.loadNextPage();
+      },
+      error: () => {
+        this.message.info('Reel không còn khả dụng.');
+        this.isLoading = false;
+        this.loadNextPage();
+      },
+    });
   }
 
   ngAfterViewInit(): void {
@@ -311,7 +330,14 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           const { DataList, NextCursor, HasMore } = res.objResult;
-          this.lstReels = [...this.lstReels, ...(DataList ?? [])];
+          this.lstReels = [
+            ...new Map(
+              [...this.lstReels, ...(DataList ?? [])].map(reel => [
+                reel.ReelId,
+                reel,
+              ])
+            ).values(),
+          ];
           this.nextCursor = NextCursor;
           this.hasMore = HasMore;
         },

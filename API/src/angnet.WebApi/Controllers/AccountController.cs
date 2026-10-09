@@ -132,6 +132,29 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("me/revoke-sessions")]
+        public Task<IActionResult> RevokeOwnSessions() => ProtectOwnAccount(false);
+
+        [Authorize]
+        [HttpPost("me/lock")]
+        public Task<IActionResult> LockOwnAccount() => ProtectOwnAccount(true);
+
+        private async Task<IActionResult> ProtectOwnAccount(bool locked)
+        {
+            if (string.IsNullOrWhiteSpace(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value))
+                return Unauthorized();
+            try
+            {
+                var response = await _accountRespository.ProtectOwnAccount(User, locked);
+                return response.Success ? Ok(response) : BadRequest(response);
+            }
+            catch (InvalidOperationException)
+            {
+                return StatusCode(503, new ApiResponse<string>("Không thể cập nhật bảo mật tài khoản. Vui lòng thử lại."));
+            }
+        }
+
         // detail user
         [Authorize]
         [HttpGet("detail")]

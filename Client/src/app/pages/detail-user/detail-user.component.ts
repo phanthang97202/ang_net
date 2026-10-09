@@ -13,6 +13,8 @@ import {
 } from '../../modules';
 import { MyPostsComponent } from './my-posts/my-posts.component';
 import { MyArchiveComponent } from './my-archive/my-archive.component';
+import { MySecurityComponent } from './my-security/my-security.component';
+import { MyReelsComponent } from './my-reels/my-reels.component';
 
 /**
  * Một mục trong sidebar. Thêm tab mới = thêm 1 phần tử vào profileNav rồi
@@ -42,6 +44,8 @@ export interface ProfileNavSection {
     ...REUSE_PIPE_MODULE,
     MyPostsComponent,
     MyArchiveComponent,
+    MySecurityComponent,
+    MyReelsComponent,
   ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
@@ -77,7 +81,7 @@ export class DetailUserComponent implements OnInit {
           id: 'security',
           labelKey: 'T_SECURITY',
           icon: 'safety',
-          available: false,
+          available: true,
         },
       ],
     },
@@ -88,7 +92,7 @@ export class DetailUserComponent implements OnInit {
           id: 'reels',
           labelKey: 'T_MYREELS',
           icon: 'play-circle',
-          available: false,
+          available: true,
         },
         { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: true },
         // Admin cấp quyền dùng thư viện theo vai trò; không có quyền thì ẩn hẳn

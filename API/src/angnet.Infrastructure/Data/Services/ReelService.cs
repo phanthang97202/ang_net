@@ -49,6 +49,22 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
+        public async Task<ApiResponse<ReelDto>> GetMine(ClaimsPrincipal user, int pageSize, string cursor)
+        {
+            var userId = GetCurrentUserId(user);
+            if (user.Identity?.IsAuthenticated != true || string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException();
+            var (data, nextCursor, hasMore) = await _unitOfWork.ReelRespository
+                .GetFeed(NormalizePageSize(pageSize, 12), cursor, userId, userId);
+            return new ApiResponse<ReelDto>
+            {
+                objResult = new CursorPageInfo<ReelDto>
+                {
+                    DataList = data, NextCursor = nextCursor, HasMore = hasMore
+                }
+            };
+        }
+
         public async Task<ApiResponse<ReelDto>> Detail(ClaimsPrincipal user, string reelId)
         {
             ApiResponse<ReelDto> apiResponse = new ApiResponse<ReelDto>();

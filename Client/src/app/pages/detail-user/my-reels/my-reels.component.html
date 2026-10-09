@@ -1,0 +1,114 @@
+<section
+  class="my-posts"
+  aria-labelledby="my-reels-title"
+  [attr.aria-busy]="loading">
+  <header class="my-posts__header">
+    <div>
+      <h2 id="my-reels-title">{{ 'T_MYREELS' | translate }}</h2>
+      <p>{{ 'T_MYREELS_DESC' | translate }}</p>
+    </div>
+    <a class="reels-action" routerLink="/reels/create"
+      ><span nz-icon nzType="plus" aria-hidden="true"></span
+      >{{ 'T_MYREELS_CREATE' | translate }}</a
+    >
+  </header>
+  @if (loading && !reels.length) {
+    <div class="reels-grid" aria-hidden="true">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="reel-skeleton"></div>
+      }
+    </div>
+    <p class="reels-status" role="status">{{ 'T_LOADING' | translate }}</p>
+  } @else if (!reels.length && !failed) {
+    <div class="my-posts__empty">
+      <span
+        class="my-posts__empty-icon"
+        nz-icon
+        nzType="play-circle"
+        aria-hidden="true"></span>
+      <h3>{{ 'T_MYREELS_EMPTY' | translate }}</h3>
+      <p>{{ 'T_MYREELS_EMPTY_DESC' | translate }}</p>
+    </div>
+  }
+  @if (reels.length) {
+    <div class="reels-grid">
+      @for (reel of reels; track reel.ReelId) {
+        <a
+          class="reel-card"
+          routerLink="/reels"
+          [queryParams]="{ reelId: reel.ReelId }"
+          [attr.aria-label]="
+            ('T_MYREELS_OPEN' | translate) +
+            ': ' +
+            (reel.Caption || ('T_MYREELS_UNTITLED' | translate))
+          ">
+          <div class="reel-cover">
+            @if (cover(reel)) {
+              <img
+                [src]="cover(reel)"
+                alt=""
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                (error)="$any($event.target).hidden = true" />
+            }
+            <span
+              class="reel-cover__fallback"
+              nz-icon
+              [nzType]="reel.MediaType === 'Video' ? 'play-circle' : 'picture'"
+              aria-hidden="true"></span>
+            <span class="reel-type">{{
+              (reel.MediaType === 'Video'
+                ? 'T_MYREELS_VIDEO'
+                : 'T_MYREELS_IMAGE'
+              ) | translate
+            }}</span>
+          </div>
+          <div class="reel-summary">
+            <h3>{{ reel.Caption || ('T_MYREELS_UNTITLED' | translate) }}</h3>
+            <time [attr.datetime]="reel.CreatedDTime">{{
+              reel.CreatedDTime | date: 'dd/MM/yyyy'
+            }}</time>
+            <div class="reel-stats">
+              <span [attr.title]="'T_MYREELS_VIEWS' | translate"
+                ><span nz-icon nzType="eye" aria-hidden="true"></span
+                >{{ reel.ViewCount | number }}
+                <span class="sr-only">{{
+                  'T_MYREELS_VIEWS' | translate
+                }}</span></span
+              >
+              <span [attr.title]="'T_MYREELS_LIKES' | translate"
+                ><span nz-icon nzType="heart" aria-hidden="true"></span
+                >{{ reel.LikeCount | number }}
+                <span class="sr-only">{{
+                  'T_MYREELS_LIKES' | translate
+                }}</span></span
+              >
+              <span [attr.title]="'T_MYREELS_COMMENTS' | translate"
+                ><span nz-icon nzType="message" aria-hidden="true"></span
+                >{{ reel.CommentCount | number }}
+                <span class="sr-only">{{
+                  'T_MYREELS_COMMENTS' | translate
+                }}</span></span
+              >
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  }
+  @if (failed) {
+    <p class="reels-status" role="alert">{{ 'T_MYREELS_ERROR' | translate }}</p>
+  }
+  @if (hasMore && (reels.length || failed)) {
+    <button
+      class="reels-action reels-more"
+      type="button"
+      [disabled]="loading"
+      (click)="loadMore()">
+      {{
+        (loading ? 'T_LOADING' : failed ? 'T_MYREELS_RETRY' : 'T_MYREELS_MORE')
+          | translate
+      }}
+    </button>
+  }
+</section>

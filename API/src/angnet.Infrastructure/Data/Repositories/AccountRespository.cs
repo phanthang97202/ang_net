@@ -940,6 +940,34 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
+        public async Task<ApiResponse<string>> ProtectOwnAccount(ClaimsPrincipal actor, bool locked)
+        {
+            var userId = actor.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (actor.Identity?.IsAuthenticated != true || string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException();
+            // Preserve the admin self-lock safeguard used by the dashboard.
+            if (locked && actor.IsInRole("Admin"))
+                return new("Tài khoản Admin cần một Admin khác khóa hộ để tránh mất quyền quản trị.");
+            if (!await _dbContext.Users.AnyAsync(u => u.Id == userId && u.FlagActive))
+                return new("Tài khoản không tồn tại hoặc đã bị khóa.");
+            return await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                await AccountSessionService.RevokeAll(_dbContext, userId, locked ? false : null);
+                var audit = await _auditTrailService.Create(new AuditTrailDto
+                {
+                    RecordId = userId,
+                    ChangedColumns = "AccountSecurity",
+                    Description = locked
+                        ? $"Người dùng {userId}: Tự khóa tài khoản vô thời hạn và thu hồi mọi phiên đăng nhập."
+                        : $"Người dùng {userId}: Thu hồi mọi phiên đăng nhập."
+                });
+                if (!audit.Success) throw new InvalidOperationException("Không thể ghi nhật ký bảo mật tài khoản.");
+                await transaction.CommitAsync();
+                return new ApiResponse<string> { Data = locked ? "AccountLocked" : "SessionsRevoked" };
+            });
+        }
+
         public async Task<ApiResponse<string>> ForgotPassword(string userEmail)
         {
             ApiResponse<string> apiResponse = new ApiResponse<string>();

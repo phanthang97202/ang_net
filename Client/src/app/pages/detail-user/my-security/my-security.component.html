@@ -1,0 +1,74 @@
+<section class="security" aria-labelledby="my-security-title">
+  <header>
+    <h2 id="my-security-title">{{ 'T_SECURITY' | translate }}</h2>
+    <p>{{ 'T_SELF_SECURITY_DESC' | translate }}</p>
+  </header>
+  <article class="security__card">
+    <span
+      class="security__icon"
+      nz-icon
+      nzType="logout"
+      nzTheme="outline"
+      aria-hidden="true"></span>
+    <div class="security__body">
+      <h3>{{ 'T_SELF_REVOKE_TITLE' | translate }}</h3>
+      <p>{{ 'T_SELF_REVOKE_DESC' | translate }}</p>
+    </div>
+    <button type="button" [disabled]="saving" (click)="confirm('revoke')">
+      {{ 'T_SELF_REVOKE_TITLE' | translate }}
+    </button>
+  </article>
+  <article class="security__card">
+    <span
+      class="security__icon"
+      nz-icon
+      nzType="lock"
+      nzTheme="outline"
+      aria-hidden="true"></span>
+    <div class="security__body">
+      <h3>{{ 'T_SELF_LOCK_TITLE' | translate }}</h3>
+      <p>{{ 'T_SELF_LOCK_DESC' | translate }}</p>
+      @if (auth.isAdminPermission()) {
+        <p class="security__hint">{{ 'T_SELF_LOCK_ADMIN' | translate }}</p>
+      }
+    </div>
+    <button
+      class="security__lock"
+      type="button"
+      [disabled]="saving || auth.isAdminPermission()"
+      (click)="confirm('lock')">
+      {{ 'T_SELF_LOCK_TITLE' | translate }}
+    </button>
+  </article>
+</section>
+<nz-modal
+  [nzVisible]="action !== null"
+  [nzTitle]="
+    (action === 'lock' ? 'T_SELF_LOCK_TITLE' : 'T_SELF_REVOKE_TITLE')
+      | translate
+  "
+  [nzOkText]="
+    (action === 'lock' ? 'T_SELF_LOCK_CONFIRM' : 'T_SELF_REVOKE_CONFIRM')
+      | translate
+  "
+  [nzOkDanger]="action === 'lock'"
+  [nzOkLoading]="saving"
+  [nzCancelText]="'T_CANCEL' | translate"
+  [nzCancelDisabled]="saving"
+  [nzClosable]="!saving"
+  [nzMaskClosable]="false"
+  nzClassName="profile-security-modal"
+  (nzOnCancel)="cancel()"
+  (nzOnOk)="save()">
+  <ng-container *nzModalContent>
+    <p class="security__confirmation">
+      {{
+        (action === 'lock' ? 'T_SELF_LOCK_WARNING' : 'T_SELF_REVOKE_WARNING')
+          | translate
+      }}
+    </p>
+    @if (error) {
+      <p class="security__error" role="alert">{{ error }}</p>
+    }
+  </ng-container>
+</nz-modal>

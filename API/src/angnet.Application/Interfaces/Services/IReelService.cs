@@ -6,6 +6,7 @@ namespace angnet.Application.Interfaces.Services
     public interface IReelService
     {
         public Task<ApiResponse<ReelDto>> GetFeed(ClaimsPrincipal user, int pageSize, string cursor);
+        public Task<ApiResponse<ReelDto>> GetMine(ClaimsPrincipal user, int pageSize, string cursor);
         public Task<ApiResponse<ReelDto>> Detail(ClaimsPrincipal user, string reelId);
         public Task<ApiResponse<ReelDto>> Create(ClaimsPrincipal user, ReelCreateDto data);
         public Task<ApiResponse<ReelDto>> Delete(ClaimsPrincipal user, string reelId);
