@@ -6,49 +6,6 @@
   padding: 2rem 0 3rem;
 }
 
-.footer--has-scenery {
-  padding-bottom: 0;
-}
-
-.footer-bottom {
-  padding-top: 1.5rem;
-}
-
-.footer-bottom--with-background {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  min-height: clamp(280px, 25vw, 440px);
-  padding-top: 2rem;
-  background-color: var(--color-bg-page);
-  background-size: cover;
-  background-position: center 58%;
-  background-repeat: no-repeat;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    // Fade only the upper edge; keep the landscape visible below the copyright.
-    background: linear-gradient(
-      to bottom,
-      var(--color-bg-page) 0%,
-      var(--color-bg-page) 12%,
-      transparent 72%
-    );
-    pointer-events: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .footer-bottom--with-background {
-    min-height: 260px;
-    background-position: 30% center;
-    padding-top: 1.5rem;
-  }
-}
-
 .footer-top {
   display: flex;
   flex-wrap: wrap;
@@ -175,7 +132,7 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
   color: var(--color-text-muted);
-  margin: 0;
+  margin: 1.5rem 0 0;
 }
 
 // Cột bản đồ rộng hơn min-width mặc định của .footer-col (150px) vì iframe

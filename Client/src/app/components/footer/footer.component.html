@@ -1,6 +1,4 @@
-<footer
-  class="footer"
-  [class.footer--has-scenery]="!!backgroundImage">
+<footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
       <a routerLink="/" class="footer-logo">
@@ -98,10 +96,5 @@
 
   <div class="footer-divider"></div>
 
-  <div
-    class="footer-bottom"
-    [class.footer-bottom--with-background]="!!backgroundImage"
-    [style.background-image]="backgroundImage || null">
-    <p class="footer-copyright">{{ copyrightText }}</p>
-  </div>
+  <p class="footer-copyright">{{ copyrightText }}</p>
 </footer>

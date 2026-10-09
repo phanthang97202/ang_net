@@ -52,7 +52,6 @@ export class FooterComponent implements OnInit {
   stats$ = this.visitTrackingService.stats$;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
   footerContent: IFooterContent = DEFAULT_FOOTER_CONTENT;
-  backgroundImage = '';
 
   canViewReport(permission: string): boolean {
     return (
@@ -73,13 +72,6 @@ export class FooterComponent implements OnInit {
   mapEmbedUrl: SafeResourceUrl | null = null;
 
   ngOnInit(): void {
-    this.config
-      .getText(SYS_PARAM_CODE.FOOTER_BACKGROUND_IMAGE)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        this.backgroundImage = this.toBackgroundImage(value);
-      });
-
     this.config
       .getJson<IFooterContent>(SYS_PARAM_CODE.FOOTER_CONTENT)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -107,34 +99,5 @@ export class FooterComponent implements OnInit {
             ? this.sanitizer.bypassSecurityTrustResourceUrl(url)
             : null;
       });
-  }
-
-  private toBackgroundImage(value: string | null): string {
-    const raw = value?.trim();
-    if (!raw) {
-      return '';
-    }
-
-    try {
-      const url = new URL(raw, 'https://footer.invalid');
-      const isAsset =
-        raw.startsWith('/assets/') &&
-        url.origin === 'https://footer.invalid' &&
-        url.pathname.startsWith('/assets/');
-      const isRemote = /^https?:\/\//i.test(raw);
-      if (
-        (!isAsset && !isRemote) ||
-        !['https:', 'http:'].includes(url.protocol) ||
-        url.username ||
-        url.password
-      ) {
-        return '';
-      }
-
-      const imageUrl = isAsset ? url.pathname + url.search + url.hash : url.href;
-      return `url(${JSON.stringify(imageUrl)})`;
-    } catch {
-      return '';
-    }
   }
 }
