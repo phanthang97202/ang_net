@@ -12,20 +12,11 @@ import {
   HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ChatService,
-  AuthService,
-  ShowErrorService,
-  CloudinaryService,
-} from '../../services';
+import { ChatService, AuthService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzCommentModule } from 'ng-zorro-antd/comment';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { SpinnerComponent } from '../spinner/spinner.component';
@@ -37,12 +28,8 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     CommonModule,
     FormsModule,
-    NzInputModule,
     NzIconModule,
-    NzCommentModule,
     NzAvatarModule,
-    NzButtonModule,
-    NzUploadModule,
     NzModalModule,
     SpinnerComponent,
     TranslateModule,
@@ -53,7 +40,6 @@ import { TranslateModule } from '@ngx-translate/core';
 export class ChatBoxComponent implements OnInit, OnDestroy {
   chatService = inject(ChatService);
   detailUser = inject(AuthService);
-  cloudinary = inject(CloudinaryService);
   showErrorService = inject(ShowErrorService);
   private destroyRef = inject(DestroyRef);
   private destroyed = false;
@@ -82,7 +68,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     this.detailUser.getAccountInfo().email ||
     `account:${this.detailUser.getAccountInfo().nameid}`;
 
-  fileList: any[] = [];
   previewImage: string | undefined = '';
   previewVisible = false;
 
@@ -186,7 +171,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       );
       this.newMessage = '';
       this.typeMessage = 'string';
-      this.fileList = [];
     } catch {
       this.sendError = 'Không gửi được tin nhắn. Vui lòng thử lại.';
     } finally {
@@ -194,32 +178,60 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleUploadFile = (file: any): boolean => {
+  handleUploadFile = (file: File): boolean => {
     if (!this.canSend || this.sending || this.isUploading) return false;
+    if (!file.size || file.size >= 2 * 1024 * 1024) {
+      this.sendError = 'Ảnh phải có dung lượng nhỏ hơn 2 MB.';
+      return false;
+    }
+    if (
+      !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(
+        file.type
+      )
+    ) {
+      this.sendError = 'Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.';
+      return false;
+    }
+    this.sendError = '';
     this.isUploading = true;
 
-    this.cloudinary
+    this.chatService
       .uploadImage(file)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: any) => {
-          this.newMessage = res.secure_url || res.url;
+        next: res => {
+          if (!res.Success || !res.Data?.Url) {
+            this.isUploading = false;
+            this.sendError = res.ErrorMessage || 'Không thể tải ảnh lên.';
+            return;
+          }
+          this.newMessage = res.Data.Url;
           this.typeMessage = 'jpg';
           this.isUploading = false;
           this.cdref.detectChanges();
         },
         error: err => {
           this.isUploading = false;
-          this.showErrorService.setShowError({
-            icon: 'error',
-            message: 'Failed to upload image',
-            title: 'Upload Error',
-          });
+          this.sendError =
+            err.error?.ErrorMessage ||
+            'Không thể tải ảnh lên. Vui lòng thử lại.';
         },
       });
 
     return false;
   };
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) this.handleUploadFile(file);
+  }
+
+  clearImage(): void {
+    this.newMessage = '';
+    this.typeMessage = 'string';
+  }
 
   onScroll(): void {
     this.acknowledge();
@@ -315,11 +327,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     )
       void this.acknowledge();
   }
-
-  handlePreview = async (file: any): Promise<void> => {
-    this.previewImage = file.url || file.preview || file.thumbUrl;
-    this.previewVisible = true;
-  };
 
   trackByMessageId(index: number, message: IChat): string {
     return message.MessageId || index.toString();

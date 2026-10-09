@@ -24,6 +24,7 @@
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Configuration" />
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionPolicyProvider.cs" Link="Support\PermissionPolicyProvider.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ShiftReportController.cs" Link="Support\ShiftReportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\RevenueReportController.cs" Link="Support\RevenueReportController.cs" />
@@ -37,4 +38,7 @@
     <Compile Include="..\..\src\angnet.WebApi\SignalR\ChatConnections.cs" Link="Support\ChatConnections.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="../../src/angnet.WebApi/Cloudinary/CloudinaryAccount.cs" Link="WebApi/Cloudinary/CloudinaryAccount.cs" />
+  </ItemGroup>
 </Project>

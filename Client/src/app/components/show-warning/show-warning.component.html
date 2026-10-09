@@ -1,7 +1,6 @@
-<div class="warning-banner flex text-center items-center justify-center">
+<div
+  *ngIf="warningMessage"
+  class="warning-banner flex text-center items-center justify-center">
   <h2 class="pr-[5px]">{{ 'T_WARNING' | translate }}:</h2>
-  <p *ngIf="warningMessage">{{ warningMessage }}</p>
-  <p *ngIf="!warningMessage">
-    {{ 'T_THISISPUBLICAPIPLEASEDONTEDITCHAOS' | translate }}
-  </p>
+  <p>{{ warningMessage }}</p>
 </div>

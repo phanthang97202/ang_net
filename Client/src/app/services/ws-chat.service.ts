@@ -8,7 +8,13 @@ import {
   IChatNotifications,
   TypeMessage,
 } from '../interfaces';
-import { firstValueFrom, Observable, Subject, takeUntil } from 'rxjs';
+import {
+  firstValueFrom,
+  Observable,
+  Subject,
+  takeUntil,
+  throwError,
+} from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -192,6 +198,27 @@ export class ChatService {
     return this.http.get<IChatResponse>(
       `${this.apiUrl}chat/getmessage?PageIndex=${pageIndex}&PageSize=${pageSize}`
     );
+  }
+  uploadImage(
+    file: File
+  ): Observable<{
+    Success: boolean;
+    Data: { Url: string };
+    ErrorMessage?: string;
+  }> {
+    if (!this.canSend)
+      return throwError(() => new Error('Bạn không có quyền gửi ảnh.'));
+    if (!file.size || file.size >= 2 * 1024 * 1024)
+      return throwError(
+        () => new Error('Ảnh phải có dung lượng nhỏ hơn 2 MB.')
+      );
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{
+      Success: boolean;
+      Data: { Url: string };
+      ErrorMessage?: string;
+    }>(`${this.apiUrl}chat/image`, form);
   }
   async markRead(sequence: number): Promise<void> {
     if (!this.canView) return;

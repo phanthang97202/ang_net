@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,18 +35,26 @@ public class ChatPermissionTests
     private IServiceScope scope = null!;
     private HttpClient http = null!;
     private readonly Mock<IChatRepository> repo = new();
+    private readonly UploadHandler uploads = new();
     private AppDbContext Db => scope.ServiceProvider.GetRequiredService<AppDbContext>();
     [TestInitialize] public async Task Start()
     {
         dbConnection = new("Data Source=:memory:"); await dbConnection.OpenAsync();
         var b = WebApplication.CreateBuilder(); b.WebHost.UseUrls("http://127.0.0.1:0"); b.Logging.ClearProviders();
         b.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(dbConnection));
+        var clients = new Mock<IHttpClientFactory>();
+        clients.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(() => new HttpClient(uploads, false));
+        b.Services.AddSingleton(clients.Object);
+        b.Services.AddRateLimiter(o => o.AddConcurrencyLimiter("API", limiter => { limiter.PermitLimit = 100; limiter.QueueLimit = 0; }));
+        b.Configuration["Cloudinary:CloudName"] = "test-only-cloud";
+        b.Configuration["Cloudinary:ApiKey"] = "test-only-key";
+        b.Configuration["Cloudinary:ApiSecret"] = "test-only-secret";
         b.Services.AddScoped<AccountSessionService>(); b.Services.AddSingleton<ChatConnections>();
         repo.Setup(x => x.GetMessage(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(new ApiResponse<ChatModel>());
         repo.Setup(x => x.Notifications(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
         repo.Setup(x => x.MarkRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
         repo.Setup(x => x.SendMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string user, string text, string type) => new ApiResponse<ChatModel>(new ChatModel {UserId = user, Message = text, Type = type, Sequence = 1}));
+            .ReturnsAsync((string user, string text, string type) => new ApiResponse<ChatModel>(new ChatModel {UserId = user, Message = text, Type = type, Sequence = 1, SenderName = "Database name", SenderAvatar = "https://example.com/db-avatar.jpg"}));
         b.Services.AddSingleton(repo.Object);
         b.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => {
             o.TokenValidationParameters = new() {ValidateIssuer = false, ValidateAudience = false, ValidateLifetime = true,
@@ -64,7 +73,7 @@ public class ChatPermissionTests
         Db.Users.AddRange(new AppUser {Id = "viewer", UserName = "viewer", FullName = "Viewer", FlagActive = true},
             new AppUser {Id = "sender", UserName = "sender", FullName = "Sender", FlagActive = true});
         await Db.SaveChangesAsync();
-        app.UseAuthentication(); app.UseAuthorization(); app.MapControllers();
+        app.UseAuthentication(); app.UseAuthorization(); app.UseRateLimiter(); app.MapControllers();
         app.MapHub<ChatHub>("/chat-hub", o => o.CloseOnAuthenticationExpiration = true);
         await app.StartAsync(); http = new() {BaseAddress = new Uri(app.Urls.Single())};
     }
@@ -134,6 +143,8 @@ public class ChatPermissionTests
         repo.Verify(x => x.SendMessage("account:sender", "Hello", "string"), Times.Once);
         var delivered = (await Receive(viewer)).Single(x => x.TryGetProperty("target", out _));
         Assert.AreEqual("account:sender", delivered.GetProperty("arguments")[0].GetProperty("UserId").GetString());
+        Assert.AreEqual("Database name", delivered.GetProperty("arguments")[0].GetProperty("SenderName").GetString());
+        Assert.AreEqual("https://example.com/db-avatar.jpg", delivered.GetProperty("arguments")[0].GetProperty("SenderAvatar").GetString());
         await Db.Users.Where(u => u.Id == "viewer").ExecuteUpdateAsync(s => s.SetProperty(u => u.SessionVersion, 1));
         var recipients = await app.Services.GetRequiredService<ChatConnections>().Recipients(
             scope.ServiceProvider.GetRequiredService<AccountSessionService>(), scope.ServiceProvider.GetRequiredService<IAuthorizationService>());
@@ -165,5 +176,78 @@ public class ChatPermissionTests
         Db.ChangeTracker.Clear();
         Assert.AreEqual(0, (await new ChatRespository(Db).Notifications("viewer", "account:viewer")).Data.UnreadCount);
         Assert.AreEqual(0, (await actual.Notifications("sender", "account:sender")).Data.UnreadCount, "First use must not alert old history");
+    }
+    [TestMethod] public async Task SenderProfiles_ComesFromDatabase_ForSendHistoryAndNotification()
+    {
+        await Db.Users.Where(u => u.Id == "sender").ExecuteUpdateAsync(s => s
+            .SetProperty(u => u.Email, "sender@example.com").SetProperty(u => u.FullName, "Current name")
+            .SetProperty(u => u.Avatar, "https://example.com/current-avatar.jpg"));
+        // SQLite has no PostgreSQL serial cursor; supply its value for this isolated writer test.
+        Db.SavingChanges += (_, _) => {
+            foreach (var entry in Db.ChangeTracker.Entries<ChatModel>().Where(e => e.State == EntityState.Added && e.Entity.Sequence == 0))
+                entry.Entity.Sequence = 1;
+        };
+        var actual = new ChatRespository(Db);
+        await actual.Notifications("viewer", "account:viewer");
+        var sent = (await actual.SendMessage("sender@example.com", "Hello", "string")).Data;
+        Assert.AreEqual("Current name", sent.SenderName);
+        Assert.AreEqual("https://example.com/current-avatar.jpg", sent.SenderAvatar);
+        Db.Chat.AddRange(new ChatModel { Sequence = 2, UserId = "account:sender", Message = "Next", Type = "string" },
+            new ChatModel { Sequence = 3, UserId = "deleted@example.com", Message = "Old", Type = "string" });
+        await Db.SaveChangesAsync();
+        var history = (PageInfo<ChatModel>)(await actual.GetMessage(0, 20)).objResult;
+        foreach (var item in history.DataList.Take(2)) {
+            Assert.AreEqual("Current name", item.SenderName);
+            Assert.AreEqual("https://example.com/current-avatar.jpg", item.SenderAvatar);
+        }
+        Assert.AreEqual("Người dùng", history.DataList.Last().SenderName);
+        await Db.Chat.Where(c => c.Sequence == 3).ExecuteDeleteAsync();
+        var latest = (await actual.Notifications("viewer", "account:viewer")).Data.LatestMessage!;
+        Assert.AreEqual("Current name", latest.SenderName);
+        Assert.AreEqual("https://example.com/current-avatar.jpg", latest.SenderAvatar);
+    }
+
+    private async Task<HttpResponseMessage> Upload(int size, string? token, string contentType = "image/png")
+    {
+        using var form = new MultipartFormDataContent();
+        var file = new ByteArrayContent(new byte[size]);
+        file.Headers.ContentType = new(contentType);
+        form.Add(file, "file", "test.png");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/chat/image") { Content = form };
+        if (token != null) request.Headers.Authorization = new("Bearer", token);
+        return await http.SendAsync(request);
+    }
+    [TestMethod] public async Task ImageUpload_RequiresPermissions_AndStrictlyLessThan2MB()
+    {
+        using var anonymous = await Upload(10, null);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        using var viewer = await Upload(10, Token(permissions: ["chat.view"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, viewer.StatusCode);
+        using var sendOnly = await Upload(10, Token("sender", ["chat.send"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, sendOnly.StatusCode);
+        var sender = Token("sender", ["chat.view", "chat.send"]);
+        foreach (var size in new[] { 0, 2 * 1024 * 1024, 2 * 1024 * 1024 + 1 }) {
+            using var invalid = await Upload(size, sender);
+            Assert.AreEqual(HttpStatusCode.BadRequest, invalid.StatusCode);
+        }
+        using var unsupported = await Upload(10, sender, "text/plain");
+        Assert.AreEqual(HttpStatusCode.BadRequest, unsupported.StatusCode);
+        Assert.AreEqual(0, uploads.Calls, "Rejected uploads must never reach Cloudinary");
+        using var valid = await Upload(2 * 1024 * 1024 - 1, sender);
+        Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
+        Assert.AreEqual("https://example.com/uploaded.png", (await valid.Content.ReadFromJsonAsync<ApiResponse<ChatImageDto>>())!.Data.Url);
+        Assert.AreEqual(1, uploads.Calls);
+    }
+    private sealed class UploadHandler : HttpMessageHandler
+    {
+        public int Calls { get; private set; }
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Calls++;
+            Assert.AreEqual("https://api.cloudinary.com/v1_1/test-only-cloud/image/upload", request.RequestUri!.ToString());
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = new StringContent("{\"secure_url\":\"https://example.com/uploaded.png\"}", Encoding.UTF8, "application/json")
+            });
+        }
     }
 }

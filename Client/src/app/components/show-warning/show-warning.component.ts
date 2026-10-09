@@ -15,7 +15,7 @@ export class ShowWarningComponent implements OnInit {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
 
-  // null = chưa cấu hình -> template dùng bản dịch i18n mặc định
+  // Không có nội dung thì ẩn toàn bộ banner.
   warningMessage: string | null = null;
 
   ngOnInit(): void {
@@ -25,7 +25,7 @@ export class ShowWarningComponent implements OnInit {
       .getText(SYS_PARAM_CODE.WARNING_BANNER)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(text => {
-        this.warningMessage = text;
+        this.warningMessage = text?.trim() || null;
       });
   }
 }

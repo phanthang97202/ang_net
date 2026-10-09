@@ -40,6 +40,31 @@ describe('Chat service notification state', () => {
     ).toBeRejected();
     http.expectNone(() => true);
   });
+  it('requires send permission and a file below 2 MB, then uploads through the protected chat API', () => {
+    const file = new File(['image'], 'a.png', { type: 'image/png' });
+    let failed = false;
+    service.uploadImage(file).subscribe({ error: () => (failed = true) });
+    expect(failed).toBeTrue();
+    canSend = true;
+    failed = false;
+    service
+      .uploadImage(
+        new File([new Uint8Array(2 * 1024 * 1024)], 'a.png', {
+          type: 'image/png',
+        })
+      )
+      .subscribe({ error: () => (failed = true) });
+    expect(failed).toBeTrue();
+    http.expectNone(r => r.url.endsWith('/image'));
+    service.uploadImage(file).subscribe();
+    const request = http.expectOne(r => r.url.endsWith('/chat/image'));
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body.get('file').size).toBe(file.size);
+    request.flush({
+      Success: true,
+      Data: { Url: 'https://example.com/a.png' },
+    });
+  });
   it('ignores older responses and clears private notification state on disconnect', async () => {
     const first = service.syncNotifications();
     const a = http.expectOne(r => r.url.endsWith('/notifications'));

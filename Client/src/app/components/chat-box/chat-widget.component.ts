@@ -20,18 +20,21 @@ import { ChatBoxComponent } from './chat-box.component';
     <button
       *ngIf="chat.canView"
       class="chat-toggle-btn"
+      [class.is-open]="open"
       type="button"
       [attr.aria-label]="
-        chat.unreadCount()
-          ? 'Tin nhắn: ' + chat.unreadCount() + ' tin chưa đọc'
-          : 'Mở tin nhắn'
+        open
+          ? 'Đóng tin nhắn'
+          : chat.unreadCount()
+            ? 'Tin nhắn: ' + chat.unreadCount() + ' tin chưa đọc'
+            : 'Mở tin nhắn'
       "
       [attr.aria-expanded]="open"
       aria-controls="blog-chat-panel"
       (click)="open = !open">
       <span
         nz-icon
-        [nzType]="open ? 'close' : 'message'"
+        [nzType]="open ? 'close' : 'comment'"
         nzTheme="outline"></span>
       <span *ngIf="chat.unreadCount() > 0" class="chat-unread">{{
         chat.unreadCount() > 99 ? '99+' : chat.unreadCount()
@@ -42,7 +45,7 @@ import { ChatBoxComponent } from './chat-box.component';
         "
         class="chat-preview"
         role="status">
-        <strong>{{ latest.SenderName || latest.UserId }}</strong>
+        <strong>{{ latest.SenderName || 'Người dùng' }}</strong>
         <span>{{
           latest.Type === 'jpg' ? 'Đã gửi một ảnh' : latest.Message
         }}</span>

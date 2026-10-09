@@ -326,6 +326,20 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
+        public async Task<ApiResponse<UserDetailDto>> UpdateAvatar(ClaimsPrincipal user, UpdateAvatarDto request)
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Update only the avatar, keeping concurrent account locks/session revocations intact.
+            var updated = await _dbContext.Users
+                .Where(x => x.Id == userId && x.FlagActive)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.Avatar, request.AvatarUrl.Trim()));
+            if (updated == 0) return new ApiResponse<UserDetailDto>("Không tìm thấy tài khoản đang hoạt động.");
+            // GetUserDetail reads through Identity; discard an entity cached before ExecuteUpdate.
+            foreach (var entry in _dbContext.ChangeTracker.Entries<AppUser>().Where(x => x.Entity.Id == userId).ToList())
+                entry.State = EntityState.Detached;
+            return await GetUserDetail(user);
+        }
+
         public async Task<ApiResponse<AuthResponseDto>> Login(LoginDto loginDto)
         {
             _logger.LogInformation("LOGIN LOG", loginDto.Email, null);

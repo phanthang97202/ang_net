@@ -52,7 +52,6 @@ namespace angnet.WebApi.SignalR
             // Derive identity from the verified token; never trust the supplied sender.
             var result = await _chatRespository.SendMessage(ChatIdentity.Key(Context.User), text, type);
             if (!result.Success || result.Data is null) throw new HubException("Không thể lưu tin nhắn.");
-            result.Data.SenderName = Context.User.FindFirstValue(ClaimTypes.Name) ?? Context.User.FindFirstValue("name") ?? result.Data.UserId;
             var recipients = await _connections.Recipients(_sessions, _authorization);
             await Clients.Clients(recipients).SendAsync("ReceiveMessage", result.Data);
         }

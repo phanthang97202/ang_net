@@ -254,5 +254,18 @@
     "T_NOTE_READ_MORE": "Xem thêm",
     "T_NOTE_COLLAPSE": "Thu gọn",
     "T_NOTE_EMPTY_TITLE": "Chưa có ghi chú nào",
-    "T_NOTE_EMPTY_DESC": "Hãy là người đầu tiên để lại một điều gì đó."
+    "T_NOTE_EMPTY_DESC": "Hãy là người đầu tiên để lại một điều gì đó.",
+    "T_CHAT_ROOM_HINT": "Trò chuyện cùng mọi người",
+    "T_CHAT_EMPTY": "Chưa có tin nhắn nào. Cùng bắt đầu trò chuyện nhé!",
+    "T_CHAT_IMAGE_READY": "Ảnh đã sẵn sàng để gửi",
+    "T_AVATAR_TITLE": "Ảnh đại diện",
+    "T_AVATAR_LINK": "Link ảnh",
+    "T_AVATAR_HINT": "Dán link HTTPS trực tiếp đến ảnh. Ảnh sẽ hiển thị bên cạnh để bạn xem trước.",
+    "T_AVATAR_INVALID": "Vui lòng nhập link ảnh HTTPS hợp lệ.",
+    "T_AVATAR_LOAD_ERROR": "Không tải được ảnh. Hãy kiểm tra link và quyền truy cập ảnh.",
+    "T_AVATAR_SAVE": "Lưu ảnh đại diện",
+    "T_AVATAR_SAVING": "Đang lưu…",
+    "T_AVATAR_CANCEL": "Hủy thay đổi",
+    "T_AVATAR_SAVED": "Đã cập nhật ảnh đại diện.",
+    "T_AVATAR_SAVE_ERROR": "Không thể lưu ảnh đại diện. Vui lòng thử lại."
 }

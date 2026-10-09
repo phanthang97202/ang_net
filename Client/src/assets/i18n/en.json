@@ -254,5 +254,18 @@
     "T_NOTE_READ_MORE": "Read more",
     "T_NOTE_COLLAPSE": "Show less",
     "T_NOTE_EMPTY_TITLE": "No notes yet",
-    "T_NOTE_EMPTY_DESC": "Be the first person to leave something here."
+    "T_NOTE_EMPTY_DESC": "Be the first person to leave something here.",
+    "T_CHAT_ROOM_HINT": "Chat with everyone",
+    "T_CHAT_EMPTY": "No messages yet. Start a conversation!",
+    "T_CHAT_IMAGE_READY": "Image ready to send",
+    "T_AVATAR_TITLE": "Profile photo",
+    "T_AVATAR_LINK": "Image link",
+    "T_AVATAR_HINT": "Paste a direct HTTPS image link. A preview will appear beside the form.",
+    "T_AVATAR_INVALID": "Please enter a valid HTTPS image link.",
+    "T_AVATAR_LOAD_ERROR": "Unable to load the image. Check the link and image access.",
+    "T_AVATAR_SAVE": "Save profile photo",
+    "T_AVATAR_SAVING": "Saving…",
+    "T_AVATAR_CANCEL": "Cancel changes",
+    "T_AVATAR_SAVED": "Profile photo updated.",
+    "T_AVATAR_SAVE_ERROR": "Unable to save your profile photo. Please try again."
 }

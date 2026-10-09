@@ -35,6 +35,82 @@
         @case ('profile') {
           <div class="profile__details">
             <article
+              class="profile__card profile__avatar-card"
+              aria-labelledby="profile-avatar-title">
+              <div class="profile__avatar-preview" aria-hidden="true">
+                @if (avatarPreview && !avatarFailed) {
+                  <img
+                    [src]="avatarPreview"
+                    alt=""
+                    referrerpolicy="no-referrer"
+                    (load)="avatarLoaded = true"
+                    (error)="avatarFailed = true; avatarLoaded = false" />
+                } @else {
+                  <span>{{
+                    (userInfo.FullName || userInfo.UserName).charAt(0)
+                  }}</span>
+                }
+              </div>
+              <form class="profile__avatar-form" (ngSubmit)="saveAvatar()">
+                <h2 id="profile-avatar-title" class="profile__card-title">
+                  {{ 'T_AVATAR_TITLE' | translate }}
+                </h2>
+                <label for="profile-avatar-url">{{
+                  'T_AVATAR_LINK' | translate
+                }}</label>
+                <input
+                  id="profile-avatar-url"
+                  type="url"
+                  name="avatarUrl"
+                  maxlength="2048"
+                  placeholder="https://example.com/avatar.jpg"
+                  autocomplete="off"
+                  spellcheck="false"
+                  [ngModel]="avatarUrl"
+                  (ngModelChange)="setAvatarUrl($event)"
+                  [disabled]="avatarSaving"
+                  aria-describedby="profile-avatar-hint profile-avatar-error" />
+                <p id="profile-avatar-hint" class="profile__avatar-hint">
+                  {{ 'T_AVATAR_HINT' | translate }}
+                </p>
+                <p
+                  id="profile-avatar-error"
+                  class="profile__avatar-error"
+                  aria-live="polite">
+                  @if (avatarFailed) {
+                    {{ 'T_AVATAR_LOAD_ERROR' | translate }}
+                  } @else if (avatarUrl.trim() && !avatarPreview) {
+                    {{ 'T_AVATAR_INVALID' | translate }}
+                  }
+                </p>
+                <div class="profile__avatar-actions">
+                  <button
+                    class="profile__avatar-save"
+                    type="submit"
+                    [disabled]="
+                      avatarSaving ||
+                      !avatarLoaded ||
+                      avatarFailed ||
+                      !avatarChanged
+                    ">
+                    {{
+                      (avatarSaving ? 'T_AVATAR_SAVING' : 'T_AVATAR_SAVE')
+                        | translate
+                    }}
+                  </button>
+                  @if (avatarChanged) {
+                    <button
+                      class="profile__avatar-cancel"
+                      type="button"
+                      [disabled]="avatarSaving"
+                      (click)="setAvatarUrl(userInfo.Avatar || '')">
+                      {{ 'T_AVATAR_CANCEL' | translate }}
+                    </button>
+                  }
+                </div>
+              </form>
+            </article>
+            <article
               class="profile__card"
               aria-labelledby="profile-personal-title">
               <h2 id="profile-personal-title" class="profile__card-title">

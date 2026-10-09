@@ -1,147 +1,157 @@
-<div class="chat-wrapper">
-  <div class="chat__container">
-    <!-- Header -->
-    <div class="chat-header">
-      <div class="chat-header-info">
-        <span
-          nz-icon
-          nzType="message"
-          nzTheme="fill"
-          class="chat-header-icon"></span>
-        <span class="chat-header-title">{{ 'T_CHAT' | translate }}</span>
+﻿<section class="chat__container" aria-labelledby="chat-panel-title">
+  <header class="chat-header">
+    <div class="chat-header-info">
+      <span
+        nz-icon
+        nzType="comment"
+        nzTheme="outline"
+        class="chat-header-icon"></span>
+      <div>
+        <h2 id="chat-panel-title" class="chat-header-title">
+          {{ 'T_CHAT' | translate }}
+        </h2>
+        <p class="chat-header-subtitle">{{ 'T_CHAT_ROOM_HINT' | translate }}</p>
       </div>
+    </div>
+    <button
+      type="button"
+      class="chat-close-btn"
+      (click)="closeChat.emit()"
+      aria-label="Đóng tin nhắn">
+      <span nz-icon nzType="close" nzTheme="outline"></span>
+    </button>
+  </header>
+  <div *ngIf="loadingMessages" class="loading-indicator" role="status">
+    <app-spinner size="small"></app-spinner>
+    <span>{{ 'T_LOADINGMESSAGES' | translate }}</span>
+  </div>
+  <div #chatContainer (scroll)="onScroll()" class="chat-messages-container">
+    <div *ngIf="!loadingMessages && !messages.length" class="chat-empty">
+      <span nz-icon nzType="comment" nzTheme="outline"></span>
+      <p>{{ 'T_CHAT_EMPTY' | translate }}</p>
+    </div>
+    <article
+      *ngFor="let msg of messages; trackBy: trackByMessageId"
+      class="message-wrapper"
+      [class.message-own]="msg.UserId === userId">
+      <nz-avatar
+        *ngIf="msg.UserId !== userId"
+        class="message-avatar"
+        [nzSize]="32"
+        [nzSrc]="msg.SenderAvatar || undefined"
+        [nzText]="
+          (msg.SenderName || 'Người dùng').slice(0, 1).toUpperCase()
+        "></nz-avatar>
+      <div class="message-content">
+        <span *ngIf="msg.UserId !== userId" class="message-author">{{
+          msg.SenderName || 'Người dùng'
+        }}</span>
+        <div class="message-bubble" [class.bubble-own]="msg.UserId === userId">
+          <button
+            *ngIf="msg.Type === 'jpg'"
+            type="button"
+            class="message-image-button"
+            (click)="previewImage = msg.Message; previewVisible = true"
+            aria-label="Xem ảnh">
+            <img
+              [src]="msg.Message"
+              alt="Ảnh trong tin nhắn"
+              class="message-image"
+              referrerpolicy="no-referrer" />
+          </button>
+          <p *ngIf="msg.Type === 'string'" class="message-text">
+            {{ msg.Message }}
+          </p>
+        </div>
+        <time
+          class="message-time"
+          [attr.title]="msg.CreatedDTime | date: 'short'"
+          >{{ msg.CreatedDTime | date: 'HH:mm' }}</time
+        >
+      </div>
+    </article>
+  </div>
+  <p *ngIf="chatService.error()" class="chat-notice" role="status">
+    {{ chatService.error() }}
+  </p>
+  <p *ngIf="sendError" class="chat-notice chat-notice--error" role="alert">
+    {{ sendError }}
+  </p>
+  <p *ngIf="!canSend" class="chat-notice">
+    Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.
+  </p>
+  <div *ngIf="canSend" class="chat-compose-area">
+    <div *ngIf="typeMessage === 'jpg' && newMessage" class="chat-attachment">
+      <img [src]="newMessage" alt="Ảnh đã chọn" />
+      <span>{{ 'T_CHAT_IMAGE_READY' | translate }}</span>
       <button
         type="button"
-        class="chat-close-btn"
-        (click)="closeChat.emit()"
-        aria-label="Close chat">
+        (click)="clearImage()"
+        [disabled]="sending || isUploading"
+        aria-label="Bỏ ảnh đã chọn">
         <span nz-icon nzType="close" nzTheme="outline"></span>
       </button>
     </div>
-
-    <!-- Loading indicator for older messages -->
-    <div *ngIf="loadingMessages" class="loading-indicator">
-      <app-spinner size="small"></app-spinner>
-      <span>{{ 'T_LOADINGMESSAGES' | translate }}</span>
-    </div>
-
-    <!-- Chat messages container -->
-    <div #chatContainer (scroll)="onScroll()" class="chat-messages-container">
-      <div
-        *ngFor="let msg of messages; trackBy: trackByMessageId"
-        class="message-wrapper"
-        [class.message-own]="msg.UserId === userId"
-        [class.message-other]="msg.UserId !== userId">
-        <nz-comment
-          class="message-item"
-          [nzAuthor]="msg.UserId !== userId ? msg.SenderName || msg.UserId : ''"
-          [nzDatetime]="(msg.CreatedDTime | date: 'short') || ''">
-          <!-- Avatar for other users -->
-          <nz-avatar
-            *ngIf="msg.UserId !== userId"
-            nz-comment-avatar
-            [nzSize]="36"
-            [nzText]="(msg.SenderName || msg.UserId).slice(0, 1).toUpperCase()">
-          </nz-avatar>
-
-          <!-- Message content -->
-          <nz-comment-content>
-            <div
-              class="message-bubble"
-              [class.bubble-own]="msg.UserId === userId"
-              [class.bubble-other]="msg.UserId !== userId">
-              <!-- Image message -->
-              <img
-                *ngIf="msg.Type === 'jpg'"
-                [src]="msg.Message"
-                [alt]="msg.MessageId"
-                class="message-image"
-                (click)="previewImage = msg.Message; previewVisible = true" />
-
-              <!-- Text message -->
-              <p *ngIf="msg.Type === 'string'" class="message-text">
-                {{ msg.Message }}
-              </p>
-            </div>
-          </nz-comment-content>
-        </nz-comment>
-      </div>
-    </div>
-
-    <!-- Input area -->
-    <p *ngIf="chatService.error()" class="chat-notice" role="status">
-      {{ chatService.error() }}
-    </p>
-    <p *ngIf="sendError" class="chat-notice" role="alert">{{ sendError }}</p>
-    <p *ngIf="!canSend" class="chat-notice">
-      Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.
-    </p>
-    <div *ngIf="canSend" class="chat-input-area">
-      <!-- Upload button -->
-      <div class="upload-section">
-        <nz-upload
-          class="upload-btn"
-          nzListType="picture-card"
-          [(nzFileList)]="fileList"
-          [nzShowButton]="fileList.length < 1 && !isUploading"
-          [nzPreview]="handlePreview"
-          [nzBeforeUpload]="handleUploadFile"
-          [nzShowUploadList]="false">
-          <div class="upload-icon-wrapper">
-            <span
-              nz-icon
-              [nzType]="isUploading ? 'loading' : 'picture'"
-              nzTheme="outline">
-            </span>
-          </div>
-        </nz-upload>
-      </div>
-
-      <!-- Message input -->
-      <div class="input-section">
-        <nz-input-group [nzSuffix]="suffixIconButton">
-          <input
-            [(ngModel)]="newMessage"
-            type="text"
-            nz-input
-            placeholder="Nhập tin nhắn..."
-            (keyup.enter)="sendMessage()"
-            [disabled]="isUploading || sending"
-            maxlength="4000"
-            aria-label="Nội dung tin nhắn"
-            class="message-input" />
-        </nz-input-group>
-
-        <ng-template #suffixIconButton>
-          <button
-            nz-button
-            nzType="primary"
-            (click)="sendMessage()"
-            [disabled]="
-              !newMessage.trim() ||
-              isUploading ||
-              sending ||
-              !chatService.connected()
-            "
-            aria-label="Gửi tin nhắn"
-            class="send-btn">
-            <span nz-icon nzType="send" nzTheme="outline"></span>
-          </button>
-        </ng-template>
+    <div class="chat-input-area">
+      <input
+        #imagePicker
+        type="file"
+        hidden
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        (change)="onFileSelected($event)" />
+      <button
+        type="button"
+        class="upload-btn"
+        (click)="imagePicker.click()"
+        [disabled]="isUploading || sending || !chatService.connected()"
+        title="JPG, PNG, GIF, WebP · dưới 2 MB"
+        aria-label="Gửi ảnh dưới 2 MB">
+        <span
+          nz-icon
+          [nzType]="isUploading ? 'loading' : 'picture'"
+          nzTheme="outline"></span>
+      </button>
+      <div class="chat-composer">
+        <input
+          *ngIf="typeMessage !== 'jpg'"
+          [(ngModel)]="newMessage"
+          type="text"
+          placeholder="Nhập tin nhắn…"
+          (keyup.enter)="sendMessage()"
+          [disabled]="isUploading || sending"
+          maxlength="4000"
+          aria-label="Nội dung tin nhắn"
+          class="message-input" />
+        <span *ngIf="typeMessage === 'jpg'" class="chat-image-label">{{
+          'T_CHAT_IMAGE_READY' | translate
+        }}</span>
+        <button
+          type="button"
+          (click)="sendMessage()"
+          [disabled]="
+            !newMessage.trim() ||
+            isUploading ||
+            sending ||
+            !chatService.connected()
+          "
+          aria-label="Gửi tin nhắn"
+          class="send-btn">
+          <span
+            nz-icon
+            [nzType]="sending ? 'loading' : 'send'"
+            nzTheme="outline"></span>
+        </button>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Image preview modal -->
+</section>
 <nz-modal
-  class="image__preview__modal"
   [nzVisible]="previewVisible"
   [nzContent]="modalContent"
   [nzFooter]="null"
   (nzOnCancel)="previewVisible = false"
   nzWidth="80%">
   <ng-template #modalContent>
-    <img [src]="previewImage" class="preview-image" />
+    <img [src]="previewImage" class="preview-image" alt="Ảnh trong tin nhắn" />
   </ng-template>
 </nz-modal>

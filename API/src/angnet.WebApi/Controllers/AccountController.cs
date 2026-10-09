@@ -148,6 +148,14 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPut("avatar")]
+        public async Task<IActionResult> UpdateAvatar(UpdateAvatarDto request)
+        {
+            var response = await _accountRespository.UpdateAvatar(User, request);
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
         // get all users
         [Authorize(Policy = "user.view")]
         [HttpGet("users")]

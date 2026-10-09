@@ -30,6 +30,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 };
                 await _dbContext.Chat.AddAsync(data);
                 await _dbContext.SaveChangesAsync();
+                await AttachSenderProfiles([data]);
                 await transaction.CommitAsync();
                 return new ApiResponse<ChatModel>(data);
             });
@@ -51,11 +52,14 @@ namespace angnet.Infrastructure.Data.Repositories
             int itemCount = await _dbContext.Chat.CountAsync();
 
             List<ChatModel> data = await _dbContext.Chat
+                                    .AsNoTracking()
                                     .OrderByDescending(c => c.Sequence)
                                     .Skip(pageIndex * pageSize)             // Skip pages based on page index
                                     .Take(pageSize)
                                     .Reverse()                      // Take the specified page size
                                     .ToListAsync();
+
+            await AttachSenderProfiles(data);
 
             PageInfo<ChatModel> pageInfo = new PageInfo<ChatModel>();
             pageInfo.PageIndex = pageIndex;
@@ -91,10 +95,28 @@ namespace angnet.Infrastructure.Data.Repositories
             var unread = _dbContext.Chat.AsNoTracking().Where(c => c.Sequence > state.LastReadSequence && c.UserId != chatIdentity);
             var count = await unread.CountAsync();
             var latest = await unread.OrderByDescending(c => c.Sequence).FirstOrDefaultAsync();
-            if (latest is not null)
-                latest.SenderName = await _dbContext.Users.Where(u => u.Email == latest.UserId || "account:" + u.Id == latest.UserId)
-                    .Select(u => u.FullName).FirstOrDefaultAsync();
+            if (latest is not null) await AttachSenderProfiles([latest]);
             return new(new ChatNotificationDto { UnreadCount = count, LatestMessage = latest });
+        }
+
+        private async Task AttachSenderProfiles(IReadOnlyCollection<ChatModel> messages)
+        {
+            if (messages.Count == 0) return;
+            var identities = messages.Select(m => m.UserId).Distinct().ToArray();
+            var users = await _dbContext.Users.AsNoTracking()
+                .Where(u => identities.Contains(u.Email!) || identities.Contains("account:" + u.Id))
+                .Select(u => new { u.Id, u.Email, u.FullName, u.UserName, u.Avatar }).ToListAsync();
+            var profiles = users.SelectMany(u => new[] { u.Email, "account:" + u.Id }
+                .Where(key => !string.IsNullOrWhiteSpace(key))
+                .Select(key => new { Key = key!, Name = !string.IsNullOrWhiteSpace(u.FullName) ? u.FullName.Trim()
+                    : !string.IsNullOrWhiteSpace(u.UserName) && !u.UserName.Contains('@') ? u.UserName : "Người dùng", u.Avatar }))
+                .ToDictionary(u => u.Key, StringComparer.OrdinalIgnoreCase);
+            foreach (var message in messages)
+            {
+                profiles.TryGetValue(message.UserId, out var profile);
+                message.SenderName = profile?.Name ?? "Người dùng";
+                message.SenderAvatar = profile?.Avatar;
+            }
         }
 
         public async Task<ApiResponse<ChatNotificationDto>> MarkRead(string accountId, string chatIdentity, long sequence)

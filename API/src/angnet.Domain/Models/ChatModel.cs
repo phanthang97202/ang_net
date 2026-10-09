@@ -11,6 +11,8 @@ namespace angnet.Domain.Models
         public long Sequence { get; set; }
         [NotMapped]
         public string? SenderName { get; set; }
+        [NotMapped]
+        public string? SenderAvatar { get; set; }
         [ForeignKey("UserId")]
         [Required]
         public string UserId {  get; set; } = string.Empty;

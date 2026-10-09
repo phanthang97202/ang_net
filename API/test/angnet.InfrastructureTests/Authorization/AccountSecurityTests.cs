@@ -164,6 +164,47 @@ public class AccountSecurityTests
         Assert.AreEqual(1, actual.SessionVersion);
     }
 
+    [TestMethod]
+    public async Task AvatarUpdate_OnlyChangesOwnPhoto_AndPreservesSessions()
+    {
+        var login = await _f.Login();
+        const string url = "https://example.com/avatar.jpg?size=200";
+        // The extra account ID is ignored: ownership always comes from the JWT.
+        using var result = await _f.Send("/api/Account/avatar", login.Data.AccessToken,
+            new { AvatarUrl = $" {url} ", UserId = "admin" }, HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        var response = (await result.Content.ReadFromJsonAsync<ApiResponse<UserDetailDto>>())!;
+        Assert.IsTrue(response.Success);
+        Assert.AreEqual("target", response.Data.Id);
+        Assert.AreEqual(url, response.Data.Avatar);
+        Assert.AreEqual(url, (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target")).Avatar);
+        Assert.AreEqual("", (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "admin")).Avatar);
+        Assert.AreEqual(HttpStatusCode.OK, await _f.Probe(login.Data.AccessToken));
+        var refreshed = await _f.Refresh(login.Data.RefreshToken);
+        Assert.IsTrue(refreshed.Success);
+        Assert.AreEqual(url, new JwtSecurityTokenHandler().ReadJwtToken(refreshed.Data.AccessToken)
+            .Claims.Single(c => c.Type == "avatar").Value);
+        Assert.IsTrue((await _f.Action("lock")).Success);
+        using var locked = await _f.Send("/api/Account/avatar", refreshed.Data.AccessToken,
+            new { AvatarUrl = "https://example.com/other.jpg" }, HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, locked.StatusCode);
+        Assert.AreEqual(url, (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target")).Avatar);
+    }
+
+    [TestMethod]
+    public async Task AvatarUpdate_RejectsAnonymousAndInvalidLinks()
+    {
+        using var anonymous = await _f.Send("/api/Account/avatar", body: new { AvatarUrl = "https://example.com/a.jpg" }, method: HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        var login = await _f.Login();
+        foreach (var url in new[] { "", "   ", "/assets/photo.jpg", "http://example.com/a.jpg", "data:image/png;base64,abc", "javascript:alert(1)", "https://user:secret@example.com/a.jpg", "https://example.com/" + new string('a', 2048) })
+        {
+            using var response = await _f.Send("/api/Account/avatar", login.Data.AccessToken, new { AvatarUrl = url }, HttpMethod.Put);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode, url);
+        }
+        Assert.AreEqual("", (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target")).Avatar);
+    }
+
     private sealed class Fixture : IAsyncDisposable
     {
         private const string Secret = "test-only-account-session-security-signing-key-2026-0123456789";
@@ -253,8 +294,8 @@ public class AccountSecurityTests
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             using var response = await _client.SendAsync(request); return response.StatusCode;
         }
-        public Task<HttpResponseMessage> Send(string path, string? token = null, object? body = null) {
-            var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(body ?? new {}) };
+        public Task<HttpResponseMessage> Send(string path, string? token = null, object? body = null, HttpMethod? method = null) {
+            var request = new HttpRequestMessage(method ?? HttpMethod.Post, path) { Content = JsonContent.Create(body ?? new {}) };
             if (token is not null) request.Headers.Authorization = new("Bearer", token);
             return _client.SendAsync(request);
         }

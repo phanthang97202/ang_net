@@ -7,11 +7,7 @@ import { signal } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { ChatWidgetComponent } from './chat-widget.component';
 import { ChatService } from '../../services/ws-chat.service';
-import {
-  AuthService,
-  CloudinaryService,
-  ShowErrorService,
-} from '../../services';
+import { AuthService, ShowErrorService } from '../../services';
 import { IChat } from '../../interfaces';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { By } from '@angular/platform-browser';
@@ -40,6 +36,7 @@ describe('Chat notification widget', () => {
       getMessage: () => of({ objResult: { DataList: [], ItemCount: 0 } }),
       markRead: jasmine.createSpy().and.resolveTo(),
       sendMessage: jasmine.createSpy().and.resolveTo(),
+      uploadImage: jasmine.createSpy(),
     };
     TestBed.configureTestingModule({
       imports: [
@@ -54,10 +51,6 @@ describe('Chat notification widget', () => {
         {
           provide: AuthService,
           useValue: { getAccountInfo: () => ({ nameid: 'me', email: '' }) },
-        },
-        {
-          provide: CloudinaryService,
-          useValue: { uploadImage: jasmine.createSpy() },
         },
         {
           provide: ShowErrorService,
@@ -138,11 +131,10 @@ describe('Chat notification widget', () => {
     tick(1000);
   }));
   it('blocks uploads for viewers and sends uploaded images using the HTTPS URL', fakeAsync(() => {
-    const cloud = TestBed.inject(CloudinaryService) as any;
-    cloud.uploadImage.and.returnValue(
+    chat.uploadImage.and.returnValue(
       of({
-        url: 'http://example.com/image.jpg',
-        secure_url: 'https://example.com/image.jpg',
+        Success: true,
+        Data: { Url: 'https://example.com/image.jpg' },
       })
     );
     const f = TestBed.createComponent(ChatWidgetComponent);
@@ -154,7 +146,7 @@ describe('Chat notification widget', () => {
       .componentInstance as ChatBoxComponent;
     const file = new File(['sample'], 'image.jpg', { type: 'image/jpeg' });
     box.handleUploadFile(file);
-    expect(cloud.uploadImage).not.toHaveBeenCalled();
+    expect(chat.uploadImage).not.toHaveBeenCalled();
     chat.canSend = true;
     box.handleUploadFile(file);
     expect(box.newMessage).toBe('https://example.com/image.jpg');
@@ -165,6 +157,65 @@ describe('Chat notification widget', () => {
       'https://example.com/image.jpg',
       'jpg'
     );
+    f.destroy();
+    tick(1000);
+  }));
+  it('rejects files at or above 2 MB and unsupported files before uploading, preserving the draft', fakeAsync(() => {
+    chat.canSend = true;
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    box.newMessage = 'Draft';
+    for (const size of [2 * 1024 * 1024, 2 * 1024 * 1024 + 1]) {
+      box.handleUploadFile(
+        new File([new Uint8Array(size)], 'large.png', { type: 'image/png' })
+      );
+      expect(box.sendError).toContain('nhỏ hơn 2 MB');
+    }
+    box.handleUploadFile(
+      new File(['text'], 'file.txt', { type: 'text/plain' })
+    );
+    expect(box.sendError).toContain('JPG, PNG, GIF hoặc WebP');
+    expect(chat.uploadImage).not.toHaveBeenCalled();
+    expect(box.newMessage).toBe('Draft');
+    expect(box.isUploading).toBeFalse();
+    f.destroy();
+    tick(1000);
+  }));
+  it('renders the database sender name and avatar for history and realtime without exposing email', fakeAsync(() => {
+    const message: IChat = {
+      MessageId: 'db',
+      Sequence: 1,
+      UserId: 'private@example.com',
+      SenderName: 'Thang Phan',
+      SenderAvatar: 'https://example.com/avatar.jpg',
+      Message: 'Hi',
+      Type: 'string',
+      CreatedDTime: new Date(),
+    };
+    chat.getMessage = () =>
+      of({ objResult: { DataList: [message], ItemCount: 1 } });
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('.message-author').textContent).toBe(
+      'Thang Phan'
+    );
+    expect(
+      f.nativeElement.querySelector('.message-avatar img').getAttribute('src')
+    ).toBe(message.SenderAvatar);
+    expect(f.nativeElement.textContent).not.toContain(message.UserId);
+    chat.received$.next({ ...message, MessageId: 'live', Sequence: 2 });
+    tick(60);
+    f.detectChanges();
+    expect(f.nativeElement.querySelectorAll('.message-author').length).toBe(2);
     f.destroy();
     tick(1000);
   }));

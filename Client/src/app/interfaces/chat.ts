@@ -5,6 +5,7 @@ export interface IChat {
   MessageId: string;
   Sequence: number;
   SenderName?: string;
+  SenderAvatar?: string;
   UserId: string;
   Message: string;
   Type: TypeMessage;

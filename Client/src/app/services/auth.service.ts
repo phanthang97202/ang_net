@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import {
   LoginRequest,
   RefreshTokenRequest,
@@ -30,6 +30,10 @@ export class AuthService {
   apiUrl: string = environment.apiUrl;
   private tokenKey = environment.tokenKey;
   private refreshTokenKey = environment.refreshTokenKey;
+  private avatarKey = `${environment.tokenKey}.avatar`;
+  private currentAvatar = signal<{ userId: string; url: string } | null>(
+    this.readSavedAvatar()
+  );
   constructor(
     private http: HttpClient,
     private router: Router
@@ -41,6 +45,7 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.Success) {
+            this.clearAvatar();
             localStorage.setItem(this.tokenKey, response.Data.AccessToken);
             localStorage.setItem(
               this.refreshTokenKey,
@@ -108,6 +113,7 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.Success) {
+            this.clearAvatar();
             localStorage.setItem(this.tokenKey, response.Data.AccessToken);
             localStorage.setItem(
               this.refreshTokenKey,
@@ -127,14 +133,45 @@ export class AuthService {
   }
 
   getUserDetail(): Observable<IUserResponse> {
-    return this.http.get<IUserResponse>(
-      `${this.apiUrl}account/detail`
-      //    {
-      //   headers: {
-      //     Authorization: `Bearer ${this.getToken()}`,
-      //   },
-      // }
-    );
+    return this.http
+      .get<IUserResponse>(`${this.apiUrl}account/detail`)
+      .pipe(tap(response => this.rememberAvatar(response)));
+  }
+
+  updateAvatar(avatarUrl: string): Observable<IUserResponse> {
+    return this.http
+      .put<IUserResponse>(`${this.apiUrl}account/avatar`, {
+        AvatarUrl: avatarUrl.trim(),
+      })
+      .pipe(tap(response => this.rememberAvatar(response)));
+  }
+
+  private readSavedAvatar(): { userId: string; url: string } | null {
+    try {
+      const saved = JSON.parse(localStorage.getItem(this.avatarKey) || 'null');
+      return typeof saved?.userId === 'string' && typeof saved?.url === 'string'
+        ? saved
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private rememberAvatar(response: IUserResponse): void {
+    if (
+      !response.Success ||
+      !response.Data ||
+      response.Data.Id !== this.getAccountInfo().nameid
+    )
+      return;
+    const avatar = { userId: response.Data.Id, url: response.Data.Avatar };
+    localStorage.setItem(this.avatarKey, JSON.stringify(avatar));
+    this.currentAvatar.set(avatar);
+  }
+
+  private clearAvatar(): void {
+    localStorage.removeItem(this.avatarKey);
+    this.currentAvatar.set(null);
   }
 
   // get thông tin users cho dashboard
@@ -161,10 +198,15 @@ export class AuthService {
     const decodedToken: any = jwtDecode(token);
 
     const shortname = decodedToken.name.split(' ')[0][0];
+    const avatar = this.currentAvatar();
 
     return {
       ...decodedToken,
       shortname,
+      avatar:
+        avatar && avatar.userId === decodedToken.nameid
+          ? avatar.url
+          : decodedToken.avatar,
     };
   }
 
@@ -211,6 +253,7 @@ export class AuthService {
   // xóa token hết hạn/invalid mà không ép điều hướng sang /login,
   // vì lúc init user có thể chỉ đang xem trang public
   private clearTokens(): void {
+    this.clearAvatar();
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
   }
