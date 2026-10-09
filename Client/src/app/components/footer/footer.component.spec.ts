@@ -63,16 +63,21 @@ describe('FooterComponent', () => {
     expect(fixture.nativeElement.querySelector('iframe')).toBeNull();
   });
 
-  it('uses the configured local asset and removes the background when cleared', () => {
+  it('shows the configured image only behind the copyright and removes it when cleared', () => {
     background$.next('/assets/images/bg_footer.png');
     fixture.detectChanges();
     const footer: HTMLElement = fixture.nativeElement.querySelector('footer');
-    expect(footer.classList.contains('footer--with-background')).toBeTrue();
-    expect(footer.style.backgroundImage).toContain('/assets/images/bg_footer.png');
+    const bottom: HTMLElement = fixture.nativeElement.querySelector('.footer-bottom');
+    expect(footer.style.backgroundImage).toBe('');
+    expect(bottom.classList.contains('footer-bottom--with-background')).toBeTrue();
+    expect(bottom.style.backgroundImage).toContain('/assets/images/bg_footer.png');
+    expect(bottom.querySelector('.footer-copyright')).not.toBeNull();
+    expect(bottom.querySelector('.footer-top')).toBeNull();
     background$.next(null);
     fixture.detectChanges();
-    expect(footer.classList.contains('footer--with-background')).toBeFalse();
-    expect(footer.style.backgroundImage).toBe('');
+    expect(footer.classList.contains('footer--has-scenery')).toBeFalse();
+    expect(bottom.classList.contains('footer-bottom--with-background')).toBeFalse();
+    expect(bottom.style.backgroundImage).toBe('');
   });
 
   it('supports external image URLs but rejects unsafe protocols and asset traversal', () => {

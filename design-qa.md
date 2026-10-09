@@ -46,3 +46,19 @@ final result: passed
 - Primary behaviors preserved: server pagination, sorting, pin toggle, notification confirmation, permission-based edit/notification controls, cache clearing, and navigation to create/edit.
 
 final result: passed
+
+# Footer copyright scenery
+
+- Source visual: screenshot attached to the current user message (2048 x 683 displayed pixels).
+- Scope: use the existing configurable image only behind the copyright strip; preserve upper footer content.
+- Implementation: `Client/src/app/components/footer/footer.component.html` and `.scss`.
+- Implementation screenshot: unavailable; no in-app browser tool is available in this session.
+- Viewport/state: desktop and mobile, light/dark; rendered states not captured.
+- Density normalization and full-view/focused comparisons: not performed without browser evidence.
+- Fonts/copy: existing footer typography and copyright content retained; visual fidelity unverified.
+- Layout: responsive scenery strip set to 280–440px, 260px on mobile; visual fidelity unverified.
+- Color/image: existing image and page theme token reused, with an upper-edge fade; crop/contrast unverified in browser.
+- Comparison history: no visual comparison performed; this is not a visual QA pass.
+- Next step: inspect the footer after local preview or deployment and confirm the crop and strip height.
+
+final result: blocked

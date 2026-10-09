@@ -6,17 +6,23 @@
   padding: 2rem 0 3rem;
 }
 
-.footer--with-background {
-  --footer-overlay: rgba(255, 255, 255, 0.76);
-  --color-text-muted: #555568;
+.footer--has-scenery {
+  padding-bottom: 0;
+}
+
+.footer-bottom {
+  padding-top: 1.5rem;
+}
+
+.footer-bottom--with-background {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 2rem;
-  border-radius: 20px;
-  background-color: var(--color-bg-card);
+  min-height: clamp(280px, 25vw, 440px);
+  padding-top: 2rem;
+  background-color: var(--color-bg-page);
   background-size: cover;
-  background-position: center 60%;
+  background-position: center 58%;
   background-repeat: no-repeat;
 
   &::before {
@@ -24,20 +30,22 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--footer-overlay);
+    // Fade only the upper edge; keep the landscape visible below the copyright.
+    background: linear-gradient(
+      to bottom,
+      var(--color-bg-page) 0%,
+      var(--color-bg-page) 12%,
+      transparent 72%
+    );
     pointer-events: none;
   }
 }
 
-:host-context(html[data-theme='dark']) .footer--with-background {
-  --footer-overlay: rgba(20, 20, 32, 0.85);
-  --color-text-muted: #cccbd8;
-}
-
 @media (max-width: 600px) {
-  .footer--with-background {
-    padding: 1.5rem 1rem;
-    border-radius: 16px;
+  .footer-bottom--with-background {
+    min-height: 260px;
+    background-position: 30% center;
+    padding-top: 1.5rem;
   }
 }
 
@@ -167,7 +175,7 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
   color: var(--color-text-muted);
-  margin: 1.5rem 0 0;
+  margin: 0;
 }
 
 // Cột bản đồ rộng hơn min-width mặc định của .footer-col (150px) vì iframe
