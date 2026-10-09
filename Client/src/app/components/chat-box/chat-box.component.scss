@@ -117,6 +117,19 @@ button {
     margin: 12px 0 0;
   }
 }
+.message-day-separator {
+  align-self: center;
+  flex-shrink: 0;
+  max-width: 100%;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--color-control-bg);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
+}
 .message-wrapper {
   display: flex;
   align-items: flex-start;

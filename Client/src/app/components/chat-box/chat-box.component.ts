@@ -22,7 +22,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { SpinnerComponent } from '../spinner/spinner.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { ChatLinksPipe } from './chat-links.pipe';
 
@@ -48,6 +48,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   detailUser = inject(AuthService);
   showErrorService = inject(ShowErrorService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
   private destroyed = false;
   private acknowledging = false;
   private acknowledged = 0;
@@ -398,19 +399,33 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     return message.MessageId || index.toString();
   }
 
-  formatDate(date: Date): string {
-    if (!date) return '';
-    try {
-      const d = new Date(date);
-      return d.toLocaleString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return '';
-    }
+  daySeparator(index: number): string | null {
+    const date = new Date(this.messages[index].CreatedDTime);
+    if (!Number.isFinite(date.getTime())) return null;
+    const day = (value: Date) =>
+      `${value.getFullYear()}-${value.getMonth()}-${value.getDate()}`;
+    const previous = this.messages[index - 1];
+    if (previous && day(new Date(previous.CreatedDTime)) === day(date))
+      return null;
+
+    // Compare calendar days in the viewer's timezone, rather than elapsed hours.
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const english = this.translate.currentLang === 'en';
+    if (day(date) === day(today)) return english ? 'Today' : 'Hôm nay';
+    if (day(date) === day(yesterday)) return english ? 'Yesterday' : 'Hôm qua';
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 6);
+    weekAgo.setHours(0, 0, 0, 0);
+    const recent = date >= weekAgo && date < today;
+    return date.toLocaleDateString(english ? 'en-GB' : 'vi-VN', {
+      ...(recent ? { weekday: 'long' as const } : {}),
+      day: '2-digit',
+      month: '2-digit',
+      ...(!recent || date.getFullYear() !== today.getFullYear()
+        ? { year: 'numeric' as const }
+        : {}),
+    });
   }
 }

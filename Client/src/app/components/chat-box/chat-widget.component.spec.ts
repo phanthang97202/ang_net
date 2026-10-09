@@ -1,6 +1,6 @@
 ﻿import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import * as icons from '@ant-design/icons-angular/icons';
 import { signal } from '@angular/core';
@@ -352,6 +352,80 @@ describe('Chat notification widget', () => {
     tick(60);
     f.detectChanges();
     expect(f.nativeElement.querySelectorAll('.message-author').length).toBe(2);
+    f.destroy();
+    tick(1000);
+  }));
+  it('groups local calendar days across history, realtime and deletion, including old years', fakeAsync(() => {
+    const today = new Date();
+    today.setHours(0, 5, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    yesterday.setHours(23, 55);
+    const recent = new Date(today);
+    recent.setDate(today.getDate() - 3);
+    const old = new Date(today.getFullYear() - 1, 0, 1, 12);
+    const message = (id: string, date: Date, sequence: number): IChat => ({
+      MessageId: id,
+      Sequence: sequence,
+      UserId: 'other',
+      Message: id,
+      Type: 'string',
+      // Match JSON timestamps from the API, rather than only Date instances.
+      CreatedDTime: date.toISOString() as unknown as Date,
+    });
+    TestBed.inject(TranslateService).currentLang = 'vi';
+    chat.getMessage = () =>
+      of({
+        objResult: {
+          DataList: [
+            message('y1', yesterday, 3),
+            message('y2', yesterday, 4),
+            message('t1', today, 5),
+          ],
+          ItemCount: 5,
+        },
+      });
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    f.detectChanges();
+    const labels = () =>
+      Array.from(
+        f.nativeElement.querySelectorAll('.message-day-separator')
+      ).map((el: any) => el.textContent.trim());
+    expect(labels()).toEqual(['Hôm qua', 'Hôm nay']);
+    expect(
+      f.nativeElement.querySelector('.message-time').textContent.trim()
+    ).toBe('23:55');
+    expect(
+      f.nativeElement.querySelector('.message-time').getAttribute('aria-label')
+    ).toContain(yesterday.getFullYear().toString());
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    // Prepending older history must not duplicate a day's existing divider.
+    box.messages = [
+      message('old', old, 1),
+      message('recent', recent, 2),
+      ...box.messages,
+    ];
+    chat.received$.next(message('t2', today, 6));
+    tick(60);
+    f.detectChanges();
+    expect(labels().length).toBe(4);
+    expect(labels()[0]).toContain(old.getFullYear().toString());
+    expect(labels()[1]).toContain(recent.getDate().toString().padStart(2, '0'));
+    chat.deleted$.next({ MessageId: 'y1', Sequence: 3 });
+    f.detectChanges();
+    expect(labels().slice(-2)).toEqual(['Hôm qua', 'Hôm nay']);
+    chat.deleted$.next({ MessageId: 'y2', Sequence: 4 });
+    f.detectChanges();
+    expect(labels().length).toBe(3);
+    expect(labels()).not.toContain('Hôm qua');
+    TestBed.inject(TranslateService).currentLang = 'en';
+    f.detectChanges();
+    expect(labels().at(-1)).toBe('Today');
     f.destroy();
     tick(1000);
   }));

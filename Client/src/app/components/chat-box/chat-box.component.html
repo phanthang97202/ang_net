@@ -30,77 +30,90 @@
       <span nz-icon nzType="comment" nzTheme="outline"></span>
       <p>{{ 'T_CHAT_EMPTY' | translate }}</p>
     </div>
-    <article
-      *ngFor="let msg of messages; trackBy: trackByMessageId"
-      class="message-wrapper"
-      [class.message-own]="msg.UserId === userId">
-      <nz-avatar
-        *ngIf="msg.UserId !== userId"
-        class="message-avatar"
-        [nzSize]="32"
-        [nzSrc]="msg.SenderAvatar || undefined"
-        [nzText]="
-          (msg.SenderName || 'Người dùng').slice(0, 1).toUpperCase()
-        "></nz-avatar>
-      <div class="message-content">
-        <span *ngIf="msg.UserId !== userId" class="message-author">{{
-          msg.SenderName || 'Người dùng'
-        }}</span>
-        <div class="message-bubble" [class.bubble-own]="msg.UserId === userId">
-          <button
-            *ngIf="msg.Type === 'jpg'"
-            type="button"
-            class="message-image-button"
-            (click)="previewImage = msg.Message; previewVisible = true"
-            aria-label="Xem ảnh">
-            <img
-              [src]="msg.Message"
-              alt="Ảnh trong tin nhắn"
-              class="message-image"
-              referrerpolicy="no-referrer" />
-          </button>
-          <p *ngIf="msg.Type === 'string'" class="message-text">
-            <ng-container *ngFor="let part of msg.Message | chatLinks"
-              ><a
-                *ngIf="part.href; else plainText"
-                [href]="part.href"
-                class="message-link"
-                [class.message-link-card]="msg.Message.trim() === part.text"
-                target="_blank"
-                rel="noopener noreferrer nofollow ugc"
-                >{{ part.text }}</a
-              ><ng-template #plainText>{{
-                part.text
-              }}</ng-template></ng-container
-            >
-          </p>
-        </div>
-        <div class="message-meta">
-          <time
-            class="message-time"
-            [attr.title]="msg.CreatedDTime | date: 'short'"
-            >{{ msg.CreatedDTime | date: 'HH:mm' }}</time
-          >
-          <button
-            *ngIf="canDelete"
-            type="button"
-            class="message-delete"
-            nz-popconfirm
-            nzPopconfirmTitle="Xóa tin nhắn này?"
-            nzOkText="Xóa"
-            nzCancelText="Hủy"
-            (nzOnConfirm)="deleteMessage(msg)"
-            [disabled]="deletingIds.has(msg.MessageId)"
-            aria-label="Xóa tin nhắn"
-            title="Xóa tin nhắn">
-            <span
-              nz-icon
-              [nzType]="deletingIds.has(msg.MessageId) ? 'loading' : 'delete'"
-              nzTheme="outline"></span>
-          </button>
-        </div>
+    <ng-container
+      *ngFor="let msg of messages; index as i; trackBy: trackByMessageId">
+      <div *ngIf="daySeparator(i) as label" class="message-day-separator">
+        <time [attr.datetime]="msg.CreatedDTime | date: 'yyyy-MM-dd'">{{
+          label
+        }}</time>
       </div>
-    </article>
+      <article
+        class="message-wrapper"
+        [class.message-own]="msg.UserId === userId">
+        <nz-avatar
+          *ngIf="msg.UserId !== userId"
+          class="message-avatar"
+          [nzSize]="32"
+          [nzSrc]="msg.SenderAvatar || undefined"
+          [nzText]="
+            (msg.SenderName || 'Người dùng').slice(0, 1).toUpperCase()
+          "></nz-avatar>
+        <div class="message-content">
+          <span *ngIf="msg.UserId !== userId" class="message-author">{{
+            msg.SenderName || 'Người dùng'
+          }}</span>
+          <div
+            class="message-bubble"
+            [class.bubble-own]="msg.UserId === userId">
+            <button
+              *ngIf="msg.Type === 'jpg'"
+              type="button"
+              class="message-image-button"
+              (click)="previewImage = msg.Message; previewVisible = true"
+              aria-label="Xem ảnh">
+              <img
+                [src]="msg.Message"
+                alt="Ảnh trong tin nhắn"
+                class="message-image"
+                referrerpolicy="no-referrer" />
+            </button>
+            <p *ngIf="msg.Type === 'string'" class="message-text">
+              <ng-container *ngFor="let part of msg.Message | chatLinks"
+                ><a
+                  *ngIf="part.href; else plainText"
+                  [href]="part.href"
+                  class="message-link"
+                  [class.message-link-card]="msg.Message.trim() === part.text"
+                  target="_blank"
+                  rel="noopener noreferrer nofollow ugc"
+                  >{{ part.text }}</a
+                ><ng-template #plainText>{{
+                  part.text
+                }}</ng-template></ng-container
+              >
+            </p>
+          </div>
+          <div class="message-meta">
+            <time
+              class="message-time"
+              [attr.datetime]="
+                msg.CreatedDTime | date: 'yyyy-MM-ddTHH:mm:ssZZZZZ'
+              "
+              [attr.title]="msg.CreatedDTime | date: 'dd/MM/yyyy HH:mm'"
+              [attr.aria-label]="msg.CreatedDTime | date: 'dd/MM/yyyy HH:mm'"
+              >{{ msg.CreatedDTime | date: 'HH:mm' }}</time
+            >
+            <button
+              *ngIf="canDelete"
+              type="button"
+              class="message-delete"
+              nz-popconfirm
+              nzPopconfirmTitle="Xóa tin nhắn này?"
+              nzOkText="Xóa"
+              nzCancelText="Hủy"
+              (nzOnConfirm)="deleteMessage(msg)"
+              [disabled]="deletingIds.has(msg.MessageId)"
+              aria-label="Xóa tin nhắn"
+              title="Xóa tin nhắn">
+              <span
+                nz-icon
+                [nzType]="deletingIds.has(msg.MessageId) ? 'loading' : 'delete'"
+                nzTheme="outline"></span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </ng-container>
   </div>
   <p *ngIf="chatService.error()" class="chat-notice" role="status">
     {{ chatService.error() }}

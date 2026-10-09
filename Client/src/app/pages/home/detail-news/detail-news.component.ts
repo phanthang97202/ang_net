@@ -7,7 +7,6 @@ import {
   AuthService,
   LangService,
   ShowErrorService,
-  SITE_TITLE,
 } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -259,6 +258,6 @@ export class DetailNewsComponent implements OnInit {
   private refreshLocalizedPresentation(): void {
     this.slides = buildNewsSlides(this.detailNews.Thumbnail, this.getContent());
     this.activeSlide = 0;
-    this.titleService.setTitle(`${this.getTitle()} - ${SITE_TITLE}`);
+    this.titleService.setTitle(this.getTitle());
   }
 }

@@ -8,9 +8,7 @@ import { LangService } from './lang-service.service';
 
 export const SITE_TITLE = 'Phan Thang Blog';
 
-// Gắn tên thương hiệu nhất quán cho <title> ở mọi trang (tab trình duyệt +
-// tiêu đề hiển thị trong kết quả tìm kiếm), thay vì mỗi route tự set title
-// trần trụi (vd "Home", "News", "Login"...) không có tên site.
+// Hiển thị tên trang đã dịch trên tab trình duyệt, dùng tên site khi route không có title.
 @Injectable({ providedIn: 'root' })
 export class AppTitleStrategy extends TitleStrategy {
   private readonly destroyRef = inject(DestroyRef);
@@ -48,7 +46,7 @@ export class AppTitleStrategy extends TitleStrategy {
       .subscribe(routeTitle => {
         // Bỏ kết quả cũ nếu người dùng điều hướng trong lúc file dịch đang tải.
         if (this.routeTitleKey === titleKey) {
-          this.title.setTitle(`${routeTitle} - ${SITE_TITLE}`);
+          this.title.setTitle(routeTitle);
         }
       });
   }
