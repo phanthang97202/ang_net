@@ -26,6 +26,7 @@ import { ErrorPopupComponent } from './components/error-popup/error-popup.compon
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
 import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
+import { BlogMaintenanceService } from './services/blog-maintenance.service';
 
 @Component({
   selector: 'app-root',
@@ -70,6 +71,7 @@ export class AppComponent implements OnInit {
   errorInfoService = inject(ShowErrorService);
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
+  private maintenance = inject(BlogMaintenanceService);
 
   // Menu khu quản trị. Mỗi mục khai quyền cần có; rebuildDashboardMenu() lọc bỏ mục
   // người dùng không có quyền, để họ không thấy rồi bấm vào và nhận lỗi.
@@ -180,7 +182,7 @@ export class AppComponent implements OnInit {
   // /reels chiếm trọn màn hình kiểu TikTok: không navbar/footer, và cũng không qua
   // nz-content (nz-content có margin: 64.8px 0 cho các trang 'none' khác, gây khoảng
   // trắng phía trên) - nên có layout riêng thay vì dùng chung 'none'.
-  lstRouteLayoutImmersive = ['/reels'];
+  lstRouteLayoutImmersive = ['/reels', '/maintain', '/dashboard/login'];
 
   constructor(
     public router: Router,
@@ -238,23 +240,24 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.maintenance.startMonitoring();
     this.authService.tryRefreshOnInit();
     this.visitTrackingService.init();
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        const url = event.urlAfterRedirects;
+        const url = event.urlAfterRedirects.split(/[?#]/)[0];
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
         const isLayoutImmersive = this.lstRouteLayoutImmersive.includes(url);
 
-        if (url.startsWith('/dashboard')) {
+        if (isLayoutImmersive) {
+          this.layoutType = 'immersive';
+        } else if (url === '/dashboard' || url.startsWith('/dashboard/')) {
           this.layoutType = 'admin';
           // Dựng lại menu mỗi lần vào khu quản trị: token có thể đã đổi kể từ lần
           // trước (đăng nhập tài khoản khác, hoặc vừa refresh token).
           this.rebuildDashboardMenu();
-        } else if (isLayoutImmersive) {
-          this.layoutType = 'immersive';
         } else if (isLayoutNone) {
           this.layoutType = 'none';
         } else {
@@ -317,7 +320,6 @@ export class AppComponent implements OnInit {
       },
     });
   }
-
 
   // Menu đã lọc theo quyền, TÍNH SẴN một lần chứ không gọi từ template.
   //

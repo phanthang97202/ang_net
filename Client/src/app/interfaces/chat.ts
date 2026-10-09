@@ -19,3 +19,7 @@ export interface IChatNotifications {
   UnreadCount: number;
   LatestMessage: IChat | null;
 }
+export interface IChatDeleted {
+  MessageId: string;
+  Sequence: number;
+}

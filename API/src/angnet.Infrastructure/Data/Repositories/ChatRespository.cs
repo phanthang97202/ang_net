@@ -36,7 +36,7 @@ namespace angnet.Infrastructure.Data.Repositories
             });
         }
 
-        public async Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize)
+        public async Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize, long? beforeSequence = null)
         {
             //pageIndex: 0, 1
             //pageSize: 5, 5
@@ -49,12 +49,13 @@ namespace angnet.Infrastructure.Data.Repositories
             // lấy 5 tin nhắn cuối  = bỏ 0 tin nhắn đầu = 0, itemCount - pageSize
             ApiResponse<ChatModel> apiResponse = new ApiResponse<ChatModel>();
 
-            int itemCount = await _dbContext.Chat.CountAsync();
+            var visible = _dbContext.Chat.AsNoTracking().Where(c => !c.IsDeleted);
+            int itemCount = await visible.CountAsync();
+            var page = beforeSequence.HasValue
+                ? visible.Where(c => c.Sequence < beforeSequence.Value).OrderByDescending(c => c.Sequence)
+                : visible.OrderByDescending(c => c.Sequence).Skip(pageIndex * pageSize);
 
-            List<ChatModel> data = await _dbContext.Chat
-                                    .AsNoTracking()
-                                    .OrderByDescending(c => c.Sequence)
-                                    .Skip(pageIndex * pageSize)             // Skip pages based on page index
+            List<ChatModel> data = await page
                                     .Take(pageSize)
                                     .Reverse()                      // Take the specified page size
                                     .ToListAsync();
@@ -92,7 +93,7 @@ namespace angnet.Infrastructure.Data.Repositories
         public async Task<ApiResponse<ChatNotificationDto>> Notifications(string accountId, string chatIdentity)
         {
             var state = await ReadState(accountId);
-            var unread = _dbContext.Chat.AsNoTracking().Where(c => c.Sequence > state.LastReadSequence && c.UserId != chatIdentity);
+            var unread = _dbContext.Chat.AsNoTracking().Where(c => !c.IsDeleted && c.Sequence > state.LastReadSequence && c.UserId != chatIdentity);
             var count = await unread.CountAsync();
             var latest = await unread.OrderByDescending(c => c.Sequence).FirstOrDefaultAsync();
             if (latest is not null) await AttachSenderProfiles([latest]);
@@ -127,6 +128,20 @@ namespace angnet.Infrastructure.Data.Repositories
             await _dbContext.ChatReadStates.Where(s => s.UserId == accountId && s.LastReadSequence < sequence)
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastReadSequence, sequence));
             return await Notifications(accountId, chatIdentity);
+        }
+
+        public async Task<ApiResponse<ChatDeletedDto>> SoftDelete(string messageId, string actorId)
+        {
+            var message = await _dbContext.Chat.AsNoTracking().Where(c => c.MessageId == messageId)
+                .Select(c => new ChatDeletedDto { MessageId = c.MessageId, Sequence = c.Sequence }).SingleOrDefaultAsync();
+            if (message is null) return new("Tin nhắn không tồn tại.");
+            var now = DateTime.UtcNow;
+            await _dbContext.Chat.Where(c => c.MessageId == messageId && !c.IsDeleted)
+                .ExecuteUpdateAsync(s => s.SetProperty(c => c.IsDeleted, true)
+                    .SetProperty(c => c.DeletedAt, now).SetProperty(c => c.DeletedBy, actorId)
+                    .SetProperty(c => c.UpdatedDTime, now).SetProperty(c => c.UpdatedBy, actorId));
+            // Repeated deletion is harmless and preserves the original deletion metadata.
+            return new(message);
         }
     }
 }

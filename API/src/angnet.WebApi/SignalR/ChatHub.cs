@@ -47,6 +47,8 @@ namespace angnet.WebApi.SignalR
             var text = message?.Trim();
             if (string.IsNullOrEmpty(text) || text.Length > 4000 || (type != "string" && type != "jpg"))
                 throw new HubException("Tin nhắn không hợp lệ (tối đa 4000 ký tự).");
+            if (type == "jpg" && !(await _authorization.AuthorizeAsync(Context.User, null, "chat.send_image")).Succeeded)
+                throw new HubException("Bạn không có quyền gửi ảnh.");
             if (type == "jpg" && (!Uri.TryCreate(text, UriKind.Absolute, out var image) || image.Scheme != Uri.UriSchemeHttps))
                 throw new HubException("Ảnh cần có địa chỉ HTTPS hợp lệ.");
             // Derive identity from the verified token; never trust the supplied sender.

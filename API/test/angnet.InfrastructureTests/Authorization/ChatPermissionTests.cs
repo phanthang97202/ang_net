@@ -50,7 +50,9 @@ public class ChatPermissionTests
         b.Configuration["Cloudinary:ApiKey"] = "test-only-key";
         b.Configuration["Cloudinary:ApiSecret"] = "test-only-secret";
         b.Services.AddScoped<AccountSessionService>(); b.Services.AddSingleton<ChatConnections>();
-        repo.Setup(x => x.GetMessage(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(new ApiResponse<ChatModel>());
+        repo.Setup(x => x.GetMessage(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<long?>())).ReturnsAsync(new ApiResponse<ChatModel>());
+        repo.Setup(x => x.SoftDelete(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string id, string actor) => new ApiResponse<ChatDeletedDto>(new ChatDeletedDto { MessageId = id, Sequence = 1 }));
         repo.Setup(x => x.Notifications(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
         repo.Setup(x => x.MarkRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
         repo.Setup(x => x.SendMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -225,7 +227,13 @@ public class ChatPermissionTests
         Assert.AreEqual(HttpStatusCode.Forbidden, viewer.StatusCode);
         using var sendOnly = await Upload(10, Token("sender", ["chat.send"]));
         Assert.AreEqual(HttpStatusCode.Forbidden, sendOnly.StatusCode);
-        var sender = Token("sender", ["chat.view", "chat.send"]);
+        using var textSender = await Upload(10, Token("sender", ["chat.view", "chat.send"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, textSender.StatusCode);
+        using var imageViewer = await Upload(10, Token("sender", ["chat.view", "chat.send_image"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, imageViewer.StatusCode);
+        using var imageOnly = await Upload(10, Token("sender", ["chat.send_image"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, imageOnly.StatusCode);
+        var sender = Token("sender", ["chat.view", "chat.send", "chat.send_image"]);
         foreach (var size in new[] { 0, 2 * 1024 * 1024, 2 * 1024 * 1024 + 1 }) {
             using var invalid = await Upload(size, sender);
             Assert.AreEqual(HttpStatusCode.BadRequest, invalid.StatusCode);
@@ -237,6 +245,92 @@ public class ChatPermissionTests
         Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
         Assert.AreEqual("https://example.com/uploaded.png", (await valid.Content.ReadFromJsonAsync<ApiResponse<ChatImageDto>>())!.Data.Url);
         Assert.AreEqual(1, uploads.Calls);
+        using var admin = await Upload(10, Token("sender", admin: true));
+        Assert.AreEqual(HttpStatusCode.OK, admin.StatusCode);
+        Assert.AreEqual(2, uploads.Calls);
+    }
+    [TestMethod] public async Task RealSocket_ImagePermissionIsRequiredForImageMessages_ButNotText()
+    {
+        using var textSender = await Socket(Token("sender", ["chat.view", "chat.send"]));
+        var denied = await Invoke(textSender, "https://example.com/a.png", "jpg");
+        Assert.IsTrue(denied.Any(x => x.TryGetProperty("error", out _)));
+        repo.Verify(x => x.SendMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        Assert.IsFalse((await Invoke(textSender, "Text remains allowed", "string")).Any(x => x.TryGetProperty("error", out _)));
+        using var imageViewer = await Socket(Token("viewer", ["chat.view", "chat.send_image"]));
+        Assert.IsTrue((await Invoke(imageViewer, "https://example.com/a.png", "jpg")).Any(x => x.TryGetProperty("error", out _)));
+        using var imageSender = await Socket(Token("sender", ["chat.view", "chat.send", "chat.send_image"]));
+        Assert.IsFalse((await Invoke(imageSender, "https://example.com/a.png", "jpg")).Any(x => x.TryGetProperty("error", out _)));
+        using var admin = await Socket(Token("sender", admin: true));
+        Assert.IsFalse((await Invoke(admin, "https://example.com/a.png", "jpg")).Any(x => x.TryGetProperty("error", out _)));
+        repo.Verify(x => x.SendMessage("account:sender", "https://example.com/a.png", "jpg"), Times.Exactly(2));
+        repo.Verify(x => x.SendMessage("account:sender", "Text remains allowed", "string"), Times.Once);
+    }
+    private async Task<HttpResponseMessage> Delete(string? token, string id = "m1")
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/chat/{id}");
+        if (token != null) request.Headers.Authorization = new("Bearer", token);
+        return await http.SendAsync(request);
+    }
+    [TestMethod] public async Task Delete_RequiresPermission_AndBroadcastsToViewers()
+    {
+        using var anonymous = await Delete(null);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        using var user = await Delete(Token(permissions: ["chat.view", "chat.send"]));
+        Assert.AreEqual(HttpStatusCode.Forbidden, user.StatusCode);
+        repo.Verify(x => x.SoftDelete(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        using var viewer = await Socket(Token(permissions: ["chat.view"]));
+        using var permitted = await Delete(Token(permissions: ["chat.view", "chat.delete"]));
+        Assert.AreEqual(HttpStatusCode.OK, permitted.StatusCode, "A normal account with chat.delete can delete");
+        repo.Verify(x => x.SoftDelete("m1", "viewer"), Times.Once);
+        var permittedEvent = (await Receive(viewer)).Single(x => x.TryGetProperty("target", out _));
+        Assert.AreEqual("MessageDeleted", permittedEvent.GetProperty("target").GetString());
+        using var admin = await Delete(Token("sender", admin: true));
+        Assert.AreEqual(HttpStatusCode.OK, admin.StatusCode);
+        repo.Verify(x => x.SoftDelete("m1", "sender"), Times.Once);
+        var notification = (await Receive(viewer)).Single(x => x.TryGetProperty("target", out _));
+        Assert.AreEqual("MessageDeleted", notification.GetProperty("target").GetString());
+        Assert.AreEqual("m1", notification.GetProperty("arguments")[0].GetProperty("MessageId").GetString());
+        repo.Setup(x => x.SoftDelete("missing", It.IsAny<string>())).ReturnsAsync(new ApiResponse<ChatDeletedDto>("Missing"));
+        using var missing = await Delete(Token(admin: true), "missing");
+        Assert.AreEqual(HttpStatusCode.NotFound, missing.StatusCode);
+        await Db.Users.Where(u => u.Id == "sender").ExecuteUpdateAsync(s => s.SetProperty(u => u.SessionVersion, 1));
+        using var revoked = await Delete(Token("sender", admin: true));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, revoked.StatusCode);
+        repo.Verify(x => x.SoftDelete("m1", "sender"), Times.Once);
+    }
+    [TestMethod] public async Task SoftDelete_PreservesRowsAndAudit_ExcludesHistoryAndUnread_AndKeepsCursorPagingStable()
+    {
+        var actual = new ChatRespository(Db);
+        await actual.Notifications("viewer", "account:viewer");
+        Db.Chat.AddRange(Enumerable.Range(1, 5).Select(i => new ChatModel { Sequence = i, UserId = "account:sender", Type = "string", Message = $"Message {i}" }));
+        await Db.SaveChangesAsync();
+        var first = (PageInfo<ChatModel>)(await actual.GetMessage(0, 2)).objResult;
+        CollectionAssert.AreEqual(new long[] { 4, 5 }, first.DataList.Select(m => m.Sequence).ToArray());
+        var id = first.DataList.Last().MessageId;
+        Assert.IsTrue((await actual.SoftDelete(id, "sender")).Success);
+        Db.ChangeTracker.Clear();
+        var retained = await Db.Chat.SingleAsync(m => m.MessageId == id);
+        Assert.IsTrue(retained.IsDeleted);
+        Assert.AreEqual("Message 5", retained.Message);
+        Assert.AreEqual("sender", retained.DeletedBy);
+        Assert.IsNotNull(retained.DeletedAt);
+        Assert.AreEqual(5, await Db.Chat.CountAsync());
+        var deletedAt = retained.DeletedAt;
+        await actual.SoftDelete(id, "viewer");
+        Db.ChangeTracker.Clear();
+        retained = await Db.Chat.SingleAsync(m => m.MessageId == id);
+        Assert.AreEqual("sender", retained.DeletedBy);
+        Assert.AreEqual(deletedAt, retained.DeletedAt);
+        var notification = (await actual.Notifications("viewer", "account:viewer")).Data;
+        Assert.AreEqual(4, notification.UnreadCount);
+        Assert.AreEqual(4L, notification.LatestMessage!.Sequence);
+        var older = (PageInfo<ChatModel>)(await actual.GetMessage(1, 2, 4)).objResult;
+        Assert.AreEqual(4, older.ItemCount);
+        CollectionAssert.AreEqual(new long[] { 2, 3 }, older.DataList.Select(m => m.Sequence).ToArray());
+        Assert.IsFalse(((PageInfo<ChatModel>)(await actual.GetMessage(0, 20)).objResult).DataList.Any(m => m.MessageId == id));
+        Assert.IsTrue((await actual.MarkRead("viewer", "account:viewer", 5)).Success, "A previously displayed deleted cursor must still be acknowledged");
+        Assert.AreEqual(0, (await actual.Notifications("viewer", "account:viewer")).Data.UnreadCount);
+        Assert.IsFalse((await actual.SoftDelete("missing", "sender")).Success);
     }
     private sealed class UploadHandler : HttpMessageHandler
     {

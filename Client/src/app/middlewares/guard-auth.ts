@@ -41,7 +41,7 @@ export const canActiveDashboard = () => {
   const authService = inject(AuthService);
 
   if (!authService.isLoggedIn()) {
-    router.navigate(['/login']);
+    router.navigate(['/dashboard/login']);
     return false;
   }
 

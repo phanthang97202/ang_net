@@ -6,6 +6,7 @@ import {
   IChat,
   IChatResponse,
   IChatNotifications,
+  IChatDeleted,
   TypeMessage,
 } from '../interfaces';
 import {
@@ -25,6 +26,7 @@ export class ChatService {
   private notificationRequest = 0;
   private activeAccount?: string;
   private stopped$ = new Subject<void>();
+  private deletedIds = new Set<string>();
   private bindAccount(): string {
     const account = this.auth.getAccountInfo().nameid;
     if (this.activeAccount && this.activeAccount !== account)
@@ -34,6 +36,7 @@ export class ChatService {
   }
   readonly reconnected$ = new Subject<void>();
   readonly received$ = new Subject<IChat>();
+  readonly deleted$ = new Subject<IChatDeleted>();
   readonly unreadCount = signal(0);
   readonly latestMessage = signal<IChat | null>(null);
   readonly connected = signal(false);
@@ -49,6 +52,24 @@ export class ChatService {
   }
   get canSend(): boolean {
     return this.canView && this.auth.hasPermission('chat.send');
+  }
+  get canSendImage(): boolean {
+    return this.canSend && this.auth.hasPermission('chat.send_image');
+  }
+  get canDelete(): boolean {
+    return this.canView && this.auth.hasPermission('chat.delete');
+  }
+  isMessageDeleted(messageId: string): boolean {
+    return this.deletedIds.has(messageId);
+  }
+  private applyDeletion(message: IChatDeleted): void {
+    if (!this.deletedIds.has(message.MessageId)) {
+      this.deletedIds.add(message.MessageId);
+      if (this.latestMessage()?.MessageId === message.MessageId)
+        this.latestMessage.set(null);
+      this.deleted$.next(message);
+    }
+    void this.syncNotifications();
   }
   get identity(): string {
     const user = this.auth.getAccountInfo();
@@ -137,8 +158,12 @@ export class ChatService {
       this.canView;
     connection.on('ReceiveMessage', (message: IChat) => {
       if (!current()) return;
+      if (this.isMessageDeleted(message.MessageId)) return;
       this.received$.next(message);
       void this.syncNotifications();
+    });
+    connection.on('MessageDeleted', (message: IChatDeleted) => {
+      if (current()) this.applyDeletion(message);
     });
     connection.onreconnecting(() => {
       if (current()) this.connected.set(false);
@@ -181,6 +206,7 @@ export class ChatService {
     this.connected.set(false);
     this.unreadCount.set(0);
     this.latestMessage.set(null);
+    this.deletedIds.clear();
     this.error.set('');
   }
   async sendMessage(
@@ -189,24 +215,55 @@ export class ChatService {
     type: TypeMessage
   ): Promise<void> {
     if (!this.canSend) throw new Error('Bạn không có quyền gửi tin nhắn.');
+    if (type === 'jpg' && !this.canSendImage)
+      throw new Error('Bạn không có quyền gửi ảnh.');
     await this.startConnection();
     if (!this.connected() || !this.canSend)
       throw new Error('Chat chưa kết nối. Vui lòng thử lại.');
+    if (type === 'jpg' && !this.canSendImage)
+      throw new Error('Bạn không có quyền gửi ảnh.');
     await this.connection!.invoke('SendMessage', userId, message, type);
   }
-  getMessage(pageIndex: number, pageSize: number): Observable<IChatResponse> {
+  getMessage(
+    pageIndex: number,
+    pageSize: number,
+    beforeSequence?: number
+  ): Observable<IChatResponse> {
+    const cursor =
+      beforeSequence === undefined ? '' : `&BeforeSequence=${beforeSequence}`;
     return this.http.get<IChatResponse>(
-      `${this.apiUrl}chat/getmessage?PageIndex=${pageIndex}&PageSize=${pageSize}`
+      `${this.apiUrl}chat/getmessage?PageIndex=${pageIndex}&PageSize=${pageSize}${cursor}`
     );
   }
-  uploadImage(
-    file: File
-  ): Observable<{
+  async deleteMessage(messageId: string): Promise<void> {
+    if (!this.canDelete) throw new Error('Bạn không có quyền xóa tin nhắn.');
+    const account = this.bindAccount();
+    const generation = this.generation;
+    const response = await firstValueFrom(
+      this.http
+        .delete<{
+          Success: boolean;
+          Data: IChatDeleted;
+          ErrorMessage?: string;
+        }>(`${this.apiUrl}chat/${encodeURIComponent(messageId)}`)
+        .pipe(takeUntil(this.stopped$))
+    );
+    if (!response.Success)
+      throw new Error(response.ErrorMessage || 'Không thể xóa tin nhắn.');
+    if (
+      generation === this.generation &&
+      account === this.auth.getAccountInfo().nameid &&
+      this.canDelete
+    ) {
+      this.applyDeletion(response.Data);
+    }
+  }
+  uploadImage(file: File): Observable<{
     Success: boolean;
     Data: { Url: string };
     ErrorMessage?: string;
   }> {
-    if (!this.canSend)
+    if (!this.canSendImage)
       return throwError(() => new Error('Bạn không có quyền gửi ảnh.'));
     if (!file.size || file.size >= 2 * 1024 * 1024)
       return throwError(

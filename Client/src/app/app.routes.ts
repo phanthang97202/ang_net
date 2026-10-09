@@ -1,15 +1,31 @@
 import { Routes } from '@angular/router';
+import { canMatchBlog } from './middlewares/guard-blog-maintenance';
 import {
   canActive,
   canActiveDashboard,
   canActivePermission,
 } from './middlewares';
 
-export const routes: Routes = [
+const appRoutes: Routes = [
+  {
+    path: 'maintain',
+    title: 'Bảo trì',
+    loadComponent: () =>
+      import('./pages/maintain/maintain.component').then(
+        p => p.MaintainComponent
+      ),
+  },
+  {
+    path: 'dashboard/login',
+    title: 'T_PAGE_LOGIN',
+    loadComponent: () =>
+      import('./pages/login/login.component').then(p => p.LoginComponent),
+  },
   {
     // Không set title: AppTitleStrategy sẽ fallback về đúng "Phan Thang Blog"
     // thay vì lặp lại thành "Home - Phan Thang Blog".
     path: '',
+    pathMatch: 'full',
     loadComponent: () =>
       import('./pages/home/home/home.component').then(p => p.HomeComponent),
     // canActivate: [canActive],
@@ -32,9 +48,7 @@ export const routes: Routes = [
     title: 'T_PAGE_REELS',
     path: 'reels',
     loadComponent: () =>
-      import('./pages/home/reels/reels.component').then(
-        p => p.ReelsComponent
-      ),
+      import('./pages/home/reels/reels.component').then(p => p.ReelsComponent),
   },
   {
     title: 'T_PAGE_NOTE',
@@ -94,9 +108,9 @@ export const routes: Routes = [
         title: 'T_PAGE_CALCULATING_HOTEL_FEE',
         path: 'calculating-hotel-fee',
         loadComponent: () =>
-          import(
-            './pages/tools/caculating-hotel-fee/calculating-hotel-fee.component'
-          ).then(p => p.CalculatingHotelFeeComponent),
+          import('./pages/tools/caculating-hotel-fee/calculating-hotel-fee.component').then(
+            p => p.CalculatingHotelFeeComponent
+          ),
       },
       {
         title: 'T_PAGE_SHIFT_REPORT',
@@ -130,9 +144,9 @@ export const routes: Routes = [
     title: 'T_PAGE_CHESS_VS_COMPUTER',
     path: 'game/chess/vs-computer',
     loadComponent: () =>
-      import(
-        './pages/game/chess/chess-vs-computer/chess-vs-computer.component'
-      ).then(p => p.ChessVsComputerComponent),
+      import('./pages/game/chess/chess-vs-computer/chess-vs-computer.component').then(
+        p => p.ChessVsComputerComponent
+      ),
   },
   {
     title: 'T_PAGE_CHESS_ROOM',
@@ -217,17 +231,17 @@ export const routes: Routes = [
       {
         path: 'mstprovince',
         loadComponent: () =>
-          import(
-            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
-          ).then(p => p.MstProvinceComponent),
+          import('./pages/dashboard/mst-province/mst-province-list/mst-province-list.component').then(
+            p => p.MstProvinceComponent
+          ),
         canActivate: [canActivePermission('master.view')],
       },
       {
         path: 'mstdistrict',
         loadComponent: () =>
-          import(
-            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
-          ).then(p => p.MstProvinceComponent),
+          import('./pages/dashboard/mst-province/mst-province-list/mst-province-list.component').then(
+            p => p.MstProvinceComponent
+          ),
         canActivate: [canActivePermission('master.view')],
       },
       {
@@ -241,17 +255,17 @@ export const routes: Routes = [
       {
         path: 'note',
         loadComponent: () =>
-          import(
-            './pages/dashboard/note/note-list/note-list.component'
-          ).then(p => p.NoteListComponent),
+          import('./pages/dashboard/note/note-list/note-list.component').then(
+            p => p.NoteListComponent
+          ),
         canActivate: [canActivePermission('blog.view')],
       },
       {
         path: 'media',
         loadComponent: () =>
-          import(
-            './pages/dashboard/media-library/media-library.component'
-          ).then(p => p.MediaLibraryComponent),
+          import('./pages/dashboard/media-library/media-library.component').then(
+            p => p.MediaLibraryComponent
+          ),
         canActivate: [canActivePermission('media.view')],
       },
 
@@ -281,25 +295,25 @@ export const routes: Routes = [
       {
         path: 'audittrail',
         loadComponent: () =>
-          import(
-            './pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component'
-          ).then(p => p.AuditTrailComponent),
+          import('./pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component').then(
+            p => p.AuditTrailComponent
+          ),
         canActivate: [canActivePermission('audittrail.view')],
       },
       {
         path: 'sysparameter',
         loadComponent: () =>
-          import(
-            './pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component'
-          ).then(p => p.SysParameterComponent),
+          import('./pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component').then(
+            p => p.SysParameterComponent
+          ),
         canActivate: [canActivePermission('sysparameter.view')],
       },
       {
         path: 'newscategory',
         loadComponent: () =>
-          import(
-            './pages/dashboard/news-category/news-category-list/news-category-list.component'
-          ).then(p => p.NewsCategoryComponent),
+          import('./pages/dashboard/news-category/news-category-list/news-category-list.component').then(
+            p => p.NewsCategoryComponent
+          ),
         canActivate: [canActivePermission('newscategory.view')],
       },
       {
@@ -307,9 +321,9 @@ export const routes: Routes = [
         // thay vì seed thêm permission riêng.
         path: 'subscriber',
         loadComponent: () =>
-          import(
-            './pages/dashboard/subscriber/subscriber-list/subscriber-list.component'
-          ).then(p => p.SubscriberComponent),
+          import('./pages/dashboard/subscriber/subscriber-list/subscriber-list.component').then(
+            p => p.SubscriberComponent
+          ),
         canActivate: [canActivePermission('subscriber.view')],
       },
       {
@@ -317,17 +331,17 @@ export const routes: Routes = [
         // với tham số hệ thống, không đặt quyền riêng.
         path: 'menu',
         loadComponent: () =>
-          import(
-            './pages/dashboard/sys-menu/sys-menu-list/sys-menu-list.component'
-          ).then(p => p.SysMenuComponent),
+          import('./pages/dashboard/sys-menu/sys-menu-list/sys-menu-list.component').then(
+            p => p.SysMenuComponent
+          ),
         canActivate: [canActivePermission('sysparameter.view')],
       },
       {
         path: 'email-report',
         loadComponent: () =>
-          import(
-            './pages/dashboard/email-report/email-report.component'
-          ).then(p => p.EmailReportComponent),
+          import('./pages/dashboard/email-report/email-report.component').then(
+            p => p.EmailReportComponent
+          ),
         canActivate: [canActivePermission('sysparameter.view')],
       },
     ],
@@ -338,3 +352,9 @@ export const routes: Routes = [
   // bắt buộc phải đứng CUỐI mảng vì router khớp theo thứ tự khai báo.
   { path: '**', redirectTo: '' },
 ];
+
+export const routes: Routes = appRoutes.map(route => {
+  if (['dashboard', 'dashboard/login', 'maintain'].includes(route.path!))
+    return route;
+  return { ...route, canMatch: [canMatchBlog] };
+});

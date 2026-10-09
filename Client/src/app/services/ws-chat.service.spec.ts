@@ -10,10 +10,14 @@ describe('Chat service notification state', () => {
   let service: ChatService;
   let http: HttpTestingController;
   let canSend: boolean;
+  let canSendImage: boolean;
   let accountId: string;
+  let canDelete: boolean;
   beforeEach(() => {
     canSend = false;
+    canSendImage = false;
     accountId = 'me';
+    canDelete = false;
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -22,7 +26,11 @@ describe('Chat service notification state', () => {
           useValue: {
             getToken: () => 'test-token',
             getAccountInfo: () => ({ nameid: accountId, email: '' }),
-            hasPermission: (p: string) => p === 'chat.view' || canSend,
+            hasPermission: (p: string) =>
+              p === 'chat.view' ||
+              (p === 'chat.send' && canSend) ||
+              (p === 'chat.send_image' && canSendImage) ||
+              (p === 'chat.delete' && canDelete),
           },
         },
       ],
@@ -40,12 +48,44 @@ describe('Chat service notification state', () => {
     ).toBeRejected();
     http.expectNone(() => true);
   });
+  it('blocks deleting before HTTP without chat.delete permission', async () => {
+    await expectAsync(service.deleteMessage('m1')).toBeRejected();
+    http.expectNone(() => true);
+  });
+  it('removes the deleted preview, emits once and reloads the authoritative unread count', async () => {
+    canDelete = true;
+    service.latestMessage.set({ MessageId: 'm/1' } as any);
+    const events: string[] = [];
+    service.deleted$.subscribe(m => events.push(m.MessageId));
+    for (let i = 0; i < 2; i++) {
+      const deleting = service.deleteMessage('m/1');
+      const req = http.expectOne(r => r.url.endsWith('/chat/m%2F1'));
+      expect(req.request.method).toBe('DELETE');
+      req.flush({ Success: true, Data: { MessageId: 'm/1', Sequence: 3 } });
+      await deleting;
+      expect(service.latestMessage()).toBeNull();
+      const notification = http.expectOne(r =>
+        r.url.endsWith('/notifications')
+      );
+      notification.flush({
+        Success: true,
+        Data: { UnreadCount: 0, LatestMessage: null },
+      });
+      await Promise.resolve();
+    }
+    expect(events).toEqual(['m/1']);
+    expect(service.isMessageDeleted('m/1')).toBeTrue();
+    expect(service.unreadCount()).toBe(0);
+    service.stopConnection();
+    expect(service.isMessageDeleted('m/1')).toBeFalse();
+  });
   it('requires send permission and a file below 2 MB, then uploads through the protected chat API', () => {
     const file = new File(['image'], 'a.png', { type: 'image/png' });
     let failed = false;
     service.uploadImage(file).subscribe({ error: () => (failed = true) });
     expect(failed).toBeTrue();
     canSend = true;
+    canSendImage = true;
     failed = false;
     service
       .uploadImage(
@@ -64,6 +104,22 @@ describe('Chat service notification state', () => {
       Success: true,
       Data: { Url: 'https://example.com/a.png' },
     });
+  });
+  it('blocks image upload and realtime image sending when only text send permission is granted', async () => {
+    canSend = true;
+    expect(service.canSend).toBeTrue();
+    expect(service.canSendImage).toBeFalse();
+    let denied = false;
+    service
+      .uploadImage(new File(['sample'], 'a.png', { type: 'image/png' }))
+      .subscribe({ error: () => (denied = true) });
+    expect(denied).toBeTrue();
+    const start = spyOn(service, 'startConnection').and.resolveTo();
+    await expectAsync(
+      service.sendMessage('account:me', 'https://example.com/a.png', 'jpg')
+    ).toBeRejectedWithError('Bạn không có quyền gửi ảnh.');
+    expect(start).not.toHaveBeenCalled();
+    http.expectNone(() => true);
   });
   it('ignores older responses and clears private notification state on disconnect', async () => {
     const first = service.syncNotifications();

@@ -20,5 +20,8 @@ namespace angnet.Domain.Models
         public string Type {  get; set; } = string.Empty; // string, txt, png, jpg, mp4, mp3
         [Required]
         public string Message { get; set; } = string.Empty; 
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public string? DeletedBy { get; set; }
     }
 }

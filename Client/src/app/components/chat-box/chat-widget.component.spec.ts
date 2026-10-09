@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import * as icons from '@ant-design/icons-angular/icons';
 import { signal } from '@angular/core';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ChatWidgetComponent } from './chat-widget.component';
 import { ChatService } from '../../services/ws-chat.service';
 import { AuthService, ShowErrorService } from '../../services';
@@ -15,10 +15,19 @@ import { ChatBoxComponent } from './chat-box.component';
 
 describe('Chat notification widget', () => {
   let chat: any;
+  let imagePermission: boolean;
   beforeEach(() => {
+    imagePermission = true;
     chat = {
       canView: true,
       canSend: false,
+      canDelete: false,
+      isMessageDeleted: () => false,
+      deleted$: new Subject(),
+      deleteMessage: jasmine.createSpy().and.resolveTo(),
+      get canSendImage() {
+        return this.canSend && imagePermission;
+      },
       identity: 'account:me',
       unreadCount: signal(2),
       latestMessage: signal({
@@ -130,13 +139,55 @@ describe('Chat notification widget', () => {
     f.destroy();
     tick(1000);
   }));
-  it('blocks uploads for viewers and sends uploaded images using the HTTPS URL', fakeAsync(() => {
-    chat.uploadImage.and.returnValue(
-      of({
-        Success: true,
-        Data: { Url: 'https://example.com/image.jpg' },
-      })
+  it('lets text senders use the composer but hides and blocks image selection without image permission', fakeAsync(() => {
+    chat.canSend = true;
+    imagePermission = false;
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    expect(f.nativeElement.querySelector('.chat-input-area')).not.toBeNull();
+    expect(f.nativeElement.querySelector('.upload-btn')).toBeNull();
+    expect(f.nativeElement.querySelector('input[type="file"]')).toBeNull();
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    box.handleUploadFile(
+      new File(['sample'], 'image.png', { type: 'image/png' })
     );
+    expect(box.selectedImage).toBeNull();
+    expect(chat.uploadImage).not.toHaveBeenCalled();
+    box.newMessage = 'Text still works';
+    void box.sendMessage();
+    tick();
+    expect(chat.sendMessage).toHaveBeenCalledOnceWith(
+      'account:me',
+      'Text still works',
+      'string'
+    );
+    imagePermission = true;
+    box.handleUploadFile(
+      new File(['sample'], 'image.png', { type: 'image/png' })
+    );
+    imagePermission = false;
+    f.detectChanges();
+    expect(
+      (
+        f.nativeElement.querySelector(
+          '[aria-label="Gửi tin nhắn"]'
+        ) as HTMLButtonElement
+      ).disabled
+    ).toBeTrue();
+    void box.sendMessage();
+    tick();
+    expect(box.sendError).toContain('không có quyền gửi ảnh');
+    expect(chat.uploadImage).not.toHaveBeenCalled();
+    f.destroy();
+    tick(1000);
+  }));
+  it('keeps the image local until Send is clicked, then uploads once and sends its HTTPS URL', fakeAsync(() => {
+    const upload = new Subject<any>();
+    chat.uploadImage.and.returnValue(upload);
     const f = TestBed.createComponent(ChatWidgetComponent);
     f.detectChanges();
     f.componentInstance.open = true;
@@ -149,14 +200,99 @@ describe('Chat notification widget', () => {
     expect(chat.uploadImage).not.toHaveBeenCalled();
     chat.canSend = true;
     box.handleUploadFile(file);
-    expect(box.newMessage).toBe('https://example.com/image.jpg');
+    expect(box.selectedImage).toBe(file);
+    expect(box.selectedImagePreview).toMatch(/^blob:/);
+    expect(chat.uploadImage).not.toHaveBeenCalled();
+    f.detectChanges();
+    const send = f.nativeElement.querySelector(
+      '[aria-label="Gửi tin nhắn"]'
+    ) as HTMLButtonElement;
+    expect(send.disabled).toBeFalse();
+    send.click();
+    expect(chat.uploadImage).toHaveBeenCalledOnceWith(file);
+    expect(chat.sendMessage).not.toHaveBeenCalled();
+    // A second click while uploading cannot start another upload.
     void box.sendMessage();
+    expect(chat.uploadImage).toHaveBeenCalledTimes(1);
+    upload.next({
+      Success: true,
+      Data: { Url: 'https://example.com/image.jpg' },
+    });
     tick();
     expect(chat.sendMessage).toHaveBeenCalledOnceWith(
       'account:me',
       'https://example.com/image.jpg',
       'jpg'
     );
+    expect(box.selectedImage).toBeNull();
+    expect(box.selectedImagePreview).toBe('');
+    f.destroy();
+    tick(1000);
+  }));
+  it('does not upload on replacement, removal or closing the panel and releases local previews', fakeAsync(() => {
+    chat.canSend = true;
+    const revoke = spyOn(URL, 'revokeObjectURL').and.callThrough();
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    const file = new File(['sample'], 'image.png', { type: 'image/png' });
+    box.newMessage = 'Draft';
+    box.handleUploadFile(file);
+    const first = box.selectedImagePreview;
+    box.handleUploadFile(file);
+    expect(revoke).toHaveBeenCalledWith(first);
+    const second = box.selectedImagePreview;
+    box.clearImage();
+    expect(revoke).toHaveBeenCalledWith(second);
+    expect(box.newMessage).toBe('Draft');
+    box.handleUploadFile(file);
+    const third = box.selectedImagePreview;
+    f.componentInstance.open = false;
+    f.detectChanges();
+    expect(revoke).toHaveBeenCalledWith(third);
+    expect(chat.uploadImage).not.toHaveBeenCalled();
+    expect(chat.sendMessage).not.toHaveBeenCalled();
+    f.destroy();
+    tick(1000);
+  }));
+  it('keeps the selected image on failure and reuses a successful upload when message sending is retried', fakeAsync(() => {
+    chat.canSend = true;
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    const file = new File(['sample'], 'image.png', { type: 'image/png' });
+    box.handleUploadFile(file);
+    chat.uploadImage.and.returnValue(
+      throwError(() => new Error('Upload failed'))
+    );
+    void box.sendMessage();
+    tick();
+    expect(box.selectedImage).toBe(file);
+    expect(box.sendError).toContain('Không thể tải ảnh lên');
+    expect(chat.sendMessage).not.toHaveBeenCalled();
+    chat.uploadImage.and.returnValue(
+      of({ Success: true, Data: { Url: 'https://example.com/image.png' } })
+    );
+    chat.sendMessage.and.rejectWith(new Error('Send failed'));
+    void box.sendMessage();
+    tick();
+    expect(box.selectedImage).toBe(file);
+    expect(box.sendError).toContain('Không gửi được tin nhắn');
+    expect(chat.uploadImage).toHaveBeenCalledTimes(2);
+    chat.sendMessage.and.resolveTo();
+    void box.sendMessage();
+    tick();
+    expect(chat.uploadImage).toHaveBeenCalledTimes(2);
+    expect(chat.sendMessage).toHaveBeenCalledTimes(2);
+    expect(box.selectedImage).toBeNull();
     f.destroy();
     tick(1000);
   }));
@@ -216,6 +352,81 @@ describe('Chat notification widget', () => {
     tick(60);
     f.detectChanges();
     expect(f.nativeElement.querySelectorAll('.message-author').length).toBe(2);
+    f.destroy();
+    tick(1000);
+  }));
+  it('renders clickable image links as text and restricts delete controls to permitted users', fakeAsync(() => {
+    const message: IChat = {
+      MessageId: 'link',
+      Sequence: 1,
+      UserId: 'other',
+      Message: 'https://example.com/a.png',
+      Type: 'string',
+      CreatedDTime: new Date(),
+    };
+    chat.getMessage = () =>
+      of({ objResult: { DataList: [message], ItemCount: 1 } });
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    f.detectChanges();
+    const link = f.nativeElement.querySelector(
+      '.message-link-card'
+    ) as HTMLAnchorElement;
+    expect(link.href).toBe(message.Message);
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toContain('noopener');
+    expect(f.nativeElement.querySelector('.message-image')).toBeNull();
+    expect(f.nativeElement.querySelector('.message-delete')).toBeNull();
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    void box.deleteMessage(message);
+    tick();
+    expect(chat.deleteMessage).not.toHaveBeenCalled();
+    chat.canDelete = true;
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('.message-delete')).not.toBeNull();
+    void box.deleteMessage(message);
+    tick();
+    expect(chat.deleteMessage).toHaveBeenCalledOnceWith('link');
+    chat.isMessageDeleted = (id: string) => id === 'link';
+    box.messages[0] = { ...message, Type: 'jpg' };
+    box.previewImage = message.Message;
+    box.previewVisible = true;
+    chat.deleted$.next({ MessageId: 'link', Sequence: 1 });
+    expect(box.previewVisible).toBeFalse();
+    expect(box.previewImage).toBe('');
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('.message-wrapper')).toBeNull();
+    chat.received$.next(message);
+    chat.reconnected$.next();
+    tick(150);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('.message-wrapper')).toBeNull();
+    f.destroy();
+    tick(1000);
+  }));
+  it('sends pasted image URLs without uploading or requiring image permission', fakeAsync(() => {
+    chat.canSend = true;
+    imagePermission = false;
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    box.newMessage = 'https://example.com/a.jpg';
+    void box.sendMessage();
+    tick();
+    expect(chat.sendMessage).toHaveBeenCalledOnceWith(
+      'account:me',
+      'https://example.com/a.jpg',
+      'string'
+    );
+    expect(chat.uploadImage).not.toHaveBeenCalled();
     f.destroy();
     tick(1000);
   }));

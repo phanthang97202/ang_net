@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.SignalR;
+using angnet.Infrastructure.Data.Services;
 
 namespace angnet.WebApi.Controllers
 {
@@ -29,12 +31,13 @@ namespace angnet.WebApi.Controllers
         }
 
         [HttpGet("GetMessage")]
-        public async Task<ActionResult<ChatModel>> GetMessage(int PageIndex = 0, int PageSize = 10)
+        public async Task<ActionResult<ChatModel>> GetMessage(int PageIndex = 0, int PageSize = 10, long? BeforeSequence = null)
         {
             if (PageIndex < 0 || PageSize is < 1 or > 100) return BadRequest();
+            if (BeforeSequence is <= 0) return BadRequest();
             try
             {
-                ApiResponse<ChatModel> response = await _chatRepository.GetMessage(PageIndex, PageSize);
+                ApiResponse<ChatModel> response = await _chatRepository.GetMessage(PageIndex, PageSize, BeforeSequence);
                 return Ok(response);
             }
             catch (Exception)
@@ -49,7 +52,23 @@ namespace angnet.WebApi.Controllers
         [HttpPost("read")]
         public async Task<IActionResult> MarkRead(ChatReadDto request) => Ok(await _chatRepository.MarkRead(ChatIdentity.AccountId(User), ChatIdentity.Key(User), request.Sequence));
 
+        [Authorize(Policy = "chat.delete")]
+        [HttpDelete("{messageId}")]
+        public async Task<IActionResult> DeleteMessage(string messageId,
+            [FromServices] IHubContext<ChatHub> hub,
+            [FromServices] ChatConnections connections,
+            [FromServices] AccountSessionService sessions,
+            [FromServices] IAuthorizationService authorization)
+        {
+            var response = await _chatRepository.SoftDelete(messageId, ChatIdentity.AccountId(User));
+            if (!response.Success) return NotFound(response);
+            var recipients = await connections.Recipients(sessions, authorization);
+            await hub.Clients.Clients(recipients).SendAsync("MessageDeleted", response.Data);
+            return Ok(response);
+        }
+
         [Authorize(Policy = "chat.send")]
+        [Authorize(Policy = "chat.send_image")]
         [EnableRateLimiting("API")]
         [HttpPost("image")]
         [RequestSizeLimit(3 * 1024 * 1024)]

@@ -12,6 +12,8 @@ import {
   HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { ChatService, AuthService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +23,8 @@ import { IChat, TypeMessage } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { ChatLinksPipe } from './chat-links.pipe';
 
 @Component({
   selector: 'app-chat-box',
@@ -33,6 +37,8 @@ import { TranslateModule } from '@ngx-translate/core';
     NzModalModule,
     SpinnerComponent,
     TranslateModule,
+    NzPopconfirmModule,
+    ChatLinksPipe,
   ],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.scss',
@@ -50,6 +56,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   get canSend(): boolean {
     return this.chatService.canSend;
   }
+  get canSendImage(): boolean {
+    return this.chatService.canSendImage;
+  }
+  get canDelete(): boolean {
+    return this.chatService.canDelete;
+  }
+  deletingIds = new Set<string>();
+  private olderCursor?: number;
+  private moreHistory = false;
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   @Output() closeChat = new EventEmitter<void>();
@@ -62,7 +77,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
   messages: IChat[] = [];
   newMessage: string = '';
-  typeMessage: TypeMessage = 'string';
+  selectedImage: File | null = null;
+  selectedImagePreview = '';
+  private uploadedImageUrl = '';
   // Keep existing email-based chat history; no-email accounts use a distinct ID.
   userId: string =
     this.detailUser.getAccountInfo().email ||
@@ -84,6 +101,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    this.clearImage();
   }
 
   private loadInitialMessages(): void {
@@ -93,6 +111,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
+          const page = res.objResult.DataList;
+          this.olderCursor = page.length
+            ? Math.min(...page.map(m => m.Sequence))
+            : undefined;
+          this.moreHistory = page.length === this.pageSize;
           // Giữ nguyên thứ tự từ API, KHÔNG reverse
           const merged = new Map(
             [...res.objResult.DataList, ...this.messages].map(m => [
@@ -100,9 +123,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
               m,
             ])
           );
-          this.messages = [...merged.values()].sort(
-            (a, b) => a.Sequence - b.Sequence
-          );
+          this.messages = [...merged.values()]
+            .filter(m => !this.chatService.isMessageDeleted(m.MessageId))
+            .sort((a, b) => a.Sequence - b.Sequence);
           this.itemCount = res.objResult.ItemCount;
           this.loadingMessages = false;
 
@@ -124,6 +147,21 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   }
 
   private setupSignalR(): void {
+    this.chatService.deleted$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(message => {
+        const removed = this.messages.find(
+          m => m.MessageId === message.MessageId
+        );
+        if (removed?.Type === 'jpg' && this.previewImage === removed.Message) {
+          this.previewVisible = false;
+          this.previewImage = '';
+        }
+        this.messages = this.messages.filter(
+          m => m.MessageId !== message.MessageId
+        );
+        this.itemCount = Math.max(0, this.itemCount - 1);
+      });
     this.chatService.reconnected$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -135,7 +173,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(message => {
         const atBottom = this.atBottom();
-        if (!this.messages.some(m => m.MessageId === message.MessageId))
+        if (
+          !this.chatService.isMessageDeleted(message.MessageId) &&
+          !this.messages.some(m => m.MessageId === message.MessageId)
+        )
           this.messages.push(message);
         setTimeout(() => {
           if (this.destroyed) return;
@@ -148,38 +189,63 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   async sendMessage(): Promise<void> {
     if (!this.canSend || this.sending || this.isUploading) return;
     const trimmedMessage = this.newMessage.trim();
-    if (!trimmedMessage) {
+    if (!trimmedMessage && !this.selectedImage) {
+      return;
+    }
+    if (this.selectedImage && !this.canSendImage) {
+      this.sendError = 'Bạn không có quyền gửi ảnh.';
       return;
     }
 
-    // Detect image type
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    const hasImageExtension = imageExtensions.some(ext =>
-      trimmedMessage.toLowerCase().includes(`.${ext}`)
-    );
-
-    const messageType: TypeMessage =
-      this.typeMessage === 'jpg' || hasImageExtension ? 'jpg' : 'string';
+    // Pasted URLs remain clickable text links, including links to images.
+    const messageType: TypeMessage = this.selectedImage ? 'jpg' : 'string';
 
     this.sending = true;
     this.sendError = '';
+    let failureMessage = 'Không gửi được tin nhắn. Vui lòng thử lại.';
     try {
-      await this.chatService.sendMessage(
-        this.userId,
-        trimmedMessage,
-        messageType
-      );
+      let message = trimmedMessage;
+      if (this.selectedImage) {
+        if (!this.uploadedImageUrl) {
+          failureMessage = 'Không thể tải ảnh lên. Vui lòng thử lại.';
+          this.isUploading = true;
+          const response = await firstValueFrom(
+            this.chatService
+              .uploadImage(this.selectedImage)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+          );
+          this.isUploading = false;
+          if (this.destroyed) return;
+          if (!response.Success || !response.Data?.Url) {
+            this.sendError = response.ErrorMessage || failureMessage;
+            return;
+          }
+          // If sending fails after upload, reuse this URL on retry.
+          this.uploadedImageUrl = response.Data.Url;
+        }
+        message = this.uploadedImageUrl;
+      }
+      failureMessage = 'Không gửi được tin nhắn. Vui lòng thử lại.';
+      if (this.destroyed) return;
+      await this.chatService.sendMessage(this.userId, message, messageType);
+      if (this.destroyed) return;
       this.newMessage = '';
-      this.typeMessage = 'string';
-    } catch {
-      this.sendError = 'Không gửi được tin nhắn. Vui lòng thử lại.';
+      this.clearImage();
+    } catch (err) {
+      if (!this.destroyed)
+        this.sendError =
+          err instanceof HttpErrorResponse &&
+          typeof err.error?.ErrorMessage === 'string'
+            ? err.error.ErrorMessage
+            : failureMessage;
     } finally {
       this.sending = false;
+      this.isUploading = false;
     }
   }
 
   handleUploadFile = (file: File): boolean => {
-    if (!this.canSend || this.sending || this.isUploading) return false;
+    if (!this.canSendImage || this.sending || this.isUploading) return false;
     if (!file.size || file.size >= 2 * 1024 * 1024) {
       this.sendError = 'Ảnh phải có dung lượng nhỏ hơn 2 MB.';
       return false;
@@ -193,30 +259,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       return false;
     }
     this.sendError = '';
-    this.isUploading = true;
-
-    this.chatService
-      .uploadImage(file)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: res => {
-          if (!res.Success || !res.Data?.Url) {
-            this.isUploading = false;
-            this.sendError = res.ErrorMessage || 'Không thể tải ảnh lên.';
-            return;
-          }
-          this.newMessage = res.Data.Url;
-          this.typeMessage = 'jpg';
-          this.isUploading = false;
-          this.cdref.detectChanges();
-        },
-        error: err => {
-          this.isUploading = false;
-          this.sendError =
-            err.error?.ErrorMessage ||
-            'Không thể tải ảnh lên. Vui lòng thử lại.';
-        },
-      });
+    this.clearImage();
+    this.selectedImage = file;
+    this.selectedImagePreview = URL.createObjectURL(file);
 
     return false;
   };
@@ -229,8 +274,24 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   }
 
   clearImage(): void {
-    this.newMessage = '';
-    this.typeMessage = 'string';
+    if (this.selectedImagePreview)
+      URL.revokeObjectURL(this.selectedImagePreview);
+    this.selectedImage = null;
+    this.selectedImagePreview = '';
+    this.uploadedImageUrl = '';
+  }
+  async deleteMessage(message: IChat): Promise<void> {
+    if (!this.canDelete || this.deletingIds.has(message.MessageId)) return;
+    this.sendError = '';
+    this.deletingIds.add(message.MessageId);
+    try {
+      await this.chatService.deleteMessage(message.MessageId);
+    } catch {
+      if (!this.destroyed)
+        this.sendError = 'Không thể xóa tin nhắn. Vui lòng thử lại.';
+    } finally {
+      this.deletingIds.delete(message.MessageId);
+    }
   }
 
   onScroll(): void {
@@ -250,7 +311,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   }
 
   private hasMoreMessages(): boolean {
-    return (this.pageIndex + 1) * this.pageSize < this.itemCount;
+    return this.moreHistory && this.olderCursor !== undefined;
   }
 
   private loadOlderMessages(): void {
@@ -260,17 +321,22 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     const oldScrollTop = element.scrollTop;
 
     this.chatService
-      .getMessage(this.pageIndex + 1, this.pageSize)
+      .getMessage(this.pageIndex + 1, this.pageSize, this.olderCursor)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           // Add old messages to the BEGINNING of array
           const olderMessages = res.objResult.DataList;
+          this.moreHistory = olderMessages.length === this.pageSize;
+          if (olderMessages.length)
+            this.olderCursor = Math.min(...olderMessages.map(m => m.Sequence));
           this.messages = [
             ...new Map(
               [...olderMessages, ...this.messages].map(m => [m.MessageId, m])
             ).values(),
-          ].sort((a, b) => a.Sequence - b.Sequence);
+          ]
+            .filter(m => !this.chatService.isMessageDeleted(m.MessageId))
+            .sort((a, b) => a.Sequence - b.Sequence);
           this.pageIndex += 1;
           this.loadingMessages = false;
 

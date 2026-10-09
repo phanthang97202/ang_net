@@ -173,9 +173,48 @@ button {
   white-space: pre-wrap;
 }
 .message-time {
-  margin: 5px 2px 0;
   color: var(--color-text-muted);
   font-size: 9px;
+}
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 5px 2px 0;
+}
+.message-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+.message-link-card {
+  display: block;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-control-bg);
+  font-weight: 600;
+}
+.message-delete {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  &:hover:not(:disabled) {
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+  }
 }
 .message-image-button {
   display: block;
