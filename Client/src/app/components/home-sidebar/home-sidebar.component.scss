@@ -57,6 +57,7 @@
 // Ảnh nền có dãy lá ở góc phải dưới; neo vào đó để card cao thấp thế nào
 // lá cũng còn nguyên.
 .about-card {
+  --about-detail-text: #454557;
   background: var(--color-bg-card) url('/assets/images/bg_about_me_card.jpg')
     no-repeat right bottom / cover;
 }
@@ -110,20 +111,13 @@
 }
 
 .about-role {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
   margin: 0.3rem 0 0;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--color-text-muted);
+  color: var(--about-detail-text);
   text-transform: uppercase;
-
-  [nz-icon] {
-    color: var(--color-accent);
-  }
 }
 
 .about-bio {
@@ -131,19 +125,18 @@
   margin: 0 0 0.85rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.82rem;
+  font-weight: 500;
   line-height: 1.65;
-  color: var(--color-text-muted);
+  color: var(--about-detail-text);
 }
 
 .about-location {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
   margin: 0 0 1rem;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  font-weight: 500;
+  color: var(--about-detail-text);
 }
 
 .about-socials {
@@ -438,6 +431,7 @@
 // đọc trên nền tối. (data-theme nằm trên <html> nên dùng :host-context.)
 :host-context(html[data-theme='dark']) {
   .about-card {
+    --about-detail-text: #d8d8e5;
     background:
       linear-gradient(
         to bottom right,

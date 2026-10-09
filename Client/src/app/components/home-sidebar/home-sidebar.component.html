@@ -20,7 +20,6 @@
       <div class="about-identity">
         <p class="about-name">{{ intro.name }}</p>
         <p class="about-role" *ngIf="intro.shortDescription">
-          <span nz-icon nzType="calendar" nzTheme="outline"></span>
           {{ intro.shortDescription }}
         </p>
       </div>
@@ -29,7 +28,6 @@
     <p class="about-bio" *ngIf="intro.description">{{ intro.description }}</p>
 
     <p class="about-location" *ngIf="intro.address">
-      <span class="about-icon" aria-hidden="true">📍</span>
       {{ intro.address }}
     </p>
 
