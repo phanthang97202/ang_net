@@ -110,7 +110,8 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (data.Media.Any(m => TCommonUtils.IsNullOrEmpty(m.MediaUrl)))
+            if (data.Media.Any(m => !Uri.TryCreate(m.MediaUrl, UriKind.Absolute, out var uri)
+                || (uri.Scheme != "https" && uri.Scheme != "http") || !string.IsNullOrEmpty(uri.UserInfo)))
             {
                 apiResponse.CatchException(false, "Reel_Create.MediaUrlIsNotValid", requestClient);
                 return apiResponse;
@@ -121,6 +122,9 @@ namespace angnet.Infrastructure.Data.Services
                 apiResponse.CatchException(false, "Reel_Create.VideoMustHaveExactlyOneMedia", requestClient);
                 return apiResponse;
             }
+
+            if (!Enum.IsDefined(data.MediaType) || data.Media.Count > 10 || (data.Caption?.Length ?? 0) > 2000)
+                return new ApiResponse<ReelDto>("Nội dung hoặc số lượng ảnh không hợp lệ");
 
             DateTime now = TCommonUtils.DTimeNow();
 

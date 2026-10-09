@@ -4,7 +4,9 @@ import {
   HttpEventType,
   HttpResponse,
 } from '@angular/common/http';
-import { Observable, filter, map } from 'rxjs';
+import { Observable, filter, map, switchMap, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { IArchiveUploadSignatureResponse } from '../interfaces';
 
 export interface CloudinaryUploadResult {
   secure_url: string;
@@ -29,11 +31,6 @@ export class CloudinaryService {
   private cloudName = 'dumdpgmgs';
   private uploadPreset = 'svylrno1';
 
-  // Preset riêng cho reels: giới hạn định dạng + dung lượng ngay từ Cloudinary,
-  // vì preset unsigned nằm lộ trong JS nên đây là tuyến chặn duy nhất.
-  private reelVideoPreset = 'reels_video';
-  private reelImagePreset = 'reels_image';
-
   constructor(private http: HttpClient) {}
 
   uploadImage(file: File) {
@@ -52,11 +49,11 @@ export class CloudinaryService {
   }
 
   uploadReelVideo(file: File): Observable<CloudinaryUploadResult> {
-    return this.upload(file, this.reelVideoPreset, 'video');
+    return this.reelResult(file, 'video');
   }
 
   uploadReelImage(file: File): Observable<CloudinaryUploadResult> {
-    return this.upload(file, this.reelImagePreset, 'image');
+    return this.reelResult(file, 'image');
   }
 
   /**
@@ -64,12 +61,12 @@ export class CloudinaryService {
    * nên người dùng cần thấy % thay vì màn hình đứng im.
    */
   uploadReelVideoWithProgress(file: File): Observable<CloudinaryUploadEvent> {
-    return this.uploadWithProgress(file, this.reelVideoPreset, 'video');
+    return this.uploadReelSigned(file, 'video');
   }
 
   /** Dùng cho chế độ đăng nhiều ảnh: mỗi ảnh vẫn cần báo tiến trình riêng. */
   uploadReelImageWithProgress(file: File): Observable<CloudinaryUploadEvent> {
-    return this.uploadWithProgress(file, this.reelImagePreset, 'image');
+    return this.uploadReelSigned(file, 'image');
   }
 
   /**
@@ -119,6 +116,7 @@ export class CloudinaryService {
       AssetFolder: string;
       AllowedFormats: string;
       ReturnDeleteToken: boolean;
+      UploadPreset?: string;
     }
   ): Observable<CloudinaryUploadEvent> {
     const formData = new FormData();
@@ -128,6 +126,7 @@ export class CloudinaryService {
     formData.append('signature', signature.Signature);
     formData.append('public_id', signature.PublicId);
     formData.append('allowed_formats', signature.AllowedFormats);
+    if (signature.UploadPreset) formData.append('upload_preset', signature.UploadPreset);
     if (signature.AssetFolder) {
       formData.append('asset_folder', signature.AssetFolder);
     }
@@ -135,6 +134,26 @@ export class CloudinaryService {
       formData.append('return_delete_token', 'true');
     }
     return this.postWithProgress(signature.UploadUrl, formData);
+  }
+
+  private uploadReelSigned(file: File, kind: 'image' | 'video'): Observable<CloudinaryUploadEvent> {
+    return this.http.get<IArchiveUploadSignatureResponse>(`${environment.apiUrl}Reel/UploadSignature/${kind}`).pipe(
+      switchMap(response => {
+        const signature = response.Data;
+        if (!response.Success || !signature)
+          return throwError(() => new Error(response.ErrorMessage || 'Không lấy được chữ ký tải file'));
+        if (file.size > signature.MaxBytes)
+          return throwError(() => new Error('File vượt quá dung lượng cho phép'));
+        return this.uploadSignedWithProgress(file, signature);
+      })
+    );
+  }
+
+  private reelResult(file: File, kind: 'image' | 'video'): Observable<CloudinaryUploadResult> {
+    return this.uploadReelSigned(file, kind).pipe(
+      filter((event): event is Extract<CloudinaryUploadEvent, { type: 'done' }> => event.type === 'done'),
+      map(event => event.result)
+    );
   }
 
   private uploadWithProgress(

@@ -104,6 +104,7 @@ namespace angnet.Domain.Dtos
         public string PublicId { get; set; } = string.Empty;
         public string AssetFolder { get; set; } = string.Empty; // Rỗng nếu tài khoản dùng fixed folder
         public string AllowedFormats { get; set; } = string.Empty;
+        public string UploadPreset { get; set; } = string.Empty;
         public bool ReturnDeleteToken { get; set; } = true; // Đã nằm trong chữ ký, client phải gửi kèm
         public long MaxBytes { get; set; }
     }

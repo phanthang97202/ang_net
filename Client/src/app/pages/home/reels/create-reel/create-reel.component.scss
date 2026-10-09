@@ -11,6 +11,14 @@
   margin: 0 0 20px;
 }
 
+.create-reel__link { margin: 16px 0 24px; }
+.create-reel__link-row {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0 12px;
+  input { flex: 1; min-width: 0; }
+}
+
 // ── Trạng thái chưa chọn file ─────────────────────────────────────────
 .create-reel__dropzone {
   display: flex;

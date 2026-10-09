@@ -1,6 +1,6 @@
 <div class="create-reel">
   <h1 class="create-reel__title">
-    {{ isImageMode ? 'Tải ảnh lên' : 'Tải video lên' }}
+    {{ isImageMode ? 'Đăng ảnh' : 'Đăng video' }}
   </h1>
 
   <div class="create-reel__tabs" role="tablist">
@@ -22,15 +22,38 @@
     </button>
   </div>
 
+  <div class="create-reel__tabs" aria-label="Nguồn nội dung">
+    @if (canUpload) {
+      <button type="button" class="create-reel__tab" [class.is-active]="source === 'upload'"
+        [disabled]="isBusy" (click)="setSource('upload')">Từ thiết bị</button>
+    }
+    <button type="button" class="create-reel__tab" [class.is-active]="source === 'link'"
+      [disabled]="isBusy" (click)="setSource('link')">Dùng link</button>
+  </div>
+  @if (source === 'link') {
+    <div class="create-reel__link">
+      <label class="create-reel__label" for="reel-link">{{ isImageMode ? 'Link ảnh trực tiếp' : 'Link video trực tiếp' }}</label>
+      <div class="create-reel__link-row">
+        <input id="reel-link" class="blog-input" type="url" [formControl]="linkInput" placeholder="https://..."
+          [attr.disabled]="isBusy ? '' : null" (keydown.enter)="addLink()" />
+        <button type="button" class="create-reel__btn create-reel__btn--primary"
+          [disabled]="isBusy || !linkInput.value.trim()" (click)="addLink()">Thêm</button>
+      </div>
+      <p class="create-reel__dropzone-hint">Dùng URL của file ảnh/video, không phải link trang web. Nội dung không được tải lên Cloudinary.</p>
+    </div>
+  }
+
   <input
     #fileInput
     type="file"
     hidden
+    [disabled]="isBusy || !canUpload || source !== 'upload'"
     [accept]="acceptAttr"
     [multiple]="isImageMode"
     (change)="onFileInputChange($event)" />
 
   @if (status === 'idle') {
+    @if (source === 'upload' && canUpload) {
     <div
       class="create-reel__dropzone"
       [class.is-dragover]="isDragOver"
@@ -96,6 +119,7 @@
         </div>
       </div>
     </div>
+    }
   } @else {
     @if (isImageMode) {
       <div class="create-reel__file">
@@ -111,7 +135,7 @@
           </div>
         </div>
         <div class="create-reel__file-actions">
-          @if (selectedImages.length < maxImages) {
+          @if (selectedImages.length < maxImages && source === 'upload' && canUpload) {
             <button
               type="button"
               class="create-reel__btn create-reel__btn--ghost"
@@ -134,9 +158,9 @@
         <div class="create-reel__file-info">
           <span nz-icon nzType="video-camera" nzTheme="outline"></span>
           <div class="create-reel__file-text">
-            <p class="create-reel__file-name">{{ selectedFile?.name }}</p>
+            <p class="create-reel__file-name">{{ selectedFile?.name || 'Video từ link' }}</p>
             <p class="create-reel__file-size">
-              {{ formatSize(selectedFile?.size ?? 0) }}
+              {{ selectedFile ? formatSize(selectedFile.size) : 'Không sử dụng dung lượng Cloudinary' }}
             </p>
           </div>
         </div>

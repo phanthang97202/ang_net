@@ -11,6 +11,7 @@
   <form *nzModalContent class="item-form" [formGroup]="form" (ngSubmit)="submit()">
     @if (!isEdit) {
       <div class="item-form__modes" role="tablist" aria-label="Cách thêm">
+        @if (canUpload) {
         <button
           type="button"
           role="tab"
@@ -22,6 +23,7 @@
           <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
           Tải ảnh / video
         </button>
+        }
         <button
           type="button"
           role="tab"
@@ -36,7 +38,7 @@
       </div>
     }
 
-    @if (!isEdit && mode === 'upload') {
+    @if (!isEdit && mode === 'upload' && canUpload) {
       <label
         class="item-form__drop"
         [class.is-over]="isDragOver"
@@ -97,14 +99,27 @@
 
     @if (!isEdit && mode === 'link') {
       <div>
+        <label class="blog-label" for="item-link-kind">Loại nội dung</label>
+        <select id="item-link-kind" class="blog-input" formControlName="LinkKind" (change)="onLinkChange()">
+          <option value="Link">Link trang web / mạng xã hội</option>
+          <option value="Image">Link ảnh trực tiếp</option>
+          <option value="Video">Link video trực tiếp</option>
+        </select>
+      </div>
+      <div>
         <label class="blog-label" for="item-source-url">Link</label>
         <input
           id="item-source-url"
           class="blog-input"
           formControlName="SourceUrl"
-          placeholder="Dán link YouTube, TikTok, Facebook, Instagram hoặc trang web bất kỳ"
+          placeholder="https://..."
           (input)="onLinkChange()" />
+        <small class="blog-label__optional">Link ảnh/video cần trỏ trực tiếp đến file. Nội dung được lưu nguyên link, không tải lên Cloudinary.</small>
       </div>
+    }
+
+    @if (!isEdit && mode === 'link' && form.controls.LinkKind.value === 'Image' && form.controls.SourceUrl.value) {
+      <div class="item-form__preview"><img [src]="form.controls.SourceUrl.value" alt="Xem trước ảnh" /></div>
     }
 
     @if (linkPreview && mode === 'link') {

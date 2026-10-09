@@ -287,6 +287,15 @@ namespace angnet.Infrastructure.Data.Services
 
                 case EArchiveItemKind.Image:
                 case EArchiveItemKind.Video:
+                    if (string.IsNullOrWhiteSpace(data.StoragePublicId))
+                    {
+                        if (!IsHttpUrl(sourceUrl, allowEmpty: false))
+                            return new ApiResponse<ArchiveItemDto>("Link ảnh/video không hợp lệ");
+                        // External media is displayed directly and never uploaded or deleted.
+                        provider = EArchiveProvider.Web;
+                        if (data.Kind == EArchiveItemKind.Image) thumbnailUrl = sourceUrl;
+                        break;
+                    }
                     // public_id phải nằm trong thư mục của CHÍNH người này. Không chặn
                     // thì ai đó đăng ký public_id của ảnh bài viết vào thư viện mình,
                     // rồi xoá mục đó là xoá luôn file của người khác trên Cloudinary.

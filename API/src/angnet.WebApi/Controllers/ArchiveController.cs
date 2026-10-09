@@ -6,6 +6,9 @@ using angnet.WebApi.Cloudinary;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace angnet.WebApi.Controllers
 {
@@ -108,8 +111,12 @@ namespace angnet.WebApi.Controllers
 
         [Authorize(Policy = UsePermission)]
         [HttpPost("Item")]
-        public async Task<IActionResult> CreateItem([FromBody] ArchiveItemCreateDto request)
+        public async Task<IActionResult> CreateItem([FromBody] ArchiveItemCreateDto request,
+            [FromServices] IAuthorizationService authorization)
         {
+            if (!string.IsNullOrWhiteSpace(request.StoragePublicId)
+                && !(await authorization.AuthorizeAsync(User, "archive.upload")).Succeeded)
+                return Forbid();
             CloudinaryAccount.TryGetSettings(_configuration, out string cloudName, out _, out _);
             return Ok(await _archiveService.CreateItemAsync(CurrentUserId(), request, cloudName));
         }
@@ -136,6 +143,7 @@ namespace angnet.WebApi.Controllers
         /// lưu; allowed_formats cũng được ký nên không lách được định dạng.
         /// </summary>
         [Authorize(Policy = UsePermission)]
+        [Authorize(Policy = "archive.upload")]
         [HttpGet("UploadSignature")]
         public async Task<IActionResult> UploadSignature(EArchiveItemKind kind)
         {

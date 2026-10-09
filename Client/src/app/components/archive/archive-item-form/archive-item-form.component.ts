@@ -19,7 +19,7 @@ import {
   IArchiveItem,
   IArchiveItemCreate,
 } from '../../../interfaces';
-import { ArchiveService, ArchiveUploadEvent } from '../../../services';
+import { ArchiveService, ArchiveUploadEvent, AuthService } from '../../../services';
 import {
   ResolvedLinkEmbed,
   resolveLinkEmbed,
@@ -68,6 +68,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   private fb = inject(FormBuilder);
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
+  private auth = inject(AuthService);
+
+  get canUpload(): boolean { return this.auth.hasPermission('archive.upload'); }
 
   mode: ItemFormMode = 'upload';
   files: PendingFile[] = [];
@@ -78,6 +81,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
   form = this.fb.nonNullable.group({
     SourceUrl: [''],
+    LinkKind: this.fb.nonNullable.control<'Link' | 'Image' | 'Video'>('Link'),
     Title: ['', [Validators.maxLength(300)]],
     Note: ['', [Validators.maxLength(10000)]],
     ThumbnailUrl: [''],
@@ -91,13 +95,14 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
     this.clearFiles();
     this.linkPreview = null;
-    this.mode = this.item?.Kind === 'Link' ? 'link' : 'upload';
+    this.mode = this.item?.Kind === 'Link' || !this.canUpload ? 'link' : 'upload';
     this.form.reset({
       SourceUrl: this.item?.SourceUrl ?? '',
+      LinkKind: this.item?.Kind ?? 'Link',
       Title: this.item?.Title ?? '',
       Note: this.item?.Note ?? '',
       ThumbnailUrl: this.item?.Kind === 'Link' ? this.item.ThumbnailUrl : '',
-      TakenAt: this.item?.TakenAt ? this.item.TakenAt.slice(0, 10) : '',
+      TakenAt: this.item ? this.item.TakenAt?.slice(0, 10) ?? '' : this.today(),
       CollectionId: this.item?.CollectionId ?? this.collectionId,
     });
     if (this.item?.Kind === 'Link') {
@@ -124,7 +129,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   setMode(mode: ItemFormMode): void {
-    if (this.isSaving) return;
+    if (this.isSaving || (mode === 'upload' && !this.canUpload)) return;
     this.mode = mode;
   }
 
@@ -154,7 +159,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
   onLinkChange(): void {
     const url = this.form.controls.SourceUrl.value.trim();
-    this.linkPreview = this.isHttpUrl(url) ? resolveLinkEmbed(url) : null;
+    this.linkPreview = this.form.controls.LinkKind.value === 'Link' && this.isHttpUrl(url) ? resolveLinkEmbed(url) : null;
   }
 
   submit(): void {
@@ -179,6 +184,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   private addFiles(selected: File[]): void {
+    if (this.isSaving || !this.canUpload || this.mode !== 'upload') return;
     const accepted = selected.filter(
       f => f.type.startsWith('image/') || f.type.startsWith('video/')
     );
@@ -205,6 +211,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   private async saveUploads(): Promise<void> {
+    if (!this.canUpload) { this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị'); return; }
     const queue = this.files.filter(f => f.status !== 'done');
     if (queue.length === 0) {
       this.message.warning('Hãy chọn ít nhất một ảnh hoặc video');
@@ -312,10 +319,10 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     this.archiveService
       .createItem({
         CollectionId: this.collectionId,
-        Kind: 'Link',
+        Kind: value.LinkKind,
         SourceUrl: url,
         StoragePublicId: '',
-        ThumbnailUrl: value.ThumbnailUrl.trim() || this.linkPreview?.thumbnailUrl || '',
+        ThumbnailUrl: value.LinkKind === 'Image' ? url : value.ThumbnailUrl.trim() || this.linkPreview?.thumbnailUrl || '',
         Title: value.Title.trim(),
         Note: value.Note.trim(),
         Width: null,
@@ -365,6 +372,12 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
    */
   private toTakenAt(value: string): string | null {
     return /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : null;
+  }
+
+  private today(): string {
+    // Use the user's local date, not UTC (which can still be yesterday).
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
 
   /** Cloudinary trả lỗi dạng { error: { message } } trong HttpErrorResponse.error */

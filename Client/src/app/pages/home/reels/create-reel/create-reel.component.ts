@@ -13,6 +13,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { Subscription } from 'rxjs';
 import {
   ApiService,
+  AuthService,
   CloudinaryService,
   CloudinaryUploadResult,
   ShowErrorService,
@@ -23,7 +24,7 @@ type CreateReelStatus = 'idle' | 'selected' | 'uploading' | 'creating';
 type CreateReelMode = 'video' | 'image';
 
 interface SelectedImage {
-  file: File;
+  file: File | null;
   previewUrl: string;
 }
 
@@ -41,6 +42,7 @@ export class CreateReelComponent implements OnDestroy {
   private cloudinary = inject(CloudinaryService);
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
+  private auth = inject(AuthService);
 
   // Khớp đúng giới hạn đã khoá ở 2 preset trên Cloudinary, để người dùng nhận
   // thông báo rõ ràng thay vì lỗi 400 khó hiểu trả về từ Cloudinary.
@@ -64,6 +66,8 @@ export class CreateReelComponent implements OnDestroy {
   ];
 
   mode: CreateReelMode = 'video';
+  source: 'upload' | 'link' = this.auth.hasPermission('reel.upload_video') ? 'upload' : 'link';
+  linkInput = new FormControl('', { nonNullable: true });
   status: CreateReelStatus = 'idle';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -88,6 +92,41 @@ export class CreateReelComponent implements OnDestroy {
     return this.mode === 'image';
   }
 
+  get canUpload(): boolean {
+    return this.auth.hasPermission(this.isImageMode ? 'reel.upload_image' : 'reel.upload_video');
+  }
+
+  setSource(source: 'upload' | 'link'): void {
+    if (this.isBusy || (source === 'upload' && !this.canUpload)) return;
+    this.clearFile();
+    this.linkInput.reset();
+    this.source = source;
+  }
+
+  addLink(): void {
+    if (this.isBusy || this.source !== 'link') return;
+    const value = this.linkInput.value.trim();
+    try {
+      const url = new URL(value);
+      if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error();
+    } catch {
+      this.message.warning('Nhập link ảnh/video trực tiếp bắt đầu bằng https:// hoặc http://');
+      return;
+    }
+    if (this.isImageMode) {
+      if (this.selectedImages.length >= this.maxImages) return;
+      if (this.selectedImages.some(image => image.previewUrl === value)) {
+        this.message.warning('Ảnh này đã được thêm');
+        return;
+      }
+      this.selectedImages.push({ file: null, previewUrl: value });
+    } else {
+      this.previewUrl = value;
+    }
+    this.status = 'selected';
+    this.linkInput.reset();
+  }
+
   get isBusy(): boolean {
     return this.status === 'uploading' || this.status === 'creating';
   }
@@ -99,7 +138,7 @@ export class CreateReelComponent implements OnDestroy {
   get hasSelection(): boolean {
     return this.isImageMode
       ? this.selectedImages.length > 0
-      : this.selectedFile !== null;
+      : this.previewUrl !== null;
   }
 
   get acceptAttr(): string {
@@ -133,6 +172,8 @@ export class CreateReelComponent implements OnDestroy {
     // Đổi chế độ thì bỏ hết lựa chọn cũ: video và ảnh không dùng chung được
     this.revokeAllPreviews();
     this.mode = mode;
+    this.source = this.canUpload ? 'upload' : 'link';
+    this.linkInput.reset();
     this.selectedFile = null;
     this.selectedImages = [];
     this.status = 'idle';
@@ -140,7 +181,7 @@ export class CreateReelComponent implements OnDestroy {
   }
 
   openFilePicker(): void {
-    if (this.isBusy) {
+    if (this.isBusy || !this.canUpload || this.source !== 'upload') {
       return;
     }
     this.fileInput.nativeElement.click();
@@ -195,7 +236,7 @@ export class CreateReelComponent implements OnDestroy {
     }
     const [removed] = this.selectedImages.splice(index, 1);
     if (removed) {
-      URL.revokeObjectURL(removed.previewUrl);
+      if (removed.file) URL.revokeObjectURL(removed.previewUrl);
     }
     if (this.selectedImages.length === 0) {
       this.status = 'idle';
@@ -238,6 +279,13 @@ export class CreateReelComponent implements OnDestroy {
     this.status = 'uploading';
     this.uploadPercent = 0;
     this.uploadedResults = [];
+
+    if (this.source === 'link') {
+      this.createReel((this.isImageMode ? this.selectedImages.map(image => image.previewUrl) : [this.previewUrl!])
+        .map((MediaUrl, SortOrder) => ({ MediaUrl, SortOrder, Width: null, Height: null, DurationSeconds: null })));
+      return;
+    }
+    if (!this.canUpload) { this.status = 'selected'; return; }
 
     if (this.isImageMode) {
       this.uploadImageAt(0);
@@ -297,7 +345,7 @@ export class CreateReelComponent implements OnDestroy {
     this.uploadPercent = 0;
 
     this.uploadSub = this.cloudinary
-      .uploadReelImageWithProgress(this.selectedImages[index].file)
+      .uploadReelImageWithProgress(this.selectedImages[index].file!)
       .subscribe({
         next: event => {
           if (event.type === 'progress') {
@@ -324,7 +372,9 @@ export class CreateReelComponent implements OnDestroy {
       MediaType: this.isImageMode ? 'Image' : 'Video',
       CoverUrl: this.isImageMode
         ? media[0].MediaUrl // ảnh đầu làm bìa
-        : this.cloudinary.buildVideoPosterUrl(this.uploadedResults[0].public_id),
+        : this.uploadedResults.length
+          ? this.uploadedResults[0].secure_url.replace('/video/upload/', '/video/upload/so_0/').replace(/\.[a-z0-9]+$/i, '.jpg')
+          : '',
       Media: media,
     };
 
@@ -385,6 +435,7 @@ export class CreateReelComponent implements OnDestroy {
   }
 
   private acceptFiles(fileList: FileList | null): void {
+    if (this.isBusy || !this.canUpload || this.source !== 'upload') return;
     const files = Array.from(fileList ?? []);
     if (files.length === 0) {
       return;
@@ -499,9 +550,10 @@ export class CreateReelComponent implements OnDestroy {
 
   private revokeAllPreviews(): void {
     if (this.previewUrl) {
+      if (this.previewUrl.startsWith('blob:'))
       URL.revokeObjectURL(this.previewUrl);
       this.previewUrl = null;
     }
-    this.selectedImages.forEach(image => URL.revokeObjectURL(image.previewUrl));
+    this.selectedImages.forEach(image => { if (image.file) URL.revokeObjectURL(image.previewUrl); });
   }
 }

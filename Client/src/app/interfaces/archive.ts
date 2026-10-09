@@ -86,6 +86,7 @@ export interface IArchiveUploadSignature {
   PublicId: string;
   AssetFolder: string;
   AllowedFormats: string;
+  UploadPreset?: string;
   ReturnDeleteToken: boolean;
   MaxBytes: number;
 }
