@@ -80,26 +80,14 @@
 
 <!-- Ẩn ở layout 'immersive' (Reels): trang đó đã bỏ navbar/footer để chiếm trọn
      màn hình, và mép phải là chỗ của nút lên/xuống + panel bình luận -->
-<ng-container *ngIf="authService.isLoggedIn() && layoutType !== 'immersive'">
+<ng-container
+  *ngIf="
+    authService.getToken() &&
+    authService.hasPermission('chat.view') &&
+    layoutType !== 'immersive'
+  ">
   <!-- Nút Chat -->
-  <button
-    nz-button
-    nzType="primary"
-    (click)="toggleChat()"
-    class="chat-toggle-btn"
-    aria-label="Toggle chat">
-    <span
-      nz-icon
-      [nzType]="isChatOpen ? 'close' : 'message'"
-      nzTheme="outline"></span>
-  </button>
-
-  <!-- Chat Box -->
-  <div class="chat-box-container" *ngIf="isChatOpen">
-    @defer (when isChatOpen) {
-      <app-chat-box (closeChat)="isChatOpen = false"></app-chat-box>
-    } @placeholder {
-      <app-spinner></app-spinner>
-    }
-  </div>
+  @defer (when authService.hasPermission('chat.view')) {
+    <app-chat-widget />
+  }
 </ng-container>

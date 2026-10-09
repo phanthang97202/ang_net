@@ -25,7 +25,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ErrorPopupComponent } from './components/error-popup/error-popup.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
-import { ChatBoxComponent } from './components/chat-box/chat-box.component';
+import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
 
 @Component({
   selector: 'app-root',
@@ -45,7 +45,7 @@ import { ChatBoxComponent } from './components/chat-box/chat-box.component';
     ErrorPopupComponent,
     SpinnerComponent,
     SwitchLangComponent,
-    ChatBoxComponent,
+    ChatWidgetComponent,
   ],
   providers: [],
   templateUrl: './app.component.html',
@@ -55,7 +55,6 @@ export class AppComponent implements OnInit {
   title = 'client';
   navigationEnd: Observable<NavigationEnd>;
 
-  isChatOpen = false;
   isLoading$: Observable<boolean>;
   errorInfo: IErrorInfo = {
     title: '',
@@ -207,7 +206,6 @@ export class AppComponent implements OnInit {
     this.navigationEnd = this.router.events.pipe(
       filter((event: Event) => event instanceof NavigationEnd)
     ) as Observable<NavigationEnd>;
-
   }
 
   // Iframe nhúng của Instagram (.../embed) tự đo nội dung rồi postMessage chiều
@@ -320,9 +318,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-  toggleChat() {
-    this.isChatOpen = !this.isChatOpen;
-  }
 
   // Menu đã lọc theo quyền, TÍNH SẴN một lần chứ không gọi từ template.
   //

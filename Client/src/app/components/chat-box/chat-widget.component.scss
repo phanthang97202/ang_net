@@ -1,0 +1,110 @@
+:host {
+  display: contents;
+}
+.chat-toggle-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1051;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+  transition:
+    background 0.2s,
+    color 0.2s;
+  &:hover {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+.chat-unread {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 12px;
+  background: #e54865;
+  color: #fff;
+  border: 2px solid var(--color-bg-card);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+.chat-preview {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  gap: 3px;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 96px));
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: left;
+  background: var(--color-text);
+  color: var(--color-bg-card);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+    opacity: 0.8;
+  }
+  > span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+}
+.chat-box-container {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  width: 400px;
+  max-width: calc(100vw - 48px);
+  z-index: 1050;
+}
+@media (max-width: 768px) {
+  .chat-toggle-btn {
+    bottom: calc(71px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .chat-box-container {
+    bottom: calc(127px + env(safe-area-inset-bottom, 0px));
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-width: none;
+  }
+  .chat-preview {
+    max-width: min(220px, calc(100vw - 88px));
+  }
+}

@@ -7,6 +7,10 @@ namespace angnet.Domain.Models
     {
         [Key]
         public string MessageId { get; set; } = Guid.NewGuid().ToString();
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Sequence { get; set; }
+        [NotMapped]
+        public string? SenderName { get; set; }
         [ForeignKey("UserId")]
         [Required]
         public string UserId {  get; set; } = string.Empty;

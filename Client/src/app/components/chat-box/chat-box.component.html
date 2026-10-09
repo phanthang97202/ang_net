@@ -3,7 +3,11 @@
     <!-- Header -->
     <div class="chat-header">
       <div class="chat-header-info">
-        <span nz-icon nzType="message" nzTheme="fill" class="chat-header-icon"></span>
+        <span
+          nz-icon
+          nzType="message"
+          nzTheme="fill"
+          class="chat-header-icon"></span>
         <span class="chat-header-title">{{ 'T_CHAT' | translate }}</span>
       </div>
       <button
@@ -30,14 +34,14 @@
         [class.message-other]="msg.UserId !== userId">
         <nz-comment
           class="message-item"
-          [nzAuthor]="msg.UserId !== userId ? msg.UserId : ''"
+          [nzAuthor]="msg.UserId !== userId ? msg.SenderName || msg.UserId : ''"
           [nzDatetime]="(msg.CreatedDTime | date: 'short') || ''">
           <!-- Avatar for other users -->
           <nz-avatar
             *ngIf="msg.UserId !== userId"
             nz-comment-avatar
             [nzSize]="36"
-            nzSrc="https://en.anmosugoi.com/wp-content/uploads/2024/05/Date-a-Live-Kurumi-Tokisaki-min-4.webp">
+            [nzText]="(msg.SenderName || msg.UserId).slice(0, 1).toUpperCase()">
           </nz-avatar>
 
           <!-- Message content -->
@@ -65,7 +69,14 @@
     </div>
 
     <!-- Input area -->
-    <div class="chat-input-area">
+    <p *ngIf="chatService.error()" class="chat-notice" role="status">
+      {{ chatService.error() }}
+    </p>
+    <p *ngIf="sendError" class="chat-notice" role="alert">{{ sendError }}</p>
+    <p *ngIf="!canSend" class="chat-notice">
+      Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.
+    </p>
+    <div *ngIf="canSend" class="chat-input-area">
       <!-- Upload button -->
       <div class="upload-section">
         <nz-upload
@@ -93,9 +104,11 @@
             [(ngModel)]="newMessage"
             type="text"
             nz-input
-            placeholder="Type a message..."
+            placeholder="Nhập tin nhắn..."
             (keyup.enter)="sendMessage()"
-            [disabled]="isUploading"
+            [disabled]="isUploading || sending"
+            maxlength="4000"
+            aria-label="Nội dung tin nhắn"
             class="message-input" />
         </nz-input-group>
 
@@ -104,7 +117,13 @@
             nz-button
             nzType="primary"
             (click)="sendMessage()"
-            [disabled]="!newMessage.trim() || isUploading"
+            [disabled]="
+              !newMessage.trim() ||
+              isUploading ||
+              sending ||
+              !chatService.connected()
+            "
+            aria-label="Gửi tin nhắn"
             class="send-btn">
             <span nz-icon nzType="send" nzTheme="outline"></span>
           </button>

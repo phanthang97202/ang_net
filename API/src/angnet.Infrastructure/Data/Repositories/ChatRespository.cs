@@ -16,24 +16,23 @@ namespace angnet.Infrastructure.Data.Repositories
         }
         public async Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type)
         {
-            // throw new NotImplementedException();
-            ApiResponse<ChatModel> apiResponse = new ApiResponse<ChatModel>();
-            List<RequestClient> requestClient = new List<RequestClient>();
-
-            ChatModel data = new ChatModel
+            return await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
             {
-                UserId = userId,
-                Message = message,
-                Type = type,
-                CreatedDTime = TCommonUtils.DTimeNow()
-            };
-
-            await _dbContext.Chat.AddAsync(data);
-            await _dbContext.SaveChangesAsync();
-
-            apiResponse.Data = data;
-
-            return apiResponse;
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                // Serialize room inserts before allocating the cursor. A later sequence
+                // must not commit first and cause a read acknowledgement to skip an earlier message.
+                if (_dbContext.Database.IsNpgsql())
+                    await _dbContext.Database.ExecuteSqlRawAsync("LOCK TABLE \"Chat\" IN SHARE ROW EXCLUSIVE MODE");
+                var data = new ChatModel
+                {
+                    UserId = userId, Message = message, Type = type,
+                    CreatedDTime = TCommonUtils.DTimeNow()
+                };
+                await _dbContext.Chat.AddAsync(data);
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return new ApiResponse<ChatModel>(data);
+            });
         }
 
         public async Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize)
@@ -52,7 +51,7 @@ namespace angnet.Infrastructure.Data.Repositories
             int itemCount = await _dbContext.Chat.CountAsync();
 
             List<ChatModel> data = await _dbContext.Chat
-                                    .OrderByDescending(c => c.CreatedDTime) // Order from newest to oldest
+                                    .OrderByDescending(c => c.Sequence)
                                     .Skip(pageIndex * pageSize)             // Skip pages based on page index
                                     .Take(pageSize)
                                     .Reverse()                      // Take the specified page size
@@ -68,6 +67,44 @@ namespace angnet.Infrastructure.Data.Repositories
             apiResponse.objResult = pageInfo;
 
             return apiResponse;
+        }
+
+        private async Task<ChatReadState> ReadState(string accountId)
+        {
+            var state = await _dbContext.ChatReadStates.AsNoTracking().SingleOrDefaultAsync(s => s.UserId == accountId);
+            if (state is not null) return state;
+            // First use starts at the current history; do not notify an entire old archive.
+            state = new ChatReadState { UserId = accountId,
+                LastReadSequence = await _dbContext.Chat.MaxAsync(c => (long?)c.Sequence) ?? 0 };
+            _dbContext.ChatReadStates.Add(state);
+            try { await _dbContext.SaveChangesAsync(); }
+            catch (DbUpdateException) {
+                _dbContext.Entry(state).State = EntityState.Detached;
+                return await _dbContext.ChatReadStates.AsNoTracking().SingleAsync(s => s.UserId == accountId);
+            }
+            return state;
+        }
+
+        public async Task<ApiResponse<ChatNotificationDto>> Notifications(string accountId, string chatIdentity)
+        {
+            var state = await ReadState(accountId);
+            var unread = _dbContext.Chat.AsNoTracking().Where(c => c.Sequence > state.LastReadSequence && c.UserId != chatIdentity);
+            var count = await unread.CountAsync();
+            var latest = await unread.OrderByDescending(c => c.Sequence).FirstOrDefaultAsync();
+            if (latest is not null)
+                latest.SenderName = await _dbContext.Users.Where(u => u.Email == latest.UserId || "account:" + u.Id == latest.UserId)
+                    .Select(u => u.FullName).FirstOrDefaultAsync();
+            return new(new ChatNotificationDto { UnreadCount = count, LatestMessage = latest });
+        }
+
+        public async Task<ApiResponse<ChatNotificationDto>> MarkRead(string accountId, string chatIdentity, long sequence)
+        {
+            if (sequence < 0 || (sequence > 0 && !await _dbContext.Chat.AnyAsync(c => c.Sequence == sequence)))
+                return new("Tin nhắn không tồn tại.");
+            await ReadState(accountId);
+            await _dbContext.ChatReadStates.Where(s => s.UserId == accountId && s.LastReadSequence < sequence)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastReadSequence, sequence));
+            return await Notifications(accountId, chatIdentity);
         }
     }
 }

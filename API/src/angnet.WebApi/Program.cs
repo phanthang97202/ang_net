@@ -107,6 +107,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<AccountSessionService>();
+builder.Services.AddSingleton<ChatConnections>();
 
 // config jwt 
 builder.Services
@@ -123,6 +124,12 @@ builder.Services
        .AddJwtBearer(opt =>
         {
             opt.Events = new JwtBearerEvents {
+                OnMessageReceived = context => {
+                    if (context.HttpContext.Request.Path.StartsWithSegments("/chat-hub")
+                        && context.Request.Query.TryGetValue("access_token", out var token))
+                        context.Token = token;
+                    return Task.CompletedTask;
+                },
                 OnTokenValidated = async context => {
                     var sessions = context.HttpContext.RequestServices.GetRequiredService<AccountSessionService>();
                     if (context.Principal is null || !await sessions.IsCurrent(context.Principal))
@@ -442,7 +449,7 @@ app.MapMethods("/api/health", new[] { "HEAD" }, () => Results.Ok("Alive")); // s
 //    return Results.NoContent();
 //});
 
-app.MapHub<ChatHub>("chat-hub");
+app.MapHub<ChatHub>("chat-hub", options => options.CloseOnAuthenticationExpiration = true);
 app.MapHub<angnet.WebApi.SignalR.Chess.ChessHub>("chess-hub");
 app.MapHub<NoteHub>("note-hub");
 
