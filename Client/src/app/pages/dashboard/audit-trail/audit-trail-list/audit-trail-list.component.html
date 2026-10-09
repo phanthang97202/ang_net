@@ -221,16 +221,58 @@
       </dl>
 
       <div class="audit-detail__section">
-        <h3>Giá trị trước</h3>
-        <pre class="audit-detail__json">{{
-          formatJson(detailRow.OldValues) || '(không có)'
-        }}</pre>
+        <div class="audit-detail__section-header">
+          <h3>Giá trị trước</h3>
+          <button
+            *ngIf="detailRow.OldValues"
+            type="button"
+            nz-button
+            nzSize="small"
+            class="audit-detail__format"
+            (click)="toggleJsonFormat('OldValues')"
+            [attr.aria-pressed]="formattedJson.has('OldValues')"
+            aria-label="Định dạng JSON giá trị trước">
+            <span nz-icon nzType="code" nzTheme="outline"></span>
+            {{ formattedJson.has('OldValues') ? 'Bản gốc' : 'Format JSON' }}
+          </button>
+        </div>
+        <p
+          *ngIf="jsonError.OldValues"
+          class="audit-detail__json-error"
+          role="status">
+          {{ jsonError.OldValues }}
+        </p>
+        <pre
+          class="audit-detail__json"
+          tabindex="0"
+          aria-label="Giá trị trước"
+          >{{ detailJson.OldValues || '(không có)' }}</pre>
       </div>
 
       <div class="audit-detail__section">
-        <h3>Giá trị sau</h3>
-        <pre class="audit-detail__json">{{
-          formatJson(detailRow.NewValues) || '(không có)'
+        <div class="audit-detail__section-header">
+          <h3>Giá trị sau</h3>
+          <button
+            *ngIf="detailRow.NewValues"
+            type="button"
+            nz-button
+            nzSize="small"
+            class="audit-detail__format"
+            (click)="toggleJsonFormat('NewValues')"
+            [attr.aria-pressed]="formattedJson.has('NewValues')"
+            aria-label="Định dạng JSON giá trị sau">
+            <span nz-icon nzType="code" nzTheme="outline"></span>
+            {{ formattedJson.has('NewValues') ? 'Bản gốc' : 'Format JSON' }}
+          </button>
+        </div>
+        <p
+          *ngIf="jsonError.NewValues"
+          class="audit-detail__json-error"
+          role="status">
+          {{ jsonError.NewValues }}
+        </p>
+        <pre class="audit-detail__json" tabindex="0" aria-label="Giá trị sau">{{
+          detailJson.NewValues || '(không có)'
         }}</pre>
       </div>
     </div>

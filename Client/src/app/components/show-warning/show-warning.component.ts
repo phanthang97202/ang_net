@@ -25,7 +25,10 @@ export class ShowWarningComponent implements OnInit {
       .getText(SYS_PARAM_CODE.WARNING_BANNER)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(text => {
-        this.warningMessage = text?.trim() || null;
+        const value = text?.trim();
+        // The required parameter form uses the literal string "null" to hide it.
+        this.warningMessage =
+          !value || value.toLowerCase() === 'null' ? null : value;
       });
   }
 }

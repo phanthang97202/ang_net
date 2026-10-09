@@ -5,18 +5,19 @@ import {
   ApiService,
 } from '../../../../services';
 import { IAuditTrail } from '../../../../interfaces';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../../../modules';
+import { AntdModule } from '../../../../modules/antd.module';
+import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrumb.component';
+import { LocalDTime } from '../../../../pipes/localeDTime.pipe';
 import { NonNullableFormBuilder } from '@angular/forms';
 import { AuditTrailLevelType, AuditTrailTypeType } from '../../../../types';
+import { formatAuditJson } from './audit-json';
+
+type JsonField = 'OldValues' | 'NewValues';
 
 @Component({
   selector: 'app-audit-trail',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [AntdModule, BreadcrumbComponent, LocalDTime],
   templateUrl: './audit-trail-list.component.html',
   styleUrls: ['./audit-trail-list.component.scss'],
 })
@@ -59,6 +60,9 @@ export class AuditTrailComponent implements OnInit {
 
   // Bản ghi đang xem chi tiết; null = đóng popup.
   detailRow: IAuditTrail | null = null;
+  detailJson: Record<JsonField, string> = { OldValues: '', NewValues: '' };
+  formattedJson = new Set<JsonField>();
+  jsonError: Record<JsonField, string> = { OldValues: '', NewValues: '' };
 
   ngOnInit(): void {
     this.fetchData();
@@ -157,11 +161,36 @@ export class AuditTrailComponent implements OnInit {
   }
 
   handleOpenDetail(data: IAuditTrail): void {
+    this.formattedJson.clear();
+    this.jsonError = { OldValues: '', NewValues: '' };
+    this.detailJson = {
+      OldValues: this.formatJson(data.OldValues),
+      NewValues: this.formatJson(data.NewValues),
+    };
     this.detailRow = data;
   }
 
   handleCloseDetail(): void {
     this.detailRow = null;
+    this.detailJson = { OldValues: '', NewValues: '' };
+    this.formattedJson.clear();
+  }
+
+  toggleJsonFormat(field: JsonField): void {
+    if (!this.detailRow) return;
+    const raw = this.detailRow[field];
+    if (this.formattedJson.has(field)) {
+      this.detailJson[field] = raw;
+      this.formattedJson.delete(field);
+      return;
+    }
+    try {
+      this.detailJson[field] = formatAuditJson(raw);
+      this.formattedJson.add(field);
+      this.jsonError[field] = '';
+    } catch {
+      this.jsonError[field] = 'Nội dung không phải JSON hợp lệ.';
+    }
   }
 
   // JSON trong OldValues/NewValues được backend serialize một dòng; xuống dòng +

@@ -387,9 +387,37 @@ describe('Chat notification widget', () => {
     expect(chat.deleteMessage).not.toHaveBeenCalled();
     chat.canDelete = true;
     f.detectChanges();
-    expect(f.nativeElement.querySelector('.message-delete')).not.toBeNull();
-    void box.deleteMessage(message);
-    tick();
+    const deleteButton = f.nativeElement.querySelector(
+      '.message-delete'
+    ) as HTMLButtonElement;
+    expect(deleteButton).not.toBeNull();
+    expect(
+      Number(
+        getComputedStyle(f.nativeElement.querySelector('.chat-box-container'))
+          .zIndex
+      )
+    ).toBeLessThan(1000);
+    deleteButton.click();
+    f.detectChanges();
+    tick(150);
+    const cancel = document.querySelector(
+      '.ant-popover-buttons button'
+    ) as HTMLButtonElement;
+    expect(cancel).not.toBeNull();
+    cancel.click();
+    f.detectChanges();
+    tick(150);
+    expect(chat.deleteMessage).not.toHaveBeenCalled();
+    deleteButton.click();
+    f.detectChanges();
+    tick(150);
+    const confirm = document.querySelector(
+      '.ant-popover-buttons .ant-btn-primary'
+    ) as HTMLButtonElement;
+    expect(confirm).not.toBeNull();
+    expect(chat.deleteMessage).not.toHaveBeenCalled();
+    confirm.click();
+    tick(150);
     expect(chat.deleteMessage).toHaveBeenCalledOnceWith('link');
     chat.isMessageDeleted = (id: string) => id === 'link';
     box.messages[0] = { ...message, Type: 'jpg' };

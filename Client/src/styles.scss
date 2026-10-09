@@ -6,6 +6,33 @@
 @tailwind components;
 @tailwind utilities;
 
+// The audit dialog renders in the CDK overlay, outside its component host.
+.audit-detail-modal {
+  .audit-detail__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+    h3 { margin: 0; }
+  }
+  .audit-detail__format {
+    height: 32px;
+    border-radius: var(--admin-radius-sm, 6px);
+    font-size: 12px;
+  }
+  .audit-detail__json-error {
+    margin: 0 0 8px;
+    color: var(--admin-danger, #dc2626);
+    font-size: 12px;
+  }
+  @media (max-width: 767px) {
+    .audit-detail__format { min-height: 44px; }
+  }
+}
+
+
 // ── Theme tokens (dùng cho các trang user-facing: navbar, footer, trang
 // chủ, danh sách/chi tiết bài viết...) ─────────────────────────────────
 // Đổi theme bằng cách set [data-theme="dark"] lên <html> (xem ThemeService).
