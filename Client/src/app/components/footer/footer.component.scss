@@ -6,6 +6,41 @@
   padding: 2rem 0 3rem;
 }
 
+.footer--with-background {
+  --footer-overlay: rgba(255, 255, 255, 0.76);
+  --color-text-muted: #555568;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 2rem;
+  border-radius: 20px;
+  background-color: var(--color-bg-card);
+  background-size: cover;
+  background-position: center 60%;
+  background-repeat: no-repeat;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--footer-overlay);
+    pointer-events: none;
+  }
+}
+
+:host-context(html[data-theme='dark']) .footer--with-background {
+  --footer-overlay: rgba(20, 20, 32, 0.85);
+  --color-text-muted: #cccbd8;
+}
+
+@media (max-width: 600px) {
+  .footer--with-background {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+  }
+}
+
 .footer-top {
   display: flex;
   flex-wrap: wrap;

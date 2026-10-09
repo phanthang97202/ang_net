@@ -3,11 +3,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FooterComponent } from './footer.component';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   SysParameterConfigService,
   AuthService,
   VisitTrackingService,
+  SYS_PARAM_CODE,
 } from '../../services';
 
 describe('FooterComponent', () => {
@@ -15,10 +16,12 @@ describe('FooterComponent', () => {
   let fixture: ComponentFixture<FooterComponent>;
   let loggedIn: boolean;
   let permissions: Set<string>;
+  let background$: BehaviorSubject<string | null>;
 
   beforeEach(async () => {
     loggedIn = false;
     permissions = new Set();
+    background$ = new BehaviorSubject<string | null>(null);
     await TestBed.configureTestingModule({
       imports: [FooterComponent, TranslateModule.forRoot()],
       providers: [
@@ -40,7 +43,10 @@ describe('FooterComponent', () => {
           provide: SysParameterConfigService,
           useValue: {
             getJson: () => of(null),
-            getText: () => of('https://example.com/invalid-map'),
+            getText: (code: string) =>
+              code === SYS_PARAM_CODE.FOOTER_BACKGROUND_IMAGE
+                ? background$
+                : of('https://example.com/invalid-map'),
           },
         },
       ],
@@ -55,6 +61,29 @@ describe('FooterComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('PhanThang');
     expect(component.mapEmbedUrl).toBeNull();
     expect(fixture.nativeElement.querySelector('iframe')).toBeNull();
+  });
+
+  it('uses the configured local asset and removes the background when cleared', () => {
+    background$.next('/assets/images/bg_footer.png');
+    fixture.detectChanges();
+    const footer: HTMLElement = fixture.nativeElement.querySelector('footer');
+    expect(footer.classList.contains('footer--with-background')).toBeTrue();
+    expect(footer.style.backgroundImage).toContain('/assets/images/bg_footer.png');
+    background$.next(null);
+    fixture.detectChanges();
+    expect(footer.classList.contains('footer--with-background')).toBeFalse();
+    expect(footer.style.backgroundImage).toBe('');
+  });
+
+  it('supports external image URLs but rejects unsafe protocols and asset traversal', () => {
+    background$.next('https://example.com/footer.jpg');
+    fixture.detectChanges();
+    expect(component.backgroundImage).toContain('https://example.com/footer.jpg');
+    for (const invalid of ['javascript:alert(1)', '/assets/../../private.png']) {
+      background$.next(invalid);
+      fixture.detectChanges();
+      expect(component.backgroundImage).toBe('');
+    }
   });
 
   it('hides report links until the logged-in account has the corresponding view permission', () => {

@@ -1,4 +1,7 @@
-<footer class="footer">
+<footer
+  class="footer"
+  [class.footer--with-background]="!!backgroundImage"
+  [style.background-image]="backgroundImage || null">
   <div class="footer-top">
     <div class="footer-brand">
       <a routerLink="/" class="footer-logo">
