@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import {
-  DrinkStock,
-  ShiftReportResponse,
-} from './../types/shift-report-type';
+import { DrinkStock, ShiftReportResponse } from './../types/shift-report-type';
 import { format } from 'date-fns';
+import { summarizeDrinkSales } from './drink-sales-summary';
 
 @Injectable({
   providedIn: 'root',
@@ -369,18 +367,26 @@ export class ExcelExportService {
     // SHIFT_DRINK_STOCK, ke ca san pham khong ban trong ca nay (SL=0,
     // Thanh tien=0) - de chu khach san va le tan ca sau nam duoc toan bo
     // tinh hinh ton kho, khong chi rieng nhung gi vua ban.
-    const drinkSales = report.DrinkSales || [];
     currentRow += 2;
 
-    worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+    worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
     const drinkTitleCell = worksheet.getCell(`A${currentRow}`);
     drinkTitleCell.value = 'Dịch vụ ngoài';
     drinkTitleCell.style = subtitleStyle;
 
     currentRow += 2;
 
-    const drinkHeaders = ['Sản phẩm', 'SL bán', 'Giá', 'Thành tiền', 'Còn lại'];
+    const drinkHeaders = [
+      'Sản phẩm',
+      'SL bán',
+      'Giá',
+      'Tiền mặt',
+      'Chuyển khoản',
+      'Thành tiền',
+      'Còn lại',
+    ];
     const drinkHeaderRow = worksheet.getRow(currentRow);
+    drinkHeaderRow.height = 30;
     drinkHeaders.forEach((title, i) => {
       const cell = drinkHeaderRow.getCell(i + 1);
       cell.value = title;
@@ -389,56 +395,18 @@ export class ExcelExportService {
     currentRow++;
 
     let drinkTotal = 0;
-
-    // Gop so luong da ban trong ca theo ma san pham - 1 san pham co the co
-    // nhieu dong (vd ban 2 lan cung 1 loai voi 2 hinh thuc thanh toan khac
-    // nhau).
-    const soldByCode = new Map<string, { quantity: number; amount: number; unitPrice: number }>();
-    drinkSales.forEach(drink => {
-      const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
-      const existed = soldByCode.get(drink.ProductCode);
-      if (existed) {
-        existed.quantity += drink.Quantity || 0;
-        existed.amount += amount;
-      } else {
-        soldByCode.set(drink.ProductCode, {
-          quantity: drink.Quantity || 0,
-          amount,
-          unitPrice: drink.UnitPrice || 0,
-        });
-      }
-    });
-
-    // Danh sach hien thi = toan bo danh muc tu drinkStocks. San pham da ban
-    // nhung khong con trong danh muc (bi xoa sau do) van duoc gop them vao
-    // cuoi, tranh mat lich su.
-    const displayList = drinkStocks.map(stock => {
-      const sold = soldByCode.get(stock.ProductCode);
-      return {
-        productName: stock.ProductName,
-        quantity: sold?.quantity || 0,
-        unitPrice: sold?.unitPrice ?? stock.UnitPrice,
-        amount: sold?.amount || 0,
-        remaining: stock.Remaining as number | null,
-      };
-    });
-    const knownCodes = new Set(drinkStocks.map(s => s.ProductCode));
-    drinkSales.forEach(drink => {
-      if (knownCodes.has(drink.ProductCode)) return;
-      knownCodes.add(drink.ProductCode);
-      const sold = soldByCode.get(drink.ProductCode)!;
-      displayList.push({
-        productName: drink.ProductName,
-        quantity: sold.quantity,
-        unitPrice: sold.unitPrice,
-        amount: sold.amount,
-        remaining: null,
-      });
-    });
+    let drinkCashTotal = 0;
+    let drinkTransferTotal = 0;
+    const displayList = summarizeDrinkSales(
+      report.DrinkSales || [],
+      drinkStocks
+    );
 
     displayList.forEach(item => {
       const row = worksheet.getRow(currentRow);
       drinkTotal += item.amount;
+      drinkCashTotal += item.cashAmount;
+      drinkTransferTotal += item.transferAmount;
 
       row.getCell(1).value = item.productName;
       row.getCell(1).style = dataStyle;
@@ -449,10 +417,14 @@ export class ExcelExportService {
       row.getCell(3).value = item.unitPrice;
       row.getCell(3).style = numberStyle;
 
-      row.getCell(4).value = item.amount;
+      row.getCell(4).value = item.cashAmount;
       row.getCell(4).style = numberStyle;
+      row.getCell(5).value = item.transferAmount;
+      row.getCell(5).style = numberStyle;
+      row.getCell(6).value = item.amount;
+      row.getCell(6).style = numberStyle;
 
-      const remainingCell = row.getCell(5);
+      const remainingCell = row.getCell(7);
       if (item.remaining != null) {
         remainingCell.value = item.remaining;
         remainingCell.style = dataStyleCenter;
@@ -471,13 +443,16 @@ export class ExcelExportService {
     drinkTotalRow.getCell(2).style = headerStyle;
     drinkTotalRow.getCell(3).value = '';
     drinkTotalRow.getCell(3).style = headerStyle;
-    drinkTotalRow.getCell(4).value = drinkTotal;
-    drinkTotalRow.getCell(4).style = {
-      ...numberStyle,
-      font: { name: 'Arial', size: 10, bold: true },
-    };
-    drinkTotalRow.getCell(5).value = '';
-    drinkTotalRow.getCell(5).style = headerStyle;
+    [drinkCashTotal, drinkTransferTotal, drinkTotal].forEach((total, i) => {
+      const cell = drinkTotalRow.getCell(i + 4);
+      cell.value = total;
+      cell.style = {
+        ...numberStyle,
+        font: { name: 'Arial', size: 10, bold: true },
+      };
+    });
+    drinkTotalRow.getCell(7).value = '';
+    drinkTotalRow.getCell(7).style = headerStyle;
 
     currentRow++;
 

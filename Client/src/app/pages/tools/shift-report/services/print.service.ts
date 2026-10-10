@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  DrinkStock,
-  ShiftReportResponse,
-} from './../types/shift-report-type';
+import { DrinkStock, ShiftReportResponse } from './../types/shift-report-type';
 import { format } from 'date-fns';
+import { summarizeDrinkSales } from './drink-sales-summary';
 
 @Injectable({
   providedIn: 'root',
@@ -93,64 +91,19 @@ export class PrintService {
     // trong tham số hệ thống SHIFT_DRINK_STOCK, kể cả sản phẩm không bán
     // trong ca này (SL=0, Thành tiền=0) - để chủ khách sạn và lễ tân ca sau
     // nắm được toàn bộ tình hình tồn kho, không chỉ riêng những gì vừa bán.
-    const drinkSales = report.DrinkSales || [];
-
-    // Gộp số lượng đã bán trong ca theo mã sản phẩm - 1 sản phẩm có thể có
-    // nhiều dòng (vd bán 2 lần cùng 1 loại với 2 hình thức thanh toán khác
-    // nhau).
-    const soldByCode = new Map<
-      string,
-      { quantity: number; amount: number; unitPrice: number }
-    >();
-    drinkSales.forEach(drink => {
-      const amount = (drink.Quantity || 0) * (drink.UnitPrice || 0);
-      const existed = soldByCode.get(drink.ProductCode);
-      if (existed) {
-        existed.quantity += drink.Quantity || 0;
-        existed.amount += amount;
-      } else {
-        soldByCode.set(drink.ProductCode, {
-          quantity: drink.Quantity || 0,
-          amount,
-          unitPrice: drink.UnitPrice || 0,
-        });
-      }
-    });
-
-    // Danh sách hiển thị = toàn bộ danh mục từ drinkStocks. Sản phẩm đã bán
-    // nhưng không còn trong danh mục (bị xóa sau đó) vẫn được gộp thêm vào
-    // cuối, tránh mất lịch sử.
-    const displayList: {
-      productName: string;
-      quantity: number;
-      unitPrice: number;
-      amount: number;
-      remaining: number | null;
-    }[] = drinkStocks.map(stock => {
-      const sold = soldByCode.get(stock.ProductCode);
-      return {
-        productName: stock.ProductName,
-        quantity: sold?.quantity || 0,
-        unitPrice: sold?.unitPrice ?? stock.UnitPrice,
-        amount: sold?.amount || 0,
-        remaining: stock.Remaining,
-      };
-    });
-    const knownCodes = new Set(drinkStocks.map(s => s.ProductCode));
-    drinkSales.forEach(drink => {
-      if (knownCodes.has(drink.ProductCode)) return;
-      knownCodes.add(drink.ProductCode);
-      const sold = soldByCode.get(drink.ProductCode)!;
-      displayList.push({
-        productName: drink.ProductName,
-        quantity: sold.quantity,
-        unitPrice: sold.unitPrice,
-        amount: sold.amount,
-        remaining: null,
-      });
-    });
-
+    const displayList = summarizeDrinkSales(
+      report.DrinkSales || [],
+      drinkStocks
+    );
     const drinkTotal = displayList.reduce((sum, item) => sum + item.amount, 0);
+    const drinkCashTotal = displayList.reduce(
+      (sum, item) => sum + item.cashAmount,
+      0
+    );
+    const drinkTransferTotal = displayList.reduce(
+      (sum, item) => sum + item.transferAmount,
+      0
+    );
 
     const drinkRows = displayList
       .map(
@@ -159,6 +112,8 @@ export class PrintService {
           <td>${item.productName}</td>
           <td class="center-cell">${item.quantity}</td>
           <td class="number-cell">${this.formatNumber(item.unitPrice)}</td>
+          <td class="number-cell">${this.formatNumber(item.cashAmount)}</td>
+          <td class="number-cell">${this.formatNumber(item.transferAmount)}</td>
           <td class="number-cell">${this.formatNumber(item.amount)}</td>
           <td class="center-cell">${item.remaining != null ? item.remaining : ''}</td>
         </tr>
@@ -263,7 +218,7 @@ export class PrintService {
     }
     
     .drink-sales-table {
-      width: 60%;
+      width: 80%;
       margin-top: 15px;
     }
 
@@ -395,11 +350,13 @@ export class PrintService {
       <table>
         <thead>
           <tr>
-            <th style="width: 30%;">Sản phẩm</th>
-            <th style="width: 12%;">SL bán</th>
-            <th style="width: 18%;">Giá</th>
-            <th style="width: 20%;">Thành tiền</th>
-            <th style="width: 20%;">Còn lại</th>
+            <th style="width: 24%;">Sản phẩm</th>
+            <th style="width: 8%;">SL bán</th>
+            <th style="width: 14%;">Giá</th>
+            <th style="width: 15%;">Tiền mặt</th>
+            <th style="width: 15%;">Chuyển khoản</th>
+            <th style="width: 15%;">Thành tiền</th>
+            <th style="width: 9%;">Còn lại</th>
           </tr>
         </thead>
         <tbody>
@@ -408,6 +365,8 @@ export class PrintService {
             <td>TỔNG</td>
             <td></td>
             <td></td>
+            <td class="number-cell">${this.formatNumber(drinkCashTotal)}</td>
+            <td class="number-cell">${this.formatNumber(drinkTransferTotal)}</td>
             <td class="number-cell">${this.formatNumber(drinkTotal)}</td>
             <td></td>
           </tr>
