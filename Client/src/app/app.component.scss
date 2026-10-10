@@ -2,6 +2,17 @@ nz-layout {
   height: 100%;
 }
 
+.layout--user {
+  --blog-gutter: 4%;
+  margin-inline: var(--blog-gutter);
+}
+
+// The content occupies 92% of the page. Extend the sticky navbar through
+// both 4% gutters, using its parent width so the scrollbar adds no overflow.
+.layout--user > app-navbar {
+  margin-inline: calc(-100% * 4 / 92);
+}
+
 // ── Ánh sáng nền ở 2 rìa trang (chỉ trang user-facing) ──
 // 2 dải fixed, nằm sau nội dung (z-index âm, trên nền body), tỏa mềm
 // vào giữa để trang có chiều sâu & sức sống hơn.

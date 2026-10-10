@@ -34,6 +34,11 @@
     border-color: var(--color-accent);
   }
 }
+// The navbar background spans the page; its controls align with blog content.
+.layout--user .navbar-wrapper {
+  padding-inline: var(--blog-gutter);
+}
+
 .blog-api-error-modal {
   max-width: calc(100vw - 32px);
   font-family: 'Montserrat', sans-serif;
