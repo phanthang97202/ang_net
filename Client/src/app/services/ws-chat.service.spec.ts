@@ -82,13 +82,13 @@ describe('Chat service notification state', () => {
   it('requires send permission and a file below 2 MB, then uploads through the protected chat API', () => {
     const file = new File(['image'], 'a.png', { type: 'image/png' });
     let failed = false;
-    service.uploadImage(file).subscribe({ error: () => (failed = true) });
+    service.sendImage(file).subscribe({ error: () => (failed = true) });
     expect(failed).toBeTrue();
     canSend = true;
     canSendImage = true;
     failed = false;
     service
-      .uploadImage(
+      .sendImage(
         new File([new Uint8Array(2 * 1024 * 1024)], 'a.png', {
           type: 'image/png',
         })
@@ -96,13 +96,13 @@ describe('Chat service notification state', () => {
       .subscribe({ error: () => (failed = true) });
     expect(failed).toBeTrue();
     http.expectNone(r => r.url.endsWith('/image'));
-    service.uploadImage(file).subscribe();
+    service.sendImage(file).subscribe();
     const request = http.expectOne(r => r.url.endsWith('/chat/image'));
     expect(request.request.method).toBe('POST');
     expect(request.request.body.get('file').size).toBe(file.size);
     request.flush({
       Success: true,
-      Data: { Url: 'https://example.com/a.png' },
+      Data: { MessageId: 'image-1', Type: 'image', Message: '[Hình ảnh]' },
     });
   });
   it('blocks image upload and realtime image sending when only text send permission is granted', async () => {
@@ -111,7 +111,7 @@ describe('Chat service notification state', () => {
     expect(service.canSendImage).toBeFalse();
     let denied = false;
     service
-      .uploadImage(new File(['sample'], 'a.png', { type: 'image/png' }))
+      .sendImage(new File(['sample'], 'a.png', { type: 'image/png' }))
       .subscribe({ error: () => (denied = true) });
     expect(denied).toBeTrue();
     const start = spyOn(service, 'startConnection').and.resolveTo();
@@ -120,6 +120,13 @@ describe('Chat service notification state', () => {
     ).toBeRejectedWithError('Bạn không có quyền gửi ảnh.');
     expect(start).not.toHaveBeenCalled();
     http.expectNone(() => true);
+  });
+  it('fetches an image as binary through authenticated HTTP and cancels on disconnect', () => {
+    service.getImage('m/1').subscribe({ error: () => undefined });
+    const image = http.expectOne(r => r.url.endsWith('/chat/m%2F1/image'));
+    expect(image.request.responseType).toBe('blob');
+    service.stopConnection();
+    expect(image.cancelled).toBeTrue();
   });
   it('ignores older responses and clears private notification state on disconnect', async () => {
     const first = service.syncNotifications();

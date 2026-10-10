@@ -1,6 +1,7 @@
 import { IBaseResponse, IPageInfo } from './common';
 
-export type TypeMessage = 'string' | 'txt' | 'png' | 'jpg' | 'mp4' | 'mp3';
+export type TypeMessage =
+  'string' | 'txt' | 'png' | 'jpg' | 'image' | 'mp4' | 'mp3';
 export interface IChat {
   MessageId: string;
   Sequence: number;

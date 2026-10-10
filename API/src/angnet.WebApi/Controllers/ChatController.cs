@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using angnet.Application.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using angnet.WebApi.SignalR;
-using angnet.WebApi.Cloudinary;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.SignalR;
 using angnet.Infrastructure.Data.Services;
 
@@ -21,13 +17,9 @@ namespace angnet.WebApi.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IChatRepository _chatRepository;
-        private readonly IHttpClientFactory _httpClients;
-        private readonly IConfiguration _configuration;
-        public ChatController(IChatRepository chatRepository, IHttpClientFactory httpClients, IConfiguration configuration)
+        public ChatController(IChatRepository chatRepository)
         {
             _chatRepository = chatRepository;
-            _httpClients = httpClients;
-            _configuration = configuration;
         }
 
         [HttpGet("GetMessage")]
@@ -73,44 +65,50 @@ namespace angnet.WebApi.Controllers
         [HttpPost("image")]
         [RequestSizeLimit(3 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 3 * 1024 * 1024)]
-        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> SendImage([FromForm] IFormFile file, CancellationToken cancellationToken,
+            [FromServices] IHubContext<ChatHub> hub,
+            [FromServices] ChatConnections connections,
+            [FromServices] AccountSessionService sessions,
+            [FromServices] IAuthorizationService authorization)
         {
             if (file == null || file.Length == 0 || file.Length >= 2 * 1024 * 1024)
-                return BadRequest(new ApiResponse<ChatImageDto>("Ảnh phải có dung lượng nhỏ hơn 2 MB."));
+                return BadRequest(new ApiResponse<ChatModel>("Ảnh phải có dung lượng nhỏ hơn 2 MB."));
             var contentTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
             if (!contentTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
-                return BadRequest(new ApiResponse<ChatImageDto>("Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP."));
-            if (!CloudinaryAccount.TryGetSettings(_configuration, out var cloudName, out var apiKey, out var apiSecret))
-                return StatusCode(503, new ApiResponse<ChatImageDto>("Cloudinary chưa được cấu hình trên máy chủ."));
+                return BadRequest(new ApiResponse<ChatModel>("Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP."));
 
-            const string formats = "jpg,jpeg,png,gif,webp";
-            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
-            var signature = CloudinaryAccount.Sign($"allowed_formats={formats}&timestamp={timestamp}", apiSecret);
-            using var form = new MultipartFormDataContent();
-            using var fileContent = new StreamContent(file.OpenReadStream());
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-            form.Add(fileContent, "file", Path.GetFileName(file.FileName));
-            form.Add(new StringContent(apiKey), "api_key");
-            form.Add(new StringContent(timestamp), "timestamp");
-            form.Add(new StringContent(signature), "signature");
-            form.Add(new StringContent(formats), "allowed_formats");
-            using var client = _httpClients.CreateClient();
-            try
-            {
-                using var response = await client.PostAsync($"https://api.cloudinary.com/v1_1/{Uri.EscapeDataString(cloudName)}/image/upload", form, cancellationToken);
-                if (!response.IsSuccessStatusCode)
-                    return StatusCode(502, new ApiResponse<ChatImageDto>("Không thể tải ảnh lên. Vui lòng thử lại."));
-                using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
-                if (!json.RootElement.TryGetProperty("secure_url", out var value)
-                    || value.ValueKind != JsonValueKind.String
-                    || !Uri.TryCreate(value.GetString(), UriKind.Absolute, out var url) || url.Scheme != Uri.UriSchemeHttps)
-                    return StatusCode(502, new ApiResponse<ChatImageDto>("Không nhận được link ảnh hợp lệ."));
-                return Ok(new ApiResponse<ChatImageDto>(new ChatImageDto { Url = value.GetString()! }));
-            }
-            catch (Exception ex) when (ex is HttpRequestException or JsonException || ex is TaskCanceledException && !cancellationToken.IsCancellationRequested)
-            {
-                return StatusCode(502, new ApiResponse<ChatImageDto>("Không thể tải ảnh lên. Vui lòng thử lại."));
-            }
+            using var buffer = new MemoryStream();
+            await file.CopyToAsync(buffer, cancellationToken);
+            var bytes = buffer.ToArray();
+            var contentType = file.ContentType.ToLowerInvariant();
+            if (!IsImage(bytes, contentType))
+                return BadRequest(new ApiResponse<ChatModel>("Dữ liệu ảnh không hợp lệ."));
+
+            var response = await _chatRepository.SendImage(ChatIdentity.Key(User), bytes, contentType);
+            if (!response.Success) return BadRequest(response);
+            var recipients = await connections.Recipients(sessions, authorization);
+            await hub.Clients.Clients(recipients).SendAsync("ReceiveMessage", response.Data);
+            return Ok(response);
         }
+
+        [HttpGet("{messageId}/image")]
+        public async Task<IActionResult> GetImage(string messageId)
+        {
+            var image = await _chatRepository.GetImage(messageId);
+            if (image is null) return NotFound();
+            Response.Headers.CacheControl = "no-store";
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return File(image.Data, image.ContentType);
+        }
+
+        private static bool IsImage(byte[] data, string contentType) => contentType switch
+        {
+            "image/jpeg" => data.AsSpan().StartsWith(new byte[] { 0xff, 0xd8, 0xff }),
+            "image/png" => data.AsSpan().StartsWith(new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a }),
+            "image/gif" => data.AsSpan().StartsWith("GIF87a"u8) || data.AsSpan().StartsWith("GIF89a"u8),
+            "image/webp" => data.Length >= 12 && data.AsSpan(0, 4).SequenceEqual("RIFF"u8)
+                && data.AsSpan(8, 4).SequenceEqual("WEBP"u8),
+            _ => false
+        };
     }
 }

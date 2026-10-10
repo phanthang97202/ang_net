@@ -13,13 +13,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { ChatService, AuthService, ShowErrorService } from '../../services';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { IChat, TypeMessage } from '../../interfaces';
+import { IChat } from '../../interfaces';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -80,7 +80,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   newMessage: string = '';
   selectedImage: File | null = null;
   selectedImagePreview = '';
-  private uploadedImageUrl = '';
   // Keep existing email-based chat history; no-email accounts use a distinct ID.
   userId: string =
     this.detailUser.getAccountInfo().email ||
@@ -88,6 +87,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
   previewImage: string | undefined = '';
   previewVisible = false;
+  previewLoading = false;
+  previewError = '';
+  private previewMessageId = '';
+  private previewRequest = 0;
+  private previewClosed$ = new Subject<void>();
 
   constructor(private cdref: ChangeDetectorRef) {}
 
@@ -103,6 +107,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
     this.clearImage();
+    this.closePreview();
   }
 
   private loadInitialMessages(): void {
@@ -154,10 +159,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         const removed = this.messages.find(
           m => m.MessageId === message.MessageId
         );
-        if (removed?.Type === 'jpg' && this.previewImage === removed.Message) {
-          this.previewVisible = false;
-          this.previewImage = '';
-        }
+        if (
+          this.previewMessageId === message.MessageId ||
+          (removed?.Type === 'jpg' && this.previewImage === removed.Message)
+        )
+          this.closePreview();
         this.messages = this.messages.filter(
           m => m.MessageId !== message.MessageId
         );
@@ -172,19 +178,23 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       });
     this.chatService.received$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(message => {
-        const atBottom = this.atBottom();
-        if (
-          !this.chatService.isMessageDeleted(message.MessageId) &&
-          !this.messages.some(m => m.MessageId === message.MessageId)
-        )
-          this.messages.push(message);
-        setTimeout(() => {
-          if (this.destroyed) return;
-          if (atBottom) this.scrollToBottom();
-          this.acknowledge();
-        }, 50);
-      });
+      .subscribe(message => this.receiveMessage(message));
+  }
+
+  private receiveMessage(message: IChat): void {
+    const atBottom = this.atBottom();
+    if (
+      !this.chatService.isMessageDeleted(message.MessageId) &&
+      !this.messages.some(m => m.MessageId === message.MessageId)
+    ) {
+      this.messages.push(message);
+      this.messages.sort((a, b) => a.Sequence - b.Sequence);
+    }
+    setTimeout(() => {
+      if (this.destroyed) return;
+      if (atBottom) this.scrollToBottom();
+      void this.acknowledge();
+    }, 50);
   }
 
   async sendMessage(): Promise<void> {
@@ -198,37 +208,32 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Pasted URLs remain clickable text links, including links to images.
-    const messageType: TypeMessage = this.selectedImage ? 'jpg' : 'string';
-
     this.sending = true;
     this.sendError = '';
     let failureMessage = 'Không gửi được tin nhắn. Vui lòng thử lại.';
     try {
-      let message = trimmedMessage;
       if (this.selectedImage) {
-        if (!this.uploadedImageUrl) {
-          failureMessage = 'Không thể tải ảnh lên. Vui lòng thử lại.';
-          this.isUploading = true;
-          const response = await firstValueFrom(
-            this.chatService
-              .uploadImage(this.selectedImage)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-          );
-          this.isUploading = false;
-          if (this.destroyed) return;
-          if (!response.Success || !response.Data?.Url) {
-            this.sendError = response.ErrorMessage || failureMessage;
-            return;
-          }
-          // If sending fails after upload, reuse this URL on retry.
-          this.uploadedImageUrl = response.Data.Url;
+        failureMessage = 'Không gửi được ảnh. Vui lòng thử lại.';
+        this.isUploading = true;
+        const response = await firstValueFrom(
+          this.chatService
+            .sendImage(this.selectedImage)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+        );
+        if (this.destroyed) return;
+        if (!response.Success || !response.Data?.MessageId) {
+          this.sendError = response.ErrorMessage || failureMessage;
+          return;
         }
-        message = this.uploadedImageUrl;
+        this.receiveMessage(response.Data);
+      } else {
+        // Pasted URLs remain clickable text, including links to images.
+        await this.chatService.sendMessage(
+          this.userId,
+          trimmedMessage,
+          'string'
+        );
       }
-      failureMessage = 'Không gửi được tin nhắn. Vui lòng thử lại.';
-      if (this.destroyed) return;
-      await this.chatService.sendMessage(this.userId, message, messageType);
       if (this.destroyed) return;
       this.newMessage = '';
       this.clearImage();
@@ -274,12 +279,69 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     if (file) this.handleUploadFile(file);
   }
 
+  onPaste(event: ClipboardEvent): void {
+    const file = Array.from(event.clipboardData?.files || []).find(item =>
+      item.type.startsWith('image/')
+    );
+    if (!file) return;
+    event.preventDefault();
+    if (!this.canSendImage) {
+      this.sendError = 'Bạn không có quyền gửi ảnh.';
+      return;
+    }
+    this.handleUploadFile(file);
+  }
+
   clearImage(): void {
     if (this.selectedImagePreview)
       URL.revokeObjectURL(this.selectedImagePreview);
     this.selectedImage = null;
     this.selectedImagePreview = '';
-    this.uploadedImageUrl = '';
+  }
+
+  async openImage(message: IChat): Promise<void> {
+    this.closePreview();
+    this.previewMessageId = message.MessageId;
+    this.previewVisible = true;
+    if (message.Type === 'jpg') {
+      // Existing Cloudinary messages remain viewable, and load only on click.
+      if (/^https:\/\//i.test(message.Message))
+        this.previewImage = message.Message;
+      else this.previewError = 'Địa chỉ ảnh không hợp lệ.';
+      return;
+    }
+    const request = this.previewRequest;
+    this.previewLoading = true;
+    try {
+      const blob = await firstValueFrom(
+        this.chatService
+          .getImage(message.MessageId)
+          .pipe(
+            takeUntil(this.previewClosed$),
+            takeUntilDestroyed(this.destroyRef)
+          )
+      );
+      if (this.destroyed || request !== this.previewRequest) return;
+      this.previewImage = URL.createObjectURL(blob);
+    } catch {
+      if (!this.destroyed && request === this.previewRequest)
+        this.previewError =
+          'Không thể tải ảnh. Ảnh có thể đã bị xóa hoặc bạn không còn quyền xem.';
+    } finally {
+      if (request === this.previewRequest) this.previewLoading = false;
+    }
+  }
+
+  closePreview(): void {
+    ++this.previewRequest;
+    this.previewClosed$.next();
+    if (this.previewImage?.startsWith('blob:'))
+      URL.revokeObjectURL(this.previewImage);
+    this.previewImage = '';
+    this.previewVisible = false;
+    this.previewLoading = false;
+    this.previewError = '';
+    this.previewMessageId = '';
   }
   async deleteMessage(message: IChat): Promise<void> {
     if (!this.canDelete || this.deletingIds.has(message.MessageId)) return;

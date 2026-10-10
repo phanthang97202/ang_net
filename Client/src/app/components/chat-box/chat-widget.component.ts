@@ -47,7 +47,9 @@ import { ChatBoxComponent } from './chat-box.component';
         role="status">
         <strong>{{ latest.SenderName || 'Người dùng' }}</strong>
         <span>{{
-          latest.Type === 'jpg' ? 'Đã gửi một ảnh' : latest.Message
+          latest.Type === 'jpg' || latest.Type === 'image'
+            ? '[Hình ảnh]'
+            : latest.Message
         }}</span>
       </span>
     </button>

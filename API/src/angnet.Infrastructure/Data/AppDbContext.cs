@@ -33,6 +33,7 @@ namespace angnet.Infrastructure.Data
 
         //
         public DbSet<ChatModel> Chat { get; set; }
+        public DbSet<ChatImage> ChatImages { get; set; }
         public DbSet<ChatReadState> ChatReadStates { get; set; }
 
         //
@@ -145,6 +146,9 @@ namespace angnet.Infrastructure.Data
             // ChatModel
             modelBuilder.Entity<ChatModel>().ToTable("Chat");
             modelBuilder.Entity<ChatModel>().HasIndex(c => c.Sequence).IsUnique();
+            modelBuilder.Entity<ChatImage>().ToTable("ChatImage");
+            modelBuilder.Entity<ChatImage>().HasOne<ChatModel>().WithOne()
+                .HasForeignKey<ChatImage>(i => i.MessageId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ChatReadState>().ToTable("ChatReadState");
             modelBuilder.Entity<ChatReadState>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);

@@ -36,6 +36,7 @@ public class ChatPermissionTests
     private HttpClient http = null!;
     private readonly Mock<IChatRepository> repo = new();
     private readonly UploadHandler uploads = new();
+    private bool useActualRepository;
     private AppDbContext Db => scope.ServiceProvider.GetRequiredService<AppDbContext>();
     [TestInitialize] public async Task Start()
     {
@@ -57,7 +58,19 @@ public class ChatPermissionTests
         repo.Setup(x => x.MarkRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
         repo.Setup(x => x.SendMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string user, string text, string type) => new ApiResponse<ChatModel>(new ChatModel {UserId = user, Message = text, Type = type, Sequence = 1, SenderName = "Database name", SenderAvatar = "https://example.com/db-avatar.jpg"}));
-        b.Services.AddSingleton(repo.Object);
+        repo.Setup(x => x.SendImage(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<string>()))
+            .ReturnsAsync((string user, byte[] data, string contentType) => new ApiResponse<ChatModel>(new ChatModel {
+                UserId = user, Message = "[Hình ảnh]", Type = "image", Sequence = 1 }));
+        b.Services.AddScoped<IChatRepository>(sp => {
+            if (!useActualRepository) return repo.Object;
+            var db = sp.GetRequiredService<AppDbContext>();
+            // SQLite does not generate PostgreSQL's non-primary-key identity column.
+            db.SavingChanges += (_, _) => {
+                foreach (var entry in db.ChangeTracker.Entries<ChatModel>().Where(e => e.State == EntityState.Added && e.Entity.Sequence == 0))
+                    entry.Entity.Sequence = 1;
+            };
+            return new ChatRespository(db);
+        });
         b.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => {
             o.TokenValidationParameters = new() {ValidateIssuer = false, ValidateAudience = false, ValidateLifetime = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Secret)), ClockSkew = TimeSpan.Zero};
@@ -75,6 +88,7 @@ public class ChatPermissionTests
         Db.Users.AddRange(new AppUser {Id = "viewer", UserName = "viewer", FullName = "Viewer", FlagActive = true},
             new AppUser {Id = "sender", UserName = "sender", FullName = "Sender", FlagActive = true});
         await Db.SaveChangesAsync();
+        app.UseDeveloperExceptionPage();
         app.UseAuthentication(); app.UseAuthorization(); app.UseRateLimiter(); app.MapControllers();
         app.MapHub<ChatHub>("/chat-hub", o => o.CloseOnAuthenticationExpiration = true);
         await app.StartAsync(); http = new() {BaseAddress = new Uri(app.Urls.Single())};
@@ -209,10 +223,13 @@ public class ChatPermissionTests
         Assert.AreEqual("https://example.com/current-avatar.jpg", latest.SenderAvatar);
     }
 
-    private async Task<HttpResponseMessage> Upload(int size, string? token, string contentType = "image/png")
+    private async Task<HttpResponseMessage> Upload(int size, string? token, string contentType = "image/png", bool validHeader = true)
     {
         using var form = new MultipartFormDataContent();
-        var file = new ByteArrayContent(new byte[size]);
+        var bytes = new byte[size];
+        if (size >= 8 && validHeader)
+            new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a }.CopyTo(bytes, 0);
+        var file = new ByteArrayContent(bytes);
         file.Headers.ContentType = new(contentType);
         form.Add(file, "file", "test.png");
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/chat/image") { Content = form };
@@ -240,14 +257,64 @@ public class ChatPermissionTests
         }
         using var unsupported = await Upload(10, sender, "text/plain");
         Assert.AreEqual(HttpStatusCode.BadRequest, unsupported.StatusCode);
-        Assert.AreEqual(0, uploads.Calls, "Rejected uploads must never reach Cloudinary");
+        using var spoofed = await Upload(10, sender, validHeader: false);
+        Assert.AreEqual(HttpStatusCode.BadRequest, spoofed.StatusCode);
+        repo.Verify(x => x.SendImage(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never);
         using var valid = await Upload(2 * 1024 * 1024 - 1, sender);
         Assert.AreEqual(HttpStatusCode.OK, valid.StatusCode);
-        Assert.AreEqual("https://example.com/uploaded.png", (await valid.Content.ReadFromJsonAsync<ApiResponse<ChatImageDto>>())!.Data.Url);
-        Assert.AreEqual(1, uploads.Calls);
+        Assert.AreEqual("image", (await valid.Content.ReadFromJsonAsync<ApiResponse<ChatModel>>())!.Data.Type);
+        repo.Verify(x => x.SendImage("account:sender", It.Is<byte[]>(b => b.Length == 2 * 1024 * 1024 - 1), "image/png"), Times.Once);
         using var admin = await Upload(10, Token("sender", admin: true));
         Assert.AreEqual(HttpStatusCode.OK, admin.StatusCode);
-        Assert.AreEqual(2, uploads.Calls);
+        Assert.AreEqual(0, uploads.Calls, "Chat images must never reach Cloudinary");
+    }
+
+    [TestMethod] public async Task DatabaseImage_SendBroadcastsMetadata_ViewFetchesBytes_AndDeletionBlocksAccess()
+    {
+        useActualRepository = true;
+        var actual = new ChatRespository(Db);
+        await actual.Notifications("viewer", "account:viewer");
+        using var viewer = await Socket(Token(permissions: ["chat.view"]));
+        var png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jL1sAAAAASUVORK5CYII=");
+        using var form = new MultipartFormDataContent();
+        var content = new ByteArrayContent(png); content.Headers.ContentType = new("image/png");
+        form.Add(content, "file", "screenshot.png");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/chat/image") { Content = form };
+        request.Headers.Authorization = new("Bearer", Token("sender", ["chat.view", "chat.send", "chat.send_image"]));
+        using var sent = await http.SendAsync(request);
+        Assert.AreEqual(HttpStatusCode.OK, sent.StatusCode, await sent.Content.ReadAsStringAsync());
+        var message = (await sent.Content.ReadFromJsonAsync<ApiResponse<ChatModel>>())!.Data;
+        Assert.AreEqual("image", message.Type);
+        Assert.AreEqual("[Hình ảnh]", message.Message);
+        Assert.AreEqual("Sender", message.SenderName);
+        Assert.AreEqual("account:sender", message.UserId);
+        var notification = (await Receive(viewer)).Single(x => x.TryGetProperty("target", out _));
+        Assert.AreEqual("ReceiveMessage", notification.GetProperty("target").GetString());
+        Assert.IsFalse(notification.GetProperty("arguments")[0].TryGetProperty("Data", out _));
+        var history = await actual.GetMessage(0, 20);
+        var unread = (await actual.Notifications("viewer", "account:viewer")).Data;
+        Assert.AreEqual(1, unread.UnreadCount);
+        Assert.AreEqual(message.MessageId, unread.LatestMessage!.MessageId);
+        Assert.IsFalse(JsonSerializer.Serialize(history).Contains(Convert.ToBase64String(png)));
+        Assert.AreEqual(1, await Db.ChatImages.CountAsync());
+        var path = $"/api/chat/{message.MessageId}/image";
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Request(path, null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.send"])));
+        using var imageRequest = new HttpRequestMessage(HttpMethod.Get, path);
+        imageRequest.Headers.Authorization = new("Bearer", Token(permissions: ["chat.view"]));
+        using var image = await http.SendAsync(imageRequest);
+        Assert.AreEqual(HttpStatusCode.OK, image.StatusCode);
+        Assert.AreEqual("image/png", image.Content.Headers.ContentType!.MediaType);
+        Assert.IsTrue(image.Headers.CacheControl!.NoStore);
+        CollectionAssert.AreEqual(png, await image.Content.ReadAsByteArrayAsync());
+        using var deleted = await Delete(Token(permissions: ["chat.view", "chat.delete"]), message.MessageId);
+        Assert.AreEqual(HttpStatusCode.OK, deleted.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, await Request(path, Token(permissions: ["chat.view"])));
+        Assert.AreEqual(0, (await actual.Notifications("viewer", "account:viewer")).Data.UnreadCount);
+        Assert.AreEqual(1, await Db.ChatImages.CountAsync(), "Soft deletion retains the stored image for audit");
+        await Db.Users.Where(u => u.Id == "viewer").ExecuteUpdateAsync(s => s.SetProperty(u => u.SessionVersion, 1));
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Request(path, Token(permissions: ["chat.view"])));
+        Assert.AreEqual(0, uploads.Calls);
     }
     [TestMethod] public async Task RealSocket_ImagePermissionIsRequiredForImageMessages_ButNotText()
     {

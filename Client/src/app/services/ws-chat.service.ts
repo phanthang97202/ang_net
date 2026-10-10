@@ -258,9 +258,9 @@ export class ChatService {
       this.applyDeletion(response.Data);
     }
   }
-  uploadImage(file: File): Observable<{
+  sendImage(file: File): Observable<{
     Success: boolean;
-    Data: { Url: string };
+    Data: IChat;
     ErrorMessage?: string;
   }> {
     if (!this.canSendImage)
@@ -271,11 +271,24 @@ export class ChatService {
       );
     const form = new FormData();
     form.append('file', file);
-    return this.http.post<{
-      Success: boolean;
-      Data: { Url: string };
-      ErrorMessage?: string;
-    }>(`${this.apiUrl}chat/image`, form);
+    this.bindAccount();
+    return this.http
+      .post<{
+        Success: boolean;
+        Data: IChat;
+        ErrorMessage?: string;
+      }>(`${this.apiUrl}chat/image`, form)
+      .pipe(takeUntil(this.stopped$));
+  }
+  getImage(messageId: string): Observable<Blob> {
+    if (!this.canView)
+      return throwError(() => new Error('Bạn không có quyền xem tin nhắn.'));
+    this.bindAccount();
+    return this.http
+      .get(`${this.apiUrl}chat/${encodeURIComponent(messageId)}/image`, {
+        responseType: 'blob',
+      })
+      .pipe(takeUntil(this.stopped$));
   }
   async markRead(sequence: number): Promise<void> {
     if (!this.canView) return;

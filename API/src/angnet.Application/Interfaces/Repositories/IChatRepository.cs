@@ -6,6 +6,8 @@ namespace angnet.Application.Interfaces.Repositories
     public interface IChatRepository
     {
         public Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type);
+        public Task<ApiResponse<ChatModel>> SendImage(string userId, byte[] data, string contentType);
+        public Task<ChatImage?> GetImage(string messageId);
         public Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize, long? beforeSequence = null);
         public Task<ApiResponse<ChatDeletedDto>> SoftDelete(string messageId, string actorId);
         public Task<ApiResponse<ChatNotificationDto>> Notifications(string accountId, string chatIdentity);

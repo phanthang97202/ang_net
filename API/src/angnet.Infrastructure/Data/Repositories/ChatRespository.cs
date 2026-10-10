@@ -14,7 +14,18 @@ namespace angnet.Infrastructure.Data.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type)
+        public Task<ApiResponse<ChatModel>> SendMessage(string userId, string message, string type)
+            => SaveMessage(userId, message, type);
+
+        public Task<ApiResponse<ChatModel>> SendImage(string userId, byte[] data, string contentType)
+            => SaveMessage(userId, "[Hình ảnh]", "image", data, contentType);
+
+        public Task<ChatImage?> GetImage(string messageId)
+            => _dbContext.ChatImages.AsNoTracking()
+                .Where(i => i.MessageId == messageId && _dbContext.Chat.Any(c => c.MessageId == i.MessageId && !c.IsDeleted))
+                .SingleOrDefaultAsync();
+
+        private async Task<ApiResponse<ChatModel>> SaveMessage(string userId, string message, string type, byte[]? imageData = null, string? contentType = null)
         {
             return await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
             {
@@ -29,6 +40,12 @@ namespace angnet.Infrastructure.Data.Repositories
                     CreatedDTime = TCommonUtils.DTimeNow()
                 };
                 await _dbContext.Chat.AddAsync(data);
+                if (imageData is not null)
+                {
+                    await _dbContext.ChatImages.AddAsync(new ChatImage {
+                        MessageId = data.MessageId, Data = imageData, ContentType = contentType!
+                    });
+                }
                 await _dbContext.SaveChangesAsync();
                 await AttachSenderProfiles([data]);
                 await transaction.CommitAsync();

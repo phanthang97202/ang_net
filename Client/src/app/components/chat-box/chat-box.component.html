@@ -56,16 +56,13 @@
             class="message-bubble"
             [class.bubble-own]="msg.UserId === userId">
             <button
-              *ngIf="msg.Type === 'jpg'"
+              *ngIf="msg.Type === 'jpg' || msg.Type === 'image'"
               type="button"
               class="message-image-button"
-              (click)="previewImage = msg.Message; previewVisible = true"
+              (click)="openImage(msg)"
               aria-label="Xem ảnh">
-              <img
-                [src]="msg.Message"
-                alt="Ảnh trong tin nhắn"
-                class="message-image"
-                referrerpolicy="no-referrer" />
+              <span nz-icon nzType="picture" nzTheme="outline"></span>
+              <span>[Hình ảnh]</span>
             </button>
             <p *ngIf="msg.Type === 'string'" class="message-text">
               <ng-container *ngFor="let part of msg.Message | chatLinks"
@@ -124,7 +121,7 @@
   <p *ngIf="!canSend" class="chat-notice">
     Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.
   </p>
-  <div *ngIf="canSend" class="chat-compose-area">
+  <div *ngIf="canSend" class="chat-compose-area" (paste)="onPaste($event)">
     <div *ngIf="selectedImage" class="chat-attachment">
       <img [src]="selectedImagePreview" alt="Ảnh đã chọn" />
       <span>{{ 'T_CHAT_IMAGE_READY' | translate }}</span>
@@ -196,9 +193,27 @@
   [nzVisible]="previewVisible"
   [nzContent]="modalContent"
   [nzFooter]="null"
-  (nzOnCancel)="previewVisible = false"
+  (nzOnCancel)="closePreview()"
+  [nzTitle]="'Hình ảnh'"
+  [nzBodyStyle]="{
+    background: 'var(--color-bg-card)',
+    color: 'var(--color-text)',
+  }"
+  [nzStyle]="{ maxWidth: '960px' }"
   nzWidth="80%">
   <ng-template #modalContent>
-    <img [src]="previewImage" class="preview-image" alt="Ảnh trong tin nhắn" />
+    <div *ngIf="previewLoading" class="loading-indicator" role="status">
+      <app-spinner size="small"></app-spinner>
+      <span>Đang tải ảnh…</span>
+    </div>
+    <p *ngIf="previewError" class="chat-notice chat-notice--error" role="alert">
+      {{ previewError }}
+    </p>
+    <img
+      *ngIf="previewImage"
+      [src]="previewImage"
+      class="preview-image"
+      alt="Ảnh trong tin nhắn"
+      referrerpolicy="no-referrer" />
   </ng-template>
 </nz-modal>
