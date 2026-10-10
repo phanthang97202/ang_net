@@ -182,6 +182,81 @@ describe('Shift report permissions', () => {
     expect(api.delete).toHaveBeenCalledWith(1);
   });
 
+  it('separates transaction totals and adds only service cash to handover', () => {
+    component.addTransaction();
+    component.transactions
+      .at(0)
+      .patchValue({
+        cashAmount: 3000000,
+        transferAmount: 500000,
+        expenseAmount: 100000,
+      });
+    component.addDrinkSale();
+    component.drinkSales
+      .at(0)
+      .patchValue({
+        quantity: 10,
+        unitPrice: 20000,
+        paymentMethod: 'Tiền mặt',
+      });
+    component.addDrinkSale();
+    component.drinkSales
+      .at(1)
+      .patchValue({
+        quantity: 4,
+        unitPrice: 20000,
+        paymentMethod: 'Chuyển khoản',
+      });
+    expect(component.calculateDrinkTotals()).toEqual({
+      cash: 200000,
+      transfer: 80000,
+    });
+    expect(component.calculateTotals()).toEqual({
+      totalCash: 3000000,
+      totalTransfer: 500000,
+      totalExpense: 100000,
+      handoverAmount: 3100000,
+    });
+  });
+
+  it('sends handover notes on create, loads them on edit and can clear them', () => {
+    permissions.add('shiftreport.create');
+    permissions.add('shiftreport.update');
+    component.showCreateModal();
+    component.reportForm.patchValue({
+      receptionistName: 'Huy',
+      receiverName: 'Thắng',
+      handoverNote: 'Kiểm tra két tiền',
+    });
+    component.handleSubmit();
+    expect(api.create.calls.mostRecent().args[0].HandoverNote).toBe(
+      'Kiểm tra két tiền'
+    );
+    api.getById.and.returnValue(
+      of({
+        ShiftDate: '2026-10-10',
+        ShiftType: 'Ca ngày',
+        StartTime: new Date(),
+        EndTime: new Date(),
+        ReceptionistName: 'Huy',
+        ReceiverName: 'Thắng',
+        HandoverNote: 'Kiểm tra két tiền',
+        Transactions: [],
+        RoomSales: [],
+        DrinkSales: [],
+      })
+    );
+    component.showEditModal(1);
+    expect(component.reportForm.get('handoverNote')?.value).toBe(
+      'Kiểm tra két tiền'
+    );
+    component.reportForm.patchValue({ handoverNote: '' });
+    component.handleSubmit();
+    expect(api.update.calls.mostRecent().args[1].HandoverNote).toBe('');
+    component.showCreateModal();
+    expect(component.reportForm.get('handoverNote')?.value).toBe('');
+  });
+
   it('retains Admin access and rejects an expired session even if claims remain', () => {
     permissions.clear();
     admin = true;

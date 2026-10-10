@@ -246,6 +246,21 @@ export class PrintService {
     .signature-name {
       font-size: 10pt;
     }
+
+    .signature-details {
+      display: flex;
+      gap: 16px;
+    }
+
+    .signature-people, .handover-note {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .handover-note-content {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
     
     @media print {
       body {
@@ -329,14 +344,25 @@ export class PrintService {
       
       <!-- Signature Section -->
       <div class="signature-section">
-        <div class="signature-box">
-          <div class="signature-title">NGƯỜI GIAO</div>
-          <div class="signature-name">${report.ReceptionistName}</div>
-        </div>
-        
-        <div class="signature-box">
-          <div class="signature-title">NGƯỜI NHẬN</div>
-          <div class="signature-name">${report.ReceiverName || ''}</div>
+        <div class="signature-details">
+          <div class="signature-people">
+            <div class="signature-box">
+              <div class="signature-title">NGƯỜI GIAO</div>
+              <div class="signature-name">${report.ReceptionistName}</div>
+            </div>
+            <div class="signature-box">
+              <div class="signature-title">NGƯỜI NHẬN</div>
+              <div class="signature-name">${report.ReceiverName || ''}</div>
+            </div>
+          </div>
+          ${
+            report.HandoverNote
+              ? `<div class="handover-note">
+            <div class="signature-title">GHI CHÚ</div>
+            <div class="handover-note-content">${this.escapeHtml(report.HandoverNote)}</div>
+          </div>`
+              : ''
+          }
         </div>
       </div>
     </div>
@@ -381,6 +407,15 @@ export class PrintService {
 
   private formatNumber(num: number): string {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   private formatDateTime(

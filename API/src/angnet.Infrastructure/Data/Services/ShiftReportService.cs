@@ -78,6 +78,7 @@ namespace angnet.Infrastructure.Data.Services
                 report.ShiftType,
                 report.ReceptionistName,
                 report.ReceiverName,
+                report.HandoverNote,
                 report.TotalCash,
                 report.TotalTransfer,
                 report.TotalExpense,
@@ -246,6 +247,7 @@ namespace angnet.Infrastructure.Data.Services
                 EndTime = dto.EndTime,
                 ReceptionistName = dto.ReceptionistName,
                 ReceiverName = dto.ReceiverName,
+                HandoverNote = dto.HandoverNote ?? string.Empty,
                 CreatedBy = dto.ReceptionistName, // sau này sửa thành người đăng nhập
                 CreatedDTime = TCommonUtils.DTimeNow()
             };
@@ -349,6 +351,7 @@ namespace angnet.Infrastructure.Data.Services
             shiftReport.EndTime = dto.EndTime;
             shiftReport.ReceptionistName = dto.ReceptionistName;
             shiftReport.ReceiverName = dto.ReceiverName;
+            shiftReport.HandoverNote = dto.HandoverNote ?? string.Empty;
             shiftReport.UpdatedBy = dto.ReceptionistName; // sau này sửa thành người đăng nhập
             shiftReport.UpdatedDTime = TCommonUtils.DTimeNow();
 
@@ -520,30 +523,25 @@ namespace angnet.Infrastructure.Data.Services
 
         private void CalculateTotals(ShiftReportModel shiftReport)
         {
-            // Tiền bán nước cộng thẳng vào tiền ca theo hình thức thanh toán của
-            // từng dòng. Phần tiền mặt vì thế tự chảy vào HandoverAmount qua công
-            // thức sẵn có bên dưới, không phải sửa gì thêm.
+            // Tổng giao dịch ca tách riêng dịch vụ ngoài. Chỉ tiền mặt dịch vụ
+            // ngoài được cộng vào số tiền cần bàn giao.
             var drinkCash = shiftReport.DrinkSales
                 .Where(x => x.PaymentMethod == "Tiền mặt")
                 .Sum(x => x.Quantity * x.UnitPrice);
 
-            var drinkTransfer = shiftReport.DrinkSales
-                .Where(x => x.PaymentMethod == "Chuyển khoản")
-                .Sum(x => x.Quantity * x.UnitPrice);
-
             shiftReport.TotalCash = shiftReport.Transactions
                 .Where(x => x.CashAmount.HasValue)
-                .Sum(x => x.CashAmount.Value) + drinkCash;
+                .Sum(x => x.CashAmount.Value);
 
             shiftReport.TotalTransfer = shiftReport.Transactions
                 .Where(x => x.TransferAmount.HasValue)
-                .Sum(x => x.TransferAmount.Value) + drinkTransfer;
+                .Sum(x => x.TransferAmount.Value);
 
             shiftReport.TotalExpense = shiftReport.Transactions
                 .Where(x => x.ExpenseAmount.HasValue)
                 .Sum(x => x.ExpenseAmount.Value);
 
-            shiftReport.HandoverAmount = shiftReport.TotalCash - shiftReport.TotalExpense;
+            shiftReport.HandoverAmount = shiftReport.TotalCash + drinkCash - shiftReport.TotalExpense;
         }
 
         private ShiftReportResponseDto MapToResponseDto(ShiftReportModel entity)
@@ -561,6 +559,7 @@ namespace angnet.Infrastructure.Data.Services
                 TotalExpense = entity.TotalExpense,
                 HandoverAmount = entity.HandoverAmount,
                 ReceiverName = entity.ReceiverName,
+                HandoverNote = entity.HandoverNote,
                 CreatedAt = entity.CreatedDTime,
                 UpdatedAt = entity.UpdatedDTime,
                 Transactions = entity.Transactions.Select(t => new TransactionDto

@@ -525,6 +525,7 @@ namespace angnet.Infrastructure.Data
                 entity.Property(e => e.TotalTransfer).HasDefaultValue(0);
                 entity.Property(e => e.TotalExpense).HasDefaultValue(0);
                 entity.Property(e => e.HandoverAmount).HasDefaultValue(0);
+                entity.Property(e => e.HandoverNote).IsRequired().HasDefaultValue(string.Empty);
             });
 
             // ShiftReportTransaction configuration

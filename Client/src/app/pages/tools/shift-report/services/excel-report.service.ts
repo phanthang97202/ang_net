@@ -258,8 +258,9 @@ export class ExcelExportService {
       alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
     };
 
-    roomHeader1.getCell(9).value = 'NGƯỜI GIAO';
-    roomHeader1.getCell(9).style = signerStyle;
+    worksheet.mergeCells(`H${roomHeaderRow1}:I${roomHeaderRow1}`);
+    roomHeader1.getCell(8).value = 'NGƯỜI GIAO';
+    roomHeader1.getCell(8).style = signerStyle;
 
     currentRow++;
 
@@ -281,8 +282,38 @@ export class ExcelExportService {
     roomHeader2.getCell(7).style = headerStyle;
 
     // Add receptionist name on same row
-    roomHeader2.getCell(9).value = report.ReceptionistName;
-    roomHeader2.getCell(9).style = signerDataStyle;
+    worksheet.mergeCells(`H${currentRow}:I${currentRow}`);
+    roomHeader2.getCell(8).value = report.ReceptionistName;
+    roomHeader2.getCell(8).style = signerDataStyle;
+
+    // Chữ ký không phụ thuộc số dòng bán phòng (kể cả không bán phòng).
+    worksheet.mergeCells(`H${currentRow + 1}:I${currentRow + 1}`);
+    worksheet.getCell(`H${currentRow + 1}`).value = 'NGƯỜI NHẬN';
+    worksheet.getCell(`H${currentRow + 1}`).style = signerStyle;
+    worksheet.mergeCells(`H${currentRow + 2}:I${currentRow + 2}`);
+    worksheet.getCell(`H${currentRow + 2}`).value = report.ReceiverName || '';
+    worksheet.getCell(`H${currentRow + 2}`).style = signerDataStyle;
+
+    if (report.HandoverNote) {
+      worksheet.mergeCells(`J${roomHeaderRow1}:K${roomHeaderRow1}`);
+      worksheet.getCell(`J${roomHeaderRow1}`).value = 'GHI CHÚ';
+      worksheet.getCell(`J${roomHeaderRow1}`).style = signerStyle;
+      const lines = report.HandoverNote.split('\n').reduce(
+        (count, line) => count + Math.max(1, Math.ceil(line.length / 35)),
+        0
+      );
+      const noteRows = Math.max(3, lines);
+      worksheet.mergeCells(`J${currentRow}:K${currentRow + noteRows - 1}`);
+      const noteCell = worksheet.getCell(`J${currentRow}`);
+      noteCell.value = report.HandoverNote;
+      noteCell.style = {
+        font: { name: 'Arial', size: 10 },
+        alignment: { horizontal: 'left', vertical: 'top', wrapText: true },
+      };
+      for (let i = 0; i < noteRows; i++) {
+        worksheet.getRow(currentRow + i).height = 18;
+      }
+    }
 
     currentRow++;
 
@@ -348,15 +379,6 @@ export class ExcelExportService {
       } else {
         dailyPriceCell.value = '';
         dailyPriceCell.style = dataStyle;
-      }
-
-      // Add NGƯỜI NHẬN on first data row
-      if (i === 0) {
-        row.getCell(9).value = 'NGƯỜI NHẬN';
-        row.getCell(9).style = signerStyle;
-      } else if (i === 1) {
-        row.getCell(9).value = report.ReceiverName || '';
-        row.getCell(9).style = signerDataStyle;
       }
 
       currentRow++;

@@ -56,6 +56,7 @@ export interface CreateShiftReportDto extends BaseModel {
   EndTime: string;
   ReceptionistName: string;
   ReceiverName?: string;
+  HandoverNote?: string;
   Transactions: ShiftReportTransaction[];
   RoomSales: ShiftReportRoomSale[];
   DrinkSales: ShiftReportDrinkSale[];
@@ -73,6 +74,7 @@ export interface ShiftReportResponse {
   TotalExpense: number;
   HandoverAmount: number;
   ReceiverName?: string;
+  HandoverNote?: string;
   CreatedAt: string;
   UpdatedAt?: string;
   Transactions: ShiftReportTransaction[];

@@ -237,6 +237,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       endTime: [new Date(), Validators.required],
       receptionistName: ['', Validators.required],
       receiverName: [''],
+      handoverNote: ['', Validators.maxLength(2000)],
       transactions: this.fb.array([]),
       roomSales: this.fb.array([]),
       drinkSales: this.fb.array([]),
@@ -412,15 +413,13 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.roomSales.removeAt(index);
   }
 
-  // Tiền bán nước tách theo hình thức thanh toán, cộng thẳng vào tổng tiền
-  // mặt / chuyển khoản đúng như cách backend tính, để số trên màn hình khớp
-  // với số được lưu.
-  private calculateDrinkTotals(): { cash: number; transfer: number } {
+  // Tiền dịch vụ ngoài tách riêng tổng giao dịch trong ca.
+  calculateDrinkTotals(): { cash: number; transfer: number } {
     return this.drinkSales.controls.reduce(
       (acc, ctrl) => {
         const amount = (ctrl.value.quantity || 0) * (ctrl.value.unitPrice || 0);
         if (ctrl.value.paymentMethod === 'Chuyển khoản') acc.transfer += amount;
-        else acc.cash += amount;
+        if (ctrl.value.paymentMethod === 'Tiền mặt') acc.cash += amount;
         return acc;
       },
       { cash: 0, transfer: 0 }
@@ -440,21 +439,19 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   } {
     const drink = this.calculateDrinkTotals();
 
-    const totalCash =
-      this.transactions.controls.reduce((sum, ctrl) => {
-        return sum + (ctrl.value.cashAmount || 0);
-      }, 0) + drink.cash;
+    const totalCash = this.transactions.controls.reduce((sum, ctrl) => {
+      return sum + (ctrl.value.cashAmount || 0);
+    }, 0);
 
-    const totalTransfer =
-      this.transactions.controls.reduce((sum, ctrl) => {
-        return sum + (ctrl.value.transferAmount || 0);
-      }, 0) + drink.transfer;
+    const totalTransfer = this.transactions.controls.reduce((sum, ctrl) => {
+      return sum + (ctrl.value.transferAmount || 0);
+    }, 0);
 
     const totalExpense = this.transactions.controls.reduce((sum, ctrl) => {
       return sum + (ctrl.value.expenseAmount || 0);
     }, 0);
 
-    const handoverAmount = totalCash - totalExpense;
+    const handoverAmount = totalCash + drink.cash - totalExpense;
 
     return { totalCash, totalTransfer, totalExpense, handoverAmount };
   }
@@ -478,6 +475,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       endTime: end,
       receptionistName: '',
       receiverName: '',
+      handoverNote: '',
     });
     this.transactions.clear();
     this.roomSales.clear();
@@ -509,6 +507,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
           endTime: report.EndTime,
           receptionistName: report.ReceptionistName,
           receiverName: report.ReceiverName,
+          handoverNote: report.HandoverNote || '',
         });
 
         this.transactions.clear();
@@ -641,6 +640,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       EndTime: formValue.endTime,
       ReceptionistName: formValue.receptionistName,
       ReceiverName: formValue.receiverName,
+      HandoverNote: formValue.handoverNote || '',
       Transactions: formValue.transactions.map((i: any) => {
         return {
           CashAmount: i.cashAmount || null,

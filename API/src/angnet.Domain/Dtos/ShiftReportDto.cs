@@ -25,6 +25,9 @@ namespace angnet.Domain.Dtos
         [MaxLength(200)]
         public string ReceiverName { get; set; } = string.Empty;
 
+        [MaxLength(2000)]
+        public string HandoverNote { get; set; } = string.Empty;
+
         public List<TransactionDto> Transactions { get; set; } = new();
         public List<RoomSaleDto> RoomSales { get; set; } = new();
         public List<DrinkSaleDto> DrinkSales { get; set; } = new();
@@ -115,6 +118,7 @@ namespace angnet.Domain.Dtos
         public decimal TotalExpense { get; set; }
         public decimal HandoverAmount { get; set; }
         public string ReceiverName { get; set; } = string.Empty;
+        public string HandoverNote { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public List<TransactionDto> Transactions { get; set; }

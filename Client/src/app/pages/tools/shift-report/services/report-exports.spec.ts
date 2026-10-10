@@ -12,12 +12,21 @@ describe('Shift report drink payment exports', () => {
     EndTime: '2026-10-10T19:00:00',
     ReceptionistName: 'Huy',
     ReceiverName: 'Thắng',
-    TotalCash: 65000,
-    TotalTransfer: 40000,
-    TotalExpense: 0,
-    HandoverAmount: 65000,
+    HandoverNote: 'Bàn giao <đủ> & đúng\nKiểm tra két tiền',
+    TotalCash: 3000000,
+    TotalTransfer: 500000,
+    TotalExpense: 100000,
+    HandoverAmount: 2965000,
     CreatedAt: '2026-10-10',
-    Transactions: [],
+    Transactions: [
+      {
+        OrderNumber: 1,
+        CashAmount: 3000000,
+        TransferAmount: 500000,
+        ExpenseAmount: 100000,
+        IsUseExpenseForReportRevenue: true,
+      },
+    ],
     RoomSales: [],
     DrinkSales: [
       {
@@ -94,6 +103,12 @@ describe('Shift report drink payment exports', () => {
     const html = (new PrintService() as any).generatePrintHTML(report, stocks);
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const table = doc.querySelector('.drink-sales-table table')!;
+    expect(doc.querySelector('.handover-note-content')?.textContent).toBe(
+      report.HandoverNote
+    );
+    expect(doc.querySelector('.total-row')?.textContent).toContain('3,000,000');
+    expect(doc.querySelector('.total-row')?.textContent).toContain('500,000');
+    expect(doc.querySelector('.total-row')?.textContent).toContain('2,965,000');
     expect(
       Array.from(table.querySelectorAll('th'), cell => cell.textContent?.trim())
     ).toEqual(headers);
@@ -132,6 +147,13 @@ describe('Shift report drink payment exports', () => {
     const loaded = new ExcelJS.Workbook();
     await loaded.xlsx.load(await serialize());
     const sheet = loaded.worksheets[0];
+    expect(sheet.getCell('F6').value).toBe(3000000);
+    expect(sheet.getCell('G6').value).toBe(500000);
+    expect(sheet.getCell('K6').value).toBe(2965000);
+    const values: ExcelJS.CellValue[] = [];
+    sheet.eachRow(row => row.eachCell(cell => values.push(cell.value)));
+    expect(values).toContain(report.HandoverNote!);
+    expect(values).toContain(report.ReceiverName!);
     let headerRow = 0;
     sheet.eachRow(row => {
       if (row.getCell(1).value === 'Sản phẩm') headerRow = row.number;

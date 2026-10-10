@@ -47,6 +47,9 @@ namespace angnet.Domain.Models
         [MaxLength(200)]
         public string ReceiverName { get; set; } = string.Empty;
 
+        [MaxLength(2000)]
+        public string HandoverNote { get; set; } = string.Empty;
+
         // Navigation properties
         public virtual ICollection<ShiftReportTransactionModel> Transactions { get; set; } = new List<ShiftReportTransactionModel>();
         public virtual ICollection<ShiftReportRoomSaleModel> RoomSales { get; set; } = new List<ShiftReportRoomSaleModel>();

@@ -244,9 +244,6 @@
                 </nz-select>
               </nz-form-control>
             </nz-form-item>
-          </div>
-
-          <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-form-item>
               <nz-form-label>Người nhận</nz-form-label>
               <nz-form-control>
@@ -265,6 +262,19 @@
                     [nzLabel]="type"
                     [nzValue]="type"></nz-option>
                 </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
+            <nz-form-item>
+              <nz-form-label>Ghi chú</nz-form-label>
+              <nz-form-control nzErrorTip="Ghi chú tối đa 2.000 ký tự">
+                <textarea
+                  nz-input
+                  formControlName="handoverNote"
+                  placeholder="Ghi chú bàn giao ca"
+                  maxlength="2000"
+                  [nzAutosize]="{ minRows: 5, maxRows: 6 }"></textarea>
               </nz-form-control>
             </nz-form-item>
           </div>
@@ -418,38 +428,28 @@
         </div>
 
         <!-- Summary -->
-        <nz-card nzTitle="Tổng kết" style="margin-top: 16px" nzSize="small">
+        <nz-card
+          nzTitle="Tổng giao dịch trong ca"
+          style="margin-top: 16px"
+          nzSize="small">
           <div nz-row [nzGutter]="[16, 16]">
-            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
               <nz-statistic
                 [nzValue]="formatCurrency(calculateTotals().totalCash)"
                 [nzTitle]="'Tổng tiền mặt'"
                 [nzSuffix]="'đ'"></nz-statistic>
             </div>
-            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
               <nz-statistic
                 [nzValue]="formatCurrency(calculateTotals().totalTransfer)"
                 [nzTitle]="'Tổng chuyển khoản'"
                 [nzSuffix]="'đ'"></nz-statistic>
             </div>
-            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
               <nz-statistic
                 [nzValue]="formatCurrency(calculateTotals().totalExpense)"
                 [nzTitle]="'Tổng chi tiêu'"
                 [nzSuffix]="'đ'"></nz-statistic>
-            </div>
-            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
-              <nz-statistic
-                [nzValue]="formatCurrency(totalDrinkAmount)"
-                [nzTitle]="'Tiền bán nước'"
-                [nzSuffix]="'đ'"></nz-statistic>
-            </div>
-            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
-              <nz-statistic
-                [nzValue]="formatCurrency(calculateTotals().handoverAmount)"
-                [nzTitle]="'Số tiền bàn giao'"
-                [nzSuffix]="'đ'"
-                [nzValueStyle]="{ color: '#3f8600' }"></nz-statistic>
             </div>
           </div>
         </nz-card>
@@ -634,6 +634,42 @@
             Thêm nước
           </button>
         </div>
+
+        <nz-card
+          nzTitle="Tổng dịch vụ ngoài"
+          style="margin-top: 16px"
+          nzSize="small">
+          <div nz-row [nzGutter]="[16, 16]">
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+              <nz-statistic
+                [nzValue]="formatCurrency(calculateDrinkTotals().cash)"
+                nzTitle="Tiền mặt"
+                nzSuffix="đ"></nz-statistic>
+            </div>
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+              <nz-statistic
+                [nzValue]="formatCurrency(calculateDrinkTotals().transfer)"
+                nzTitle="Chuyển khoản"
+                nzSuffix="đ"></nz-statistic>
+            </div>
+            <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+              <nz-statistic
+                [nzValue]="formatCurrency(totalDrinkAmount)"
+                nzTitle="Thành tiền"
+                nzSuffix="đ"></nz-statistic>
+            </div>
+          </div>
+        </nz-card>
+        <nz-card style="margin-top: 16px" nzSize="small">
+          <nz-statistic
+            [nzValue]="formatCurrency(calculateTotals().handoverAmount)"
+            nzTitle="Số tiền bàn giao"
+            nzSuffix="đ"
+            [nzValueStyle]="{ color: '#3f8600' }"></nz-statistic>
+          <p style="margin: 8px 0 0; color: #8c8c8c">
+            Tiền mặt giao dịch ca + Tiền mặt dịch vụ ngoài − Tiền chi tiêu
+          </p>
+        </nz-card>
       </form>
     </ng-container>
 
