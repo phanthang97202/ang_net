@@ -294,16 +294,6 @@ $nav-height: 64px;
     border-radius: 16px;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
     padding: 1.25rem;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
-
-    &.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
 }
 
 .search-popup-row {
@@ -539,7 +529,6 @@ $nav-height: 64px;
     }
 
     .mobile-nav-group-title {
-        display: flex;
         width: 100%;
     }
 }
