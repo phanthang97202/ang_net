@@ -2,8 +2,16 @@
   <div class="footer-top">
     <div class="footer-brand">
       <a routerLink="/" class="footer-logo">
-        {{ footerContent.brandName
-        }}<span>{{ footerContent.brandAccent }}</span>
+        <img
+          class="footer-logo-image"
+          src="assets/images/phanthangblog_logo.png"
+          width="40"
+          height="40"
+          alt=""
+          loading="lazy" />
+        <span class="footer-wordmark"
+          >{{ footerContent.brandName }}<em>{{ footerContent.brandAccent }}</em></span
+        >
       </a>
       <p class="footer-tagline">{{ footerContent.tagline }}</p>
 

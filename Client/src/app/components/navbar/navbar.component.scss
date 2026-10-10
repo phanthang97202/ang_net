@@ -62,6 +62,10 @@ $nav-height: 64px;
 
 // ── Logo ───────────────────────────────────────────────
 .navbar-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
     font-family: $font-serif;
     font-size: 1.35rem;
     font-weight: 700;
@@ -71,10 +75,25 @@ $nav-height: 64px;
     white-space: nowrap;
     flex-shrink: 0;
 
-    span {
+    em {
         color: $color-accent;
         font-style: italic;
     }
+}
+
+.navbar-logo-image {
+    display: block;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+.navbar-logo:focus-visible {
+    outline: 2px solid $color-accent;
+    outline-offset: 4px;
+    border-radius: 10px;
 }
 
 // ── Desktop Navbar ─────────────────────────────────────
@@ -85,7 +104,7 @@ $nav-height: 64px;
         display: flex;
         align-items: center;
         height: $nav-height;
-        gap: 2.5rem;
+        gap: clamp(1rem, 2vw, 2.5rem);
     }
 }
 
@@ -351,6 +370,17 @@ $nav-height: 64px;
     justify-content: space-between;
     height: $nav-height;
 
+    .navbar-logo {
+        justify-content: center;
+        width: 44px;
+    }
+
+    .navbar-logo-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
     @media (min-width: 768px) {
         display: none;
     }
@@ -368,7 +398,6 @@ $nav-height: 64px;
 }
 
 @media (max-width: 359px) {
-    .navbar-mobile .navbar-logo { font-size: 1.15rem; }
     .mobile-right { gap: 0; }
     .search-popup-row { flex-direction: column; align-items: stretch; }
 }
