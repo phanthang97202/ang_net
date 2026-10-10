@@ -191,13 +191,13 @@
 
     <!-- Xem chi tiết một mục -->
     <nz-modal
-      nzClassName="blog-modal"
+      nzClassName="blog-modal archive-viewer-modal"
       [nzAutofocus]="null"
       [nzCentered]="true"
       [nzVisible]="viewingItem !== null"
       [nzTitle]="viewingItem?.Title || collection.Name"
       [nzFooter]="null"
-      [nzWidth]="920"
+      nzWidth="90vw"
       (nzOnCancel)="closeViewer()">
       <ng-container *nzModalContent>
         @if (viewingItem; as item) {

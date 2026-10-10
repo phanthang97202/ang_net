@@ -13,10 +13,17 @@
   // ngày + ghi chú (đã giới hạn bên dưới), hàng điều hướng và lề - cộng lại
   // khoảng 360px. Để cả popup lọt trong một màn hình, không phải cuộn.
   // dvh: trên điện thoại vh tính cả phần thanh địa chỉ đang che.
-  --viewer-media-max: max(220px, calc(100vh - 360px));
+  // Popup lớn truyền giới hạn riêng; các nơi khác giữ kích thước mặc định.
+  --viewer-media-max: var(
+    --archive-viewer-media-max,
+    max(220px, calc(100vh - 360px))
+  );
 
   @supports (height: 100dvh) {
-    --viewer-media-max: max(220px, calc(100dvh - 360px));
+    --viewer-media-max: var(
+      --archive-viewer-media-max,
+      max(220px, calc(100dvh - 360px))
+    );
   }
 }
 
