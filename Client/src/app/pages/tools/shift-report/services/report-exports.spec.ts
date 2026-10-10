@@ -103,8 +103,10 @@ describe('Shift report drink payment exports', () => {
     const html = (new PrintService() as any).generatePrintHTML(report, stocks);
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const table = doc.querySelector('.drink-sales-table table')!;
-    expect(doc.querySelector('.handover-note-content')?.textContent).toBe(
-      report.HandoverNote
+    expect(doc.body.textContent).not.toContain('GHI CHÚ');
+    expect(doc.body.textContent).not.toContain(report.HandoverNote!);
+    expect(doc.querySelector('.signature-section')?.textContent).toContain(
+      report.ReceiverName!
     );
     expect(doc.querySelector('.total-row')?.textContent).toContain('3,000,000');
     expect(doc.querySelector('.total-row')?.textContent).toContain('500,000');
@@ -152,7 +154,8 @@ describe('Shift report drink payment exports', () => {
     expect(sheet.getCell('K6').value).toBe(2965000);
     const values: ExcelJS.CellValue[] = [];
     sheet.eachRow(row => row.eachCell(cell => values.push(cell.value)));
-    expect(values).toContain(report.HandoverNote!);
+    expect(values).not.toContain('GHI CHÚ');
+    expect(values).not.toContain(report.HandoverNote!);
     expect(values).toContain(report.ReceiverName!);
     let headerRow = 0;
     sheet.eachRow(row => {
