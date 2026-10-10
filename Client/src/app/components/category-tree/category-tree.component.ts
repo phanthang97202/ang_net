@@ -61,12 +61,6 @@ export class CategoryTreeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Trên mobile sidebar nằm sau danh sách bài, nên thu gọn mặc định để không tạo
-    // một đoạn điều hướng quá dài trước các khối nội dung phụ khác.
-    this.isCollapsed =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(max-width: 768px)').matches;
-
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {

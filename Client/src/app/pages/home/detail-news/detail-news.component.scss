@@ -36,7 +36,7 @@
 @media screen and (max-width: 768px) {
     .news__container {
         flex-direction: column;
-        gap: 0;
+        gap: 24px;
         // Chừa chỗ để thanh công cụ - giờ tự chuyển thành thanh ngang dính đáy
         // màn hình ở khổ này (xem article-rail.component.scss) - không che
         // khuất vĩnh viễn nội dung cuối trang (bình luận, khối liên quan) khi

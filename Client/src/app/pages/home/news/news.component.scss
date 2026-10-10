@@ -14,7 +14,7 @@
 @media screen and (max-width: 768px) {
   .news__container {
     flex-direction: column;
-    gap: 0;
+    gap: 24px;
 
     > .news__content {
       width: 100%;

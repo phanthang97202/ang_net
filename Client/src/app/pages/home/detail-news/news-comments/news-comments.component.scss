@@ -135,6 +135,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .comments {
+    margin-top: 24px;
+  }
+}
+
 @media (max-width: 640px) {
   .comments {
     padding: 18px 16px;
