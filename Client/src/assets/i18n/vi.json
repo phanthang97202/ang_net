@@ -1,4 +1,8 @@
 {
+    "T_API_ERROR_LABEL": "Thông báo",
+    "T_API_ERROR_TITLE": "Không thể hoàn tất yêu cầu",
+    "T_API_ERROR_HINT": "Vui lòng kiểm tra thông tin hoặc thử lại sau ít phút.",
+    "T_API_ERROR_CLOSE": "Đã hiểu",
     "T_SELF_SECURITY_DESC": "Chủ động bảo vệ tài khoản và quản lý các phiên đăng nhập của bạn.",
     "T_SELF_REVOKE_TITLE": "Thu hồi mọi phiên",
     "T_SELF_REVOKE_DESC": "Đăng xuất khỏi mọi thiết bị, bao gồm thiết bị hiện tại. Bạn vẫn có thể đăng nhập lại.",

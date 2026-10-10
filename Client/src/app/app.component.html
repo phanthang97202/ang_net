@@ -1,4 +1,4 @@
-<app-error-popup [errorInfo]="errorInfo" />
+<app-error-popup [errorInfo]="errorInfo" [blogStyle]="layoutType !== 'admin'" />
 <div *ngIf="isLoading$ | async" class="app__loading">
   <app-spinner size="large"></app-spinner>
 </div>

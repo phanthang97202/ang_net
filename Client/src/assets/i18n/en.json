@@ -1,4 +1,8 @@
 {
+    "T_API_ERROR_LABEL": "Notification",
+    "T_API_ERROR_TITLE": "Unable to complete your request",
+    "T_API_ERROR_HINT": "Please check your information or try again in a few minutes.",
+    "T_API_ERROR_CLOSE": "Got it",
     "T_SELF_SECURITY_DESC": "Protect your account and manage your login sessions.",
     "T_SELF_REVOKE_TITLE": "Revoke all sessions",
     "T_SELF_REVOKE_DESC": "Sign out of all devices, including this one. You can still sign in again.",
