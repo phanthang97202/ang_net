@@ -1,0 +1,38 @@
+<section
+  class="keywords-card"
+  aria-labelledby="hot-keywords-heading"
+  [attr.aria-busy]="loading">
+  <header class="card-head">
+    <h2 class="card-head__title" id="hot-keywords-heading">
+      {{ 'T_HOTKEYWORDS' | translate }}
+    </h2>
+    <span class="card-head__line" aria-hidden="true"></span>
+  </header>
+
+  <div class="hot-tags" *ngIf="loading" aria-hidden="true">
+    <span
+      class="hot-tag hot-tag--skeleton"
+      *ngFor="let width of [78, 92, 70, 104, 86, 74]"
+      [style.width.px]="width"></span>
+  </div>
+
+  <ul class="hot-tags" *ngIf="!loading">
+    <li *ngFor="let tag of tags; let i = index">
+      <a
+        class="hot-tag"
+        [class.hot-tag--top]="i === 0"
+        routerLink="/news"
+        [queryParams]="{ hashTag: tag.HashTagNewsName }">
+        <span
+          *ngIf="i === 0"
+          class="hot-tag__fire"
+          nz-icon
+          nzType="fire"
+          nzTheme="fill"
+          aria-hidden="true"></span>
+        <span class="hot-tag__name">#{{ tag.HashTagNewsName }}</span>
+        <span class="hot-tag__count" *ngIf="tag.Count">{{ tag.Count }}</span>
+      </a>
+    </li>
+  </ul>
+</section>

@@ -51,12 +51,6 @@ export class NewsCardComponent {
       : this.post.EstimatedReadingTime;
   }
 
-  get hashtags(): IDetailNews['LstHashTagNews'] {
-    return this.useEnglish
-      ? (this.post.LstHashTagNewsEn ?? [])
-      : (this.post.LstHashTagNews ?? []);
-  }
-
   formatCount(value: number): string {
     if (!value) return '0';
     if (value < 1000) return `${value}`;

@@ -37,12 +37,6 @@
           ><span nz-icon nzType="eye" nzTheme="outline"></span
           >{{ formatCount(post.ViewCount) }}</span
         >
-        @if (post.LikeCount > 0) {
-          <span
-            ><span nz-icon nzType="heart" nzTheme="fill"></span
-            >{{ formatCount(post.LikeCount) }}</span
-          >
-        }
       </span>
     </p>
 
@@ -54,25 +48,5 @@
 
     <p class="post-card__excerpt">{{ description }}</p>
 
-    @if (hashtags.length > 0) {
-      <div class="post-card__hashtags">
-        @for (
-          hashtag of hashtags | slice: 0 : 2;
-          track hashtag.HashTagNewsName
-        ) {
-          <a
-            class="post-card__hashtag"
-            routerLink="/news"
-            [queryParams]="{ hashTag: hashtag.HashTagNewsName }">
-            {{ hashtag.HashTagNewsName }}
-          </a>
-        }
-        @if (hashtags.length > 2) {
-          <span class="post-card__hashtag post-card__hashtag--more">
-            +{{ hashtags.length - 2 }} more
-          </span>
-        }
-      </div>
-    }
   </div>
 </article>

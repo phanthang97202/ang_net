@@ -7,9 +7,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { catchError, finalize, of, switchMap } from 'rxjs';
 import { SocialLinksComponent } from '../social-links/social-links.component';
+import { HotKeywordsComponent } from '../hot-keywords/hot-keywords.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzImageModule, NzImageService } from 'ng-zorro-antd/image';
@@ -72,7 +72,7 @@ const SLIDE_INTERVAL_MS = 4000;
   // module, thiếu nó là inject ra NullInjectorError.
   imports: [
     CommonModule,
-    RouterLink,
+    HotKeywordsComponent,
     SocialLinksComponent,
     TranslateModule,
     NzIconModule,

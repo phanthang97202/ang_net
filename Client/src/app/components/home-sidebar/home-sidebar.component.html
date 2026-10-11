@@ -108,46 +108,8 @@
     </div>
   </section>
 
-  <!-- Hot keywords: không có tag nào thì ẩn cả khối, không để thẻ trống. -->
-  <section
-    class="sidebar-card"
+  <app-hot-keywords
     *ngIf="isHotTagsLoading || hotTags.length > 0"
-    aria-labelledby="sidebar-hot-tags">
-    <header class="card-head">
-      <h2 class="card-head__title" id="sidebar-hot-tags">
-        {{ 'T_HOTKEYWORDS' | translate }}
-      </h2>
-      <span class="card-head__line" aria-hidden="true"></span>
-    </header>
-
-    <div class="hot-tags" *ngIf="isHotTagsLoading" aria-hidden="true">
-      <span
-        class="hot-tag hot-tag--skeleton"
-        *ngFor="let w of [78, 92, 70, 104, 86, 74]"
-        [style.width.px]="w"></span>
-    </div>
-
-    <!-- Tag phổ biến nhất được tô đặc kèm ngọn lửa; các tag sau là viên viền
-         nhạt, có số bài bên cạnh. -->
-    <ul class="hot-tags" *ngIf="!isHotTagsLoading">
-      <li *ngFor="let tag of hotTags; let i = index">
-        <a
-          class="hot-tag"
-          [class.hot-tag--top]="i === 0"
-          routerLink="/news"
-          [queryParams]="{ hashTag: tag.HashTagNewsName }">
-          <span
-            *ngIf="i === 0"
-            class="hot-tag__fire"
-            nz-icon
-            nzType="fire"
-            nzTheme="fill"></span>
-          <span class="hot-tag__name">#{{ tag.HashTagNewsName }}</span>
-          <span class="hot-tag__count" *ngIf="tag.Count">
-            {{ tag.Count }}
-          </span>
-        </a>
-      </li>
-    </ul>
-  </section>
+    [tags]="hotTags"
+    [loading]="isHotTagsLoading"></app-hot-keywords>
 </aside>

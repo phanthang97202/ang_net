@@ -51,36 +51,10 @@
     [forceLoading]="isSidebarLoading"
     (loadingChange)="onCategoryLoadingChange($event)"></app-category-tree>
 
-  <div
+  <app-hot-keywords
     *ngIf="showTopHashTagSkeleton || lstTopHashTag.length > 0"
-    class="bg-[var(--color-bg-card)] rounded-[20px] shadow-[0_2px_16px_var(--color-card-shadow)] p-[24px]"
-    [attr.aria-busy]="showTopHashTagSkeleton"
+    [tags]="lstTopHashTag"
+    [loading]="showTopHashTagSkeleton"
     appScrollReveal
-    [appScrollRevealDelay]="120">
-    <div class="mb-[20px]">
-      <p
-        class="flex items-center gap-[16px] font-montserrat text-[20px] text-[var(--color-text)] tracking-[.15px] font-extrabold">
-        {{ 'T_TAGNEWS' | translate }}
-        <span
-          class="block h-[2px] bg-[var(--color-accent)] flex-1 rounded-full"></span>
-      </p>
-    </div>
-
-    <div
-      *ngIf="showTopHashTagSkeleton"
-      class="aside-tag-skeleton"
-      aria-hidden="true">
-      <span *ngFor="let item of [1, 2, 3, 4, 5, 6]"></span>
-    </div>
-
-    <ul
-      *ngIf="!showTopHashTagSkeleton"
-      class="news_tag flex items-center flex-wrap gap-[8px]">
-      @for (item of lstTopHashTag; track item) {
-        <li>
-          <app-hash-tag [title]="item.HashTagNewsName" />
-        </li>
-      }
-    </ul>
-  </div>
+    [appScrollRevealDelay]="120"></app-hot-keywords>
 </div>

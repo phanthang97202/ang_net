@@ -53,8 +53,7 @@
 }
 
 .post-card__category,
-.post-card__readtime,
-.post-card__hashtag {
+.post-card__readtime {
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
   font-family: 'Montserrat', sans-serif;
@@ -155,33 +154,6 @@
   line-height: 1.55;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-.post-card__hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.35rem;
-}
-
-.post-card__hashtag {
-  max-width: 12rem;
-  overflow: hidden;
-  color: var(--color-accent);
-  background: var(--color-accent-bg);
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-
-  &:hover {
-    color: #fff;
-    background: var(--color-accent);
-  }
-
-  &--more,
-  &--more:hover {
-    color: var(--color-text-muted);
-    background: var(--color-control-bg);
-  }
 }
 
 @media (max-width: 720px) {
