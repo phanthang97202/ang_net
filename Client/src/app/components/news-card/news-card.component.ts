@@ -51,6 +51,10 @@ export class NewsCardComponent {
       : this.post.EstimatedReadingTime;
   }
 
+  get publishedDateFormat(): string {
+    return this.langService.getLang() === 'en' ? 'MMM d, yyyy' : 'dd/MM/yyyy';
+  }
+
   formatCount(value: number): string {
     if (!value) return '0';
     if (value < 1000) return `${value}`;

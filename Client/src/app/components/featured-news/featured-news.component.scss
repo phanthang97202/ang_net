@@ -102,8 +102,7 @@
   align-items: flex-start;
   gap: 0.5rem;
   padding: 1rem;
-  // Content phủ hết bề ngang đáy tile, để nguyên thì nó nuốt luôn vùng bấm mở
-  // bài ở dải này. Trả pointer-events cho lớp phủ link, chỉ badge nhận lại.
+  // Cho click xuyên phần nội dung xuống link mở bài phía dưới.
   pointer-events: none;
 }
 
@@ -112,14 +111,14 @@
   padding: 1.5rem;
 }
 
-// Cùng vai trò với .post-badge của card bài viết, nhưng .post-badge nằm trên
-// nền card nên mới dùng được cặp accent-bg/accent nhạt. Ở đây badge nằm trên
-// ảnh đã phủ tối: --color-accent-bg ở dark mode chỉ là màu tím alpha 0.16, đặt
-// lên nền tối gần như mất hút. Đổi sang accent đặc + chữ trắng - đúng cách
-// .hero-cta của banner đang làm, đọc rõ ở cả hai theme.
+// Cùng vị trí và kiểu badge chuyên mục của card "Tất cả bài viết".
 .featured-tile-badge {
-  background: var(--color-accent);
-  color: #fff;
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   font-family: 'Montserrat', sans-serif;
   font-size: 0.62rem;
   font-weight: 700;
@@ -127,22 +126,23 @@
   text-transform: uppercase;
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
-  max-width: 100%;
+  max-width: calc(100% - 1.5rem);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-decoration: none;
-  // .featured-tile-content bỏ pointer-events để không nuốt vùng bấm mở bài,
-  // badge là link nên phải nhận lại.
   pointer-events: auto;
-  transition: filter 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 
-  // Badge đã là accent đặc nên không đảo màu được như .post-badge, làm sáng lên
-  // để vẫn có phản hồi lúc rê chuột.
   &:hover {
     color: #fff;
-    filter: brightness(1.15);
+    background: var(--color-accent);
   }
+}
+
+.featured-tile--main .featured-tile-badge {
+  // Chừa chỗ cho nhãn thời gian đọc ở góc phải.
+  max-width: calc(100% - 7rem);
 }
 
 .featured-tile-title {
@@ -187,8 +187,8 @@
 .featured-tile-readtime {
   position: absolute;
   z-index: 2;
-  top: 1rem;
-  right: 1rem;
+  top: 0.75rem;
+  right: 0.75rem;
   background: rgba(26, 26, 46, 0.55);
   color: #fff;
   font-family: 'Montserrat', sans-serif;

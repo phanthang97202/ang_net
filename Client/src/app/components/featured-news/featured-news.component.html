@@ -39,14 +39,15 @@
         {{ getReadingTime(mainPost) }} {{ 'T_MINUTESREAD' | translate }}
       </span>
 
+      <a
+        *ngIf="getCategoryName(mainPost)"
+        class="featured-tile-badge"
+        routerLink="/news"
+        [queryParams]="{ categoryId: mainPost.CategoryNewsId }">
+        {{ getCategoryName(mainPost) }}
+      </a>
+
       <div class="featured-tile-content">
-        <a
-          *ngIf="getCategoryName(mainPost)"
-          class="featured-tile-badge"
-          routerLink="/news"
-          [queryParams]="{ categoryId: mainPost.CategoryNewsId }">
-          {{ getCategoryName(mainPost) }}
-        </a>
         <h3 class="featured-tile-title featured-tile-title--main">
           {{ getTitle(mainPost) }}
         </h3>
@@ -74,14 +75,15 @@
         class="featured-tile-link"
         [attr.aria-label]="getTitle(post)"></a>
 
+      <a
+        *ngIf="getCategoryName(post)"
+        class="featured-tile-badge"
+        routerLink="/news"
+        [queryParams]="{ categoryId: post.CategoryNewsId }">
+        {{ getCategoryName(post) }}
+      </a>
+
       <div class="featured-tile-content">
-        <a
-          *ngIf="getCategoryName(post)"
-          class="featured-tile-badge"
-          routerLink="/news"
-          [queryParams]="{ categoryId: post.CategoryNewsId }">
-          {{ getCategoryName(post) }}
-        </a>
         <h3 class="featured-tile-title">{{ getTitle(post) }}</h3>
       </div>
     </div>

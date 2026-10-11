@@ -30,6 +30,7 @@ export class NewsItemSmComponent implements OnInit {
   // được như cũ (thoả đủ các trường), mà khối xem trước theo danh mục - vốn chỉ
   // lấy về 6 trường - cũng dùng lại được component này.
   @Input() item!: INewsItemSm;
+  @Input() showDate = true;
   private langService = inject(LangService);
   constructor() {}
 

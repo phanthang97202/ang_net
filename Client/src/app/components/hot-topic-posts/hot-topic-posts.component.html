@@ -58,6 +58,7 @@
       <div class="topic-cards-posts">
         <app-news-item-sm
           *ngFor="let post of category.Posts"
+          [showDate]="false"
           [item]="post"></app-news-item-sm>
       </div>
 

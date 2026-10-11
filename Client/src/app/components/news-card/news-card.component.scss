@@ -28,9 +28,9 @@
 
 .post-card__thumb {
   position: relative;
-  flex: 0 0 220px;
-  width: 220px;
-  height: 160px;
+  flex: 0 0 192px;
+  width: 192px;
+  height: 140px;
   overflow: hidden;
   border-radius: 16px;
 
@@ -68,7 +68,7 @@
   z-index: 2;
   top: 0.75rem;
   left: 0.75rem;
-  max-width: calc(100% - 8rem);
+  max-width: calc(100% - 7rem);
   overflow: hidden;
   color: var(--color-accent);
   background: var(--color-accent-bg);
@@ -97,47 +97,56 @@
   flex: 1;
   min-width: 0;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0 0.5rem;
 }
 
 .post-card__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.2rem 0.75rem;
-  margin: 0;
-  color: var(--color-text-muted);
+  justify-content: flex-start;
+  gap: 0.4rem 0.5rem;
+  margin: 0.2rem 0 0;
+  color: #626174;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.78rem;
+  line-height: 1.5;
 
   strong {
-    color: var(--color-accent);
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
-}
 
-.post-card__stats,
-.post-card__stats > span {
-  display: inline-flex;
-  align-items: center;
+  time {
+    white-space: nowrap;
+  }
 }
 
 .post-card__stats {
-  gap: 0.7rem;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.3rem;
+}
 
-  > span {
-    gap: 0.25rem;
-    font-weight: 600;
-  }
+:host-context(html[data-theme='dark']) .post-card__meta {
+  color: #c7c6d4;
 }
 
 .post-card__title {
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--color-text);
   font-family: 'Montserrat', sans-serif;
   font-size: 1.15rem;
   font-weight: 800;
   line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 
   &:hover {
     color: var(--color-accent);
@@ -148,12 +157,19 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 0;
-  color: var(--color-text-muted);
+  color: #454557;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
-  line-height: 1.55;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+:host-context(html[data-theme='dark']) .post-card__excerpt {
+  color: #d8d8e5;
 }
 
 @media (max-width: 720px) {

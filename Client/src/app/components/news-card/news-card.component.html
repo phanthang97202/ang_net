@@ -26,27 +26,26 @@
   </div>
 
   <div class="post-card__body">
-    <p class="post-card__meta">
-      <span>
-        <strong>{{ post.FullName }}</strong>
-        {{ 'T_ON' | translate }}
-        {{ post.CreatedDTime | date: 'MMMM d, yyyy' }}
-      </span>
-      <span class="post-card__stats">
-        <span
-          ><span nz-icon nzType="eye" nzTheme="outline"></span
-          >{{ formatCount(post.ViewCount) }}</span
-        >
-      </span>
-    </p>
-
     <a
       [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
-      class="post-card__title">
+      class="post-card__title"
+      [title]="title">
       {{ title }}
     </a>
 
-    <p class="post-card__excerpt">{{ description }}</p>
+    <p class="post-card__excerpt" [title]="description">{{ description }}</p>
 
+    <p class="post-card__meta">
+      <span class="post-card__stats">
+        <span nz-icon nzType="eye" nzTheme="outline" aria-hidden="true"></span>
+        {{ formatCount(post.ViewCount) }}
+      </span>
+      <span aria-hidden="true">·</span>
+      <strong>{{ post.FullName }}</strong>
+      <span aria-hidden="true">·</span>
+      <time [attr.datetime]="post.CreatedDTime | date: 'yyyy-MM-dd'">
+        {{ post.CreatedDTime | date: publishedDateFormat }}
+      </time>
+    </p>
   </div>
 </article>
