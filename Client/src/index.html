@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" class="app-booting">
   <head>
     <meta charset="utf-8" />
     <title>Phan Thang Blog</title>
@@ -9,6 +9,47 @@
     />
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Inline để loading không phụ thuộc Angular hoặc stylesheet tải sau. -->
+    <style>
+      html.app-booting { overflow: hidden; }
+      html.app-booting app-root { visibility: hidden; }
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        background: #fff;
+        color: #454557;
+        font: 500 14px/1.6 'Montserrat', sans-serif;
+        transition: opacity .2s ease;
+      }
+      html[data-theme='dark'] #initial-loader {
+        background: #0f0f1a;
+        color: #e0e0eb;
+      }
+      .initial-loader__content { display: grid; justify-items: center; gap: 16px; padding: 24px; text-align: center; }
+      .initial-loader__mark { position: relative; display: grid; place-items: center; width: 76px; height: 76px; }
+      .initial-loader__mark::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border: 3px solid rgba(91, 79, 233, .15);
+        border-top-color: #5b4fe9;
+        border-radius: 50%;
+        animation: initial-loader-spin .8s linear infinite;
+      }
+      .initial-loader__logo { width: 44px; height: 44px; border-radius: 12px; }
+      #initial-loader-status { margin: 0; }
+      #initial-loader-retry { color: #5b4fe9; font-weight: 700; }
+      #initial-loader[data-leaving='true'] { opacity: 0; pointer-events: none; }
+      #initial-loader[data-failed='true'] .initial-loader__mark::before { animation: none; }
+      @keyframes initial-loader-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        #initial-loader { transition: none; }
+        .initial-loader__mark::before { animation: none; }
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -68,14 +109,40 @@
       // Set data-theme trước khi Angular bootstrap để tránh nháy sáng/tối
       // (localStorage key phải khớp environment.themeKey = 'themeKey')
       (function () {
-        var theme = localStorage.getItem('themeKey');
+        var theme;
+        try { theme = localStorage.getItem('themeKey'); } catch (_) {}
         document.documentElement.setAttribute(
           'data-theme',
           theme === 'dark' ? 'dark' : 'light'
         );
       })();
     </script>
-    <app-root></app-root>
+    <div id="initial-loader" role="status" aria-live="polite">
+      <div class="initial-loader__content">
+        <div class="initial-loader__mark" aria-hidden="true">
+          <img class="initial-loader__logo" src="assets/images/phanthangblog_logo.png" width="44" height="44" alt="" />
+        </div>
+        <p id="initial-loader-status">Đang tải trang…</p>
+        <a id="initial-loader-retry" href="" hidden>Tải lại trang</a>
+      </div>
+    </div>
+    <app-root inert aria-hidden="true" aria-busy="true"></app-root>
+    <script>
+      // Nếu bundle không tải được, vẫn có lối thoát thay vì loading vô hạn.
+      window.setTimeout(function () {
+        var loader = document.getElementById('initial-loader');
+        if (loader && loader.dataset.leaving !== 'true') {
+          loader.dataset.failed = 'true';
+          document.getElementById('initial-loader-status').textContent =
+            'Trang đang tải lâu hơn bình thường.';
+          document.getElementById('initial-loader-retry').hidden = false;
+        }
+      }, 20000);
+    </script>
+    <noscript>
+      <style>#initial-loader, app-root { display: none; }</style>
+      Vui lòng bật JavaScript để sử dụng website.
+    </noscript>
   </body>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </html>

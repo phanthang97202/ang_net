@@ -3,6 +3,7 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import posthog from 'posthog-js';
 import { environment } from './environments/environment';
+import { failInitialLoading } from './app/helpers/initial-loading';
 
 // session replay--------------------
 // posthog.init(environment.POSTHOG_KEY, {
@@ -11,4 +12,7 @@ import { environment } from './environments/environment';
 //   capture_pageview: false, // To start, we need to add capture_pageview: false to the PostHog initialization to avoid double capturing the first pageview.
 // });
 
-bootstrapApplication(AppComponent, appConfig).catch(err => console.error(err));
+bootstrapApplication(AppComponent, appConfig).catch(err => {
+  console.error(err);
+  failInitialLoading();
+});

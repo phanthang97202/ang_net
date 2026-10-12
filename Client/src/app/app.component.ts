@@ -1,5 +1,5 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { Event, NavigationEnd, Router } from '@angular/router';
+import { Component, HostListener, inject, NgZone, OnInit } from '@angular/core';
+import { Event, NavigationEnd, NavigationError, Router } from '@angular/router';
 import {
   LoadingService,
   ShowErrorService,
@@ -27,6 +27,10 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
 import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
 import { BlogMaintenanceService } from './services/blog-maintenance.service';
+import {
+  failInitialLoading,
+  finishInitialLoading,
+} from './helpers/initial-loading';
 
 @Component({
   selector: 'app-root',
@@ -72,6 +76,12 @@ export class AppComponent implements OnInit {
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
   private maintenance = inject(BlogMaintenanceService);
+  private zone = inject(NgZone);
+
+  onPageActivated(): void {
+    // Animation/timer của màn loading không gây change detection cho cả app.
+    this.zone.runOutsideAngular(() => void finishInitialLoading());
+  }
 
   // Menu khu quản trị. Mỗi mục khai quyền cần có; rebuildDashboardMenu() lọc bỏ mục
   // người dùng không có quyền, để họ không thấy rồi bấm vào và nhận lỗi.
@@ -240,6 +250,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationError))
+      .subscribe(() => failInitialLoading());
     this.maintenance.startMonitoring();
     this.authService.tryRefreshOnInit();
     this.visitTrackingService.init();

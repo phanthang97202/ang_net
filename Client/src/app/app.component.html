@@ -5,18 +5,20 @@
 
 <nz-layout *ngIf="layoutType === 'none'" class="layout">
   <nz-content>
-    <router-outlet></router-outlet>
+    <router-outlet (activate)="onPageActivated()"></router-outlet>
   </nz-content>
 </nz-layout>
 
 <!-- Không có nz-layout/nz-content: tránh margin:64.8px 0 mà nz-content áp cho layout 'none' -->
-<router-outlet *ngIf="layoutType === 'immersive'"></router-outlet>
+<router-outlet
+  *ngIf="layoutType === 'immersive'"
+  (activate)="onPageActivated()"></router-outlet>
 
 <div *ngIf="layoutType === 'user'" class="layout layout--user">
   <div class="ambient-glow ambient-glow--left"></div>
   <div class="ambient-glow ambient-glow--right"></div>
   <app-navbar />
-  <router-outlet></router-outlet>
+  <router-outlet (activate)="onPageActivated()"></router-outlet>
   <app-footer />
 </div>
 
@@ -72,7 +74,7 @@
   </nz-sider>
 
   <nz-content class="admin__layout--content">
-    <router-outlet></router-outlet>
+    <router-outlet (activate)="onPageActivated()"></router-outlet>
   </nz-content>
 </nz-layout>
 
