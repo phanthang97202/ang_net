@@ -84,9 +84,7 @@
   );
 }
 
-// Link mở bài phủ kín tile. Nằm trên ảnh/overlay nhưng DƯỚI phần nội dung và
-// nhãn thời gian đọc, nên bấm vào badge danh mục là đi tới danh mục chứ không
-// mở bài.
+// Link mở bài phủ kín tile, nằm dưới phần nội dung và nhãn thời gian đọc.
 .featured-tile-link {
   position: absolute;
   inset: 0;
@@ -109,40 +107,6 @@
 
 .featured-tile--main .featured-tile-content {
   padding: 1.5rem;
-}
-
-// Cùng vị trí và kiểu badge chuyên mục của card "Tất cả bài viết".
-.featured-tile-badge {
-  position: absolute;
-  z-index: 2;
-  top: 0.75rem;
-  left: 0.75rem;
-  background: var(--color-accent-bg);
-  color: var(--color-accent);
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  max-width: calc(100% - 1.5rem);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-decoration: none;
-  pointer-events: auto;
-  transition: background 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    color: #fff;
-    background: var(--color-accent);
-  }
-}
-
-.featured-tile--main .featured-tile-badge {
-  // Chừa chỗ cho nhãn thời gian đọc ở góc phải.
-  max-width: calc(100% - 7rem);
 }
 
 .featured-tile-title {

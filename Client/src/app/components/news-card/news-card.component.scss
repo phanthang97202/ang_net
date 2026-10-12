@@ -52,7 +52,6 @@
   z-index: 1;
 }
 
-.post-card__category,
 .post-card__readtime {
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
@@ -61,24 +60,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   white-space: nowrap;
-}
-
-.post-card__category {
-  position: absolute;
-  z-index: 2;
-  top: 0.75rem;
-  left: 0.75rem;
-  max-width: calc(100% - 7rem);
-  overflow: hidden;
-  color: var(--color-accent);
-  background: var(--color-accent-bg);
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-
-  &:hover {
-    color: #fff;
-    background: var(--color-accent);
-  }
 }
 
 .post-card__readtime {

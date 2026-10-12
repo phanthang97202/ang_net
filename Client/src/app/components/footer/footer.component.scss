@@ -58,11 +58,16 @@
 
 .footer-tagline {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  color: #2f2f43;
+  font-weight: 500;
   line-height: 1.6;
   margin: 0.9rem 0 1.1rem;
   max-width: 320px;
+}
+
+:host-context(html[data-theme='dark']) .footer-tagline {
+  color: #e0e0eb;
 }
 
 .footer-socials {

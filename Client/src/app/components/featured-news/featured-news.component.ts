@@ -97,12 +97,6 @@ export class FeaturedNewsComponent implements OnInit {
     return post.NewsId;
   }
 
-  getCategoryName(post: IDetailNews): string {
-    return this.langService.getLang() === 'en' && post.CategoryNewsNameEn
-      ? post.CategoryNewsNameEn
-      : post.CategoryNewsName;
-  }
-
   getTitle(post: IDetailNews): string {
     return this.useEnglish(post) ? post.ShortTitleEn : post.ShortTitle;
   }

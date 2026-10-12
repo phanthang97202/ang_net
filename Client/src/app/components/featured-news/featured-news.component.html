@@ -16,10 +16,7 @@
   </div>
 
   <div class="featured-grid" *ngIf="!isLoading">
-    <!-- Bài chính: ô lớn bên trái, chiếm 2 hàng.
-         Tile là <div> chứ không phải <a>: badge danh mục bên trong cũng là link,
-         mà <a> lồng <a> là HTML không hợp lệ. Link mở bài là lớp phủ
-         .featured-tile-link, badge nằm đè lên nó. -->
+    <!-- Bài chính: ô lớn bên trái, chiếm 2 hàng. -->
     <div
       *ngIf="mainPost"
       class="featured-tile featured-tile--main"
@@ -39,14 +36,6 @@
         {{ getReadingTime(mainPost) }} {{ 'T_MINUTESREAD' | translate }}
       </span>
 
-      <a
-        *ngIf="getCategoryName(mainPost)"
-        class="featured-tile-badge"
-        routerLink="/news"
-        [queryParams]="{ categoryId: mainPost.CategoryNewsId }">
-        {{ getCategoryName(mainPost) }}
-      </a>
-
       <div class="featured-tile-content">
         <h3 class="featured-tile-title featured-tile-title--main">
           {{ getTitle(mainPost) }}
@@ -58,7 +47,7 @@
       </div>
     </div>
 
-    <!-- 4 bài phụ: lưới 2x2 bên phải. Cùng lý do với ô chính ở trên. -->
+    <!-- 4 bài phụ: lưới 2x2 bên phải. -->
     <div
       *ngFor="let post of subPosts; trackBy: trackById; let i = index"
       class="featured-tile"
@@ -74,14 +63,6 @@
         [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
         class="featured-tile-link"
         [attr.aria-label]="getTitle(post)"></a>
-
-      <a
-        *ngIf="getCategoryName(post)"
-        class="featured-tile-badge"
-        routerLink="/news"
-        [queryParams]="{ categoryId: post.CategoryNewsId }">
-        {{ getCategoryName(post) }}
-      </a>
 
       <div class="featured-tile-content">
         <h3 class="featured-tile-title">{{ getTitle(post) }}</h3>

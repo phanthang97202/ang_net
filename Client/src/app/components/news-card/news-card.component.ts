@@ -29,12 +29,6 @@ export class NewsCardComponent {
 
   private langService = inject(LangService);
 
-  get categoryName(): string {
-    return this.useEnglish && this.post.CategoryNewsNameEn
-      ? this.post.CategoryNewsNameEn
-      : this.post.CategoryNewsName;
-  }
-
   get title(): string {
     return this.useEnglish ? this.post.ShortTitleEn : this.post.ShortTitle;
   }

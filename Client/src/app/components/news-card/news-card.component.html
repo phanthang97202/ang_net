@@ -12,14 +12,6 @@
       class="post-card__thumb-link"
       [attr.aria-label]="title"></a>
 
-    @if (categoryName) {
-      <a
-        class="post-card__category"
-        routerLink="/news"
-        [queryParams]="{ categoryId: post.CategoryNewsId }">
-        {{ categoryName }}
-      </a>
-    }
     <span class="post-card__readtime">
       {{ readingTime }} {{ 'T_MINUTESREAD' | translate }}
     </span>
