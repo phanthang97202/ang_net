@@ -33,7 +33,10 @@ describe('API error popup', () => {
     expect(modal).not.toBeNull();
     expect(modal.querySelector('pre')?.textContent).toBe(message);
     expect(modal.querySelector('pre img')).toBeNull();
-    expect(modal.querySelector('h3')?.textContent).toBe('Lỗi API');
+    expect(modal.querySelector('h2')?.textContent).toBe('Lỗi API');
+    expect(modal.querySelector('h3')).toBeNull();
+    expect(modal.querySelector('.api-error-eyebrow')).toBeNull();
+    expect(modal.querySelector('.api-error-hint')).toBeNull();
     (modal.querySelector('.api-error-close') as HTMLButtonElement).click();
     tick(150);
     expect(errors.clearError).toHaveBeenCalledTimes(1);

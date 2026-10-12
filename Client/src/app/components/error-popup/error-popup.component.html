@@ -15,19 +15,14 @@
       </svg>
     </span>
     <div>
-      <span class="api-error-eyebrow">{{
-        'T_API_ERROR_LABEL' | translate
-      }}</span>
-      <h2>{{ 'T_API_ERROR_TITLE' | translate }}</h2>
+      <h2>{{ errorInfo.title || ('T_API_ERROR_TITLE' | translate) }}</h2>
     </div>
   </div>
 </ng-template>
 <ng-template #errorContent>
-  <p class="api-error-hint">{{ 'T_API_ERROR_HINT' | translate }}</p>
   <section
     class="api-error-details"
     [attr.aria-label]="'T_DETAILS' | translate">
-    <h3>{{ errorInfo.title || ('T_DETAILS' | translate) }}</h3>
     <pre tabindex="0" [attr.aria-label]="'T_DETAILS' | translate">{{
       errorInfo.message
     }}</pre>
