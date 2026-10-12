@@ -39,7 +39,7 @@
 
           <!-- Ảnh cover bị object-fit:cover cắt cho vừa khung 360px, nên bấm vào
                để xem trọn ảnh. Nút phủ kín ảnh và đứng đầu trong đám điều khiển
-               của khối, các nút mũi tên/badge phía sau được z-index kéo lên trên
+               của khối, các nút mũi tên phía sau được z-index kéo lên trên
                nên vẫn bấm đúng chức năng của chúng. -->
           <button
             type="button"
@@ -74,18 +74,6 @@
             </span>
           </ng-container>
 
-          <div class="detail-badges">
-            <a
-              *ngIf="getCategoryName()"
-              class="detail-badge"
-              routerLink="/news"
-              [queryParams]="{ categoryId: detailNews.CategoryNewsId }"
-              >{{ getCategoryName() }}</a
-            >
-          </div>
-          <span class="detail-readtime">
-            {{ getReadingTime() }} {{ 'T_MINUTESREAD' | translate }}
-          </span>
         </div>
 
         <div class="detail-body">
@@ -99,7 +87,7 @@
 
           <p class="detail-meta">
             <span class="detail-author">{{ detailNews.FullName }}</span>
-            · {{ detailNews.CreatedDTime | localeDTime: 'dd-mm-yy hh:mm' }}
+            · {{ detailNews.CreatedDTime | date: 'HH:mm dd/MM/yyyy' }}
             <span class="detail-meta-sep">—</span>
             {{ getReadingTime() }} {{ 'T_MINUTESREAD' | translate }}
             <span class="detail-meta-sep">—</span>

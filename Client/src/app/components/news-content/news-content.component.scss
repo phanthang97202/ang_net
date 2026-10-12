@@ -5,10 +5,10 @@ app-news-content {
   min-width: 0;
 
   .article-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
   }
   .content-display {
+    padding: 15px 0;
     line-height: 1.85;
     font-size: 16px;
     color: var(--color-text);

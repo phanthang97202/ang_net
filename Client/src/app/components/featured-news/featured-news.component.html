@@ -41,9 +41,6 @@
           {{ getTitle(mainPost) }}
         </h3>
         <p class="featured-tile-excerpt">{{ getDescription(mainPost) }}</p>
-        <p class="featured-tile-meta">
-          {{ mainPost.CreatedDTime | date: 'MMMM d, yyyy' }}
-        </p>
       </div>
     </div>
 
@@ -63,6 +60,10 @@
         [routerLink]="['/news', post.CategoryNewsId, post.NewsId]"
         class="featured-tile-link"
         [attr.aria-label]="getTitle(post)"></a>
+
+      <span class="featured-tile-readtime">
+        {{ getReadingTime(post) }} {{ 'T_MINUTESREAD' | translate }}
+      </span>
 
       <div class="featured-tile-content">
         <h3 class="featured-tile-title">{{ getTitle(post) }}</h3>

@@ -15,7 +15,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { LocalDTime } from '../../../pipes/localeDTime.pipe';
 import { NewsImgDirective } from '../../../directives/news-img.directive';
 import { ArticleRailComponent } from '../../../components/article-rail/article-rail.component';
 import { NewsContentComponent } from '../../../components/news-content/news-content.component';
@@ -36,7 +35,6 @@ import { buildNewsSlides, stepSlide } from '../../../helpers';
     NzImageModule,
     NzSkeletonModule,
     NzIconModule,
-    LocalDTime,
     NewsImgDirective,
     ArticleRailComponent,
     NewsContentComponent,
