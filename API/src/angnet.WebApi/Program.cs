@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using angnet.Domain.Models;
 using angnet.Infrastructure;
 using angnet.Infrastructure.Data.Services;
+using angnet.WebApi.Mcp;
 
 // Chỗ này nó tự động load appsettings.json và appsettings.{Environment}.json
 var builder = WebApplication.CreateBuilder(args);
@@ -375,8 +376,10 @@ builder.Services.AddSignalR()
     });
 builder.Services.AddSingleton<angnet.WebApi.SignalR.Chess.ChessRoomStore>();
 
+var mcpSettings = builder.AddBlogMcp();
 var app = builder.Build();
 app.UseForwardedHeaders();
+app.UseRouting();
 app.UseRateLimiter(); // Prevent DDoS attack (free)
 app.Use(async (context, next) =>
 {
@@ -434,11 +437,13 @@ app.UseMiddleware<LoggingMiddleware>();
 
 app.UseCors("AllowAllOrigins");
 
+app.UseBlogMcp(mcpSettings);
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapBlogMcp(mcpSettings);
 app.MapGet("/api/health", () => Results.Ok("Alive")); // simple health check endpoint for Render, trigger Render dont cold sleep
 app.MapMethods("/api/health", new[] { "HEAD" }, () => Results.Ok("Alive")); // simple health check endpoint for Render, trigger Render dont cold sleep
 
@@ -473,4 +478,5 @@ catch (Exception ex)
     throw;
 }
 
+await app.InitializeBlogMcp(mcpSettings);
 app.Run();

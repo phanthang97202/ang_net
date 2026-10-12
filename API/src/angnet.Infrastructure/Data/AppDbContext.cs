@@ -98,6 +98,7 @@ namespace angnet.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.UseOpenIddict();
 
             modelBuilder.Entity<AppUser>().HasIndex(x => x.NormalizedEmail)
                 .HasDatabaseName("EmailIndex").IsUnique().HasFilter("\"NormalizedEmail\" IS NOT NULL");

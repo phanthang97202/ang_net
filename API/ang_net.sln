@@ -19,12 +19,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "angnet.WebApi", "src\angnet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "angnet.InfrastructureTests", "test\angnet.InfrastructureTests\angnet.InfrastructureTests.csproj", "{BA43AA7B-D965-4512-8849-1C7F5765AE66}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "angnet.McpTests", "test\angnet.McpTests\angnet.McpTests.csproj", "{780A9882-0296-4610-8D33-069DB33BECD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{780A9882-0296-4610-8D33-069DB33BECD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{780A9882-0296-4610-8D33-069DB33BECD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{780A9882-0296-4610-8D33-069DB33BECD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{780A9882-0296-4610-8D33-069DB33BECD5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7BE53E53-15A9-4D2C-949C-6E0B55EB204E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7BE53E53-15A9-4D2C-949C-6E0B55EB204E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BE53E53-15A9-4D2C-949C-6E0B55EB204E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -54,6 +60,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{780A9882-0296-4610-8D33-069DB33BECD5} = {0D412978-34E7-42F6-B025-558F43C92241}
 		{7BE53E53-15A9-4D2C-949C-6E0B55EB204E} = {2AF4C42E-828C-496A-B1B4-A3160BA263C7}
 		{20A8D5AB-48F6-4BE9-A0C5-D3D453E3BB6C} = {2AF4C42E-828C-496A-B1B4-A3160BA263C7}
 		{B1B31502-3D40-4925-8A18-7F9357E53485} = {2AF4C42E-828C-496A-B1B4-A3160BA263C7}

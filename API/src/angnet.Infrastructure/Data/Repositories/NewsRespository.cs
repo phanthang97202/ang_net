@@ -1100,8 +1100,11 @@ namespace angnet.Infrastructure.Data.Repositories
             #endregion
 
             #region // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            // Authentication belongs to the host (JWT for REST, OAuth for MCP).
+            // Do not parse an already validated OAuth reference token as a JWT.
+            bool isAuthorized = User.Identity?.IsAuthenticated == true
+                && ReferenceEquals(User, _httpContextAccessor.HttpContext?.User)
+                && await new Services.AccountSessionService(_dbContext).IsCurrent(User);
             if (!isAuthorized)
             {
                 apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
@@ -1535,8 +1538,9 @@ namespace angnet.Infrastructure.Data.Repositories
             #endregion
 
             #region // Check Permission
-            string token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            bool isAuthorized = GuardAuth.IsAuthorized(token);
+            bool isAuthorized = User.Identity?.IsAuthenticated == true
+                && ReferenceEquals(User, _httpContextAccessor.HttpContext?.User)
+                && await new Services.AccountSessionService(_dbContext).IsCurrent(User);
             if (!isAuthorized)
             {
                 apiResponse.CatchException(false, "GuardAuth.401_Unauthorized", requestClient);
