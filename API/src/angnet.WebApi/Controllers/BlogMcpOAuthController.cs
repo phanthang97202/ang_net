@@ -121,7 +121,9 @@ public sealed class BlogMcpOAuthController(
     private ContentResult LoginForm(OpenIddictRequest request, string error = "")
     {
         Response.Headers.CacheControl = "no-store";
-        Response.Headers.ContentSecurityPolicy = "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+        // Chromium applies form-action to the OAuth redirect chain, not only the same-origin POST.
+        // Permit the trusted ChatGPT callback origin; exact callback URLs are still checked by OpenIddict.
+        Response.Headers.ContentSecurityPolicy = "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://chatgpt.com; base-uri 'none'; frame-ancestors 'none'";
         var token = antiforgery.GetAndStoreTokens(HttpContext);
         static string H(string value) => HtmlEncoder.Default.Encode(value);
         IEnumerable<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>> fields =

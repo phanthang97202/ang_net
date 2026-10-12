@@ -173,6 +173,21 @@ public class BlogMcpTests
         var body = await response.Content.ReadAsStringAsync(); Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, body); return body;
     }
 
+    [TestMethod] public async Task Consent_Form_CSP_Permits_ChatGPT_Callback_Without_Allowing_Arbitrary_Origins()
+    {
+        var response = await http.GetAsync(AuthorizeUrl());
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        var csp = response.Headers.GetValues("Content-Security-Policy").Single();
+        var directives = csp.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        Assert.AreEqual("form-action 'self' https://chatgpt.com",
+            directives.Single(d => d.StartsWith("form-action ", StringComparison.Ordinal)));
+        CollectionAssert.Contains(directives, "default-src 'none'");
+        CollectionAssert.Contains(directives, "base-uri 'none'");
+        CollectionAssert.Contains(directives, "frame-ancestors 'none'");
+        Assert.AreEqual("/oauth/authorize", Regex.Match(await response.Content.ReadAsStringAsync(),
+            "<form[^>]*action=\"([^\"]*)\"").Groups[1].Value);
+    }
+
     [TestMethod] public async Task Discovery_And_Unauthenticated_Challenge()
     {
         var discovery = await http.GetStringAsync("/.well-known/oauth-authorization-server");
