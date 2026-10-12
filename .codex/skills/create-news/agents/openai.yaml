@@ -1,0 +1,6 @@
+interface:
+  display_name: "Create News"
+  short_description: "Viết bài blog Việt-Anh, tối ưu UX và SEO"
+  default_prompt: "Dùng $create-news để soạn bài cho Phan Thang Blog, mặc định song ngữ Việt-Anh, kiểm tra nguồn và chuẩn bị bản nháp để duyệt."
+policy:
+  allow_implicit_invocation: true
