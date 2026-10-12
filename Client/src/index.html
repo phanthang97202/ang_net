@@ -19,13 +19,19 @@
         z-index: 10000;
         display: grid;
         place-items: center;
-        background: #fff;
+        background:
+          radial-gradient(ellipse at 15% 30%, rgba(255, 218, 184, .45), transparent 55%),
+          radial-gradient(ellipse at 85% 70%, rgba(149, 131, 255, .2), transparent 55%),
+          linear-gradient(135deg, #fffcf8, #f7f5ff);
         color: #454557;
         font: 500 14px/1.6 'Montserrat', sans-serif;
         transition: opacity .2s ease;
       }
       html[data-theme='dark'] #initial-loader {
-        background: #0f0f1a;
+        background:
+          radial-gradient(ellipse at 15% 30%, rgba(126, 78, 56, .18), transparent 55%),
+          radial-gradient(ellipse at 85% 70%, rgba(91, 79, 233, .2), transparent 55%),
+          linear-gradient(135deg, #13131f, #191629);
         color: #e0e0eb;
       }
       .initial-loader__content { display: grid; justify-items: center; gap: 16px; padding: 24px; text-align: center; }
@@ -41,6 +47,7 @@
       }
       .initial-loader__logo { width: 44px; height: 44px; border-radius: 12px; }
       #initial-loader-status { margin: 0; }
+      #initial-loader-status:empty { display: none; }
       #initial-loader-retry { color: #5b4fe9; font-weight: 700; }
       #initial-loader[data-leaving='true'] { opacity: 0; pointer-events: none; }
       #initial-loader[data-failed='true'] .initial-loader__mark::before { animation: none; }
@@ -117,12 +124,12 @@
         );
       })();
     </script>
-    <div id="initial-loader" role="status" aria-live="polite">
+    <div id="initial-loader" role="status" aria-live="polite" aria-label="Đang tải trang">
       <div class="initial-loader__content">
         <div class="initial-loader__mark" aria-hidden="true">
           <img class="initial-loader__logo" src="assets/images/phanthangblog_logo.png" width="44" height="44" alt="" />
         </div>
-        <p id="initial-loader-status">Đang tải trang…</p>
+        <p id="initial-loader-status"></p>
         <a id="initial-loader-retry" href="" hidden>Tải lại trang</a>
       </div>
     </div>
