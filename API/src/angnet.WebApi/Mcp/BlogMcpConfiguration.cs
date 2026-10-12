@@ -53,14 +53,12 @@ public static class BlogMcpConfiguration
                     options.AddDevelopmentSigningCertificate().AddDevelopmentEncryptionCertificate();
                 else
                 {
-                    var rsa = RSA.Create();
-                    rsa.ImportRSAPrivateKey(Convert.FromBase64String(settings.SigningKey), out _);
-                    if (rsa.KeySize < 2048) throw new InvalidOperationException("MCP signing RSA key must be at least 2048 bits.");
+                    var rsa = BlogMcpKeys.ReadSigningKey(settings.SigningKey);
                     options.AddSigningKey(new RsaSecurityKey(rsa)
                     {
                         KeyId = Convert.ToHexString(SHA256.HashData(rsa.ExportSubjectPublicKeyInfo()))[..16]
                     });
-                    options.AddEncryptionKey(new SymmetricSecurityKey(Convert.FromBase64String(settings.EncryptionKey)));
+                    options.AddEncryptionKey(new SymmetricSecurityKey(BlogMcpKeys.ReadEncryptionKey(settings.EncryptionKey)));
                 }
                 var host = options.UseAspNetCore().EnableAuthorizationEndpointPassthrough().EnableTokenEndpointPassthrough();
                 if (builder.Environment.IsDevelopment()) host.DisableTransportSecurityRequirement();
@@ -97,9 +95,9 @@ public static class BlogMcpConfiguration
             throw new InvalidOperationException("Configure exact HTTPS ChatGPT OAuth callback URLs; wildcards are not supported.");
         if (!development || !string.IsNullOrEmpty(settings.SigningKey))
         {
-            if (string.IsNullOrWhiteSpace(settings.SigningKey) || string.IsNullOrWhiteSpace(settings.EncryptionKey)
-                || Convert.FromBase64String(settings.EncryptionKey).Length != 32)
-                throw new InvalidOperationException("Mcp requires a persistent RSA signing key and a 32-byte encryption key in secrets.");
+            using var rsa = BlogMcpKeys.ReadSigningKey(settings.SigningKey);
+            var encryption = BlogMcpKeys.ReadEncryptionKey(settings.EncryptionKey);
+            CryptographicOperations.ZeroMemory(encryption);
         }
     }
 

@@ -13,7 +13,7 @@ Thêm các environment variables vào **API**, không phải Angular Client:
 | `Mcp__Enabled` | `true` |
 | `Mcp__Issuer` | `https://ang-net.onrender.com/` |
 | `Mcp__BlogUrl` | `https://phanthang.site` |
-| `Mcp__SigningKey` | RSA private key PKCS#1 DER, base64; tối thiểu 2048 bit |
+| `Mcp__SigningKey` | RSA private key PEM hoặc base64 DER PKCS#1/PKCS#8; tối thiểu 2048 bit |
 | `Mcp__EncryptionKey` | 32 byte ngẫu nhiên, base64 |
 | `Mcp__RedirectUris__0` | `https://chatgpt.com/connector_platform_oauth_redirect` |
 
@@ -22,18 +22,39 @@ Không đưa vào Git, frontend hoặc chat. Không tạo lại khóa mỗi lầ
 đổi khóa sẽ làm các grant đang lưu không dùng được và phải kết nối lại.
 Issuer phải đúng origin HTTPS của API, có `/` ở cuối, không thêm `/api/`.
 
-Ví dụ tạo khóa trên máy của bạn bằng OpenSSL:
+Ví dụ tạo khóa trên máy của bạn bằng OpenSSL (Git Bash có OpenSSL cũng dùng được):
 
 ```sh
-openssl genrsa -traditional -out mcp-signing-private.pem 3072
-openssl rsa -in mcp-signing-private.pem -traditional -outform DER -out mcp-signing-private.der
-openssl base64 -A -in mcp-signing-private.der
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out mcp-signing-private.pem
 openssl rand -base64 32
 ```
 
-Chạy ngoài repo, không trong terminal được ghi log/chia sẻ. Dòng thứ ba là
-`Mcp__SigningKey`; dòng cuối là `Mcp__EncryptionKey`. Cất khóa vào nơi lưu
+Chạy ngoài repo, không trong terminal được ghi log/chia sẻ. Copy **toàn bộ nội dung**
+file `mcp-signing-private.pem` (bao gồm BEGIN/END PRIVATE KEY) vào `Mcp__SigningKey`;
+kết quả dòng cuối là `Mcp__EncryptionKey`. Không thêm dấu nháy bao quanh giá trị.
+API cũng nhận PEM có xuống dòng dạng `\n`, base64 của cả file PEM, hoặc base64 DER.
+Cất khóa vào nơi lưu
 secrets an toàn, sau đó xử lý các file riêng tư theo chính sách của bạn.
+
+### Lỗi `ASN1 corrupted data` khi deploy
+
+Build thành công nhưng ứng dụng dừng ở `ImportRSAPrivateKey` nghĩa là dữ liệu
+`Mcp__SigningKey` không đọc được theo định dạng khóa private RSA. Không phải do
+các cảnh báo nullable trong build. Khóa có thể sai định dạng, bị chép thiếu hoặc
+bị nhầm với encryption key; chỉ log không thể xác định chính xác trường hợp nào.
+
+- Khôi phục blog trước: đặt `Mcp__Enabled=false` trong Environment của API trên
+  Render và redeploy. MCP/OAuth tắt, các chức năng blog khác giữ nguyên.
+- Muốn bật MCP: dùng khóa private RSA hợp lệ theo hướng dẫn trên và encryption
+  key 32 byte riêng. Nếu khóa cũ đã dùng được, giữ nguyên key đó và đổi cách mã hóa,
+  không tạo lại tùy tiện. Nếu chưa có key hợp lệ thì tạo mới một lần.
+- Không điền password quản trị, tên file, public key, chuỗi mẫu hay kết quả
+  `openssl rand -base64 32` vào **SigningKey**. Chuỗi ngẫu nhiên đó chỉ dành cho
+  **EncryptionKey**. Không gửi hai khóa qua chat.
+
+Đọc định dạng theo [tài liệu RSA của Microsoft](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.rsa.importfrompem?view=net-8.0).
+API kiểm tra khóa trước khi cấu hình OAuth và báo rõ tên biến sai, không ghi giá
+trị secret ra log. Khóa sai vẫn bị từ chối, không tự tạo khóa tạm hoặc bỏ xác thực.
 
 Sau deploy, migration `0050_TaoBangBlogMcpOAuth.sql` tự tạo bốn bảng OAuth và
 hai quyền mới. Tài khoản Admin được phép theo cơ chế hiện tại; tài khoản khác
