@@ -18,6 +18,18 @@ export interface ICreateNews {
   LstHashTagNewsEn: IHashTagNews[];
   LstRefFileNews: IRefFileNews[];
 }
+export interface INewsSearchFilters {
+  titleOnly?: boolean;
+  createdFrom?: string;
+  createdBefore?: string;
+  isPinned?: boolean;
+  published?: boolean;
+}
+export interface INewsAuthor {
+  UserId: string;
+  Name: string;
+}
+
 export interface INews {
   NewsId: string;
   UserId: string;
@@ -157,8 +169,7 @@ export interface ISubscriberItem {
   UnsubscribedDTime: string | null;
 }
 
-export interface ISubscriberSearchResponse
-  extends IBaseResponse<ISubscriberItem> {
+export interface ISubscriberSearchResponse extends IBaseResponse<ISubscriberItem> {
   objResult: IPageInfo<ISubscriberItem>;
 }
 
@@ -178,7 +189,8 @@ export type INotifyResultResponse = Omit<
   Data: INotifyResult;
 };
 
-export type TEmailDeliveryStatus = 'Pending' | 'Succeeded' | 'Failed' | 'Skipped';
+export type TEmailDeliveryStatus =
+  'Pending' | 'Succeeded' | 'Failed' | 'Skipped';
 
 export interface IEmailDeliverySummary {
   Total: number;

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { INewsAuthor, INewsSearchFilters } from '../interfaces/news';
 import {
   IRequestProvinceCreate,
   IResponseProvinceCreate,
@@ -251,10 +252,31 @@ export class ApiService {
     hashTag = '',
     sort = '',
     pinnedFirst = false,
-    whoCanSee = ''
+    whoCanSee = '',
+    filters: INewsSearchFilters = {}
   ): Observable<INewsResponse> {
-    return this.http.get<INewsResponse>(
-      `${this.apiUrl}news/search?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}&userid=${userId}&categoryid=${categoryId}&onlyPublished=${onlyPublished}&hashTag=${encodeURIComponent(hashTag)}&sort=${sort}&pinnedFirst=${pinnedFirst}&whoCanSee=${encodeURIComponent(whoCanSee)}`
+    let params = new HttpParams()
+      .set('pageIndex', pageIndex)
+      .set('pageSize', pageSize)
+      .set('keyword', keyword)
+      .set('userId', userId)
+      .set('categoryId', categoryId)
+      .set('onlyPublished', onlyPublished)
+      .set('hashTag', hashTag)
+      .set('sort', sort)
+      .set('pinnedFirst', pinnedFirst)
+      .set('whoCanSee', whoCanSee);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined) params = params.set(key, value);
+    }
+    return this.http.get<INewsResponse>(`${this.apiUrl}news/search`, {
+      params,
+    });
+  }
+
+  NewsAuthors(): Observable<{ Success: boolean; DataList: INewsAuthor[] }> {
+    return this.http.get<{ Success: boolean; DataList: INewsAuthor[] }>(
+      `${this.apiUrl}news/authors`
     );
   }
 

@@ -465,24 +465,34 @@ namespace angnet.Infrastructure.Data.Repositories
 
             switch (sort)
             {
+                case "oldest":
+                    return pinned.ThenBy(i => i.CreatedDTime).ThenBy(i => i.NewsId);
+                case "title":
+                    return pinned.ThenBy(i => i.ShortTitle).ThenBy(i => i.NewsId);
+                case "title_desc":
+                    return pinned.ThenByDescending(i => i.ShortTitle).ThenBy(i => i.NewsId);
+                case "updated":
+                    return pinned.ThenByDescending(i => i.UpdatedDTime).ThenBy(i => i.NewsId);
+                case "views_asc":
+                    return pinned.ThenBy(i => i.ViewCount).ThenBy(i => i.NewsId);
                 // Cột News.ViewCount được tăng mỗi lần gọi Detail nên đọc thẳng được.
                 case "views":
                     return pinned.ThenByDescending(i => i.ViewCount)
-                                 .ThenByDescending(i => i.CreatedDTime);
+                                 .ThenByDescending(i => i.CreatedDTime).ThenBy(i => i.NewsId);
 
                 // Không dùng cột News.LikeCount: cột đó không có chỗ nào ghi vào (chỉ Reel
                 // mới duy trì cột tương tự), like của bài viết nằm ở bảng LikeNews -
                 // FactoryNewsRecord cũng đang đếm theo bảng đó nên sắp xếp phải khớp.
                 case "likes":
                     return pinned.ThenByDescending(i => _dbContext.LikeNews.Count(l => l.NewsId == i.NewsId))
-                                 .ThenByDescending(i => i.CreatedDTime);
+                                 .ThenByDescending(i => i.CreatedDTime).ThenBy(i => i.NewsId);
 
                 default:
-                    return pinned.ThenByDescending(i => i.CreatedDTime);
+                    return pinned.ThenByDescending(i => i.CreatedDTime).ThenBy(i => i.NewsId);
             }
         }
 
-        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false, string whoCanSee = "")
+        public async Task<ApiResponse<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false, string whoCanSee = "", NewsSearchFilterDto? filters = null)
         {
             ApiResponse<RPNewsDto> apiResponse = new ApiResponse<RPNewsDto>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -540,26 +550,24 @@ namespace angnet.Infrastructure.Data.Repositories
             //
             List<NewsModel> dataResult = new List<NewsModel>();
 
-            IQueryable<NewsModel> query;
+            IQueryable<NewsModel> query = _dbContext.News.AsNoTracking();
 
             if (!TCommonUtils.IsNullOrEmpty(_keyword))
             {
-                query = _dbContext.News.AsNoTracking()
-                                     .Where(i =>
+                query = query.Where(i =>
                                              i.ShortTitle.Trim().ToLower().Contains(_keyword)
-                                             || i.ShortDescription.Trim().ToLower().Contains(_keyword)
                                              || i.ShortTitleEn.Trim().ToLower().Contains(_keyword)
-                                             || i.ShortDescriptionEn.Trim().ToLower().Contains(_keyword)
+                                             || (!(filters != null && filters.TitleOnly) && (i.ShortDescription.Trim().ToLower().Contains(_keyword)
+                                             || i.ShortDescriptionEn.Trim().ToLower().Contains(_keyword)))
                                      );
             }
-            else if (!TCommonUtils.IsNullOrEmpty(_userId))
+            if (!TCommonUtils.IsNullOrEmpty(_userId))
             {
-                query = _dbContext.News.AsNoTracking()
-                                     .Where(i =>
+                query = query.Where(i =>
                                              i.UserId.Trim().ToLower() == _userId
                                      );
             }
-            else if (!TCommonUtils.IsNullOrEmpty(_categoryId))
+            if (!TCommonUtils.IsNullOrEmpty(_categoryId))
             {
                 // Khi chọn một danh mục cha, danh sách phải gồm cả bài nằm trong mọi
                 // nhánh con. Trước đây chỉ so sánh đúng CategoryNewsId nên bấm cha có
@@ -574,8 +582,7 @@ namespace angnet.Infrastructure.Data.Repositories
 
                 if (selectedCategory is null)
                 {
-                    query = _dbContext.News.AsNoTracking()
-                                         .Where(i => i.CategoryNewsId.Trim().ToLower() == _categoryId);
+                    query = query.Where(i => i.CategoryNewsId.Trim().ToLower() == _categoryId);
                 }
                 else
                 {
@@ -583,15 +590,18 @@ namespace angnet.Infrastructure.Data.Repositories
                             selectedCategory.NewsCategoryId,
                             activeCategories);
 
-                    query = _dbContext.News.AsNoTracking()
-                                         .Where(i => branchIds.Contains(i.CategoryNewsId));
+                    query = query.Where(i => branchIds.Contains(i.CategoryNewsId));
                 }
             }
-            else
-            {
-                query = _dbContext.News.AsNoTracking()
-                                     .Where(i => true);
-            }
+
+            if (filters?.CreatedFrom is { } from)
+                query = query.Where(i => i.CreatedDTime >= from.UtcDateTime);
+            if (filters?.CreatedBefore is { } before)
+                query = query.Where(i => i.CreatedDTime < before.UtcDateTime);
+            if (filters?.IsPinned is { } isPinned)
+                query = query.Where(i => i.IsPinned == isPinned);
+            if (filters?.Published is { } published)
+                query = query.Where(i => i.FlagActive == published);
 
             // Loc theo hashtag dat ngoai chuoi if/else o tren de no CONG DON voi cac
             // dieu kien kia thay vi loai tru nhau (vd: hashtag + danh muc).
@@ -683,9 +693,8 @@ namespace angnet.Infrastructure.Data.Repositories
             string visibilityScope = onlyPublished
                     ? $"tenant:{viewerTenantId?.ToString() ?? "anonymous"}"
                     : $"viewer:{viewerUserId}|tenant:{viewerTenantId?.ToString() ?? "none"}";
-            // v7: bản cache v6 được ghi khi Search chưa loại bài thuộc danh mục đang
-            // tắt. Đổi phiên bản để sau deploy không trả lại các trang cũ đó.
-            string primaryKey = $"v7|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})";
+            // v8: combine title/author/category and isolate all date, pin and status filters.
+            string primaryKey = $"v8|({pageIndex}, {pageSize}, {keyword}, {userId}, {categoryId}, {onlyPublished}, {hashTag}, {_sort}, {pinnedFirst}, {visibilityFilter?.ToString() ?? "all"}, {visibilityScope})|filters={System.Text.Json.JsonSerializer.Serialize(filters)}";
             string keyStoreManager = TConstValue.NewsRespository_Search;
 
             string fieldKey = GenerateUniqueCacheKey(keyStoreManager, primaryKey);
@@ -727,6 +736,22 @@ namespace angnet.Infrastructure.Data.Repositories
             apiResponse.objResult = pageInfo;
 
             return apiResponse;
+        }
+
+        public async Task<ApiResponse<NewsAuthorDto>> Authors()
+        {
+            var viewerId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            var admin = CanViewUnpublished(string.Empty);
+            var tenantId = await _dbContext.Users.Where(u => u.Id == viewerId).Select(u => u.TenantId).FirstOrDefaultAsync();
+            var authorIds = _dbContext.News.AsNoTracking()
+                .Where(n => admin ? n.WhoCanSee == EWhoCanSee.Public || n.UserId == viewerId
+                    || (n.WhoCanSee == EWhoCanSee.Tenant && tenantId > 0 && _dbContext.Users.Any(u => u.Id == n.UserId && u.TenantId == tenantId))
+                    : n.UserId == viewerId)
+                .Select(n => n.UserId);
+            var authors = await _dbContext.Users.AsNoTracking().Where(u => authorIds.Contains(u.Id))
+                .Select(u => new NewsAuthorDto { UserId = u.Id, Name = u.FullName != "" ? u.FullName : u.UserName! })
+                .OrderBy(u => u.Name).ThenBy(u => u.UserId).ToListAsync();
+            return new ApiResponse<NewsAuthorDto> { DataList = authors };
         }
 
         /// <summary>

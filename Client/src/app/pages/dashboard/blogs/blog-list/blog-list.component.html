@@ -15,6 +15,105 @@
         </span>
       </header>
 
+      <form
+        class="blog-list-page__filters"
+        (ngSubmit)="applyFilters()"
+        aria-label="Tìm kiếm và lọc bài viết">
+        <div class="blog-list-page__filter blog-list-page__filter--wide">
+          <label for="blog-title-search">Tiêu đề</label>
+          <nz-input-group nzPrefixIcon="search">
+            <input
+              id="blog-title-search"
+              nz-input
+              name="title"
+              [(ngModel)]="filters.title"
+              placeholder="Tìm theo tiêu đề tiếng Việt hoặc tiếng Anh" />
+          </nz-input-group>
+        </div>
+        <div class="blog-list-page__filter blog-list-page__filter--wide">
+          <label for="blog-created-range">Ngày tạo</label>
+          <nz-range-picker
+            nzId="blog-created-range"
+            name="dates"
+            [(ngModel)]="filters.dates"
+            nzFormat="dd/MM/yyyy"
+            [nzPlaceHolder]="['Từ ngày', 'Đến ngày']" />
+        </div>
+        <div *ngIf="canFilterAuthors" class="blog-list-page__filter">
+          <label for="blog-author-filter">Tác giả</label>
+          <nz-select
+            nzId="blog-author-filter"
+            name="author"
+            [(ngModel)]="filters.author"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Tất cả tác giả"
+            nzDropdownClassName="admin-status-dropdown">
+            <nz-option
+              *ngFor="let author of authors"
+              [nzValue]="author.UserId"
+              [nzLabel]="author.Name" />
+          </nz-select>
+        </div>
+        <div class="blog-list-page__filter">
+          <label for="blog-pin-filter">Ghim bài viết</label>
+          <nz-select
+            nzId="blog-pin-filter"
+            name="pinned"
+            [(ngModel)]="filters.pinned"
+            nzAllowClear
+            nzPlaceHolder="Tất cả"
+            nzDropdownClassName="admin-status-dropdown">
+            <nz-option [nzValue]="true" nzLabel="Đang ghim" />
+            <nz-option [nzValue]="false" nzLabel="Chưa ghim" />
+          </nz-select>
+        </div>
+        <div class="blog-list-page__filter">
+          <label for="blog-status-filter">Trạng thái</label>
+          <nz-select
+            nzId="blog-status-filter"
+            name="status"
+            [(ngModel)]="filters.status"
+            nzDropdownClassName="admin-status-dropdown">
+            <nz-option nzValue="" nzLabel="Tất cả trạng thái" />
+            <nz-option nzValue="draft" nzLabel="Bản nháp" />
+            <nz-option nzValue="published" nzLabel="Đã xuất bản" />
+            <nz-option nzValue="Public" nzLabel="Công khai" />
+            <nz-option nzValue="Private" nzLabel="Chỉ mình tôi" />
+            <nz-option nzValue="Tenant" nzLabel="Trong nhóm" />
+          </nz-select>
+        </div>
+        <div class="blog-list-page__filter">
+          <label for="blog-sort">Sắp xếp</label>
+          <nz-select
+            nzId="blog-sort"
+            name="sort"
+            [(ngModel)]="sort"
+            (ngModelChange)="changeSort()"
+            nzDropdownClassName="admin-status-dropdown">
+            <nz-option
+              *ngFor="let option of sortOptions"
+              [nzValue]="option.value"
+              [nzLabel]="option.label" />
+          </nz-select>
+        </div>
+        <div class="blog-list-page__filter-actions">
+          <button nz-button nzType="default" type="submit">
+            <span nz-icon nzType="filter" nzTheme="outline"></span>Áp dụng
+          </button>
+          <button
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="resetFilters()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>Đặt lại
+          </button>
+          <span class="blog-list-page__filter-hint"
+            >Ngày kết thúc bao gồm cả ngày được chọn.</span
+          >
+        </div>
+      </form>
+
       <nz-table
         class="blog-list-page__table"
         nzShowSizeChanger
@@ -30,21 +129,11 @@
         <thead>
           <tr>
             <th nzWidth="56px">STT</th>
-            <th nzColumnKey="ShortTitle" [nzSortFn]="true" nzWidth="360px">
-              Bài viết
-            </th>
-            <th nzColumnKey="FullName" [nzFilterFn]="true" nzWidth="120px">
-              Tác giả
-            </th>
-            <th nzColumnKey="ViewCount" [nzFilterFn]="true" nzWidth="92px">
-              Lượt xem
-            </th>
-            <th nzColumnKey="CreatedDTime" [nzFilterFn]="true" nzWidth="145px">
-              Ngày tạo
-            </th>
-            <th nzColumnKey="FlagActive" [nzSortFn]="true" nzWidth="116px">
-              Trạng thái
-            </th>
+            <th nzWidth="360px">Bài viết</th>
+            <th nzWidth="120px">Tác giả</th>
+            <th nzWidth="92px">Lượt xem</th>
+            <th nzWidth="145px">Ngày tạo</th>
+            <th nzWidth="116px">Trạng thái</th>
             <th nzWidth="90px">Ghim</th>
             <th *ngIf="canNotify" nzWidth="152px">Thông báo</th>
             <th nzRight nzWidth="76px" class="blog-list-page__action-heading">
@@ -140,9 +229,7 @@
                     : 'Chỉ bài công khai mới gửi thông báo được'
                 "
                 nz-popconfirm
-                [nzPopconfirmTitle]="
-                  'Gửi mail báo bài này cho tất cả người đăng ký? Gửi rồi không thu hồi được.'
-                "
+                [nzPopconfirmTitle]="'Gửi mail báo bài này cho tất cả người đăng ký? Gửi rồi không thu hồi được.'"
                 nzOkText="Gửi"
                 nzCancelText="Huỷ"
                 (nzOnConfirm)="handleNotifySubscribers(data)">
@@ -174,9 +261,28 @@
       <ng-template #emptyState>
         <div class="blog-list-page__empty">
           <span nz-icon nzType="file-text" nzTheme="outline"></span>
-          <strong>Chưa có bài viết</strong>
-          <p>Tạo bài viết đầu tiên để bắt đầu xây dựng nội dung cho blog.</p>
-          <button nz-button nzType="primary" (click)="handleOpenCreate()">
+          <strong>{{
+            hasFilters ? 'Không tìm thấy bài viết phù hợp' : 'Chưa có bài viết'
+          }}</strong>
+          <p>
+            {{
+              hasFilters
+                ? 'Thử đổi tiêu đề, khoảng ngày hoặc đặt lại bộ lọc.'
+                : 'Tạo bài viết đầu tiên để bắt đầu xây dựng nội dung cho blog.'
+            }}
+          </p>
+          <button
+            *ngIf="hasFilters"
+            nz-button
+            nzType="default"
+            (click)="resetFilters()">
+            Đặt lại bộ lọc
+          </button>
+          <button
+            *ngIf="!hasFilters"
+            nz-button
+            nzType="primary"
+            (click)="handleOpenCreate()">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
             Tạo bài viết
           </button>

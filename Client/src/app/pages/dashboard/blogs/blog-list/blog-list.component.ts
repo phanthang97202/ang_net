@@ -4,7 +4,11 @@ import {
   ElementRef,
   inject,
   OnInit,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, Subscription } from 'rxjs';
+import { INewsAuthor } from '../../../../interfaces/news';
 import {
   ShowErrorService,
   LoadingService,
@@ -13,12 +17,10 @@ import {
 } from '../../../../services';
 import { IDetailNews } from '../../../../interfaces';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NonNullableFormBuilder } from '@angular/forms';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../../../modules';
+import { AntdModule } from '../../../../modules/antd.module';
+import { BreadcrumbComponent } from '../../../../components/breadcrumb/breadcrumb.component';
+import { NewsImgDirective } from '../../../../directives/news-img.directive';
+import { LocalDTime } from '../../../../pipes/localeDTime.pipe';
 import { Router } from '@angular/router';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
 import { AuthService } from '../../../../services';
@@ -30,8 +32,9 @@ import { NzModalService } from 'ng-zorro-antd/modal';
   standalone: true,
   imports: [
     AntdModule,
-    ...REUSE_COMPONENT_MODULES,
-    ...REUSE_PIPE_MODULE,
+    BreadcrumbComponent,
+    NewsImgDirective,
+    LocalDTime,
     FormsModule,
   ],
   templateUrl: './blog-list.component.html',
@@ -47,6 +50,65 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
   private newsCacheService = inject(NewsCacheService);
   private modal = inject(NzModalService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private destroyRef = inject(DestroyRef);
+  private dataRequest?: Subscription;
+  readonly canFilterAuthors = this.authService.isAdminPermission();
+  authors: INewsAuthor[] = [];
+  filters = this.defaultFilters();
+  private appliedFilters = this.defaultFilters();
+  sort = 'latest';
+  readonly sortOptions = [
+    { value: 'latest', label: 'Ngày tạo: mới nhất' },
+    { value: 'oldest', label: 'Ngày tạo: cũ nhất' },
+    { value: 'updated', label: 'Cập nhật gần nhất' },
+    { value: 'title', label: 'Tiêu đề: A → Z' },
+    { value: 'title_desc', label: 'Tiêu đề: Z → A' },
+    { value: 'views', label: 'Lượt xem: cao → thấp' },
+    { value: 'views_asc', label: 'Lượt xem: thấp → cao' },
+    { value: 'likes', label: 'Nhiều lượt thích nhất' },
+  ];
+
+  private defaultFilters() {
+    return {
+      title: '',
+      dates: [] as Date[],
+      author: null as string | null,
+      pinned: null as boolean | null,
+      status: '',
+    };
+  }
+
+  get hasFilters(): boolean {
+    const f = this.appliedFilters;
+    return !!(
+      f.title ||
+      f.dates.length ||
+      f.author ||
+      f.pinned !== null ||
+      f.status
+    );
+  }
+
+  applyFilters(): void {
+    this.appliedFilters = {
+      ...this.filters,
+      title: this.filters.title.trim(),
+      dates: [...(this.filters.dates || [])],
+    };
+    this.pageIndex = 1;
+    this.fetchData();
+  }
+
+  resetFilters(): void {
+    this.filters = this.defaultFilters();
+    this.sort = 'latest';
+    this.applyFilters();
+  }
+
+  changeSort(): void {
+    this.pageIndex = 1;
+    this.fetchData();
+  }
 
   // Id người đang đăng nhập, đọc một lần chứ không gọi trong template: template
   // chạy lại mỗi vòng change detection, mà getAccountInfo() thì giải mã JWT.
@@ -68,6 +130,15 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getAccountInfo().nameid || '';
+    if (this.canFilterAuthors) {
+      this.api
+        .NewsAuthors()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: response => (this.authors = response?.DataList || []),
+          error: error => this.handleApiError(error),
+        });
+    }
     this.listButtonsHeader = [
       ...(this.authService.hasPermission('blog.noticenews')
         ? [
@@ -91,6 +162,17 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
+    const dateInputs =
+      this.host.nativeElement.querySelectorAll<HTMLInputElement>(
+        '#blog-created-range, #blog-created-range-end'
+      );
+    dateInputs.forEach((input, index) => {
+      input.setAttribute(
+        'aria-label',
+        index === 0 ? 'Ngày tạo: từ ngày' : 'Ngày tạo: đến ngày'
+      );
+      if (index === 1) input.id = 'blog-created-range-end';
+    });
     // NG-ZORRO 17 không truyền accessible name xuống input nội bộ của bộ chọn
     // số dòng/trang. Pagination có thể render lại sau mỗi lần tải dữ liệu nên
     // gắn nhãn sau view-check để luôn giữ được tên điều khiển cho screen reader.
@@ -167,22 +249,54 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
   }
 
   onQueryParamsChange(params: NzTableQueryParams): void {
+    if (
+      params.pageIndex === this.pageIndex &&
+      params.pageSize === this.pageSize
+    )
+      return;
     this.pageIndex = params.pageIndex;
     this.pageSize = params.pageSize;
     this.fetchData();
   }
 
   private fetchData(): void {
+    this.dataRequest?.unsubscribe();
     this.tableLoading = true;
     this.setLoading(true);
-    this.api
+    const f = this.appliedFilters;
+    const start = f.dates[0] ? new Date(f.dates[0]) : undefined;
+    const end = f.dates[1] ? new Date(f.dates[1]) : undefined;
+    start?.setHours(0, 0, 0, 0);
+    if (end) {
+      end.setHours(0, 0, 0, 0);
+      end.setDate(end.getDate() + 1);
+    }
+    this.dataRequest = this.api
       .SearchNews(
         this.pageIndex - 1,
         this.pageSize,
+        f.title,
+        this.canFilterAuthors ? f.author || '' : this.currentUserId,
         '',
-        this.authService.isAdminPermission() ? '' : this.currentUserId,
+        false,
         '',
-        false
+        this.sort,
+        false,
+        ['Public', 'Private', 'Tenant'].includes(f.status) ? f.status : '',
+        {
+          titleOnly: true,
+          createdFrom: start?.toISOString(),
+          createdBefore: end?.toISOString(),
+          isPinned: f.pinned ?? undefined,
+          published: f.status === 'draft' ? false : f.status ? true : undefined,
+        }
+      )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.tableLoading = false;
+          this.setLoading(false);
+        })
       )
       .subscribe({
         next: response => {
@@ -198,10 +312,6 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
           }
         },
         error: err => this.handleApiError(err),
-        complete: () => {
-          this.tableLoading = false;
-          this.setLoading(false);
-        },
       });
   }
 
@@ -225,18 +335,20 @@ export class BlogListComponent implements OnInit, AfterViewChecked {
 
   statusLabel(data: IDetailNews): string {
     if (!data.FlagActive) return 'Bản nháp';
+    if (data.WhoCanSee === 'Tenant') return 'Trong nhóm';
     return data.WhoCanSee === 'Private' ? 'Chỉ mình tôi' : 'Công khai';
   }
 
   statusClass(data: IDetailNews): string {
     if (!data.FlagActive) return 'blog-list-page__status--draft';
-    return data.WhoCanSee === 'Private'
+    return data.WhoCanSee !== 'Public'
       ? 'blog-list-page__status--private'
       : 'blog-list-page__status--public';
   }
 
   statusIcon(data: IDetailNews): string {
     if (!data.FlagActive) return 'file-text';
+    if (data.WhoCanSee === 'Tenant') return 'team';
     return data.WhoCanSee === 'Private' ? 'lock' : 'global';
   }
 

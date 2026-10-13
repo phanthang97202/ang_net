@@ -24,11 +24,13 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("Search")]
-        public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false, string whoCanSee = "")
+        public async Task<ActionResult<RPNewsDto>> Search(int pageIndex, int pageSize, string keyword, string userId, string categoryId, [FromQuery] NewsSearchFilterDto filters, bool onlyPublished = true, string hashTag = "", string sort = "", bool pinnedFirst = false, string whoCanSee = "")
         {
             try
             {
-                ApiResponse<RPNewsDto> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId, onlyPublished, hashTag, sort, pinnedFirst, whoCanSee);
+                if (filters.CreatedFrom.HasValue && filters.CreatedBefore.HasValue && filters.CreatedFrom >= filters.CreatedBefore)
+                    return BadRequest("Khoảng ngày tạo không hợp lệ.");
+                ApiResponse<RPNewsDto> response = await _newsRespository.Search(pageIndex, pageSize, keyword, userId, categoryId, onlyPublished, hashTag, sort, pinnedFirst, whoCanSee, filters);
                 return Ok(response);
             }
             catch (Exception)
@@ -36,6 +38,10 @@ namespace angnet.WebApi.Controllers
                 throw;
             }
         }
+
+        [Authorize(Policy = "blog.view")]
+        [HttpGet("Authors")]
+        public async Task<IActionResult> Authors() => Ok(await _newsRespository.Authors());
 
         [AllowAnonymous]
         [HttpGet("CategoryPreview")]
