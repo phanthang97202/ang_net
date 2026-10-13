@@ -33,6 +33,7 @@ export type AccountSecurityAction = 'revoke' | 'lock' | 'unlock';
       [nzMaskClosable]="false"
       nzCancelText="Hủy"
       nzClassName="admin-modal admin-account-security"
+      nzWrapClassName="admin-modal-wrap"
       (nzOnCancel)="cancel()"
       (nzOnOk)="save()">
       <ng-container *nzModalContent>

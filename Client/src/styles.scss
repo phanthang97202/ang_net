@@ -1553,6 +1553,49 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
 
 // Popup của dashboard. Modal render qua CDK overlay nên không nằm trong
 // .admin-ui; các màn admin bật style này bằng nzClassName="admin-modal".
+.admin-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  overscroll-behavior: none;
+  padding: 16px;
+
+  // Override NG-ZORRO's default 100px top offset and outer scrolling.
+  &::before {
+    display: none;
+  }
+
+  .ant-modal {
+    top: 0;
+    flex: none;
+    max-width: min(90vw, calc(100vw - 32px));
+    margin: 0;
+    padding-bottom: 0;
+  }
+
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+    max-height: min(90dvh, calc(100dvh - 32px));
+    overflow: hidden;
+  }
+
+  .ant-modal-header,
+  .ant-modal-footer {
+    flex: none;
+  }
+
+  .ant-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+}
+
 .admin-modal {
   .ant-modal-content {
     overflow: hidden;
@@ -1608,7 +1651,6 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
     padding: 22px 24px;
     background: var(--admin-bg);
     color: var(--admin-text);
-    max-height: calc(100vh - 220px);
     overflow: auto;
   }
 
@@ -1720,6 +1762,19 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
 }
 
 @media (max-width: 767px) {
+  .admin-modal-wrap {
+    padding: 12px;
+
+    .ant-modal {
+      max-width: calc(100vw - 24px);
+    }
+
+    .ant-modal-content {
+      max-height: calc(100vh - 24px);
+      max-height: min(94dvh, calc(100dvh - 24px));
+    }
+  }
+
   .admin-modal {
     .ant-modal-header,
     .ant-modal-body,
