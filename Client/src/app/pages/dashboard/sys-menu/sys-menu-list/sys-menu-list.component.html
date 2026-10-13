@@ -2,18 +2,21 @@
   <app-breadcrumb title="Menu trang chủ" [buttons]="listButtonsHeader" />
 
   <main class="menu-list-page__content">
-    <section class="menu-list-page__panel" aria-labelledby="menu-list-title">
-      <header class="menu-list-page__panel-header">
-        <h2 id="menu-list-title">Danh sách menu</h2>
-        <span class="menu-list-page__count">
-          {{ rows.length | number }} mục
-        </span>
-      </header>
-
+    <section class="menu-list-page__panel" aria-label="Danh sách menu">
+      <div class="admin-list-toolbar">
+        <nz-input-group nzPrefixIcon="search">
+          <input
+            nz-input
+            [(ngModel)]="keyword"
+            aria-label="Tìm menu"
+            placeholder="Tìm theo tên hoặc đường dẫn menu..." />
+        </nz-input-group>
+        <button nz-button nzType="text" (click)="keyword = ''">Đặt lại</button>
+      </div>
       <nz-table
         #menuTable
         class="menu-list-page__table"
-        [nzData]="rows"
+        [nzData]="filteredRows"
         [nzFrontPagination]="false"
         [nzShowPagination]="false"
         [nzScroll]="{ x: '1020px' }"

@@ -1,30 +1,32 @@
 <div class="master__container user-page">
-  <app-breadcrumb title="Người dùng" />
+  <app-breadcrumb title="Người dùng"
+    ><ng-container breadcrumbActions
+      ><button
+        *ngIf="authService.isAdminPermission()"
+        nz-button
+        nzType="primary"
+        (click)="editCredentials(null)">
+        <span nz-icon nzType="user-add" nzTheme="outline"></span> Tạo tài khoản
+      </button></ng-container
+    ></app-breadcrumb
+  >
 
   <main class="user-page__content">
-    <section class="user-page__panel" aria-labelledby="user-list-title">
-      <header class="user-page__panel-header">
-        <div>
-          <h2 id="user-list-title">Danh sách người dùng</h2>
-          <p>Tài khoản đã đăng nhập hệ thống và vai trò đang được gán.</p>
-        </div>
-        <div class="user-page__actions">
-          <span class="user-page__count">{{ lstUsers.length }} người dùng</span>
-          <button
-            *ngIf="authService.isAdminPermission()"
-            nz-button
-            nzType="primary"
-            (click)="editCredentials(null)">
-            <span nz-icon nzType="user-add" nzTheme="outline"></span> Tạo tài
-            khoản
-          </button>
-        </div>
-      </header>
-
+    <section class="user-page__panel" aria-label="Danh sách người dùng">
+      <div class="admin-list-toolbar">
+        <nz-input-group nzPrefixIcon="search">
+          <input
+            nz-input
+            [(ngModel)]="keyword"
+            aria-label="Tìm người dùng"
+            placeholder="Tìm theo tên, tài khoản, email hoặc vai trò..." />
+        </nz-input-group>
+        <button nz-button nzType="text" (click)="keyword = ''">Đặt lại</button>
+      </div>
       <nz-table
         class="user-page__table"
         nzShowSizeChanger
-        [nzData]="lstUsers"
+        [nzData]="filteredUsers"
         [nzFrontPagination]="false"
         [nzLoading]="false"
         [nzScroll]="{ x: '1100px' }"
@@ -48,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (data of lstUsers; track data.Id) {
+          @for (data of filteredUsers; track data.Id) {
             <tr>
               <td>
                 <div class="user-page__identity">

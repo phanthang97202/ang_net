@@ -1,19 +1,8 @@
 <div class="master__container audit-page">
-  <app-breadcrumb title="Audit Trail" />
+  <app-breadcrumb title="Nhật ký hệ thống" />
 
   <main class="audit-page__content">
-    <section class="audit-page__panel" aria-labelledby="audit-title">
-      <header class="audit-page__panel-header">
-        <div>
-          <h2 id="audit-title">Nhật ký hệ thống</h2>
-          <p>
-            Lịch sử thao tác ghi lại từ API: ai làm, làm gì, lúc nào và dữ liệu
-            thay đổi ra sao.
-          </p>
-        </div>
-        <span class="audit-page__count">{{ total | number }} bản ghi</span>
-      </header>
-
+    <section class="audit-page__panel" aria-label="Nhật ký hệ thống">
       <form
         class="audit-page__toolbar"
         nz-form
@@ -62,6 +51,15 @@
           </nz-form-control>
         </nz-form-item>
 
+        <nz-form-item class="audit-page__date-field">
+          <nz-form-control>
+            <nz-range-picker
+              formControlName="DateRange"
+              nzFormat="dd/MM/yyyy"
+              [nzPlaceHolder]="['Từ ngày', 'Đến ngày']"
+              aria-label="Khoảng ngày ghi nhật ký" />
+          </nz-form-control>
+        </nz-form-item>
         <nz-form-item>
           <button nz-button nzType="default" type="submit">Tìm kiếm</button>
         </nz-form-item>

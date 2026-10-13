@@ -50,7 +50,7 @@ namespace angnet.Infrastructure.Data.Services
             return apiResponse;
         }
 
-        public ApiResponse<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType)
+        public ApiResponse<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType, DateTimeOffset? changedFrom = null, DateTimeOffset? changedBefore = null)
         {
             ApiResponse<AuditTrailModel> apiResponse = new ApiResponse<AuditTrailModel>();
             List<RequestClient> requestClient = new List<RequestClient>();
@@ -69,7 +69,7 @@ namespace angnet.Infrastructure.Data.Services
             int _pageSize = pageSize > 0 ? pageSize : 20;
 
             (List<AuditTrailModel> dataResult, int itemCount) = _unitOfWork.AuditTrailRespository
-                                                                    .Search(_pageIndex, _pageSize, keyword, level, trailType);
+                                                                    .Search(_pageIndex, _pageSize, keyword, level, trailType, changedFrom, changedBefore);
 
             PageInfo<AuditTrailModel> pageInfo = new PageInfo<AuditTrailModel>();
             pageInfo.PageIndex = _pageIndex;

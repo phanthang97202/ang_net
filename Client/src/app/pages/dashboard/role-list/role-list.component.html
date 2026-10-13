@@ -5,25 +5,29 @@
     <!-- Tác vụ chính là đọc/soát danh sách vai trò nên nó giữ cột rộng; hai thao
          tác ngắn (tạo, gán) nằm ở rail bên phải thay vì đẩy bảng xuống dưới. -->
     <div class="role-page__grid">
-      <section class="role-page__panel" aria-labelledby="role-list-title">
-        <header class="role-page__panel-header">
-          <div>
-            <h2 id="role-list-title">Danh sách vai trò</h2>
-            <p>Các vai trò đang có và số người dùng đang giữ từng vai trò.</p>
-          </div>
-          <span class="role-page__count">{{ lstRoles.length }} vai trò</span>
-        </header>
-
+      <section class="role-page__panel" aria-label="Danh sách vai trò">
+        <div class="admin-list-toolbar">
+          <nz-input-group nzPrefixIcon="search">
+            <input
+              nz-input
+              [(ngModel)]="keyword"
+              aria-label="Tìm vai trò"
+              placeholder="Tìm theo tên vai trò..." />
+          </nz-input-group>
+          <button nz-button nzType="text" (click)="keyword = ''">
+            Đặt lại
+          </button>
+        </div>
         <!-- Bỏ nzTotal/nzPageIndex đặt cứng: với nzFrontPagination, ng-zorro tự
              đếm theo nzData. nzTotal="100" trước đây là con số bịa, còn
              nzPageIndex="0" không hợp lệ vì ng-zorro đếm trang từ 1. -->
         <nz-table
           #roleTable
           class="role-page__table"
-          [nzData]="lstRoles"
+          [nzData]="filteredRoles"
           [nzFrontPagination]="true"
           [nzPageSize]="10"
-          [nzShowPagination]="lstRoles.length > 10"
+          [nzShowPagination]="filteredRoles.length > 10"
           [nzNoResult]="emptyRole">
           <thead>
             <tr>
@@ -140,15 +144,7 @@
 
     <!-- Phân quyền chiếm trọn chiều ngang: 9 nhóm checkbox không đủ chỗ trong
          rail bên phải. -->
-    <section class="role-page__panel" aria-labelledby="role-permission-title">
-      <header class="role-page__panel-header">
-        <div>
-          <h2 id="role-permission-title">Phân quyền cho vai trò</h2>
-          <p>
-            Chọn một vai trò để xem và chỉnh quyền theo từng nhóm chức năng.
-          </p>
-        </div>
-      </header>
+    <section class="role-page__panel" aria-label="Phân quyền cho vai trò">
       <div class="role-page__panel-body">
         <app-role-permission [lstRoles]="lstRoles" />
       </div>

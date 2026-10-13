@@ -3,6 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
+import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 import * as icons from '@ant-design/icons-angular/icons';
 import { of } from 'rxjs';
 import {
@@ -23,6 +24,7 @@ describe('Audit log JSON controls', () => {
       ],
       providers: [
         provideRouter([]),
+        { provide: NZ_I18N, useValue: en_US },
         { provide: NZ_ICONS, useValue: Object.values(icons) },
         {
           provide: ApiService,
@@ -38,6 +40,29 @@ describe('Audit log JSON controls', () => {
         },
       ],
     });
+  });
+  it('sends a full local day range, returns to page one and clears dates on reset', () => {
+    const api = TestBed.inject(ApiService);
+    const search = spyOn(api, 'AuditTrailSearch').and.callThrough();
+    const f = TestBed.createComponent(AuditTrailComponent);
+    f.detectChanges();
+    const c = f.componentInstance;
+    c.pageIndex = 4;
+    c.searchForm.patchValue({
+      DateRange: [new Date(2026, 9, 13), new Date(2026, 9, 14)],
+    });
+    c.handleSearch();
+    expect(search.calls.mostRecent().args[0]).toEqual(
+      jasmine.objectContaining({
+        pageIndex: 0,
+        changedFrom: new Date(2026, 9, 13).toISOString(),
+        changedBefore: new Date(2026, 9, 15).toISOString(),
+      })
+    );
+    c.handleResetSearch();
+    expect(search.calls.mostRecent().args[0].changedFrom).toBeUndefined();
+    expect(c.searchForm.getRawValue().DateRange).toEqual([]);
+    f.destroy();
   });
   it('formats nested JSON on click, restores its original text and never changes the record', fakeAsync(() => {
     const f = TestBed.createComponent(AuditTrailComponent);

@@ -15,6 +15,7 @@
         [disabled]="b.disabled || false"
         (_onClick)="b.onClick($event)">
       </app-button-common>
+      <ng-content select="[breadcrumbActions]"></ng-content>
     </div>
   </nz-page-header-extra>
 </nz-page-header>

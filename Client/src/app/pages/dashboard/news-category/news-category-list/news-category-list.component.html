@@ -2,21 +2,7 @@
   <app-breadcrumb title="Danh mục tin" [buttons]="listButtonsHeader" />
 
   <main class="category-list-page__content">
-    <section
-      class="category-list-page__panel"
-      aria-labelledby="category-list-title">
-      <header class="category-list-page__panel-header">
-        <div>
-          <h2 id="category-list-title">Danh sách danh mục</h2>
-          <p>
-            Quản lý cấu trúc, thứ tự và trạng thái hiển thị của danh mục tin.
-          </p>
-        </div>
-        <span class="category-list-page__count">
-          {{ dataSource.length | number }} danh mục
-        </span>
-      </header>
-
+    <section class="category-list-page__panel" aria-label="Danh sách danh mục">
       <form
         class="category-list-page__toolbar"
         nz-form

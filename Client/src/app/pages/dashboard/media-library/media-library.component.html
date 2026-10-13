@@ -1,14 +1,7 @@
 <div class="master__container media">
-  <app-breadcrumb title="Thư viện media" />
-
-  <section class="media__panel">
-    <header class="media__header">
-      <div>
-        <h2>Quản lý file Cloudinary</h2>
-        <p>Duyệt, tải lên và sao chép file để sử dụng trong bài viết.</p>
-      </div>
-
-      <div *ngIf="canUpload">
+  <app-breadcrumb title="Thư viện media"
+    ><ng-container breadcrumbActions
+      ><div *ngIf="canUpload">
         <input
           #fileInput
           class="media__file-input"
@@ -23,9 +16,11 @@
           <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
           Tải file lên
         </button>
-      </div>
-    </header>
+      </div></ng-container
+    ></app-breadcrumb
+  >
 
+  <section class="media__panel">
     <div class="media__workspace">
       <aside class="media-folders">
         <div class="media-folders__header">

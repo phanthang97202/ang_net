@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   IAssignRoleRequest,
   ICreateRoleRequest,
@@ -18,7 +19,12 @@ import { RolePermissionComponent } from '../../../components';
 @Component({
   selector: 'app-role-list',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, RolePermissionComponent],
+  imports: [
+    AntdModule,
+    ...REUSE_COMPONENT_MODULES,
+    RolePermissionComponent,
+    FormsModule,
+  ],
   templateUrl: './role-list.component.html',
   styleUrl: './role-list.component.scss',
 })
@@ -28,6 +34,15 @@ export class RoleListComponent implements OnInit {
   showErrorService = inject(ShowErrorService);
 
   lstRoles: IRole[] = [];
+  keyword = '';
+  get filteredRoles(): IRole[] {
+    const keyword = this.keyword.trim().toLocaleLowerCase('vi');
+    return keyword
+      ? this.lstRoles.filter(role =>
+          role.Name.toLocaleLowerCase('vi').includes(keyword)
+        )
+      : this.lstRoles;
+  }
   lstUsers: IUser[] = [];
 
   sortByName = (a: IRole, b: IRole): number =>

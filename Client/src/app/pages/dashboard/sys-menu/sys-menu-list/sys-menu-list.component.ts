@@ -51,6 +51,22 @@ export class SysMenuComponent implements OnInit {
   // Cây gốc giữ nguyên để popup dựng danh sách menu cha; bảng thì vẽ từ dạng phẳng.
   tree: ISysMenuTree[] = [];
   rows: MenuRow[] = [];
+  keyword = '';
+  get filteredRows(): MenuRow[] {
+    const keyword = this.keyword.trim().toLocaleLowerCase('vi');
+    if (!keyword) return this.rows;
+    const matches = this.rows.filter(row =>
+      [row.TitleVi, row.TitleEn, row.Path].some(value =>
+        value?.toLocaleLowerCase('vi').includes(keyword)
+      )
+    );
+    const ids = new Set(matches.flatMap(row => [row.MenuId, row.parentId]));
+    return this.rows.filter(
+      row =>
+        ids.has(row.MenuId) ||
+        matches.some(match => match.MenuId === row.parentId)
+    );
+  }
 
   /** Mục đang chờ kết quả dời chỗ; rỗng là không có lệnh dời nào đang chạy. */
   reorderingId = '';

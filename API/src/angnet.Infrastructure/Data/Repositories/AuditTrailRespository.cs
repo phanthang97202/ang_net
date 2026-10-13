@@ -28,6 +28,8 @@ namespace angnet.Infrastructure.Data.Repositories
                                                                             , string keyword
                                                                             , string level
                                                                             , string trailType
+                                                                            , DateTimeOffset? changedFrom = null
+                                                                            , DateTimeOffset? changedBefore = null
         )
         {
             IQueryable<AuditTrailModel> query = _dbContext.AuditTrail.AsNoTracking();
@@ -51,6 +53,17 @@ namespace angnet.Infrastructure.Data.Repositories
                 && Enum.TryParse<EAuditTrailType>(trailType, true, out var trailTypeValue))
             {
                 query = query.Where(a => a.TrailType == trailTypeValue);
+            }
+
+            if (changedFrom.HasValue)
+            {
+                var from = changedFrom.Value.UtcDateTime;
+                query = query.Where(a => a.ChangedDTime >= from);
+            }
+            if (changedBefore.HasValue)
+            {
+                var before = changedBefore.Value.UtcDateTime;
+                query = query.Where(a => a.ChangedDTime < before);
             }
 
             int itemCount = query.Count();

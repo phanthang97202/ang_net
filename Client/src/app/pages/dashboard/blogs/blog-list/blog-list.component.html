@@ -2,19 +2,7 @@
   <app-breadcrumb title="Bài viết" [buttons]="listButtonsHeader" />
 
   <main class="blog-list-page__content">
-    <section class="blog-list-page__panel" aria-labelledby="blog-list-title">
-      <header class="blog-list-page__panel-header">
-        <div>
-          <h2 id="blog-list-title">Danh sách bài viết</h2>
-          <p>
-            Quản lý nội dung, trạng thái xuất bản và các bài viết được ghim.
-          </p>
-        </div>
-        <span class="blog-list-page__count">
-          {{ total | number }} bài viết
-        </span>
-      </header>
-
+    <section class="blog-list-page__panel" aria-label="Danh sách bài viết">
       <form
         class="blog-list-page__filters"
         (ngSubmit)="applyFilters()"

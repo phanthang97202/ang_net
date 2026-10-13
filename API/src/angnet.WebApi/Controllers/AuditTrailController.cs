@@ -43,11 +43,13 @@ namespace angnet.WebApi.Controllers
         [Authorize(Policy = "audittrail.view")]
         [EnableRateLimitingAttribute("API")]
         [HttpGet("Search")]
-        public ActionResult<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType)
+        public ActionResult<AuditTrailModel> Search(int pageIndex, int pageSize, string keyword, string level, string trailType, DateTimeOffset? changedFrom = null, DateTimeOffset? changedBefore = null)
         {
             try
             {
-                ApiResponse<AuditTrailModel> response = _AuditTrailService.Search(pageIndex, pageSize, keyword, level, trailType);
+                if (changedFrom.HasValue && changedBefore.HasValue && changedFrom >= changedBefore)
+                    return BadRequest("Khoảng thời gian không hợp lệ.");
+                ApiResponse<AuditTrailModel> response = _AuditTrailService.Search(pageIndex, pageSize, keyword, level, trailType, changedFrom, changedBefore);
                 return Ok(response);
             }
             catch (Exception)

@@ -1,52 +1,28 @@
 <div class="master__container">
-  <app-breadcrumb title="Province" [buttons]="listButtonsHeader" />
-  <app-button-common
-    class=" "
-    [iconType]="'search'"
-    [nzType]="'text'"></app-button-common>
-  <nz-layout>
-    <nz-sider
-      [nzCollapsed]="true"
-      [nzCollapsedWidth]="0"
-      [nzCollapsible]="false"
-      nzWidth="0px"
-      [nzTheme]="'light'">
-      <div class="sidebar__content">
-        <div class="sidebar__form">
-          <div class="sidebar__form--close">
-            <app-button-common
-              class="w-full sidebar__form--close-btn"
-              [iconType]="'to-top'"
-              [nzType]="'text'"
-              [iconRotate]="-90"></app-button-common>
-          </div>
-          <form
-            class="sidebar__form--form"
-            nz-form
-            [formGroup]="validateForm"
-            [nzLayout]="'vertical'">
-            <nz-form-item>
-              <nz-form-label [nzSpan]="null">Keyword</nz-form-label>
-              <nz-form-control [nzSpan]="null" nzErrorTip="PleaseEnterKeyword">
-                <input nz-input formControlName="Keyword" id="Keyword" />
-              </nz-form-control>
-            </nz-form-item>
-          </form>
-        </div>
-
-        <div class="sidebar__btnsearch">
-          <app-button-common
-            class="w-full"
-            [iconType]="'search'"
-            [nzType]="'primary'"
-            [text]="'Search'"></app-button-common>
-        </div>
-      </div>
-    </nz-sider>
-
-    <!-- <app-sidebar-search /> -->
-
-    <nz-content>
+  <app-breadcrumb title="Tỉnh thành" [buttons]="listButtonsHeader" />
+  <main class="admin-list-content">
+    <section class="admin-list-panel" aria-label="Danh sách tỉnh thành">
+      <form
+        class="admin-list-toolbar"
+        nz-form
+        [formGroup]="validateForm"
+        (ngSubmit)="handleSearch()">
+        <nz-input-group nzPrefixIcon="search">
+          <input
+            nz-input
+            formControlName="Keyword"
+            aria-label="Tìm tỉnh thành"
+            placeholder="Tìm theo mã hoặc tên tỉnh thành..." />
+        </nz-input-group>
+        <button nz-button nzType="default" type="submit">Tìm kiếm</button>
+        <button
+          nz-button
+          nzType="text"
+          type="button"
+          (click)="handleResetSearch()">
+          Đặt lại
+        </button>
+      </form>
       <nz-table
         nzShowSizeChanger
         [nzData]="dataSource"
@@ -92,8 +68,8 @@
           </tr>
         </tbody>
       </nz-table>
-    </nz-content>
-  </nz-layout>
+    </section>
+  </main>
 </div>
 <app-save-province-popup
   [titlePopup]="titlePopup"

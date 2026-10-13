@@ -56,6 +56,7 @@ export class AuditTrailComponent implements OnInit {
     Keyword: this.fb.control(''),
     Level: this.fb.control(''),
     TrailType: this.fb.control(''),
+    DateRange: this.fb.control<Date[]>([]),
   });
 
   // Bản ghi đang xem chi tiết; null = đóng popup.
@@ -75,6 +76,14 @@ export class AuditTrailComponent implements OnInit {
     const keyword = raw.Keyword || '';
     const level = raw.Level || '';
     const trailType = raw.TrailType || '';
+    const dates = raw.DateRange || [];
+    const from = dates[0] ? new Date(dates[0]) : undefined;
+    const before = dates[1] ? new Date(dates[1]) : undefined;
+    from?.setHours(0, 0, 0, 0);
+    if (before) {
+      before.setHours(0, 0, 0, 0);
+      before.setDate(before.getDate() + 1);
+    }
 
     this.setLoading(true);
     this.api
@@ -84,6 +93,8 @@ export class AuditTrailComponent implements OnInit {
         keyword,
         level,
         trailType,
+        changedFrom: from?.toISOString(),
+        changedBefore: before?.toISOString(),
       })
       .subscribe({
         next: response => {
@@ -144,7 +155,12 @@ export class AuditTrailComponent implements OnInit {
   }
 
   handleResetSearch(): void {
-    this.searchForm.reset({ Keyword: '', Level: '', TrailType: '' });
+    this.searchForm.reset({
+      Keyword: '',
+      Level: '',
+      TrailType: '',
+      DateRange: [],
+    });
     this.pageIndex = 1;
     this.fetchData();
   }

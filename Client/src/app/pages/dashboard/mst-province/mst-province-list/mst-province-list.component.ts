@@ -69,7 +69,11 @@ export class MstProvinceComponent implements OnInit {
   private fetchData(): void {
     this.setLoading(true);
     this.api
-      .MstProvinceSearch({ pageIndex: 0, pageSize: 100, keyword: '' })
+      .MstProvinceSearch({
+        pageIndex: 0,
+        pageSize: 100,
+        keyword: this.validateForm.getRawValue().Keyword.trim(),
+      })
       .subscribe({
         next: response => {
           if (response?.Success) {
@@ -85,6 +89,14 @@ export class MstProvinceComponent implements OnInit {
         error: err => this.handleApiError(err),
         complete: () => this.setLoading(false),
       });
+  }
+
+  handleSearch(): void {
+    this.fetchData();
+  }
+  handleResetSearch(): void {
+    this.validateForm.reset({ Keyword: '' });
+    this.fetchData();
   }
 
   private createData(formValue: IRequestProvinceCreate): void {

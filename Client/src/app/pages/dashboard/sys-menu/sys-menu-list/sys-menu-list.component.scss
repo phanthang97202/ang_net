@@ -23,36 +23,6 @@
   box-shadow: var(--admin-shadow-card);
 }
 
-.menu-list-page__panel-header {
-  display: flex;
-  min-height: 72px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--admin-border);
-}
-
-.menu-list-page__panel-header h2 {
-  margin: 0;
-  color: var(--admin-text);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.menu-list-page__count {
-  flex: 0 0 auto;
-  padding: 5px 10px;
-  border: 1px solid #bfdbfe;
-  border-radius: 999px;
-  background: var(--admin-primary-soft);
-  color: var(--admin-primary);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 .menu-list-page__identity {
   display: flex;
   min-width: 0;
@@ -325,11 +295,6 @@
 @media (max-width: 767px) {
   .menu-list-page__content {
     padding: 16px 12px 24px;
-  }
-
-  .menu-list-page__panel-header {
-    min-height: 0;
-    padding: 16px;
   }
 
   .menu-list-page__identity--child {

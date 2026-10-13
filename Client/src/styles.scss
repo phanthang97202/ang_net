@@ -1188,11 +1188,44 @@ html.cdk-global-scrollblock {
   --admin-control-height: 40px;
   --admin-page-max: 1600px;
   --admin-sidebar-width: 68px;
-  --admin-topbar-height: 68px;
+  --admin-topbar-height: 56px;
+  --admin-font-family: 'Montserrat', sans-serif;
 }
 
 // Scoped to the authenticated admin shell.
+.admin-ui .admin-list-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  nz-input-group {
+    flex: 1;
+    min-width: 180px;
+    max-width: 520px;
+  }
+}
+.admin-ui .admin-list-toolbar .ant-input-affix-wrapper .ant-input {
+  min-height: 0;
+}
+.admin-ui .admin-list-content {
+  width: min(100%, var(--admin-page-max));
+  margin: 0 auto;
+  padding: 22px 24px 32px;
+}
+.admin-ui .admin-list-panel {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+}
+.admin-ui .ant-input-affix-wrapper > .ant-input {
+  min-height: 0;
+  height: auto;
+}
 .admin-ui {
+  --ck-font-face: var(--admin-font-family);
   --admin-bg: #f4f7fb;
   --admin-surface: #ffffff;
   --admin-surface-subtle: #f8fafc;
@@ -1218,18 +1251,12 @@ html.cdk-global-scrollblock {
   --admin-control-height: 40px;
   --admin-page-max: 1600px;
   --admin-sidebar-width: 68px;
-  --admin-topbar-height: 68px;
+  --admin-topbar-height: 56px;
 
   min-height: 100vh;
   color: var(--admin-text);
   background: var(--admin-bg);
-  font-family:
-    Inter,
-    'DM Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--admin-font-family);
 
   .admin__layout--content {
     min-width: 0;
@@ -1464,6 +1491,7 @@ html.cdk-global-scrollblock {
 }
 
 body.admin-ui-active {
+  font-family: var(--admin-font-family);
   background: var(--admin-bg, #f4f7fb);
 }
 
@@ -1489,7 +1517,7 @@ body.admin-ui-active .admin-status-dropdown .ant-select-item-option-content {
 @media (max-width: 767px) {
   .admin-ui {
     --admin-sidebar-width: 56px;
-    --admin-topbar-height: 60px;
+    --admin-topbar-height: 56px;
 
     .admin-sidebar.ant-layout-sider,
     .admin-sidebar.ant-layout-sider-collapsed {

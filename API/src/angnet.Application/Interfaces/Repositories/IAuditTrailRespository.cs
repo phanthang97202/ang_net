@@ -10,6 +10,8 @@ namespace angnet.Application.Interfaces.Repositories
             , string keyword
             , string level
             , string trailType
+            , DateTimeOffset? changedFrom = null
+            , DateTimeOffset? changedBefore = null
         );
     }
 }

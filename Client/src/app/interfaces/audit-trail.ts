@@ -27,6 +27,8 @@ export interface ISearchAuditTrailRequest {
   keyword: string;
   level: string;
   trailType: string;
+  changedFrom?: string;
+  changedBefore?: string;
 }
 
 export interface IResponseAuditTrailSearch extends IBaseResponse<IAuditTrail> {

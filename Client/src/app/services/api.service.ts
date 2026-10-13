@@ -742,13 +742,19 @@ export class ApiService {
   AuditTrailSearch(
     request: ISearchAuditTrailRequest
   ): Observable<IResponseAuditTrailSearch> {
-    // api/AuditTrail/Search?pageIndex=0&pageSize=20&keyword=&level=&trailType=
+    let params = new HttpParams()
+      .set('pageIndex', request.pageIndex)
+      .set('pageSize', request.pageSize)
+      .set('keyword', request.keyword)
+      .set('level', request.level)
+      .set('trailType', request.trailType);
+    if (request.changedFrom)
+      params = params.set('changedFrom', request.changedFrom);
+    if (request.changedBefore)
+      params = params.set('changedBefore', request.changedBefore);
     return this.http.get<IResponseAuditTrailSearch>(
-      `${this.apiUrl}AuditTrail/Search?pageIndex=${request.pageIndex}&pageSize=${request.pageSize}&keyword=${encodeURIComponent(
-        request.keyword
-      )}&level=${encodeURIComponent(request.level)}&trailType=${encodeURIComponent(
-        request.trailType
-      )}`
+      `${this.apiUrl}AuditTrail/Search`,
+      { params }
     );
   }
 

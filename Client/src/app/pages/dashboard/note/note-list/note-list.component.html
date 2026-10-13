@@ -2,20 +2,7 @@
   <app-breadcrumb title="Ghi chú" [buttons]="[]" />
 
   <main class="note-admin-page__content">
-    <section class="note-admin-page__panel" aria-labelledby="note-admin-title">
-      <header class="note-admin-page__panel-header">
-        <div>
-          <h2 id="note-admin-title">Danh sách ghi chú</h2>
-          <p>
-            Kiểm duyệt nội dung do khách đăng. Ghi chú không thể chỉnh sửa sau
-            khi tạo.
-          </p>
-        </div>
-        <span class="note-admin-page__count">
-          {{ itemCount | number }} ghi chú
-        </span>
-      </header>
-
+    <section class="note-admin-page__panel" aria-label="Danh sách ghi chú">
       <form
         class="note-admin-page__toolbar"
         nz-form

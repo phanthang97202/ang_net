@@ -4,19 +4,9 @@
     [buttons]="listButtonsHeader" />
 
   <main class="subscriber-page__content">
-    <section class="subscriber-page__panel" aria-labelledby="subscriber-title">
-      <header class="subscriber-page__panel-header">
-        <div>
-          <h2 id="subscriber-title">Danh sách người đăng ký</h2>
-          <p>
-            Những địa chỉ email sẽ nhận thư mỗi khi có bài viết mới được đăng.
-          </p>
-        </div>
-        <span class="subscriber-page__count">
-          {{ itemCount | number }} người đăng ký
-        </span>
-      </header>
-
+    <section
+      class="subscriber-page__panel"
+      aria-label="Danh sách người đăng ký">
       <form
         class="subscriber-page__toolbar"
         nz-form

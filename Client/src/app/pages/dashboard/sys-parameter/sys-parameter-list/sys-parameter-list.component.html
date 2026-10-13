@@ -2,17 +2,7 @@
   <app-breadcrumb title="Tham số hệ thống" [buttons]="listButtonsHeader" />
 
   <main class="sysparam-page__content">
-    <section class="sysparam-page__panel" aria-labelledby="sysparam-title">
-      <header class="sysparam-page__panel-header">
-        <div>
-          <h2 id="sysparam-title">Danh sách tham số</h2>
-          <p>Quản lý các giá trị cấu hình được sử dụng trong toàn hệ thống.</p>
-        </div>
-        <span class="sysparam-page__count">
-          {{ dataSource.length | number }} tham số
-        </span>
-      </header>
-
+    <section class="sysparam-page__panel" aria-label="Danh sách tham số">
       <form
         class="sysparam-page__toolbar"
         nz-form

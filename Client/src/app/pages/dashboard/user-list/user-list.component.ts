@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   AuthService,
   ShowErrorService,
@@ -22,6 +23,7 @@ import {
   standalone: true,
   imports: [
     AntdModule,
+    FormsModule,
     BreadcrumbComponent,
     NzAvatarModule,
     NzMenuModule,
@@ -39,6 +41,17 @@ export class UserListComponent implements OnInit {
   loadingService = inject(LoadingService);
   me = '';
   lstUsers: IUser[] = [];
+  keyword = '';
+  get filteredUsers(): IUser[] {
+    const keyword = this.keyword.trim().toLocaleLowerCase('vi');
+    return keyword
+      ? this.lstUsers.filter(u =>
+          [u.FullName, u.UserName, u.Email, ...(u.Roles || [])].some(value =>
+            value?.toLocaleLowerCase('vi').includes(keyword)
+          )
+        )
+      : this.lstUsers;
+  }
   credentialsVisible = false;
   selectedUser: IUser | null = null;
   securityVisible = false;
