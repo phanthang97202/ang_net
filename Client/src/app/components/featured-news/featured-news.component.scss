@@ -172,36 +172,29 @@
   }
 }
 
-// ── Dưới 900px: 1 cột, mọi ô cùng tỉ lệ ──────────────────────────────
-// Gộp chung tablet + mobile vào đúng 1 breakpoint - trước đây tách riêng
-// (900px cho ô chính trải rộng 2 cột kiểu hero, 640px mới về 1 cột đồng nhất)
-// khiến dải 641-900px lọt vào giữa: ô chính lúc đó rộng hết container mà chỉ
-// cao 190px (~3.4:1, rất bẹt), trong khi post-card-thumb của khối "Mới nhất"
-// bên dưới vẫn giữ nguyên hộp cố định 220x160 - nhìn lệch cỡ rõ rệt ("cái trên
-// to hơn cái dưới") vì home__container cũng đổ về 1 cột full-width ngay từ
-// 900px (xem home.component.scss), không phải từ 640px.
-//
-// Dùng aspect-ratio thay vì chiều cao cố định: post-card-thumb nằm trong card
-// có padding nên bề rộng hiệu dụng hẹp hơn ô này (full-bleed) - cùng một chiều
-// cao cố định vẫn ra hai tỉ lệ khác nhau, chỉ aspect-ratio mới khoá đúng tỉ lệ
-// bất kể bề rộng cột là bao nhiêu.
+// A main story and a compact two-column grid on tablet and mobile.
 @media (max-width: 900px) {
+  .featured {
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
   .featured-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: auto;
-    gap: 0.85rem;
+    gap: 0.75rem;
   }
 
   .featured-tile {
+    min-width: 0;
     aspect-ratio: 16 / 9;
+    border-radius: 16px;
   }
 
-  // Ô chính không còn trải rộng/cao khác ô phụ ở khổ này - cùng chiều với việc
-  // .post-card bên khối "Mới nhất" cũng chuyển hẳn sang 1 cột từ mốc này (xem
-  // new-news.component.scss), giữ 2 khối đồng bộ suốt từ 900px trở xuống.
   .featured-tile--main {
-    grid-column: span 1;
-    grid-row: span 1;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    aspect-ratio: 21 / 9;
   }
 
   .featured-tile--main .featured-tile-content {
@@ -215,5 +208,53 @@
 
   .featured-tile-excerpt {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .featured {
+    gap: 0.875rem;
+  }
+
+  .featured-heading {
+    gap: 0.75rem;
+    font-size: 1.05rem;
+  }
+
+  .featured-grid {
+    gap: 0.625rem;
+  }
+
+  .featured-tile {
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+  }
+
+  .featured-tile--main {
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+  }
+
+  .featured-tile-content {
+    padding: 0.625rem;
+  }
+
+  .featured-tile-title {
+    font-size: clamp(0.75rem, 3.1vw, 0.85rem);
+    line-height: 1.4;
+    -webkit-line-clamp: 3;
+    overflow-wrap: anywhere;
+  }
+
+  .featured-tile-title--main {
+    font-size: clamp(1rem, 4.2vw, 1.15rem);
+    -webkit-line-clamp: 2;
+  }
+
+  .featured-tile-readtime {
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.6rem;
   }
 }
