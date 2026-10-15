@@ -1,12 +1,14 @@
 import {
-  AfterViewInit,
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
+  OnDestroy,
   OnInit,
   ViewChild,
   inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,15 +32,32 @@ import {
   templateUrl: './category-showcase.component.html',
   styleUrls: ['./category-showcase.component.scss'],
 })
-export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
+export class CategoryShowcaseComponent implements OnInit, OnDestroy {
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
   private langService = inject(LangService);
+  private destroyRef = inject(DestroyRef);
+  private hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private autoplayId?: ReturnType<typeof setInterval>;
+  private isHovered = false;
+  private isDragging = false;
+  private isDestroyed = false;
 
   isLoading = true;
   categories: INewsCategoryPreview[] = [];
 
-  @ViewChild('viewport') viewportRef?: ElementRef<HTMLDivElement>;
+  private viewportRef?: ElementRef<HTMLDivElement>;
+
+  @ViewChild('viewport')
+  set viewport(value: ElementRef<HTMLDivElement> | undefined) {
+    this.viewportRef = value;
+    // The viewport is created by *ngIf after the category request finishes.
+    queueMicrotask(() => {
+      if (this.isDestroyed) return;
+      this.syncScrollState();
+      this.startAutoplay();
+    });
+  }
 
   canScrollPrev = false;
   canScrollNext = false;
@@ -47,8 +66,71 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
     this.loadCategories();
   }
 
-  ngAfterViewInit(): void {
-    queueMicrotask(() => this.syncScrollState());
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
+    this.stopAutoplay();
+  }
+
+  private startAutoplay(): void {
+    this.stopAutoplay();
+    if (!this.viewportRef) return;
+
+    this.autoplayId = setInterval(() => {
+      const el = this.viewportRef?.nativeElement;
+      if (
+        !el ||
+        document.hidden ||
+        this.isHovered ||
+        this.isDragging ||
+        this.hostRef.nativeElement.contains(document.activeElement) ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        return;
+      }
+
+      this.syncScrollState();
+      if (this.canScrollNext) {
+        this.scrollByPage(1);
+      } else if (this.canScrollPrev) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      }
+    }, 4000);
+  }
+
+  private stopAutoplay(): void {
+    if (this.autoplayId !== undefined) {
+      clearInterval(this.autoplayId);
+      this.autoplayId = undefined;
+    }
+  }
+
+  @HostListener('pointerenter', ['$event'])
+  onPointerEnter(event: PointerEvent): void {
+    this.isHovered = event.pointerType === 'mouse';
+  }
+
+  @HostListener('pointerleave')
+  onPointerLeave(): void {
+    this.isHovered = false;
+    this.startAutoplay();
+  }
+
+  @HostListener('pointerdown')
+  onPointerDown(): void {
+    this.isDragging = true;
+  }
+
+  @HostListener('document:pointerup')
+  @HostListener('document:pointercancel')
+  onPointerEnd(): void {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    this.startAutoplay();
+  }
+
+  @HostListener('focusout')
+  onFocusOut(): void {
+    this.startAutoplay();
   }
 
   // Không bật hotOnly: khối này giờ là dải điều hướng theo chủ đề ngay dưới
@@ -58,6 +140,7 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
   private loadCategories(): void {
     this.newsCacheService
       .GetNewsCategoryPreview(CONSTANTS_APP.CATEGORY_PREVIEW_TAKE)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           this.categories = res.DataList || [];
@@ -98,7 +181,13 @@ export class CategoryShowcaseComponent implements OnInit, AfterViewInit {
     const gap = track ? parseFloat(getComputedStyle(track).columnGap) || 0 : 0;
 
     const distance = el.clientWidth - padding + gap;
-    el.scrollBy({ left: step * distance, behavior: 'smooth' });
+    el.scrollBy({
+      left: step * distance,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
+    this.startAutoplay();
   }
 
   /**
