@@ -152,7 +152,12 @@
   }
 }
 
-.profile__avatar-form {
+.profile__name-form {
+  margin-bottom: 24px;
+}
+
+.profile__avatar-form,
+.profile__name-form {
   flex: 1;
   min-width: 0;
   max-width: 600px;

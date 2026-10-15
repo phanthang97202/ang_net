@@ -15,6 +15,7 @@ namespace angnet.Application.Interfaces.Repositories
         public Task<ApiResponse<AuthResponseDto>> LoginWithGoogle(GoogleLoginDto request);
         public Task<ApiResponse<UserDetailDto>> GetUserDetail(ClaimsPrincipal User);
         public Task<ApiResponse<UserDetailDto>> UpdateAvatar(ClaimsPrincipal user, UpdateAvatarDto request);
+        public Task<ApiResponse<UserDetailDto>> UpdateDisplayName(ClaimsPrincipal user, UpdateDisplayNameDto request);
         public Task<ApiResponse<UserDetailDto>> GetAllUser(ClaimsPrincipal User);
         public Task<ApiResponse<string>> LogoutAllDevice(string userId);
         public Task<ApiResponse<string>> ProtectOwnAccount(ClaimsPrincipal user, bool locked);

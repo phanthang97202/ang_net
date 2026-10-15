@@ -296,5 +296,10 @@
     "T_AVATAR_SAVING": "Saving…",
     "T_AVATAR_CANCEL": "Cancel changes",
     "T_AVATAR_SAVED": "Profile photo updated.",
-    "T_AVATAR_SAVE_ERROR": "Unable to save your profile photo. Please try again."
+    "T_AVATAR_SAVE_ERROR": "Unable to save your profile photo. Please try again.",
+    "T_DISPLAY_NAME_HINT": "Your name shown on the blog, up to 100 characters.",
+    "T_DISPLAY_NAME_INVALID": "Please enter a name between 1 and 100 characters.",
+    "T_DISPLAY_NAME_SAVE": "Save name",
+    "T_DISPLAY_NAME_SAVED": "Your name has been updated.",
+    "T_DISPLAY_NAME_SAVE_ERROR": "Unable to update your name. Please try again."
 }

@@ -31,6 +31,10 @@ export class AuthService {
   private tokenKey = environment.tokenKey;
   private refreshTokenKey = environment.refreshTokenKey;
   private avatarKey = `${environment.tokenKey}.avatar`;
+  private displayNameKey = `${environment.tokenKey}.displayName`;
+  private currentDisplayName = signal<{ userId: string; name: string } | null>(
+    this.readSavedDisplayName()
+  );
   private currentAvatar = signal<{ userId: string; url: string } | null>(
     this.readSavedAvatar()
   );
@@ -45,7 +49,7 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.Success) {
-            this.clearAvatar();
+            this.clearProfileCache();
             localStorage.setItem(this.tokenKey, response.Data.AccessToken);
             localStorage.setItem(
               this.refreshTokenKey,
@@ -113,7 +117,7 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.Success) {
-            this.clearAvatar();
+            this.clearProfileCache();
             localStorage.setItem(this.tokenKey, response.Data.AccessToken);
             localStorage.setItem(
               this.refreshTokenKey,
@@ -135,7 +139,7 @@ export class AuthService {
   getUserDetail(): Observable<IUserResponse> {
     return this.http
       .get<IUserResponse>(`${this.apiUrl}account/detail`)
-      .pipe(tap(response => this.rememberAvatar(response)));
+      .pipe(tap(response => this.rememberProfile(response)));
   }
 
   updateAvatar(avatarUrl: string): Observable<IUserResponse> {
@@ -143,7 +147,29 @@ export class AuthService {
       .put<IUserResponse>(`${this.apiUrl}account/avatar`, {
         AvatarUrl: avatarUrl.trim(),
       })
-      .pipe(tap(response => this.rememberAvatar(response)));
+      .pipe(tap(response => this.rememberProfile(response)));
+  }
+
+  updateDisplayName(fullName: string): Observable<IUserResponse> {
+    return this.http
+      .put<IUserResponse>(`${this.apiUrl}account/display-name`, {
+        FullName: fullName.trim(),
+      })
+      .pipe(tap(response => this.rememberProfile(response)));
+  }
+
+  private readSavedDisplayName(): { userId: string; name: string } | null {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(this.displayNameKey) || 'null'
+      );
+      return typeof saved?.userId === 'string' &&
+        typeof saved?.name === 'string'
+        ? saved
+        : null;
+    } catch {
+      return null;
+    }
   }
 
   private readSavedAvatar(): { userId: string; url: string } | null {
@@ -157,7 +183,7 @@ export class AuthService {
     }
   }
 
-  private rememberAvatar(response: IUserResponse): void {
+  private rememberProfile(response: IUserResponse): void {
     if (
       !response.Success ||
       !response.Data ||
@@ -167,11 +193,21 @@ export class AuthService {
     const avatar = { userId: response.Data.Id, url: response.Data.Avatar };
     localStorage.setItem(this.avatarKey, JSON.stringify(avatar));
     this.currentAvatar.set(avatar);
+    if (typeof response.Data.FullName === 'string') {
+      const displayName = {
+        userId: response.Data.Id,
+        name: response.Data.FullName,
+      };
+      localStorage.setItem(this.displayNameKey, JSON.stringify(displayName));
+      this.currentDisplayName.set(displayName);
+    }
   }
 
-  private clearAvatar(): void {
+  private clearProfileCache(): void {
     localStorage.removeItem(this.avatarKey);
     this.currentAvatar.set(null);
+    localStorage.removeItem(this.displayNameKey);
+    this.currentDisplayName.set(null);
   }
 
   // get thông tin users cho dashboard
@@ -197,11 +233,17 @@ export class AuthService {
 
     const decodedToken: any = jwtDecode(token);
 
-    const shortname = decodedToken.name.split(' ')[0][0];
+    const displayName = this.currentDisplayName();
+    const name =
+      displayName && displayName.userId === decodedToken.nameid
+        ? displayName.name
+        : decodedToken.name;
+    const shortname = (name || '').trim().charAt(0);
     const avatar = this.currentAvatar();
 
     return {
       ...decodedToken,
+      name,
       shortname,
       avatar:
         avatar && avatar.userId === decodedToken.nameid
@@ -262,7 +304,7 @@ export class AuthService {
   // xóa token hết hạn/invalid mà không ép điều hướng sang /login,
   // vì lúc init user có thể chỉ đang xem trang public
   private clearTokens(): void {
-    this.clearAvatar();
+    this.clearProfileCache();
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
   }

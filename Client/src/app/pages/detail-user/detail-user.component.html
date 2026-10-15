@@ -68,7 +68,7 @@
                   spellcheck="false"
                   [ngModel]="avatarUrl"
                   (ngModelChange)="setAvatarUrl($event)"
-                  [disabled]="avatarSaving"
+                  [disabled]="avatarSaving || displayNameSaving"
                   aria-describedby="profile-avatar-hint profile-avatar-error" />
                 <p id="profile-avatar-hint" class="profile__avatar-hint">
                   {{ 'T_AVATAR_HINT' | translate }}
@@ -89,6 +89,7 @@
                     type="submit"
                     [disabled]="
                       avatarSaving ||
+                      displayNameSaving ||
                       !avatarLoaded ||
                       avatarFailed ||
                       !avatarChanged
@@ -116,11 +117,61 @@
               <h2 id="profile-personal-title" class="profile__card-title">
                 {{ 'T_PERSONALDETAILS' | translate }}
               </h2>
-              <dl class="profile__fields">
-                <div class="profile__row">
-                  <dt>{{ 'T_FULLNAME' | translate }}</dt>
-                  <dd>{{ userInfo.FullName | showNullishValue }}</dd>
+              <form class="profile__name-form" (ngSubmit)="saveDisplayName()">
+                <label for="profile-display-name">{{
+                  'T_FULLNAME' | translate
+                }}</label>
+                <input
+                  id="profile-display-name"
+                  type="text"
+                  name="displayName"
+                  autocomplete="name"
+                  required
+                  maxlength="100"
+                  [(ngModel)]="displayName"
+                  [disabled]="displayNameSaving || avatarSaving"
+                  [attr.aria-invalid]="displayNameChanged && !displayNameValid"
+                  aria-describedby="profile-name-hint profile-name-error" />
+                <p id="profile-name-hint" class="profile__avatar-hint">
+                  {{ 'T_DISPLAY_NAME_HINT' | translate }}
+                </p>
+                <p
+                  id="profile-name-error"
+                  class="profile__avatar-error"
+                  aria-live="polite">
+                  @if (displayNameChanged && !displayNameValid) {
+                    {{ 'T_DISPLAY_NAME_INVALID' | translate }}
+                  }
+                </p>
+                <div class="profile__avatar-actions">
+                  <button
+                    class="profile__avatar-save"
+                    type="submit"
+                    [disabled]="
+                      displayNameSaving ||
+                      avatarSaving ||
+                      !displayNameChanged ||
+                      !displayNameValid
+                    ">
+                    {{
+                      (displayNameSaving
+                        ? 'T_AVATAR_SAVING'
+                        : 'T_DISPLAY_NAME_SAVE'
+                      ) | translate
+                    }}
+                  </button>
+                  @if (displayNameChanged) {
+                    <button
+                      class="profile__avatar-cancel"
+                      type="button"
+                      [disabled]="displayNameSaving || avatarSaving"
+                      (click)="displayName = userInfo.FullName || ''">
+                      {{ 'T_AVATAR_CANCEL' | translate }}
+                    </button>
+                  }
                 </div>
+              </form>
+              <dl class="profile__fields">
                 <div class="profile__row">
                   <dt>Email</dt>
                   <dd>{{ userInfo.Email | showNullishValue }}</dd>

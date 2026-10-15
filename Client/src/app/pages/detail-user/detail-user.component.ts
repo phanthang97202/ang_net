@@ -66,6 +66,8 @@ export class DetailUserComponent implements OnInit {
   avatarLoaded = false;
   avatarFailed = false;
   avatarSaving = false;
+  displayName = '';
+  displayNameSaving = false;
 
   profileNav: ProfileNavSection[] = [
     {
@@ -120,6 +122,7 @@ export class DetailUserComponent implements OnInit {
     this.authService.getUserDetail().subscribe({
       next: res => {
         this.userInfo = res.Data;
+        this.displayName = res.Data.FullName || '';
         this.setAvatarUrl(res.Data.Avatar || '');
       },
       error: err => {
@@ -169,6 +172,7 @@ export class DetailUserComponent implements OnInit {
       this.avatarFailed ||
       !this.avatarPreview ||
       !this.avatarChanged ||
+      this.displayNameSaving ||
       this.avatarSaving
     )
       return;
@@ -193,6 +197,52 @@ export class DetailUserComponent implements OnInit {
         error: () => {
           this.avatarSaving = false;
           this.message.error(this.translate.instant('T_AVATAR_SAVE_ERROR'));
+        },
+      });
+  }
+
+  get displayNameChanged(): boolean {
+    return this.displayName.trim() !== (this.userInfo?.FullName || '').trim();
+  }
+
+  get displayNameValid(): boolean {
+    const name = this.displayName.trim();
+    return name.length > 0 && name.length <= 100;
+  }
+
+  saveDisplayName(): void {
+    if (
+      !this.displayNameValid ||
+      !this.displayNameChanged ||
+      this.displayNameSaving ||
+      this.avatarSaving
+    )
+      return;
+    this.displayNameSaving = true;
+    this.authService
+      .updateDisplayName(this.displayName)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.displayNameSaving = false;
+          if (response.Success) {
+            this.userInfo = response.Data;
+            this.displayName = response.Data.FullName;
+            this.message.success(
+              this.translate.instant('T_DISPLAY_NAME_SAVED')
+            );
+          } else {
+            this.message.error(
+              response.ErrorMessage ||
+                this.translate.instant('T_DISPLAY_NAME_SAVE_ERROR')
+            );
+          }
+        },
+        error: () => {
+          this.displayNameSaving = false;
+          this.message.error(
+            this.translate.instant('T_DISPLAY_NAME_SAVE_ERROR')
+          );
         },
       });
   }

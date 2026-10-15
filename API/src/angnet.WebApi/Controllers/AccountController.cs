@@ -179,6 +179,14 @@ namespace angnet.WebApi.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        [Authorize]
+        [HttpPut("display-name")]
+        public async Task<IActionResult> UpdateDisplayName(UpdateDisplayNameDto request)
+        {
+            var response = await _accountRespository.UpdateDisplayName(User, request);
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
         // get all users
         [Authorize(Policy = "user.view")]
         [HttpGet("users")]

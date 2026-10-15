@@ -8,15 +8,17 @@ import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
-describe('AuthService avatar', () => {
+describe('AuthService profile', () => {
   let auth: AuthService;
   let http: HttpTestingController;
   const cacheKey = `${environment.tokenKey}.avatar`;
+  const nameKey = `${environment.tokenKey}.displayName`;
   const token = (id: string) =>
     `e30.${btoa(JSON.stringify({ nameid: id, name: 'Test User', avatar: 'https://example.com/old.jpg' }))}.signature`;
 
   beforeEach(() => {
     localStorage.removeItem(cacheKey);
+    localStorage.removeItem(nameKey);
     localStorage.setItem(environment.tokenKey, token('me'));
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -33,6 +35,7 @@ describe('AuthService avatar', () => {
     http.verify();
     localStorage.removeItem(environment.tokenKey);
     localStorage.removeItem(cacheKey);
+    localStorage.removeItem(nameKey);
   });
 
   it('saves only a trimmed URL and immediately replaces the stale JWT avatar, including after reload', () => {
@@ -52,12 +55,10 @@ describe('AuthService avatar', () => {
 
   it('never applies a previous account photo to another account', () => {
     auth.updateAvatar('https://example.com/new.jpg').subscribe();
-    http
-      .expectOne(`${environment.apiUrl}account/avatar`)
-      .flush({
-        Success: true,
-        Data: { Id: 'me', Avatar: 'https://example.com/new.jpg' },
-      });
+    http.expectOne(`${environment.apiUrl}account/avatar`).flush({
+      Success: true,
+      Data: { Id: 'me', Avatar: 'https://example.com/new.jpg' },
+    });
     localStorage.setItem(environment.tokenKey, token('other'));
     expect(auth.getAccountInfo().avatar).toBe('https://example.com/old.jpg');
   });
@@ -71,5 +72,42 @@ describe('AuthService avatar', () => {
       .flush({}, { status: 500, statusText: 'Error' });
     expect(auth.getAccountInfo().avatar).toBe('https://example.com/old.jpg');
     expect(localStorage.getItem(cacheKey)).toBeNull();
+  });
+
+  it('saves a trimmed display name and updates the current profile immediately and after reload', () => {
+    auth.updateDisplayName('  Thắng Phan  ').subscribe();
+    const request = http.expectOne(`${environment.apiUrl}account/display-name`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ FullName: 'Thắng Phan' });
+    request.flush({
+      Success: true,
+      Data: {
+        Id: 'me',
+        FullName: 'Thắng Phan',
+        Avatar: 'https://example.com/old.jpg',
+      },
+    });
+    expect(auth.getAccountInfo().name).toBe('Thắng Phan');
+    expect(auth.getAccountInfo().shortname).toBe('T');
+    expect(auth.getToken()).toBe(token('me'));
+    const reloaded = new AuthService(
+      TestBed.inject(HttpClient),
+      TestBed.inject(Router)
+    );
+    expect(reloaded.getAccountInfo().name).toBe('Thắng Phan');
+
+    localStorage.setItem(environment.tokenKey, token('other'));
+    expect(auth.getAccountInfo().name).toBe('Test User');
+    auth.logout();
+    expect(localStorage.getItem(nameKey)).toBeNull();
+  });
+
+  it('keeps the current display name when saving fails', () => {
+    auth.updateDisplayName('New Name').subscribe({ error: () => {} });
+    http
+      .expectOne(`${environment.apiUrl}account/display-name`)
+      .flush({}, { status: 500, statusText: 'Error' });
+    expect(auth.getAccountInfo().name).toBe('Test User');
+    expect(localStorage.getItem(nameKey)).toBeNull();
   });
 });

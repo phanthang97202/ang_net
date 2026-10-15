@@ -208,6 +208,48 @@ public class AccountSecurityTests
         Assert.AreEqual("", (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target")).Avatar);
     }
 
+    [TestMethod]
+    public async Task DisplayNameUpdate_OnlyChangesOwnName_AndPreservesSessions()
+    {
+        var login = await _f.Login();
+        var adminName = (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "admin")).FullName;
+        using var result = await _f.Send("/api/Account/display-name", login.Data.AccessToken,
+            new { FullName = "  Nguyễn Thắng  ", UserId = "admin", FlagActive = false }, HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        var response = (await result.Content.ReadFromJsonAsync<ApiResponse<UserDetailDto>>())!;
+        Assert.IsTrue(response.Success);
+        Assert.AreEqual("target", response.Data.Id);
+        Assert.AreEqual("Nguyễn Thắng", response.Data.FullName);
+        var target = await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "target");
+        Assert.AreEqual("Nguyễn Thắng", target.FullName);
+        Assert.IsTrue(target.FlagActive);
+        Assert.AreEqual(0, target.SessionVersion);
+        Assert.AreEqual(adminName, (await _f.Db.Users.AsNoTracking().SingleAsync(x => x.Id == "admin")).FullName);
+        Assert.AreEqual(HttpStatusCode.OK, await _f.Probe(login.Data.AccessToken));
+        var renewed = await _f.Refresh(login.Data.RefreshToken);
+        Assert.IsTrue(renewed.Success);
+        Assert.AreEqual("Nguyễn Thắng", new JwtSecurityTokenHandler().ReadJwtToken(renewed.Data.AccessToken)
+            .Claims.Single(c => c.Type == "name").Value);
+    }
+
+    [TestMethod]
+    public async Task DisplayNameUpdate_RejectsAnonymousInvalidAndLockedAccounts()
+    {
+        using var anonymous = await _f.Send("/api/Account/display-name", body: new { FullName = "Name" }, method: HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        var login = await _f.Login();
+        foreach (var name in new string?[] { null, "", "   ", new string('a', 101) })
+        {
+            using var invalid = await _f.Send("/api/Account/display-name", login.Data.AccessToken,
+                new { FullName = name }, HttpMethod.Put);
+            Assert.AreEqual(HttpStatusCode.BadRequest, invalid.StatusCode);
+        }
+        Assert.IsTrue((await _f.Action("lock")).Success);
+        using var locked = await _f.Send("/api/Account/display-name", login.Data.AccessToken,
+            new { FullName = "Name" }, HttpMethod.Put);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, locked.StatusCode);
+    }
+
     [DataTestMethod]
     [DataRow(false)]
     [DataRow(true)]

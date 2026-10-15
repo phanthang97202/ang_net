@@ -296,5 +296,10 @@
     "T_AVATAR_SAVING": "Đang lưu…",
     "T_AVATAR_CANCEL": "Hủy thay đổi",
     "T_AVATAR_SAVED": "Đã cập nhật ảnh đại diện.",
-    "T_AVATAR_SAVE_ERROR": "Không thể lưu ảnh đại diện. Vui lòng thử lại."
+    "T_AVATAR_SAVE_ERROR": "Không thể lưu ảnh đại diện. Vui lòng thử lại.",
+    "T_DISPLAY_NAME_HINT": "Tên hiển thị trên blog của bạn, tối đa 100 ký tự.",
+    "T_DISPLAY_NAME_INVALID": "Vui lòng nhập họ và tên từ 1 đến 100 ký tự.",
+    "T_DISPLAY_NAME_SAVE": "Lưu tên",
+    "T_DISPLAY_NAME_SAVED": "Đã cập nhật họ và tên.",
+    "T_DISPLAY_NAME_SAVE_ERROR": "Không thể cập nhật họ và tên. Vui lòng thử lại."
 }

@@ -340,6 +340,22 @@ namespace angnet.Infrastructure.Data.Repositories
             return await GetUserDetail(user);
         }
 
+        public async Task<ApiResponse<UserDetailDto>> UpdateDisplayName(ClaimsPrincipal user, UpdateDisplayNameDto request)
+        {
+            var name = request.FullName?.Trim();
+            if (string.IsNullOrWhiteSpace(name) || name.Length > 100)
+                return new ApiResponse<UserDetailDto>("Họ và tên phải có từ 1 đến 100 ký tự.");
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Update only this user's name; preserve concurrent security and profile changes.
+            var updated = await _dbContext.Users
+                .Where(x => x.Id == userId && x.FlagActive)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.FullName, name));
+            if (updated == 0) return new ApiResponse<UserDetailDto>("Không tìm thấy tài khoản đang hoạt động.");
+            foreach (var entry in _dbContext.ChangeTracker.Entries<AppUser>().Where(x => x.Entity.Id == userId).ToList())
+                entry.State = EntityState.Detached;
+            return await GetUserDetail(user);
+        }
+
         public async Task<ApiResponse<AuthResponseDto>> Login(LoginDto loginDto)
         {
             _logger.LogInformation("LOGIN LOG", loginDto.Email, null);
