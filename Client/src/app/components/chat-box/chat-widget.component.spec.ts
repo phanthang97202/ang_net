@@ -7,6 +7,7 @@ import { signal } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 import { ChatWidgetComponent } from './chat-widget.component';
 import { ChatService } from '../../services/ws-chat.service';
+import { BrowserTitleService } from '../../services/browser-title.service';
 import { AuthService, ShowErrorService } from '../../services';
 import { IChat } from '../../interfaces';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -16,7 +17,9 @@ import { ChatBoxComponent } from './chat-box.component';
 describe('Chat notification widget', () => {
   let chat: any;
   let imagePermission: boolean;
+  let title: jasmine.SpyObj<BrowserTitleService>;
   beforeEach(() => {
+    title = jasmine.createSpyObj('BrowserTitleService', ['setUnreadCount']);
     imagePermission = true;
     chat = {
       canView: true,
@@ -57,6 +60,7 @@ describe('Chat notification widget', () => {
       ],
       providers: [
         { provide: ChatService, useValue: chat },
+        { provide: BrowserTitleService, useValue: title },
         { provide: NZ_ICONS, useValue: Object.values(icons) },
         {
           provide: AuthService,
@@ -69,6 +73,21 @@ describe('Chat notification widget', () => {
       ],
     });
   });
+  it('keeps tab alerts in sync with unread messages and clears them when the widget is removed', fakeAsync(() => {
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    expect(title.setUnreadCount).toHaveBeenCalledWith(2);
+    chat.unreadCount.set(4);
+    f.detectChanges();
+    expect(title.setUnreadCount).toHaveBeenCalledWith(4);
+    chat.unreadCount.set(0);
+    f.detectChanges();
+    expect(title.setUnreadCount).toHaveBeenCalledWith(0);
+    title.setUnreadCount.calls.reset();
+    f.destroy();
+    expect(title.setUnreadCount).toHaveBeenCalledOnceWith(0);
+    tick(1000);
+  }));
   it('shows unread count and a safe latest-message label without opening chat', fakeAsync(() => {
     const f = TestBed.createComponent(ChatWidgetComponent);
     f.detectChanges();

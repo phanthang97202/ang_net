@@ -6,6 +6,8 @@ import {
 } from '@angular/router';
 import { routes } from './app.routes';
 import { AppTitleStrategy } from './services/app-title-strategy.service';
+import { Title } from '@angular/platform-browser';
+import { BrowserTitleService } from './services/browser-title.service';
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideNzConfig } from 'ng-zorro-antd/core/config';
 import { registerLocaleData } from '@angular/common';
@@ -37,6 +39,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
     ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
+    { provide: Title, useExisting: BrowserTitleService },
     provideNzI18n(en_US),
     // Toast (NzMessageService):
     // - nzMaxStack 1: mỗi lúc chỉ một toast. Trước đây bấm liên tục vào nút cần

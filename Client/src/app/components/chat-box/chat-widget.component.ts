@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  effect,
   inject,
   OnDestroy,
   OnInit,
@@ -10,6 +11,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { interval } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatService } from '../../services/ws-chat.service';
+import { BrowserTitleService } from '../../services/browser-title.service';
 import { ChatBoxComponent } from './chat-box.component';
 
 @Component({
@@ -65,7 +67,15 @@ import { ChatBoxComponent } from './chat-box.component';
 export class ChatWidgetComponent implements OnInit, OnDestroy {
   chat = inject(ChatService);
   private destroyRef = inject(DestroyRef);
+  private title = inject(BrowserTitleService);
   open = false;
+  constructor() {
+    effect(() => {
+      this.title.setUnreadCount(
+        this.chat.canView ? this.chat.unreadCount() : 0
+      );
+    });
+  }
   ngOnInit(): void {
     void this.chat.startConnection().catch(() => undefined);
     interval(15000)
@@ -76,6 +86,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       });
   }
   ngOnDestroy(): void {
+    this.title.setUnreadCount(0);
     this.chat.stopConnection();
   }
 }
