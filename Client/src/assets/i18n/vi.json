@@ -1,4 +1,5 @@
 {
+    "T_ACCOUNT_GREETING": "Xin chào, {{name}}",
     "T_API_ERROR_TITLE": "Lỗi",
     "T_API_ERROR_CLOSE": "Đã hiểu",
     "T_SELF_SECURITY_DESC": "Chủ động bảo vệ tài khoản và quản lý các phiên đăng nhập của bạn.",

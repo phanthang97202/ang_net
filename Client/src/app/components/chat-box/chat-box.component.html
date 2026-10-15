@@ -191,6 +191,9 @@
 </section>
 <nz-modal
   [nzVisible]="previewVisible"
+  [nzCentered]="true"
+  nzWrapClassName="chat-image-modal-wrap"
+  nzClassName="blog-modal"
   [nzContent]="modalContent"
   [nzFooter]="null"
   (nzOnCancel)="closePreview()"
@@ -199,8 +202,7 @@
     background: 'var(--color-bg-card)',
     color: 'var(--color-text)',
   }"
-  [nzStyle]="{ maxWidth: '960px' }"
-  nzWidth="80%">
+  nzWidth="960px">
   <ng-template #modalContent>
     <div *ngIf="previewLoading" class="loading-indicator" role="status">
       <app-spinner size="small"></app-spinner>

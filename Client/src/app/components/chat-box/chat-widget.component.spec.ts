@@ -73,6 +73,61 @@ describe('Chat notification widget', () => {
       ],
     });
   });
+  it('centers the image popup, contains scrolling and releases the page scroll lock on close', fakeAsync(() => {
+    const pageContent = document.createElement('div');
+    pageContent.style.height = '2000px';
+    document.body.appendChild(pageContent);
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    box.previewVisible = true;
+    f.detectChanges();
+    tick(500);
+    f.detectChanges();
+
+    const wrap = document.querySelector(
+      '.chat-image-modal-wrap'
+    ) as HTMLElement;
+    const modal = wrap.querySelector('.ant-modal') as HTMLElement;
+    const body = wrap.querySelector('.ant-modal-body') as HTMLElement;
+    expect(wrap.classList.contains('ant-modal-centered')).toBeTrue();
+    expect(
+      document.documentElement.classList.contains('cdk-global-scrollblock')
+    ).toBeTrue();
+    expect(getComputedStyle(wrap).overflowY).toBe('hidden');
+    expect(getComputedStyle(body).overflowY).toBe('auto');
+    expect(getComputedStyle(body).overscrollBehaviorY).toBe('contain');
+
+    // Simulate oversized media so the modal must contain its own scroll area.
+    const tallMedia = document.createElement('div');
+    tallMedia.style.height = '2000px';
+    body.appendChild(tallMedia);
+    const rect = modal.getBoundingClientRect();
+    expect(rect.top).toBeGreaterThanOrEqual(15);
+    expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight - 15);
+    expect(
+      Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2)
+    ).toBeLessThan(2);
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    body.scrollTop = 100;
+    expect(body.scrollTop).toBe(100);
+
+    box.closePreview();
+    f.detectChanges();
+    tick(500);
+    expect(document.querySelector('.chat-image-modal-wrap')).toBeNull();
+    expect(
+      document.documentElement.classList.contains('cdk-global-scrollblock')
+    ).toBeFalse();
+    f.destroy();
+    pageContent.remove();
+    tick(1000);
+  }));
+
   it('keeps tab alerts in sync with unread messages and clears them when the widget is removed', fakeAsync(() => {
     const f = TestBed.createComponent(ChatWidgetComponent);
     f.detectChanges();

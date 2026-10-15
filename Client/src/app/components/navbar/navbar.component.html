@@ -433,7 +433,7 @@
         <p
           class="account-menu__name"
           [title]="authService.getAccountInfo().name">
-          {{ authService.getAccountInfo().name }}
+          {{ 'T_ACCOUNT_GREETING' | translate: { name: authService.getAccountInfo().name } }}
         </p>
         <p
           *ngIf="authService.getAccountInfo().email"

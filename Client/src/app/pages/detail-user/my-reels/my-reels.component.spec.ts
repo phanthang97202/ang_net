@@ -75,6 +75,7 @@ describe('My reels', () => {
       'https://example.com/photo.jpg'
     );
     expect(f.nativeElement.querySelector('video')).toBeNull();
+    expect(f.nativeElement.querySelector('.my-posts__header p')).toBeNull();
     page = new Subject();
     api.MyReels.and.returnValue(page);
     f.nativeElement.querySelector('.reels-more').click();

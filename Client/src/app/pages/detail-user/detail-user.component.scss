@@ -344,22 +344,23 @@
     gap: 8px;
     padding: 8px;
     border-radius: 20px;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
   }
 
   .profile__nav-section {
-    flex-direction: row;
-    gap: 6px;
-    flex-shrink: 0;
+    display: contents;
   }
-  .profile__nav-title {
+  .profile__nav-title,
+  .profile__nav-label,
+  .profile__soon {
     display: none;
   }
   .profile__nav-item {
+    flex: 1;
+    min-width: 0;
     width: auto;
-    white-space: nowrap;
+    justify-content: center;
+    gap: 0;
+    padding-inline: 0;
   }
 }
 

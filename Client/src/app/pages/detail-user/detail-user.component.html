@@ -8,6 +8,8 @@
           <button
             type="button"
             class="profile__nav-item"
+            [attr.aria-label]="item.labelKey | translate"
+            [attr.title]="item.labelKey | translate"
             [class.is-active]="item.id === activeTab"
             [class.is-disabled]="!item.available"
             [attr.aria-pressed]="item.id === activeTab"

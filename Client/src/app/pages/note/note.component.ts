@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TranslateService } from '@ngx-translate/core';
 import { AntdModule, REUSE_PIPE_MODULE } from '../../modules';
 import { TextEditorComponent } from '../../components/text-editor/text-editor.component';
@@ -20,7 +21,7 @@ import { ApiService, NoteRealtimeService } from '../../services';
 @Component({
   selector: 'app-note',
   standalone: true,
-  imports: [AntdModule, TextEditorComponent, ...REUSE_PIPE_MODULE],
+  imports: [AntdModule, NzToolTipModule, TextEditorComponent, ...REUSE_PIPE_MODULE],
   templateUrl: './note.component.html',
   styleUrl: './note.component.scss',
 })

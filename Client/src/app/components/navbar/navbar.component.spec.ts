@@ -1,6 +1,7 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import {
   ApiService,
@@ -22,6 +23,9 @@ import {
   SearchOutline,
   CloseOutline,
   ArrowRightOutline,
+  UserOutline,
+  LogoutOutline,
+  RightOutline,
 } from '@ant-design/icons-angular/icons';
 
 describe('NavbarComponent search keyboard flow', () => {
@@ -79,6 +83,77 @@ describe('NavbarComponent search keyboard flow', () => {
       fixture.nativeElement.querySelector('#navbar-mobile-menu')
     ).toBeNull();
     fixture.destroy();
+  }));
+});
+
+describe('Navbar account greeting', () => {
+  it('greets the currently signed-in user in the account popup', fakeAsync(() => {
+    let name = 'Phan Thăng';
+    TestBed.configureTestingModule({
+      imports: [
+        NavbarComponent,
+        TranslateModule.forRoot(),
+        NoopAnimationsModule,
+      ],
+      providers: [
+        provideRouter([]),
+        {
+          provide: NZ_ICONS,
+          useValue: [
+            HomeOutline,
+            ToolOutline,
+            CalculatorOutline,
+            FileTextOutline,
+            DollarOutline,
+            PlayCircleOutline,
+            TrophyOutline,
+            AppstoreOutline,
+            SearchOutline,
+            CloseOutline,
+            ArrowRightOutline,
+            UserOutline,
+            LogoutOutline,
+            RightOutline,
+          ],
+        },
+        { provide: ApiService, useValue: {} },
+        {
+          provide: AuthService,
+          useValue: {
+            isLoggedIn: () => true,
+            hasPermission: () => false,
+            hasAnyPermissionAtAll: () => false,
+            getAccountInfo: () => ({ name, shortname: 'P', email: '' }),
+          },
+        },
+        { provide: LangService, useValue: {} },
+        { provide: NoteRealtimeService, useValue: { unreadCount$: of(0) } },
+      ],
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('vi', {
+      T_ACCOUNT_GREETING: 'Xin chào, {{name}}',
+    });
+    translate.use('vi');
+    spyOn(NavbarComponent.prototype, 'ngOnInit').and.stub();
+    const f = TestBed.createComponent(NavbarComponent);
+    f.detectChanges();
+    f.componentInstance.isAccountMenuOpen = true;
+    f.detectChanges();
+    tick(500);
+    f.detectChanges();
+    expect(
+      document.querySelector('.account-menu__name')?.textContent?.trim()
+    ).toBe('Xin chào, Phan Thăng');
+    name = 'Tên mới';
+    f.detectChanges();
+    expect(
+      document.querySelector('.account-menu__name')?.textContent?.trim()
+    ).toBe('Xin chào, Tên mới');
+    f.componentInstance.closeAccountMenu();
+    f.detectChanges();
+    tick(500);
+    f.destroy();
   }));
 });
 

@@ -1,4 +1,5 @@
 {
+    "T_ACCOUNT_GREETING": "Hello, {{name}}",
     "T_API_ERROR_TITLE": "Error",
     "T_API_ERROR_CLOSE": "Got it",
     "T_SELF_SECURITY_DESC": "Protect your account and manage your login sessions.",
