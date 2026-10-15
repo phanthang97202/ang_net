@@ -11,19 +11,25 @@
         flex: none;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 28px;
         padding: 0;
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        color: var(--color-accent);
-        background: var(--color-accent-bg);
+        border: 0;
+        color: inherit;
+        background: transparent;
+        box-shadow: none;
 
+        &:focus,
         &:hover,
+        &:active {
+            color: inherit;
+            background: transparent;
+            box-shadow: none;
+        }
+
         &:focus-visible {
-            border-color: var(--color-accent);
-            color: var(--color-accent);
-            box-shadow: 0 0 0 2px var(--color-accent-bg);
+            outline: 1px dotted currentColor;
+            outline-offset: 2px;
         }
     }
 

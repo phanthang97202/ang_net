@@ -1122,6 +1122,16 @@ html.cdk-global-scrollblock {
   transition: opacity 0.2s ease;
 }
 
+// CDK positions the overlay pane next to its trigger. NG-ZORRO 17 adds
+// top: 100% to its relative select panel; Safari can resolve that percentage
+// against the panel height and apply a second offset (NG-ZORRO #9401).
+// Keep panels in flow for CDK sizing, with no additional positional offset.
+// Applies to selects/tree-selects across the blog, dashboard and modal forms.
+.cdk-overlay-pane > .ant-select-dropdown {
+  top: 0;
+  left: 0;
+}
+
 // ── iOS: chặn Safari tự phóng to trang khi chạm vào ô nhập ────────────────────
 // Safari/WebKit trên iPhone tự zoom cả trang khi focus vào input có font-size
 // dưới 16px, và KHÔNG tự zoom ra - người dùng phải chụm tay thu lại nên trang
