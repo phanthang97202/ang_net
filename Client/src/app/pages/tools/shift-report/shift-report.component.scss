@@ -1,5 +1,32 @@
 .shift-report-container {
 
+    .receptionist-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .handover-note-button {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        color: var(--color-accent);
+        background: var(--color-accent-bg);
+
+        &:hover,
+        &:focus-visible {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            box-shadow: 0 0 0 2px var(--color-accent-bg);
+        }
+    }
+
     .filter-section {
         margin-bottom: 24px;
     }
@@ -60,6 +87,18 @@
             }
         }
     }
+}
+
+// Template content keeps component styles when rendered in the CDK overlay.
+.handover-note-content {
+    width: min(320px, calc(100vw - 64px));
+    max-height: min(320px, 50vh);
+    margin: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
 }
 
 // Xếp chồng NGAY TRÊN nút chat chung của app (.chat-toggle-btn ở

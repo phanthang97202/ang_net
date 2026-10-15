@@ -44,6 +44,8 @@ public class ShiftReportServiceTests
         db.ChangeTracker.Clear();
         var read = await service.GetByIdAsync(created.Id);
         Assert.AreEqual(dto.HandoverNote, read.HandoverNote);
+        var notedList = await service.GetAllAsync(new ShiftReportQueryParams());
+        Assert.AreEqual(dto.HandoverNote, notedList.Items.Single().HandoverNote);
         var update = new UpdateShiftReportDto {
             Id = created.Id, ShiftDate = dto.ShiftDate, ShiftType = dto.ShiftType,
             StartTime = dto.StartTime, EndTime = dto.EndTime,
@@ -59,6 +61,7 @@ public class ShiftReportServiceTests
         Assert.AreEqual(500000m, read.TotalTransfer);
         Assert.AreEqual(2900000m, read.HandoverAmount);
         var list = await service.GetAllAsync(new ShiftReportQueryParams());
+        Assert.AreEqual("", list.Items.Single().HandoverNote);
         Assert.AreEqual(3000000m, list.Items.Single().TotalCash);
         Assert.AreEqual(500000m, list.Items.Single().TotalTransfer);
         Assert.AreEqual(2900000m, list.Items.Single().HandoverAmount);

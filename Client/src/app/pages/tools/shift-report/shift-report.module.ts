@@ -20,6 +20,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 
@@ -55,6 +56,7 @@ import { AiAssistantComponent } from './ai-assistant/ai-assistant.component';
     NzGridModule,
     NzDividerModule,
     NzTagModule,
+    NzPopoverModule,
     NzToolTipModule,
     NzStatisticModule,
     NzCheckboxModule,

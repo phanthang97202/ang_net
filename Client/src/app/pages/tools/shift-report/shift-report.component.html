@@ -87,7 +87,7 @@
           <th nzWidth="50px">STT</th>
           <th nzWidth="100px">Ngày ca</th>
           <th nzWidth="100px">Loại ca</th>
-          <th nzWidth="80px">Lễ tân</th>
+          <th nzWidth="110px">Lễ tân</th>
           <th nzWidth="80px" nzAlign="right">Tiền mặt</th>
           <th nzWidth="80px" nzAlign="right">C.khoản</th>
           <th nzWidth="80px" nzAlign="right">Bàn giao</th>
@@ -105,7 +105,29 @@
               {{ item.ShiftType }}
             </nz-tag>
           </td>
-          <td>{{ item.ReceptionistName }}</td>
+          <td>
+            <div class="receptionist-cell">
+              <span>{{ item.ReceptionistName }}</span>
+              <button
+                *ngIf="item.HandoverNote?.trim()"
+                class="handover-note-button"
+                type="button"
+                nz-button
+                nzType="text"
+                nz-popover
+                nzPopoverTitle="Ghi chú bàn giao"
+                nzPopoverTrigger="click"
+                nzPopoverPlacement="topLeft"
+                [nzPopoverContent]="handoverNoteContent"
+                [nzPopoverOverlayStyle]="{ 'max-width': 'calc(100vw - 32px)' }"
+                [attr.aria-label]="'Xem ghi chú ca của ' + item.ReceptionistName">
+                <span nz-icon nzType="file-text" nzTheme="outline"></span>
+              </button>
+              <ng-template #handoverNoteContent>
+                <p class="handover-note-content">{{ item.HandoverNote }}</p>
+              </ng-template>
+            </div>
+          </td>
           <td nzAlign="right">{{ item.TotalCash | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.TotalTransfer | number: '1.0-0' }}</td>
           <td nzAlign="right">{{ item.HandoverAmount | number: '1.0-0' }}</td>

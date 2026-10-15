@@ -505,6 +505,7 @@ namespace angnet.Infrastructure.Data.Services
                     ShiftDate = x.ShiftDate,
                     ShiftType = x.ShiftType,
                     ReceptionistName = x.ReceptionistName,
+                    HandoverNote = x.HandoverNote,
                     TotalCash = x.TotalCash,
                     TotalTransfer = x.TotalTransfer,
                     HandoverAmount = x.HandoverAmount,

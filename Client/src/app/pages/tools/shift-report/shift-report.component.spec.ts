@@ -90,6 +90,7 @@ describe('Shift report permissions', () => {
             ShiftDate: '2026-10-08',
             ShiftType: 'Ca ngày',
             ReceptionistName: 'Test',
+            HandoverNote: 'Kiểm tra két tiền\nBàn giao <đủ> & đúng',
             TotalCash: 0,
             TotalTransfer: 0,
             HandoverAmount: 0,
@@ -148,6 +149,25 @@ describe('Shift report permissions', () => {
     expect(action('Xóa')).toBeNull();
     expect(action('In báo cáo')).not.toBeNull();
     expect(action('Xuất Excel')).not.toBeNull();
+    const noteButton = () =>
+      fixture.nativeElement.querySelector(
+        '.handover-note-button'
+      ) as HTMLButtonElement | null;
+    expect(noteButton()).not.toBeNull();
+    expect(noteButton()!.getAttribute('aria-label')).toContain('Test');
+    noteButton()!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(document.querySelector('.handover-note-content')?.textContent).toBe(
+      'Kiểm tra két tiền\nBàn giao <đủ> & đúng'
+    );
+    noteButton()!.click();
+    fixture.detectChanges();
+    for (const note of ['', '   \n', null, undefined]) {
+      fixture.componentInstance.reports[0].HandoverNote = note as any;
+      fixture.detectChanges();
+      expect(noteButton()).toBeNull();
+    }
     permissions.add('shiftreport.create');
     permissions.add('shiftreport.update');
     permissions.add('shiftreport.delete');

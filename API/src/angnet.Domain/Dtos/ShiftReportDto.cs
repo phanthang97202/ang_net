@@ -133,6 +133,7 @@ namespace angnet.Domain.Dtos
         public DateOnly ShiftDate { get; set; }
         public string ShiftType { get; set; } = string.Empty;
         public string ReceptionistName { get; set; } = string.Empty;
+        public string HandoverNote { get; set; } = string.Empty;
         public decimal TotalCash { get; set; }
         public decimal TotalTransfer { get; set; }
         public decimal HandoverAmount { get; set; }

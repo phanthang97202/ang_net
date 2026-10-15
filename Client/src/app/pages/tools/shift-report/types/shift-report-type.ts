@@ -87,6 +87,7 @@ export interface ShiftReportListItem {
   ShiftDate: string;
   ShiftType: string;
   ReceptionistName: string;
+  HandoverNote?: string;
   TotalCash: number;
   TotalTransfer: number;
   HandoverAmount: number;

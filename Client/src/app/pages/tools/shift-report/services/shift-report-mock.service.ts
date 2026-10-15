@@ -207,6 +207,7 @@ export class ShiftReportMockService {
       ShiftDate: r.ShiftDate,
       ShiftType: r.ShiftType,
       ReceptionistName: r.ReceptionistName,
+      HandoverNote: r.HandoverNote,
       TotalCash: r.TotalCash,
       TotalTransfer: r.TotalTransfer,
       HandoverAmount: r.HandoverAmount,
