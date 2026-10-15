@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -19,7 +20,11 @@ import {
   IArchiveItem,
   IArchiveItemCreate,
 } from '../../../interfaces';
-import { ArchiveService, ArchiveUploadEvent, AuthService } from '../../../services';
+import {
+  ArchiveService,
+  ArchiveUploadEvent,
+  AuthService,
+} from '../../../services';
 import {
   ResolvedLinkEmbed,
   resolveLinkEmbed,
@@ -70,7 +75,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   private message = inject(NzMessageService);
   private auth = inject(AuthService);
 
-  get canUpload(): boolean { return this.auth.hasPermission('archive.upload'); }
+  get canUpload(): boolean {
+    return this.auth.hasPermission('archive.upload');
+  }
 
   mode: ItemFormMode = 'upload';
   files: PendingFile[] = [];
@@ -78,6 +85,8 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   collections: IArchiveCollection[] = [];
   isSaving = false;
   isDragOver = false;
+  isReadingImage = false;
+  private pasteReader?: FileReader;
 
   form = this.fb.nonNullable.group({
     SourceUrl: [''],
@@ -91,18 +100,22 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   });
 
   ngOnChanges(): void {
+    this.cancelImageRead();
     if (!this.visible) return;
 
     this.clearFiles();
     this.linkPreview = null;
-    this.mode = this.item?.Kind === 'Link' || !this.canUpload ? 'link' : 'upload';
+    this.mode =
+      this.item?.Kind === 'Link' || !this.canUpload ? 'link' : 'upload';
     this.form.reset({
       SourceUrl: this.item?.SourceUrl ?? '',
       LinkKind: this.item?.Kind ?? 'Link',
       Title: this.item?.Title ?? '',
       Note: this.item?.Note ?? '',
       ThumbnailUrl: this.item?.Kind === 'Link' ? this.item.ThumbnailUrl : '',
-      TakenAt: this.item ? this.item.TakenAt?.slice(0, 10) ?? '' : this.today(),
+      TakenAt: this.item
+        ? (this.item.TakenAt?.slice(0, 10) ?? '')
+        : this.today(),
       CollectionId: this.item?.CollectionId ?? this.collectionId,
     });
     if (this.item?.Kind === 'Link') {
@@ -117,6 +130,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.cancelImageRead();
     this.clearFiles();
   }
 
@@ -130,7 +144,77 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
   setMode(mode: ItemFormMode): void {
     if (this.isSaving || (mode === 'upload' && !this.canUpload)) return;
+    this.cancelImageRead();
     this.mode = mode;
+  }
+
+  get hasPastedImage(): boolean {
+    return (
+      this.form.controls.LinkKind.value === 'Image' &&
+      this.form.controls.SourceUrl.value.startsWith('data:image/')
+    );
+  }
+
+  @HostListener('document:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (!this.visible || this.isEdit || this.mode !== 'link') return;
+    const file = Array.from(event.clipboardData?.files ?? []).find(item =>
+      item.type.startsWith('image/')
+    );
+    if (!file) return;
+    event.preventDefault();
+    if (this.isSaving) return;
+    if (!this.canUpload) {
+      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      return;
+    }
+    if (!file.size || file.size >= 2 * 1024 * 1024) {
+      this.message.warning('Ảnh phải có dung lượng nhỏ hơn 2 MB.');
+      return;
+    }
+    if (
+      !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(
+        file.type
+      )
+    ) {
+      this.message.warning('Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.');
+      return;
+    }
+
+    this.cancelImageRead();
+    const reader = new FileReader();
+    this.pasteReader = reader;
+    this.isReadingImage = true;
+    reader.onload = () => {
+      if (this.pasteReader !== reader) return;
+      this.pasteReader = undefined;
+      this.isReadingImage = false;
+      if (typeof reader.result !== 'string') return;
+      this.form.patchValue({ SourceUrl: reader.result, LinkKind: 'Image' });
+      this.form.controls.SourceUrl.markAsDirty();
+      this.linkPreview = null;
+    };
+    reader.onerror = () => {
+      if (this.pasteReader !== reader) return;
+      this.pasteReader = undefined;
+      this.isReadingImage = false;
+      this.message.error('Không thể đọc ảnh vừa dán. Vui lòng thử lại.');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removePastedImage(): void {
+    if (this.isSaving) return;
+    this.cancelImageRead();
+    this.form.patchValue({ SourceUrl: '', LinkKind: 'Link' });
+    this.linkPreview = null;
+  }
+
+  private cancelImageRead(): void {
+    const reader = this.pasteReader;
+    this.pasteReader = undefined;
+    this.isReadingImage = false;
+    reader?.abort();
   }
 
   onFileInput(event: Event): void {
@@ -158,12 +242,16 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   onLinkChange(): void {
+    this.cancelImageRead();
     const url = this.form.controls.SourceUrl.value.trim();
-    this.linkPreview = this.form.controls.LinkKind.value === 'Link' && this.isHttpUrl(url) ? resolveLinkEmbed(url) : null;
+    this.linkPreview =
+      this.form.controls.LinkKind.value === 'Link' && this.isHttpUrl(url)
+        ? resolveLinkEmbed(url)
+        : null;
   }
 
   submit(): void {
-    if (this.isSaving) return;
+    if (this.isSaving || this.isReadingImage) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -180,6 +268,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
   close(): void {
     if (this.isSaving) return;
+    this.cancelImageRead();
     this.closed.emit();
   }
 
@@ -211,7 +300,10 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   private async saveUploads(): Promise<void> {
-    if (!this.canUpload) { this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị'); return; }
+    if (!this.canUpload) {
+      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      return;
+    }
     const queue = this.files.filter(f => f.status !== 'done');
     if (queue.length === 0) {
       this.message.warning('Hãy chọn ít nhất một ảnh hoặc video');
@@ -310,7 +402,11 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   private saveLink(): void {
     const value = this.form.getRawValue();
     const url = value.SourceUrl.trim();
-    if (!this.isHttpUrl(url)) {
+    if (this.hasPastedImage && !this.canUpload) {
+      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      return;
+    }
+    if (!this.hasPastedImage && !this.isHttpUrl(url)) {
       this.message.warning('Link cần bắt đầu bằng http:// hoặc https://');
       return;
     }
@@ -322,7 +418,11 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         Kind: value.LinkKind,
         SourceUrl: url,
         StoragePublicId: '',
-        ThumbnailUrl: value.LinkKind === 'Image' ? url : value.ThumbnailUrl.trim() || this.linkPreview?.thumbnailUrl || '',
+        ThumbnailUrl: this.hasPastedImage
+          ? ''
+          : value.LinkKind === 'Image'
+            ? url
+            : value.ThumbnailUrl.trim() || this.linkPreview?.thumbnailUrl || '',
         Title: value.Title.trim(),
         Note: value.Note.trim(),
         Width: null,
@@ -332,7 +432,8 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         TakenAt: this.toTakenAt(value.TakenAt),
       })
       .subscribe({
-        next: response => this.afterSave(response?.Success, response?.ErrorMessage),
+        next: response =>
+          this.afterSave(response?.Success, response?.ErrorMessage),
         error: () => this.afterSave(false, ''),
       });
   }
@@ -350,12 +451,16 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         TakenAt: this.toTakenAt(value.TakenAt),
       })
       .subscribe({
-        next: response => this.afterSave(response?.Success, response?.ErrorMessage),
+        next: response =>
+          this.afterSave(response?.Success, response?.ErrorMessage),
         error: () => this.afterSave(false, ''),
       });
   }
 
-  private afterSave(success: boolean | undefined, errorMessage: string | undefined): void {
+  private afterSave(
+    success: boolean | undefined,
+    errorMessage: string | undefined
+  ): void {
     this.isSaving = false;
     if (!success) {
       this.message.error(errorMessage || 'Không lưu được mục');

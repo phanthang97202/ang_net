@@ -206,6 +206,38 @@
   }
 }
 
+.item-form__paste-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.item-form__pasted-image {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+
+  > img {
+    display: block;
+    width: 100%;
+    max-height: 240px;
+    padding: 0.6rem;
+    background: var(--color-control-bg);
+    object-fit: contain;
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+  }
+}
+
 .item-form__preview-icon {
   display: grid;
   place-items: center;

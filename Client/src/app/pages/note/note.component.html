@@ -69,15 +69,21 @@
             <span class="note-card__avatar" aria-hidden="true">
               {{ initialOf(note.Alias) }}
             </span>
-            <div>
+            <div class="note-card__author">
               <h3>{{ note.Alias }}</h3>
               <time [attr.datetime]="note.CreatedDTime">
                 {{ note.CreatedDTime | timeAgo }}
               </time>
             </div>
+            <button class="note-card__copy" type="button"
+              [attr.aria-label]="'T_NOTE_COPY_LABEL' | translate"
+              (click)="copyNote(noteBody)">
+              <span nz-icon nzType="copy" nzTheme="outline" aria-hidden="true"></span>
+              {{ 'T_NOTE_COPY' | translate }}
+            </button>
           </header>
 
-          <div class="note-card__body" [class.note-card__body--collapsed]="
+          <div #noteBody class="note-card__body" [class.note-card__body--collapsed]="
               shouldTruncate(note) && !isExpanded(note.NoteId)
             " [innerHTML]="note.ContentBody"></div>
 

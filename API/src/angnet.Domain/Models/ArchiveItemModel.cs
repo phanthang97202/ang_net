@@ -22,7 +22,7 @@ namespace angnet.Domain.Models
         [Column(TypeName = "varchar(30)")]
         public EArchiveProvider Provider { get; set; } // Nơi nội dung nằm, server tự nhận diện
 
-        public string SourceUrl { get; set; } = string.Empty; // Link gốc người dùng dán, hoặc URL file Cloudinary
+        public string SourceUrl { get; set; } = string.Empty; // Link gốc, URL Cloudinary hoặc data URL base64 của ảnh dán
         public string StoragePublicId { get; set; } = string.Empty; // public_id Cloudinary để xoá file; rỗng với link ngoài
 
         public string Title { get; set; } = string.Empty; // Tiêu đề

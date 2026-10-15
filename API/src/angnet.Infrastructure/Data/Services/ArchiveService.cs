@@ -44,6 +44,7 @@ namespace angnet.Infrastructure.Data.Services
         private const int NoteMaxLength = 10000;
         private const int UrlMaxLength = 2048;
         private const int MaxPageSize = 60;
+        private const int MaxInlineImageBytes = 2 * 1024 * 1024;
 
         private const string CollectionNotFound = "Bộ sưu tập không tồn tại";
         private const string ItemNotFound = "Mục lưu trữ không tồn tại";
@@ -269,8 +270,12 @@ namespace angnet.Infrastructure.Data.Services
             string thumbnailUrl = (data.ThumbnailUrl ?? string.Empty).Trim();
             string storagePublicId = string.Empty;
             EArchiveProvider provider;
+            bool inlineImage = data.Kind == EArchiveItemKind.Image
+                && sourceUrl.StartsWith("data:", StringComparison.OrdinalIgnoreCase);
+            int inlineImageBytes = 0;
 
-            if (!IsHttpUrl(thumbnailUrl, allowEmpty: true))
+            if (!(inlineImage && thumbnailUrl == sourceUrl)
+                && !IsHttpUrl(thumbnailUrl, allowEmpty: true))
             {
                 return new ApiResponse<ArchiveItemDto>("Link ảnh đại diện không hợp lệ");
             }
@@ -287,6 +292,16 @@ namespace angnet.Infrastructure.Data.Services
 
                 case EArchiveItemKind.Image:
                 case EArchiveItemKind.Video:
+                    if (inlineImage)
+                    {
+                        if (!string.IsNullOrWhiteSpace(data.StoragePublicId)
+                            || !TryReadInlineImage(sourceUrl, out inlineImageBytes))
+                            return new ApiResponse<ArchiveItemDto>("Ảnh dán phải là JPG, PNG, GIF hoặc WebP hợp lệ và nhỏ hơn 2 MB");
+
+                        provider = EArchiveProvider.Web;
+                        thumbnailUrl = sourceUrl;
+                        break;
+                    }
                     if (string.IsNullOrWhiteSpace(data.StoragePublicId))
                     {
                         if (!IsHttpUrl(sourceUrl, allowEmpty: false))
@@ -340,7 +355,7 @@ namespace angnet.Infrastructure.Data.Services
                 Width = data.Width,
                 Height = data.Height,
                 DurationSeconds = data.DurationSeconds,
-                Bytes = data.Bytes,
+                Bytes = inlineImage ? inlineImageBytes : data.Bytes,
                 TakenAt = ToUtc(data.TakenAt),
                 FlagActive = true,
                 CreatedBy = userId,
@@ -499,7 +514,8 @@ namespace angnet.Infrastructure.Data.Services
             {
                 return "Chế độ hiển thị không hợp lệ";
             }
-            if (!IsHttpUrl((data.CoverUrl ?? string.Empty).Trim(), allowEmpty: true))
+            string coverUrl = (data.CoverUrl ?? string.Empty).Trim();
+            if (!IsHttpUrl(coverUrl, allowEmpty: true) && !TryReadInlineImage(coverUrl, out _))
             {
                 return "Link ảnh bìa không hợp lệ";
             }
@@ -529,6 +545,36 @@ namespace angnet.Infrastructure.Data.Services
             return value.Length <= UrlMaxLength
                 && Uri.TryCreate(value, UriKind.Absolute, out Uri uri)
                 && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+        }
+
+        // Match the Chat box image formats and decoded size limit. Only raster
+        // image data with a matching file signature may be stored as a data URL.
+        private static bool TryReadInlineImage(string value, out int bytes)
+        {
+            bytes = 0;
+            if (value.Length > 64 + ((MaxInlineImageBytes + 2) / 3) * 4) return false;
+            int comma = value.IndexOf(',');
+            if (comma is < 0 or > 32) return false;
+            string header = value[..comma].ToLowerInvariant();
+            if (header is not ("data:image/jpeg;base64" or "data:image/png;base64"
+                or "data:image/gif;base64" or "data:image/webp;base64")) return false;
+
+            byte[] image;
+            try { image = Convert.FromBase64String(value[(comma + 1)..]); }
+            catch (FormatException) { return false; }
+            if (image.Length == 0 || image.Length >= MaxInlineImageBytes) return false;
+
+            bool valid = header switch
+            {
+                "data:image/jpeg;base64" => image.AsSpan().StartsWith(new byte[] { 0xff, 0xd8, 0xff }),
+                "data:image/png;base64" => image.AsSpan().StartsWith(new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a }),
+                "data:image/gif;base64" => image.AsSpan().StartsWith("GIF87a"u8) || image.AsSpan().StartsWith("GIF89a"u8),
+                "data:image/webp;base64" => image.Length >= 12 && image.AsSpan(0, 4).SequenceEqual("RIFF"u8)
+                    && image.AsSpan(8, 4).SequenceEqual("WEBP"u8),
+                _ => false,
+            };
+            if (valid) bytes = image.Length;
+            return valid;
         }
 
         // Nguồn do server tự nhận diện theo tên miền, không tin giá trị client gửi lên

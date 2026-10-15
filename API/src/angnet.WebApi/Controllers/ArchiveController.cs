@@ -111,10 +111,12 @@ namespace angnet.WebApi.Controllers
 
         [Authorize(Policy = UsePermission)]
         [HttpPost("Item")]
+        [RequestSizeLimit(3 * 1024 * 1024)]
         public async Task<IActionResult> CreateItem([FromBody] ArchiveItemCreateDto request,
             [FromServices] IAuthorizationService authorization)
         {
-            if (!string.IsNullOrWhiteSpace(request.StoragePublicId)
+            if ((!string.IsNullOrWhiteSpace(request.StoragePublicId)
+                    || (request.SourceUrl ?? string.Empty).TrimStart().StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 && !(await authorization.AuthorizeAsync(User, "archive.upload")).Succeeded)
                 return Forbid();
             CloudinaryAccount.TryGetSettings(_configuration, out string cloudName, out _, out _);

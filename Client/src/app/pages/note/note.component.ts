@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { TranslateService } from '@ngx-translate/core';
 import { AntdModule, REUSE_PIPE_MODULE } from '../../modules';
 import { TextEditorComponent } from '../../components/text-editor/text-editor.component';
 import { INote } from '../../interfaces';
@@ -27,6 +28,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly message = inject(NzMessageService);
+  private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly noteRealtime = inject(NoteRealtimeService);
 
@@ -177,6 +179,19 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isExpanded(noteId: string): boolean {
     return this.expandedIds.has(noteId);
+  }
+
+  async copyNote(body: HTMLElement): Promise<void> {
+    try {
+      // Read the rendered body, including clipped text, to preserve code and
+      // paragraph breaks without copying HTML, the author, or action buttons.
+      await navigator.clipboard.writeText(
+        body.innerText.replace(/\u00a0/g, ' ')
+      );
+      this.message.success(this.translate.instant('T_NOTE_COPY_SUCCESS'));
+    } catch {
+      this.message.error(this.translate.instant('T_NOTE_COPY_ERROR'));
+    }
   }
 
   shouldTruncate(note: INote): boolean {

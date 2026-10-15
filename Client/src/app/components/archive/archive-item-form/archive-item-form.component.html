@@ -8,21 +8,25 @@
   [nzClosable]="!isSaving"
   [nzWidth]="620"
   (nzOnCancel)="close()">
-  <form *nzModalContent class="item-form" [formGroup]="form" (ngSubmit)="submit()">
+  <form
+    *nzModalContent
+    class="item-form"
+    [formGroup]="form"
+    (ngSubmit)="submit()">
     @if (!isEdit) {
       <div class="item-form__modes" role="tablist" aria-label="Cách thêm">
         @if (canUpload) {
-        <button
-          type="button"
-          role="tab"
-          class="item-form__mode"
-          [class.is-active]="mode === 'upload'"
-          [attr.aria-selected]="mode === 'upload'"
-          [disabled]="isSaving"
-          (click)="setMode('upload')">
-          <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
-          Tải ảnh / video
-        </button>
+          <button
+            type="button"
+            role="tab"
+            class="item-form__mode"
+            [class.is-active]="mode === 'upload'"
+            [attr.aria-selected]="mode === 'upload'"
+            [disabled]="isSaving"
+            (click)="setMode('upload')">
+            <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
+            Tải ảnh / video
+          </button>
         }
         <button
           type="button"
@@ -56,23 +60,32 @@
           <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
         </span>
         <strong>Chọn hoặc kéo thả ảnh, video vào đây</strong>
-        <small>Ảnh tối đa 10 MB, video tối đa 100 MB · mỗi file thành một mục</small>
+        <small
+          >Ảnh tối đa 10 MB, video tối đa 100 MB · mỗi file thành một mục</small
+        >
       </label>
 
       @if (files.length > 0) {
         <ul class="item-form__files">
           @for (pending of files; track pending.previewUrl) {
-            <li class="item-form__file" [class.is-error]="pending.status === 'error'">
+            <li
+              class="item-form__file"
+              [class.is-error]="pending.status === 'error'">
               @if (pending.kind === 'Image') {
                 <img [src]="pending.previewUrl" alt="" />
               } @else {
-                <video [src]="pending.previewUrl" muted preload="metadata"></video>
+                <video
+                  [src]="pending.previewUrl"
+                  muted
+                  preload="metadata"></video>
                 <span class="item-form__file-kind">
                   <span nz-icon nzType="video-camera" nzTheme="outline"></span>
                 </span>
               }
               @if (pending.status === 'uploading') {
-                <span class="item-form__file-state">{{ pending.percent }}%</span>
+                <span class="item-form__file-state"
+                  >{{ pending.percent }}%</span
+                >
               }
               @if (pending.status === 'done') {
                 <span class="item-form__file-state">
@@ -80,7 +93,11 @@
                 </span>
               }
               @if (pending.status === 'error') {
-                <span class="item-form__file-state is-error" [title]="pending.error">Lỗi</span>
+                <span
+                  class="item-form__file-state is-error"
+                  [title]="pending.error"
+                  >Lỗi</span
+                >
               }
               @if (!isSaving) {
                 <button
@@ -98,28 +115,66 @@
     }
 
     @if (!isEdit && mode === 'link') {
-      <div>
-        <label class="blog-label" for="item-link-kind">Loại nội dung</label>
-        <select id="item-link-kind" class="blog-input" formControlName="LinkKind" (change)="onLinkChange()">
-          <option value="Link">Link trang web / mạng xã hội</option>
-          <option value="Image">Link ảnh trực tiếp</option>
-          <option value="Video">Link video trực tiếp</option>
-        </select>
-      </div>
-      <div>
-        <label class="blog-label" for="item-source-url">Link</label>
-        <input
-          id="item-source-url"
-          class="blog-input"
-          formControlName="SourceUrl"
-          placeholder="https://..."
-          (input)="onLinkChange()" />
-        <small class="blog-label__optional">Link ảnh/video cần trỏ trực tiếp đến file. Nội dung được lưu nguyên link, không tải lên Cloudinary.</small>
-      </div>
+      <p class="item-form__paste-hint" aria-live="polite">
+        {{
+          isReadingImage
+            ? 'Đang đọc ảnh...'
+            : 'Dán link hoặc nhấn Ctrl+V / ⌘V để thêm ảnh chụp màn hình (dưới 2 MB).'
+        }}
+      </p>
+      @if (hasPastedImage) {
+        <div class="item-form__pasted-image">
+          <img [src]="form.controls.SourceUrl.value" alt="Ảnh vừa dán" />
+          <div>
+            <span>Ảnh đã sẵn sàng để lưu</span>
+            <button
+              type="button"
+              class="blog-btn"
+              [disabled]="isSaving"
+              (click)="removePastedImage()">
+              <span nz-icon nzType="close" nzTheme="outline"></span> Bỏ ảnh
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div>
+          <label class="blog-label" for="item-link-kind">Loại nội dung</label>
+          <select
+            id="item-link-kind"
+            class="blog-input"
+            formControlName="LinkKind"
+            (change)="onLinkChange()">
+            <option value="Link">Link trang web / mạng xã hội</option>
+            <option value="Image">Link ảnh trực tiếp</option>
+            <option value="Video">Link video trực tiếp</option>
+          </select>
+        </div>
+        <div>
+          <label class="blog-label" for="item-source-url">Link</label>
+          <input
+            id="item-source-url"
+            class="blog-input"
+            formControlName="SourceUrl"
+            placeholder="https://..."
+            (input)="onLinkChange()" />
+          <small class="blog-label__optional"
+            >Link ảnh/video cần trỏ trực tiếp đến file. Nội dung được lưu nguyên
+            link, không tải lên Cloudinary.</small
+          >
+        </div>
+      }
     }
 
-    @if (!isEdit && mode === 'link' && form.controls.LinkKind.value === 'Image' && form.controls.SourceUrl.value) {
-      <div class="item-form__preview"><img [src]="form.controls.SourceUrl.value" alt="Xem trước ảnh" /></div>
+    @if (
+      !isEdit &&
+      mode === 'link' &&
+      !hasPastedImage &&
+      form.controls.LinkKind.value === 'Image' &&
+      form.controls.SourceUrl.value
+    ) {
+      <div class="item-form__preview">
+        <img [src]="form.controls.SourceUrl.value" alt="Xem trước ảnh" />
+      </div>
     }
 
     @if (linkPreview && mode === 'link') {
@@ -127,12 +182,16 @@
         @if (linkPreview.thumbnailUrl) {
           <img [src]="linkPreview.thumbnailUrl" alt="" />
         } @else {
-          <span class="item-form__preview-icon" [attr.data-provider]="linkPreview.provider">
+          <span
+            class="item-form__preview-icon"
+            [attr.data-provider]="linkPreview.provider">
             <app-archive-provider-icon [provider]="linkPreview.provider" />
           </span>
         }
         <span class="item-form__preview-text">
-          <strong>{{ linkPreview.provider === 'Web' ? 'Trang web' : linkPreview.provider }}</strong>
+          <strong>{{
+            linkPreview.provider === 'Web' ? 'Trang web' : linkPreview.provider
+          }}</strong>
           <small>
             {{
               linkPreview.embedSrc
@@ -147,9 +206,14 @@
     @if (isEdit && collections.length > 1) {
       <div>
         <label class="blog-label" for="item-collection">Bộ sưu tập</label>
-        <select id="item-collection" class="blog-input" formControlName="CollectionId">
+        <select
+          id="item-collection"
+          class="blog-input"
+          formControlName="CollectionId">
           @for (collection of collections; track collection.CollectionId) {
-            <option [value]="collection.CollectionId">{{ collection.Name }}</option>
+            <option [value]="collection.CollectionId">
+              {{ collection.Name }}
+            </option>
           }
         </select>
       </div>
@@ -160,7 +224,11 @@
         <label class="blog-label" for="item-title">
           Tiêu đề <span class="blog-label__optional">(không bắt buộc)</span>
         </label>
-        <input id="item-title" class="blog-input" formControlName="Title" maxlength="300" />
+        <input
+          id="item-title"
+          class="blog-input"
+          formControlName="Title"
+          maxlength="300" />
       </div>
     }
 
@@ -180,17 +248,27 @@
     <div class="item-form__row">
       <div>
         <label class="blog-label" for="item-taken-at">
-          Ngày diễn ra <span class="blog-label__optional">(không bắt buộc)</span>
+          Ngày diễn ra
+          <span class="blog-label__optional">(không bắt buộc)</span>
         </label>
-        <input id="item-taken-at" class="blog-input" type="date" formControlName="TakenAt" />
+        <input
+          id="item-taken-at"
+          class="blog-input"
+          type="date"
+          formControlName="TakenAt" />
       </div>
 
-      @if (mode === 'link') {
+      @if (mode === 'link' && !hasPastedImage) {
         <div>
           <label class="blog-label" for="item-thumbnail">
-            Link ảnh đại diện <span class="blog-label__optional">(không bắt buộc)</span>
+            Link ảnh đại diện
+            <span class="blog-label__optional">(không bắt buộc)</span>
           </label>
-          <input id="item-thumbnail" class="blog-input" formControlName="ThumbnailUrl" placeholder="https://..." />
+          <input
+            id="item-thumbnail"
+            class="blog-input"
+            formControlName="ThumbnailUrl"
+            placeholder="https://..." />
         </div>
       }
     </div>
@@ -199,9 +277,22 @@
   </form>
 
   <div *nzModalFooter class="item-form__footer">
-    <button type="button" class="blog-btn" [disabled]="isSaving" (click)="close()">Huỷ</button>
-    <button type="button" class="blog-btn blog-btn--primary" [disabled]="isSaving" (click)="submit()">
-      @if (isSaving) {
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="isSaving"
+      (click)="close()">
+      Huỷ
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--primary"
+      [disabled]="isSaving || isReadingImage"
+      (click)="submit()">
+      @if (isReadingImage) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+        Đang đọc ảnh...
+      } @else if (isSaving) {
         <span class="blog-spinner" aria-hidden="true"></span>
         {{ mode === 'upload' && !isEdit ? 'Đang tải lên...' : 'Đang lưu...' }}
       } @else {
