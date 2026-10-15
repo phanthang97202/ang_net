@@ -8,7 +8,6 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   catchError,
   finalize,
@@ -22,6 +21,7 @@ import { environment } from '../../environments/environment';
 import { ShowErrorService } from './show-error.service';
 import { AuthResponse } from '../interfaces';
 import { jwtDecode } from 'jwt-decode';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -89,7 +89,10 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(clonedRequest).pipe(
       catchError((err: HttpErrorResponse) => {
         // đợi xảy ra lỗi Unauthorized => chạy hàm refresh token
-        if (err.status === 401) {
+        if (
+          err.status === 401 &&
+          (curToken || localStorage.getItem(this.refreshTokenKey))
+        ) {
           return this.handleRefreshToken(clonedRequest, next);
         }
         // return this.handleCatchExpiredToken(err);
@@ -160,13 +163,10 @@ export class AuthInterceptor implements HttpInterceptor {
 
   // bắt lỗi
   private handleCatchExpiredToken(err: unknown) {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-
-    // Router được lấy trễ, sau khi bootstrap đã hoàn tất. Inject Router trong
-    // constructor của interceptor sẽ tạo vòng Router -> TitleStrategy ->
-    // TranslateService -> HttpClient -> HTTP_INTERCEPTORS -> Router.
-    this.injector.get(Router).navigate(['/login']);
+    // Resolve lazily to avoid the AuthService -> HttpClient -> interceptor cycle.
+    // Expiry clears the session, but must not interrupt reading a public page.
+    // Route guards and the API still enforce authentication for private actions.
+    this.injector.get(AuthService).clearSession();
     const message = this.getErrorMessage(err);
     this.showErrorService.setShowError({
       title: message,

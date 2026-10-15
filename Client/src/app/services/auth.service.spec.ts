@@ -11,24 +11,64 @@ import { environment } from '../../environments/environment';
 describe('AuthService profile', () => {
   let auth: AuthService;
   let http: HttpTestingController;
+  let router: jasmine.SpyObj<Router>;
   const cacheKey = `${environment.tokenKey}.avatar`;
   const nameKey = `${environment.tokenKey}.displayName`;
   const token = (id: string) =>
     `e30.${btoa(JSON.stringify({ nameid: id, name: 'Test User', avatar: 'https://example.com/old.jpg' }))}.signature`;
 
   beforeEach(() => {
+    router = jasmine.createSpyObj('Router', ['navigate']);
     localStorage.removeItem(cacheKey);
     localStorage.removeItem(nameKey);
     localStorage.setItem(environment.tokenKey, token('me'));
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [
-        AuthService,
-        { provide: Router, useValue: { navigate: () => {} } },
-      ],
+      providers: [AuthService, { provide: Router, useValue: router }],
     });
     auth = TestBed.inject(AuthService);
     http = TestBed.inject(HttpTestingController);
+  });
+
+  it('clears expired-session credentials and profile without redirecting', () => {
+    localStorage.setItem(environment.refreshTokenKey, 'expired-refresh');
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({ userId: 'me', url: 'photo.jpg' })
+    );
+    localStorage.setItem(
+      nameKey,
+      JSON.stringify({ userId: 'me', name: 'Saved Name' })
+    );
+    auth.clearSession();
+
+    expect(auth.isLoggedIn()).toBeFalse();
+    expect(auth.getAccountInfo().nameid).toBeNull();
+    expect(localStorage.getItem(environment.refreshTokenKey)).toBeNull();
+    expect(localStorage.getItem(cacheKey)).toBeNull();
+    expect(localStorage.getItem(nameKey)).toBeNull();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('still redirects when the user explicitly logs out', () => {
+    auth.logout();
+
+    expect(auth.getToken()).toBe('');
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/login']);
+  });
+
+  it('clears an expired refresh token silently on page reload', () => {
+    localStorage.setItem(environment.refreshTokenKey, 'expired-refresh');
+    auth.tryRefreshOnInit();
+    http.expectOne(`${environment.apiUrl}account/refreshtoken`).flush({
+      Success: false,
+      ErrorMessage: 'Account.RefreshTokenInvalid',
+    });
+
+    expect(auth.isLoggedIn()).toBeFalse();
+    expect(auth.getToken()).toBe('');
+    expect(localStorage.getItem(environment.refreshTokenKey)).toBeNull();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   afterEach(() => {

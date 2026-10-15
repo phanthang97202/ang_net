@@ -253,7 +253,7 @@ export class AuthService {
   }
 
   logout() {
-    this.clearTokens();
+    this.clearSession();
     this.router.navigate(['/login']);
   }
 
@@ -294,16 +294,16 @@ export class AuthService {
             response.Data.RefreshToken
           );
         } else {
-          this.clearTokens();
+          this.clearSession();
         }
       },
-      error: () => this.clearTokens(),
+      error: () => this.clearSession(),
     });
   }
 
   // xóa token hết hạn/invalid mà không ép điều hướng sang /login,
   // vì lúc init user có thể chỉ đang xem trang public
-  private clearTokens(): void {
+  clearSession(): void {
     this.clearProfileCache();
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
