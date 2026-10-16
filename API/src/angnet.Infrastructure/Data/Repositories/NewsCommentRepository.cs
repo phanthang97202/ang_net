@@ -151,7 +151,7 @@ namespace angnet.Infrastructure.Data.Repositories
         /// Thêm bình luận. Bọc trong CreateExecutionStrategy vì DbContext bật
         /// EnableRetryOnFailure (Program.cs) - gọi BeginTransaction trần sẽ lỗi 500 lúc chạy.
         /// </summary>
-        public async Task AddComment(NewsCommentModel comment)
+        public async Task AddComment(NewsCommentModel comment, string? replyToUserId = null)
         {
             var strategy = _dbContext.Database.CreateExecutionStrategy();
 
@@ -160,6 +160,20 @@ namespace angnet.Infrastructure.Data.Repositories
                 using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                 await _dbContext.NewsComment.AddAsync(comment);
+                var recipients = new Dictionary<string, string>();
+                var author = await _dbContext.News.Where(n => n.NewsId == comment.NewsId)
+                    .Select(n => n.UserId).FirstAsync();
+                recipients[author] = "CommentOnPost";
+                if (replyToUserId == null && comment.ParentCommentId != null)
+                    replyToUserId = await _dbContext.NewsComment.Where(c => c.CommentId == comment.ParentCommentId)
+                        .Select(c => c.UserId).FirstOrDefaultAsync();
+                if (!string.IsNullOrEmpty(replyToUserId)) recipients[replyToUserId] = "Reply";
+                foreach (var recipient in recipients.Where(r => r.Key != comment.UserId))
+                    _dbContext.BlogNotification.Add(new BlogNotificationModel
+                    {
+                        RecipientId = recipient.Key, ActorId = comment.UserId, NewsId = comment.NewsId,
+                        CommentId = comment.CommentId, Kind = recipient.Value, CreatedAt = comment.CreatedDTime,
+                    });
                 _dbContext.BlogActivity.Add(new BlogActivityModel
                 {
                     UserId = comment.UserId, NewsId = comment.NewsId, Kind = "Commented",
@@ -169,6 +183,20 @@ namespace angnet.Infrastructure.Data.Repositories
 
                 await transaction.CommitAsync();
             });
+        }
+
+        public async Task<NewsCommentDto?> GetContext(string newsId, string commentId, string currentUserId)
+        {
+            var target = await Project(Alive(_dbContext.NewsComment.AsNoTracking())
+                .Where(c => c.NewsId == newsId && c.CommentId == commentId && c.Status == ENewsCommentStatus.Approved), currentUserId).FirstOrDefaultAsync();
+            if (target == null || target.IsHidden) return null;
+            if (target.ParentCommentId == null) return target;
+            var root = await Project(Alive(_dbContext.NewsComment.AsNoTracking())
+                .Where(c => c.NewsId == newsId && c.CommentId == target.ParentCommentId
+                    && (c.Status == ENewsCommentStatus.Approved || c.Status == ENewsCommentStatus.Rejected)), currentUserId).FirstOrDefaultAsync();
+            if (root == null) return null;
+            root.Replies = new List<NewsCommentDto> { target };
+            return root;
         }
 
         /// <summary>Thả/bỏ tim. Cũng cần execution strategy vì ghép nhiều câu lệnh trong 1 transaction.</summary>

@@ -1,0 +1,144 @@
+<button
+  #bell
+  type="button"
+  class="navbar-icon-btn notification-bell"
+  [attr.aria-label]="
+    ('T_NOTIFICATIONS' | translate) +
+    (state.unread() ? ': ' + state.unread() : '')
+  "
+  [attr.aria-expanded]="state.activeMenu() === id"
+  [attr.aria-controls]="id"
+  nz-popover
+  nzPopoverTrigger="click"
+  nzPopoverPlacement="bottomRight"
+  nzPopoverOverlayClassName="blog-account-popover"
+  [nzPopoverContent]="panel"
+  [nzPopoverVisible]="state.activeMenu() === id"
+  (nzPopoverVisibleChange)="openChange($event)">
+  <svg
+    width="21"
+    height="21"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true">
+    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+  </svg>
+  @if (state.unread()) {
+    <span class="notification-badge" aria-hidden="true">{{
+      state.unread() > 99 ? '99+' : state.unread()
+    }}</span>
+  }
+</button>
+
+<ng-template #panel>
+  <section
+    class="notifications"
+    [id]="id"
+    [attr.aria-label]="'T_NOTIFICATIONS' | translate">
+    <header>
+      <h2>
+        {{ 'T_NOTIFICATIONS' | translate }}
+        @if (state.unread()) {
+          <span>{{ state.unread() }}</span>
+        }
+      </h2>
+      <button
+        type="button"
+        class="close-button"
+        (click)="close()"
+        [attr.aria-label]="'T_NOTIFICATION_CLOSE' | translate">
+        ×
+      </button>
+    </header>
+    <div class="notification-actions">
+      <button
+        type="button"
+        [disabled]="state.loading() || state.saving()"
+        (click)="state.load(true)">
+        {{ 'T_NOTIFICATION_REFRESH' | translate }}
+      </button>
+      <button
+        type="button"
+        [disabled]="
+          !state.unread() || state.loading() || state.saving() || state.error()
+        "
+        (click)="state.read()">
+        {{ 'T_NOTIFICATION_READ_ALL' | translate }}
+      </button>
+    </div>
+    <div class="notification-list" [attr.aria-busy]="state.loading()">
+      @for (item of state.items(); track item.NotificationId) {
+        <a
+          class="notification"
+          [class.notification--unread]="!item.ReadAt"
+          [attr.href]="link(item)"
+          (click)="visit($event, item)">
+          <span class="notification-avatar">
+            @if (item.ActorAvatar) {
+              <img [src]="item.ActorAvatar" alt="" loading="lazy" />
+            } @else {
+              {{ (item.ActorName || '?').charAt(0).toUpperCase() }}
+            }
+          </span>
+          <span class="notification-content">
+            <span
+              ><strong>{{ item.ActorName }}</strong>
+              {{
+                (item.Kind === 'Reply'
+                  ? 'T_NOTIFICATION_REPLY'
+                  : 'T_NOTIFICATION_COMMENT'
+                ) | translate
+              }}</span
+            >
+            <b class="notification-title">{{
+              translate.currentLang === 'en' && item.TitleEn
+                ? item.TitleEn
+                : item.Title
+            }}</b>
+            <span class="notification-excerpt">{{ item.Excerpt }}</span>
+            <time
+              [attr.datetime]="item.CreatedAt"
+              [title]="item.CreatedAt | date: 'dd/MM/yyyy HH:mm'"
+              >{{ item.CreatedAt | timeAgo }}</time
+            >
+          </span>
+          @if (!item.ReadAt) {
+            <span
+              class="unread-dot"
+              [attr.aria-label]="'T_NOTIFICATION_UNREAD' | translate"></span>
+          }
+        </a>
+      }
+      @if (state.loading()) {
+        <p class="notification-status" role="status">
+          {{ 'T_NOTIFICATION_LOADING' | translate }}
+        </p>
+      } @else if (state.error()) {
+        <div class="notification-status" role="alert">
+          <p>{{ 'T_NOTIFICATION_ERROR' | translate }}</p>
+          <button type="button" (click)="state.load(true)">
+            {{ 'T_NOTIFICATION_RETRY' | translate }}
+          </button>
+        </div>
+      } @else if (!state.items().length) {
+        <p class="notification-status">
+          {{ 'T_NOTIFICATION_EMPTY' | translate }}
+        </p>
+      } @else if (!state.hasMore()) {
+        <p class="notification-status notification-end">
+          {{ 'T_NOTIFICATION_END' | translate }}
+        </p>
+      }
+      <div
+        [appInfiniteScroll]="
+          state.hasMore() && !state.loading() && !state.error()
+        "
+        (loadMore)="state.load()"
+        aria-hidden="true"></div>
+    </div>
+  </section>
+</ng-template>

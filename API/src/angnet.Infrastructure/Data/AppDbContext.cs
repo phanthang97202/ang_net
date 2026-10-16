@@ -43,6 +43,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<RefFileNewsModel> RefFileNews { get; set; }
         public DbSet<LikeNewsModel> LikeNews { get; set; }
         public DbSet<BlogActivityModel> BlogActivity { get; set; }
+        public DbSet<BlogNotificationModel> BlogNotification { get; set; }
         public DbSet<NewsModel> News { get; set; }
         public DbSet<NewsCommentModel> NewsComment { get; set; }
         public DbSet<NewsCommentReactionModel> NewsCommentReaction { get; set; }
@@ -98,6 +99,17 @@ namespace angnet.Infrastructure.Data
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(n => n.RecipientId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(n => n.ActorId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogNotificationModel>().HasOne<NewsModel>().WithMany()
+                .HasForeignKey(n => n.NewsId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogNotificationModel>().HasOne<NewsCommentModel>().WithMany()
+                .HasForeignKey(n => n.CommentId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.CommentId }).IsUnique();
+            modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.CreatedAt, n.NotificationId });
+            modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.ReadAt });
             base.OnModelCreating(modelBuilder);
             modelBuilder.UseOpenIddict();
 

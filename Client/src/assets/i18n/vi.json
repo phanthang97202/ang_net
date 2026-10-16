@@ -322,5 +322,18 @@
     "T_DISPLAY_NAME_INVALID": "Vui lòng nhập họ và tên từ 1 đến 100 ký tự.",
     "T_DISPLAY_NAME_SAVE": "Lưu tên",
     "T_DISPLAY_NAME_SAVED": "Đã cập nhật họ và tên.",
-    "T_DISPLAY_NAME_SAVE_ERROR": "Không thể cập nhật họ và tên. Vui lòng thử lại."
+    "T_DISPLAY_NAME_SAVE_ERROR": "Không thể cập nhật họ và tên. Vui lòng thử lại.",
+    "T_NOTIFICATIONS": "Thông báo",
+    "T_NOTIFICATION_CLOSE": "Đóng thông báo",
+    "T_NOTIFICATION_REFRESH": "Làm mới",
+    "T_NOTIFICATION_READ_ALL": "Đánh dấu tất cả đã đọc",
+    "T_NOTIFICATION_REPLY": "đã trả lời bình luận của bạn trong bài",
+    "T_NOTIFICATION_COMMENT": "đã bình luận bài viết của bạn",
+    "T_NOTIFICATION_UNREAD": "Chưa đọc",
+    "T_NOTIFICATION_LOADING": "Đang tải thông báo…",
+    "T_NOTIFICATION_ERROR": "Không thể cập nhật thông báo. Vui lòng thử lại.",
+    "T_NOTIFICATION_RETRY": "Thử lại",
+    "T_NOTIFICATION_EMPTY": "Bạn chưa có thông báo tương tác nào.",
+    "T_NOTIFICATION_END": "Bạn đã xem hết thông báo",
+    "T_NOTIFICATION_UNAVAILABLE": "Bình luận này đã bị xóa, bị ẩn hoặc bạn không còn quyền xem."
 }

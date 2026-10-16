@@ -32,6 +32,7 @@ import { ISysMenuTree } from '../../interfaces';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { Subscription } from 'rxjs';
+import { NotificationMenuComponent } from '../notification-menu/notification-menu.component';
 
 interface RouteItem {
   path?: string;
@@ -67,6 +68,7 @@ interface RouteItem {
     SwitchLangComponent,
     ThemeToggleComponent,
     TranslateModule,
+    NotificationMenuComponent,
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],

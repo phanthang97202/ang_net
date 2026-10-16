@@ -93,6 +93,7 @@ namespace angnet.Infrastructure
 
             services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<MyBlogService>();
+            services.AddScoped<BlogNotificationService>();
 
             services.AddScoped<IMovieLibraryService, MovieLibraryService>();
             services.AddScoped<IMovieWishlistService, MovieWishlistService>();

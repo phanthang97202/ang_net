@@ -30,6 +30,7 @@ export interface INewsCommentDto {
 }
 
 export interface INewsCommentCreateRequest {
+  ReplyToCommentId?: string | null;
   NewsId: string;
   ParentCommentId: string | null;
   Content: string;
@@ -42,8 +43,7 @@ export interface INewsCommentReportRequest {
 }
 
 // Data mang tổng số bình luận mọi cấp (dùng cho tiêu đề), objResult là trang bình luận gốc
-export interface INewsCommentsResponse
-  extends IBaseResponse<INewsCommentDto> {
+export interface INewsCommentsResponse extends IBaseResponse<INewsCommentDto> {
   objResult: IPageInfo<INewsCommentDto>;
 }
 

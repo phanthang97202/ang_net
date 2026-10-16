@@ -126,7 +126,8 @@ builder.Services
         {
             opt.Events = new JwtBearerEvents {
                 OnMessageReceived = context => {
-                    if (context.HttpContext.Request.Path.StartsWithSegments("/chat-hub")
+                    if ((context.HttpContext.Request.Path.StartsWithSegments("/chat-hub")
+                            || context.HttpContext.Request.Path.StartsWithSegments("/notification-hub"))
                         && context.Request.Query.TryGetValue("access_token", out var token))
                         context.Token = token;
                     return Task.CompletedTask;
@@ -457,6 +458,7 @@ app.MapMethods("/api/health", new[] { "HEAD" }, () => Results.Ok("Alive")); // s
 app.MapHub<ChatHub>("chat-hub", options => options.CloseOnAuthenticationExpiration = true);
 app.MapHub<angnet.WebApi.SignalR.Chess.ChessHub>("chess-hub");
 app.MapHub<NoteHub>("note-hub");
+app.MapHub<BlogNotificationHub>("notification-hub", options => options.CloseOnAuthenticationExpiration = true);
 
 // -----------Auto tracking port in production----------------------
 if (app.Environment.IsProduction())

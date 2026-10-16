@@ -10,6 +10,26 @@ import {
   NoteRealtimeService,
 } from '../../services';
 import { NavbarComponent } from './navbar.component';
+import { BlogNotificationService } from '../../services/blog-notification.service';
+import { signal } from '@angular/core';
+
+function provideNotifications(): void {
+  TestBed.configureTestingModule({
+    providers: [
+      {
+        provide: BlogNotificationService,
+        useValue: {
+          attach: () => undefined,
+          detach: () => undefined,
+          syncAccount: () => undefined,
+          show: () => undefined,
+          unread: signal(0),
+          activeMenu: signal(null),
+        },
+      },
+    ],
+  });
+}
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import {
   HomeOutline,
@@ -29,6 +49,7 @@ import {
 } from '@ant-design/icons-angular/icons';
 
 describe('NavbarComponent search keyboard flow', () => {
+  beforeEach(provideNotifications);
   it('focuses the search field, closes with Escape and restores focus to the trigger', fakeAsync(() => {
     TestBed.configureTestingModule({
       imports: [NavbarComponent, TranslateModule.forRoot()],
@@ -87,6 +108,7 @@ describe('NavbarComponent search keyboard flow', () => {
 });
 
 describe('Navbar account greeting', () => {
+  beforeEach(provideNotifications);
   it('greets the currently signed-in user in the account popup', fakeAsync(() => {
     let name = 'Phan Thăng';
     TestBed.configureTestingModule({
@@ -158,6 +180,7 @@ describe('Navbar account greeting', () => {
 });
 
 describe('Navbar report permissions', () => {
+  beforeEach(provideNotifications);
   for (const fromApi of [false, true]) {
     it(`filters ${fromApi ? 'API' : 'fallback'} report menus on desktop and mobile as the session changes`, () => {
       let loggedIn = false;

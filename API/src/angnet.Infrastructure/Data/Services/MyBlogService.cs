@@ -13,11 +13,11 @@ public class MyBlogService(AppDbContext db)
 {
     private record FeedCursor(string UserId, string Feed, DateTime At, string Id);
 
-    private static string UserId(ClaimsPrincipal user) =>
+    internal static string UserId(ClaimsPrincipal user) =>
         user.Identity?.IsAuthenticated == true && user.FindFirstValue(ClaimTypes.NameIdentifier) is { Length: > 0 } id
             ? id : throw new UnauthorizedAccessException();
 
-    private async Task<IQueryable<NewsModel>> VisibleNews(ClaimsPrincipal user)
+    internal async Task<IQueryable<NewsModel>> VisibleNews(ClaimsPrincipal user)
     {
         var id = UserId(user);
         bool admin = user.IsInRole("Admin");

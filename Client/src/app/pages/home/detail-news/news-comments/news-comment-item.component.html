@@ -1,4 +1,9 @@
-<article class="cmt" [class.cmt--reply]="isReply">
+<article
+  class="cmt"
+  [class.cmt--reply]="isReply"
+  [class.cmt--highlighted]="highlighted"
+  [id]="'news-comment-' + comment.CommentId"
+  tabindex="-1">
   @if (avatarUrl) {
     <img class="cmt__avatar" [src]="avatarUrl" alt="" />
   } @else {

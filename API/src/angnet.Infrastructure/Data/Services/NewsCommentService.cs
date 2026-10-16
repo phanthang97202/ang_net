@@ -148,6 +148,7 @@ namespace angnet.Infrastructure.Data.Services
             }
 
             string parentCommentId = null;
+            string replyToUserId = null;
             if (!TCommonUtils.IsNullOrEmpty(data.ParentCommentId))
             {
                 var (isExistParent, parent) = await _unitOfWork.NewsCommentRepository
@@ -169,6 +170,17 @@ namespace angnet.Infrastructure.Data.Services
                 parentCommentId = TCommonUtils.IsNullOrEmpty(parent.ParentCommentId)
                                     ? parent.CommentId
                                     : parent.ParentCommentId;
+                var targetId = data.ReplyToCommentId ?? parent.CommentId;
+                var target = await _dbContext.NewsComment.AsNoTracking().FirstOrDefaultAsync(c =>
+                    c.CommentId == targetId && c.NewsId == data.NewsId && c.FlagActive
+                    && c.Status == ENewsCommentStatus.Approved
+                    && (c.CommentId == parentCommentId || c.ParentCommentId == parentCommentId));
+                if (target == null)
+                {
+                    apiResponse.CatchException(false, "NewsComment_Create.ParentCommentIsNotExists", requestClient);
+                    return apiResponse;
+                }
+                replyToUserId = target.UserId;
             }
 
             DateTime now = TCommonUtils.DTimeNow();
@@ -188,7 +200,7 @@ namespace angnet.Infrastructure.Data.Services
                 UpdatedDTime = now,
             };
 
-            await _unitOfWork.NewsCommentRepository.AddComment(comment);
+            await _unitOfWork.NewsCommentRepository.AddComment(comment, replyToUserId);
 
             apiResponse.Data = new NewsCommentDto
             {
@@ -202,6 +214,14 @@ namespace angnet.Infrastructure.Data.Services
             };
 
             return apiResponse;
+        }
+
+        public async Task<ApiResponse<NewsCommentDto>> GetContext(ClaimsPrincipal user, string newsId, string commentId)
+        {
+            var response = new ApiResponse<NewsCommentDto>();
+            if (await CanViewNews(user, newsId))
+                response.Data = await _unitOfWork.NewsCommentRepository.GetContext(newsId, commentId, GetCurrentUserId(user));
+            return response;
         }
 
         public async Task<ApiResponse<NewsCommentDto>> ToggleLike(ClaimsPrincipal user, string commentId)

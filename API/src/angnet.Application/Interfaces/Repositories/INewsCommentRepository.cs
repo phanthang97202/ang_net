@@ -18,7 +18,9 @@ namespace angnet.Application.Interfaces.Repositories
         /// <summary>Tổng số bình luận đang hiển thị của bài viết (mọi cấp), dùng cho tiêu đề.</summary>
         Task<int> CountVisible(string newsId);
 
-        Task AddComment(NewsCommentModel comment);
+        Task AddComment(NewsCommentModel comment, string? replyToUserId = null);
+
+        Task<NewsCommentDto?> GetContext(string newsId, string commentId, string currentUserId);
 
         Task<(bool Liked, int LikeCount)> ToggleLike(string commentId, string userId, DateTime now);
 

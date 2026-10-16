@@ -3,6 +3,10 @@ using angnet.Domain.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using angnet.Infrastructure.Data;
+using angnet.WebApi.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace angnet.WebApi.Controllers
 {
@@ -29,6 +33,11 @@ namespace angnet.WebApi.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("Context")]
+        public async Task<IActionResult> Context(string newsId, string commentId) =>
+            Ok(await _newsCommentService.GetContext(User, newsId, commentId));
+
+        [AllowAnonymous]
         [HttpGet("Replies")]
         public async Task<IActionResult> Replies(string commentId, int pageIndex, int pageSize)
         {
@@ -39,9 +48,26 @@ namespace angnet.WebApi.Controllers
 
         [Authorize]
         [HttpPost("Comment")]
-        public async Task<IActionResult> Comment([FromBody] NewsCommentCreateDto reqData)
+        public async Task<IActionResult> Comment([FromBody] NewsCommentCreateDto reqData,
+            [FromServices] AppDbContext db, [FromServices] IHubContext<BlogNotificationHub> hub,
+            [FromServices] ILogger<NewsCommentController> logger)
         {
             ApiResponse<NewsCommentDto> response = await _newsCommentService.AddComment(User, reqData);
+            if (response.Success && response.Data != null)
+            {
+                try
+                {
+                    var recipients = await db.BlogNotification.Where(n => n.CommentId == response.Data.CommentId)
+                        .Select(n => n.RecipientId).Distinct().ToListAsync();
+                    if (recipients.Count > 0)
+                        await hub.Clients.Users(recipients).SendAsync("NotificationsChanged");
+                }
+                catch (Exception ex)
+                {
+                    // The comment and notifications are already committed; polling can recover delivery.
+                    logger.LogWarning(ex, "Could not broadcast comment notification {CommentId}", response.Data.CommentId);
+                }
+            }
             return Ok(response);
         }
 

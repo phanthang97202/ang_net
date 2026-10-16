@@ -1,5 +1,9 @@
 import {
   Component,
+  ChangeDetectorRef,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
   EventEmitter,
   Input,
   OnInit,
@@ -19,7 +23,10 @@ import {
   INewsCommentDto,
   INewsCommentReportRequest,
 } from '../../../../interfaces';
-import { GoogleSigninButtonComponent } from '../../../../components';
+import { GoogleSigninButtonComponent } from '../../../../components/google-signin-button/google-signin-button.component';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { NewsCommentComposerComponent } from './news-comment-composer.component';
 import { NewsCommentItemComponent } from './news-comment-item.component';
 import { NewsCommentReportModalComponent } from './news-comment-report-modal.component';
@@ -38,7 +45,15 @@ import { NewsCommentReportModalComponent } from './news-comment-report-modal.com
   templateUrl: './news-comments.component.html',
   styleUrl: './news-comments.component.scss',
 })
-export class NewsCommentsComponent implements OnInit {
+export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private cd = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
+  private destroyed = new Subject<void>();
+  private reloadCancelled = new Subject<void>();
+  private contextRequest = 0;
+  private replyToCommentId: string | null = null;
+  highlightedCommentId: string | null = null;
   @Input({ required: true }) newsId!: string;
 
   // Thanh công cụ bên trái bài viết hiện số bình luận. Dùng cặp getter/setter
@@ -95,6 +110,67 @@ export class NewsCommentsComponent implements OnInit {
   ngOnInit(): void {
     this.readAccount();
     this.reload();
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroyed))
+      .subscribe(params => {
+        this.highlightedCommentId = params.get('commentId');
+        this.loadContext();
+      });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['newsId'] && !changes['newsId'].firstChange) this.reload();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed.next();
+    this.destroyed.complete();
+    this.reloadCancelled.next();
+    this.reloadCancelled.complete();
+    this.contextRequest++;
+  }
+
+  private loadContext(): void {
+    const request = ++this.contextRequest;
+    const targetId = this.highlightedCommentId;
+    if (!targetId || !this.newsId) return;
+    this.api
+      .NewsCommentContext(this.newsId, targetId)
+      .pipe(takeUntil(this.reloadCancelled))
+      .subscribe({
+        next: response => {
+          if (request !== this.contextRequest) return;
+          const root = response.Data;
+          if (!root) {
+            this.message.info(
+              this.translate.instant('T_NOTIFICATION_UNAVAILABLE')
+            );
+            return;
+          }
+          const existing = this.comments.find(
+            c => c.CommentId === root.CommentId
+          );
+          if (existing) {
+            const seen = new Set(existing.Replies.map(r => r.CommentId));
+            existing.Replies = [
+              ...existing.Replies,
+              ...root.Replies.filter(r => !seen.has(r.CommentId)),
+            ];
+          } else this.comments = [root, ...this.comments];
+          if (root.CommentId !== targetId)
+            this.expandedReplies.add(root.CommentId);
+          this.cd.detectChanges();
+          const target = document.getElementById(`news-comment-${targetId}`);
+          target?.scrollIntoView({ block: 'center', behavior: 'instant' });
+          target?.focus({ preventScroll: true });
+        },
+        error: () => {
+          if (request === this.contextRequest)
+            this.message.info(
+              this.translate.instant('T_NOTIFICATION_UNAVAILABLE')
+            );
+        },
+      });
   }
 
   setSort(sort: ENewsCommentSort): void {
@@ -106,6 +182,8 @@ export class NewsCommentsComponent implements OnInit {
   }
 
   reload(): void {
+    this.reloadCancelled.next();
+    this.contextRequest++;
     this.comments = [];
     this.pageIndex = 0;
     this.hasMore = false;
@@ -114,6 +192,7 @@ export class NewsCommentsComponent implements OnInit {
     // Chụp mốc mới mỗi lần tải lại từ đầu để thấy được bình luận vừa đăng
     this.snapshot = new Date().toISOString();
     this.loadPage();
+    this.loadContext();
   }
 
   loadMore(): void {
@@ -143,6 +222,7 @@ export class NewsCommentsComponent implements OnInit {
       : comment;
 
     this.replyTarget = root;
+    this.replyToCommentId = comment.CommentId;
     this.replyPrefill = isReply ? `@${comment.UserFullName} ` : '';
     this.replyToken += 1;
 
@@ -153,6 +233,7 @@ export class NewsCommentsComponent implements OnInit {
 
   cancelReply(): void {
     this.replyTarget = null;
+    this.replyToCommentId = null;
     this.replyPrefill = '';
   }
 
@@ -169,6 +250,7 @@ export class NewsCommentsComponent implements OnInit {
       .NewsAddComment({
         NewsId: this.newsId,
         ParentCommentId: parent?.CommentId ?? null,
+        ReplyToCommentId: this.replyToCommentId,
         Content: content,
       })
       .subscribe({
@@ -370,6 +452,7 @@ export class NewsCommentsComponent implements OnInit {
         this.sort,
         this.snapshot
       )
+      .pipe(takeUntil(this.reloadCancelled))
       .subscribe({
         next: res => {
           this.isLoading = false;
@@ -406,11 +489,20 @@ export class NewsCommentsComponent implements OnInit {
 
     this.api
       .NewsCommentReplies(comment.CommentId, 0, this.replyPageSize)
+      .pipe(takeUntil(this.reloadCancelled))
       .subscribe({
         next: res => {
           this.loadingRepliesFor = null;
           if (res?.Success && res.objResult) {
-            comment.Replies = res.objResult.DataList ?? [];
+            const replies = res.objResult.DataList ?? [];
+            const destination = comment.Replies.find(
+              r => r.CommentId === this.highlightedCommentId
+            );
+            comment.Replies =
+              destination &&
+              !replies.some(r => r.CommentId === destination.CommentId)
+                ? [...replies, destination]
+                : replies;
             comment.ReplyCount = res.objResult.ItemCount;
           }
         },

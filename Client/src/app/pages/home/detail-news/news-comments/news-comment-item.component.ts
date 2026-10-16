@@ -17,6 +17,7 @@ export class NewsCommentItemComponent {
   @Input({ required: true }) comment!: INewsCommentDto;
   /** Dòng trả lời: thu nhỏ avatar, không hiện nút mở rộng nhánh con */
   @Input() isReply = false;
+  @Input() highlighted = false;
   @Input() isExpanded = false;
   @Input() isLoadingReplies = false;
 

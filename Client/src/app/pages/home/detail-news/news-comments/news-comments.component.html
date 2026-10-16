@@ -30,7 +30,8 @@
   @if (isLoggedIn) {
     @if (replyTarget) {
       <p class="comments__replying">
-        {{ 'T_REPLYINGTO' | translate }} <strong>{{ replyTarget.UserFullName }}</strong>
+        {{ 'T_REPLYINGTO' | translate }}
+        <strong>{{ replyTarget.UserFullName }}</strong>
       </p>
     }
     <app-news-comment-composer
@@ -56,6 +57,7 @@
       <div class="comments__thread">
         <app-news-comment-item
           [comment]="comment"
+          [highlighted]="highlightedCommentId === comment.CommentId"
           [isExpanded]="expandedReplies.has(comment.CommentId)"
           [isLoadingReplies]="loadingRepliesFor === comment.CommentId"
           (liked)="toggleLike($event)"
@@ -66,9 +68,13 @@
 
         @if (expandedReplies.has(comment.CommentId)) {
           <div class="comments__replies">
-            @for (reply of comment.Replies; track trackByCommentId($index, reply)) {
+            @for (
+              reply of comment.Replies;
+              track trackByCommentId($index, reply)
+            ) {
               <app-news-comment-item
                 [comment]="reply"
+                [highlighted]="highlightedCommentId === reply.CommentId"
                 [isReply]="true"
                 (liked)="toggleLike($event)"
                 (replied)="startReply($event)"

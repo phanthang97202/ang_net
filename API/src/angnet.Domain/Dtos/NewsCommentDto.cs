@@ -32,6 +32,7 @@ namespace angnet.Domain.Dtos
 
     public class NewsCommentCreateDto
     {
+        public string? ReplyToCommentId { get; set; }
         public string NewsId { get; set; } = string.Empty;
         public string ParentCommentId { get; set; } = default!;
         public string Content { get; set; } = string.Empty;

@@ -5,6 +5,7 @@ namespace angnet.Application.Interfaces.Services
 {
     public interface INewsCommentService
     {
+        Task<ApiResponse<NewsCommentDto>> GetContext(ClaimsPrincipal user, string newsId, string commentId);
         public Task<ApiResponse<NewsCommentDto>> GetComments(
             ClaimsPrincipal user, string newsId, int pageIndex, int pageSize, string sort, DateTime? snapshot);
         public Task<ApiResponse<NewsCommentDto>> GetReplies(

@@ -121,6 +121,9 @@
 
     <!-- Right Actions -->
     <div class="navbar-actions">
+      @if (authService.isLoggedIn()) {
+        <app-notification-menu />
+      }
       <!-- Search -->
       <button
         class="navbar-icon-btn"
@@ -183,6 +186,9 @@
     </a>
 
     <div class="mobile-right">
+      @if (authService.isLoggedIn()) {
+        <app-notification-menu />
+      }
       <button
         type="button"
         class="navbar-icon-btn"
@@ -433,7 +439,10 @@
         <p
           class="account-menu__name"
           [title]="authService.getAccountInfo().name">
-          {{ 'T_ACCOUNT_GREETING' | translate: { name: authService.getAccountInfo().name } }}
+          {{
+            'T_ACCOUNT_GREETING'
+              | translate: { name: authService.getAccountInfo().name }
+          }}
         </p>
         <p
           *ngIf="authService.getAccountInfo().email"

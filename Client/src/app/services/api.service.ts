@@ -69,7 +69,10 @@ import {
   IMediaFolderResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
-import { IMyActivityResponse, IMyFavoritesResponse } from '../interfaces/my-blog';
+import {
+  IMyActivityResponse,
+  IMyFavoritesResponse,
+} from '../interfaces/my-blog';
 
 @Injectable({
   providedIn: 'root',
@@ -79,16 +82,26 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  MyFavorites(pageSize = 12, cursor: string | null = null): Observable<IMyFavoritesResponse> {
+  MyFavorites(
+    pageSize = 12,
+    cursor: string | null = null
+  ): Observable<IMyFavoritesResponse> {
     let params = new HttpParams().set('pageSize', pageSize);
     if (cursor) params = params.set('cursor', cursor);
-    return this.http.get<IMyFavoritesResponse>(`${this.apiUrl}me/favorites`, { params });
+    return this.http.get<IMyFavoritesResponse>(`${this.apiUrl}me/favorites`, {
+      params,
+    });
   }
 
-  MyActivity(pageSize = 20, cursor: string | null = null): Observable<IMyActivityResponse> {
+  MyActivity(
+    pageSize = 20,
+    cursor: string | null = null
+  ): Observable<IMyActivityResponse> {
     let params = new HttpParams().set('pageSize', pageSize);
     if (cursor) params = params.set('cursor', cursor);
-    return this.http.get<IMyActivityResponse>(`${this.apiUrl}me/activity`, { params });
+    return this.http.get<IMyActivityResponse>(`${this.apiUrl}me/activity`, {
+      params,
+    });
   }
 
   MediaSearch(
@@ -485,6 +498,16 @@ export class ApiService {
       : '';
     return this.http.get<INewsCommentsResponse>(
       `${this.apiUrl}newscomment/comments?newsId=${encodeURIComponent(newsId)}&pageIndex=${pageIndex}&pageSize=${pageSize}&sort=${sort}${snapshotParam}`
+    );
+  }
+
+  NewsCommentContext(
+    newsId: string,
+    commentId: string
+  ): Observable<INewsCommentCreateResponse> {
+    return this.http.get<INewsCommentCreateResponse>(
+      `${this.apiUrl}newscomment/context`,
+      { params: { newsId, commentId } }
     );
   }
 

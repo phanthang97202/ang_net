@@ -1,7 +1,14 @@
-import { ChangeDetectorRef, Pipe, PipeTransform } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  DestroyRef,
+  Pipe,
+  PipeTransform,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, vi } from 'date-fns/locale';
-import { LangService } from '../services';
+import { LangService } from '../services/lang-service.service';
 import { environment } from '../../environments/environment';
 
 @Pipe({
@@ -12,6 +19,7 @@ import { environment } from '../../environments/environment';
   pure: false,
 })
 export class TimeAgo implements PipeTransform {
+  private destroyRef = inject(DestroyRef);
   private langKey = environment.langKey;
   private currentLang = 'vi';
 
@@ -19,10 +27,12 @@ export class TimeAgo implements PipeTransform {
     private langService: LangService,
     private cdRef: ChangeDetectorRef
   ) {
-    this.langService.$langSubjectObservable.subscribe(lang => {
-      this.currentLang = localStorage.getItem(this.langKey) ?? lang;
-      this.cdRef.markForCheck();
-    });
+    this.langService.$langSubjectObservable
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(lang => {
+        this.currentLang = localStorage.getItem(this.langKey) ?? lang;
+        this.cdRef.markForCheck();
+      });
   }
 
   transform(value: string | Date | null | undefined): string {
