@@ -329,6 +329,8 @@
     "T_NOTIFICATION_READ_ALL": "Mark all as read",
     "T_NOTIFICATION_REPLY": "replied to your comment on",
     "T_NOTIFICATION_COMMENT": "commented on your post",
+    "T_NOTIFICATION_POST_LIKED": "liked your post",
+    "T_NOTIFICATION_RATED": "rated your post {{point}}/10",
     "T_NOTIFICATION_UNREAD": "Unread",
     "T_NOTIFICATION_LOADING": "Loading notifications…",
     "T_NOTIFICATION_ERROR": "Unable to update notifications. Please try again.",

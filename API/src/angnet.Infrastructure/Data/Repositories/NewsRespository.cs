@@ -1405,6 +1405,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = currentUserId, NewsId = newsId,
                 Kind = liked ? "PostLiked" : "PostUnliked", OccurredAt = TCommonUtils.DTimeNow(),
             });
+            await PreparePostNotification(objNews, currentUserId, "PostLiked", liked);
             // The state change and its history event commit atomically.
             await _dbContext.SaveChangesAsync();
 
@@ -1427,6 +1428,32 @@ namespace angnet.Infrastructure.Data.Repositories
             };
 
             return apiResponse;
+        }
+
+        private async Task PreparePostNotification(NewsModel news, string actorId, string kind, bool active, double? point = null)
+        {
+            if (news.UserId == actorId) return;
+            var notification = await _dbContext.BlogNotification.FirstOrDefaultAsync(n =>
+                n.RecipientId == news.UserId && n.ActorId == actorId && n.NewsId == news.NewsId
+                && n.Kind == kind && n.CommentId == null);
+            if (!active)
+            {
+                if (notification != null) _dbContext.BlogNotification.Remove(notification);
+                return;
+            }
+            if (notification == null)
+            {
+                notification = new BlogNotificationModel
+                {
+                    RecipientId = news.UserId, ActorId = actorId, NewsId = news.NewsId, Kind = kind,
+                };
+                _dbContext.BlogNotification.Add(notification);
+            }
+            notification.Point = point;
+            notification.CreatedAt = TCommonUtils.DTimeNow();
+            notification.ReadAt = null;
+            if (_dbContext.Entry(notification).State != EntityState.Added)
+                _dbContext.Entry(notification).Property(n => n.ReadAt).IsModified = true;
         }
 
         public async Task<ApiResponse<NewsModel>> Point(ClaimsPrincipal User, string newsId, double point)
@@ -1498,6 +1525,7 @@ namespace angnet.Infrastructure.Data.Repositories
             #region // Save into Database
             var objPointNews = await _dbContext.PointNews
                 .FirstOrDefaultAsync(i => i.NewsId == newsId && i.UserId == currentUserId);
+            bool pointChanged = objPointNews == null || objPointNews.Point != pointVal;
 
             if (objPointNews == null)
             {
@@ -1523,6 +1551,7 @@ namespace angnet.Infrastructure.Data.Repositories
                 UserId = currentUserId, NewsId = newsId, Kind = "Rated",
                 Point = pointVal, OccurredAt = TCommonUtils.DTimeNow(),
             });
+            if (pointChanged) await PreparePostNotification(objNews, currentUserId, "Rated", true, pointVal);
             await _dbContext.SaveChangesAsync();
 
             // delete cached search api

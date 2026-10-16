@@ -37,7 +37,11 @@ describe('Notification menu', () => {
       ],
     });
     const translate = TestBed.inject(TranslateService);
-    translate.setTranslation('vi', { T_NOTIFICATIONS: 'Thông báo' });
+    translate.setTranslation('vi', {
+      T_NOTIFICATIONS: 'Thông báo',
+      T_NOTIFICATION_POST_LIKED: 'đã thả tim bài viết của bạn',
+      T_NOTIFICATION_RATED: 'đã đánh giá bài viết của bạn {{point}}/10 điểm',
+    });
     translate.use('vi');
     http = TestBed.inject(HttpTestingController);
     state = TestBed.inject(BlogNotificationService);
@@ -45,6 +49,13 @@ describe('Notification menu', () => {
   });
   // Closing the last menu cancels focus-triggered background refresh requests.
   afterEach(() => http.verify({ ignoreCancelled: true }));
+
+  function settleUnread(count: number): void {
+    // Chrome may also refresh the badge when the bell receives window focus.
+    const requests = http.match(`${url}/Unread`);
+    expect(requests.length).toBeGreaterThan(0);
+    requests.forEach(request => request.flush({ UnreadCount: count }));
+  }
 
   it('opens the bell list, shows unread state and routes to the exact comment', fakeAsync(() => {
     const fixture = TestBed.createComponent(NotificationMenuComponent);
@@ -101,7 +112,7 @@ describe('Notification menu', () => {
     fixture.detectChanges();
     tick(500);
     http.expectOne(`${url}/notification/Read`).flush({ UnreadCount: 0 });
-    http.expectOne(`${url}/Unread`).flush({ UnreadCount: 0 });
+    settleUnread(0);
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith(['/news', 'category', 'post'], {
       queryParams: { commentId: 'reply-on-page-9' },
@@ -111,6 +122,70 @@ describe('Notification menu', () => {
     fixture.destroy();
     tick();
   }));
+
+  for (const kind of ['PostLiked', 'Rated']) {
+    it(`shows ${kind} notifications and opens the article without a comment destination`, fakeAsync(() => {
+      const fixture = TestBed.createComponent(NotificationMenuComponent);
+      fixture.detectChanges();
+      http.expectOne(`${url}/Unread`).flush({ UnreadCount: 1 });
+      const bell = fixture.nativeElement.querySelector(
+        'button'
+      ) as HTMLButtonElement;
+      bell.click();
+      fixture.detectChanges();
+      tick(500);
+      fixture.detectChanges();
+      http
+        .expectOne(request => request.url === url)
+        .flush({
+          Success: true,
+          objResult: {
+            DataList: [
+              {
+                NotificationId: 'reaction',
+                ActorName: 'Reader',
+                ActorAvatar: null,
+                NewsId: 'post',
+                CategoryNewsId: 'category',
+                CommentId: null,
+                Kind: kind,
+                Point: kind === 'Rated' ? 0 : null,
+                Title: 'A post',
+                Excerpt: '',
+                CreatedAt: new Date().toISOString(),
+                ReadAt: null,
+              },
+            ],
+            HasMore: false,
+            NextCursor: null,
+            UnreadCount: 1,
+            SnapshotAt: new Date().toISOString(),
+          },
+        });
+      fixture.detectChanges();
+      tick();
+      const link = document.querySelector('.notification') as HTMLAnchorElement;
+      expect(link.getAttribute('href')).toBe('/news/category/post');
+      expect(link.textContent).toContain(
+        kind === 'Rated' ? '0/10 điểm' : 'đã thả tim'
+      );
+      expect(link.querySelector('.notification-excerpt')).toBeNull();
+      const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(
+        true
+      );
+      link.click();
+      fixture.detectChanges();
+      tick(500);
+      http.expectOne(`${url}/reaction/Read`).flush({ UnreadCount: 0 });
+      settleUnread(0);
+      expect(navigate).toHaveBeenCalledOnceWith(
+        ['/news', 'category', 'post'],
+        {}
+      );
+      fixture.destroy();
+      tick();
+    }));
+  }
 
   it('does not mark notifications as read merely by opening, and closes with Escape', fakeAsync(() => {
     const fixture = TestBed.createComponent(NotificationMenuComponent);

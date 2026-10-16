@@ -88,10 +88,7 @@
             <span
               ><strong>{{ item.ActorName }}</strong>
               {{
-                (item.Kind === 'Reply'
-                  ? 'T_NOTIFICATION_REPLY'
-                  : 'T_NOTIFICATION_COMMENT'
-                ) | translate
+                actionKeys[item.Kind] | translate: { point: item.Point }
               }}</span
             >
             <b class="notification-title">{{
@@ -99,7 +96,9 @@
                 ? item.TitleEn
                 : item.Title
             }}</b>
-            <span class="notification-excerpt">{{ item.Excerpt }}</span>
+            @if (item.Excerpt) {
+              <span class="notification-excerpt">{{ item.Excerpt }}</span>
+            }
             <time
               [attr.datetime]="item.CreatedAt"
               [title]="item.CreatedAt | date: 'dd/MM/yyyy HH:mm'"

@@ -18,10 +18,14 @@ public class BlogNotificationService(AppDbContext db, MyBlogService blog)
         return db.BlogNotification.AsNoTracking().Where(n => n.RecipientId == id
             && news.Any(p => p.NewsId == n.NewsId)
             && db.Users.Any(u => u.Id == n.ActorId && u.FlagActive)
-            && db.NewsComment.Any(c => c.CommentId == n.CommentId && c.FlagActive
+            && ((n.Kind == "PostLiked" && n.CommentId == null
+                    && db.LikeNews.Any(l => l.NewsId == n.NewsId && l.UserId == n.ActorId))
+                || (n.Kind == "Rated" && n.CommentId == null && n.Point != null
+                    && db.PointNews.Any(p => p.NewsId == n.NewsId && p.UserId == n.ActorId))
+                || ((n.Kind == "CommentOnPost" || n.Kind == "Reply") && db.NewsComment.Any(c => c.CommentId == n.CommentId && c.FlagActive
                 && c.Status == ENewsCommentStatus.Approved
                 && (c.ParentCommentId == null || db.NewsComment.Any(root => root.CommentId == c.ParentCommentId
-                    && root.FlagActive && root.Status != ENewsCommentStatus.Deleted))));
+                    && root.FlagActive && root.Status != ENewsCommentStatus.Deleted))))));
     }
 
     public async Task<int> Unread(ClaimsPrincipal user) =>
@@ -50,15 +54,17 @@ public class BlogNotificationService(AppDbContext db, MyBlogService blog)
         var rows = await (from n in query
                           join actor in db.Users on n.ActorId equals actor.Id
                           join post in db.News on n.NewsId equals post.NewsId
-                          join comment in db.NewsComment on n.CommentId equals comment.CommentId
+                          join c in db.NewsComment on n.CommentId equals c.CommentId into comments
+                          from comment in comments.DefaultIfEmpty()
                           orderby n.CreatedAt descending, n.NotificationId descending
                           select new BlogNotificationDto
                           {
                               NotificationId = n.NotificationId, Kind = n.Kind, NewsId = n.NewsId,
-                              CategoryNewsId = post.CategoryNewsId, CommentId = n.CommentId,
+                              CategoryNewsId = post.CategoryNewsId, CommentId = n.CommentId, Point = n.Point,
                               ActorName = actor.FullName, ActorAvatar = actor.Avatar,
                               Title = post.ShortTitle, TitleEn = post.ShortTitleEn,
-                              Excerpt = comment.Content.Length > 180 ? comment.Content.Substring(0, 180) : comment.Content,
+                              Excerpt = comment == null ? string.Empty :
+                                  (comment.Content.Length > 180 ? comment.Content.Substring(0, 180) : comment.Content),
                               CreatedAt = n.CreatedAt, ReadAt = n.ReadAt,
                           }).Take(take + 1).ToListAsync();
         bool more = rows.Count > take;

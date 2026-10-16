@@ -4,8 +4,9 @@ export interface BlogNotification {
   ActorAvatar: string | null;
   NewsId: string;
   CategoryNewsId: string;
-  CommentId: string;
-  Kind: 'CommentOnPost' | 'Reply';
+  CommentId: string | null;
+  Point?: number | null;
+  Kind: 'CommentOnPost' | 'Reply' | 'PostLiked' | 'Rated';
   Title: string;
   TitleEn: string | null;
   Excerpt: string;

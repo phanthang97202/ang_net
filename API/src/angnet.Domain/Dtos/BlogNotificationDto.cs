@@ -7,7 +7,8 @@ public class BlogNotificationDto
     public string? ActorAvatar { get; set; }
     public string NewsId { get; set; } = string.Empty;
     public string CategoryNewsId { get; set; } = string.Empty;
-    public string CommentId { get; set; } = string.Empty;
+    public string? CommentId { get; set; }
+    public double? Point { get; set; }
     public string Kind { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string? TitleEn { get; set; }

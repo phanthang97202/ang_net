@@ -8,7 +8,8 @@ public class BlogNotificationModel
     public string RecipientId { get; set; } = string.Empty;
     public string ActorId { get; set; } = string.Empty;
     public string NewsId { get; set; } = string.Empty;
-    public string CommentId { get; set; } = string.Empty;
+    public string? CommentId { get; set; }
+    public double? Point { get; set; }
     public string Kind { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime? ReadAt { get; set; }

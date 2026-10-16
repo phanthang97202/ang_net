@@ -6,6 +6,7 @@ using angnet.Application.Interfaces.Repositories;
 using angnet.WebApi.Filters;
 using angnet.Utility.CommonUtils;
 using Microsoft.AspNetCore.RateLimiting;
+using angnet.WebApi.SignalR;
 
 namespace angnet.WebApi.Controllers
 {
@@ -135,11 +136,12 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("Like")]
-        public async Task<IActionResult> Like(string newsId)
+        public async Task<IActionResult> Like(string newsId, [FromServices] BlogNotificationPublisher notifications)
         {
             try
             {
                 ApiResponse<NewsModel> response = await _newsRespository.Like(User, newsId);
+                if (response.Success) await notifications.PostReactionChanged(User, newsId);
 
                 _logger.LogInformation("NewsRespository.Create", newsId, response);
                 return Ok(response);
@@ -153,7 +155,7 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("Point")]
-        public async Task<IActionResult> Point(string newsId, double point)
+        public async Task<IActionResult> Point(string newsId, double point, [FromServices] BlogNotificationPublisher notifications)
         {
             try
             {
@@ -162,6 +164,7 @@ namespace angnet.WebApi.Controllers
                     return BadRequest();
                 }
                 ApiResponse<NewsModel> response = await _newsRespository.Point(User, newsId, point);
+                if (response.Success) await notifications.PostReactionChanged(User, newsId);
                 return Ok(response);
             }
             catch (Exception)

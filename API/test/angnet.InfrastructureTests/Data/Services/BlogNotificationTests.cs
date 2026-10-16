@@ -7,9 +7,11 @@ using angnet.Infrastructure.Data.Repositories;
 using angnet.Infrastructure.Data.Services;
 using angnet.Infrastructure.Data.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using StackExchange.Redis;
 
 namespace angnet.InfrastructureTests.Data.Services;
 
@@ -49,6 +51,72 @@ public class BlogNotificationTests
         CommentId = id, NewsId = "post", UserId = actor, ParentCommentId = parent, Content = "Content " + id,
         Status = ENewsCommentStatus.Approved, FlagActive = true, CreatedDTime = at ?? Now, UpdatedDTime = at ?? Now,
     };
+
+    private NewsRespository NewsRepository(string actor = "actor")
+    {
+        var context = new DefaultHttpContext { User = User(actor) };
+        var accessor = Mock.Of<IHttpContextAccessor>(x => x.HttpContext == context);
+        var redis = new Mock<IConnectionMultiplexer>();
+        redis.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(Mock.Of<IDatabase>());
+        return new NewsRespository(db, accessor, null!, Mock.Of<IWebHostEnvironment>(), redis.Object);
+    }
+
+    [TestMethod]
+    public async Task PostHearts_NotifyOnlyAuthorAndDisappearOnUnlikeWithoutDuplicatingOnRelike()
+    {
+        var news = NewsRepository();
+        Assert.IsTrue((await news.Like(User("actor"), "post")).Success);
+        var first = (await service.List(User("author"), 15, null)).DataList.Single();
+        Assert.AreEqual("PostLiked", first.Kind); Assert.IsNull(first.CommentId);
+        Assert.AreEqual("", first.Excerpt); Assert.AreEqual(1, await service.Unread(User("author")));
+        Assert.AreEqual(0, await service.Unread(User("actor")));
+        Assert.AreEqual(0, await service.Unread(User("reader")));
+        await news.Like(User("actor"), "post");
+        Assert.AreEqual(0, await service.Unread(User("author")));
+        Assert.AreEqual(0, await db.BlogNotification.CountAsync());
+        await news.Like(User("actor"), "post");
+        Assert.AreEqual(1, await db.BlogNotification.CountAsync());
+        await NewsRepository("author").Like(User("author"), "post");
+        Assert.AreEqual(1, await db.BlogNotification.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task Ratings_IncludeExactScoreAndUpdateOneNotificationOnlyWhenScoreChanges()
+    {
+        var news = NewsRepository();
+        await news.Point(User("actor"), "post", 8);
+        var first = (await service.List(User("author"), 15, null)).DataList.Single();
+        Assert.AreEqual("Rated", first.Kind); Assert.AreEqual(8d, first.Point); Assert.IsNull(first.CommentId);
+        await service.Read(User("author"), first.NotificationId, null);
+        await news.Point(User("actor"), "post", 8);
+        Assert.AreEqual(0, await service.Unread(User("author")), "Repeated identical ratings must not notify again.");
+        await news.Point(User("actor"), "post", 9.5);
+        var updated = (await service.List(User("author"), 15, null)).DataList.Single();
+        Assert.AreEqual(first.NotificationId, updated.NotificationId);
+        Assert.AreEqual(9.5, updated.Point); Assert.IsNull(updated.ReadAt);
+        await news.Point(User("actor"), "post", 0);
+        Assert.AreEqual(0d, (await service.List(User("author"), 15, null)).DataList.Single().Point);
+        await NewsRepository("author").Point(User("author"), "post", 10);
+        Assert.AreEqual(1, await db.BlogNotification.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task MixedNotifications_KeepPrivacyAndReadStateForCommentsHeartsAndRatings()
+    {
+        await comments.AddComment(Comment("comment"));
+        var news = NewsRepository();
+        await news.Like(User("actor"), "post");
+        await news.Point(User("actor"), "post", 7);
+        var page = await service.List(User("author"), 15, null);
+        CollectionAssert.AreEquivalent(new[] { "CommentOnPost", "PostLiked", "Rated" }, page.DataList.Select(n => n.Kind).ToArray());
+        Assert.AreEqual(3, page.UnreadCount);
+        Assert.AreEqual(0, await service.Read(User("author"), null, page.SnapshotAt));
+        Assert.IsTrue((await service.List(User("author"), 15, null)).DataList.All(n => n.ReadAt != null));
+        var post = await db.News.SingleAsync();
+        post.UserId = "reader"; post.WhoCanSee = EWhoCanSee.Private;
+        await db.SaveChangesAsync();
+        Assert.AreEqual(0, (await service.List(User("author"), 15, null)).DataList.Count);
+    }
 
     [TestCleanup] public async Task Cleanup() { await db.DisposeAsync(); await connection.DisposeAsync(); }
 
@@ -166,7 +234,6 @@ public class BlogNotificationTests
         using var reader = new StreamReader(assembly.GetManifestResourceStream(resource)!);
         await db.Database.ExecuteSqlRawAsync(await reader.ReadToEndAsync());
         Assert.AreEqual(0, await db.BlogNotification.CountAsync());
-        await comments.AddComment(Comment("after-migration"));
-        Assert.AreEqual(1, await service.Unread(User("author")));
+        // This checks the original 0052 schema; 0053 adds the nullable reaction fields.
     }
 }

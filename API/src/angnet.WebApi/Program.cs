@@ -108,6 +108,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<AccountSessionService>();
+builder.Services.AddScoped<BlogNotificationPublisher>();
 builder.Services.AddSingleton<ChatConnections>();
 
 // config jwt 

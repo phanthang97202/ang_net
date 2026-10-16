@@ -108,6 +108,9 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<BlogNotificationModel>().HasOne<NewsCommentModel>().WithMany()
                 .HasForeignKey(n => n.CommentId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.CommentId }).IsUnique();
+            modelBuilder.Entity<BlogNotificationModel>()
+                .HasIndex(n => new { n.RecipientId, n.ActorId, n.NewsId, n.Kind }).IsUnique()
+                .HasFilter("\"CommentId\" IS NULL");
             modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.CreatedAt, n.NotificationId });
             modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.ReadAt });
             base.OnModelCreating(modelBuilder);
