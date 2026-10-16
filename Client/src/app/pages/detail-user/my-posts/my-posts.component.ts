@@ -7,8 +7,10 @@ import { IDetailNews, TWhoCanSee } from '../../../interfaces';
 import { AuthService, ApiService, ShowErrorService } from '../../../services';
 import { NewsCardComponent } from '../../../components/news-card/news-card.component';
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
+import { MyFavoritesComponent } from '../my-favorites/my-favorites.component';
 
-type PostVisibilityTab = Extract<TWhoCanSee, 'Public' | 'Private'>;
+type PostVisibilityTab =
+  Extract<TWhoCanSee, 'Public' | 'Private'> | 'Favorites';
 
 const PLACEHOLDER_COLORS = [
   '#5b4fe9',
@@ -28,6 +30,7 @@ const PLACEHOLDER_COLORS = [
     NzIconModule,
     NewsCardComponent,
     PaginationComponent,
+    MyFavoritesComponent,
   ],
   templateUrl: './my-posts.component.html',
   styleUrl: './my-posts.component.scss',
@@ -43,6 +46,7 @@ export class MyPostsComponent implements OnInit {
   readonly tabs: { value: PostVisibilityTab; labelKey: string }[] = [
     { value: 'Public', labelKey: 'T_PUBLICPOSTS' },
     { value: 'Private', labelKey: 'T_PRIVATEPOSTS' },
+    { value: 'Favorites', labelKey: 'T_FAVORITEPOSTS' },
   ];
 
   posts: IDetailNews[] = [];
@@ -54,15 +58,23 @@ export class MyPostsComponent implements OnInit {
 
   ngOnInit(): void {
     const visibility = this.route.snapshot.queryParamMap.get('visibility');
-    this.activeTab = visibility === 'Private' ? 'Private' : 'Public';
-    this.loadPosts(0);
+    this.activeTab =
+      visibility === 'Favorites'
+        ? 'Favorites'
+        : visibility === 'Private'
+          ? 'Private'
+          : 'Public';
+    if (this.activeTab !== 'Favorites') this.loadPosts(0);
   }
 
   changeTab(tab: PostVisibilityTab): void {
     if (tab === this.activeTab || this.isLoading) return;
 
     this.activeTab = tab;
-    this.loadPosts(0);
+    if (tab === 'Favorites') {
+      this.posts = [];
+      this.itemCount = 0;
+    } else this.loadPosts(0);
     this.updateUrl();
   }
 
@@ -114,7 +126,9 @@ export class MyPostsComponent implements OnInit {
       visibility: this.activeTab,
     };
     this.location.replaceState(
-      this.router.createUrlTree([], { relativeTo: this.route, queryParams }).toString()
+      this.router
+        .createUrlTree([], { relativeTo: this.route, queryParams })
+        .toString()
     );
   }
 

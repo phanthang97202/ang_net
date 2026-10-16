@@ -160,6 +160,11 @@ namespace angnet.Infrastructure.Data.Repositories
                 using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                 await _dbContext.NewsComment.AddAsync(comment);
+                _dbContext.BlogActivity.Add(new BlogActivityModel
+                {
+                    UserId = comment.UserId, NewsId = comment.NewsId, Kind = "Commented",
+                    CommentId = comment.CommentId, OccurredAt = comment.CreatedDTime,
+                });
                 await _dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -204,6 +209,15 @@ namespace angnet.Infrastructure.Data.Repositories
                             .ExecuteDeleteAsync();
                     liked = false;
                 }
+
+                string newsId = await _dbContext.NewsComment.Where(c => c.CommentId == commentId)
+                    .Select(c => c.NewsId).SingleAsync();
+                _dbContext.BlogActivity.Add(new BlogActivityModel
+                {
+                    UserId = userId, NewsId = newsId, CommentId = commentId,
+                    Kind = liked ? "CommentLiked" : "CommentUnliked", OccurredAt = now,
+                });
+                await _dbContext.SaveChangesAsync();
 
                 int likeCount = await _dbContext.NewsCommentReaction
                                     .CountAsync(r => r.CommentId == commentId

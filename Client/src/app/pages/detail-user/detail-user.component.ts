@@ -6,15 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService, ShowErrorService } from '../../services';
 import { IUser } from '../../interfaces';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../modules';
+import { AntdModule } from '../../modules/antd.module';
+import { REUSE_PIPE_MODULE } from '../../modules/pipe-app';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { MyPostsComponent } from './my-posts/my-posts.component';
 import { MyArchiveComponent } from './my-archive/my-archive.component';
 import { MySecurityComponent } from './my-security/my-security.component';
 import { MyReelsComponent } from './my-reels/my-reels.component';
+import { MyActivityComponent } from './my-activity/my-activity.component';
 
 /**
  * Một mục trong sidebar. Thêm tab mới = thêm 1 phần tử vào profileNav rồi
@@ -40,12 +39,13 @@ export interface ProfileNavSection {
   imports: [
     FormsModule,
     AntdModule,
-    ...REUSE_COMPONENT_MODULES,
+    NzSkeletonModule,
     ...REUSE_PIPE_MODULE,
     MyPostsComponent,
     MyArchiveComponent,
     MySecurityComponent,
     MyReelsComponent,
+    MyActivityComponent,
   ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
@@ -97,6 +97,12 @@ export class DetailUserComponent implements OnInit {
           available: true,
         },
         { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: true },
+        {
+          id: 'activity',
+          labelKey: 'T_MYACTIVITY',
+          icon: 'history',
+          available: true,
+        },
         // Admin cấp quyền dùng thư viện theo vai trò; không có quyền thì ẩn hẳn
         ...(this.authService.hasPermission('archive.use')
           ? [

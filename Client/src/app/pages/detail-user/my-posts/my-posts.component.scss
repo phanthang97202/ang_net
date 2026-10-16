@@ -43,6 +43,8 @@
 }
 
 .my-posts__tabs {
+  max-width: 100%;
+  flex-wrap: wrap;
   display: inline-flex;
   align-self: flex-start;
   gap: 0.35rem;
@@ -63,7 +65,10 @@
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(.is-active) {
     color: var(--color-accent);
@@ -158,8 +163,13 @@
 }
 
 @keyframes profile-post-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @media (max-width: 720px) {

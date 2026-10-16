@@ -69,6 +69,7 @@ import {
   IMediaFolderResponse,
 } from '../interfaces';
 import { Observable } from 'rxjs';
+import { IMyActivityResponse, IMyFavoritesResponse } from '../interfaces/my-blog';
 
 @Injectable({
   providedIn: 'root',
@@ -77,6 +78,18 @@ export class ApiService {
   apiUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  MyFavorites(pageSize = 12, cursor: string | null = null): Observable<IMyFavoritesResponse> {
+    let params = new HttpParams().set('pageSize', pageSize);
+    if (cursor) params = params.set('cursor', cursor);
+    return this.http.get<IMyFavoritesResponse>(`${this.apiUrl}me/favorites`, { params });
+  }
+
+  MyActivity(pageSize = 20, cursor: string | null = null): Observable<IMyActivityResponse> {
+    let params = new HttpParams().set('pageSize', pageSize);
+    if (cursor) params = params.set('cursor', cursor);
+    return this.http.get<IMyActivityResponse>(`${this.apiUrl}me/activity`, { params });
+  }
 
   MediaSearch(
     resourceType: MediaResourceType,

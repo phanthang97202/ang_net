@@ -1,0 +1,75 @@
+<section
+  class="my-posts"
+  aria-labelledby="my-activity-title"
+  [attr.aria-busy]="loading">
+  <header class="my-posts__header">
+    <h2 id="my-activity-title">{{ 'T_MYACTIVITY' | translate }}</h2>
+  </header>
+  <ol class="activity-list">
+    @for (activity of activities; track activity.ActivityId) {
+      <li class="activity-list__item">
+        <span
+          class="activity-list__icon"
+          [class.is-rating]="activity.Kind === 'Rated'"
+          aria-hidden="true">
+          <span
+            nz-icon
+            [nzType]="actions[activity.Kind].icon"
+            nzTheme="outline"></span>
+        </span>
+        <div class="activity-list__body">
+          <p class="activity-list__action">
+            {{ actions[activity.Kind].key | translate }}
+            @if (activity.Kind === 'Rated' && activity.Point !== null) {
+              <span class="activity-list__rating">{{
+                'T_ACTIVITY_STARS' | translate: { stars: activity.Point / 2 }
+              }}</span>
+            }
+          </p>
+          <a
+            class="activity-list__post"
+            [routerLink]="['/news', activity.CategoryNewsId, activity.NewsId]"
+            [fragment]="activity.CommentId ? 'news-comments' : undefined"
+            >{{ title(activity) }}</a
+          >
+          @if (activity.CommentContent) {
+            <blockquote>{{ activity.CommentContent }}</blockquote>
+          }
+          <time [attr.datetime]="activity.OccurredAt">{{
+            activity.OccurredAt | date: 'HH:mm · dd/MM/yyyy'
+          }}</time>
+        </div>
+      </li>
+    }
+  </ol>
+  @if (loading) {
+    <p role="status">
+      <span nz-icon nzType="loading" aria-hidden="true"></span>
+      {{ 'T_LOADING' | translate }}
+    </p>
+  } @else if (failed) {
+    <div class="my-posts__empty" role="alert">
+      <p>{{ 'T_PROFILE_FEED_ERROR' | translate }}</p>
+      <button type="button" class="blog-btn" (click)="loadMore()">
+        {{ 'T_PROFILE_RETRY' | translate }}
+      </button>
+    </div>
+  } @else if (activities.length === 0) {
+    <div class="my-posts__empty">
+      <span
+        class="my-posts__empty-icon"
+        nz-icon
+        nzType="history"
+        aria-hidden="true"></span>
+      <h3>{{ 'T_ACTIVITY_EMPTY' | translate }}</h3>
+      <p>{{ 'T_ACTIVITY_EMPTY_DESC' | translate }}</p>
+    </div>
+  } @else if (!hasMore) {
+    <p role="status">{{ 'T_PROFILE_FEED_END' | translate }}</p>
+  }
+  <div
+    [appInfiniteScroll]="hasMore && !loading && !failed"
+    (loadMore)="loadMore()"
+    aria-hidden="true"
+    style="height: 1px"></div>
+</section>

@@ -42,6 +42,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<HashTagNewsModel> HashTagNews { get; set; }
         public DbSet<RefFileNewsModel> RefFileNews { get; set; }
         public DbSet<LikeNewsModel> LikeNews { get; set; }
+        public DbSet<BlogActivityModel> BlogActivity { get; set; }
         public DbSet<NewsModel> News { get; set; }
         public DbSet<NewsCommentModel> NewsComment { get; set; }
         public DbSet<NewsCommentReactionModel> NewsCommentReaction { get; set; }
@@ -99,6 +100,17 @@ namespace angnet.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.UseOpenIddict();
+
+            modelBuilder.Entity<BlogActivityModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogActivityModel>().HasOne<NewsModel>().WithMany()
+                .HasForeignKey(x => x.NewsId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BlogActivityModel>()
+                .HasIndex(x => new { x.UserId, x.OccurredAt, x.ActivityId })
+                .IsDescending(false, true, true);
+            modelBuilder.Entity<LikeNewsModel>()
+                .HasIndex(x => new { x.UserId, x.CreatedDTime, x.LikeNewsId })
+                .IsDescending(false, true, true);
 
             modelBuilder.Entity<AppUser>().HasIndex(x => x.NormalizedEmail)
                 .HasDatabaseName("EmailIndex").IsUnique().HasFilter("\"NormalizedEmail\" IS NOT NULL");

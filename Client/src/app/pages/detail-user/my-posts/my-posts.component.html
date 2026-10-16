@@ -6,7 +6,10 @@
     <span class="my-posts__count">{{ itemCount }}</span>
   </header>
 
-  <div class="my-posts__tabs" role="tablist" [attr.aria-label]="'T_MYPOSTS' | translate">
+  <div
+    class="my-posts__tabs"
+    role="tablist"
+    [attr.aria-label]="'T_MYPOSTS' | translate">
     @for (tab of tabs; track tab.value) {
       <button
         type="button"
@@ -21,7 +24,9 @@
     }
   </div>
 
-  @if (isLoading && posts.length === 0) {
+  @if (activeTab === 'Favorites') {
+    <app-my-favorites (countChanged)="itemCount = $event" />
+  } @else if (isLoading && posts.length === 0) {
     <div class="my-posts__skeleton" aria-hidden="true">
       @for (item of [1, 2, 3]; track item) {
         <div class="my-posts__skeleton-card">

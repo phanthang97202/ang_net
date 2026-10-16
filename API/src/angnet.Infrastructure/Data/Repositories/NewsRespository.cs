@@ -1379,28 +1379,34 @@ namespace angnet.Infrastructure.Data.Repositories
             #endregion
 
             #region // Save into Database
-            LikeNewsModel objLikeNews = new LikeNewsModel();
-            bool isExistRecordLikeNews = CheckLikeNewsExist(newsId, currentUserId, ref objLikeNews);
+            var objLikeNews = await _dbContext.LikeNews
+                .FirstOrDefaultAsync(i => i.NewsId == newsId && i.UserId == currentUserId);
 
             bool liked;
-            if (!isExistRecordLikeNews)
+            if (objLikeNews == null)
             {
                 await _dbContext.LikeNews.AddAsync(new LikeNewsModel
                 {
                     NewsId = objNews.NewsId,
                     UserId = currentUserId,
+                    FlagActive = true,
                     CreatedDTime = TCommonUtils.DTimeNow(),
                     UpdatedDTime = TCommonUtils.DTimeNow()
                 });
-                await _dbContext.SaveChangesAsync();
                 liked = true;
             }
             else
             {
-                await _dbContext.LikeNews.Where(i => i.LikeNewsId == objLikeNews.LikeNewsId).ExecuteDeleteAsync();
-                await _dbContext.SaveChangesAsync();
+                _dbContext.LikeNews.Remove(objLikeNews);
                 liked = false;
             }
+            _dbContext.BlogActivity.Add(new BlogActivityModel
+            {
+                UserId = currentUserId, NewsId = newsId,
+                Kind = liked ? "PostLiked" : "PostUnliked", OccurredAt = TCommonUtils.DTimeNow(),
+            });
+            // The state change and its history event commit atomically.
+            await _dbContext.SaveChangesAsync();
 
             // Xoá cache cho CẢ hai nhánh: trước đây chỉ nhánh bỏ like mới xoá, nên
             // sau khi like, tab "Yêu thích" vẫn sắp xếp theo số liệu cũ.
@@ -1490,10 +1496,10 @@ namespace angnet.Infrastructure.Data.Repositories
             #endregion
 
             #region // Save into Database
-            PointNewsModel objPointNews = new PointNewsModel();
-            bool isExistRecordPointNews = CheckPointNewsExist(newsId, currentUserId, ref objPointNews);
+            var objPointNews = await _dbContext.PointNews
+                .FirstOrDefaultAsync(i => i.NewsId == newsId && i.UserId == currentUserId);
 
-            if (!isExistRecordPointNews)
+            if (objPointNews == null)
             {
                 await _dbContext.PointNews.AddAsync(new PointNewsModel
                 {
@@ -1504,18 +1510,20 @@ namespace angnet.Infrastructure.Data.Repositories
                     CreatedDTime = TCommonUtils.DTimeNow(),
                     UpdatedDTime = TCommonUtils.DTimeNow()
                 });
-                await _dbContext.SaveChangesAsync();
             }
             else
             {
                 // Chấm lại thì ghi đè điểm cũ chứ không thêm bản ghi mới - khóa chính
                 // là cặp (NewsId, UserId) nên mỗi người chỉ có đúng 1 điểm cho 1 bài.
-                await _dbContext.PointNews
-                    .Where(i => i.NewsId == objNews.NewsId && i.UserId == currentUserId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(i => i.Point, pointVal)
-                        .SetProperty(i => i.UpdatedDTime, TCommonUtils.DTimeNow()));
+                objPointNews.Point = pointVal;
+                objPointNews.UpdatedDTime = TCommonUtils.DTimeNow();
             }
+            _dbContext.BlogActivity.Add(new BlogActivityModel
+            {
+                UserId = currentUserId, NewsId = newsId, Kind = "Rated",
+                Point = pointVal, OccurredAt = TCommonUtils.DTimeNow(),
+            });
+            await _dbContext.SaveChangesAsync();
 
             // delete cached search api
             string keyStoreManager = TConstValue.NewsRespository_Search;

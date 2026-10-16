@@ -1,0 +1,40 @@
+<section
+  class="my-posts"
+  [attr.aria-label]="'T_FAVORITEPOSTS' | translate"
+  [attr.aria-busy]="loading">
+  <div class="my-posts__list">
+    @for (post of posts; track post.NewsId) {
+      <app-news-card [post]="post" />
+    }
+  </div>
+  @if (loading) {
+    <p role="status">
+      <span nz-icon nzType="loading" aria-hidden="true"></span>
+      {{ 'T_LOADING' | translate }}
+    </p>
+  } @else if (failed) {
+    <div class="my-posts__empty" role="alert">
+      <p>{{ 'T_PROFILE_FEED_ERROR' | translate }}</p>
+      <button type="button" class="blog-btn" (click)="loadMore()">
+        {{ 'T_PROFILE_RETRY' | translate }}
+      </button>
+    </div>
+  } @else if (posts.length === 0) {
+    <div class="my-posts__empty">
+      <span
+        class="my-posts__empty-icon"
+        nz-icon
+        nzType="heart"
+        aria-hidden="true"></span>
+      <h3>{{ 'T_FAVORITES_EMPTY' | translate }}</h3>
+      <p>{{ 'T_FAVORITES_EMPTY_DESC' | translate }}</p>
+    </div>
+  } @else if (!hasMore) {
+    <p role="status">{{ 'T_PROFILE_FEED_END' | translate }}</p>
+  }
+  <div
+    [appInfiniteScroll]="hasMore && !loading && !failed"
+    (loadMore)="loadMore()"
+    aria-hidden="true"
+    style="height: 1px"></div>
+</section>
