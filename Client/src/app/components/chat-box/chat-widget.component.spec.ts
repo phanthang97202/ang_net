@@ -214,6 +214,89 @@ describe('Chat notification widget', () => {
     f.destroy();
     tick(1000);
   }));
+  for (const action of ['button', 'Enter']) {
+    it(`restores composer focus after sending text with ${action} while the popup stays open`, fakeAsync(() => {
+      chat.canSend = true;
+      let finishSend!: () => void;
+      chat.sendMessage.and.returnValue(
+        new Promise<void>(resolve => {
+          finishSend = resolve;
+        })
+      );
+      const f = TestBed.createComponent(ChatWidgetComponent);
+      f.detectChanges();
+      f.componentInstance.open = true;
+      f.detectChanges();
+      tick(150);
+      const input = f.nativeElement.querySelector(
+        '.message-input'
+      ) as HTMLInputElement;
+      input.value = 'Next message';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      f.detectChanges();
+      input.focus();
+      if (action === 'button') {
+        const send = f.nativeElement.querySelector(
+          '.send-btn'
+        ) as HTMLButtonElement;
+        send.focus();
+        send.click();
+      } else
+        input.dispatchEvent(
+          new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
+        );
+      f.detectChanges();
+        tick(); // NgModel applies the disabled state asynchronously.
+      expect(input.disabled).toBeTrue();
+      finishSend();
+      tick();
+      f.detectChanges();
+      expect(input.disabled).toBeFalse();
+      expect(input.value).toBe('');
+      expect(document.activeElement).toBe(input);
+      expect(chat.sendMessage).toHaveBeenCalledOnceWith(
+        'account:me',
+        'Next message',
+        'string'
+      );
+      f.destroy();
+      tick(1000);
+    }));
+  }
+
+  it('does not take focus back when a pending send finishes after closing the popup', fakeAsync(() => {
+    chat.canSend = true;
+    let finishSend!: () => void;
+    chat.sendMessage.and.returnValue(
+      new Promise<void>(resolve => {
+        finishSend = resolve;
+      })
+    );
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges();
+    f.componentInstance.open = true;
+    f.detectChanges();
+    tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent))
+      .componentInstance as ChatBoxComponent;
+    box.newMessage = 'Pending message';
+    void box.sendMessage();
+    f.detectChanges();
+    f.componentInstance.open = false;
+    f.detectChanges();
+    const launcher = f.nativeElement.querySelector(
+      '.chat-toggle-btn'
+    ) as HTMLButtonElement;
+    launcher.focus();
+    finishSend();
+    tick();
+    f.detectChanges();
+    expect(document.activeElement).toBe(launcher);
+    expect(f.nativeElement.querySelector('.message-input')).toBeNull();
+    f.destroy();
+    tick(1000);
+  }));
+
   it('lets text senders use the composer but hides and blocks image selection without image permission', fakeAsync(() => {
     chat.canSend = true;
     imagePermission = false;
@@ -307,6 +390,9 @@ describe('Chat notification widget', () => {
     expect(box.messages.length).toBe(1);
     expect(box.selectedImage).toBeNull();
     expect(box.selectedImagePreview).toBe('');
+    expect(document.activeElement).toBe(
+      f.nativeElement.querySelector('.message-input')
+    );
     f.destroy();
     tick(1000);
   }));

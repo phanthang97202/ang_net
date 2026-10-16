@@ -68,6 +68,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   private moreHistory = false;
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
+  @ViewChild('messageInput') messageInput?: ElementRef<HTMLInputElement>;
   @Output() closeChat = new EventEmitter<void>();
 
   pageIndex: number = 0;
@@ -247,6 +248,15 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     } finally {
       this.sending = false;
       this.isUploading = false;
+      if (!this.destroyed && this.canSend && !this.previewVisible) {
+        // Re-enable the composer (or recreate it after sending an image) before focusing.
+        this.cdref.detectChanges();
+        // NgModel applies the disabled state in a microtask.
+        queueMicrotask(() => {
+          if (!this.destroyed && this.canSend && !this.previewVisible)
+            this.messageInput?.nativeElement.focus({ preventScroll: true });
+        });
+      }
     }
   }
 

@@ -157,6 +157,7 @@
       <div class="chat-composer">
         <input
           *ngIf="!selectedImage"
+          #messageInput
           [(ngModel)]="newMessage"
           type="text"
           placeholder="Nhập tin nhắn…"
