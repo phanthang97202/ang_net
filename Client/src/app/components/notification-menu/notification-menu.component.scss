@@ -44,19 +44,19 @@ h2 span {
   color: var(--color-primary, #6650ff);
   font-size: 12px;
 }
-button {
+.notifications button {
   border: 0;
   background: transparent;
   color: var(--color-primary, #6650ff);
   cursor: pointer;
   font: inherit;
 }
-button:disabled {
+.notifications button:disabled {
   opacity: 0.4;
   cursor: default;
 }
-button:focus-visible,
-a:focus-visible {
+.notifications button:focus-visible,
+.notifications a:focus-visible {
   outline: 2px solid #6650ff;
   outline-offset: -2px;
 }
