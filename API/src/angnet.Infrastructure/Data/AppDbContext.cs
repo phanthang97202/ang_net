@@ -78,6 +78,7 @@ namespace angnet.Infrastructure.Data
 
         // Ghi chú công khai
         public DbSet<NoteModel> Note { get; set; }
+        public DbSet<PersonalNoteModel> PersonalNote { get; set; }
 
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
@@ -99,6 +100,11 @@ namespace angnet.Infrastructure.Data
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PersonalNoteModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(n => n.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalNoteModel>()
+                .HasIndex(n => new { n.OwnerId, n.UpdatedAt, n.NoteId });
+            modelBuilder.Entity<PersonalNoteModel>().Property(n => n.Version).IsConcurrencyToken();
             modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(n => n.RecipientId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()

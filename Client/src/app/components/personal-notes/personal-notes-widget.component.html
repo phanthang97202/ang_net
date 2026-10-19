@@ -1,0 +1,182 @@
+<button
+  *ngIf="accountId"
+  type="button"
+  class="personal-notes-toggle"
+  [class.notes-alone]="!hasChat"
+  [class.is-open]="listOpen || editorVisible"
+  [attr.aria-label]="'T_PNOTE_MY_NOTES' | translate"
+  [title]="'T_PNOTE_MY_NOTES' | translate"
+  [attr.aria-expanded]="listOpen"
+  aria-controls="personal-notes-list"
+  nz-popover
+  nzPopoverTrigger="click"
+  nzPopoverPlacement="topRight"
+  nzPopoverOverlayClassName="blog-account-popover personal-notes-popover"
+  [nzPopoverContent]="notesPanel"
+  [nzPopoverVisible]="listOpen"
+  (nzPopoverVisibleChange)="visibleChange($event)">
+  <svg
+    width="23"
+    height="23"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.65"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true">
+    <path
+      d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M8 8h3M8 12h3M8 16h6M14 9l1-4 3-3 3 3-3 3-4 1Z" />
+  </svg>
+</button>
+<ng-template #notesPanel>
+  <section
+    class="notes-panel"
+    id="personal-notes-list"
+    [attr.aria-label]="'T_PNOTE_MY_NOTES' | translate">
+    <header>
+      <div>
+        <span class="private-label">{{ 'T_PNOTE_PRIVATE' | translate }}</span>
+        <h2>{{ 'T_PNOTE_MY_NOTES' | translate }}</h2>
+      </div>
+      <button
+        type="button"
+        class="panel-close"
+        (click)="visibleChange(false)"
+        [attr.aria-label]="'T_PNOTE_CLOSE' | translate">
+        ×
+      </button>
+    </header>
+    <div class="notes-tools">
+      <input
+        type="search"
+        [(ngModel)]="keyword"
+        (ngModelChange)="searchChanged()"
+        maxlength="200"
+        [placeholder]="'T_PNOTE_SEARCH' | translate"
+        [attr.aria-label]="'T_PNOTE_SEARCH' | translate" /><button
+        type="button"
+        class="new-note"
+        (click)="create()">
+        <span aria-hidden="true">＋</span>{{ 'T_PNOTE_NEW' | translate }}
+      </button>
+    </div>
+    <div class="notes-list" [attr.aria-busy]="loading">
+      @for (note of items; track note.NoteId) {
+        <article class="note-row">
+          <button
+            type="button"
+            class="note-open"
+            [disabled]="openingId === note.NoteId || deletingId === note.NoteId"
+            (click)="edit(note)">
+            <strong>{{ note.Title }}</strong
+            ><span class="note-preview">{{
+              note.Preview || ('T_PNOTE_EMPTY_CONTENT' | translate)
+            }}</span>
+            <time [attr.datetime]="note.UpdatedAt">{{
+              note.UpdatedAt | date: 'dd/MM/yyyy HH:mm'
+            }}</time>
+            @if (openingId === note.NoteId) {
+              <span class="note-opening">{{
+                'T_PNOTE_LOADING' | translate
+              }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="note-delete"
+            [disabled]="deletingId !== null"
+            (click)="confirmDelete(note)"
+            [attr.aria-label]="
+              ('T_PNOTE_DELETE' | translate) + ': ' + note.Title
+            "
+            [title]="'T_PNOTE_DELETE' | translate">
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" />
+            </svg>
+          </button>
+        </article>
+      }
+      @if (loading) {
+        <p class="notes-status" role="status">
+          {{ 'T_PNOTE_LOADING' | translate }}
+        </p>
+      } @else if (error) {
+        <div class="notes-status" role="alert">
+          <p>{{ 'T_PNOTE_LIST_ERROR' | translate }}</p>
+          <button type="button" (click)="load(true)">
+            {{ 'T_PNOTE_RETRY' | translate }}
+          </button>
+        </div>
+      } @else if (!items.length) {
+        <div class="notes-empty">
+          <span aria-hidden="true">✎</span>
+          <h3>
+            {{ (keyword ? 'T_PNOTE_NO_RESULTS' : 'T_PNOTE_EMPTY') | translate }}
+          </h3>
+          <p>
+            {{
+              (keyword ? 'T_PNOTE_SEARCH_HINT' : 'T_PNOTE_EMPTY_HINT')
+                | translate
+            }}
+          </p>
+          @if (!keyword) {
+            <button type="button" (click)="create()">
+              {{ 'T_PNOTE_NEW' | translate }}
+            </button>
+          }
+        </div>
+      }
+      <div
+        [appInfiniteScroll]="hasMore && !loading && !error"
+        (loadMore)="load()"
+        aria-hidden="true"></div>
+    </div>
+    <footer>{{ 'T_PNOTE_PRIVATE_HINT' | translate }}</footer>
+  </section>
+</ng-template>
+<nz-modal
+  [nzVisible]="editorVisible"
+  nzWidth="90vw"
+  [nzStyle]="{ top: '5dvh', paddingBottom: '0' }"
+  nzClassName="personal-note-modal"
+  [nzFooter]="null"
+  [nzClosable]="false"
+  [nzMaskClosable]="false"
+  [nzKeyboard]="false"
+  [nzCloseOnNavigation]="false"
+  [nzBodyStyle]="{ padding: '0' }"
+  [nzAutofocus]="null">
+  <ng-container *nzModalContent>
+    @if (editorVisible && editorOwner === accountId) {
+      @defer (when editorVisible) {
+        <app-personal-note-editor
+          [noteId]="editingId"
+          [ownerId]="editorOwner"
+          [note]="editingNote"
+          (saved)="saved()"
+          (closed)="closeEditor()" />
+      } @placeholder {
+        <div class="editor-loading" role="status">
+          {{ 'T_PNOTE_LOADING' | translate }}
+        </div>
+      } @error {
+        <div class="editor-loading" role="alert">
+          <p>{{ 'T_PNOTE_EDITOR_ERROR' | translate }}</p>
+          <button type="button" (click)="closeEditor()">
+            {{ 'T_PNOTE_CLOSE' | translate }}
+          </button>
+        </div>
+      }
+    }
+  </ng-container>
+</nz-modal>

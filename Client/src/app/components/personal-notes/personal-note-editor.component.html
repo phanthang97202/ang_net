@@ -1,0 +1,214 @@
+<section class="note-editor" [attr.aria-label]="'T_PNOTE_EDITOR' | translate">
+  <header class="editor-head">
+    <div>
+      <span class="private-label">{{ 'T_PNOTE_PRIVATE' | translate }}</span>
+      <h2>{{ (note ? 'T_PNOTE_EDIT' : 'T_PNOTE_NEW') | translate }}</h2>
+    </div>
+    <button
+      type="button"
+      class="editor-close"
+      [disabled]="saving"
+      (click)="requestClose()"
+      [attr.aria-label]="'T_PNOTE_CLOSE' | translate">
+      ×
+    </button>
+  </header>
+  <div class="title-field">
+    <label for="personal-note-title">{{ 'T_PNOTE_TITLE' | translate }}</label>
+    <input
+      #titleInput
+      id="personal-note-title"
+      [(ngModel)]="title"
+      maxlength="200"
+      [disabled]="saving"
+      [placeholder]="'T_PNOTE_TITLE_PLACEHOLDER' | translate"
+      autocomplete="off" />
+  </div>
+  <div
+    class="editor-toolbar"
+    role="toolbar"
+    [attr.aria-label]="'T_PNOTE_FORMAT' | translate">
+    <select
+      (change)="block($event)"
+      [disabled]="saving"
+      [attr.aria-label]="'T_PNOTE_BLOCK' | translate"
+      [value]="
+        editor?.isActive('heading', { level: 1 })
+          ? '1'
+          : editor?.isActive('heading', { level: 2 })
+            ? '2'
+            : editor?.isActive('heading', { level: 3 })
+              ? '3'
+              : 'paragraph'
+      ">
+      <option value="paragraph">{{ 'T_PNOTE_PARAGRAPH' | translate }}</option>
+      <option value="1">H1</option>
+      <option value="2">H2</option>
+      <option value="3">H3</option>
+    </select>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('bold')"
+      [attr.aria-pressed]="editor?.isActive('bold')"
+      [title]="'T_PNOTE_BOLD' | translate"
+      [attr.aria-label]="'T_PNOTE_BOLD' | translate"
+      (click)="editor?.chain()?.focus()?.toggleBold()?.run()">
+      <b>B</b>
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('italic')"
+      [attr.aria-pressed]="editor?.isActive('italic')"
+      [title]="'T_PNOTE_ITALIC' | translate"
+      [attr.aria-label]="'T_PNOTE_ITALIC' | translate"
+      (click)="editor?.chain()?.focus()?.toggleItalic()?.run()">
+      <i>I</i>
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('underline')"
+      [attr.aria-pressed]="editor?.isActive('underline')"
+      [title]="'T_PNOTE_UNDERLINE' | translate"
+      [attr.aria-label]="'T_PNOTE_UNDERLINE' | translate"
+      (click)="editor?.chain()?.focus()?.toggleUnderline()?.run()">
+      <u>U</u>
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('strike')"
+      [attr.aria-pressed]="editor?.isActive('strike')"
+      [title]="'T_PNOTE_STRIKE' | translate"
+      [attr.aria-label]="'T_PNOTE_STRIKE' | translate"
+      (click)="editor?.chain()?.focus()?.toggleStrike()?.run()">
+      <s>S</s>
+    </button>
+    <span class="toolbar-divider"></span>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('bulletList')"
+      [attr.aria-pressed]="editor?.isActive('bulletList')"
+      [title]="'T_PNOTE_BULLETS' | translate"
+      [attr.aria-label]="'T_PNOTE_BULLETS' | translate"
+      (click)="editor?.chain()?.focus()?.toggleBulletList()?.run()">
+      • ≡
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('orderedList')"
+      [attr.aria-pressed]="editor?.isActive('orderedList')"
+      [title]="'T_PNOTE_NUMBERED' | translate"
+      [attr.aria-label]="'T_PNOTE_NUMBERED' | translate"
+      (click)="editor?.chain()?.focus()?.toggleOrderedList()?.run()">
+      1. ≡
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('taskList')"
+      [attr.aria-pressed]="editor?.isActive('taskList')"
+      [title]="'T_PNOTE_CHECKLIST' | translate"
+      [attr.aria-label]="'T_PNOTE_CHECKLIST' | translate"
+      (click)="editor?.chain()?.focus()?.toggleTaskList()?.run()">
+      ☑
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('blockquote')"
+      [attr.aria-pressed]="editor?.isActive('blockquote')"
+      [title]="'T_PNOTE_QUOTE' | translate"
+      [attr.aria-label]="'T_PNOTE_QUOTE' | translate"
+      (click)="editor?.chain()?.focus()?.toggleBlockquote()?.run()">
+      ❝
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('codeBlock')"
+      [attr.aria-pressed]="editor?.isActive('codeBlock')"
+      [title]="'T_PNOTE_CODE' | translate"
+      [attr.aria-label]="'T_PNOTE_CODE' | translate"
+      (click)="editor?.chain()?.focus()?.toggleCodeBlock()?.run()">
+      &#123; &#125;
+    </button>
+    <button
+      type="button"
+      [disabled]="saving"
+      [class.active]="editor?.isActive('link')"
+      [attr.aria-expanded]="linkVisible"
+      [title]="'T_PNOTE_LINK' | translate"
+      [attr.aria-label]="'T_PNOTE_LINK' | translate"
+      (click)="showLink()">
+      ↗
+    </button>
+    <span class="toolbar-divider"></span>
+    <button
+      type="button"
+      [disabled]="saving || !editor?.can()?.undo()"
+      [title]="'T_PNOTE_UNDO' | translate"
+      [attr.aria-label]="'T_PNOTE_UNDO' | translate"
+      (click)="editor?.chain()?.focus()?.undo()?.run()">
+      ↶
+    </button>
+    <button
+      type="button"
+      [disabled]="saving || !editor?.can()?.redo()"
+      [title]="'T_PNOTE_REDO' | translate"
+      [attr.aria-label]="'T_PNOTE_REDO' | translate"
+      (click)="editor?.chain()?.focus()?.redo()?.run()">
+      ↷
+    </button>
+  </div>
+  @if (linkVisible) {
+    <form class="link-form" (ngSubmit)="applyLink()">
+      <input
+        name="noteLink"
+        [(ngModel)]="linkUrl"
+        [disabled]="saving"
+        type="text"
+        [placeholder]="'T_PNOTE_LINK_PLACEHOLDER' | translate"
+        [attr.aria-label]="'T_PNOTE_LINK' | translate" /><button
+        type="submit"
+        [disabled]="saving">
+        {{ 'T_PNOTE_APPLY_LINK' | translate }}
+      </button>
+    </form>
+  }
+  <div class="editor-scroll">
+    <div #editorHost class="tiptap-host" [class.editor-busy]="saving"></div>
+  </div>
+  <footer class="editor-foot">
+    <div aria-live="polite">
+      @if (errorKey) {
+        <span class="editor-error" role="alert">{{
+          errorKey | translate
+        }}</span>
+      } @else {
+        <span>{{
+          (dirty ? 'T_PNOTE_UNSAVED' : 'T_PNOTE_PRIVATE_HINT') | translate
+        }}</span>
+      }
+    </div>
+    <div class="editor-buttons">
+      <button
+        type="button"
+        class="secondary"
+        [disabled]="saving"
+        (click)="requestClose()">
+        {{ 'T_PNOTE_CLOSE' | translate }}</button
+      ><button
+        type="button"
+        class="primary"
+        [disabled]="!canSave"
+        (click)="save()">
+        {{ (saving ? 'T_PNOTE_SAVING' : 'T_PNOTE_SAVE') | translate }}
+      </button>
+    </div>
+  </footer>
+</section>

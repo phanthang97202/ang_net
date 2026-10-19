@@ -1,0 +1,33 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import {
+  PersonalNote,
+  PersonalNotePage,
+  PersonalNoteSave,
+} from '../interfaces/personal-note';
+
+@Injectable({ providedIn: 'root' })
+export class PersonalNoteService {
+  private http = inject(HttpClient);
+  private readonly url = `${environment.apiUrl}PersonalNotes`;
+  list(keyword: string, cursor: string | null) {
+    let params = new HttpParams().set('keyword', keyword).set('pageSize', 20);
+    if (cursor) params = params.set('cursor', cursor);
+    return this.http.get<PersonalNotePage>(this.url, { params });
+  }
+  get(id: string) {
+    return this.http.get<PersonalNote>(`${this.url}/${encodeURIComponent(id)}`);
+  }
+  save(id: string, body: PersonalNoteSave) {
+    return this.http.put<PersonalNote>(
+      `${this.url}/${encodeURIComponent(id)}`,
+      body
+    );
+  }
+  delete(id: string, version: number) {
+    return this.http.delete<void>(`${this.url}/${encodeURIComponent(id)}`, {
+      params: { version },
+    });
+  }
+}

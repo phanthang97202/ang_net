@@ -3,6 +3,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  Input,
   OnDestroy,
   OnInit,
 } from '@angular/core';
@@ -22,6 +23,7 @@ import { ChatBoxComponent } from './chat-box.component';
     <button
       *ngIf="chat.canView"
       class="chat-toggle-btn"
+      [class.has-personal-notes]="hasPersonalNotes"
       [class.is-open]="open"
       type="button"
       [attr.aria-label]="
@@ -65,6 +67,7 @@ import { ChatBoxComponent } from './chat-box.component';
   styleUrl: './chat-widget.component.scss',
 })
 export class ChatWidgetComponent implements OnInit, OnDestroy {
+  @Input() hasPersonalNotes = false;
   chat = inject(ChatService);
   private destroyRef = inject(DestroyRef);
   private title = inject(BrowserTitleService);

@@ -88,6 +88,22 @@
   ">
   <!-- Nút Chat -->
   @defer (when authService.hasPermission('chat.view')) {
-    <app-chat-widget />
+    <app-chat-widget
+      [hasPersonalNotes]="
+        layoutType === 'user' &&
+        authService.isLoggedIn() &&
+        authService.hasPermission('personalnote.use')
+      " />
   }
 </ng-container>
+
+@if (
+  layoutType === 'user' &&
+  authService.isLoggedIn() &&
+  authService.hasPermission('personalnote.use')
+) {
+  @defer (on idle) {
+    <app-personal-notes-widget
+      [hasChat]="authService.hasPermission('chat.view')" />
+  }
+}

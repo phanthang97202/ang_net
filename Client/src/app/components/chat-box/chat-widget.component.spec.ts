@@ -73,6 +73,21 @@ describe('Chat notification widget', () => {
       ],
     });
   });
+  it('keeps unread previews clear of the adjacent personal notes launcher', fakeAsync(() => {
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.componentRef.setInput('hasPersonalNotes', true);
+    f.detectChanges();
+    tick();
+    const preview = f.nativeElement.querySelector(
+      '.chat-preview'
+    ) as HTMLElement;
+    const notesLeft =
+      window.innerWidth - (window.innerWidth <= 768 ? 114 : 132);
+    expect(preview.getBoundingClientRect().right).toBeLessThan(notesLeft);
+    expect(preview.getBoundingClientRect().left).toBeGreaterThanOrEqual(15);
+    f.destroy();
+    tick(1000);
+  }));
   it('centers the image popup, contains scrolling and releases the page scroll lock on close', fakeAsync(() => {
     const pageContent = document.createElement('div');
     pageContent.style.height = '2000px';
@@ -246,7 +261,7 @@ describe('Chat notification widget', () => {
           new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
         );
       f.detectChanges();
-        tick(); // NgModel applies the disabled state asynchronously.
+      tick(); // NgModel applies the disabled state asynchronously.
       expect(input.disabled).toBeTrue();
       finishSend();
       tick();

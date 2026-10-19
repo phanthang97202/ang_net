@@ -26,6 +26,7 @@ import { ErrorPopupComponent } from './components/error-popup/error-popup.compon
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
 import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
+import { PersonalNotesWidgetComponent } from './components/personal-notes/personal-notes-widget.component';
 import { BlogMaintenanceService } from './services/blog-maintenance.service';
 import {
   failInitialLoading,
@@ -51,6 +52,7 @@ import {
     SpinnerComponent,
     SwitchLangComponent,
     ChatWidgetComponent,
+    PersonalNotesWidgetComponent,
   ],
   providers: [],
   templateUrl: './app.component.html',
