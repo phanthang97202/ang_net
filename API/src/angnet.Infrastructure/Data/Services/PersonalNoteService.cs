@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.Json;
 using angnet.Domain.Dtos;
 using angnet.Domain.Models;
@@ -60,7 +61,15 @@ public class PersonalNoteService(AppDbContext db)
         return note == null ? null : Detail(note);
     }
 
-    public async Task<PersonalNoteDto?> Save(ClaimsPrincipal user, string id, PersonalNoteSaveDto data)
+    public Task<PersonalNoteDto?> Save(ClaimsPrincipal user, string id, PersonalNoteSaveDto data)
+        => SaveDocument(user, id, data, publish: false);
+
+    public Task<PersonalNoteDto?> Publish(ClaimsPrincipal user, string id, PersonalNoteSaveDto data)
+        => SaveDocument(user, id, data, publish: true);
+
+    // A single INSERT/UPDATE publishes the submitted draft atomically. Ordinary
+    // saves leave the published snapshot untouched, so private edits stay private.
+    private async Task<PersonalNoteDto?> SaveDocument(ClaimsPrincipal user, string id, PersonalNoteSaveDto data, bool publish)
     {
         var owner = Owner(user);
         if (!Guid.TryParseExact(id, "D", out _) || data.Version < 0 || data.Version == int.MaxValue
@@ -69,13 +78,15 @@ public class PersonalNoteService(AppDbContext db)
         var title = data.Title.Trim();
         var text = PersonalNoteDocument.Text(data.ContentJson);
         var now = DateTime.UtcNow;
+        var token = publish ? Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant() : null;
         if (data.Version == 0)
         {
             // Client-generated IDs make retrying a lost create response idempotent.
             var existing = await Owned(user).FirstOrDefaultAsync(n => n.NoteId == id);
             if (existing != null)
             {
-                if (existing.Title == title && existing.ContentJson == data.ContentJson) return Detail(existing);
+                if (existing.Title == title && existing.ContentJson == data.ContentJson
+                    && (!publish || (existing.PublicToken != null && existing.PublishedTitle == title && existing.PublishedContentJson == data.ContentJson))) return Detail(existing);
                 throw new PersonalNoteConflictException();
             }
             if (await db.PersonalNote.AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
@@ -83,6 +94,8 @@ public class PersonalNoteService(AppDbContext db)
             {
                 NoteId = id, OwnerId = owner, Title = title, ContentJson = data.ContentJson, ContentText = text,
                 CreatedAt = now, UpdatedAt = now, Version = 1,
+                PublicToken = token, PublishedTitle = publish ? title : null,
+                PublishedContentJson = publish ? data.ContentJson : null, PublishedAt = publish ? now : null,
             };
             db.PersonalNote.Add(created);
             try { await db.SaveChangesAsync(); }
@@ -90,7 +103,8 @@ public class PersonalNoteService(AppDbContext db)
             {
                 db.Entry(created).State = EntityState.Detached;
                 var retry = await Owned(user).FirstOrDefaultAsync(n => n.NoteId == id);
-                if (retry != null && retry.Title == title && retry.ContentJson == data.ContentJson) return Detail(retry);
+                if (retry != null && retry.Title == title && retry.ContentJson == data.ContentJson
+                    && (!publish || (retry.PublicToken != null && retry.PublishedTitle == title && retry.PublishedContentJson == data.ContentJson))) return Detail(retry);
                 throw new PersonalNoteConflictException();
             }
             return Detail(created);
@@ -98,6 +112,10 @@ public class PersonalNoteService(AppDbContext db)
         int changed = await Owned(user).Where(n => n.NoteId == id && n.Version == data.Version)
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.Title, title)
                 .SetProperty(n => n.ContentJson, data.ContentJson).SetProperty(n => n.ContentText, text)
+                .SetProperty(n => n.PublicToken, n => publish ? n.PublicToken ?? token : n.PublicToken)
+                .SetProperty(n => n.PublishedTitle, n => publish ? title : n.PublishedTitle)
+                .SetProperty(n => n.PublishedContentJson, n => publish ? data.ContentJson : n.PublishedContentJson)
+                .SetProperty(n => n.PublishedAt, n => publish ? now : n.PublishedAt)
                 .SetProperty(n => n.UpdatedAt, now).SetProperty(n => n.Version, n => n.Version + 1));
         if (changed == 0 && await Owned(user).AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
         return changed == 0 ? null : await Get(user, id);
@@ -111,10 +129,31 @@ public class PersonalNoteService(AppDbContext db)
         return changed > 0;
     }
 
+    public async Task<PersonalNoteDto?> Unpublish(ClaimsPrincipal user, string id, int version)
+    {
+        if (version < 1 || version == int.MaxValue) throw new ArgumentException("Invalid version");
+        int changed = await Owned(user).Where(n => n.NoteId == id && n.Version == version)
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.PublicToken, (string?)null)
+                .SetProperty(n => n.PublishedTitle, (string?)null).SetProperty(n => n.PublishedContentJson, (string?)null)
+                .SetProperty(n => n.PublishedAt, (DateTime?)null).SetProperty(n => n.Version, n => n.Version + 1));
+        if (changed == 0 && await Owned(user).AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
+        return changed == 0 ? null : await Get(user, id);
+    }
+
+    public async Task<PublicPersonalNoteDto?> Public(string token)
+    {
+        if (token.Length != 64 || token.Any(c => !char.IsAsciiHexDigit(c))) return null;
+        return await db.PersonalNote.AsNoTracking()
+            .Where(n => n.PublicToken == token && n.PublishedTitle != null && n.PublishedContentJson != null && n.PublishedAt != null)
+            .Select(n => new PublicPersonalNoteDto { Title = n.PublishedTitle!, ContentJson = n.PublishedContentJson! })
+            .SingleOrDefaultAsync();
+    }
+
     private static PersonalNoteDto Detail(PersonalNoteModel note) => new()
     {
         NoteId = note.NoteId, Title = note.Title, ContentJson = note.ContentJson, Version = note.Version,
         CreatedAt = note.CreatedAt, UpdatedAt = note.UpdatedAt,
+        PublicToken = note.PublicToken, PublishedAt = note.PublishedAt,
         Preview = note.ContentText.Length > 160 ? note.ContentText[..160] : note.ContentText,
     };
 }

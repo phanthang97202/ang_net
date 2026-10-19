@@ -69,6 +69,7 @@ export class AuthInterceptor implements HttpInterceptor {
       // gắn token là server trả UserNotFound nên không bao giờ lưu được.
       // ----
       'hashtagnews/gettophashtag',
+      'PublicPersonalNotes/',
       'cloudinary.com',
       'posthog.com',
     ];

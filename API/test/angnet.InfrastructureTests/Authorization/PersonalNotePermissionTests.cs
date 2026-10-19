@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
 using angnet.Infrastructure.Data.Services;
@@ -83,7 +84,7 @@ public class PersonalNotePermissionTests
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), path);
         if (token != null) request.Headers.Authorization = new("Bearer", token);
-        if (method == "PUT") request.Content = JsonContent.Create(new {
+        if (method is "PUT" or "POST") request.Content = JsonContent.Create(new {
             Title = "Private", ContentJson = "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}", Version = version
         });
         using var response = await http.SendAsync(request);
@@ -95,6 +96,8 @@ public class PersonalNotePermissionTests
     [DataRow("GET", "/api/PersonalNotes/" + Id, 404)]
     [DataRow("PUT", "/api/PersonalNotes/" + Id, 200)]
     [DataRow("DELETE", "/api/PersonalNotes/" + Id + "?version=1", 404)]
+    [DataRow("POST", "/api/PersonalNotes/" + Id + "/publish", 200)]
+    [DataRow("DELETE", "/api/PersonalNotes/" + Id + "/publication?version=1", 404)]
     public async Task EveryEndpoint_RequiresModuleKey(string method, string path, int allowed)
     {
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Send(method, path, null));
@@ -114,7 +117,56 @@ public class PersonalNotePermissionTests
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("GET", path, token));
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("PUT", path, token, version: 1));
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("DELETE", path + "?version=1", token));
+            Assert.AreEqual(HttpStatusCode.NotFound, await Send("POST", path + "/publish", token, version: 1));
+            Assert.AreEqual(HttpStatusCode.NotFound, await Send("DELETE", path + "/publication?version=1", token));
         }
         Assert.AreEqual(HttpStatusCode.OK, await Send("GET", path, Token()));
+    }
+
+    [TestMethod]
+    public async Task ImageNote_LargerThanOldTextLimit_CanBeSavedAndReopenedThroughHttp()
+    {
+        var image = new byte[600_000];
+        new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a }.CopyTo(image, 0);
+        string document = JsonSerializer.Serialize(new {
+            type = "doc", content = new[] { new { type = "image", attrs = new { src = "data:image/png;base64," + Convert.ToBase64String(image) } } }
+        });
+        var path = "/api/PersonalNotes/" + Id;
+        using var request = new HttpRequestMessage(HttpMethod.Put, path) {
+            Content = JsonContent.Create(new { Title = "Screenshot", ContentJson = document, Version = 0 })
+        };
+        request.Headers.Authorization = new("Bearer", Token());
+        using var response = await http.SendAsync(request);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, await response.Content.ReadAsStringAsync());
+        using var read = new HttpRequestMessage(HttpMethod.Get, path);
+        read.Headers.Authorization = new("Bearer", Token());
+        using var reopened = await http.SendAsync(read);
+        Assert.AreEqual(HttpStatusCode.OK, reopened.StatusCode);
+        using var body = JsonDocument.Parse(await reopened.Content.ReadAsStringAsync());
+        Assert.AreEqual(document, body.RootElement.GetProperty("contentJson").GetString());
+    }
+
+    [TestMethod]
+    public async Task PublicLink_IsAnonymousReadOnlyAndUncached_AndStopsWorkingAfterRevocation()
+    {
+        var path = "/api/PersonalNotes/" + Id;
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path + "/publish", Token()));
+        using var detailRequest = new HttpRequestMessage(HttpMethod.Get, path);
+        detailRequest.Headers.Authorization = new("Bearer", Token());
+        using var detail = await http.SendAsync(detailRequest);
+        using var json = JsonDocument.Parse(await detail.Content.ReadAsStringAsync());
+        string token = json.RootElement.GetProperty("publicToken").GetString()!;
+        string publicPath = "/api/PublicPersonalNotes/" + token;
+        using var response = await http.GetAsync(publicPath);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.IsTrue(response.Headers.CacheControl!.NoStore);
+        using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        CollectionAssert.AreEquivalent(new[] { "title", "contentJson" }, body.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("GET", path, null));
+        Assert.AreEqual(HttpStatusCode.NotFound, await Send("GET", "/api/PublicPersonalNotes/" + Id, null));
+        using var write = await http.PostAsJsonAsync(publicPath, new { Title = "Changed" });
+        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, write.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, await Send("DELETE", path + "/publication?version=1", Token()));
+        Assert.AreEqual(HttpStatusCode.NotFound, await Send("GET", publicPath, null));
     }
 }

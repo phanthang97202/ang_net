@@ -1,13 +1,9 @@
 <section class="note-editor" [attr.aria-label]="'T_PNOTE_EDITOR' | translate">
   <header class="editor-head">
-    <div>
-      <span class="private-label">{{ 'T_PNOTE_PRIVATE' | translate }}</span>
-      <h2>{{ (note ? 'T_PNOTE_EDIT' : 'T_PNOTE_NEW') | translate }}</h2>
-    </div>
     <button
       type="button"
       class="editor-close"
-      [disabled]="saving"
+      [disabled]="busy"
       (click)="requestClose()"
       [attr.aria-label]="'T_PNOTE_CLOSE' | translate">
       ×
@@ -20,7 +16,7 @@
       id="personal-note-title"
       [(ngModel)]="title"
       maxlength="200"
-      [disabled]="saving"
+      [disabled]="busy"
       [placeholder]="'T_PNOTE_TITLE_PLACEHOLDER' | translate"
       autocomplete="off" />
   </div>
@@ -30,7 +26,7 @@
     [attr.aria-label]="'T_PNOTE_FORMAT' | translate">
     <select
       (change)="block($event)"
-      [disabled]="saving"
+      [disabled]="busy"
       [attr.aria-label]="'T_PNOTE_BLOCK' | translate"
       [value]="
         editor?.isActive('heading', { level: 1 })
@@ -48,7 +44,7 @@
     </select>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('bold')"
       [attr.aria-pressed]="editor?.isActive('bold')"
       [title]="'T_PNOTE_BOLD' | translate"
@@ -58,7 +54,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('italic')"
       [attr.aria-pressed]="editor?.isActive('italic')"
       [title]="'T_PNOTE_ITALIC' | translate"
@@ -68,7 +64,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('underline')"
       [attr.aria-pressed]="editor?.isActive('underline')"
       [title]="'T_PNOTE_UNDERLINE' | translate"
@@ -78,7 +74,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('strike')"
       [attr.aria-pressed]="editor?.isActive('strike')"
       [title]="'T_PNOTE_STRIKE' | translate"
@@ -89,7 +85,7 @@
     <span class="toolbar-divider"></span>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('bulletList')"
       [attr.aria-pressed]="editor?.isActive('bulletList')"
       [title]="'T_PNOTE_BULLETS' | translate"
@@ -99,7 +95,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('orderedList')"
       [attr.aria-pressed]="editor?.isActive('orderedList')"
       [title]="'T_PNOTE_NUMBERED' | translate"
@@ -109,7 +105,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('taskList')"
       [attr.aria-pressed]="editor?.isActive('taskList')"
       [title]="'T_PNOTE_CHECKLIST' | translate"
@@ -119,7 +115,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('blockquote')"
       [attr.aria-pressed]="editor?.isActive('blockquote')"
       [title]="'T_PNOTE_QUOTE' | translate"
@@ -129,7 +125,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('codeBlock')"
       [attr.aria-pressed]="editor?.isActive('codeBlock')"
       [title]="'T_PNOTE_CODE' | translate"
@@ -139,7 +135,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving"
+      [disabled]="busy"
       [class.active]="editor?.isActive('link')"
       [attr.aria-expanded]="linkVisible"
       [title]="'T_PNOTE_LINK' | translate"
@@ -150,7 +146,7 @@
     <span class="toolbar-divider"></span>
     <button
       type="button"
-      [disabled]="saving || !editor?.can()?.undo()"
+      [disabled]="busy || !editor?.can()?.undo()"
       [title]="'T_PNOTE_UNDO' | translate"
       [attr.aria-label]="'T_PNOTE_UNDO' | translate"
       (click)="editor?.chain()?.focus()?.undo()?.run()">
@@ -158,7 +154,7 @@
     </button>
     <button
       type="button"
-      [disabled]="saving || !editor?.can()?.redo()"
+      [disabled]="busy || !editor?.can()?.redo()"
       [title]="'T_PNOTE_REDO' | translate"
       [attr.aria-label]="'T_PNOTE_REDO' | translate"
       (click)="editor?.chain()?.focus()?.redo()?.run()">
@@ -170,36 +166,86 @@
       <input
         name="noteLink"
         [(ngModel)]="linkUrl"
-        [disabled]="saving"
+        [disabled]="busy"
         type="text"
         [placeholder]="'T_PNOTE_LINK_PLACEHOLDER' | translate"
         [attr.aria-label]="'T_PNOTE_LINK' | translate" /><button
         type="submit"
-        [disabled]="saving">
+        [disabled]="busy">
         {{ 'T_PNOTE_APPLY_LINK' | translate }}
       </button>
     </form>
   }
   <div class="editor-scroll">
-    <div #editorHost class="tiptap-host" [class.editor-busy]="saving"></div>
+    <div #editorHost class="tiptap-host" [class.editor-busy]="busy"></div>
   </div>
+  @if (shareOpen) {
+    <section
+      class="publication-panel"
+      [attr.aria-label]="'T_PNOTE_SHARE' | translate">
+      <p>{{ 'T_PNOTE_PUBLICATION_HINT' | translate }}</p>
+      @if (publicToken) {
+        <div class="publication-link">
+          <input
+            [value]="publicUrl"
+            readonly
+            [attr.aria-label]="'T_PNOTE_PUBLIC_LINK' | translate" />
+          <button type="button" (click)="copyPublicLink()">
+            {{ (copied ? 'T_PNOTE_COPIED' : 'T_PNOTE_COPY_LINK') | translate }}
+          </button>
+          <a [href]="publicUrl" target="_blank" rel="noopener noreferrer">{{
+            'T_PNOTE_OPEN_LINK' | translate
+          }}</a>
+        </div>
+      }
+      <div class="publication-actions">
+        <button
+          type="button"
+          class="publish-note"
+          [disabled]="!canSave"
+          (click)="publish()">
+          {{
+            (publicToken ? 'T_PNOTE_UPDATE_PUBLICATION' : 'T_PNOTE_PUBLISH')
+              | translate
+          }}
+        </button>
+        @if (publicToken) {
+          <button
+            type="button"
+            class="unpublish-note"
+            [disabled]="busy"
+            (click)="unpublish()">
+            {{ 'T_PNOTE_UNPUBLISH' | translate }}
+          </button>
+        }
+      </div>
+    </section>
+  }
   <footer class="editor-foot">
     <div aria-live="polite">
       @if (errorKey) {
         <span class="editor-error" role="alert">{{
           errorKey | translate
         }}</span>
-      } @else {
-        <span>{{
-          (dirty ? 'T_PNOTE_UNSAVED' : 'T_PNOTE_PRIVATE_HINT') | translate
-        }}</span>
+      } @else if (insertingImages) {
+        <span>{{ 'T_PNOTE_INSERTING_IMAGES' | translate }}</span>
+      } @else if (dirty) {
+        <span>{{ 'T_PNOTE_UNSAVED' | translate }}</span>
       }
     </div>
     <div class="editor-buttons">
       <button
         type="button"
+        class="secondary share-note"
+        [disabled]="busy"
+        [attr.aria-expanded]="shareOpen"
+        (click)="shareOpen = !shareOpen">
+        {{ (publicToken ? 'T_PNOTE_PUBLISHED' : 'T_PNOTE_SHARE') | translate }}
+      </button>
+      <button
+        type="button"
         class="secondary"
-        [disabled]="saving"
+        [disabled]="busy"
         (click)="requestClose()">
         {{ 'T_PNOTE_CLOSE' | translate }}</button
       ><button

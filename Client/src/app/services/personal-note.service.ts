@@ -5,6 +5,7 @@ import {
   PersonalNote,
   PersonalNotePage,
   PersonalNoteSave,
+  PublicPersonalNote,
 } from '../interfaces/personal-note';
 
 @Injectable({ providedIn: 'root' })
@@ -29,5 +30,22 @@ export class PersonalNoteService {
     return this.http.delete<void>(`${this.url}/${encodeURIComponent(id)}`, {
       params: { version },
     });
+  }
+  publish(id: string, body: PersonalNoteSave) {
+    return this.http.post<PersonalNote>(
+      `${this.url}/${encodeURIComponent(id)}/publish`,
+      body
+    );
+  }
+  unpublish(id: string, version: number) {
+    return this.http.delete<PersonalNote>(
+      `${this.url}/${encodeURIComponent(id)}/publication`,
+      { params: { version } }
+    );
+  }
+  publicNote(token: string) {
+    return this.http.get<PublicPersonalNote>(
+      `${environment.apiUrl}PublicPersonalNotes/${encodeURIComponent(token)}`
+    );
   }
 }

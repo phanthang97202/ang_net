@@ -24,6 +24,7 @@ public class PersonalNotesController(PersonalNoteService service) : ControllerBa
     }
 
     [HttpPut("{id}")]
+    [RequestSizeLimit(16 * 1024 * 1024)]
     public async Task<IActionResult> Save(string id, [FromBody] PersonalNoteSaveDto data)
     {
         try
@@ -39,6 +40,28 @@ public class PersonalNotesController(PersonalNoteService service) : ControllerBa
     public async Task<IActionResult> Delete(string id, int version)
     {
         try { return await service.Delete(User, id, version) ? NoContent() : NotFound(); }
+        catch (ArgumentException) { return BadRequest(new { Code = "InvalidRequest" }); }
+        catch (PersonalNoteConflictException) { return Conflict(new { Code = "NoteChanged" }); }
+    }
+
+    [HttpPost("{id}/publish"), RequestSizeLimit(16 * 1024 * 1024)]
+    public async Task<IActionResult> Publish(string id, [FromBody] PersonalNoteSaveDto data)
+    {
+        try {
+            var note = await service.Publish(User, id, data);
+            return note == null ? NotFound() : Ok(note);
+        }
+        catch (ArgumentException) { return BadRequest(new { Code = "InvalidNote" }); }
+        catch (PersonalNoteConflictException) { return Conflict(new { Code = "NoteChanged" }); }
+    }
+
+    [HttpDelete("{id}/publication")]
+    public async Task<IActionResult> Unpublish(string id, int version)
+    {
+        try {
+            var note = await service.Unpublish(User, id, version);
+            return note == null ? NotFound() : Ok(note);
+        }
         catch (ArgumentException) { return BadRequest(new { Code = "InvalidRequest" }); }
         catch (PersonalNoteConflictException) { return Conflict(new { Code = "NoteChanged" }); }
     }

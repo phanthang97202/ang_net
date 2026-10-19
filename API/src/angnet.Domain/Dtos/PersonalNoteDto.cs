@@ -15,11 +15,20 @@ public class PersonalNoteSummaryDto
 public class PersonalNoteDto : PersonalNoteSummaryDto
 {
     public string ContentJson { get; set; } = string.Empty;
+    public string? PublicToken { get; set; }
+    public DateTime? PublishedAt { get; set; }
+}
+
+public class PublicPersonalNoteDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string ContentJson { get; set; } = string.Empty;
 }
 
 public class PersonalNoteSaveDto
 {
+    public const int MaxContentLength = 8_000_000;
     [Required, StringLength(200)] public string Title { get; set; } = string.Empty;
-    [Required, StringLength(500_000)] public string ContentJson { get; set; } = string.Empty;
+    [Required, StringLength(MaxContentLength)] public string ContentJson { get; set; } = string.Empty;
     [Range(0, int.MaxValue - 1)] public int Version { get; set; }
 }

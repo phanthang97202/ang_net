@@ -9,6 +9,13 @@ export interface PersonalNoteSummary {
 
 export interface PersonalNote extends PersonalNoteSummary {
   ContentJson: string;
+  PublicToken?: string | null;
+  PublishedAt?: string | null;
+}
+
+export interface PublicPersonalNote {
+  Title: string;
+  ContentJson: string;
 }
 
 export interface PersonalNotePage {

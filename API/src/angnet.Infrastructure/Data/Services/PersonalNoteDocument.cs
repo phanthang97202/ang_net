@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using angnet.Domain.Dtos;
 
 namespace angnet.Infrastructure.Data.Services;
 
@@ -7,18 +8,19 @@ namespace angnet.Infrastructure.Data.Services;
 internal static class PersonalNoteDocument
 {
     private static readonly HashSet<string> Blocks = new()
-    { "paragraph", "heading", "blockquote", "bulletList", "orderedList", "codeBlock", "horizontalRule", "taskList" };
+    { "paragraph", "heading", "blockquote", "bulletList", "orderedList", "codeBlock", "horizontalRule", "taskList", "image" };
     private static readonly HashSet<string> Marks = new() { "bold", "italic", "strike", "underline", "code", "link" };
 
     public static string Text(string json)
     {
-        if (string.IsNullOrWhiteSpace(json) || json.Length > 500_000) throw new ArgumentException("Invalid document");
+        if (string.IsNullOrWhiteSpace(json) || json.Length > PersonalNoteSaveDto.MaxContentLength) throw new ArgumentException("Invalid document");
         try
         {
             using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 64 });
             var text = new StringBuilder();
             int count = 0;
             Visit(doc.RootElement, "root", text, ref count);
+            if (text.Length > 500_000) throw new ArgumentException("Text is too long");
             return text.ToString().Trim();
         }
         catch (JsonException) { throw new ArgumentException("Invalid document"); }
@@ -45,6 +47,9 @@ internal static class PersonalNoteDocument
             if (property.Name is not ("type" or "text" or "content" or "marks" or "attrs"))
                 throw new ArgumentException("Unsupported document property");
         if (node.TryGetProperty("attrs", out var attrs)) ValidateAttrs(type, attrs);
+        if (type == "image" && (attrs.ValueKind != JsonValueKind.Object || !attrs.TryGetProperty("src", out var src)
+            || src.ValueKind != JsonValueKind.String || !ValidImage(src.GetString()!)))
+            throw new ArgumentException("Invalid image");
         if (node.TryGetProperty("marks", out var marks))
         {
             if (type != "text" || marks.ValueKind != JsonValueKind.Array || marks.GetArrayLength() > 6)
@@ -67,7 +72,7 @@ internal static class PersonalNoteDocument
         }
         bool hasChildren = node.TryGetProperty("content", out var children);
         if (hasChildren && children.ValueKind != JsonValueKind.Array) throw new ArgumentException("Invalid content");
-        if (type is "hardBreak" or "horizontalRule")
+        if (type is "hardBreak" or "horizontalRule" or "image")
         {
             if (hasChildren) throw new ArgumentException("Invalid leaf");
             text.Append(' ');
@@ -92,6 +97,11 @@ internal static class PersonalNoteDocument
         {
             bool valid = (type, attr.Name) switch
             {
+                ("image", "src") => attr.Value.ValueKind == JsonValueKind.String,
+                ("image", "alt" or "title") => attr.Value.ValueKind == JsonValueKind.Null
+                    || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString()!.Length <= 500),
+                ("image", "width" or "height") => attr.Value.ValueKind == JsonValueKind.Null
+                    || (attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int dimension) && dimension is > 0 and <= 16000),
                 ("heading", "level") => attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int level) && level is >= 1 and <= 3,
                 ("orderedList", "start") => attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int start) && start is >= 1 and <= 1_000_000,
                 ("orderedList", "type") => attr.Value.ValueKind == JsonValueKind.Null,
@@ -109,5 +119,26 @@ internal static class PersonalNoteDocument
             };
             if (!valid) throw new ArgumentException("Unsupported attributes");
         }
+    }
+
+    private static bool ValidImage(string source)
+    {
+        const int maxBytes = 2 * 1024 * 1024;
+        if (source.Length > ((maxBytes + 2) / 3) * 4 + 32) return false;
+        int comma = source.IndexOf(',');
+        if (comma < 0) return false;
+        string header = source[..comma];
+        if (header is not ("data:image/png;base64" or "data:image/jpeg;base64" or "data:image/gif;base64" or "data:image/webp;base64")) return false;
+        byte[] bytes;
+        try { bytes = Convert.FromBase64String(source[(comma + 1)..]); }
+        catch (FormatException) { return false; }
+        if (bytes.Length == 0 || bytes.Length > maxBytes) return false;
+        return header switch {
+            "data:image/png;base64" => bytes.AsSpan().StartsWith(new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a }),
+            "data:image/jpeg;base64" => bytes.AsSpan().StartsWith(new byte[] { 0xff, 0xd8, 0xff }),
+            "data:image/gif;base64" => bytes.AsSpan().StartsWith("GIF87a"u8) || bytes.AsSpan().StartsWith("GIF89a"u8),
+            "data:image/webp;base64" => bytes.Length >= 12 && bytes.AsSpan(0, 4).SequenceEqual("RIFF"u8) && bytes.AsSpan(8, 4).SequenceEqual("WEBP"u8),
+            _ => false,
+        };
     }
 }

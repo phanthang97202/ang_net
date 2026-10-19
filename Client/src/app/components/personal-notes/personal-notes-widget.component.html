@@ -36,7 +36,6 @@
     [attr.aria-label]="'T_PNOTE_MY_NOTES' | translate">
     <header>
       <div>
-        <span class="private-label">{{ 'T_PNOTE_PRIVATE' | translate }}</span>
         <h2>{{ 'T_PNOTE_MY_NOTES' | translate }}</h2>
       </div>
       <button
@@ -141,7 +140,6 @@
         (loadMore)="load()"
         aria-hidden="true"></div>
     </div>
-    <footer>{{ 'T_PNOTE_PRIVATE_HINT' | translate }}</footer>
   </section>
 </ng-template>
 <nz-modal
@@ -164,6 +162,7 @@
           [ownerId]="editorOwner"
           [note]="editingNote"
           (saved)="saved()"
+          (publicationChanged)="load(true)"
           (closed)="closeEditor()" />
       } @placeholder {
         <div class="editor-loading" role="status">

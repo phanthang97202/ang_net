@@ -105,6 +105,7 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<PersonalNoteModel>()
                 .HasIndex(n => new { n.OwnerId, n.UpdatedAt, n.NoteId });
             modelBuilder.Entity<PersonalNoteModel>().Property(n => n.Version).IsConcurrencyToken();
+            modelBuilder.Entity<PersonalNoteModel>().HasIndex(n => n.PublicToken).IsUnique();
             modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(n => n.RecipientId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<BlogNotificationModel>().HasOne<AppUser>().WithMany()

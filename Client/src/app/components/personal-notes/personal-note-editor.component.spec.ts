@@ -13,6 +13,7 @@ import { PersonalNoteEditorComponent } from './personal-note-editor.component';
 import { PersonalNoteService } from '../../services/personal-note.service';
 import { AuthService } from '../../services/auth.service';
 import { PersonalNote } from '../../interfaces/personal-note';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 describe('Personal note Tiptap editor', () => {
   let api: jasmine.SpyObj<PersonalNoteService>;
@@ -24,6 +25,8 @@ describe('Personal note Tiptap editor', () => {
     permitted = true;
     api = jasmine.createSpyObj<PersonalNoteService>('PersonalNoteService', [
       'save',
+      'publish',
+      'unpublish',
     ]);
     api.save.and.returnValue(response);
     TestBed.configureTestingModule({
@@ -71,7 +74,94 @@ describe('Personal note Tiptap editor', () => {
     permitted = false;
     expect(fixture.componentInstance.canSave).toBeFalse();
     fixture.componentInstance.save();
+    fixture.componentInstance.publish();
     expect(api.save).not.toHaveBeenCalled();
+    expect(api.publish).not.toHaveBeenCalled();
+    fixture.destroy();
+    flush();
+  }));
+
+  it('publishes the current draft, copies the public link and revokes it while preserving new private changes', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const publication = new Subject<PersonalNote>();
+    const revocation = new Subject<PersonalNote>();
+    api.publish.and.returnValue(publication);
+    api.unpublish.and.returnValue(revocation);
+    const clipboard = spyOn(TestBed.inject(Clipboard), 'copy').and.returnValue(
+      true
+    );
+    const changed = jasmine.createSpy('publicationChanged');
+    const closed = jasmine.createSpy('closed');
+    component.publicationChanged.subscribe(changed);
+    component.closed.subscribe(closed);
+    component.title = 'Public idea';
+    component.editor!.commands.setContent('<p>Published body</p>');
+    component.publish();
+    expect(api.publish).toHaveBeenCalledOnceWith(id, {
+      Title: 'Public idea',
+      ContentJson: JSON.stringify(component.editor!.getJSON()),
+      Version: 0,
+    });
+    expect(component.editor!.isEditable).toBeFalse();
+    const published: PersonalNote = {
+      NoteId: id,
+      Title: 'Public idea',
+      ContentJson: api.publish.calls.mostRecent().args[1].ContentJson,
+      Version: 1,
+      PublicToken: 'a'.repeat(64),
+      PublishedAt: '2026-10-19T00:00:00Z',
+      Preview: '',
+      CreatedAt: '',
+      UpdatedAt: '',
+    };
+    publication.next(published);
+    fixture.detectChanges();
+    expect(component.dirty).toBeFalse();
+    expect(component.shareOpen).toBeTrue();
+    expect(component.publicUrl).toContain('/shared-note/' + 'a'.repeat(64));
+    expect(
+      fixture.nativeElement.querySelector('.publication-link input').value
+    ).toBe(component.publicUrl);
+    component.copyPublicLink();
+    expect(clipboard).toHaveBeenCalledWith(component.publicUrl);
+    expect(component.copied).toBeTrue();
+    expect(closed).not.toHaveBeenCalled();
+    expect(changed).toHaveBeenCalledOnceWith(published);
+    component.editor!.commands.insertContent('Private draft');
+    expect(component.dirty).toBeTrue();
+    component.unpublish();
+    expect(api.unpublish).toHaveBeenCalledOnceWith(id, 1);
+    revocation.next({
+      ...published,
+      PublicToken: null,
+      PublishedAt: null,
+      Version: 2,
+    });
+    expect(component.publicToken).toBeNull();
+    expect(component.version).toBe(2);
+    expect(component.dirty).toBeTrue();
+    expect(component.editor!.getText()).toContain('Private draft');
+    fixture.destroy();
+    flush();
+  }));
+
+  it('keeps the draft editable after a publication conflict and never publishes automatically on save', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.title = 'Draft';
+    api.publish.and.returnValue(response);
+    component.publish();
+    response.error({ status: 409 });
+    expect(component.errorKey).toBe('T_PNOTE_CONFLICT');
+    expect(component.dirty).toBeTrue();
+    expect(component.editor!.isEditable).toBeTrue();
+    expect(component.publicToken).toBeNull();
+    api.publish.calls.reset();
+    api.save.and.returnValue(new Subject());
+    component.save();
+    expect(api.publish).not.toHaveBeenCalled();
+    expect(api.save).toHaveBeenCalled();
     fixture.destroy();
     flush();
   }));
@@ -190,6 +280,142 @@ describe('Personal note Tiptap editor', () => {
     }) as BeforeUnloadEvent;
     component.beforeUnload(event);
     expect(event.defaultPrevented).toBeTrue();
+    fixture.destroy();
+    flush();
+  }));
+
+  function pasteImage(fixture: ReturnType<typeof create>, file: File) {
+    const clipboard = new DataTransfer();
+    clipboard.items.add(file);
+    const event = new ClipboardEvent('paste', {
+      clipboardData: clipboard,
+      bubbles: true,
+      cancelable: true,
+    });
+    fixture.nativeElement.querySelector('.tiptap').dispatchEvent(event);
+    return event;
+  }
+
+  it('pastes a screenshot as base64, saves it and renders it when reopened', async () => {
+    const fixture = TestBed.createComponent(PersonalNoteEditorComponent);
+    fixture.componentRef.setInput('noteId', id);
+    fixture.componentRef.setInput('ownerId', 'owner');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    component.title = 'Screenshot';
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 2;
+    canvas.getContext('2d')!.fillRect(0, 0, 2, 2);
+    const base64 = canvas.toDataURL('image/png').split(',')[1];
+    const file = new File(
+      [Uint8Array.from(atob(base64), char => char.charCodeAt(0))],
+      'screenshot.png',
+      { type: 'image/png' }
+    );
+    const originalRead = FileReader.prototype.readAsDataURL;
+    const imageRead = new Promise<void>(resolve => {
+      spyOn(FileReader.prototype, 'readAsDataURL').and.callFake(function (
+        this: FileReader,
+        blob: Blob
+      ) {
+        this.addEventListener('loadend', () => resolve(), { once: true });
+        originalRead.call(this, blob);
+      });
+    });
+    const event = pasteImage(fixture, file);
+    expect(event.defaultPrevented).toBeTrue();
+    expect(component.insertingImages).toBeTrue();
+    expect(component.canSave).toBeFalse();
+    await imageRead;
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.insertingImages).toBeFalse();
+    const image = fixture.nativeElement.querySelector(
+      '.tiptap img'
+    ) as HTMLImageElement;
+    expect(image).not.toBeNull();
+    expect(image.getAttribute('src')).toBe('data:image/png;base64,' + base64);
+    await image.decode();
+    expect(image.naturalWidth).toBe(2);
+    expect(component.dirty).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.editor-head h2')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('T_PNOTE_PRIVATE');
+    component.save();
+    const body = api.save.calls.mostRecent().args[1];
+    expect(body.ContentJson).toContain('data:image/png;base64,' + base64);
+    const note: PersonalNote = {
+      NoteId: id,
+      Title: body.Title,
+      ContentJson: body.ContentJson,
+      Version: 1,
+      Preview: '',
+      CreatedAt: '',
+      UpdatedAt: '',
+    };
+    response.next(note);
+    fixture.destroy();
+    const reopened = TestBed.createComponent(PersonalNoteEditorComponent);
+    reopened.componentRef.setInput('noteId', id);
+    reopened.componentRef.setInput('ownerId', 'owner');
+    reopened.componentRef.setInput('note', note);
+    reopened.detectChanges();
+    await reopened.whenStable();
+    expect(
+      reopened.nativeElement.querySelector('.tiptap img').getAttribute('src')
+    ).toBe('data:image/png;base64,' + base64);
+    expect(reopened.componentInstance.dirty).toBeFalse();
+    reopened.destroy();
+  });
+
+  it('rejects oversized images and SVG without altering the note, and blocks images after permission loss', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const initial = JSON.stringify(component.editor!.getJSON());
+    pasteImage(
+      fixture,
+      new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'large.png', {
+        type: 'image/png',
+      })
+    );
+    expect(component.errorKey).toBe('T_PNOTE_IMAGE_SIZE_ERROR');
+    pasteImage(
+      fixture,
+      new File(['<svg/>'], 'image.svg', { type: 'image/svg+xml' })
+    );
+    expect(component.errorKey).toBe('T_PNOTE_IMAGE_TYPE_ERROR');
+    permitted = false;
+    pasteImage(
+      fixture,
+      new File(['small'], 'small.png', { type: 'image/png' })
+    );
+    expect(component.insertingImages).toBeFalse();
+    expect(JSON.stringify(component.editor!.getJSON())).toBe(initial);
+    expect(api.save).not.toHaveBeenCalled();
+    fixture.destroy();
+    flush();
+  }));
+
+  it('keeps pasted text working while excluding remote image HTML', fakeAsync(() => {
+    const fixture = create();
+    const clipboard = new DataTransfer();
+    clipboard.setData('text/plain', 'Pasted text');
+    const event = new ClipboardEvent('paste', {
+      clipboardData: clipboard,
+      bubbles: true,
+      cancelable: true,
+    });
+    fixture.nativeElement.querySelector('.tiptap').dispatchEvent(event);
+    expect(fixture.componentInstance.editor!.getText()).toContain(
+      'Pasted text'
+    );
+    fixture.componentInstance.editor!.commands.insertContent(
+      '<img src="https://example.com/tracker.png"><p>Text remains</p>'
+    );
+    expect(fixture.nativeElement.querySelector('.tiptap img')).toBeNull();
+    expect(fixture.componentInstance.editor!.getText()).toContain(
+      'Text remains'
+    );
     fixture.destroy();
     flush();
   }));

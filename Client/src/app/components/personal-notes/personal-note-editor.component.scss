@@ -1,3 +1,5 @@
+@use './personal-note-content' as note;
+
 :host {
   display: block;
 }
@@ -5,30 +7,14 @@
   display: flex;
   flex-direction: column;
   height: 90dvh;
-  min-height: 0;
   color: var(--color-text);
   background: var(--color-bg-card);
   font-family: 'Montserrat', sans-serif;
 }
 .editor-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 28px 12px;
-  gap: 16px;
-}
-.private-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-h2 {
-  margin: 4px 0 0;
-  font-size: 19px;
-  font-weight: 800;
-  color: inherit;
+  justify-content: flex-end;
+  padding: 12px 28px 0;
 }
 button,
 select,
@@ -93,7 +79,7 @@ select:focus-visible {
   border-block: 1px solid var(--color-border);
 }
 .editor-toolbar button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   min-width: 34px;
@@ -147,104 +133,13 @@ select:focus-visible {
 :host ::ng-deep .tiptap-host .tiptap {
   flex: 1;
   width: 100%;
-  min-height: 100%;
   outline: none;
   font-size: 15px;
   line-height: 1.9;
   overflow-wrap: anywhere;
-  color: var(--color-text);
 }
 :host ::ng-deep .tiptap-host {
-  p {
-    margin: 0 0 0.75em;
-  }
-  h1,
-  h2,
-  h3 {
-    color: var(--color-text);
-    margin: 1.2em 0 0.5em;
-    font-weight: 750;
-    line-height: 1.4;
-  }
-  h1 {
-    font-size: 1.9em;
-  }
-  h2 {
-    font-size: 1.5em;
-  }
-  h3 {
-    font-size: 1.2em;
-  }
-  ul,
-  ol {
-    padding-left: 1.6em;
-  }
-  li > p {
-    margin-bottom: 0.25em;
-  }
-  blockquote {
-    border-left: 3px solid var(--color-accent);
-    padding-left: 18px;
-    margin: 16px 0;
-    color: var(--color-text-secondary);
-  }
-  code {
-    border-radius: 4px;
-    background: var(--color-accent-bg);
-    padding: 2px 5px;
-    font-family: Consolas, monospace;
-  }
-  pre {
-    background: var(--color-accent-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 16px;
-    overflow-x: auto;
-    white-space: pre;
-  }
-  pre code {
-    background: transparent;
-    padding: 0;
-  }
-  a {
-    color: var(--color-accent);
-    text-decoration: underline;
-  }
-  hr {
-    border: 0;
-    border-top: 1px solid var(--color-border);
-    margin: 24px 0;
-  }
-  ul[data-type='taskList'] {
-    list-style: none;
-    padding-left: 0;
-  }
-  ul[data-type='taskList'] li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  ul[data-type='taskList'] li > label {
-    flex: 0 0 auto;
-    padding-top: 3px;
-  }
-  ul[data-type='taskList'] li > div {
-    flex: 1;
-    min-width: 0;
-  }
-  input[type='checkbox'] {
-    accent-color: var(--color-accent);
-    width: 16px;
-    height: 16px;
-  }
-  p.is-editor-empty:first-child::before {
-    color: var(--color-text-secondary);
-    content: attr(data-placeholder);
-    float: left;
-    height: 0;
-    pointer-events: none;
-    opacity: 0.6;
-  }
+  @include note.content;
 }
 .editor-foot {
   display: flex;
@@ -260,6 +155,9 @@ select:focus-visible {
   display: flex;
   gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
 }
 .editor-buttons button {
   padding: 10px 20px;
@@ -275,7 +173,8 @@ select:focus-visible {
   background: var(--color-accent) !important;
   color: white;
 }
-.editor-error {
+.editor-error,
+.publication-panel .unpublish-note {
   color: #db4565;
 }
 .link-form {
@@ -284,7 +183,8 @@ select:focus-visible {
   padding: 9px 24px;
   border-bottom: 1px solid var(--color-border);
 }
-.link-form input {
+.link-form input,
+.publication-link input {
   flex: 1;
   min-width: 0;
   border: 1px solid var(--color-border);
@@ -294,14 +194,51 @@ select:focus-visible {
   padding: 8px 10px;
   font-size: 12px;
 }
-.link-form button {
+.link-form button,
+.publication-panel button,
+.publication-link a {
   color: var(--color-accent);
   font-size: 12px;
   font-weight: 700;
 }
+.publication-panel {
+  padding: 12px 28px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-accent-bg);
+  max-height: 26dvh;
+  overflow-y: auto;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.publication-panel p {
+  margin: 0 0 10px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.publication-link,
+.publication-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.publication-link {
+  margin-bottom: 10px;
+}
+.publication-link input {
+  min-width: 140px;
+  background: var(--color-bg-card);
+}
+.publication-panel button,
+.publication-link a {
+  padding: 6px 0;
+}
 @media (max-width: 600px) {
+  .publication-panel {
+    padding: 12px 16px;
+  }
   .editor-head {
-    padding: 14px 16px 10px;
+    padding: 10px 16px 0;
   }
   .title-field {
     padding: 0 16px 12px;

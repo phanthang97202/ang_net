@@ -12,4 +12,8 @@ public class PersonalNoteModel
     public int Version { get; set; } = 1;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    [MaxLength(64)] public string? PublicToken { get; set; }
+    [MaxLength(200)] public string? PublishedTitle { get; set; }
+    public string? PublishedContentJson { get; set; }
+    public DateTime? PublishedAt { get; set; }
 }

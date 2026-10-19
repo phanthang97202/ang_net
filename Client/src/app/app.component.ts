@@ -264,7 +264,9 @@ export class AppComponent implements OnInit {
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects.split(/[?#]/)[0];
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
-        const isLayoutImmersive = this.lstRouteLayoutImmersive.includes(url);
+        const isLayoutImmersive =
+          this.lstRouteLayoutImmersive.includes(url) ||
+          url.startsWith('/shared-note/');
 
         if (isLayoutImmersive) {
           this.layoutType = 'immersive';

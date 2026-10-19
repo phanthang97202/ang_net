@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
@@ -102,6 +103,41 @@ public class PersonalNoteTests
         Assert.AreEqual(0, (await service.List(User("other"), "Private plan", 20, null)).DataList.Count);
     }
 
+    private static string ImageDocument(string source) => JsonSerializer.Serialize(new {
+        type = "doc", content = new[] { new { type = "image", attrs = new { src = source, alt = (string?)null,
+            title = (string?)null, width = (int?)null, height = (int?)null } } }
+    });
+
+    [TestMethod]
+    public async Task PastedImages_PersistAsBase64WithoutLeakingImageBytesIntoListPreviews()
+    {
+        const string png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jL1sAAAAASUVORK5CYII=";
+        string id = Guid.NewGuid().ToString(), json = ImageDocument(png);
+        await service.Save(User(), id, Data("Screenshot", json: json));
+        Assert.AreEqual(json, (await service.Get(User(), id))!.ContentJson);
+        var summary = JsonSerializer.Serialize(await service.List(User(), null, 20, null));
+        Assert.IsFalse(summary.Contains("base64"));
+        Assert.IsNull(await service.Get(User("other"), id));
+        await service.Save(User(), id, Data("Updated screenshot", 1, json));
+        Assert.AreEqual(json, (await service.Get(User(), id))!.ContentJson);
+    }
+
+    [TestMethod]
+    public async Task ImageValidation_RejectsSvgInvalidBytesOversizedImagesAndOversizedDocuments()
+    {
+        foreach (var source in new[] {
+            "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=", "https://example.com/image.png",
+            "javascript:alert(1)", "data:image/png;base64,bm90IGFuIGltYWdl", "data:image/png;base64,broken!",
+            "data:image/png;base64," + Convert.ToBase64String(new byte[2 * 1024 * 1024 + 1])
+        })
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Save(User(), Guid.NewGuid().ToString(), Data(json: ImageDocument(source))));
+        await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Save(User(), Guid.NewGuid().ToString(),
+            Data(json: Document.Replace("Ý tưởng riêng tư", new string('x', 500_001)))));
+        await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Save(User(), Guid.NewGuid().ToString(),
+            Data(json: new string('x', PersonalNoteSaveDto.MaxContentLength + 1))));
+        Assert.AreEqual(0, await db.PersonalNote.CountAsync());
+    }
+
     [TestMethod]
     public async Task Cursor_IsStableForTiedDatesAndBoundToOwnerAndSearch()
     {
@@ -126,6 +162,53 @@ public class PersonalNoteTests
         await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() => service.Get(guest, id));
         await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() => service.Save(guest, id, Data()));
         await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() => service.Delete(guest, id, 1));
+        await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() => service.Publish(guest, id, Data()));
+        await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(() => service.Unpublish(guest, id, 1));
+    }
+
+    [TestMethod]
+    public async Task Publications_ExposeOnlySnapshots_RespectOwnershipAndVersions_AndRotateRevokedLinks()
+    {
+        string id = Guid.NewGuid().ToString();
+        await service.Save(User(), id, Data("Draft"));
+        Assert.IsNull(await service.Public(id));
+        var published = (await service.Publish(User(), id, Data("Published", 1)))!;
+        string token = published.PublicToken!;
+        Assert.AreEqual(64, token.Length);
+        Assert.AreEqual("Published", (await service.Public(token))!.Title);
+        var draft = (await service.Save(User(), id, Data("Private changes", published.Version)))!;
+        Assert.AreEqual("Published", (await service.Public(token))!.Title);
+        Assert.IsNull(await service.Publish(User("other"), id, Data("Stolen", draft.Version)));
+        Assert.IsNull(await service.Unpublish(User("other"), id, draft.Version));
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.Publish(User(), id, Data("Stale", published.Version)));
+        Assert.AreEqual("Private changes", (await service.Get(User(), id))!.Title);
+        var updated = (await service.Publish(User(), id, Data("Updated publication", draft.Version)))!;
+        Assert.AreEqual(token, updated.PublicToken);
+        Assert.AreEqual("Updated publication", (await service.Public(token))!.Title);
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.Unpublish(User(), id, draft.Version));
+        var revoked = (await service.Unpublish(User(), id, updated.Version))!;
+        Assert.IsNull(revoked.PublicToken);
+        Assert.IsNull(await service.Public(token));
+        var republished = (await service.Publish(User(), id, Data("Republished", revoked.Version)))!;
+        Assert.AreNotEqual(token, republished.PublicToken);
+        Assert.IsNull(await service.Public(token));
+        Assert.AreEqual("Republished", (await service.Public(republished.PublicToken!))!.Title);
+        await service.Delete(User(), id, republished.Version);
+        Assert.IsNull(await service.Public(republished.PublicToken!));
+    }
+
+    [TestMethod]
+    public async Task PublishingANewNote_IsAtomicAndCreateRetriesAreIdempotent()
+    {
+        string id = Guid.NewGuid().ToString();
+        var first = (await service.Publish(User(), id, Data()))!;
+        var retry = (await service.Publish(User(), id, Data()))!;
+        Assert.AreEqual(first.PublicToken, retry.PublicToken);
+        Assert.AreEqual(first.Version, retry.Version);
+        Assert.AreEqual(1, await db.PersonalNote.CountAsync());
+        await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Publish(User(), id, Data("Invalid", first.Version, "<script>bad</script>")));
+        Assert.AreEqual(Document, (await service.Public(first.PublicToken!))!.ContentJson);
+        Assert.AreEqual("My note", (await service.Get(User(), id))!.Title);
     }
 
     [TestMethod]
@@ -136,6 +219,9 @@ public class PersonalNoteTests
         var resource = assembly.GetManifestResourceNames().Single(n => n.EndsWith("0054_GhiChuCaNhan.sql"));
         using var reader = new StreamReader(assembly.GetManifestResourceStream(resource)!);
         await db.Database.ExecuteSqlRawAsync(await reader.ReadToEndAsync());
+        var publicationResource = assembly.GetManifestResourceNames().Single(n => n.EndsWith("0056_XuatBanGhiChuCaNhan.sql"));
+        using var publicationReader = new StreamReader(assembly.GetManifestResourceStream(publicationResource)!);
+        await db.Database.ExecuteSqlRawAsync(await publicationReader.ReadToEndAsync());
         string id = Guid.NewGuid().ToString();
         await service.Save(User(), id, Data());
         await service.Save(User(), id, Data("Updated", 1));
