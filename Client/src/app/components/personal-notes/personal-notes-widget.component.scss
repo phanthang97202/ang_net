@@ -211,6 +211,18 @@ h2 {
   background: var(--color-bg-card);
   text-align: center;
 }
+.note-delete-message {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.note-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
 .editor-loading button {
   border: none;
   background: transparent;

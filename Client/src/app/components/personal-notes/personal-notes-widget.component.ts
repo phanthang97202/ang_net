@@ -7,6 +7,8 @@ import {
   OnDestroy,
   inject,
   Input,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,6 +43,10 @@ import { PersonalNoteEditorComponent } from './personal-note-editor.component';
 })
 export class PersonalNotesWidgetComponent implements DoCheck, OnDestroy {
   @Input() hasChat = true;
+  @ViewChild('deleteContent', { static: true })
+  private deleteContent!: TemplateRef<unknown>;
+  @ViewChild('deleteFooter', { static: true })
+  private deleteFooter!: TemplateRef<object>;
   private auth = inject(AuthService);
   private api = inject(PersonalNoteService);
   private modal = inject(NzModalService);
@@ -51,6 +57,7 @@ export class PersonalNotesWidgetComponent implements DoCheck, OnDestroy {
   private ownerChanged = new Subject<void>();
   private search = new Subject<void>();
   private confirmation?: NzModalRef;
+  private pendingDelete: PersonalNoteSummary | null = null;
   private request = 0;
   private detailRequest = 0;
   private cursor: string | null = null;
@@ -88,6 +95,7 @@ export class PersonalNotesWidgetComponent implements DoCheck, OnDestroy {
     this.detailRequest++;
     this.confirmation?.destroy();
     this.confirmation = undefined;
+    this.pendingDelete = null;
     this.accountId = id;
     this.editorOwner = '';
     this.listOpen = false;
@@ -212,22 +220,49 @@ export class PersonalNotesWidgetComponent implements DoCheck, OnDestroy {
     this.listOpen = false;
     this.detailRequest++;
     this.openingId = null;
-    this.confirmation = this.modal.confirm({
+    this.pendingDelete = note;
+    this.confirmation = this.modal.create({
       nzTitle: this.translate.instant('T_PNOTE_DELETE_TITLE'),
-      nzContent: this.translate.instant('T_PNOTE_DELETE_MESSAGE'),
-      nzOkText: this.translate.instant('T_PNOTE_DELETE'),
-      nzCancelText: this.translate.instant('T_PNOTE_CANCEL'),
-      nzOkDanger: true,
-      nzClassName: 'blog-modal',
-      nzOnOk: () => this.remove(note),
+      nzContent: this.deleteContent,
+      nzFooter: this.deleteFooter,
+      nzClassName: 'blog-modal personal-note-delete-modal',
+      nzCentered: true,
+      nzWidth: 440,
+      nzAutofocus: null,
+      nzOnCancel: () => !this.deletingId,
     });
     this.confirmation.afterClose
       .pipe(takeUntilDestroyed(this.destroyed))
       .subscribe(() => {
         this.confirmation = undefined;
+        this.pendingDelete = null;
         if (owner === this.accountId && !this.disposed && !this.editorVisible)
           this.listOpen = true;
       });
+  }
+  cancelDelete(): void {
+    if (!this.deletingId) this.confirmation?.triggerCancel();
+  }
+  async deleteConfirmed(): Promise<void> {
+    if (!this.pendingDelete || this.deletingId) return;
+    const confirmation = this.confirmation;
+    confirmation?.updateConfig({
+      nzClosable: false,
+      nzMaskClosable: false,
+      nzKeyboard: false,
+    });
+    try {
+      if (await this.remove(this.pendingDelete)) {
+        if (this.confirmation === confirmation) confirmation?.close();
+      }
+    } finally {
+      if (this.confirmation === confirmation)
+        confirmation?.updateConfig({
+          nzClosable: true,
+          nzMaskClosable: true,
+          nzKeyboard: true,
+        });
+    }
   }
   private async remove(note: PersonalNoteSummary): Promise<boolean> {
     this.ngDoCheck();

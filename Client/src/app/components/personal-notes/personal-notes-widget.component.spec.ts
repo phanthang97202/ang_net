@@ -283,7 +283,7 @@ describe('Personal notes floating widget', () => {
     expect(api.delete).not.toHaveBeenCalled();
     (
       document.querySelector(
-        '.ant-modal-confirm-btns button:first-child'
+        '.personal-note-delete-modal .note-delete-actions button:first-child'
       ) as HTMLButtonElement
     ).click();
     tick(500);
@@ -298,7 +298,7 @@ describe('Personal notes floating widget', () => {
     tick(500);
     (
       document.querySelector(
-        '.ant-modal-confirm-btns .ant-btn-primary'
+        '.personal-note-delete-modal .blog-btn--danger'
       ) as HTMLButtonElement
     ).click();
     tick(500);

@@ -179,3 +179,28 @@
     }
   </ng-container>
 </nz-modal>
+
+<ng-template #deleteContent>
+  <p class="note-delete-message">{{ 'T_PNOTE_DELETE_MESSAGE' | translate }}</p>
+</ng-template>
+<ng-template #deleteFooter>
+  <div class="note-delete-actions">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="!!deletingId"
+      (click)="cancelDelete()">
+      {{ 'T_PNOTE_CANCEL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--danger"
+      [disabled]="!!deletingId"
+      (click)="deleteConfirmed()">
+      @if (deletingId) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+      }
+      {{ 'T_PNOTE_DELETE' | translate }}
+    </button>
+  </div>
+</ng-template>
