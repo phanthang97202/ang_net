@@ -1,14 +1,19 @@
-<section class="note-editor" [attr.aria-label]="'T_PNOTE_EDITOR' | translate">
-  <header class="editor-head">
-    <button
-      type="button"
-      class="editor-close"
-      [disabled]="busy"
-      (click)="requestClose()"
-      [attr.aria-label]="'T_PNOTE_CLOSE' | translate">
-      ×
-    </button>
-  </header>
+<section
+  class="note-editor"
+  [class.shared-editor]="sharedToken"
+  [attr.aria-label]="'T_PNOTE_EDITOR' | translate">
+  @if (!sharedToken) {
+    <header class="editor-head">
+      <button
+        type="button"
+        class="editor-close"
+        [disabled]="busy"
+        (click)="requestClose()"
+        [attr.aria-label]="'T_PNOTE_CLOSE' | translate">
+        ×
+      </button>
+    </header>
+  }
   <div class="title-field">
     <label for="personal-note-title">{{ 'T_PNOTE_TITLE' | translate }}</label>
     <input
@@ -25,6 +30,7 @@
     role="toolbar"
     [attr.aria-label]="'T_PNOTE_FORMAT' | translate">
     <select
+      class="note-select"
       (change)="block($event)"
       [disabled]="busy"
       [attr.aria-label]="'T_PNOTE_BLOCK' | translate"
@@ -179,12 +185,27 @@
   <div class="editor-scroll">
     <div #editorHost class="tiptap-host" [class.editor-busy]="busy"></div>
   </div>
-  @if (shareOpen) {
+  @if (shareOpen && !sharedToken) {
     <section
       class="publication-panel"
       [attr.aria-label]="'T_PNOTE_SHARE' | translate">
-      <p>{{ 'T_PNOTE_PUBLICATION_HINT' | translate }}</p>
+      <p>{{ 'T_PNOTE_EDIT_SHARING_HINT' | translate }}</p>
+      <p>
+        <select
+          class="note-select"
+          [(ngModel)]="allowEditing"
+          [disabled]="busy"
+          [attr.aria-label]="'T_PNOTE_LINK_PERMISSION' | translate">
+          <option [ngValue]="false">
+            {{ 'T_PNOTE_VIEW_ONLY' | translate }}
+          </option>
+          <option [ngValue]="true">
+            {{ 'T_PNOTE_ALLOW_EDITING' | translate }}
+          </option>
+        </select>
+      </p>
       @if (publicToken) {
+        <p>{{ 'T_PNOTE_VIEW_LINK' | translate }}</p>
         <div class="publication-link">
           <input
             [value]="publicUrl"
@@ -194,6 +215,23 @@
             {{ (copied ? 'T_PNOTE_COPIED' : 'T_PNOTE_COPY_LINK') | translate }}
           </button>
           <a [href]="publicUrl" target="_blank" rel="noopener noreferrer">{{
+            'T_PNOTE_OPEN_LINK' | translate
+          }}</a>
+        </div>
+      }
+      @if (editToken) {
+        <p>{{ 'T_PNOTE_EDIT_LINK' | translate }}</p>
+        <div class="publication-link">
+          <input
+            [value]="editUrl"
+            readonly
+            [attr.aria-label]="'T_PNOTE_EDIT_LINK' | translate" />
+          <button type="button" (click)="copyEditLink()">
+            {{
+              (copiedEdit ? 'T_PNOTE_COPIED' : 'T_PNOTE_COPY_LINK') | translate
+            }}
+          </button>
+          <a [href]="editUrl" target="_blank" rel="noopener noreferrer">{{
             'T_PNOTE_OPEN_LINK' | translate
           }}</a>
         </div>
@@ -218,6 +256,15 @@
             {{ 'T_PNOTE_UNPUBLISH' | translate }}
           </button>
         }
+        @if (editToken) {
+          <button
+            type="button"
+            class="unpublish-note"
+            [disabled]="busy"
+            (click)="revokeEditing()">
+            {{ 'T_PNOTE_REVOKE_EDITING' | translate }}
+          </button>
+        }
       </div>
     </section>
   }
@@ -231,24 +278,31 @@
         <span>{{ 'T_PNOTE_INSERTING_IMAGES' | translate }}</span>
       } @else if (dirty) {
         <span>{{ 'T_PNOTE_UNSAVED' | translate }}</span>
+      } @else if (savedShared) {
+        <span>{{ 'T_PNOTE_SAVED' | translate }}</span>
       }
     </div>
     <div class="editor-buttons">
+      @if (!sharedToken) {
+        <button
+          type="button"
+          class="secondary share-note"
+          [disabled]="busy"
+          [attr.aria-expanded]="shareOpen"
+          (click)="shareOpen = !shareOpen">
+          {{
+            (publicToken ? 'T_PNOTE_PUBLISHED' : 'T_PNOTE_SHARE') | translate
+          }}
+        </button>
+        <button
+          type="button"
+          class="secondary"
+          [disabled]="busy"
+          (click)="requestClose()">
+          {{ 'T_PNOTE_CLOSE' | translate }}
+        </button>
+      }
       <button
-        type="button"
-        class="secondary share-note"
-        [disabled]="busy"
-        [attr.aria-expanded]="shareOpen"
-        (click)="shareOpen = !shareOpen">
-        {{ (publicToken ? 'T_PNOTE_PUBLISHED' : 'T_PNOTE_SHARE') | translate }}
-      </button>
-      <button
-        type="button"
-        class="secondary"
-        [disabled]="busy"
-        (click)="requestClose()">
-        {{ 'T_PNOTE_CLOSE' | translate }}</button
-      ><button
         type="button"
         class="primary"
         [disabled]="!canSave"

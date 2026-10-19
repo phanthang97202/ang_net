@@ -98,6 +98,7 @@ public class PersonalNotePermissionTests
     [DataRow("DELETE", "/api/PersonalNotes/" + Id + "?version=1", 404)]
     [DataRow("POST", "/api/PersonalNotes/" + Id + "/publish", 200)]
     [DataRow("DELETE", "/api/PersonalNotes/" + Id + "/publication?version=1", 404)]
+    [DataRow("DELETE", "/api/PersonalNotes/" + Id + "/edit-link?version=1", 404)]
     public async Task EveryEndpoint_RequiresModuleKey(string method, string path, int allowed)
     {
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Send(method, path, null));
@@ -119,6 +120,7 @@ public class PersonalNotePermissionTests
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("DELETE", path + "?version=1", token));
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("POST", path + "/publish", token, version: 1));
             Assert.AreEqual(HttpStatusCode.NotFound, await Send("DELETE", path + "/publication?version=1", token));
+            Assert.AreEqual(HttpStatusCode.NotFound, await Send("DELETE", path + "/edit-link?version=1", token));
         }
         Assert.AreEqual(HttpStatusCode.OK, await Send("GET", path, Token()));
     }
@@ -168,5 +170,44 @@ public class PersonalNotePermissionTests
         Assert.AreEqual(HttpStatusCode.MethodNotAllowed, write.StatusCode);
         Assert.AreEqual(HttpStatusCode.OK, await Send("DELETE", path + "/publication?version=1", Token()));
         Assert.AreEqual(HttpStatusCode.NotFound, await Send("GET", publicPath, null));
+    }
+
+    [TestMethod]
+    public async Task SharedEditor_UpdatesTheOriginalUsingAnEditKey_AndCannotManageSharing()
+    {
+        var path = "/api/PersonalNotes/" + Id;
+        using var publish = new HttpRequestMessage(HttpMethod.Post, path + "/publish") {
+            Content = JsonContent.Create(new { Title = "Shared", ContentJson = "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}", Version = 0, AllowEditing = true })
+        };
+        publish.Headers.Authorization = new("Bearer", Token());
+        using var published = await http.SendAsync(publish);
+        Assert.AreEqual(HttpStatusCode.OK, published.StatusCode);
+        using var data = JsonDocument.Parse(await published.Content.ReadAsStringAsync());
+        string edit = data.RootElement.GetProperty("editToken").GetString()!, view = data.RootElement.GetProperty("publicToken").GetString()!;
+        var sharedPath = "/api/SharedPersonalNotes/" + edit;
+        using var initial = await http.GetAsync(sharedPath);
+        Assert.AreEqual(HttpStatusCode.OK, initial.StatusCode);
+        Assert.IsTrue(initial.Headers.CacheControl!.NoStore);
+        using var shared = JsonDocument.Parse(await initial.Content.ReadAsStringAsync());
+        CollectionAssert.AreEquivalent(new[] { "title", "contentJson", "version" }, shared.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
+        int version = shared.RootElement.GetProperty("version").GetInt32();
+        Assert.AreEqual(HttpStatusCode.OK, await Send("PUT", sharedPath, null, version));
+        using var ownerRequest = new HttpRequestMessage(HttpMethod.Get, path);
+        ownerRequest.Headers.Authorization = new("Bearer", Token());
+        using var original = await http.SendAsync(ownerRequest);
+        using var originalJson = JsonDocument.Parse(await original.Content.ReadAsStringAsync());
+        Assert.AreEqual("Private", originalJson.RootElement.GetProperty("title").GetString());
+        Assert.AreEqual(version + 1, originalJson.RootElement.GetProperty("version").GetInt32());
+        Assert.AreEqual(HttpStatusCode.Conflict, await Send("PUT", sharedPath, null, version));
+        Assert.AreEqual(HttpStatusCode.NotFound, await Send("PUT", "/api/SharedPersonalNotes/" + view, null, version));
+        using var delete = await http.DeleteAsync(sharedPath);
+        Assert.AreEqual(HttpStatusCode.MethodNotAllowed, delete.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("DELETE", path + "/edit-link?version=1", null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("DELETE", path + "/edit-link?version=1", Token("")));
+        Assert.AreEqual(HttpStatusCode.Conflict, await Send("DELETE", path + "/edit-link?version=1", Token()));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("DELETE", path + "/edit-link?version=" + (version + 1), Token()));
+        Assert.AreEqual(HttpStatusCode.NotFound, await Send("GET", sharedPath, null));
+        Assert.AreEqual(HttpStatusCode.NotFound, await Send("PUT", sharedPath, null, version + 1));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("GET", "/api/PublicPersonalNotes/" + view, null));
     }
 }

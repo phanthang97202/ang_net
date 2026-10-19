@@ -70,6 +70,7 @@ export class AuthInterceptor implements HttpInterceptor {
       // ----
       'hashtagnews/gettophashtag',
       'PublicPersonalNotes/',
+      'SharedPersonalNotes/',
       'cloudinary.com',
       'posthog.com',
     ];

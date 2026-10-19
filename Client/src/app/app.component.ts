@@ -295,7 +295,8 @@ export class AppComponent implements OnInit {
         );
       });
 
-    this.navigationEnd.subscribe(() => {
+    this.navigationEnd.subscribe(event => {
+      if (event.urlAfterRedirects.startsWith('/shared-note/')) return;
       posthog.capture('$pageview');
     });
   }

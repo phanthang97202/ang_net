@@ -16,4 +16,5 @@ public class PersonalNoteModel
     [MaxLength(200)] public string? PublishedTitle { get; set; }
     public string? PublishedContentJson { get; set; }
     public DateTime? PublishedAt { get; set; }
+    [MaxLength(64)] public string? EditToken { get; set; }
 }

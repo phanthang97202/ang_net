@@ -27,6 +27,7 @@ describe('Published note application layout', () => {
       providers: [
         provideRouter([
           { path: 'shared-note/:token', component: ContentPageComponent },
+          { path: 'shared-note/:token/edit', component: ContentPageComponent },
           { path: '', component: ContentPageComponent },
         ]),
         {
@@ -73,6 +74,17 @@ describe('Published note application layout', () => {
         'app-navbar, app-footer, app-chat-widget, app-personal-notes-widget'
       )
     ).toBeNull();
+    await router.navigateByUrl('/shared-note/' + 'e'.repeat(64) + '/edit');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.layoutType).toBe('immersive');
+    expect(
+      fixture.nativeElement.querySelector(
+        'app-navbar, app-footer, app-chat-widget, app-personal-notes-widget'
+      )
+    ).toBeNull();
+    expect(posthog.capture).not.toHaveBeenCalled();
     await router.navigateByUrl('/');
     fixture.detectChanges();
     await fixture.whenStable();

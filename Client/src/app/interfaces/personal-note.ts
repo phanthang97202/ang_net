@@ -11,11 +11,20 @@ export interface PersonalNote extends PersonalNoteSummary {
   ContentJson: string;
   PublicToken?: string | null;
   PublishedAt?: string | null;
+  EditToken?: string | null;
 }
 
 export interface PublicPersonalNote {
   Title: string;
   ContentJson: string;
+}
+
+export interface SharedPersonalNote extends PublicPersonalNote {
+  Version: number;
+}
+
+export interface PersonalNotePublish extends PersonalNoteSave {
+  AllowEditing?: boolean;
 }
 
 export interface PersonalNotePage {

@@ -8,6 +8,14 @@ import {
 
 const appRoutes: Routes = [
   {
+    path: 'shared-note/:token/edit',
+    title: 'T_PNOTE_EDITOR',
+    loadComponent: () =>
+      import('./pages/personal-note-shared/personal-note-shared.component').then(
+        p => p.PersonalNoteSharedComponent
+      ),
+  },
+  {
     path: 'shared-note/:token',
     title: 'T_PNOTE_MY_NOTES',
     loadComponent: () =>

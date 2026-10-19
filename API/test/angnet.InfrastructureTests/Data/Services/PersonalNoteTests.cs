@@ -212,6 +212,72 @@ public class PersonalNoteTests
     }
 
     [TestMethod]
+    public async Task EditLinks_UpdateTheOriginalNoteAndViewLink_WithOneVersionForOwnerAndCollaborators()
+    {
+        string id = Guid.NewGuid().ToString();
+        var owner = (await service.Publish(User(), id, Data("Original"), allowEditing: true))!;
+        Assert.IsNotNull(owner.EditToken);
+        Assert.AreNotEqual(owner.PublicToken, owner.EditToken);
+        Assert.IsNull(await service.Shared(owner.PublicToken!));
+        Assert.IsNull(await service.Public(owner.EditToken!));
+        var shared = (await service.Shared(owner.EditToken!))!;
+        var content = Document.Replace("Ý tưởng riêng tư", "Collaborator body");
+        var updated = (await service.SaveShared(owner.EditToken!, Data("Collaborator edit", shared.Version, content)))!;
+        Assert.AreEqual(shared.Version + 1, updated.Version);
+        Assert.AreEqual("Collaborator edit", (await service.Public(owner.PublicToken!))!.Title);
+        var original = (await service.Get(User(), id))!;
+        Assert.AreEqual("Collaborator edit", original.Title);
+        Assert.AreEqual(content, original.ContentJson);
+        Assert.AreEqual(updated.Version, original.Version);
+        Assert.IsTrue(original.UpdatedAt >= owner.UpdatedAt);
+        var list = await service.List(User(), "Collaborator body", 20, null);
+        Assert.AreEqual(id, list.DataList.Single().NoteId);
+        Assert.IsTrue(list.DataList[0].Preview.Contains("Collaborator body"));
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.SaveShared(owner.EditToken!, Data("Stale", shared.Version)));
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.Save(User(), id, Data("Stale owner", owner.Version)));
+        var ownerUpdate = (await service.Save(User(), id, Data("Owner update", original.Version)))!;
+        Assert.AreEqual("Owner update", (await service.Public(owner.PublicToken!))!.Title);
+        Assert.AreEqual("Owner update", (await service.Shared(owner.EditToken!))!.Title);
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.SaveShared(owner.EditToken!, Data("Stale collaborator", updated.Version)));
+        var next = await service.SaveShared(owner.EditToken!, Data("Next edit", ownerUpdate.Version));
+        Assert.IsNotNull(next);
+        Assert.AreEqual("Next edit", (await service.Get(User(), id))!.Title);
+        await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.SaveShared(owner.EditToken!, Data("Bad", next.Version, "<script>bad</script>")));
+        Assert.AreEqual("Next edit", (await service.Public(owner.PublicToken!))!.Title);
+        var revoked = (await service.RevokeEditing(User(), id, next.Version))!;
+        await service.Save(User(), id, Data("Private after revocation", revoked.Version));
+        Assert.AreEqual("Next edit", (await service.Public(owner.PublicToken!))!.Title);
+        Assert.IsNull(await service.Shared(owner.EditToken!));
+    }
+
+    [TestMethod]
+    public async Task RevokingEditing_PreservesViewAccessAndPrivateWork_AndRepublishingRotatesTheEditKey()
+    {
+        string id = Guid.NewGuid().ToString();
+        var owner = (await service.Publish(User(), id, Data(), allowEditing: true))!;
+        string oldEdit = owner.EditToken!, view = owner.PublicToken!;
+        Assert.IsNull(await service.RevokeEditing(User("other"), id, owner.Version));
+        var revoked = (await service.RevokeEditing(User(), id, owner.Version))!;
+        Assert.IsNull(revoked.EditToken);
+        Assert.IsNotNull(await service.Public(view));
+        Assert.IsNull(await service.Shared(oldEdit));
+        Assert.IsNull(await service.SaveShared(oldEdit, Data("Attack", 1)));
+        await Assert.ThrowsExceptionAsync<PersonalNoteConflictException>(() => service.RevokeEditing(User(), id, owner.Version));
+        var enabled = (await service.Publish(User(), id, Data("Re-enabled", revoked.Version), allowEditing: true))!;
+        Assert.AreNotEqual(oldEdit, enabled.EditToken);
+        Assert.AreEqual(view, enabled.PublicToken);
+        Assert.IsNull(await service.Shared(oldEdit));
+        var shared = (await service.Shared(enabled.EditToken!))!;
+        var readOnly = (await service.Publish(User(), id, Data("View only", enabled.Version)))!;
+        Assert.IsNull(readOnly.EditToken);
+        Assert.IsNull(await service.SaveShared(enabled.EditToken!, Data("Attack", shared.Version)));
+        var reenabled = (await service.Publish(User(), id, Data("Editable", readOnly.Version), allowEditing: true))!;
+        await service.Unpublish(User(), id, reenabled.Version);
+        Assert.IsNull(await service.Shared(reenabled.EditToken!));
+        Assert.IsNull(await service.Public(view));
+    }
+
+    [TestMethod]
     public async Task Migration_CreatesThePrivateNoteStoreAndSupportsCreateUpdateDelete()
     {
         await db.Database.ExecuteSqlRawAsync("DROP TABLE \"PersonalNote\";");
@@ -222,6 +288,9 @@ public class PersonalNoteTests
         var publicationResource = assembly.GetManifestResourceNames().Single(n => n.EndsWith("0056_XuatBanGhiChuCaNhan.sql"));
         using var publicationReader = new StreamReader(assembly.GetManifestResourceStream(publicationResource)!);
         await db.Database.ExecuteSqlRawAsync(await publicationReader.ReadToEndAsync());
+        var editingResource = assembly.GetManifestResourceNames().Single(n => n.EndsWith("0057_ChiaSeQuyenSuaGhiChu.sql"));
+        using var editingReader = new StreamReader(assembly.GetManifestResourceStream(editingResource)!);
+        await db.Database.ExecuteSqlRawAsync(await editingReader.ReadToEndAsync());
         string id = Guid.NewGuid().ToString();
         await service.Save(User(), id, Data());
         await service.Save(User(), id, Data("Updated", 1));

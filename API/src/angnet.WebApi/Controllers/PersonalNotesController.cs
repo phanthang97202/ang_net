@@ -45,10 +45,10 @@ public class PersonalNotesController(PersonalNoteService service) : ControllerBa
     }
 
     [HttpPost("{id}/publish"), RequestSizeLimit(16 * 1024 * 1024)]
-    public async Task<IActionResult> Publish(string id, [FromBody] PersonalNoteSaveDto data)
+    public async Task<IActionResult> Publish(string id, [FromBody] PersonalNotePublishDto data)
     {
         try {
-            var note = await service.Publish(User, id, data);
+            var note = await service.Publish(User, id, data, data.AllowEditing);
             return note == null ? NotFound() : Ok(note);
         }
         catch (ArgumentException) { return BadRequest(new { Code = "InvalidNote" }); }
@@ -60,6 +60,17 @@ public class PersonalNotesController(PersonalNoteService service) : ControllerBa
     {
         try {
             var note = await service.Unpublish(User, id, version);
+            return note == null ? NotFound() : Ok(note);
+        }
+        catch (ArgumentException) { return BadRequest(new { Code = "InvalidRequest" }); }
+        catch (PersonalNoteConflictException) { return Conflict(new { Code = "NoteChanged" }); }
+    }
+
+    [HttpDelete("{id}/edit-link")]
+    public async Task<IActionResult> RevokeEditing(string id, int version)
+    {
+        try {
+            var note = await service.RevokeEditing(User, id, version);
             return note == null ? NotFound() : Ok(note);
         }
         catch (ArgumentException) { return BadRequest(new { Code = "InvalidRequest" }); }

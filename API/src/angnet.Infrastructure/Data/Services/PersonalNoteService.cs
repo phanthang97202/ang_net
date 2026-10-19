@@ -64,12 +64,12 @@ public class PersonalNoteService(AppDbContext db)
     public Task<PersonalNoteDto?> Save(ClaimsPrincipal user, string id, PersonalNoteSaveDto data)
         => SaveDocument(user, id, data, publish: false);
 
-    public Task<PersonalNoteDto?> Publish(ClaimsPrincipal user, string id, PersonalNoteSaveDto data)
-        => SaveDocument(user, id, data, publish: true);
+    public Task<PersonalNoteDto?> Publish(ClaimsPrincipal user, string id, PersonalNoteSaveDto data, bool allowEditing = false)
+        => SaveDocument(user, id, data, publish: true, allowEditing);
 
-    // A single INSERT/UPDATE publishes the submitted draft atomically. Ordinary
-    // saves leave the published snapshot untouched, so private edits stay private.
-    private async Task<PersonalNoteDto?> SaveDocument(ClaimsPrincipal user, string id, PersonalNoteSaveDto data, bool publish)
+    // Publishing and shared edits are atomic. While an edit link is active,
+    // owner saves also update the shared view. View-only publications keep their snapshot.
+    private async Task<PersonalNoteDto?> SaveDocument(ClaimsPrincipal user, string id, PersonalNoteSaveDto data, bool publish, bool allowEditing = false)
     {
         var owner = Owner(user);
         if (!Guid.TryParseExact(id, "D", out _) || data.Version < 0 || data.Version == int.MaxValue
@@ -79,6 +79,7 @@ public class PersonalNoteService(AppDbContext db)
         var text = PersonalNoteDocument.Text(data.ContentJson);
         var now = DateTime.UtcNow;
         var token = publish ? Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant() : null;
+        var editToken = publish && allowEditing ? Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant() : null;
         if (data.Version == 0)
         {
             // Client-generated IDs make retrying a lost create response idempotent.
@@ -86,7 +87,8 @@ public class PersonalNoteService(AppDbContext db)
             if (existing != null)
             {
                 if (existing.Title == title && existing.ContentJson == data.ContentJson
-                    && (!publish || (existing.PublicToken != null && existing.PublishedTitle == title && existing.PublishedContentJson == data.ContentJson))) return Detail(existing);
+                    && (!publish || (existing.PublicToken != null && existing.PublishedTitle == title && existing.PublishedContentJson == data.ContentJson
+                        && (existing.EditToken != null) == allowEditing))) return Detail(existing);
                 throw new PersonalNoteConflictException();
             }
             if (await db.PersonalNote.AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
@@ -96,6 +98,7 @@ public class PersonalNoteService(AppDbContext db)
                 CreatedAt = now, UpdatedAt = now, Version = 1,
                 PublicToken = token, PublishedTitle = publish ? title : null,
                 PublishedContentJson = publish ? data.ContentJson : null, PublishedAt = publish ? now : null,
+                EditToken = editToken,
             };
             db.PersonalNote.Add(created);
             try { await db.SaveChangesAsync(); }
@@ -104,7 +107,8 @@ public class PersonalNoteService(AppDbContext db)
                 db.Entry(created).State = EntityState.Detached;
                 var retry = await Owned(user).FirstOrDefaultAsync(n => n.NoteId == id);
                 if (retry != null && retry.Title == title && retry.ContentJson == data.ContentJson
-                    && (!publish || (retry.PublicToken != null && retry.PublishedTitle == title && retry.PublishedContentJson == data.ContentJson))) return Detail(retry);
+                    && (!publish || (retry.PublicToken != null && retry.PublishedTitle == title && retry.PublishedContentJson == data.ContentJson
+                        && (retry.EditToken != null) == allowEditing))) return Detail(retry);
                 throw new PersonalNoteConflictException();
             }
             return Detail(created);
@@ -113,9 +117,10 @@ public class PersonalNoteService(AppDbContext db)
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.Title, title)
                 .SetProperty(n => n.ContentJson, data.ContentJson).SetProperty(n => n.ContentText, text)
                 .SetProperty(n => n.PublicToken, n => publish ? n.PublicToken ?? token : n.PublicToken)
-                .SetProperty(n => n.PublishedTitle, n => publish ? title : n.PublishedTitle)
-                .SetProperty(n => n.PublishedContentJson, n => publish ? data.ContentJson : n.PublishedContentJson)
-                .SetProperty(n => n.PublishedAt, n => publish ? now : n.PublishedAt)
+                .SetProperty(n => n.PublishedTitle, n => publish || n.EditToken != null ? title : n.PublishedTitle)
+                .SetProperty(n => n.PublishedContentJson, n => publish || n.EditToken != null ? data.ContentJson : n.PublishedContentJson)
+                .SetProperty(n => n.PublishedAt, n => publish || n.EditToken != null ? now : n.PublishedAt)
+                .SetProperty(n => n.EditToken, n => publish ? (allowEditing ? n.EditToken ?? editToken : null) : n.EditToken)
                 .SetProperty(n => n.UpdatedAt, now).SetProperty(n => n.Version, n => n.Version + 1));
         if (changed == 0 && await Owned(user).AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
         return changed == 0 ? null : await Get(user, id);
@@ -134,15 +139,58 @@ public class PersonalNoteService(AppDbContext db)
         if (version < 1 || version == int.MaxValue) throw new ArgumentException("Invalid version");
         int changed = await Owned(user).Where(n => n.NoteId == id && n.Version == version)
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.PublicToken, (string?)null)
+                .SetProperty(n => n.EditToken, (string?)null)
                 .SetProperty(n => n.PublishedTitle, (string?)null).SetProperty(n => n.PublishedContentJson, (string?)null)
                 .SetProperty(n => n.PublishedAt, (DateTime?)null).SetProperty(n => n.Version, n => n.Version + 1));
         if (changed == 0 && await Owned(user).AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
         return changed == 0 ? null : await Get(user, id);
     }
 
+    // Revoking edit access does not replace the public snapshot or affect the view link.
+    public async Task<PersonalNoteDto?> RevokeEditing(ClaimsPrincipal user, string id, int version)
+    {
+        if (version < 1 || version == int.MaxValue) throw new ArgumentException("Invalid version");
+        int changed = await Owned(user).Where(n => n.NoteId == id && n.Version == version)
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.EditToken, (string?)null).SetProperty(n => n.Version, n => n.Version + 1));
+        if (changed == 0 && await Owned(user).AnyAsync(n => n.NoteId == id)) throw new PersonalNoteConflictException();
+        return changed == 0 ? null : await Get(user, id);
+    }
+
+    private IQueryable<PersonalNoteModel> Editable(string token) => db.PersonalNote.AsNoTracking()
+        .Where(n => n.EditToken == token && n.PublicToken != null && n.PublishedAt != null
+            && n.PublishedTitle != null && n.PublishedContentJson != null);
+
+    public async Task<SharedPersonalNoteDto?> Shared(string token)
+    {
+        if (!ValidToken(token)) return null;
+        return await Editable(token).Select(n => new SharedPersonalNoteDto {
+            Title = n.Title, ContentJson = n.ContentJson, Version = n.Version
+        }).SingleOrDefaultAsync();
+    }
+
+    public async Task<SharedPersonalNoteDto?> SaveShared(string token, PersonalNoteSaveDto data)
+    {
+        if (!ValidToken(token)) return null;
+        if (data.Version < 1 || data.Version == int.MaxValue || string.IsNullOrWhiteSpace(data.Title) || data.Title.Trim().Length > 200)
+            throw new ArgumentException("Invalid note");
+        var text = PersonalNoteDocument.Text(data.ContentJson);
+        var title = data.Title.Trim();
+        var now = DateTime.UtcNow;
+        int changed = await Editable(token).Where(n => n.Version == data.Version)
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.Title, title).SetProperty(n => n.ContentJson, data.ContentJson)
+                .SetProperty(n => n.ContentText, text).SetProperty(n => n.UpdatedAt, now)
+                .SetProperty(n => n.PublishedTitle, title).SetProperty(n => n.PublishedContentJson, data.ContentJson)
+                .SetProperty(n => n.PublishedAt, now).SetProperty(n => n.Version, n => n.Version + 1));
+        if (changed == 0 && await Editable(token).AnyAsync()) throw new PersonalNoteConflictException();
+        // Return the exact version this request saved, even if another editor saves immediately afterwards.
+        return changed == 0 ? null : new SharedPersonalNoteDto { Title = title, ContentJson = data.ContentJson, Version = data.Version + 1 };
+    }
+
+    private static bool ValidToken(string token) => token.Length == 64 && token.All(char.IsAsciiHexDigit);
+
     public async Task<PublicPersonalNoteDto?> Public(string token)
     {
-        if (token.Length != 64 || token.Any(c => !char.IsAsciiHexDigit(c))) return null;
+        if (!ValidToken(token)) return null;
         return await db.PersonalNote.AsNoTracking()
             .Where(n => n.PublicToken == token && n.PublishedTitle != null && n.PublishedContentJson != null && n.PublishedAt != null)
             .Select(n => new PublicPersonalNoteDto { Title = n.PublishedTitle!, ContentJson = n.PublishedContentJson! })
@@ -153,7 +201,7 @@ public class PersonalNoteService(AppDbContext db)
     {
         NoteId = note.NoteId, Title = note.Title, ContentJson = note.ContentJson, Version = note.Version,
         CreatedAt = note.CreatedAt, UpdatedAt = note.UpdatedAt,
-        PublicToken = note.PublicToken, PublishedAt = note.PublishedAt,
+        PublicToken = note.PublicToken, PublishedAt = note.PublishedAt, EditToken = note.EditToken,
         Preview = note.ContentText.Length > 160 ? note.ContentText[..160] : note.ContentText,
     };
 }

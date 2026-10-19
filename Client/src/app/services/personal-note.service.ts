@@ -6,6 +6,8 @@ import {
   PersonalNotePage,
   PersonalNoteSave,
   PublicPersonalNote,
+  PersonalNotePublish,
+  SharedPersonalNote,
 } from '../interfaces/personal-note';
 
 @Injectable({ providedIn: 'root' })
@@ -31,7 +33,7 @@ export class PersonalNoteService {
       params: { version },
     });
   }
-  publish(id: string, body: PersonalNoteSave) {
+  publish(id: string, body: PersonalNotePublish) {
     return this.http.post<PersonalNote>(
       `${this.url}/${encodeURIComponent(id)}/publish`,
       body
@@ -46,6 +48,23 @@ export class PersonalNoteService {
   publicNote(token: string) {
     return this.http.get<PublicPersonalNote>(
       `${environment.apiUrl}PublicPersonalNotes/${encodeURIComponent(token)}`
+    );
+  }
+  revokeEditing(id: string, version: number) {
+    return this.http.delete<PersonalNote>(
+      `${this.url}/${encodeURIComponent(id)}/edit-link`,
+      { params: { version } }
+    );
+  }
+  sharedNote(token: string) {
+    return this.http.get<SharedPersonalNote>(
+      `${environment.apiUrl}SharedPersonalNotes/${encodeURIComponent(token)}`
+    );
+  }
+  saveShared(token: string, body: PersonalNoteSave) {
+    return this.http.put<SharedPersonalNote>(
+      `${environment.apiUrl}SharedPersonalNotes/${encodeURIComponent(token)}`,
+      body
     );
   }
 }

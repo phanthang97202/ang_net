@@ -21,6 +21,7 @@ import { Editor } from '@tiptap/core';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { DOCUMENT } from '@angular/common';
+import { map } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { PersonalNoteService } from '../../services/personal-note.service';
 import { PersonalNote } from '../../interfaces/personal-note';
@@ -49,6 +50,7 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   @Input({ required: true }) noteId!: string;
   @Input({ required: true }) ownerId!: string;
   @Input() note: PersonalNote | null = null;
+  @Input() sharedToken: string | null = null;
   @Output() saved = new EventEmitter<PersonalNote>();
   @Output() closed = new EventEmitter<void>();
   @Output() publicationChanged = new EventEmitter<PersonalNote>();
@@ -75,6 +77,10 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   publicationBusy = false;
   shareOpen = false;
   publicToken: string | null = null;
+  editToken: string | null = null;
+  allowEditing = false;
+  copiedEdit = false;
+  savedShared = false;
   copied = false;
   insertingImages = false;
   private imageReaders = new Set<FileReader>();
@@ -88,6 +94,8 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
     this.initialTitle = this.title;
     this.version = this.note?.Version ?? 0;
     this.publicToken = this.note?.PublicToken ?? null;
+    this.editToken = this.note?.EditToken ?? null;
+    this.allowEditing = !!this.editToken;
     this.editor = new Editor({
       element: this.host.nativeElement,
       extensions: [
@@ -110,6 +118,7 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.bodyChanged = JSON.stringify(editor.getJSON()) !== this.initial;
           this.errorKey = '';
+          this.savedShared = false;
           this.cd.markForCheck();
         }),
       onSelectionUpdate: () => this.zone.run(() => this.cd.markForCheck()),
@@ -133,9 +142,10 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   }
   get currentOwner(): boolean {
     return (
-      this.auth.isLoggedIn() &&
-      this.auth.hasPermission('personalnote.use') &&
-      this.auth.getAccountInfo()?.nameid === this.ownerId
+      !!this.sharedToken ||
+      (this.auth.isLoggedIn() &&
+        this.auth.hasPermission('personalnote.use') &&
+        this.auth.getAccountInfo()?.nameid === this.ownerId)
     );
   }
   get canSave(): boolean {
@@ -153,6 +163,12 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   get publicUrl(): string {
     return this.publicToken
       ? new URL(`/shared-note/${this.publicToken}`, this.document.baseURI).href
+      : '';
+  }
+  get editUrl(): string {
+    return this.editToken
+      ? new URL(`/shared-note/${this.editToken}/edit`, this.document.baseURI)
+          .href
       : '';
   }
 
@@ -175,7 +191,7 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
     }
   }
   requestClose(): void {
-    if (this.busy || this.confirmation) return;
+    if (this.sharedToken || this.busy || this.confirmation) return;
     if (!this.dirty || !this.currentOwner) {
       this.closed.emit();
       return;
@@ -200,35 +216,41 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
     this.saving = true;
     this.errorKey = '';
     this.editor.setEditable(false);
-    this.api
-      .save(this.noteId, {
-        Title: this.title.trim(),
-        ContentJson: content,
-        Version: this.version,
-      })
-      .pipe(takeUntilDestroyed(this.destroyed))
-      .subscribe({
-        next: note => {
-          this.saving = false;
-          if (!this.currentOwner) return;
-          this.editor?.setEditable(true);
-          this.initial = content;
-          this.initialTitle = this.title;
-          this.bodyChanged = false;
-          this.version = note.Version;
-          this.saved.emit(note);
-        },
-        error: error => {
-          this.saving = false;
-          this.editor?.setEditable(true);
-          this.errorKey =
-            error.status === 409
-              ? 'T_PNOTE_CONFLICT'
-              : error.status === 404
-                ? 'T_PNOTE_UNAVAILABLE'
-                : 'T_PNOTE_SAVE_ERROR';
-        },
-      });
+    const body = {
+      Title: this.title.trim(),
+      ContentJson: content,
+      Version: this.version,
+    };
+    const request = this.sharedToken
+      ? this.api
+          .saveShared(this.sharedToken, body)
+          .pipe(map(note => ({ ...this.note!, ...note })))
+      : this.api.save(this.noteId, body);
+    request.pipe(takeUntilDestroyed(this.destroyed)).subscribe({
+      next: note => {
+        this.saving = false;
+        if (!this.currentOwner) return;
+        this.editor?.setEditable(true);
+        this.initial = content;
+        this.initialTitle = this.title;
+        this.bodyChanged = false;
+        this.version = note.Version;
+        this.savedShared = !!this.sharedToken;
+        this.saved.emit(note);
+      },
+      error: error => {
+        this.saving = false;
+        this.editor?.setEditable(true);
+        this.errorKey =
+          error.status === 409
+            ? 'T_PNOTE_CONFLICT'
+            : error.status === 404
+              ? this.sharedToken
+                ? 'T_PNOTE_SHARED_UNAVAILABLE'
+                : 'T_PNOTE_UNAVAILABLE'
+              : 'T_PNOTE_SAVE_ERROR';
+      },
+    });
   }
   private contentToSave(): string | null {
     const content = JSON.stringify(this.editor!.getJSON());
@@ -242,7 +264,7 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
     return content;
   }
   publish(): void {
-    if (!this.canSave || !this.editor) return;
+    if (this.sharedToken || !this.canSave || !this.editor) return;
     const content = this.contentToSave();
     if (content === null) return;
     this.publicationBusy = true;
@@ -254,6 +276,7 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
         Title: this.title.trim(),
         ContentJson: content,
         Version: this.version,
+        ...(this.allowEditing ? { AllowEditing: true } : {}),
       })
       .pipe(takeUntilDestroyed(this.destroyed))
       .subscribe({
@@ -263,6 +286,9 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
           this.editor?.setEditable(true);
           this.version = note.Version;
           this.publicToken = note.PublicToken ?? null;
+          this.editToken = note.EditToken ?? null;
+          this.allowEditing = !!this.editToken;
+          this.copiedEdit = false;
           this.initial = content;
           this.initialTitle = this.title;
           this.bodyChanged = false;
@@ -273,7 +299,13 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
       });
   }
   unpublish(): void {
-    if (this.busy || !this.currentOwner || !this.publicToken) return;
+    if (
+      this.sharedToken ||
+      this.busy ||
+      !this.currentOwner ||
+      !this.publicToken
+    )
+      return;
     this.publicationBusy = true;
     this.errorKey = '';
     this.editor?.setEditable(false);
@@ -287,6 +319,9 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
           this.editor?.setEditable(true);
           this.version = note.Version;
           this.publicToken = note.PublicToken ?? null;
+          this.editToken = note.EditToken ?? null;
+          this.allowEditing = !!this.editToken;
+          this.copiedEdit = false;
           this.copied = false;
           this.publicationChanged.emit(note);
         },
@@ -307,6 +342,33 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   copyPublicLink(): void {
     this.copied = !!this.publicUrl && this.clipboard.copy(this.publicUrl);
     if (!this.copied) this.errorKey = 'T_PNOTE_COPY_ERROR';
+  }
+  copyEditLink(): void {
+    this.copiedEdit = !!this.editUrl && this.clipboard.copy(this.editUrl);
+    if (!this.copiedEdit) this.errorKey = 'T_PNOTE_COPY_ERROR';
+  }
+  revokeEditing(): void {
+    if (this.sharedToken || this.busy || !this.currentOwner || !this.editToken)
+      return;
+    this.publicationBusy = true;
+    this.errorKey = '';
+    this.editor?.setEditable(false);
+    this.api
+      .revokeEditing(this.noteId, this.version)
+      .pipe(takeUntilDestroyed(this.destroyed))
+      .subscribe({
+        next: note => {
+          this.publicationBusy = false;
+          if (!this.currentOwner) return;
+          this.editor?.setEditable(true);
+          this.version = note.Version;
+          this.editToken = note.EditToken ?? null;
+          this.allowEditing = !!this.editToken;
+          this.copiedEdit = false;
+          this.publicationChanged.emit(note);
+        },
+        error: error => this.publicationError(error),
+      });
   }
   block(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;

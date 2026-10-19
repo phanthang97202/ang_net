@@ -95,14 +95,14 @@ select:focus-visible {
   color: var(--color-accent);
   box-shadow: 0 1px 4px var(--color-card-shadow);
 }
-.editor-toolbar select {
+.note-select {
   border: 1px solid var(--color-border);
   background: var(--color-bg-card);
   color: inherit;
   border-radius: 7px;
   padding: 6px 8px;
   font-size: 12px;
-  max-width: 130px;
+  max-width: 100%;
 }
 .toolbar-divider {
   height: 18px;

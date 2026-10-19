@@ -27,6 +27,8 @@ describe('Personal note Tiptap editor', () => {
       'save',
       'publish',
       'unpublish',
+      'revokeEditing',
+      'saveShared',
     ]);
     api.save.and.returnValue(response);
     TestBed.configureTestingModule({
@@ -58,11 +60,15 @@ describe('Personal note Tiptap editor', () => {
       ],
     });
   });
-  function create(note: PersonalNote | null = null) {
+  function create(
+    note: PersonalNote | null = null,
+    sharedToken: string | null = null
+  ) {
     const fixture = TestBed.createComponent(PersonalNoteEditorComponent);
     fixture.componentRef.setInput('noteId', id);
     fixture.componentRef.setInput('ownerId', 'owner');
     fixture.componentRef.setInput('note', note);
+    fixture.componentRef.setInput('sharedToken', sharedToken);
     fixture.detectChanges();
     tick();
     return fixture;
@@ -77,6 +83,126 @@ describe('Personal note Tiptap editor', () => {
     fixture.componentInstance.publish();
     expect(api.save).not.toHaveBeenCalled();
     expect(api.publish).not.toHaveBeenCalled();
+    fixture.destroy();
+    flush();
+  }));
+
+  it('creates a separate edit link only when editing is selected and revokes it while keeping view access', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.title = 'Shared note';
+    component.allowEditing = true;
+    api.publish.and.returnValue(response);
+    component.publish();
+    expect(api.publish.calls.mostRecent().args[1].AllowEditing).toBeTrue();
+    const published: PersonalNote = {
+      NoteId: id,
+      Title: component.title,
+      ContentJson: JSON.stringify(component.editor!.getJSON()),
+      PublicToken: 'a'.repeat(64),
+      EditToken: 'b'.repeat(64),
+      Version: 1,
+      Preview: '',
+      CreatedAt: '',
+      UpdatedAt: '',
+    };
+    response.next(published);
+    fixture.detectChanges();
+    expect(component.editUrl).toContain(
+      '/shared-note/' + 'b'.repeat(64) + '/edit'
+    );
+    expect(component.editUrl).not.toBe(component.publicUrl);
+    const clipboard = spyOn(TestBed.inject(Clipboard), 'copy').and.returnValue(
+      true
+    );
+    component.copyEditLink();
+    expect(clipboard).toHaveBeenCalledWith(component.editUrl);
+    expect(
+      fixture.nativeElement.querySelectorAll('.publication-link input').length
+    ).toBe(2);
+    const revoke = new Subject<PersonalNote>();
+    api.revokeEditing.and.returnValue(revoke);
+    component.editor!.commands.insertContent('Private changes');
+    component.revokeEditing();
+    expect(api.revokeEditing).toHaveBeenCalledOnceWith(id, 1);
+    revoke.next({ ...published, EditToken: null, Version: 2 });
+    fixture.detectChanges();
+    expect(component.editToken).toBeNull();
+    expect(component.publicToken).toBe(published.PublicToken!);
+    expect(component.dirty).toBeTrue();
+    expect(component.editor!.getText()).toContain('Private changes');
+    expect(
+      fixture.nativeElement.querySelectorAll('.publication-link input').length
+    ).toBe(1);
+    fixture.destroy();
+    flush();
+  }));
+
+  it('lets an edit-key holder save without login, hides sharing controls and preserves work after a stale save', fakeAsync(() => {
+    permitted = false;
+    const token = 'e'.repeat(64);
+    const note: PersonalNote = {
+      NoteId: token,
+      Title: 'Shared note',
+      ContentJson: '{"type":"doc","content":[{"type":"paragraph"}]}',
+      Version: 3,
+      Preview: '',
+      CreatedAt: '',
+      UpdatedAt: '',
+    };
+    const fixture = create(note, token),
+      component = fixture.componentInstance;
+    const result = new Subject<{
+      Title: string;
+      ContentJson: string;
+      Version: number;
+    }>();
+    api.saveShared.and.returnValue(result);
+    component.editor!.commands.insertContent('Shared changes');
+    fixture.detectChanges();
+    expect(component.canSave).toBeTrue();
+    expect(
+      fixture.nativeElement.querySelector(
+        '.editor-close, .share-note, .publication-panel'
+      )
+    ).toBeNull();
+    component.save();
+    expect(api.saveShared).toHaveBeenCalledOnceWith(token, {
+      Title: note.Title,
+      ContentJson: JSON.stringify(component.editor!.getJSON()),
+      Version: 3,
+    });
+    expect(api.save).not.toHaveBeenCalled();
+    result.next({
+      Title: note.Title,
+      ContentJson: api.saveShared.calls.mostRecent().args[1].ContentJson,
+      Version: 4,
+    });
+    fixture.detectChanges();
+    expect(component.version).toBe(4);
+    expect(component.dirty).toBeFalse();
+    expect(fixture.nativeElement.textContent).toContain('T_PNOTE_SAVED');
+    component.editor!.commands.insertContent('Unsaved changes');
+    const stale = new Subject<{
+      Title: string;
+      ContentJson: string;
+      Version: number;
+    }>();
+    api.saveShared.and.returnValue(stale);
+    component.save();
+    stale.error({ status: 409 });
+    expect(component.errorKey).toBe('T_PNOTE_CONFLICT');
+    expect(component.editor!.isEditable).toBeTrue();
+    expect(component.dirty).toBeTrue();
+    expect(component.editor!.getText()).toContain('Unsaved changes');
+    component.publicToken = 'a'.repeat(64);
+    component.editToken = token;
+    component.publish();
+    component.unpublish();
+    component.revokeEditing();
+    expect(api.publish).not.toHaveBeenCalled();
+    expect(api.unpublish).not.toHaveBeenCalled();
+    expect(api.revokeEditing).not.toHaveBeenCalled();
     fixture.destroy();
     flush();
   }));
