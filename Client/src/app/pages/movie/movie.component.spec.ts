@@ -171,8 +171,36 @@ describe('Movie episode navigation', () => {
     finishPlayback('special', 9);
   });
 
-  it('leaves a first-time visitor free to choose an episode', () => {
+  it('automatically opens the first playable episode when there is no saved progress', () => {
     loadDetail();
+    expect(movie.selectedEpisode).toBe('pilot');
+    expect(movie.loadingPlayback).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.movie-player')).not.toBeNull();
+    finishPlayback('pilot');
+    expect(movie.detail?.WatchProgress?.EpisodeSlug).toBe('pilot');
+  });
+
+  it('skips empty servers and unavailable episodes when starting a new movie', () => {
+    loadDetail(null, [
+      { Id: 7, Name: 'Vietsub', Episodes: [episodes[1]] },
+      {
+        Id: 9,
+        Name: 'Thuyết minh',
+        Episodes: [episodes[1], episodes[2], episodes[3]],
+      },
+    ]);
+    expect(movie.server?.Id).toBe(9);
+    expect(movie.selectedEpisode).toBe('special');
+    finishPlayback('special', 9);
+  });
+
+  it('shows a clear player message instead of an empty area if no episode is playable', () => {
+    loadDetail(null, []);
+    expect(movie.playbackError).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('.movie-player [role="alert"]')
+        .textContent
+    ).toContain('chưa có tập khả dụng');
     expect(movie.selectedEpisode).toBe('');
     http.expectNone(req => req.url === playbackUrl || req.url === progressUrl);
   });
@@ -185,6 +213,7 @@ describe('Movie episode navigation', () => {
       EpisodeName: 'Tập 2',
     });
     expect(movie.selectedEpisode).toBe('');
+    expect(movie.playbackError).toContain('Tập đã lưu');
     expect(
       fixture.nativeElement.querySelector('.movie-detail__badges').textContent
     ).toContain('Tiến trình: Tập 2');

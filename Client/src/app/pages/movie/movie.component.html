@@ -160,7 +160,7 @@
         class="movie-player">
         <div class="section-heading movie-player__heading">
           <div>
-            <h2>{{ playback?.Title || 'Đang mở tập phim…' }}</h2>
+            <h2>{{ playback?.Title || (playbackError ? 'Chưa thể phát phim' : 'Đang mở tập phim…') }}</h2>
           </div>
         </div>
         <div *ngIf="loadingPlayback" class="movie-loading" role="status">

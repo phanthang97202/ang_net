@@ -254,7 +254,13 @@ export class MovieComponent implements OnInit {
 
   private resumeWatchProgress(): void {
     const progress = this.detail?.WatchProgress;
-    if (!progress || !this.detail) return;
+    if (!this.detail) return;
+    if (!progress) {
+      const firstEpisode = this.server?.Episodes.find(episode => episode.HasSource);
+      if (firstEpisode) this.playEpisode(firstEpisode);
+      else this.playbackError = 'Phim chưa có tập khả dụng để phát.';
+      return;
+    }
     const hasEpisode = (server: IMovieLibraryServer) => server.Episodes.some(
       episode => episode.Slug === progress.EpisodeSlug && episode.HasSource
     );
@@ -263,7 +269,10 @@ export class MovieComponent implements OnInit {
       this.detail.Servers.find(s => s.Id === progress.ServerId && hasEpisode(s)) ||
       this.detail.Servers.find(hasEpisode);
     const episode = server?.Episodes.find(e => e.Slug === progress.EpisodeSlug && e.HasSource);
-    if (!server || !episode) return;
+    if (!server || !episode) {
+      this.playbackError = 'Tập đã lưu chưa có nguồn phát. Vui lòng chọn tập khác.';
+      return;
+    }
     this.server = server;
     this.playEpisode(episode);
   }
