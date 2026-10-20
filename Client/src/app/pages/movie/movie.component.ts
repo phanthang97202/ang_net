@@ -37,6 +37,14 @@ import {
 import { MovieService } from '../../services';
 import { MovieVideoComponent } from './movie-video.component';
 
+type FullscreenScreen = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void> | void;
+};
+
 @Component({
   selector: 'app-movie',
   standalone: true,
@@ -70,6 +78,8 @@ export class MovieComponent implements OnInit {
     episodeSlug: string;
   }>();
   @ViewChild('player') private player?: ElementRef<HTMLElement>;
+  @ViewChild('playerScreen') private playerScreen?: ElementRef<FullscreenScreen>;
+  private fullscreenPending = false;
   @ViewChild('episodeSidebar')
   private episodeSidebar?: ElementRef<HTMLElement>;
   @ViewChild('episodeToggle')
@@ -254,7 +264,13 @@ export class MovieComponent implements OnInit {
 
   private resumeWatchProgress(): void {
     const progress = this.detail?.WatchProgress;
-    if (!progress || !this.detail) return;
+    if (!this.detail) return;
+    if (!progress) {
+      const firstEpisode = this.server?.Episodes.find(episode => episode.HasSource);
+      if (firstEpisode) this.playEpisode(firstEpisode);
+      else this.playbackError = 'Phim chưa có tập khả dụng để phát.';
+      return;
+    }
     const hasEpisode = (server: IMovieLibraryServer) => server.Episodes.some(
       episode => episode.Slug === progress.EpisodeSlug && episode.HasSource
     );
@@ -263,7 +279,10 @@ export class MovieComponent implements OnInit {
       this.detail.Servers.find(s => s.Id === progress.ServerId && hasEpisode(s)) ||
       this.detail.Servers.find(hasEpisode);
     const episode = server?.Episodes.find(e => e.Slug === progress.EpisodeSlug && e.HasSource);
-    if (!server || !episode) return;
+    if (!server || !episode) {
+      this.playbackError = 'Tập đã lưu chưa có nguồn phát. Vui lòng chọn tập khác.';
+      return;
+    }
     this.server = server;
     this.playEpisode(episode);
   }
@@ -301,6 +320,48 @@ export class MovieComponent implements OnInit {
     if (!this.episodesOpen) return;
     this.episodesOpen = false;
     this.episodeToggle?.nativeElement.focus({ preventScroll: true });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handlePlayerShortcut(event: KeyboardEvent): void {
+    if (
+      event.key.toLowerCase() !== 'f' || event.defaultPrevented ||
+      event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey ||
+      this.loadingPlayback || !this.playback || this.fullscreenPending
+    ) return;
+    const target = event.target;
+    if (target instanceof Element && (
+      target.closest('input, textarea, select, [role="textbox"], dialog, [role="dialog"]') ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    )) return;
+    const screen = this.playerScreen?.nativeElement;
+    const doc = document as FullscreenDocument;
+    const fullscreen = doc.fullscreenElement || doc.webkitFullscreenElement;
+    if (!screen || (fullscreen && !screen.contains(fullscreen))) return;
+    event.preventDefault();
+    void this.togglePlayerFullscreen();
+  }
+
+  private async togglePlayerFullscreen(): Promise<void> {
+    const screen = this.playerScreen?.nativeElement;
+    if (!screen || this.fullscreenPending) return;
+    const doc = document as FullscreenDocument;
+    this.fullscreenPending = true;
+    try {
+      if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+        if (doc.exitFullscreen) await doc.exitFullscreen();
+        else if (doc.webkitExitFullscreen) await doc.webkitExitFullscreen();
+        else throw new Error('Fullscreen exit unavailable');
+      } else {
+        if (screen.requestFullscreen) await screen.requestFullscreen();
+        else if (screen.webkitRequestFullscreen) await screen.webkitRequestFullscreen();
+        else throw new Error('Fullscreen unavailable');
+      }
+    } catch {
+      this.messages.error('Không thể chuyển toàn màn hình. Hãy dùng nút trên trình phát.');
+    } finally {
+      this.fullscreenPending = false;
+    }
   }
 
   @HostListener('document:click', ['$event'])

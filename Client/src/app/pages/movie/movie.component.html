@@ -160,7 +160,7 @@
         class="movie-player">
         <div class="section-heading movie-player__heading">
           <div>
-            <h2>{{ playback?.Title || 'Đang mở tập phim…' }}</h2>
+            <h2>{{ playback?.Title || (playbackError ? 'Chưa thể phát phim' : 'Đang mở tập phim…') }}</h2>
           </div>
         </div>
         <div *ngIf="loadingPlayback" class="movie-loading" role="status">
@@ -173,7 +173,9 @@
           role="alert">
           <p>{{ playbackError }}</p>
         </div>
-        <div *ngIf="playback" class="movie-player__screen">
+        <div #playerScreen *ngIf="playback" class="movie-player__screen"
+          tabindex="0" role="group" aria-keyshortcuts="f"
+          aria-label="Trình phát phim. Nhấn F để bật hoặc thoát toàn màn hình.">
           <app-movie-video
             *ngIf="playback.Url && !safeEmbedUrl"
             [url]="playback.Url"
