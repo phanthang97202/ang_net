@@ -98,6 +98,7 @@ namespace angnet.Infrastructure
 
             services.AddScoped<IMovieLibraryService, MovieLibraryService>();
             services.AddScoped<IMovieWishlistService, MovieWishlistService>();
+            services.AddScoped<IMovieWatchProgressService, MovieWatchProgressService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

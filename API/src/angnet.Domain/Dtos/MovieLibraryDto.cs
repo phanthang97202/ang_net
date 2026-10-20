@@ -25,6 +25,7 @@ public class MovieLibraryCatalogDto
 
 public class MovieLibraryDetailDto : MovieLibraryItemDto
 {
+    public MovieWatchProgressDto? WatchProgress { get; set; }
     public string Description { get; set; } = "";
     public List<string> Genres { get; set; } = [];
     public List<MovieLibraryServerDto> Servers { get; set; } = [];

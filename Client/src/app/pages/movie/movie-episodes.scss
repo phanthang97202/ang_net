@@ -3,32 +3,40 @@
   text-align: center;
 }
 
+.movie-player__source-nav,
+.movie-player__episode-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.movie-player__episode-nav {
+  margin-left: auto;
+}
+
+.movie-progress-retry {
+  padding: 0;
+  margin-left: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .movie-episodes__toggle,
 .movie-episodes__close {
   display: none;
 }
 
 @media (min-width: 761px) {
-  .movie-watch-layout {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
-    grid-template-areas: 'episodes player';
-    align-items: start;
-    gap: 1rem;
-    margin-top: 2.5rem;
-  }
-
-  .movie-watch-layout > .movie-player {
-    grid-area: player;
-    min-width: 0;
-    margin-top: 0;
-  }
-
   .movie-episodes {
-    position: sticky;
-    top: 96px;
-    z-index: 10;
-    grid-area: episodes;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 100;
+    transform: translateY(-50%);
     margin-top: 0;
   }
 
@@ -56,13 +64,15 @@
   }
 
   .movie-episodes__toggle {
-    width: 52px;
+    width: 44px;
     min-height: 64px;
     flex-direction: column;
     gap: 6px;
     padding: 10px 4px;
     box-shadow: 0 2px 16px var(--color-card-shadow);
     font-size: 1.1rem;
+    border-left: 0;
+    border-radius: 0 14px 14px 0;
 
     > span:last-child {
       font-size: 0.65rem;
@@ -79,11 +89,13 @@
 
   .movie-episodes__panel {
     position: absolute;
-    top: 0;
-    left: calc(100% + 12px);
+    top: 50%;
+    left: calc(100% + 8px);
+    transform: translateY(-50%);
     display: none;
-    width: min(340px, calc(100vw - 144px));
-    max-height: var(--movie-episode-panel-height, calc(100vh - 120px));
+    width: min(340px, calc(100vw - 72px));
+    max-height: calc(100vh - 128px);
+    max-height: calc(100dvh - 128px);
     flex-direction: column;
     overflow: hidden;
     padding: 1rem;
@@ -117,11 +129,6 @@
 
   .movie-episodes--open .movie-episodes__panel {
     display: flex;
-  }
-
-  .movie-episodes--above .movie-episodes__panel {
-    top: auto;
-    bottom: 0;
   }
 
   .movie-episodes__list {

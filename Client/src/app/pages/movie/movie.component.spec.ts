@@ -34,6 +34,7 @@ describe('Movie episode navigation', () => {
     { Slug: 'finale', Name: 'Tập cuối', HasSource: true },
   ];
   const playbackUrl = `${environment.apiUrl}Movie/Library/demo/playback`;
+  const progressUrl = `${environment.apiUrl}Movie/Progress/demo`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -98,8 +99,172 @@ describe('Movie episode navigation', () => {
         EmbedUrl: '',
       },
     });
+    finishProgress(episode, server);
     fixture.detectChanges();
   }
+
+  function finishProgress(episode: string, server = 7): void {
+    const request = http.expectOne(progressUrl);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({
+      ServerId: server,
+      EpisodeSlug: episode,
+    });
+    request.flush({
+      Success: true,
+      Data: {
+        ServerId: server,
+        ServerName: movie.server?.Name || 'Vietsub',
+        EpisodeSlug: episode,
+        EpisodeName:
+          movie.server?.Episodes.find(e => e.Slug === episode)?.Name || episode,
+        UpdatedAt: new Date().toISOString(),
+      },
+    });
+  }
+
+  function loadDetail(
+    progress: any = null,
+    servers = movie.detail!.Servers
+  ): void {
+    const data = {
+      ...movie.detail!,
+      WatchProgress: progress,
+      Servers: servers,
+    };
+    movie.load();
+    http
+      .expectOne(`${environment.apiUrl}Movie/Library/demo`)
+      .flush({ Success: true, Data: data });
+    fixture.detectChanges();
+  }
+
+  it('automatically resumes the saved episode when reopening a movie', () => {
+    loadDetail({
+      ServerId: 7,
+      ServerName: 'Vietsub',
+      EpisodeSlug: 'special',
+      EpisodeName: 'Tập đặc biệt',
+    });
+    expect(movie.selectedEpisode).toBe('special');
+    finishPlayback('special');
+    expect(movie.detail?.WatchProgress?.EpisodeSlug).toBe('special');
+    expect(
+      fixture.nativeElement.querySelector('.movie-detail__badges').textContent
+    ).toContain('Tiến trình: Tập đặc biệt');
+  });
+
+  it('uses the saved server name if provider server positions have changed', () => {
+    loadDetail(
+      {
+        ServerId: 7,
+        ServerName: 'Vietsub',
+        EpisodeSlug: 'special',
+        EpisodeName: 'Tập đặc biệt',
+      },
+      [
+        { Id: 7, Name: 'Thuyết minh', Episodes: [...episodes] },
+        { Id: 9, Name: 'Vietsub', Episodes: [...episodes] },
+      ]
+    );
+    expect(movie.server?.Id).toBe(9);
+    finishPlayback('special', 9);
+  });
+
+  it('leaves a first-time visitor free to choose an episode', () => {
+    loadDetail();
+    expect(movie.selectedEpisode).toBe('');
+    http.expectNone(req => req.url === playbackUrl || req.url === progressUrl);
+  });
+
+  it('keeps the saved progress visible without looping if that episode has lost its source', () => {
+    loadDetail({
+      ServerId: 7,
+      ServerName: 'Vietsub',
+      EpisodeSlug: 'pending',
+      EpisodeName: 'Tập 2',
+    });
+    expect(movie.selectedEpisode).toBe('');
+    expect(
+      fixture.nativeElement.querySelector('.movie-detail__badges').textContent
+    ).toContain('Tiến trình: Tập 2');
+    http.expectNone(req => req.url === playbackUrl || req.url === progressUrl);
+  });
+
+  it('queues progress writes in selection order while playback remains usable', () => {
+    movie.playEpisode(episodes[0]);
+    http
+      .expectOne(req => req.url === playbackUrl)
+      .flush({
+        Success: true,
+        Data: {
+          Title: 'Tập 1',
+          Url: 'https://example.com/test.m3u8',
+          EmbedUrl: '',
+        },
+      });
+    const firstSave = http.expectOne(progressUrl);
+    movie.changeEpisode(1);
+    http
+      .expectOne(req => req.url === playbackUrl)
+      .flush({
+        Success: true,
+        Data: {
+          Title: 'Tập đặc biệt',
+          Url: 'https://example.com/test.m3u8',
+          EmbedUrl: '',
+        },
+      });
+    expect(movie.selectedEpisode).toBe('special');
+    http.expectNone(progressUrl);
+    firstSave.flush({
+      Success: true,
+      Data: { EpisodeSlug: 'pilot', EpisodeName: 'Tập 1' },
+    });
+    finishProgress('special');
+    expect(movie.detail?.WatchProgress?.EpisodeSlug).toBe('special');
+  });
+
+  it('does not interrupt the player when saving fails and allows a retry', () => {
+    movie.playEpisode(episodes[0]);
+    http
+      .expectOne(req => req.url === playbackUrl)
+      .flush({
+        Success: true,
+        Data: {
+          Title: 'Tập 1',
+          Url: 'https://example.com/test.m3u8',
+          EmbedUrl: '',
+        },
+      });
+    http
+      .expectOne(progressUrl)
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+    fixture.detectChanges();
+    expect(movie.playback?.Url).toBeTruthy();
+    expect(movie.progressError).toBeTruthy();
+    fixture.nativeElement.querySelector('.movie-progress-retry').click();
+    finishProgress('pilot');
+    expect(movie.progressError).toBe('');
+  });
+
+  it('never saves a failed or unusable playback source', () => {
+    movie.playEpisode(episodes[0]);
+    http
+      .expectOne(req => req.url === playbackUrl)
+      .flush({ Success: false, ErrorMessage: 'No source' });
+    http.expectNone(progressUrl);
+    movie.playEpisode(episodes[0]);
+    http
+      .expectOne(req => req.url === playbackUrl)
+      .flush({
+        Success: true,
+        Data: { Title: 'Tập 1', Url: '', EmbedUrl: '' },
+      });
+    http.expectNone(progressUrl);
+    expect(movie.playbackError).toBeTruthy();
+    expect(movie.detail?.WatchProgress).toBeUndefined();
+  });
 
   function buttons(): HTMLButtonElement[] {
     return [
@@ -136,28 +301,44 @@ describe('Movie episode navigation', () => {
     expect(movie.episodesOpen).toBeFalse();
   });
 
-  it('keeps the sidebar panel within the available viewport space', () => {
+  it('places episode navigation at the end of the same toolbar as the player choices', () => {
+    movie.playEpisode(episodes[0]);
+    finishPlayback('pilot');
+    movie.playback!.EmbedUrl = 'https://player.phimapi.com/player/?url=test';
+    fixture.detectChanges();
+    const toolbar = fixture.nativeElement.querySelector(
+      '.movie-player__actions'
+    ) as HTMLElement;
+    expect(
+      Array.from(toolbar.querySelectorAll('button')).map(button =>
+        button.textContent?.trim()
+      )
+    ).toEqual([
+      'Trình phát mặc định',
+      'Trình phát HLS',
+      'Tập trước',
+      'Tập sau',
+    ]);
+    expect(
+      toolbar.lastElementChild?.classList.contains('movie-player__episode-nav')
+    ).toBeTrue();
+  });
+
+  it('does not reserve a sidebar column inside the movie content', () => {
+    expect(
+      getComputedStyle(
+        fixture.nativeElement.querySelector('.movie-watch-layout')
+      ).display
+    ).not.toBe('grid');
     const sidebar = fixture.nativeElement.querySelector(
       '.movie-episodes'
     ) as HTMLElement;
-    const bounds = spyOn(sidebar, 'getBoundingClientRect');
-    bounds.and.returnValue({
-      top: window.innerHeight - 100,
-      bottom: window.innerHeight - 36,
-    } as DOMRect);
-    movie.episodesOpen = true;
-    movie.updateEpisodePanelLayout();
-    expect(movie.episodePanelAbove).toBeTrue();
-    expect(movie.episodePanelHeight).toBeLessThanOrEqual(
-      window.innerHeight - 120
-    );
-
-    bounds.and.returnValue({ top: 96, bottom: 160 } as DOMRect);
-    movie.updateEpisodePanelLayout();
-    expect(movie.episodePanelAbove).toBeFalse();
-    expect(movie.episodePanelHeight).toBeLessThanOrEqual(
-      window.innerHeight - 112
-    );
+    if (window.matchMedia('(min-width: 761px)').matches) {
+      expect(getComputedStyle(sidebar).position).toBe('fixed');
+      expect(sidebar.getBoundingClientRect().left).toBe(0);
+    } else {
+      expect(getComputedStyle(sidebar).position).toBe('static');
+    }
   });
 
   it('closes the sidebar after choosing an episode and keeps the mobile list in the same DOM', () => {

@@ -31,9 +31,18 @@ export interface IMovieLibraryServer {
 }
 
 export interface IMovieLibraryDetail extends IMovieLibraryItem {
+  WatchProgress?: IMovieWatchProgress | null;
   Description: string;
   Genres: string[];
   Servers: IMovieLibraryServer[];
+}
+
+export interface IMovieWatchProgress {
+  ServerId: number;
+  ServerName: string;
+  EpisodeSlug: string;
+  EpisodeName: string;
+  UpdatedAt: string;
 }
 
 export interface IMovieLibraryPlayback {

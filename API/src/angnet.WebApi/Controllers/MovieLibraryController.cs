@@ -13,7 +13,8 @@ namespace angnet.WebApi.Controllers;
 [Route("api/Anime/Library")] // Compatibility for already-open clients; same permission gate.
 [Authorize(Policy = "movie.view")]
 [EnableRateLimiting("API")]
-public class MovieLibraryController(IMovieLibraryService library, IMovieWishlistService wishlist, ILogger<MovieLibraryController> logger) : ControllerBase
+public class MovieLibraryController(IMovieLibraryService library, IMovieWishlistService wishlist,
+    IMovieWatchProgressService progress, ILogger<MovieLibraryController> logger) : ControllerBase
 {
     [HttpGet]
     public Task<IActionResult> Browse(string keyword = "", int page = 1, CancellationToken cancellationToken = default) =>
@@ -30,6 +31,7 @@ public class MovieLibraryController(IMovieLibraryService library, IMovieWishlist
         {
             var result = await library.Detail(slug, cancellationToken);
             await wishlist.MarkSaved(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "", [result], cancellationToken);
+            result.WatchProgress = await progress.Get(User.FindFirstValue(ClaimTypes.NameIdentifier)!, slug, cancellationToken);
             return result;
         });
 

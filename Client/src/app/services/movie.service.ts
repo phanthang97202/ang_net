@@ -6,6 +6,7 @@ import {
   IMovieLibraryCatalog,
   IMovieLibraryDetail,
   IMovieLibraryPlayback,
+  IMovieWatchProgress,
 } from '../interfaces/movie';
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +55,13 @@ export class MovieService {
       {
         params: new HttpParams().set('server', server).set('episode', episode),
       }
+    );
+  }
+
+  saveWatchProgress(slug: string, serverId: number, episodeSlug: string) {
+    return this.http.put<IBaseResponse<IMovieWatchProgress>>(
+      `${this.apiUrl}/Progress/${encodeURIComponent(slug)}`,
+      { ServerId: serverId, EpisodeSlug: episodeSlug }
     );
   }
 }

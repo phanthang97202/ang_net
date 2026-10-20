@@ -96,6 +96,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<AnimeSourceModel> AnimeSource { get; set; }
 
         public DbSet<MovieWishlistModel> MovieWishlist { get; set; }
+        public DbSet<MovieWatchProgressModel> MovieWatchProgress { get; set; }
 
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -123,6 +124,12 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<BlogNotificationModel>().HasIndex(n => new { n.RecipientId, n.ReadAt });
             base.OnModelCreating(modelBuilder);
             modelBuilder.UseOpenIddict();
+
+            modelBuilder.Entity<MovieWatchProgressModel>()
+                .HasKey(x => new { x.UserId, x.Provider, x.MovieSlug });
+            modelBuilder.Entity<MovieWatchProgressModel>()
+                .HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BlogActivityModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);

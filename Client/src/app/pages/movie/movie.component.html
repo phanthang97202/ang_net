@@ -137,6 +137,7 @@
             <span>{{ movie.Year || 'Đang cập nhật' }}</span
             ><span>{{ movie.EpisodeStatus }}</span>
             <span>{{ movie.Quality }} · {{ movie.Language }}</span>
+            <span *ngIf="movie.WatchProgress">Tiến trình: {{ movie.WatchProgress.EpisodeName }}</span>
           </div>
           <p class="movie-detail__description">{{ movie.Description }}</p>
           <div class="movie-detail__genres">
@@ -189,56 +190,48 @@
         <p *ngIf="playbackNotice" class="movie-player__notice" role="status">
           {{ playbackNotice }}
         </p>
+        <p *ngIf="progressError" class="movie-player__notice" role="status">
+          {{ progressError }}
+          <button type="button" class="movie-progress-retry" (click)="retryProgressSave()">Thử lưu lại</button>
+        </p>
         <div
-          class="movie-player__episode-nav"
-          role="group"
-          aria-label="Chuyển tập phim">
-          <button
-            type="button"
-            class="blog-btn"
-            [disabled]="loadingPlayback || !previousEpisode"
-            (click)="changeEpisode(-1)">
-            <span
-              nz-icon
-              nzType="arrow-left"
-              nzTheme="outline"
-              aria-hidden="true"></span>
-            Tập trước
-          </button>
-          <button
-            type="button"
-            class="blog-btn"
-            [disabled]="loadingPlayback || !nextEpisode"
-            (click)="changeEpisode(1)">
-            Tập sau
-            <span
-              nz-icon
-              nzType="arrow-right"
-              nzTheme="outline"
-              aria-hidden="true"></span>
-          </button>
-        </div>
-        <div
-          *ngIf="playback?.Url && playback?.EmbedUrl"
           class="movie-player__actions"
           role="group"
-          aria-label="Chọn trình phát">
-          <button
-            type="button"
-            class="blog-btn"
-            [class.blog-btn--primary]="!!safeEmbedUrl"
-            [attr.aria-pressed]="!!safeEmbedUrl"
-            (click)="useEmbed()">
-            Trình phát mặc định
-          </button>
-          <button
-            type="button"
-            class="blog-btn"
-            [class.blog-btn--primary]="!safeEmbedUrl"
-            [attr.aria-pressed]="!safeEmbedUrl"
-            (click)="useHls()">
-            Trình phát HLS
-          </button>
+          aria-label="Điều khiển phát phim">
+          <div
+            *ngIf="playback?.Url && playback?.EmbedUrl"
+            class="movie-player__source-nav"
+            role="group"
+            aria-label="Chọn trình phát">
+            <button
+              type="button"
+              class="blog-btn"
+              [class.blog-btn--primary]="!!safeEmbedUrl"
+              [attr.aria-pressed]="!!safeEmbedUrl"
+              (click)="useEmbed()">
+              Trình phát mặc định
+            </button>
+            <button
+              type="button"
+              class="blog-btn"
+              [class.blog-btn--primary]="!safeEmbedUrl"
+              [attr.aria-pressed]="!safeEmbedUrl"
+              (click)="useHls()">
+              Trình phát HLS
+            </button>
+          </div>
+          <div class="movie-player__episode-nav" role="group" aria-label="Chuyển tập phim">
+            <button type="button" class="blog-btn"
+              [disabled]="loadingPlayback || !previousEpisode" (click)="changeEpisode(-1)">
+              <span nz-icon nzType="arrow-left" nzTheme="outline" aria-hidden="true"></span>
+              Tập trước
+            </button>
+            <button type="button" class="blog-btn"
+              [disabled]="loadingPlayback || !nextEpisode" (click)="changeEpisode(1)">
+              Tập sau
+              <span nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -246,8 +239,6 @@
         #episodeSidebar
         class="movie-episodes"
         [class.movie-episodes--open]="episodesOpen"
-        [class.movie-episodes--above]="episodePanelAbove"
-        [style.--movie-episode-panel-height]="episodePanelHeight + 'px'"
         aria-label="Danh sách tập phim">
         <button
           #episodeToggle

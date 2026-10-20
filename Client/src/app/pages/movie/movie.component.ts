@@ -12,7 +12,18 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { combineLatest, distinctUntilChanged, finalize, map, Subscription } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  concatMap,
+  distinctUntilChanged,
+  EMPTY,
+  finalize,
+  map,
+  Subject,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import {
@@ -53,6 +64,11 @@ export class MovieComponent implements OnInit {
   private request?: Subscription;
   private playbackRequest?: Subscription;
   private embedFallbackAttempted = false;
+  private readonly progressWrites = new Subject<{
+    slug: string;
+    serverId: number;
+    episodeSlug: string;
+  }>();
   @ViewChild('player') private player?: ElementRef<HTMLElement>;
   @ViewChild('episodeSidebar')
   private episodeSidebar?: ElementRef<HTMLElement>;
@@ -62,8 +78,6 @@ export class MovieComponent implements OnInit {
   private episodeList?: ElementRef<HTMLElement>;
 
   episodesOpen = false;
-  episodePanelAbove = false;
-  episodePanelHeight = 0;
   keyword = '';
   wishlistView = false;
   readonly wishlistPending = new Set<string>();
@@ -81,6 +95,36 @@ export class MovieComponent implements OnInit {
   error = '';
   playbackError = '';
   playbackNotice = '';
+  progressError = '';
+
+  constructor() {
+    // Serialize writes so quickly switching episodes cannot save an older one last.
+    this.progressWrites
+      .pipe(
+        concatMap(entry =>
+          this.api.saveWatchProgress(entry.slug, entry.serverId, entry.episodeSlug)
+            .pipe(
+              tap(response => {
+                if (!response.Success || !response.Data) {
+                  throw new Error('Progress save failed');
+                }
+                if (this.detail?.Slug === entry.slug) {
+                  this.detail.WatchProgress = response.Data;
+                  this.progressError = '';
+                }
+              }),
+              catchError(() => {
+                if (this.detail?.Slug === entry.slug) {
+                  this.progressError = 'Chưa lưu được tiến trình xem.';
+                }
+                return EMPTY;
+              })
+            )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
 
   ngOnInit(): void {
     this.destroyRef.onDestroy(() => {
@@ -129,6 +173,7 @@ export class MovieComponent implements OnInit {
     this.request?.unsubscribe();
     this.resetPlayback();
     this.episodesOpen = false;
+    this.progressError = '';
     this.loading = true;
     this.error = '';
     this.detail = null;
@@ -147,6 +192,7 @@ export class MovieComponent implements OnInit {
             this.detail.Servers.find(s => s.Episodes.some(e => e.HasSource)) ||
             this.detail.Servers[0] ||
             null;
+          this.resumeWatchProgress();
         },
         error: err => this.loadError(err),
       });
@@ -206,10 +252,38 @@ export class MovieComponent implements OnInit {
     if (match) this.playEpisode(match);
   }
 
+  private resumeWatchProgress(): void {
+    const progress = this.detail?.WatchProgress;
+    if (!progress || !this.detail) return;
+    const hasEpisode = (server: IMovieLibraryServer) => server.Episodes.some(
+      episode => episode.Slug === progress.EpisodeSlug && episode.HasSource
+    );
+    // Provider server IDs are array positions and can change; prefer the saved name.
+    const server = this.detail.Servers.find(s => s.Name === progress.ServerName && hasEpisode(s)) ||
+      this.detail.Servers.find(s => s.Id === progress.ServerId && hasEpisode(s)) ||
+      this.detail.Servers.find(hasEpisode);
+    const episode = server?.Episodes.find(e => e.Slug === progress.EpisodeSlug && e.HasSource);
+    if (!server || !episode) return;
+    this.server = server;
+    this.playEpisode(episode);
+  }
+
+  retryProgressSave(): void {
+    if (
+      !this.detail || !this.server || !this.selectedEpisode ||
+      (!this.safeEmbedUrl && !this.playback?.Url)
+    ) return;
+    this.progressError = '';
+    this.progressWrites.next({
+      slug: this.detail.Slug,
+      serverId: this.server.Id,
+      episodeSlug: this.selectedEpisode,
+    });
+  }
+
   toggleEpisodeSidebar(): void {
     this.episodesOpen = !this.episodesOpen;
     if (!this.episodesOpen) return;
-    this.updateEpisodePanelLayout();
     requestAnimationFrame(() => {
       const list = this.episodeList?.nativeElement;
       const active = list?.querySelector<HTMLElement>('.episode-item--active');
@@ -220,20 +294,6 @@ export class MovieComponent implements OnInit {
         list.getBoundingClientRect().top -
         (list.clientHeight - active.clientHeight) / 2;
     });
-  }
-
-  @HostListener('window:scroll')
-  @HostListener('window:resize')
-  updateEpisodePanelLayout(): void {
-    if (!this.episodesOpen || !this.episodeSidebar) return;
-    const rect = this.episodeSidebar.nativeElement.getBoundingClientRect();
-    const below = window.innerHeight - rect.top - 16;
-    const above = rect.bottom - 16;
-    this.episodePanelAbove = below < 260 && above > below;
-    this.episodePanelHeight = Math.max(
-      0,
-      Math.min(window.innerHeight - 120, this.episodePanelAbove ? above : below)
-    );
   }
 
   @HostListener('document:keydown.escape')
@@ -312,6 +372,7 @@ export class MovieComponent implements OnInit {
             this.playbackError =
               'Tập phim chưa có trình phát khả dụng. Hãy thử nguồn khác.';
           }
+          if (this.safeEmbedUrl || this.playback.Url) this.retryProgressSave();
         },
         error: err => {
           this.loadingPlayback = false;
