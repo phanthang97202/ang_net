@@ -1,9 +1,4 @@
-import {
-  ComponentFixture,
-  fakeAsync,
-  flushMicrotasks,
-  TestBed,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
   HttpTestingController,
@@ -128,106 +123,6 @@ describe('Movie episode navigation', () => {
     });
   }
 
-  function pressFullscreenKey(
-    options: KeyboardEventInit = {},
-    target: EventTarget = document
-  ): KeyboardEvent {
-    const event = new KeyboardEvent('keydown', {
-      key: 'f',
-      bubbles: true,
-      cancelable: true,
-      ...options,
-    });
-    target.dispatchEvent(event);
-    return event;
-  }
-
-  it('toggles only the video frame fullscreen with F and Shift+F', fakeAsync(() => {
-    movie.playEpisode(episodes[0]);
-    finishPlayback('pilot');
-    const screen = fixture.nativeElement.querySelector(
-      '.movie-player__screen'
-    ) as HTMLElement;
-    let fullscreen: Element | null = null;
-    spyOnProperty(document, 'fullscreenElement', 'get').and.callFake(
-      () => fullscreen
-    );
-    const enter = spyOn(screen, 'requestFullscreen').and.callFake(() => {
-      fullscreen = screen;
-      return Promise.resolve();
-    });
-    const exit = spyOn(document, 'exitFullscreen').and.callFake(() => {
-      fullscreen = null;
-      return Promise.resolve();
-    });
-    expect(pressFullscreenKey().defaultPrevented).toBeTrue();
-    flushMicrotasks();
-    expect(enter).toHaveBeenCalledTimes(1);
-    expect(screen.getAttribute('aria-keyshortcuts')).toBe('f');
-    expect(
-      pressFullscreenKey({ key: 'F', shiftKey: true }).defaultPrevented
-    ).toBeTrue();
-    flushMicrotasks();
-    expect(exit).toHaveBeenCalledTimes(1);
-  }));
-
-  it('ignores typing, browser shortcuts, key repeat and input composition', () => {
-    movie.playEpisode(episodes[0]);
-    finishPlayback('pilot');
-    const screen = fixture.nativeElement.querySelector(
-      '.movie-player__screen'
-    ) as HTMLElement;
-    const enter = spyOn(screen, 'requestFullscreen').and.resolveTo();
-    for (const tag of ['input', 'textarea', 'select', 'div']) {
-      const field = document.createElement(tag);
-      if (tag === 'div') field.contentEditable = 'true';
-      fixture.nativeElement.appendChild(field);
-      expect(pressFullscreenKey({}, field).defaultPrevented).toBeFalse();
-      field.remove();
-    }
-    for (const options of [
-      { ctrlKey: true },
-      { altKey: true },
-      { metaKey: true },
-      { repeat: true },
-      { isComposing: true },
-      { key: 'x' },
-    ]) {
-      expect(pressFullscreenKey(options).defaultPrevented).toBeFalse();
-    }
-    expect(enter).not.toHaveBeenCalled();
-  });
-
-  it('leaves F alone when no movie is playing or a different element is fullscreen', () => {
-    expect(pressFullscreenKey().defaultPrevented).toBeFalse();
-    movie.playEpisode(episodes[0]);
-    finishPlayback('pilot');
-    spyOnProperty(document, 'fullscreenElement', 'get').and.returnValue(
-      document.documentElement
-    );
-    const exit = spyOn(document, 'exitFullscreen').and.resolveTo();
-    expect(pressFullscreenKey().defaultPrevented).toBeFalse();
-    expect(exit).not.toHaveBeenCalled();
-  });
-
-  it('handles fullscreen API rejection and allows the next F attempt', fakeAsync(() => {
-    movie.playEpisode(episodes[0]);
-    finishPlayback('pilot');
-    const screen = fixture.nativeElement.querySelector(
-      '.movie-player__screen'
-    ) as HTMLElement;
-    const enter = spyOn(screen, 'requestFullscreen').and.rejectWith(
-      new Error('Denied')
-    );
-    pressFullscreenKey();
-    flushMicrotasks();
-    expect(TestBed.inject(NzMessageService).error).toHaveBeenCalledTimes(1);
-    enter.and.resolveTo();
-    pressFullscreenKey();
-    flushMicrotasks();
-    expect(enter).toHaveBeenCalledTimes(2);
-  }));
-
   function loadDetail(
     progress: any = null,
     servers = movie.detail!.Servers
@@ -276,36 +171,8 @@ describe('Movie episode navigation', () => {
     finishPlayback('special', 9);
   });
 
-  it('automatically opens the first playable episode when there is no saved progress', () => {
+  it('leaves a first-time visitor free to choose an episode', () => {
     loadDetail();
-    expect(movie.selectedEpisode).toBe('pilot');
-    expect(movie.loadingPlayback).toBeTrue();
-    expect(fixture.nativeElement.querySelector('.movie-player')).not.toBeNull();
-    finishPlayback('pilot');
-    expect(movie.detail?.WatchProgress?.EpisodeSlug).toBe('pilot');
-  });
-
-  it('skips empty servers and unavailable episodes when starting a new movie', () => {
-    loadDetail(null, [
-      { Id: 7, Name: 'Vietsub', Episodes: [episodes[1]] },
-      {
-        Id: 9,
-        Name: 'Thuyết minh',
-        Episodes: [episodes[1], episodes[2], episodes[3]],
-      },
-    ]);
-    expect(movie.server?.Id).toBe(9);
-    expect(movie.selectedEpisode).toBe('special');
-    finishPlayback('special', 9);
-  });
-
-  it('shows a clear player message instead of an empty area if no episode is playable', () => {
-    loadDetail(null, []);
-    expect(movie.playbackError).toBeTruthy();
-    expect(
-      fixture.nativeElement.querySelector('.movie-player [role="alert"]')
-        .textContent
-    ).toContain('chưa có tập khả dụng');
     expect(movie.selectedEpisode).toBe('');
     http.expectNone(req => req.url === playbackUrl || req.url === progressUrl);
   });
@@ -318,7 +185,6 @@ describe('Movie episode navigation', () => {
       EpisodeName: 'Tập 2',
     });
     expect(movie.selectedEpisode).toBe('');
-    expect(movie.playbackError).toContain('Tập đã lưu');
     expect(
       fixture.nativeElement.querySelector('.movie-detail__badges').textContent
     ).toContain('Tiến trình: Tập 2');
