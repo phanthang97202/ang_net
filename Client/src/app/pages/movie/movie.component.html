@@ -152,110 +152,183 @@
       </div>
     </section>
 
-    <section
-      #player
-      *ngIf="playback || loadingPlayback || playbackError"
-      class="movie-player">
-      <div class="section-heading">
-        <div>
-          <span>ĐANG XEM</span>
-          <h2>{{ playback?.Title || 'Đang mở tập phim…' }}</h2>
+    <div class="movie-watch-layout">
+      <section
+        #player
+        *ngIf="playback || loadingPlayback || playbackError"
+        class="movie-player">
+        <div class="section-heading movie-player__heading">
+          <div>
+            <h2>{{ playback?.Title || 'Đang mở tập phim…' }}</h2>
+          </div>
         </div>
-      </div>
-      <div *ngIf="loadingPlayback" class="movie-loading" role="status">
-        <span class="movie-loading__mark"></span>
-        <p>Đang lấy nguồn phát...</p>
-      </div>
-      <div
-        *ngIf="playbackError"
-        class="movie-empty movie-empty--compact"
-        role="alert">
-        <p>{{ playbackError }}</p>
-      </div>
-      <div *ngIf="playback" class="movie-player__screen">
-        <app-movie-video
-          *ngIf="playback.Url && !safeEmbedUrl"
-          [url]="playback.Url"
-          (failed)="videoError()" />
-        <iframe
-          *ngIf="safeEmbedUrl"
-          [src]="safeEmbedUrl"
-          [title]="movie.Title + ' · ' + playback.Title"
-          sandbox="allow-scripts allow-same-origin allow-presentation"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          allowfullscreen></iframe>
-      </div>
-      <p *ngIf="playbackNotice" class="movie-player__notice" role="status">
-        {{ playbackNotice }}
-      </p>
-      <div
-        *ngIf="playback?.Url && playback?.EmbedUrl"
-        class="movie-player__actions"
-        role="group"
-        aria-label="Chọn trình phát">
-        <button
-          type="button"
-          class="blog-btn"
-          [class.blog-btn--primary]="!!safeEmbedUrl"
-          [attr.aria-pressed]="!!safeEmbedUrl"
-          (click)="useEmbed()">
-          Trình phát mặc định
-        </button>
-        <button
-          type="button"
-          class="blog-btn"
-          [class.blog-btn--primary]="!safeEmbedUrl"
-          [attr.aria-pressed]="!safeEmbedUrl"
-          (click)="useHls()">
-          Trình phát HLS
-        </button>
-      </div>
-    </section>
+        <div *ngIf="loadingPlayback" class="movie-loading" role="status">
+          <span class="movie-loading__mark"></span>
+          <p>Đang lấy nguồn phát...</p>
+        </div>
+        <div
+          *ngIf="playbackError"
+          class="movie-empty movie-empty--compact"
+          role="alert">
+          <p>{{ playbackError }}</p>
+        </div>
+        <div *ngIf="playback" class="movie-player__screen">
+          <app-movie-video
+            *ngIf="playback.Url && !safeEmbedUrl"
+            [url]="playback.Url"
+            (failed)="videoError()" />
+          <iframe
+            *ngIf="safeEmbedUrl"
+            [src]="safeEmbedUrl"
+            [title]="movie.Title + ' · ' + playback.Title"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowfullscreen></iframe>
+        </div>
+        <p *ngIf="playbackNotice" class="movie-player__notice" role="status">
+          {{ playbackNotice }}
+        </p>
+        <div
+          class="movie-player__episode-nav"
+          role="group"
+          aria-label="Chuyển tập phim">
+          <button
+            type="button"
+            class="blog-btn"
+            [disabled]="loadingPlayback || !previousEpisode"
+            (click)="changeEpisode(-1)">
+            <span
+              nz-icon
+              nzType="arrow-left"
+              nzTheme="outline"
+              aria-hidden="true"></span>
+            Tập trước
+          </button>
+          <button
+            type="button"
+            class="blog-btn"
+            [disabled]="loadingPlayback || !nextEpisode"
+            (click)="changeEpisode(1)">
+            Tập sau
+            <span
+              nz-icon
+              nzType="arrow-right"
+              nzTheme="outline"
+              aria-hidden="true"></span>
+          </button>
+        </div>
+        <div
+          *ngIf="playback?.Url && playback?.EmbedUrl"
+          class="movie-player__actions"
+          role="group"
+          aria-label="Chọn trình phát">
+          <button
+            type="button"
+            class="blog-btn"
+            [class.blog-btn--primary]="!!safeEmbedUrl"
+            [attr.aria-pressed]="!!safeEmbedUrl"
+            (click)="useEmbed()">
+            Trình phát mặc định
+          </button>
+          <button
+            type="button"
+            class="blog-btn"
+            [class.blog-btn--primary]="!safeEmbedUrl"
+            [attr.aria-pressed]="!safeEmbedUrl"
+            (click)="useHls()">
+            Trình phát HLS
+          </button>
+        </div>
+      </section>
 
-    <section class="movie-episodes">
-      <div class="section-heading">
-        <div>
-          <h2>Danh sách tập</h2>
-        </div>
-        <strong>{{ server?.Episodes?.length || 0 }} tập</strong>
-      </div>
-      <div class="movie-servers" role="group" aria-label="Chọn nguồn phát">
+      <aside
+        #episodeSidebar
+        class="movie-episodes"
+        [class.movie-episodes--open]="episodesOpen"
+        [class.movie-episodes--above]="episodePanelAbove"
+        [style.--movie-episode-panel-height]="episodePanelHeight + 'px'"
+        aria-label="Danh sách tập phim">
         <button
-          *ngFor="let item of movie.Servers"
+          #episodeToggle
           type="button"
-          class="blog-btn"
-          [class.blog-btn--primary]="server?.Id === item.Id"
-          [attr.aria-pressed]="server?.Id === item.Id"
-          (click)="selectServer(item)">
-          {{ item.Name }}
-        </button>
-      </div>
-      <div
-        *ngIf="server?.Episodes?.length; else noEpisodes"
-        class="episode-grid">
-        <button
-          *ngFor="let episode of server?.Episodes"
-          type="button"
-          class="episode-item"
-          [class.episode-item--active]="selectedEpisode === episode.Slug"
-          [class.episode-item--unavailable]="!episode.HasSource"
-          [disabled]="!episode.HasSource"
-          [attr.aria-pressed]="selectedEpisode === episode.Slug"
-          (click)="playEpisode(episode)">
+          class="movie-episodes__toggle"
+          aria-label="Danh sách tập"
+          title="Danh sách tập"
+          aria-controls="movie-episode-panel"
+          [attr.aria-expanded]="episodesOpen"
+          (click)="toggleEpisodeSidebar()">
           <span
             nz-icon
-            [nzType]="episode.HasSource ? 'play-circle' : 'clock-circle'"
-            nzTheme="outline"></span>
-          <span class="episode-item__label">{{ episode.Name }}</span>
+            nzType="unordered-list"
+            nzTheme="outline"
+            aria-hidden="true"></span>
+          <span>{{ server?.Episodes?.length || 0 }}</span>
         </button>
-      </div>
-      <ng-template #noEpisodes
-        ><div class="movie-empty movie-empty--compact">
-          <h2>Nguồn phim chưa cập nhật tập</h2>
-          <p>Bạn có thể quay lại sau hoặc chọn phim khác.</p>
-        </div></ng-template
-      >
-    </section>
+        <section
+          id="movie-episode-panel"
+          class="movie-episodes__panel"
+          aria-label="Chọn tập phim">
+          <div class="section-heading">
+            <div>
+              <h2>Danh sách tập</h2>
+            </div>
+            <strong>{{ server?.Episodes?.length || 0 }} tập</strong>
+            <button
+              type="button"
+              class="movie-episodes__close"
+              aria-label="Đóng danh sách tập"
+              (click)="closeEpisodeSidebar()">
+              <span
+                nz-icon
+                nzType="close"
+                nzTheme="outline"
+                aria-hidden="true"></span>
+            </button>
+          </div>
+          <div #episodeList class="movie-episodes__list">
+            <div
+              class="movie-servers"
+              role="group"
+              aria-label="Chọn nguồn phát">
+              <button
+                *ngFor="let item of movie.Servers"
+                type="button"
+                class="blog-btn"
+                [class.blog-btn--primary]="server?.Id === item.Id"
+                [attr.aria-pressed]="server?.Id === item.Id"
+                (click)="selectServer(item)">
+                {{ item.Name }}
+              </button>
+            </div>
+            <div
+              *ngIf="server?.Episodes?.length; else noEpisodes"
+              class="episode-grid">
+              <button
+                *ngFor="let episode of server?.Episodes"
+                type="button"
+                class="episode-item"
+                [class.episode-item--active]="selectedEpisode === episode.Slug"
+                [class.episode-item--unavailable]="!episode.HasSource"
+                [disabled]="!episode.HasSource"
+                [attr.aria-pressed]="selectedEpisode === episode.Slug"
+                (click)="playEpisode(episode)">
+                <span
+                  nz-icon
+                  [nzType]="episode.HasSource ? 'play-circle' : 'clock-circle'"
+                  nzTheme="outline"></span>
+                <span class="episode-item__label">{{ episode.Name }}</span>
+              </button>
+            </div>
+            <ng-template #noEpisodes
+              ><div class="movie-empty movie-empty--compact">
+                <h2>Nguồn phim chưa cập nhật tập</h2>
+                <p>Bạn có thể quay lại sau hoặc chọn phim khác.</p>
+              </div></ng-template
+            >
+          </div>
+        </section>
+      </aside>
+    </div>
   </article>
 </main>

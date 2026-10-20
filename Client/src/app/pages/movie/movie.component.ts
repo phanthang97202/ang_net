@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   ViewChild,
@@ -36,7 +37,11 @@ import { MovieVideoComponent } from './movie-video.component';
     MovieVideoComponent,
   ],
   templateUrl: './movie.component.html',
-  styleUrls: ['./movie.component.scss', './movie-wishlist.scss'],
+  styleUrls: [
+    './movie.component.scss',
+    './movie-wishlist.scss',
+    './movie-episodes.scss',
+  ],
 })
 export class MovieComponent implements OnInit {
   private readonly api = inject(MovieService);
@@ -49,7 +54,16 @@ export class MovieComponent implements OnInit {
   private playbackRequest?: Subscription;
   private embedFallbackAttempted = false;
   @ViewChild('player') private player?: ElementRef<HTMLElement>;
+  @ViewChild('episodeSidebar')
+  private episodeSidebar?: ElementRef<HTMLElement>;
+  @ViewChild('episodeToggle')
+  private episodeToggle?: ElementRef<HTMLButtonElement>;
+  @ViewChild('episodeList')
+  private episodeList?: ElementRef<HTMLElement>;
 
+  episodesOpen = false;
+  episodePanelAbove = false;
+  episodePanelHeight = 0;
   keyword = '';
   wishlistView = false;
   readonly wishlistPending = new Set<string>();
@@ -114,6 +128,7 @@ export class MovieComponent implements OnInit {
   load(): void {
     this.request?.unsubscribe();
     this.resetPlayback();
+    this.episodesOpen = false;
     this.loading = true;
     this.error = '';
     this.detail = null;
@@ -191,8 +206,85 @@ export class MovieComponent implements OnInit {
     if (match) this.playEpisode(match);
   }
 
+  toggleEpisodeSidebar(): void {
+    this.episodesOpen = !this.episodesOpen;
+    if (!this.episodesOpen) return;
+    this.updateEpisodePanelLayout();
+    requestAnimationFrame(() => {
+      const list = this.episodeList?.nativeElement;
+      const active = list?.querySelector<HTMLElement>('.episode-item--active');
+      if (!this.episodesOpen || !list || !active) return;
+      // Reveal the current episode without scrolling the page or the player.
+      list.scrollTop +=
+        active.getBoundingClientRect().top -
+        list.getBoundingClientRect().top -
+        (list.clientHeight - active.clientHeight) / 2;
+    });
+  }
+
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  updateEpisodePanelLayout(): void {
+    if (!this.episodesOpen || !this.episodeSidebar) return;
+    const rect = this.episodeSidebar.nativeElement.getBoundingClientRect();
+    const below = window.innerHeight - rect.top - 16;
+    const above = rect.bottom - 16;
+    this.episodePanelAbove = below < 260 && above > below;
+    this.episodePanelHeight = Math.max(
+      0,
+      Math.min(window.innerHeight - 120, this.episodePanelAbove ? above : below)
+    );
+  }
+
+  @HostListener('document:keydown.escape')
+  closeEpisodeSidebar(): void {
+    if (!this.episodesOpen) return;
+    this.episodesOpen = false;
+    this.episodeToggle?.nativeElement.focus({ preventScroll: true });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onOutsideEpisodeClick(event: MouseEvent): void {
+    if (!this.episodeSidebar?.nativeElement.contains(event.target as Node)) {
+      this.episodesOpen = false;
+    }
+  }
+
+  get previousEpisode(): IMovieLibraryEpisode | null {
+    return this.adjacentEpisode(-1);
+  }
+
+  get nextEpisode(): IMovieLibraryEpisode | null {
+    return this.adjacentEpisode(1);
+  }
+
+  changeEpisode(direction: -1 | 1): void {
+    if (this.loadingPlayback) return;
+    const episode = this.adjacentEpisode(direction);
+    if (episode) this.playEpisode(episode);
+  }
+
+  private adjacentEpisode(direction: -1 | 1): IMovieLibraryEpisode | null {
+    const episodes = this.server?.Episodes || [];
+    const currentIndex = episodes.findIndex(
+      e => e.Slug === this.selectedEpisode
+    );
+    if (currentIndex < 0) return null;
+
+    // Follow the current source's episode order, skipping entries without media.
+    for (
+      let i = currentIndex + direction;
+      i >= 0 && i < episodes.length;
+      i += direction
+    ) {
+      if (episodes[i].HasSource) return episodes[i];
+    }
+    return null;
+  }
+
   playEpisode(episode: IMovieLibraryEpisode): void {
     if (!this.detail || !this.server || !episode.HasSource) return;
+    this.episodesOpen = false;
     this.resetPlayback();
     this.selectedEpisode = episode.Slug;
     this.loadingPlayback = true;

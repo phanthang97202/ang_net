@@ -403,12 +403,17 @@
   scroll-margin-top: 80px;
 }
 
-.movie-player__actions {
+.movie-player__actions,
+.movie-player__episode-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+.movie-player__episode-nav {
+  justify-content: space-between;
 }
 
 .movie-player__notice {
