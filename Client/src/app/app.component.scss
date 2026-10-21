@@ -64,6 +64,10 @@ nz-content {
   width: 100%;
 }
 
+.layout--login > nz-content {
+  margin: 0;
+}
+
 .admin__layout--content {
   margin: 0;
 }

@@ -1,195 +1,220 @@
-// Trang login chạy trong layout 'none' -> nz-content của app.component.scss áp
-// margin: 64.8px 0. Trừ đúng khoảng đó để thẻ vẫn nằm giữa màn hình.
-$nz-content-gap: 130px;
+﻿:host {
+  display: block;
+}
 
 .login {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - #{$nz-content-gap});
-  padding: 24px 16px;
-  // Nền dịu theo tông accent của blog thay vì nền đen như bản mẫu, cho ăn nhập
-  // với các trang còn lại
-  background:
-    radial-gradient(60% 60% at 12% 20%, rgba(242, 153, 74, 0.18), transparent 70%),
-    radial-gradient(55% 55% at 88% 80%, rgba(91, 79, 233, 0.2), transparent 70%),
-    var(--color-bg-page);
-}
-
-.login__card {
-  position: relative;
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  width: 100%;
-  max-width: 980px;
-  min-height: 560px;
-  border-radius: 20px;
-  overflow: hidden;
+  grid-template-columns: 55fr 45fr;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--color-bg-card);
-  box-shadow: 0 24px 60px rgba(20, 15, 60, 0.16);
+  color: var(--color-text);
+  font-family: 'Montserrat', sans-serif;
 }
 
-.login__home {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 8px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
-  color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1;
-  box-shadow: 0 6px 18px rgba(20, 15, 60, 0.08);
-  backdrop-filter: blur(10px);
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: var(--color-accent);
-    background: var(--color-accent-bg);
-    color: var(--color-accent);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 22px rgba(91, 79, 233, 0.16);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
-  }
-}
-
-// ── Cột ảnh ───────────────────────────────────────────────────────────
 .login__hero {
   position: relative;
+  isolation: isolate;
   display: flex;
-  align-items: flex-start;
-  padding: 40px 36px;
-  background-image: url('/assets/images/bg_banner.avif');
-  background-size: cover;
-  background-position: center;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 80px;
+  min-width: 0;
+  padding: clamp(32px, 4vw, 64px);
+  color: #fff;
+  background: #1a1a2e;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 18, 32, 0.3),
+      rgba(15, 18, 32, 0.08) 35%,
+      rgba(15, 18, 32, 0.8)
+    );
+  }
 }
 
-.login__hero-overlay {
+.login__hero-image {
   position: absolute;
   inset: 0;
-  // Tối dần từ trái xuống để chữ luôn đọc được bất kể ảnh sáng hay tối
-  background: linear-gradient(
-    160deg,
-    rgba(12, 10, 30, 0.68) 0%,
-    rgba(12, 10, 30, 0.35) 55%,
-    rgba(91, 79, 233, 0.45) 100%
-  );
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.login__hero-content {
-  position: relative;
-  color: #fff;
-}
+.login__brand {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 12px;
+  width: fit-content;
+  color: inherit;
+  font:
+    700 30px/1.2 'Playfair Display',
+    serif;
 
-.login__hero-brand {
-  margin: 0 0 14px;
-  font-family: 'Playfair Display', serif;
-  font-size: 2.4rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  img {
+    flex-shrink: 0;
+    border-radius: 12px;
+  }
 
-  span {
-    font-style: italic;
-    color: #c9c2ff;
+  em {
+    color: #cec8ff;
   }
 }
 
 .login__hero-tagline {
+  max-width: 530px;
   margin: 0;
-  max-width: 320px;
-  font-size: 15px;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(24px, 2.5vw, 38px);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.2);
 }
 
-// ── Cột form ──────────────────────────────────────────────────────────
 .login__panel {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 44px 44px 36px;
+  position: relative;
+  min-width: 0;
+  padding: 100px clamp(28px, 4vw, 72px) 64px;
+}
+
+.login__home {
+  position: absolute;
+  top: 28px;
+  right: clamp(28px, 4vw, 72px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+.login__content {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login__brand--mobile {
+  display: none;
 }
 
 .login__panel-head {
-  margin-bottom: 26px;
+  margin-bottom: 30px;
 }
 
 .login__title {
   margin: 0;
-  font-size: 2.5rem;
+  color: var(--color-text);
+  font-size: clamp(26px, 2.3vw, 32px);
   font-weight: 800;
-  line-height: 1.1;
-  color: var(--color-accent);
+  line-height: 1.3;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .login__subtitle {
-  margin: 6px 0 0;
-  font-size: 14px;
+  margin: 10px 0 0;
   color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .login__label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 8px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--color-text);
 }
 
 .login__form {
-  // ng-zorro mặc định chừa khoảng khá rộng giữa các form-item
   nz-form-item {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
-  // Bo tròn + cao hơn mặc định để khớp bản mẫu
   ::ng-deep .ant-input-affix-wrapper {
-    border-radius: 10px;
-    padding: 9px 12px;
+    min-height: 48px;
+    padding: 10px 14px;
+    border-color: var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-card);
+    box-shadow: none;
+
+    &:hover {
+      border-color: var(--color-accent);
+    }
+
+    &:focus-within {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-bg);
+    }
   }
 
-  ::ng-deep .ant-input-affix-wrapper:focus-within {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px var(--color-accent-bg);
+  ::ng-deep .ant-input {
+    background: transparent;
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  ::ng-deep .ant-input-prefix {
+    margin-right: 10px;
+    color: var(--color-text-muted);
+  }
+
+  ::ng-deep .ant-form-item-explain-error {
+    padding-top: 4px;
+    font-size: 12px;
+  }
+}
+
+.login__password-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login__forgot {
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  &:hover {
+    text-decoration: underline;
   }
 }
 
 .login__password-toggle {
-  display: flex;
-  align-items: center;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px -4px -4px 0;
   padding: 0;
-  border: none;
+  border: 0;
+  border-radius: 6px;
   background: transparent;
+  color: var(--color-text-muted);
   cursor: pointer;
-  color: var(--color-text-muted);
-
-  &:hover {
-    color: var(--color-text);
-  }
-}
-
-.login__forgot {
-  display: block;
-  margin: -4px 0 18px;
-  text-align: right;
-  font-size: 13px;
-  color: var(--color-text-muted);
 
   &:hover {
     color: var(--color-accent);
@@ -197,20 +222,38 @@ $nz-content-gap: 130px;
 }
 
 .login__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  height: 44px;
-  border-radius: 10px;
-  font-weight: 600;
+  height: 48px;
+  margin-top: 4px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  background: var(--color-accent);
+  font:
+    700 13px 'Montserrat',
+    sans-serif;
+  box-shadow: 0 6px 18px rgba(91, 79, 233, 0.18);
+
+  &:hover,
+  &:focus {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    filter: brightness(1.08);
+  }
 }
 
 .login__divider {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 22px 0 18px;
-  font-size: 12px;
-  font-weight: 600;
+  gap: 14px;
+  margin: 22px 0;
   color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
 
   &::before,
   &::after {
@@ -224,82 +267,73 @@ $nz-content-gap: 130px;
 .login__google {
   display: flex;
   justify-content: center;
-  min-height: 44px;
+  width: 100%;
+  min-height: 40px;
 }
 
 .login__register {
   margin: 22px 0 0;
-  text-align: center;
-  font-size: 14px;
   color: var(--color-text-muted);
-
-  a {
-    margin-left: 4px;
-    font-weight: 600;
-    color: var(--color-accent);
-  }
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: center;
 }
 
-// ── Responsive ────────────────────────────────────────────────────────
+.login a:focus-visible,
+.login button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.login .login__brand--hero:focus-visible {
+  outline-color: #fff;
+}
+
 @media (max-width: 860px) {
-  .login__card {
+  .login {
     grid-template-columns: 1fr;
-    min-height: 0;
-    max-width: 460px;
   }
 
-  // Ảnh co lại thành dải ngang phía trên thay vì biến mất hẳn, để vẫn còn
-  // nhận diện thương hiệu
   .login__hero {
-    min-height: 170px;
-    align-items: flex-end;
-    padding: 24px;
-  }
-
-  .login__home {
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.38);
-    background: rgba(18, 15, 42, 0.42);
-    box-shadow: 0 6px 18px rgba(12, 10, 30, 0.18);
-
-    &:hover {
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.7);
-      background: rgba(18, 15, 42, 0.62);
-    }
-  }
-
-  .login__hero-brand {
-    font-size: 1.9rem;
-    margin-bottom: 8px;
-  }
-
-  .login__hero-tagline {
     display: none;
   }
 
   .login__panel {
-    padding: 30px 26px 26px;
-  }
-
-  .login__title {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .login {
-    padding: 12px;
-  }
-
-  .login__panel {
-    padding: 24px 18px 20px;
+    justify-content: flex-start;
+    padding: 88px 24px 40px;
   }
 
   .login__home {
-    top: 14px;
-    right: 14px;
-    min-height: 36px;
-    padding: 7px 12px;
+    top: 16px;
+    right: 24px;
+  }
+
+  .login__brand--mobile {
+    display: inline-flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    font-size: 25px;
+
+    em {
+      color: var(--color-accent);
+    }
+  }
+
+  .login__title {
+    font-size: 28px;
+  }
+
+  .login__form ::ng-deep .ant-input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .login__panel {
+    padding-inline: 20px;
+  }
+
+  .login__title {
+    font-size: 25px;
   }
 }

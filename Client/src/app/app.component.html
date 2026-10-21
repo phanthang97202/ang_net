@@ -3,7 +3,10 @@
   <app-spinner size="large"></app-spinner>
 </div>
 
-<nz-layout *ngIf="layoutType === 'none'" class="layout">
+<nz-layout
+  *ngIf="layoutType === 'none'"
+  class="layout"
+  [class.layout--login]="router.url.split('?')[0].split('#')[0] === '/login'">
   <nz-content>
     <router-outlet (activate)="onPageActivated()"></router-outlet>
   </nz-content>

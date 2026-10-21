@@ -1,4 +1,15 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -9,7 +20,6 @@ import { Router } from '@angular/router';
 import { AuthService, LoadingService, ShowErrorService } from '../../services';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { AuthResponse } from '../../interfaces';
 import {
   AntdModule,
@@ -17,7 +27,35 @@ import {
   REUSE_PIPE_MODULE,
 } from '../../modules';
 import { environment } from '../../../environments/environment';
-declare const google: any;
+import {
+  DEFAULT_LOGIN_IMAGE,
+  LoginAppearance,
+  LoginAppearanceService,
+} from './login-appearance.service';
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
+declare const google: {
+  accounts: {
+    id: {
+      initialize(options: {
+        client_id: string;
+        callback: (response: GoogleCredentialResponse) => void;
+      }): void;
+      renderButton(
+        element: HTMLElement,
+        options: {
+          theme: string;
+          size: string;
+          shape: string;
+          width: number;
+          logo_alignment: string;
+        }
+      ): void;
+    };
+  };
+};
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -25,11 +63,39 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   authService = inject(AuthService);
   loadingService = inject(LoadingService);
   showErrorService = inject(ShowErrorService);
-  passwordVisible = true;
+  passwordVisible = false;
+  appearance: LoginAppearance = {
+    image: DEFAULT_LOGIN_IMAGE,
+    description: null,
+  };
+  private readonly loginAppearance = inject(LoginAppearanceService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  @ViewChild('googleButton', { static: true })
+  private googleButton!: ElementRef<HTMLElement>;
+  private readonly zone = inject(NgZone);
+  private googleResizeObserver?: ResizeObserver;
+  private googleScript?: HTMLScriptElement;
+  private googleButtonWidth = 0;
+  private readonly initializeGoogle = () => {
+    google.accounts.id.initialize({
+      client_id: environment.gg_client_id,
+      callback: response =>
+        this.zone.run(() => this.handleCredentialResponse(response)),
+    });
+
+    this.zone.runOutsideAngular(() => {
+      this.renderGoogleButton();
+      this.googleResizeObserver = new ResizeObserver(() =>
+        this.renderGoogleButton()
+      );
+      this.googleResizeObserver.observe(this.googleButton.nativeElement);
+    });
+  };
 
   validateForm: FormGroup<{
     userName: FormControl<string>;
@@ -41,29 +107,61 @@ export class LoginComponent implements AfterViewInit {
   constructor(
     private fb: NonNullableFormBuilder,
     private message: NzMessageService,
-    private router: Router,
-    private http: HttpClient
+    private router: Router
   ) {}
 
-  ngAfterViewInit(): void {
-    google.accounts.id.initialize({
-      client_id: environment.gg_client_id,
-      callback: (response: any) => this.handleCredentialResponse(response),
-    });
+  ngOnInit(): void {
+    this.loginAppearance
+      .load()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(appearance => (this.appearance = appearance));
+  }
 
-    // Nút này do SDK Google tự dựng, chỉ chỉnh được qua các tham số dưới đây.
-    // width là px cố định (SDK không nhận %), 300 đủ rộng trên desktop mà vẫn
-    // không tràn ở màn hình 360px.
-    google.accounts.id.renderButton(document.getElementById('google-button'), {
+  onHeroImageError(): void {
+    this.appearance = { ...this.appearance, image: DEFAULT_LOGIN_IMAGE };
+  }
+
+  ngAfterViewInit(): void {
+    if (typeof google !== 'undefined') {
+      this.initializeGoogle();
+    } else {
+      // SDK tải async; form tài khoản vẫn dùng được trong lúc chờ Google.
+      this.googleScript =
+        document.querySelector<HTMLScriptElement>(
+          'script[src="https://accounts.google.com/gsi/client"]'
+        ) ?? undefined;
+      this.googleScript?.addEventListener('load', this.initializeGoogle, {
+        once: true,
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.googleResizeObserver?.disconnect();
+    this.googleScript?.removeEventListener('load', this.initializeGoogle);
+  }
+
+  private renderGoogleButton(): void {
+    const element = this.googleButton.nativeElement;
+    const width = Math.min(
+      400,
+      Math.floor(element.getBoundingClientRect().width)
+    );
+    if (width < 200 || width === this.googleButtonWidth) return;
+    this.googleButtonWidth = width;
+
+    // SDK không nhận chiều rộng %, nên đo lại khi form đổi kích thước.
+    element.replaceChildren();
+    google.accounts.id.renderButton(element, {
       theme: 'outline',
       size: 'large',
-      shape: 'pill',
-      width: 300,
-      logo_alignment: 'center',
+      shape: 'rectangular',
+      width,
+      logo_alignment: 'left',
     });
   }
 
-  handleCredentialResponse(res: any): void {
+  handleCredentialResponse(res: GoogleCredentialResponse): void {
     const idToken = res.credential;
 
     this.loadingService.setLoading(true);

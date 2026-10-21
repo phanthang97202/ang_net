@@ -17,6 +17,7 @@ export const SYS_PARAM_CODE = {
   FOOTER_MAP_EMBED: 'FOOTER_MAP_EMBED',
   SHIFT_ROOM_PRICES: 'SHIFT_ROOM_PRICES',
   DASHBOARD_BACKGROUND_IMAGE: 'DASHBOARD_BACKGROUND_IMAGE',
+  LOGIN_APPEARANCE: 'LOGIN_APPEARANCE',
 } as const;
 
 @Injectable({
@@ -28,7 +29,10 @@ export class SysParameterConfigService {
 
   // Cache theo mã: gọi Detail 1 lần, các nơi cùng dùng (vd SOCIAL_LINKS ở
   // sidebar + footer) share chung 1 request.
-  private cache = new Map<string, Observable<IResponseSysParameterCreate | null>>();
+  private cache = new Map<
+    string,
+    Observable<IResponseSysParameterCreate | null>
+  >();
 
   // Giá trị text thuần (theo ngôn ngữ hiện tại), null nếu chưa cấu hình.
   getText(code: string): Observable<string | null> {
@@ -37,8 +41,11 @@ export class SysParameterConfigService {
 
   // Giá trị JSON đã parse, null nếu chưa cấu hình / lỗi parse -> component tự
   // dùng giá trị mặc định.
-  getJson<T>(code: string): Observable<T | null> {
-    return this.getRaw(code).pipe(
+  getJson<T>(
+    code: string,
+    options: { activeOnly?: boolean } = {}
+  ): Observable<T | null> {
+    return this.getRaw(code, options.activeOnly).pipe(
       map(raw => {
         if (!raw) {
           return null;
@@ -81,9 +88,11 @@ export class SysParameterConfigService {
     this.cache.clear();
   }
 
-  private getRaw(code: string): Observable<string | null> {
+  private getRaw(code: string, activeOnly = false): Observable<string | null> {
     return this.whenLangChanges(this.getResponse(code)).pipe(
-      map(res => this.readValue(res))
+      map(res =>
+        activeOnly && !res?.Data?.FlagActive ? null : this.readValue(res)
+      )
     );
   }
 
@@ -94,9 +103,10 @@ export class SysParameterConfigService {
   // vì BehaviorSubject của LangService luôn khởi tạo 'vi', không theo giá trị
   // đã lưu. setLang() ghi localStorage trước rồi mới next() nên thứ tự an toàn.
   private whenLangChanges<T>(source$: Observable<T>): Observable<T> {
-    return combineLatest([source$, this.langService.$langSubjectObservable]).pipe(
-      map(([value]) => value)
-    );
+    return combineLatest([
+      source$,
+      this.langService.$langSubjectObservable,
+    ]).pipe(map(([value]) => value));
   }
 
   private getResponse(

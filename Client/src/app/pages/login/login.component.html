@@ -1,26 +1,58 @@
-<div class="login">
-  <div class="login__card">
+<main class="login">
+  <aside class="login__hero" aria-label="PhanThang Blog">
+    <img
+      class="login__hero-image"
+      [src]="appearance.image"
+      alt=""
+      loading="lazy"
+      (error)="onHeroImageError()" />
+    <a
+      class="login__brand login__brand--hero"
+      routerLink="/"
+      aria-label="PhanThang">
+      <img
+        src="assets/images/phanthangblog_logo.png"
+        width="42"
+        height="42"
+        alt="" />
+      <span>Phan<em>Thang</em></span>
+    </a>
+    @if (appearance.description !== '') {
+      <p class="login__hero-tagline">
+        {{ appearance.description ?? ('T_LOGIN_TAGLINE' | translate) }}
+      </p>
+    }
+  </aside>
+
+  <section class="login__panel" aria-labelledby="login-title">
     <a
       class="login__home"
       routerLink="/"
-      aria-label="Quay về trang chủ"
-      title="Quay về trang chủ">
-      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-      <span>Về trang chủ</span>
+      [attr.aria-label]="'T_LOGIN_BACK_HOME' | translate">
+      <span
+        nz-icon
+        nzType="arrow-left"
+        nzTheme="outline"
+        aria-hidden="true"></span>
+      <span>{{ 'T_LOGIN_BACK_HOME' | translate }}</span>
     </a>
 
-    <!-- Cột ảnh thương hiệu, ẩn trên màn hình hẹp để nhường chỗ cho form -->
-    <aside class="login__hero">
-      <div class="login__hero-overlay"></div>
-      <div class="login__hero-content">
-        <p class="login__hero-brand">Phan<span>Thang</span></p>
-        <p class="login__hero-tagline">{{ 'T_LOGIN_TAGLINE' | translate }}</p>
-      </div>
-    </aside>
-
-    <section class="login__panel">
+    <div class="login__content">
+      <a
+        class="login__brand login__brand--mobile"
+        routerLink="/"
+        aria-label="PhanThang">
+        <img
+          src="assets/images/phanthangblog_logo.png"
+          width="36"
+          height="36"
+          alt="" />
+        <span>Phan<em>Thang</em></span>
+      </a>
       <header class="login__panel-head">
-        <h1 class="login__title">{{ 'T_LOGIN_WELCOME' | translate }}</h1>
+        <h1 id="login-title" class="login__title">
+          {{ 'T_LOGIN_WELCOME' | translate }}
+        </h1>
         <p class="login__subtitle">{{ 'T_LOGIN_SUBTITLE' | translate }}</p>
       </header>
 
@@ -30,7 +62,8 @@
         [formGroup]="validateForm"
         (ngSubmit)="submitForm($event)">
         <nz-form-item>
-          <nz-form-control nzErrorTip="Vui lòng nhập tên tài khoản hoặc email">
+          <nz-form-control
+            [nzErrorTip]="'T_LOGIN_IDENTIFIER_REQUIRED' | translate">
             <label class="login__label" for="login-username">
               {{ 'T_LOGIN_IDENTIFIER' | translate }}
             </label>
@@ -38,6 +71,8 @@
               <input
                 id="login-username"
                 type="text"
+                autocapitalize="none"
+                spellcheck="false"
                 autocomplete="username"
                 nz-input
                 formControlName="userName"
@@ -47,14 +82,20 @@
         </nz-form-item>
 
         <nz-form-item>
-          <nz-form-control nzErrorTip="Please input your Password!">
-            <label class="login__label" for="login-password">
-              {{ 'T_ENTERPASSWORD' | translate }}
-            </label>
+          <nz-form-control
+            [nzErrorTip]="'T_LOGIN_PASSWORD_REQUIRED' | translate">
+            <div class="login__password-label">
+              <label class="login__label" for="login-password">
+                {{ 'T_LOGIN_PASSWORD' | translate }}
+              </label>
+              <a class="login__forgot" routerLink="/forgot-password">
+                {{ 'T_FORGOTPASSWORD' | translate }}
+              </a>
+            </div>
             <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
               <input
                 id="login-password"
-                [type]="passwordVisible ? 'password' : 'text'"
+                [type]="passwordVisible ? 'text' : 'password'"
                 nz-input
                 autocomplete="current-password"
                 formControlName="password"
@@ -64,7 +105,13 @@
               <button
                 type="button"
                 class="login__password-toggle"
-                [attr.aria-label]="passwordVisible ? 'Hiện mật khẩu' : 'Ẩn mật khẩu'"
+                [attr.aria-label]="
+                  (passwordVisible
+                    ? 'T_LOGIN_HIDE_PASSWORD'
+                    : 'T_LOGIN_SHOW_PASSWORD'
+                  ) | translate
+                "
+                [attr.aria-pressed]="passwordVisible"
                 (click)="passwordVisible = !passwordVisible">
                 <span
                   nz-icon
@@ -74,12 +121,13 @@
           </nz-form-control>
         </nz-form-item>
 
-        <a class="login__forgot" routerLink="/forgot-password">
-          {{ 'T_FORGOTPASSWORD' | translate }}
-        </a>
-
-        <button nz-button class="login__submit" nzType="primary">
+        <button type="submit" nz-button class="login__submit" nzType="primary">
           {{ 'T_LOGIN' | translate }}
+          <span
+            nz-icon
+            nzType="arrow-right"
+            nzTheme="outline"
+            aria-hidden="true"></span>
         </button>
       </form>
 
@@ -88,11 +136,11 @@
       </div>
 
       <!-- Nút do SDK của Google tự render vào đây, không tự dựng lại được -->
-      <div id="google-button" class="login__google"></div>
+      <div #googleButton id="google-button" class="login__google"></div>
 
       <p class="login__register">
         {{ 'T_LOGIN_ACCOUNT_HELP' | translate }}
       </p>
-    </section>
-  </div>
-</div>
+    </div>
+  </section>
+</main>
