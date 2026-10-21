@@ -1,4 +1,10 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -6,6 +12,7 @@ import { ScrollRevealDirective } from '../../directives';
 import { MusicPlayerComponent } from '../music-player/music-player.component';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import { IHomeBanner } from '../../interfaces';
+import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 
 // Giá trị mặc định khi tham số HOME_BANNERS chưa được cấu hình ở admin.
 const DEFAULT_BANNERS: IHomeBanner[] = [
@@ -29,6 +36,7 @@ const SLIDE_INTERVAL_MS = 6000;
     RouterLink,
     ScrollRevealDirective,
     MusicPlayerComponent,
+    ConfigSkeletonComponent,
   ],
   templateUrl: './discovery-banner.component.html',
   styleUrls: ['./discovery-banner.component.scss'],
@@ -37,7 +45,8 @@ export class DiscoveryBannerComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
 
-  banners: IHomeBanner[] = DEFAULT_BANNERS;
+  banners: IHomeBanner[] = [];
+  configLoading = true;
   activeIndex = 0;
   private intervalId?: ReturnType<typeof setInterval>;
 
@@ -46,10 +55,10 @@ export class DiscoveryBannerComponent implements OnInit, OnDestroy {
       .getJson<IHomeBanner[]>(SYS_PARAM_CODE.HOME_BANNERS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          this.banners = data;
-          this.activeIndex = 0;
-        }
+        this.banners =
+          Array.isArray(data) && data.length > 0 ? data : DEFAULT_BANNERS;
+        this.activeIndex = 0;
+        this.configLoading = false;
         this.startAutoplay();
       });
   }

@@ -1,6 +1,10 @@
-<section class="hero" appScrollReveal>
+<section
+  class="hero"
+  [class.hero--loading]="configLoading"
+  [attr.aria-busy]="configLoading"
+  appScrollReveal>
   <!-- Các layer ảnh nền xếp chồng, crossfade opacity khi đổi slide -->
-  <div class="hero-bg-layers">
+  <div class="hero-bg-layers" *ngIf="!configLoading">
     <div
       *ngFor="let b of banners; let i = index"
       class="hero-bg"
@@ -10,7 +14,11 @@
   <div class="hero-overlay"></div>
 
   <div class="hero-content">
-    <div class="hero-text">
+    <app-config-skeleton
+      *ngIf="configLoading"
+      class="hero-text"
+      variant="hero"></app-config-skeleton>
+    <div class="hero-text" *ngIf="!configLoading">
       <div
         *ngFor="let idx of [activeIndex]; trackBy: trackByActiveIndex"
         class="hero-text-inner hero-text-anim">

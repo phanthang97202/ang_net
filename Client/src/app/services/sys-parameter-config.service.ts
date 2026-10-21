@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { combineLatest, Observable, of } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, timeout } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { LangService } from './lang-service.service';
 import { IResponseSysParameterCreate } from '../interfaces';
@@ -114,6 +114,8 @@ export class SysParameterConfigService {
   ): Observable<IResponseSysParameterCreate | null> {
     if (!this.cache.has(code)) {
       const request$ = this.api.SysParameterDetail(code).pipe(
+        // A stalled config request must not leave public blocks in skeleton forever.
+        timeout({ first: 15000 }),
         catchError(() => of(null)),
         shareReplay(1)
       );

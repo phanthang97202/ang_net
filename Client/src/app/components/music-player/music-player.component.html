@@ -1,4 +1,9 @@
-<div class="music-player">
+<app-config-skeleton
+  *ngIf="configLoading"
+  variant="music"
+  aria-busy="true"
+  aria-label="Đang tải nhạc"></app-config-skeleton>
+<div class="music-player" *ngIf="!configLoading">
   <audio
     #audioRef
     [src]="audioSrc"
@@ -47,8 +52,7 @@
       [download]="title"
       aria-label="Tải xuống">
       <svg viewBox="0 0 24 24" fill="currentColor">
-        <path
-          d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path>
+        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path>
       </svg>
     </a>
 

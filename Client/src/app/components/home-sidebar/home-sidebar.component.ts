@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 import { CommonModule } from '@angular/common';
 import { catchError, finalize, of, switchMap } from 'rxjs';
 import { SocialLinksComponent } from '../social-links/social-links.component';
@@ -77,6 +78,7 @@ const SLIDE_INTERVAL_MS = 4000;
     TranslateModule,
     NzIconModule,
     NzImageModule,
+    ConfigSkeletonComponent,
   ],
   templateUrl: './home-sidebar.component.html',
   styleUrls: ['./home-sidebar.component.scss'],
@@ -91,6 +93,9 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   intro: IHomeIntro = DEFAULT_INTRO;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
   featuredImages: IHomeFeaturedImage[] = DEFAULT_FEATURED;
+  introLoading = true;
+  socialsLoading = true;
+  featuredLoading = true;
 
   activeIndex = 0;
   private intervalId?: ReturnType<typeof setInterval>;
@@ -106,28 +111,27 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
       .getJson<IHomeIntro>(SYS_PARAM_CODE.HOME_INTRO)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (data) {
-          this.intro = data;
-        }
+        this.intro = data || DEFAULT_INTRO;
+        this.introLoading = false;
       });
 
     this.config
       .getJson<ISocialLink[]>(SYS_PARAM_CODE.SOCIAL_LINKS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          this.socials = data;
-        }
+        this.socials =
+          Array.isArray(data) && data.length > 0 ? data : DEFAULT_SOCIALS;
+        this.socialsLoading = false;
       });
 
     this.config
       .getJson<IHomeFeaturedImage[]>(SYS_PARAM_CODE.HOME_FEATURED_IMAGES)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          this.featuredImages = data;
-          this.activeIndex = 0;
-        }
+        this.featuredImages =
+          Array.isArray(data) && data.length > 0 ? data : DEFAULT_FEATURED;
+        this.activeIndex = 0;
+        this.featuredLoading = false;
         this.startAutoplay();
       });
   }

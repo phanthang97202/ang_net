@@ -1,6 +1,9 @@
 <aside class="sidebar">
   <!-- About -->
-  <section class="sidebar-card about-card" aria-labelledby="sidebar-about">
+  <section
+    class="sidebar-card about-card"
+    aria-labelledby="sidebar-about"
+    [attr.aria-busy]="introLoading || socialsLoading">
     <!-- Cùng font nghiêng của chữ "Thang" trên logo, chỉ để trang trí. -->
     <span class="about-hello" aria-hidden="true">Hello!</span>
 
@@ -11,27 +14,36 @@
       <span class="card-head__line" aria-hidden="true"></span>
     </header>
 
-    <div class="about-head">
-      <img
-        *ngIf="intro.avatar"
-        class="about-avatar"
-        [src]="intro.avatar"
-        [alt]="intro.name" />
-      <div class="about-identity">
-        <p class="about-name">{{ intro.name }}</p>
-        <p class="about-role" *ngIf="intro.shortDescription">
-          {{ intro.shortDescription }}
-        </p>
+    <app-config-skeleton
+      *ngIf="introLoading"
+      variant="intro"></app-config-skeleton>
+    <ng-container *ngIf="!introLoading">
+      <div class="about-head">
+        <img
+          *ngIf="intro.avatar"
+          class="about-avatar"
+          [src]="intro.avatar"
+          [alt]="intro.name" />
+        <div class="about-identity">
+          <p class="about-name">{{ intro.name }}</p>
+          <p class="about-role" *ngIf="intro.shortDescription">
+            {{ intro.shortDescription }}
+          </p>
+        </div>
       </div>
-    </div>
 
-    <p class="about-bio" *ngIf="intro.description">{{ intro.description }}</p>
+      <p class="about-bio" *ngIf="intro.description">{{ intro.description }}</p>
 
-    <p class="about-location" *ngIf="intro.address">
-      {{ intro.address }}
-    </p>
+      <p class="about-location" *ngIf="intro.address">
+        {{ intro.address }}
+      </p>
+    </ng-container>
 
+    <app-config-skeleton
+      *ngIf="socialsLoading"
+      variant="socials"></app-config-skeleton>
     <app-social-links
+      *ngIf="!socialsLoading"
       class="about-socials"
       [items]="socials"></app-social-links>
   </section>
@@ -39,7 +51,8 @@
   <!-- Featured images -->
   <section
     class="sidebar-card"
-    *ngIf="featuredImages.length > 0"
+    *ngIf="featuredLoading || featuredImages.length > 0"
+    [attr.aria-busy]="featuredLoading"
     aria-labelledby="sidebar-featured">
     <header class="card-head">
       <h2 class="card-head__title" id="sidebar-featured">
@@ -48,7 +61,11 @@
       <span class="card-head__line" aria-hidden="true"></span>
     </header>
 
-    <div class="featured-post">
+    <app-config-skeleton
+      *ngIf="featuredLoading"
+      class="featured-post"
+      variant="image"></app-config-skeleton>
+    <div class="featured-post" *ngIf="!featuredLoading">
       <!-- Các layer ảnh xếp chồng, crossfade opacity khi đổi slide (giống
            discovery-banner) - 1 <img> duy nhất đổi [src] không tạo được
            crossfade vì ảnh cũ biến mất ngay khi ảnh mới được gán. -->

@@ -47,6 +47,19 @@
   object-fit: cover;
 }
 
+.login__hero-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.login__hero--loading {
+  color: var(--color-text);
+  .login__brand em {
+    color: var(--color-accent);
+  }
+}
+
 .login__brand {
   display: inline-flex;
   align-items: center;

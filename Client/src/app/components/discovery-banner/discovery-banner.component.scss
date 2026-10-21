@@ -20,6 +20,14 @@
   inset: 0;
 }
 
+.hero--loading {
+  background: var(--color-accent-bg);
+}
+.hero-content > .hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -125,7 +133,9 @@
   font-weight: 700;
   text-decoration: none;
   box-shadow: 0 8px 20px rgba(91, 79, 233, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -150,7 +160,9 @@
   border-radius: 999px;
   background: rgba(26, 26, 46, 0.25);
   cursor: pointer;
-  transition: background 0.2s, width 0.2s;
+  transition:
+    background 0.2s,
+    width 0.2s;
 
   &.active {
     width: 22px;

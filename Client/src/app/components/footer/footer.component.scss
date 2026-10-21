@@ -84,7 +84,9 @@
   border-radius: 50%;
   background: var(--color-accent-bg);
   color: var(--color-accent);
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 
   &:hover {
     background: var(--color-accent);
@@ -170,6 +172,11 @@
 .footer-map-col {
   flex: 1 1 260px;
   min-width: 260px;
+}
+
+.footer-map-placeholder {
+  height: 180px;
+  border-radius: 12px;
 }
 
 // "Công cụ" + "Thống kê" đi liền nhau như 1 khối - cùng gap với .footer-top

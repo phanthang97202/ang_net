@@ -1,27 +1,47 @@
 <footer class="footer">
   <div class="footer-top">
-    <div class="footer-brand">
-      <a routerLink="/" class="footer-logo">
-        <img
-          class="footer-logo-image"
-          src="assets/images/phanthangblog_logo.png"
-          width="40"
-          height="40"
-          alt=""
-          loading="lazy" />
-        <span class="footer-wordmark"
-          >{{ footerContent.brandName }}<em>{{ footerContent.brandAccent }}</em></span
-        >
-      </a>
-      <p class="footer-tagline">{{ footerContent.tagline }}</p>
+    <div
+      class="footer-brand"
+      [attr.aria-busy]="contentLoading || socialsLoading">
+      <app-config-skeleton
+        *ngIf="contentLoading"
+        variant="footer"></app-config-skeleton>
+      <ng-container *ngIf="!contentLoading">
+        <a routerLink="/" class="footer-logo">
+          <img
+            class="footer-logo-image"
+            src="assets/images/phanthangblog_logo.png"
+            width="40"
+            height="40"
+            alt=""
+            loading="lazy" />
+          <span class="footer-wordmark"
+            >{{ footerContent.brandName
+            }}<em>{{ footerContent.brandAccent }}</em></span
+          >
+        </a>
+        <p class="footer-tagline">{{ footerContent.tagline }}</p>
+      </ng-container>
 
+      <app-config-skeleton
+        *ngIf="socialsLoading"
+        variant="socials"></app-config-skeleton>
       <app-social-links
+        *ngIf="!socialsLoading"
         class="footer-socials"
         [items]="socials"></app-social-links>
     </div>
 
-    <div class="footer-col footer-map-col" *ngIf="mapEmbedUrl">
+    <div
+      class="footer-col footer-map-col"
+      *ngIf="mapLoading || mapEmbedUrl"
+      [attr.aria-busy]="mapLoading">
+      <app-config-skeleton
+        *ngIf="mapLoading"
+        class="footer-map-placeholder"
+        variant="image"></app-config-skeleton>
       <iframe
+        *ngIf="!mapLoading && mapEmbedUrl"
         class="footer-map"
         title="Bản đồ địa điểm của blog"
         [src]="mapEmbedUrl"
@@ -104,5 +124,10 @@
 
   <div class="footer-divider"></div>
 
-  <p class="footer-copyright">{{ copyrightText }}</p>
+  <app-config-skeleton
+    *ngIf="contentLoading"
+    class="footer-copyright"
+    variant="text"
+    aria-busy="true"></app-config-skeleton>
+  <p class="footer-copyright" *ngIf="!contentLoading">{{ copyrightText }}</p>
 </footer>

@@ -14,24 +14,26 @@ import {
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService, LoadingService, ShowErrorService } from '../../services';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Observable } from 'rxjs';
 import { AuthResponse } from '../../interfaces';
-import {
-  AntdModule,
-  REUSE_COMPONENT_MODULES,
-  REUSE_PIPE_MODULE,
-} from '../../modules';
+import { TranslateModule } from '@ngx-translate/core';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { environment } from '../../../environments/environment';
 import {
   DEFAULT_LOGIN_IMAGE,
   LoginAppearance,
   LoginAppearanceService,
 } from './login-appearance.service';
+import { ConfigSkeletonComponent } from '../../components/config-skeleton/config-skeleton.component';
 interface GoogleCredentialResponse {
   credential: string;
 }
@@ -59,7 +61,16 @@ declare const google: {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [AntdModule, ...REUSE_COMPONENT_MODULES, ...REUSE_PIPE_MODULE],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    TranslateModule,
+    NzButtonModule,
+    NzFormModule,
+    NzInputModule,
+    NzIconModule,
+    ConfigSkeletonComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -69,9 +80,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   showErrorService = inject(ShowErrorService);
   passwordVisible = false;
   appearance: LoginAppearance = {
-    image: DEFAULT_LOGIN_IMAGE,
+    image: '',
     description: null,
   };
+  appearanceLoading = true;
+  heroImageLoaded = false;
   private readonly loginAppearance = inject(LoginAppearanceService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -114,10 +127,20 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loginAppearance
       .load()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(appearance => (this.appearance = appearance));
+      .subscribe(appearance => {
+        if (this.appearance.image !== appearance.image)
+          this.heroImageLoaded = false;
+        this.appearance = appearance;
+        this.appearanceLoading = false;
+      });
   }
 
   onHeroImageError(): void {
+    // If even the bundled fallback fails, keep the plain background, not a loop.
+    if (this.appearance.image === DEFAULT_LOGIN_IMAGE) {
+      this.heroImageLoaded = true;
+      return;
+    }
     this.appearance = { ...this.appearance, image: DEFAULT_LOGIN_IMAGE };
   }
 

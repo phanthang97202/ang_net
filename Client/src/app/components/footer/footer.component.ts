@@ -12,6 +12,7 @@ import {
 import { IFooterContent, ISocialLink } from '../../interfaces';
 import { SocialLinksComponent } from '../social-links/social-links.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 
 // Admin cấu hình URL này qua SysParameter (FOOTER_MAP_EMBED); chỉ chấp nhận
 // đúng dạng URL nhúng Google Maps chính chủ trước khi bypass Angular sanitizer
@@ -37,7 +38,13 @@ const DEFAULT_FOOTER_CONTENT: IFooterContent = {
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink, CommonModule, SocialLinksComponent, TranslateModule],
+  imports: [
+    RouterLink,
+    CommonModule,
+    SocialLinksComponent,
+    TranslateModule,
+    ConfigSkeletonComponent,
+  ],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
@@ -52,6 +59,9 @@ export class FooterComponent implements OnInit {
   stats$ = this.visitTrackingService.stats$;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
   footerContent: IFooterContent = DEFAULT_FOOTER_CONTENT;
+  contentLoading = true;
+  socialsLoading = true;
+  mapLoading = true;
 
   canViewReport(permission: string): boolean {
     return (
@@ -76,18 +86,17 @@ export class FooterComponent implements OnInit {
       .getJson<IFooterContent>(SYS_PARAM_CODE.FOOTER_CONTENT)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (data) {
-          this.footerContent = { ...DEFAULT_FOOTER_CONTENT, ...data };
-        }
+        this.footerContent = { ...DEFAULT_FOOTER_CONTENT, ...data };
+        this.contentLoading = false;
       });
 
     this.config
       .getJson<ISocialLink[]>(SYS_PARAM_CODE.SOCIAL_LINKS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          this.socials = data;
-        }
+        this.socials =
+          Array.isArray(data) && data.length > 0 ? data : DEFAULT_SOCIALS;
+        this.socialsLoading = false;
       });
 
     this.config
@@ -98,6 +107,7 @@ export class FooterComponent implements OnInit {
           url && GOOGLE_MAPS_EMBED_PATTERN.test(url)
             ? this.sanitizer.bypassSecurityTrustResourceUrl(url)
             : null;
+        this.mapLoading = false;
       });
   }
 }

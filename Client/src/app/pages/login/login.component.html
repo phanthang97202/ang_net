@@ -1,11 +1,22 @@
 <main class="login">
-  <aside class="login__hero" aria-label="PhanThang Blog">
-    <img
-      class="login__hero-image"
-      [src]="appearance.image"
-      alt=""
-      loading="lazy"
-      (error)="onHeroImageError()" />
+  <aside
+    class="login__hero"
+    [class.login__hero--loading]="appearanceLoading || !heroImageLoaded"
+    aria-label="PhanThang Blog"
+    [attr.aria-busy]="appearanceLoading || !heroImageLoaded">
+    @if (appearanceLoading || !heroImageLoaded) {
+      <app-config-skeleton
+        class="login__hero-placeholder"
+        variant="image"></app-config-skeleton>
+    }
+    @if (!appearanceLoading) {
+      <img
+        class="login__hero-image"
+        [src]="appearance.image"
+        alt=""
+        (load)="heroImageLoaded = true"
+        (error)="onHeroImageError()" />
+    }
     <a
       class="login__brand login__brand--hero"
       routerLink="/"
@@ -17,7 +28,7 @@
         alt="" />
       <span>Phan<em>Thang</em></span>
     </a>
-    @if (appearance.description !== '') {
+    @if (!appearanceLoading && heroImageLoaded && appearance.description !== '') {
       <p class="login__hero-tagline">
         {{ appearance.description ?? ('T_LOGIN_TAGLINE' | translate) }}
       </p>

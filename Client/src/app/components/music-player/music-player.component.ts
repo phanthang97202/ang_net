@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { combineLatest } from 'rxjs';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import { IHomeSong } from '../../interfaces';
+import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 
 // Dùng khi tham số HOME_MUSIC chưa được cấu hình ở admin.
 const DEFAULT_PLAYLIST: IHomeSong[] = [
@@ -26,7 +27,7 @@ const DEFAULT_PLAYLIST: IHomeSong[] = [
 @Component({
   selector: 'app-music-player',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfigSkeletonComponent],
   templateUrl: './music-player.component.html',
   styleUrls: ['./music-player.component.scss'],
 })
@@ -36,7 +37,8 @@ export class MusicPlayerComponent implements OnInit {
 
   @ViewChild('audioRef') audioRef!: ElementRef<HTMLAudioElement>;
 
-  playlist: IHomeSong[] = DEFAULT_PLAYLIST;
+  playlist: IHomeSong[] = [];
+  configLoading = true;
   currentIndex = 0;
 
   isPlaying = false;
@@ -59,15 +61,15 @@ export class MusicPlayerComponent implements OnInit {
     ])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([songs, defaultId]) => {
-        const valid = (songs ?? []).filter(song => song?.audioSrc);
+        const valid = (Array.isArray(songs) ? songs : []).filter(
+          song => song?.audioSrc
+        );
 
         // Đổi ngôn ngữ làm danh sách nạp lại (tên bài có thể khác nhau giữa 2
         // thứ tiếng). Giữ nguyên bài đang nghe thay vì quay về bài mặc định.
         const keepId = this.playlistLoaded ? this.currentSong?.id : undefined;
 
-        if (valid.length > 0) {
-          this.playlist = valid;
-        }
+        this.playlist = valid.length > 0 ? valid : DEFAULT_PLAYLIST;
 
         // DefaultValueVi chứa id của bài mặc định. Sai id hoặc bỏ trống thì lấy
         // bài đầu danh sách.
@@ -75,6 +77,7 @@ export class MusicPlayerComponent implements OnInit {
         const index = this.playlist.findIndex(song => song.id === targetId);
         this.currentIndex = index >= 0 ? index : 0;
         this.playlistLoaded = true;
+        this.configLoading = false;
       });
   }
 
