@@ -423,6 +423,8 @@ namespace angnet.Infrastructure.Data
 
             // ReelMediaModel
             modelBuilder.Entity<ReelMediaModel>()
+                        .Property(x => x.IsCloudinaryManaged).HasDefaultValue(false);
+            modelBuilder.Entity<ReelMediaModel>()
                         .HasOne<ReelModel>()
                         .WithMany()
                         .HasForeignKey(p => p.ReelId)

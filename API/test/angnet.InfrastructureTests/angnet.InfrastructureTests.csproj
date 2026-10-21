@@ -48,5 +48,6 @@
 
   <ItemGroup>
     <Compile Include="../../src/angnet.WebApi/Cloudinary/CloudinaryAccount.cs" Link="WebApi/Cloudinary/CloudinaryAccount.cs" />
+    <Compile Include="../../src/angnet.WebApi/Cloudinary/ReelMediaStorage.cs" Link="WebApi/Cloudinary/ReelMediaStorage.cs" />
   </ItemGroup>
 </Project>

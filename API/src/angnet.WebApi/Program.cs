@@ -62,6 +62,7 @@ var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 // register infrastructure 
 builder.Services.AddInfrastructure();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<angnet.Application.Interfaces.Services.IReelMediaStorage, angnet.WebApi.Cloudinary.ReelMediaStorage>();
 
 // inject AppDbContext
 // builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(database["LocalDb"]));

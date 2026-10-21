@@ -1,0 +1,57 @@
+@if (canDelete) {
+  <button
+    type="button"
+    class="reel-delete"
+    [class.reel-delete--compact]="compact"
+    [disabled]="deleting"
+    [attr.aria-label]="'T_REEL_DELETE' | translate"
+    (click)="confirm()">
+    <span
+      class="reel-delete__icon"
+      nz-icon
+      nzType="delete"
+      nzTheme="outline"
+      aria-hidden="true"></span>
+    @if (!compact) {
+      <span class="reel-delete__label">{{ 'T_REEL_DELETE' | translate }}</span>
+    }
+  </button>
+}
+<nz-modal
+  nzClassName="blog-modal"
+  [nzVisible]="open"
+  [nzWidth]="440"
+  [nzCentered]="true"
+  [nzTitle]="'T_REEL_DELETE' | translate"
+  [nzFooter]="footer"
+  [nzClosable]="!deleting"
+  [nzMaskClosable]="!deleting"
+  [nzKeyboard]="!deleting"
+  (nzOnCancel)="cancel()">
+  <ng-container *nzModalContent>
+    <p class="reel-delete__message">
+      {{ 'T_REEL_DELETE_CONFIRM' | translate }}
+    </p>
+  </ng-container>
+</nz-modal>
+<ng-template #footer>
+  <div class="reel-delete__footer">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="deleting"
+      (click)="cancel()">
+      {{ 'T_CANCEL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--danger"
+      [disabled]="deleting"
+      (click)="remove()">
+      @if (deleting) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+      }
+      {{ (deleting ? 'T_LOADING' : 'T_REEL_DELETE') | translate }}
+    </button>
+  </div>
+</ng-template>

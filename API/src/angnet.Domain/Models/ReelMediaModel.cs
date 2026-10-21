@@ -14,6 +14,9 @@ namespace angnet.Domain.Models
         [Required]
         public string MediaUrl { get; set; } = string.Empty; // Link video hoặc ảnh
 
+        // Chỉ server gán: file upload thuộc Reels, không phải link người dùng dán.
+        public bool IsCloudinaryManaged { get; set; }
+
         public int SortOrder { get; set; } // Thứ tự trong carousel ảnh; video luôn = 0
 
         public int? DurationSeconds { get; set; } // Thời lượng video, hoặc thời gian hiển thị của ảnh này

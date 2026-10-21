@@ -34,7 +34,8 @@ public class MyReelsTests
         var repository = new ReelRespository(db, new HttpContextAccessor());
         var uow = new Mock<IUnitOfWork>();
         uow.SetupGet(u => u.ReelRespository).Returns(repository);
-        var service = new ReelService(db, new HttpContextAccessor(), uow.Object);
+        var service = new ReelService(db, new HttpContextAccessor(), uow.Object,
+            Mock.Of<angnet.Application.Interfaces.Services.IReelMediaStorage>());
         var user = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, "me") }, "test"));
         var first = (CursorPageInfo<ReelDto>)(await service.GetMine(user, 2, null!)).objResult;
         CollectionAssert.AreEqual(new[] { "own-0", "own-1" }, first.DataList.Select(r => r.ReelId).ToArray());

@@ -4,6 +4,7 @@ using angnet.Domain.Dtos;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 
 namespace angnet.Infrastructure.Data.Services
@@ -15,16 +16,19 @@ namespace angnet.Infrastructure.Data.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _dbContext;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IReelMediaStorage _mediaStorage;
 
         public ReelService(
                 AppDbContext appDbContext
                 , IHttpContextAccessor httpContextAccessor
                 , IUnitOfWork unitOfWork
+                , IReelMediaStorage mediaStorage
             )
         {
             _dbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _unitOfWork = unitOfWork;
+            _mediaStorage = mediaStorage;
         }
 
         public async Task<ApiResponse<ReelDto>> GetFeed(ClaimsPrincipal user, int pageSize, string cursor)
@@ -146,6 +150,7 @@ namespace angnet.Infrastructure.Data.Services
                 {
                     ReelId = reel.ReelId,
                     MediaUrl = m.MediaUrl,
+                    IsCloudinaryManaged = _mediaStorage.IsOwnedUpload(currentUserId, m.MediaUrl),
                     SortOrder = index,
                     DurationSeconds = m.DurationSeconds,
                     Width = m.Width,
@@ -180,7 +185,7 @@ namespace angnet.Infrastructure.Data.Services
             }
 
             var (isExistRecord, _data) = await _unitOfWork.ReelRespository
-                                            .CheckRecordExist<ReelModel>(x => x.ReelId == reelId && x.FlagActive);
+                                            .CheckRecordExist<ReelModel>(x => x.ReelId == reelId);
 
             if (isExistRecord == false)
             {
@@ -188,13 +193,60 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            if (_data.UserId != currentUserId && !user.IsInRole("Admin"))
+            if (_data.UserId != currentUserId && !user.IsInRole("Admin") && !user.HasClaim("permission", "reel.delete"))
             {
                 apiResponse.CatchException(false, "Reel_Delete.403_Forbidden", requestClient);
                 return apiResponse;
             }
 
-            // Xóa mềm: giữ dữ liệu, chỉ tắt FlagActive (không dùng Repository.Delete vì đó là xóa cứng)
+            if (!_data.FlagActive) return apiResponse; // Retry sau khi đã hoàn tất.
+
+            var media = await _dbContext.ReelMedia.AsNoTracking()
+                .Where(m => m.ReelId == reelId).ToListAsync();
+            var files = new HashSet<ReelStoredFile>();
+            foreach (var item in media.Where(m => m.IsCloudinaryManaged))
+            {
+                var file = _mediaStorage.GetFile(item.MediaUrl);
+                if (file == null) return new ApiResponse<ReelDto>("Không xác định được tệp Cloudinary của reel. Vui lòng liên hệ quản trị viên.");
+                files.Add(file);
+            }
+            // Khi bản upload gốc đã bị xóa mềm nhưng còn reel dán lại link, reel
+            // cuối cùng vẫn phải dọn file. Dấu managed được lưu bởi server, nên
+            // một link tự dán không thể tự nhận quyền xóa file chưa từng quản lý.
+            if (media.Any(m => !m.IsCloudinaryManaged && _mediaStorage.GetFile(m.MediaUrl) != null))
+            {
+                var managedUrls = await _dbContext.ReelMedia.AsNoTracking()
+                    .Where(m => m.IsCloudinaryManaged).Select(m => m.MediaUrl).ToListAsync();
+                var knownFiles = managedUrls.Select(_mediaStorage.GetFile).Where(f => f != null).ToHashSet();
+                foreach (var item in media.Where(m => !m.IsCloudinaryManaged))
+                {
+                    var file = _mediaStorage.GetFile(item.MediaUrl);
+                    if (file != null && knownFiles.Contains(file)) files.Add(file);
+                }
+            }
+            if (_mediaStorage.IsOwnedUpload(_data.UserId, _data.CoverUrl))
+                files.Add(_mediaStorage.GetFile(_data.CoverUrl)!);
+
+            // Ảnh bìa/video poster là cùng public_id, chỉ xóa một lần. Giữ file
+            // nếu reel khác vẫn tham chiếu, kể cả qua URL transform/dán link.
+            if (files.Count > 0)
+            {
+                var references = await _dbContext.ReelMedia.AsNoTracking()
+                    .Where(m => m.ReelId != reelId && m.FlagActive
+                        && _dbContext.Reel.Any(r => r.ReelId == m.ReelId && r.FlagActive))
+                    .Select(m => m.MediaUrl).ToListAsync();
+                references.AddRange(await _dbContext.Reel.AsNoTracking()
+                    .Where(r => r.ReelId != reelId && r.FlagActive).Select(r => r.CoverUrl).ToListAsync());
+                var shared = references.Select(_mediaStorage.GetFile).Where(f => f != null).ToHashSet();
+                files.RemoveWhere(f => shared.Contains(f));
+            }
+
+            // Không báo thành công nếu Cloudinary chưa dọn xong. Khi retry, file
+            // đã xóa trả "not found" cũng được coi là hoàn tất.
+            if (!await _mediaStorage.DeleteAsync(files))
+                return new ApiResponse<ReelDto>("Chưa xóa được ảnh/video trên Cloudinary. Vui lòng thử lại.");
+
+            // Giữ cơ chế xóa mềm của Reel; file trên Cloudinary đã được dọn.
             _data.FlagActive = false;
             _data.UpdatedBy = currentUserId;
             _data.UpdatedDTime = TCommonUtils.DTimeNow();

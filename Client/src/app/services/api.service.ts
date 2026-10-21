@@ -834,6 +834,12 @@ export class ApiService {
     );
   }
 
+  ReelDelete(reelId: string): Observable<IReelCreateResponse> {
+    return this.http.delete<IReelCreateResponse>(`${this.apiUrl}reel/delete`, {
+      params: { reelId },
+    });
+  }
+
   ReelView(reelId: string): Observable<IReelViewResponse> {
     return this.http.post<IReelViewResponse>(
       `${this.apiUrl}reel/view?reelId=${encodeURIComponent(reelId)}`,

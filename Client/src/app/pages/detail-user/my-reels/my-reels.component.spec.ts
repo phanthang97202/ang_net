@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons-angular/icons';
 import { Subject } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
+import { AuthService } from '../../../services/auth.service';
 import { MyReelsComponent } from './my-reels.component';
 
 describe('My reels', () => {
@@ -36,6 +37,7 @@ describe('My reels', () => {
       providers: [
         provideRouter([]),
         { provide: ApiService, useValue: api },
+        { provide: AuthService, useValue: { isLoggedIn: () => false } },
         {
           provide: NZ_ICONS,
           useValue: [

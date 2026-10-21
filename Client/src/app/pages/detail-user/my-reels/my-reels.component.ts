@@ -7,11 +7,18 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { finalize } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
 import { IReelDto } from '../../../interfaces/reel';
+import { ReelDeleteComponent } from '../../home/reels/reel-delete/reel-delete.component';
 
 @Component({
   selector: 'app-my-reels',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, NzIconModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    TranslateModule,
+    NzIconModule,
+    ReelDeleteComponent,
+  ],
   templateUrl: './my-reels.component.html',
   styleUrls: [
     '../my-posts/my-posts.component.scss',
@@ -26,6 +33,13 @@ export class MyReelsComponent implements OnInit {
   failed = false;
   hasMore = true;
   private cursor: string | null = null;
+  private readonly deletedIds = new Set<string>();
+
+  onReelDeleted(id: string): void {
+    this.deletedIds.add(id);
+    this.reels = this.reels.filter(reel => reel.ReelId !== id);
+    if (!this.reels.length) this.loadMore();
+  }
 
   ngOnInit(): void {
     this.loadMore();
@@ -63,7 +77,7 @@ export class MyReelsComponent implements OnInit {
                 reel,
               ])
             ).values(),
-          ];
+          ].filter(reel => !this.deletedIds.has(reel.ReelId));
           this.cursor = page.NextCursor;
           this.hasMore = page.HasMore;
         },

@@ -32,66 +32,75 @@
   @if (reels.length) {
     <div class="reels-grid">
       @for (reel of reels; track reel.ReelId) {
-        <a
-          class="reel-card"
-          routerLink="/reels"
-          [queryParams]="{ reelId: reel.ReelId }"
-          [attr.aria-label]="
-            ('T_MYREELS_OPEN' | translate) +
-            ': ' +
-            (reel.Caption || ('T_MYREELS_UNTITLED' | translate))
-          ">
-          <div class="reel-cover">
-            @if (cover(reel)) {
-              <img
-                [src]="cover(reel)"
-                alt=""
-                loading="lazy"
-                referrerpolicy="no-referrer"
-                (error)="$any($event.target).hidden = true" />
-            }
-            <span
-              class="reel-cover__fallback"
-              nz-icon
-              [nzType]="reel.MediaType === 'Video' ? 'play-circle' : 'picture'"
-              aria-hidden="true"></span>
-            <span class="reel-type">{{
-              (reel.MediaType === 'Video'
-                ? 'T_MYREELS_VIDEO'
-                : 'T_MYREELS_IMAGE'
-              ) | translate
-            }}</span>
-          </div>
-          <div class="reel-summary">
-            <h3>{{ reel.Caption || ('T_MYREELS_UNTITLED' | translate) }}</h3>
-            <time [attr.datetime]="reel.CreatedDTime">{{
-              reel.CreatedDTime | date: 'dd/MM/yyyy'
-            }}</time>
-            <div class="reel-stats">
-              <span [attr.title]="'T_MYREELS_VIEWS' | translate"
-                ><span nz-icon nzType="eye" aria-hidden="true"></span
-                >{{ reel.ViewCount | number }}
-                <span class="sr-only">{{
-                  'T_MYREELS_VIEWS' | translate
-                }}</span></span
-              >
-              <span [attr.title]="'T_MYREELS_LIKES' | translate"
-                ><span nz-icon nzType="heart" aria-hidden="true"></span
-                >{{ reel.LikeCount | number }}
-                <span class="sr-only">{{
-                  'T_MYREELS_LIKES' | translate
-                }}</span></span
-              >
-              <span [attr.title]="'T_MYREELS_COMMENTS' | translate"
-                ><span nz-icon nzType="message" aria-hidden="true"></span
-                >{{ reel.CommentCount | number }}
-                <span class="sr-only">{{
-                  'T_MYREELS_COMMENTS' | translate
-                }}</span></span
-              >
+        <div class="reel-card-wrapper">
+          <a
+            class="reel-card"
+            routerLink="/reels"
+            [queryParams]="{ reelId: reel.ReelId }"
+            [attr.aria-label]="
+              ('T_MYREELS_OPEN' | translate) +
+              ': ' +
+              (reel.Caption || ('T_MYREELS_UNTITLED' | translate))
+            ">
+            <div class="reel-cover">
+              @if (cover(reel)) {
+                <img
+                  [src]="cover(reel)"
+                  alt=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                  (error)="$any($event.target).hidden = true" />
+              }
+              <span
+                class="reel-cover__fallback"
+                nz-icon
+                [nzType]="
+                  reel.MediaType === 'Video' ? 'play-circle' : 'picture'
+                "
+                aria-hidden="true"></span>
+              <span class="reel-type">{{
+                (reel.MediaType === 'Video'
+                  ? 'T_MYREELS_VIDEO'
+                  : 'T_MYREELS_IMAGE'
+                ) | translate
+              }}</span>
             </div>
-          </div>
-        </a>
+            <div class="reel-summary">
+              <h3>{{ reel.Caption || ('T_MYREELS_UNTITLED' | translate) }}</h3>
+              <time [attr.datetime]="reel.CreatedDTime">{{
+                reel.CreatedDTime | date: 'dd/MM/yyyy'
+              }}</time>
+              <div class="reel-stats">
+                <span [attr.title]="'T_MYREELS_VIEWS' | translate"
+                  ><span nz-icon nzType="eye" aria-hidden="true"></span
+                  >{{ reel.ViewCount | number }}
+                  <span class="sr-only">{{
+                    'T_MYREELS_VIEWS' | translate
+                  }}</span></span
+                >
+                <span [attr.title]="'T_MYREELS_LIKES' | translate"
+                  ><span nz-icon nzType="heart" aria-hidden="true"></span
+                  >{{ reel.LikeCount | number }}
+                  <span class="sr-only">{{
+                    'T_MYREELS_LIKES' | translate
+                  }}</span></span
+                >
+                <span [attr.title]="'T_MYREELS_COMMENTS' | translate"
+                  ><span nz-icon nzType="message" aria-hidden="true"></span
+                  >{{ reel.CommentCount | number }}
+                  <span class="sr-only">{{
+                    'T_MYREELS_COMMENTS' | translate
+                  }}</span></span
+                >
+              </div>
+            </div>
+          </a>
+          <app-reel-delete
+            class="reel-card-delete"
+            [reel]="reel"
+            [compact]="true"
+            (deleted)="onReelDeleted($event)" />
+        </div>
       }
     </div>
   }

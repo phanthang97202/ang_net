@@ -56,10 +56,7 @@
         </button>
       } @else {
         <!-- Ảnh trình chiếu: cuộn ngang scroll-snap nên vuốt được trên cảm ứng -->
-        <div
-          class="reel-item__slides"
-          #slideTrack
-          (scroll)="onTrackScroll()">
+        <div class="reel-item__slides" #slideTrack (scroll)="onTrackScroll()">
           @for (image of images; track image.ReelMediaId) {
             <img
               class="reel-item__slide"
@@ -124,6 +121,7 @@
 
   <!-- Thanh hành động dọc bên phải khung video -->
   <div class="reel-item__actions">
+    <app-reel-delete [reel]="reel" (deleted)="deleted.emit($event)" />
     <button
       type="button"
       class="reel-item__action"

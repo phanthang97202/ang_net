@@ -38,6 +38,8 @@
   gap: 1.25rem;
 }
 .reel-card {
+  display: block;
+  height: 100%;
   min-width: 0;
   padding: 0.75rem 0.75rem 1rem;
   overflow: hidden;
@@ -47,6 +49,16 @@
   box-shadow: 0 2px 16px var(--color-card-shadow);
   text-decoration: none;
   transition: transform 0.2s;
+}
+.reel-card-wrapper {
+  position: relative;
+  min-width: 0;
+}
+.reel-card-delete {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
 }
 .reel-card:hover {
   transform: translateY(-3px);

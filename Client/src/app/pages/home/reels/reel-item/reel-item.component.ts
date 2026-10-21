@@ -10,12 +10,13 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { ReelDeleteComponent } from '../reel-delete/reel-delete.component';
 import { IReelDto, IReelMediaDto } from '../../../../interfaces';
 
 @Component({
   selector: 'app-reel-item',
   standalone: true,
-  imports: [NzIconModule],
+  imports: [NzIconModule, ReelDeleteComponent],
   templateUrl: './reel-item.component.html',
   styleUrl: './reel-item.component.scss',
 })
@@ -30,6 +31,7 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
   // Tách riêng khỏi likeToggled: double-tap của TikTok chỉ THÍCH, không bao giờ bỏ thích
   @Output() doubleTapLiked = new EventEmitter<IReelDto>();
   @Output() commentsOpened = new EventEmitter<IReelDto>();
+  @Output() deleted = new EventEmitter<string>();
 
   @ViewChild('videoRef') videoRef?: ElementRef<HTMLVideoElement>;
   @ViewChild('slideTrack') slideTrack?: ElementRef<HTMLElement>;
@@ -101,8 +103,8 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
   onCanPlay(): void {
     if (this.isActive) {
       this.videoRef?.nativeElement.play().catch(() => {
-          // Trình duyệt chặn autoplay: bỏ qua, không cần báo lỗi cho người dùng
-        });
+        // Trình duyệt chặn autoplay: bỏ qua, không cần báo lỗi cho người dùng
+      });
     }
   }
 
@@ -136,8 +138,8 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
     }
     if (video.paused) {
       video.play().catch(() => {
-          // Trình duyệt chặn autoplay: bỏ qua, không cần báo lỗi cho người dùng
-        });
+        // Trình duyệt chặn autoplay: bỏ qua, không cần báo lỗi cho người dùng
+      });
     } else {
       video.pause();
     }

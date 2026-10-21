@@ -123,6 +123,7 @@ namespace angnet.Infrastructure.Data.Repositories
             // Lưu ý: ReelComment.ReplyCount và Reel.CommentCount là cột đếm lưu sẵn nên sẽ
             // dôi hơn số thực tế khi có tác giả bị vô hiệu hoá - chấp nhận ở đợt này.
             return query
+                .Where(c => _dbContext.Reel.Any(r => r.ReelId == c.ReelId && r.FlagActive))
                 .Where(c => _dbContext.Users.Any(u => u.Id == c.UserId && u.FlagActive))
                 .Select(c => new ReelCommentDto
             {

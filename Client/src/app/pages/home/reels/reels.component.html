@@ -25,73 +25,74 @@
     <!-- Bọc riêng vùng video: topbar/nav định vị tuyệt đối theo khối này, nếu để
          chung với panel thì khi mở bình luận chúng sẽ nhảy ra đè lên panel -->
     <div class="reels__stage-area">
-    <div class="reels__viewport" #viewport>
-      @for (reel of lstReels; track reel.ReelId; let i = $index) {
-        <div class="reels__slide" #reelHost [attr.data-index]="i">
-          <app-reel-item
-            [reel]="reel"
-            [isActive]="i === activeIndex"
-            [isMuted]="isMuted"
-            [isMounted]="isMounted(i)"
-            (likeToggled)="onLikeToggled($event)"
-            (doubleTapLiked)="onDoubleTapLiked($event)"
-            (commentsOpened)="openComments($event)"
-            (muteToggled)="toggleMute()" />
-        </div>
-      }
+      <div class="reels__viewport" #viewport>
+        @for (reel of lstReels; track reel.ReelId; let i = $index) {
+          <div class="reels__slide" #reelHost [attr.data-index]="i">
+            <app-reel-item
+              [reel]="reel"
+              [isActive]="i === activeIndex"
+              [isMuted]="isMuted"
+              [isMounted]="isMounted(i)"
+              (likeToggled)="onLikeToggled($event)"
+              (doubleTapLiked)="onDoubleTapLiked($event)"
+              (commentsOpened)="openComments($event)"
+              (deleted)="onReelDeleted($event)"
+              (muteToggled)="toggleMute()" />
+          </div>
+        }
 
-      @if (!isLoading && lstReels.length === 0) {
-        <div class="reels__empty">{{ 'T_NOREELS' | translate }}</div>
-      }
-    </div>
+        @if (!isLoading && lstReels.length === 0) {
+          <div class="reels__empty">{{ 'T_NOREELS' | translate }}</div>
+        }
+      </div>
 
-    <!-- Cụm tài khoản + tải lên góc phải trên -->
-    <div class="reels__topbar">
-      <button type="button" class="reels__upload" (click)="goCreate()">
-        <span nz-icon nzType="plus" nzTheme="outline"></span>
-        <span class="reels__upload-text">{{ 'T_UPLOAD' | translate }}</span>
-      </button>
-
-      <span class="reels__topbar-divider"></span>
-
-      @if (accountName) {
-        <span class="reels__account" [title]="accountName">
-          @if (accountAvatar) {
-            <img class="reels__account-avatar" [src]="accountAvatar" alt="" />
-          } @else {
-            <span
-              class="reels__account-avatar reels__account-avatar--fallback"
-              >{{ accountInitial }}</span
-            >
-          }
-          <span class="reels__account-name">{{ accountName }}</span>
-        </span>
-      } @else {
-        <button type="button" class="reels__login" (click)="goLogin()">
-          Đăng nhập
+      <!-- Cụm tài khoản + tải lên góc phải trên -->
+      <div class="reels__topbar">
+        <button type="button" class="reels__upload" (click)="goCreate()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          <span class="reels__upload-text">{{ 'T_UPLOAD' | translate }}</span>
         </button>
-      }
-    </div>
 
-    <!-- Nút lên/xuống kiểu TikTok web, ẩn trên màn hình hẹp -->
-    <div class="reels__nav">
-      <button
-        type="button"
-        class="reels__btn"
-        [disabled]="activeIndex === 0"
-        (click)="scrollToIndex(activeIndex - 1)"
-        aria-label="Reel trước">
-        <span nz-icon nzType="up" nzTheme="outline"></span>
-      </button>
-      <button
-        type="button"
-        class="reels__btn"
-        [disabled]="activeIndex >= lstReels.length - 1"
-        (click)="scrollToIndex(activeIndex + 1)"
-        aria-label="Reel tiếp theo">
-        <span nz-icon nzType="down" nzTheme="outline"></span>
-      </button>
-    </div>
+        <span class="reels__topbar-divider"></span>
+
+        @if (accountName) {
+          <span class="reels__account" [title]="accountName">
+            @if (accountAvatar) {
+              <img class="reels__account-avatar" [src]="accountAvatar" alt="" />
+            } @else {
+              <span
+                class="reels__account-avatar reels__account-avatar--fallback"
+                >{{ accountInitial }}</span
+              >
+            }
+            <span class="reels__account-name">{{ accountName }}</span>
+          </span>
+        } @else {
+          <button type="button" class="reels__login" (click)="goLogin()">
+            Đăng nhập
+          </button>
+        }
+      </div>
+
+      <!-- Nút lên/xuống kiểu TikTok web, ẩn trên màn hình hẹp -->
+      <div class="reels__nav">
+        <button
+          type="button"
+          class="reels__btn"
+          [disabled]="activeIndex === 0"
+          (click)="scrollToIndex(activeIndex - 1)"
+          aria-label="Reel trước">
+          <span nz-icon nzType="up" nzTheme="outline"></span>
+        </button>
+        <button
+          type="button"
+          class="reels__btn"
+          [disabled]="activeIndex >= lstReels.length - 1"
+          (click)="scrollToIndex(activeIndex + 1)"
+          aria-label="Reel tiếp theo">
+          <span nz-icon nzType="down" nzTheme="outline"></span>
+        </button>
+      </div>
     </div>
 
     @if (commentsReel) {

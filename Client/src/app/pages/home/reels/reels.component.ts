@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -47,6 +48,8 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private message = inject(NzMessageService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly deletedIds = new Set<string>();
 
   menuItems: ReelMenuItem[] = [
     { label: 'Đề xuất', icon: 'home', route: '/reels', active: true },
@@ -177,9 +180,28 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  scrollToIndex(index: number): void {
+  scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth'): void {
     const host = this.reelHosts.get(index);
-    host?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    host?.nativeElement.scrollIntoView({ behavior });
+  }
+
+  onReelDeleted(id: string): void {
+    const activeId = this.lstReels[this.activeIndex]?.ReelId;
+    this.deletedIds.add(id);
+    this.lstReels = this.lstReels.filter(reel => reel.ReelId !== id);
+    const index = this.lstReels.findIndex(reel => reel.ReelId === activeId);
+    this.activeIndex =
+      index >= 0
+        ? index
+        : Math.max(0, Math.min(this.activeIndex, this.lstReels.length - 1));
+    if (this.commentsReel?.ReelId === id) this.closeComments();
+    clearTimeout(this.viewTimer);
+    this.pendingViewIndex = -1;
+    this.changeDetector.detectChanges();
+    this.scrollToIndex(this.activeIndex, 'auto');
+    if (this.lstReels.length) this.scheduleView(this.activeIndex);
+    if (this.activeIndex >= this.lstReels.length - this.prefetchThreshold)
+      this.loadNextPage();
   }
 
   onLikeToggled(reel: IReelDto): void {
@@ -234,6 +256,13 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private observeNew(): void {
+    const current = new Set(this.reelHosts.map(host => host.nativeElement));
+    for (const element of this.observed) {
+      if (!current.has(element)) {
+        this.observer?.unobserve(element);
+        this.observed.delete(element);
+      }
+    }
     // Chỉ observe phần tử mới thêm: disconnect + observe lại toàn bộ mỗi lần nối trang
     // sẽ thành O(n^2) và bắn lại callback cho cả danh sách.
     this.reelHosts.forEach(host => {
@@ -252,6 +281,7 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
     let bestIndex = -1;
 
     for (const entry of entries) {
+      if (!this.observed.has(entry.target as HTMLElement)) continue;
       if (entry.intersectionRatio < bestRatio) {
         continue;
       }
@@ -330,6 +360,7 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           const { DataList, NextCursor, HasMore } = res.objResult;
+          const previousCursor = this.nextCursor;
           this.lstReels = [
             ...new Map(
               [...this.lstReels, ...(DataList ?? [])].map(reel => [
@@ -337,9 +368,16 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
                 reel,
               ])
             ).values(),
-          ];
+          ].filter(reel => !this.deletedIds.has(reel.ReelId));
           this.nextCursor = NextCursor;
           this.hasMore = HasMore;
+          if (
+            this.hasMore &&
+            !this.lstReels.length &&
+            this.nextCursor !== previousCursor
+          ) {
+            this.loadNextPage();
+          }
         },
         error: err => {
           this.isLoading = false;
