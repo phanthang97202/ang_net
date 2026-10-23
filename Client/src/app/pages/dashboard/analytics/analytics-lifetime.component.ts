@@ -25,15 +25,15 @@ import { AnalyticsLifetime } from '../../../services/web-analytics.service';
         ><strong>{{ value.TotalVisits | number }}</strong>
       </div>
       <div>
-        <span>Truy cập tháng này</span
+        <span>Phiên tháng này đã ghi nhận</span
         ><strong>{{ value.MonthVisits | number }}</strong>
       </div>
       <div>
-        <span>Lượt xem bài viết hiện có</span
+        <span>Tổng lượt xem bài viết</span
         ><strong>{{ value.ArticleViews | number }}</strong>
       </div>
       <div>
-        <span>Lượt xem reels hiện có</span
+        <span>Tổng lượt xem reels</span
         ><strong>{{ value.ReelViews | number }}</strong>
       </div>
       <div>
@@ -44,6 +44,15 @@ import { AnalyticsLifetime } from '../../../services/web-analytics.service';
     <p *ngIf="!value.LegacyWebsiteImported" class="note">
       Bộ đếm website cũ chưa được lưu vào DB. Số truy cập hiện tại chỉ gồm phần
       đã ghi nhận; có thể kiểm tra tại mục Đối soát dữ liệu lịch sử.
+    </p>
+    <p class="note" *ngIf="value.DetailedFrom">
+      Tháng này tính phiên theo giờ Việt Nam từ dữ liệu chi tiết đã ghi nhận. Số
+      dư lịch sử không phân bổ vào ngày/tháng; bộ đếm cũ theo tab không dùng để
+      so sánh với phiên mới.
+    </p>
+    <p class="note" *ngIf="value.PendingBalances">
+      {{ value.PendingBalances }} số dư lịch sử cần đối soát, đang giữ riêng và
+      không cộng vào tổng.
     </p>
     <p
       *ngIf="value.LegacyWebsiteImported && !value.LegacyWebsiteMerged"

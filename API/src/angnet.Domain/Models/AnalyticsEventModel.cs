@@ -32,4 +32,5 @@ public class AnalyticsCollectionModel
     public DateTime? LegacyCapturedAt { get; set; }
     public DateTime? MovieImportedAt { get; set; }
     public DateTime? MovieHistoryStartedAt { get; set; }
+    public DateTime? CanonicalAt { get; set; }
 }

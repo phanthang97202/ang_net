@@ -79,14 +79,21 @@ describe('Analytics dashboard data flow', () => {
       Data: { ...report(), PreviousPeriodComplete: false },
     });
     expect(component.compare).toBeFalse();
-    expect(component.delta('Sessions')).toContain('Chưa đủ');
+    expect(component.delta('Sessions')).toContain('chưa được ghi nhận');
   });
 
   it('leaves gaps before collection began instead of inventing zeroes', () => {
     const component = create();
     request().flush({
       Success: true,
-      Data: { ...report(), CollectionStartedAt: '2026-10-23T00:00:00Z' },
+      Data: {
+        ...report(),
+        CollectionStartedAt: '2026-10-23T00:00:00Z',
+        Points: [
+          { ...counts, Sessions: 0, Bucket: '2026-10-22' },
+          { ...counts, Bucket: '2026-10-23' },
+        ],
+      },
     });
     expect(component.chartPoints.length).toBe(1);
     expect(component.chartPoints[0].index).toBe(1);
@@ -125,5 +132,51 @@ describe('Analytics dashboard data flow', () => {
   it('formats Vietnam midnight and calendar arithmetic consistently', () => {
     expect(vietnamDay(new Date('2026-10-22T17:00:00Z'))).toBe('2026-10-23');
     expect(shiftDay('2026-03-01', -1)).toBe('2026-02-28');
+  });
+
+  it('distinguishes unavailable from a real zero and respects server quality instead of oldest records', () => {
+    const component = create();
+    const data = report();
+    data.Current = { ...counts, Sessions: 0 };
+    data.DataQuality = {
+      Sessions: {
+        Current: 'unavailable',
+        Previous: 'unavailable',
+        CanCompare: false,
+        Reason: 'Dữ liệu từ 23/10',
+      },
+    };
+    request().flush({ Success: true, Data: data });
+    expect(component.metricValue('Sessions')).toBe('—');
+    expect(component.canCompare('Sessions')).toBeFalse();
+    expect(component.delta('Sessions')).toBe('Ngoài thời gian ghi nhận');
+    data.DataQuality.Sessions = {
+      Current: 'complete',
+      Previous: 'complete',
+      CanCompare: true,
+      Reason: '',
+    };
+    expect(component.metricValue('Sessions')).toBe(0);
+    expect(component.canCompare('Sessions')).toBeTrue();
+  });
+
+  it('shows partial historical facts without drawing invented zeros before coverage', () => {
+    const component = create();
+    component.from = '2026-10-22';
+    const data = report();
+    data.Coverage = { Movies: '2026-10-23T00:00:00Z' };
+    data.DataQuality = {
+      Movies: {
+        Current: 'partial',
+        Previous: 'unavailable',
+        CanCompare: false,
+        Reason: 'Lịch sử một phần',
+      },
+    };
+    request().flush({ Success: true, Data: data });
+    component.selectMetric('Movies');
+    expect(component.chartPoints.length).toBe(2);
+    expect(component.delta('Movies')).toBe('Số liệu một phần');
+    expect(component.canCompare('Movies')).toBeFalse();
   });
 });

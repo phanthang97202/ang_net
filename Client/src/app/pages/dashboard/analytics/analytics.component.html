@@ -85,12 +85,20 @@
           type="button"
           [class.active]="metric === item.key"
           [attr.aria-pressed]="metric === item.key"
-          [title]="item.description"
+          [title]="
+            item.description +
+            ' ' +
+            (data.DataQuality?.[item.key]?.Reason || '')
+          "
           (click)="selectMetric(item.key)">
           <span class="metric-heading"
             ><span>{{ item.label }}</span
             ><span nz-icon [nzType]="item.icon"></span></span
-          ><strong>{{ data.Current[item.key] | number }}</strong
+          ><strong>{{
+            metricValue(item.key) === '—'
+              ? '—'
+              : (data.Current[item.key] | number)
+          }}</strong
           ><small
             [class.up]="trend(item.key) === 'up'"
             [class.down]="trend(item.key) === 'down'"
@@ -101,12 +109,16 @@
 
       <div class="collection-notice" *ngIf="!coverageStart || partial">
         <span nz-icon nzType="info-circle"></span>
-        <p *ngIf="coverageStart">
+        <p *ngIf="qualityReason">
+          {{ qualityReason }}. Các số hiển thị chỉ gồm lượt thực tế đã ghi nhận;
+          số dư lịch sử nằm ở phần lũy kế.
+        </p>
+        <p *ngIf="coverageStart && !qualityReason">
           Dữ liệu chi tiết cho {{ metricLabel.toLowerCase() }} có từ
           <strong>{{ displayTime(coverageStart) }}</strong
           >. Khoảng thời gian trước đó chưa có dữ liệu.
         </p>
-        <p *ngIf="!coverageStart">
+        <p *ngIf="!coverageStart && !qualityReason">
           Chưa có mốc bắt đầu thu thập. Vui lòng kiểm tra cập nhật dữ liệu hệ
           thống.
         </p>

@@ -34,11 +34,7 @@ export class AnalyticsHistoryComponent {
     this.load();
   }
   get canImport(): boolean {
-    return (
-      !!this.plan &&
-      (!this.plan.MovieImportedAt ||
-        (!this.plan.RedisSnapshotExists && this.plan.RedisAvailable))
-    );
+    return !!this.plan && !this.plan.RedisSnapshotExists;
   }
   time(value: string): string {
     return new Date(value).toLocaleString('vi-VN', {
@@ -88,7 +84,7 @@ export class AnalyticsHistoryComponent {
           if (response.Success) {
             this.plan = response.Data;
             this.success =
-              'Đã nhập dữ liệu lịch sử và giữ nguyên các bản ghi gốc.';
+              'Đã phục hồi vào sổ thống kê chuẩn. Phần chưa rõ chồng lấn được giữ riêng, không cộng trùng.';
           } else
             this.error = response.ErrorMessage || 'Chưa nhập được dữ liệu.';
         },

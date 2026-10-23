@@ -39,6 +39,11 @@ public class MovieViewingLogTests
         context = new DefaultHttpContext { TraceIdentifier = Guid.NewGuid().ToString(),
             User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier,"viewer-1"), new Claim(ClaimTypes.Name,"Viewer One") }, "test")) };
         var accessor = Mock.Of<IHttpContextAccessor>(x => x.HttpContext == context);
+        context.Request.Headers.UserAgent = "Mozilla/5.0 Chrome/130.0 Safari/537.36";
+        context.Request.Headers["X-Blog-Session"] = Guid.NewGuid().ToString();
+        context.Request.Headers["X-Blog-Navigation"] = Guid.NewGuid().ToString();
+        context.Request.Headers["X-Blog-Visitor"] = Guid.NewGuid().ToString();
+        context.Request.Headers["X-Blog-Page"] = "/phim/test-film";
         var clock = TimeProvider.System;
         var actual = new MovieViewLogService(db, new WebsiteSessionService(db,clock),
             new AnalyticsWriter(db,clock,new AnalyticsWriteHealth(),NullLogger<AnalyticsWriter>.Instance), clock, accessor);
@@ -65,14 +70,15 @@ public class MovieViewingLogTests
         library.Setup(x=>x.Playback("test-film",3,"tap-1",It.IsAny<CancellationToken>())).ReturnsAsync(playback);
         var before = DateTime.UtcNow;
         Assert.IsInstanceOfType(await controller.Playback("test-film",3,"tap-1",default),typeof(OkObjectResult));
-        var row = await db.MovieViewLog.AsNoTracking().SingleAsync();
-        Assert.AreEqual("test-film",row.MovieSlug); Assert.AreEqual("Tên phim từ nguồn",row.MovieTitle);
+        var row = await db.AnalyticsLedger.AsNoTracking().SingleAsync(x => x.Kind == "movie");
+        Assert.AreEqual("test-film",row.ContentId); Assert.AreEqual("Tên phim từ nguồn",row.Title);
         Assert.AreEqual("viewer-1",row.UserId); Assert.AreEqual("Viewer One",row.ActorName);
         Assert.AreEqual("tap-1",row.EpisodeSlug); Assert.AreEqual("Tập 1",row.EpisodeName);
         Assert.AreEqual(3,row.ServerId); Assert.AreEqual("Vietsub",row.ServerName);
         Assert.IsTrue(row.OccurredAt>=before && row.OccurredAt<=DateTime.UtcNow);
         Assert.AreEqual(0,await db.AuditTrail.CountAsync());
         Assert.AreEqual(0,await db.AnalyticsEvent.CountAsync());
+        Assert.AreEqual(0,await db.MovieViewLog.CountAsync());
         Assert.IsFalse(System.Text.Json.JsonSerializer.Serialize(row).Contains("secret",StringComparison.Ordinal));
     }
 
@@ -81,7 +87,7 @@ public class MovieViewingLogTests
     {
         context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier,"viewer-1")],"test"));
         await controller.Playback("test-film",3,"tap-1",default);
-        Assert.AreEqual("viewer-1",(await db.MovieViewLog.SingleAsync()).ActorName);
+        Assert.AreEqual("viewer-1",(await db.AnalyticsLedger.SingleAsync(x => x.Kind == "movie")).ActorName);
     }
 
     [TestMethod]
@@ -110,8 +116,8 @@ public class MovieViewingLogTests
     {
         library.Setup(x=>x.Detail("test-film",It.IsAny<CancellationToken>())).ThrowsAsync(new HttpRequestException());
         await controller.Playback("test-film",3,"tap-1",default);
-        var row = await db.MovieViewLog.SingleAsync();
-        Assert.AreEqual("test-film",row.MovieTitle); Assert.AreEqual("tap-1",row.EpisodeSlug);
+        var row = await db.AnalyticsLedger.SingleAsync(x => x.Kind == "movie");
+        Assert.AreEqual("test-film",row.Title); Assert.AreEqual("tap-1",row.EpisodeSlug);
     }
 
     [TestMethod]
@@ -132,11 +138,11 @@ public class MovieViewingLogTests
         context.Request.Headers["X-Blog-Page"]="/phim/test-film";
         await controller.Playback("test-film",3,"tap-1",default);
         await controller.Playback("test-film",3,"tap-1",default);
-        Assert.AreEqual(1,await db.MovieViewLog.CountAsync());
+        Assert.AreEqual(1,await db.AnalyticsLedger.CountAsync(x => x.Kind == "movie"));
         Assert.AreEqual(1,await db.WebsiteSession.CountAsync());
         context.Request.Headers["X-Blog-Navigation"]=Guid.NewGuid().ToString();
         await controller.Playback("test-film",3,"tap-1",default);
-        Assert.AreEqual(2,await db.MovieViewLog.CountAsync());
+        Assert.AreEqual(2,await db.AnalyticsLedger.CountAsync(x => x.Kind == "movie"));
         Assert.AreEqual(1,await db.WebsiteSession.CountAsync());
     }
 
@@ -150,5 +156,17 @@ public class MovieViewingLogTests
         await controller.Browse(); await controller.Detail("test-film",default);
         log.Verify(x=>x.RecordAsync(It.IsAny<MovieViewWriteDto>(),It.IsAny<CancellationToken>()),Times.Never);
         Assert.AreEqual("movie.view",typeof(MovieLibraryController).GetCustomAttributes(typeof(AuthorizeAttribute),false).Cast<AuthorizeAttribute>().Single().Policy);
+    }
+
+    [TestMethod]
+    public async Task ContextFreeAndBotPlaybackDoNotCreateViewsOrReportStorageFailure()
+    {
+        context.Request.Headers.Remove("X-Blog-Session");
+        Assert.IsInstanceOfType<OkObjectResult>(await controller.Playback("test-film",3,"tap-1",default));
+        context.Request.Headers["X-Blog-Session"] = Guid.NewGuid().ToString();
+        context.Request.Headers.UserAgent = "Googlebot/2.1";
+        Assert.IsInstanceOfType<OkObjectResult>(await controller.Playback("test-film",3,"tap-1",default));
+        log.Verify(x => x.RecordAsync(It.IsAny<MovieViewWriteDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.AreEqual(0, await db.AnalyticsLedger.CountAsync());
     }
 }

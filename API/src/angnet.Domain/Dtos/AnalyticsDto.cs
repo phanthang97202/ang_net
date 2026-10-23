@@ -24,6 +24,7 @@ public class AnalyticsCountsDto
 public class AnalyticsPointDto : AnalyticsCountsDto
 {
     public string Bucket { get; set; } = "";
+    public bool HasGap { get; set; }
 }
 
 public class AnalyticsTopDto
@@ -55,12 +56,23 @@ public class AnalyticsReportDto
     public List<AnalyticsTopDto> TopMovies { get; set; } = [];
     public AnalyticsLifetimeDto Lifetime { get; set; } = new();
     public Dictionary<string, DateTime?> Coverage { get; set; } = new();
+    public Dictionary<string, AnalyticsQualityDto> DataQuality { get; set; } = new();
     public long WriteFailures { get; set; }
     public DateTime? LastWriteFailureAt { get; set; }
 }
 
+public class AnalyticsQualityDto
+{
+    public string Current { get; set; } = "unavailable";
+    public string Previous { get; set; } = "unavailable";
+    public bool CanCompare { get; set; }
+    public string Reason { get; set; } = "";
+}
+
 public class AnalyticsLifetimeDto
 {
+    public DateTime? DetailedFrom { get; set; }
+    public int PendingBalances { get; set; }
     public long TotalVisits { get; set; }
     public long MonthVisits { get; set; }
     public long ArticleViews { get; set; }
@@ -80,6 +92,8 @@ public class AnalyticsLegacyValueDto
 
 public class AnalyticsReconciliationDto
 {
+    public int PendingBalances { get; set; }
+    public List<AnalyticsBalanceConflictDto> BalanceConflicts { get; set; } = [];
     public DateTime GeneratedAt { get; set; }
     public DateTime? AnalyticsStartedAt { get; set; }
     public DateTime? UnifiedAt { get; set; }
@@ -96,6 +110,17 @@ public class AnalyticsReconciliationDto
     public string RedisError { get; set; } = "";
     public List<AnalyticsLegacyValueDto> WebsiteValues { get; set; } = [];
     public string PlanToken { get; set; } = "";
+}
+
+public class AnalyticsBalanceConflictDto
+{
+    public string Kind { get; set; } = "";
+    public string ContentId { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Source { get; set; } = "";
+    public long? OriginalValue { get; set; }
+    public long Quantity { get; set; }
+    public string Reason { get; set; } = "";
 }
 
 public class AnalyticsImportDto

@@ -6,11 +6,18 @@ namespace angnet.Infrastructure.Data.Services;
 // Health remains available without writing another row into an unavailable DB.
 public sealed class AnalyticsWriteHealth
 {
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, DateTime> pending = new();
     private long failures;
     private long lastFailureTicks;
     public long Failures => Interlocked.Read(ref failures);
     public DateTime? LastFailureAt => Interlocked.Read(ref lastFailureTicks) is var ticks && ticks != 0 ? new DateTime(ticks, DateTimeKind.Utc) : null;
-    public void Failed(DateTime now) { Interlocked.Increment(ref failures); Interlocked.Exchange(ref lastFailureTicks, now.Ticks); }
+    public void Failed(DateTime now)
+    {
+        Interlocked.Increment(ref failures); Interlocked.Exchange(ref lastFailureTicks, now.Ticks);
+        pending.TryAdd(Guid.NewGuid().ToString(), now.AddSeconds(-3));
+    }
+    internal KeyValuePair<string, DateTime>[] Pending() => pending.ToArray();
+    internal void Recovered(string id) => pending.TryRemove(id, out _);
 }
 
 public sealed class AnalyticsWriter(AppDbContext db, TimeProvider clock, AnalyticsWriteHealth health, ILogger<AnalyticsWriter> logger)
@@ -26,6 +33,17 @@ public sealed class AnalyticsWriter(AppDbContext db, TimeProvider clock, Analyti
             await db.Database.CreateExecutionStrategy().ExecuteAsync(0, async (_, _, ct) =>
             {
                 await operation(ct);
+                // Persist known outage windows once DB writes recover. Stable keys
+                // survive an execution-strategy retry without duplicate warnings.
+                foreach (var gap in health.Pending())
+                {
+                    var end = clock.GetUtcNow().UtcDateTime;
+                    await db.Database.ExecuteSqlInterpolatedAsync($"""
+                        INSERT INTO "AnalyticsGap" ("GapId","StartedAt","EndedAt","Failures")
+                        VALUES ({gap.Key},{gap.Value},{end},1) ON CONFLICT DO NOTHING
+                        """, ct);
+                    health.Recovered(gap.Key);
+                }
                 return true;
             }, null, timeout.Token);
             return true;

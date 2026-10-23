@@ -21,7 +21,6 @@ public sealed class AnalyticsMaintenanceWorker(IServiceScopeFactory scopes, ILog
                     using var scope = scopes.CreateScope();
                     var service = scope.ServiceProvider.GetRequiredService<AnalyticsLegacyService>();
                     await service.Maintain(timeout.Token);
-                    await service.CaptureWebsite(timeout.Token);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
                 catch (Exception ex) { logger.LogWarning(ex, "Analytics maintenance will retry on the next scheduled run"); }

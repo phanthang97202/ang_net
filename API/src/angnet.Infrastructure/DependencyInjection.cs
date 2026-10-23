@@ -102,6 +102,7 @@ namespace angnet.Infrastructure
             services.AddSingleton<AnalyticsWriteHealth>();
             services.AddScoped<IMovieViewLogService, MovieViewLogService>();
             services.AddScoped<ILegacyVisitReader, LegacyVisitReader>();
+            services.AddScoped<Func<ILegacyVisitReader>>(sp => () => sp.GetRequiredService<ILegacyVisitReader>());
             services.AddScoped<AnalyticsLegacyService>();
             services.AddHostedService<AnalyticsMaintenanceWorker>();
 

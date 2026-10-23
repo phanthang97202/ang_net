@@ -51,6 +51,11 @@ public class MovieLibraryController(IMovieLibraryService library, IMovieWishlist
         // opening a playable episode, never claim watch duration or completion.
         if (string.IsNullOrEmpty(playback.Url) && string.IsNullOrEmpty(playback.EmbedUrl)) return;
         cancellationToken.ThrowIfCancellationRequested();
+        var request = HttpContext.Request;
+        if (angnet.Infrastructure.Data.Services.WebAnalyticsService.IsBot(request.Headers.UserAgent.ToString())
+            || !angnet.Infrastructure.Data.Services.WebAnalyticsService.ValidContext(
+                request.Headers["X-Blog-Session"].ToString(), request.Headers["X-Blog-Navigation"].ToString(), request.Headers["X-Blog-Page"].ToString())
+            || request.Headers["X-Blog-Page"].ToString() != $"/phim/{slug}") return;
         var title = slug;
         var source = $"Nguồn {serverId}";
         try

@@ -170,9 +170,7 @@ namespace angnet.Infrastructure.Data.Repositories
         /// </summary>
         public async Task<int> IncrementView(string reelId)
         {
-            await _dbContext.Reel.Where(r => r.ReelId == reelId)
-                    .ExecuteUpdateAsync(s => s.SetProperty(r => r.ViewCount, r => r.ViewCount + 1));
-
+            // Compatibility interface is read-only; views originate in the ledger.
             return await _dbContext.Reel.Where(r => r.ReelId == reelId)
                     .Select(r => r.ViewCount)
                     .FirstOrDefaultAsync();

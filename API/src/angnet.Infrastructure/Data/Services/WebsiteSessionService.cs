@@ -32,6 +32,12 @@ public sealed class WebsiteSessionService(AppDbContext db, TimeProvider clock)
             row = await db.WebsiteSession.AsNoTracking().SingleAsync(x => x.VisitorId == visitor && x.IsCurrent, ct);
         }
         var current = row.SessionId;
+        await AnalyticsLedgerStore.Insert(db, new AnalyticsLedgerModel
+        {
+            EventId = "session:" + current, Kind = "session", SessionId = current,
+            OccurredAt = row.StartedAt, LocalHour = row.StartedLocalHour,
+            Source = row.Source, SourceId = current,
+        }, ct);
         if (active)
             await db.WebsiteSession.Where(x => x.SessionId == current).ExecuteUpdateAsync(s => s
                 .SetProperty(x => x.LastSeenAt, now).SetProperty(x => x.LastActivityAt, now), ct);

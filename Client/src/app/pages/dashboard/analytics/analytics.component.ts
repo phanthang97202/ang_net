@@ -225,6 +225,8 @@ export class AnalyticsComponent {
     return this.report?.Current[this.metric] ?? 0;
   }
   get partial(): boolean {
+    if (this.report?.DataQuality?.[this.metric])
+      return this.report.DataQuality[this.metric]!.Current !== 'complete';
     return (
       !!this.coverageStart &&
       new Date(this.coverageStart).getTime() >
@@ -240,6 +242,8 @@ export class AnalyticsComponent {
   }
   canCompare(metric: AnalyticsMetric): boolean {
     if (!this.report) return false;
+    if (this.report.DataQuality?.[metric])
+      return this.report.DataQuality[metric]!.CanCompare;
     if (!this.report.Coverage) return this.report.PreviousPeriodComplete;
     const start = this.report.Coverage[metric];
     return (
@@ -249,8 +253,16 @@ export class AnalyticsComponent {
     );
   }
   delta(metric: AnalyticsMetric): string {
+    const quality = this.report?.DataQuality?.[metric];
+    if (quality?.Current === 'unavailable' && !this.report?.Current[metric])
+      return 'Ngoài thời gian ghi nhận';
+    if (quality?.Current === 'partial') return 'Số liệu một phần';
+    if (quality && !quality.CanCompare)
+      return quality.Previous === 'partial'
+        ? 'Kỳ trước có dữ liệu một phần'
+        : 'Kỳ trước chưa được ghi nhận';
     if (!this.report || !this.canCompare(metric))
-      return 'Chưa đủ dữ liệu so sánh';
+      return 'Kỳ trước chưa được ghi nhận';
     const previous = this.report.Previous[metric];
     const current = this.report.Current[metric];
     if (previous === 0)
@@ -265,6 +277,15 @@ export class AnalyticsComponent {
       : this.report.Current[metric] < this.report.Previous[metric]
         ? 'down'
         : '';
+  }
+  metricValue(metric: AnalyticsMetric): number | string {
+    return this.report?.DataQuality?.[metric]?.Current === 'unavailable' &&
+      !this.report.Current[metric]
+      ? '—'
+      : (this.report?.Current[metric] ?? 0);
+  }
+  get qualityReason(): string {
+    return this.report?.DataQuality?.[this.metric]?.Reason || '';
   }
   displayDate(value: string): string {
     return value.split('-').reverse().join('/');
@@ -289,13 +310,15 @@ export class AnalyticsComponent {
       );
       const end = start + (hourly ? 3_600_000 : 86_400_000);
       return (
-        !!this.coverageStart &&
-        end > Date.parse(this.coverageStart) &&
-        start <= Date.parse(report.GeneratedAt)
+        start <= Date.parse(report.GeneratedAt) &&
+        ((!!this.coverageStart && end > Date.parse(this.coverageStart)) ||
+          point[this.metric] > 0)
       );
     };
     const values = points.map(point =>
-      covered(point) ? point[this.metric] : null
+      covered(point) && (!point.HasGap || point[this.metric] > 0)
+        ? point[this.metric]
+        : null
     );
     const previous = this.report.PreviousPoints.map((point, index) =>
       values[index] === null ? null : point[this.metric]

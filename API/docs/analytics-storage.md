@@ -1,42 +1,104 @@
-# Website analytics storage and cutover
+# Canonical analytics ledger (migration 0063)
 
-Migration `0062_UnifiedWebsiteAnalytics.sql` is additive and runs through the existing startup migrator. It preserves `AnalyticsEvent`, `AuditTrail`, and existing article/reel counters.
+## One measurement source
 
-## Authoritative sources
+`AnalyticsLedger` is the authoritative source for session starts, page views,
+article/reel views, movie openings, lifetime figures and historical balances.
+`WebsiteSession` manages activity and online presence only. Starting a session
+also inserts its deterministic `session:<id>` fact in the same transaction.
 
-- `WebsiteSession`: a persisted browser session, shared across tabs using a visitor UUID. A new session starts after 30 minutes without user activity. Passive heartbeats update online presence but cannot create or keep an inactive session alive. A session crossing midnight belongs to its start date, in Vietnam time.
-- `AnalyticsEvent`: page, article and reel view events. The navigation ID makes retries idempotent. Article/reel counters and their event are written in one transaction.
-- `MovieViewLog`: successful playback openings, with authenticated user, film, episode, server and time. This measures opening the player, not watched duration or completion. No new playback rows are written to `AuditTrail` or generic movie events. Historical rows remain intact.
-- `AnalyticsLegacySnapshot`: the Redis total/month counters and snapshots of existing article/reel counters. Historical aggregate counters are not spread across fabricated daily values.
+All current writers use `AnalyticsWriter` and `AnalyticsLedgerStore`. A successful
+published content response needs a valid public navigation context and a non-bot
+user agent to count. Movie openings need the authenticated actor and matching
+film path. Context-free/API/admin requests still return usable content but do
+not invent views. Repeated calls use the same event ID; another episode or
+navigation has a different ID. Playback duration/completion is not measured.
 
-The public footer and admin dashboard use `WebAnalyticsService`. Normal tracking and reporting have no Redis dependency. The public summary has a 15-second in-process cache; online presence is read separately. Article/reel lifetime totals reflect counters on currently stored content.
+`News.ViewCount` and `Reel.ViewCount` are compatibility **projections**, not sources.
+Database triggers rebuild them from accepted ledger facts and opening balances.
+They cannot be increased by an independent `UPDATE ViewCount = ViewCount + 1`.
+Their integer values saturate at `Int32.MaxValue`; ledger quantities and lifetime
+totals are bigint. Sorting and existing DTOs keep using these projections.
 
-## Deployment and historical import
+Reports, footer figures, public view counters and movie logs read the ledger.
+There is no reporting union, Redis lookup, periodic copy of movie logs, or sum of
+the old content counters. Reporting uses one consistent DB snapshot, including
+cards, series, rankings and lifetime totals. Online is deliberately a live metric,
+not subject to the selected historical range.
 
-1. Deploy the API and client together. The migration copies existing page sessions and generic movie events idempotently. A scheduled reconciliation also picks up old movie events that finish during rolling deployment; reports include that tail without counting copied rows twice.
-2. Before accepting traffic, startup attempts to capture the old Redis counters. The legacy reader uses the original environment suffix. Existing Redis keys are read only and retained.
-3. Open **Thống kê → Đối soát dữ liệu lịch sử** (`/dashboard/analytics-history`). Grant `analytics.import` through the existing role/permission management if needed. Review the old totals, source timestamps, eligible film audit rows, overlapping rows and unrecognised rows.
-4. Click **Nhập theo bản đối soát này**. A changed source invalidates the reviewed plan (HTTP 409). Repeated or interrupted imports can be resumed without duplicating previously imported rows. Original logs are retained.
-5. Only movie audit rows before the original `AnalyticsCollection.StartedAt` are imported. Rows after that boundary overlap with the first analytics implementation and are excluded. Missing user/session/episode metadata is left unknown, never invented.
+## Cutover and historical accounting
 
-A Redis snapshot is merged with new visits only when captured before this version creates new sessions. If Redis is unavailable until later, the snapshot is stored separately because overlap cannot be proven. The UI explains this rather than silently adding both totals. Missing Redis counters remain missing, not an assumed zero baseline.
+Back up the production DB before deploying. Deploy API and client together.
+Never rewrite migrations 0061/0062. Startup runs additive migration 0063 inside
+the existing migrator's transaction/advisory lock:
 
-## Admin access
+1. Locks affected sources in writer order and records `CanonicalAt`.
+2. Copies existing events, session starts and structured movie logs by stable ID.
+3. Copies identifiable, timestamped film audits before the original collection
+   boundary. Real actor/episode/server metadata is parsed when present. Unknown
+   fields stay null. Overlapping or unrecognised audit rows are quarantined as
+   `RecordType=excluded`, never counted automatically.
+4. Reconciles each content counter: opening balance = old counter minus the
+   already copied dated facts. Original values/provenance are retained. A negative
+   difference is flagged with `Included=false`, not treated as a valid zero.
+5. Converts existing Redis snapshots to ledger balances. A proven mergeable total
+   subtracts copied session facts before its capture boundary. Unknown overlap or
+   a negative difference remains excluded. UTC-month aggregates remain archived
+   in the ledger; they are not recast as Vietnam months/days.
+6. Rebuilds compatibility projections and validates that source facts were copied.
+   Validation failure rolls back the whole migration.
 
-- `analytics.view`: traffic charts and cumulative figures.
-- `analytics.import`: reconciliation and legacy import.
-- `movieviewlog.view`: `/dashboard/movie-view-logs`, with date/account/film filters and cursor-based automatic loading.
+All original tables remain intact as archives. Reapplying the conversion cannot
+duplicate ledger rows or balances. Write-only bridge triggers preserve in-flight
+old-version event/movie/session writes during rolling deployment. They are not
+read sources, background import jobs, or an alternative modern tracking path.
 
-Existing accounts gain access through normal permission assignment; no role is silently elevated. Detailed playback logs are not public.
+Opening balances use their **capture time**, not an invented historical event
+time. Only `RecordType=event` participates in date charts, rankings and date-range
+comparisons. Accepted balances with an empty period contribute to lifetime
+figures. Totals are retained even when content is later hidden/deleted.
 
-## Failures and maintenance
+## Reconciliation and exceptional recovery
 
-Tracking writes have a three-second budget and use the configured database transient retry strategy. Stable event IDs and transactions make retries safe. `Analytics/Track` returns 503 if a write fails; the browser retries the captured payload twice. Content/playback responses remain usable if analytics storage fails. This is bounded best-effort tracking, not a durable offline queue; a prolonged outage can lose new events.
+`/dashboard/analytics-history` reads ledger provenance, original values and
+quarantined rows, not the source archives. `analytics.import` is still required.
+Timestamped movie history is already migrated; the import button now handles only
+an explicit recovery of a missing Redis total. The Redis dependency is lazy, so
+normal reports, startup, preview and maintenance do not resolve it.
 
-The admin report exposes write failure count and last failure time for the current API process. These reset on restart. Server warnings provide operational diagnostics. If failures persist, investigate DB connectivity and latency before interpreting the affected period as complete.
+A missing/empty total does not latch a successful import. A retry retains stable
+source IDs. A late snapshot with unprovable overlap is kept excluded. Reviewing a
+plan does not authorise inventing a merge: ambiguous balances require a separate,
+evidence-backed reconciliation decision. Old tab-based totals and new 30-minute,
+cross-tab sessions retain their distinct historical definitions.
 
-The hourly worker closes expired session markers, removes only obsolete ephemeral `AnalyticsPresence` entries and reconciles remaining v1 movie rows. It does not delete session, event, movie or legacy history. Archival/retention of permanent history should be introduced explicitly when volume warrants it.
+## Completeness, time and failures
 
-## Verification
+- All new timestamps are UTC; calendar buckets and filters are Vietnam UTC+7.
+- A session belongs to its start date. Passive heartbeats do not start sessions
+  or prolong activity beyond the 30-minute idle threshold.
+- Historical oldest rows do not move the continuous-coverage boundary backwards.
+- `DataQuality` distinguishes complete, partial and unavailable data for each
+  metric/period. Only compatible complete periods can be compared.
+- Missing history is not a real zero. Known positive historical facts can appear
+  before continuous coverage; no zero curve is manufactured between them.
+- Writes have a three-second bounded retry budget. Failed event payloads are not
+  a durable offline queue. User-facing content remains usable on tracking failure.
+- Failure windows are persisted in `AnalyticsGap` when writes recover. They survive
+  process restart and disable misleading comparisons; affected empty chart buckets
+  are gaps, not zeroes. If the process dies before DB recovery, only operational
+  logs may retain the pending failures. Check logs after a prolonged outage.
+- Hourly maintenance only closes expired operational sessions. It never rereads
+  Redis, copies old facts or deletes permanent analytics history.
 
-`UnifiedAnalyticsTests` covers shared tabs, idle expiry, midnight grouping, Redis outage/capture, late-snapshot separation, legacy import boundaries/idempotency, plan invalidation and cursor ordering. Set `ANGNET_ANALYTICS_TEST_DB` to a disposable local PostgreSQL database to run the isolated migration/concurrency test. It creates and removes only a randomly named test schema, preserving other schemas.
+## Verification before deployment
+
+Run the analytics/movie-viewing integration tests. Set `ANGNET_ANALYTICS_TEST_DB`
+only to a disposable local PostgreSQL instance to exercise actual migration SQL,
+projection guards, concurrent tabs and idempotent repeat conversion. The test
+creates and drops only a random private schema. Do not point it at production.
+
+Compare the opening balance `OriginalValue` with the accepted balance plus copied
+facts. Review `Included=false` rows and their `Note` rather than silently forcing
+them into totals. Validate period totals against series, footer against lifetime,
+and movie logs against movie reporting before enabling automatic deployment.

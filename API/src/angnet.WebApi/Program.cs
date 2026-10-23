@@ -493,13 +493,5 @@ catch (Exception ex)
 }
 
 await app.InitializeBlogMcp(mcpSettings);
-// Capture legacy counters before this version accepts traffic. Failure here is
-// reported as pending reconciliation; DB tracking itself never requires Redis.
-try
-{
-    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-    using var scope = app.Services.CreateScope();
-    await scope.ServiceProvider.GetRequiredService<angnet.Infrastructure.Data.Services.AnalyticsLegacyService>().CaptureWebsite(timeout.Token);
-}
-catch (Exception ex) { Log.Warning("Legacy analytics capture is pending ({ErrorType}); DB tracking remains enabled", ex.GetType().Name); }
+// Historical conversion is transactional in migration 0063. Never read Redis at startup.
 app.Run();

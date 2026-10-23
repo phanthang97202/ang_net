@@ -191,7 +191,7 @@
     "T_THISISPUBLICAPIPLEASEDONTEDITCHAOS": "Đây là Public API - Vui lòng không sửa dữ liệu linh tinh. Xin cảm ơn!",
     "T_STATISTIC": "Thống kê",
     "T_ONLINE": "đang online",
-    "T_VISITSTHISMONTH": "lượt truy cập tháng này",
+    "T_VISITSTHISMONTH": "phiên đã ghi nhận tháng này",
     "T_TOTALVISITS": "tổng lượt truy cập",
     "T_INTRODUCTION": "Tác giả",
     "T_FEATUREDIMAGES": "Ảnh nổi bật",
@@ -431,6 +431,6 @@
     "T_PNOTE_DELETED": "Đã xóa ghi chú",
     "T_PNOTE_DELETE_ERROR": "Chưa xóa được ghi chú. Vui lòng thử lại.",
     "T_PNOTE_EDITOR_ERROR": "Chưa tải được trình soạn thảo. Hãy đóng rồi mở lại ghi chú.",
-    "T_TRACKED_VISITS": "L??t truy c?p ?? ghi nh?n",
-    "T_VISIT_LEGACY_PENDING": "D? li?u website c? ???c ki?m tra ri?ng trong trang qu?n tr?."
+    "T_TRACKED_VISITS": "Lượt truy cập đã ghi nhận",
+    "T_VISIT_LEGACY_PENDING": "Số liệu lịch sử chưa đối soát được giữ riêng."
 }

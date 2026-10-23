@@ -35,7 +35,7 @@ public class UnifiedAnalyticsTests
         db.AnalyticsCollection.Add(new() { Id = 1, StartedAt = clock.Now.AddDays(-2).UtcDateTime, UnifiedAt = clock.Now.UtcDateTime });
         await db.SaveChangesAsync();
         analytics = Service(db, clock, cache);
-        history = new(db, legacy, clock, cache, NullLogger<AnalyticsLegacyService>.Instance);
+        history = new(db, () => legacy, clock, cache, NullLogger<AnalyticsLegacyService>.Instance);
     }
 
     [TestCleanup]
@@ -54,7 +54,7 @@ public class UnifiedAnalyticsTests
         Assert.IsTrue(await analytics.Record(Id(), Id(), "page", "", "", "/", visitorId: visitor));
         Assert.IsTrue(await analytics.Record(Id(), Id(), "page", "", "", "/news", visitorId: visitor));
         Assert.AreEqual(1, await db.WebsiteSession.CountAsync());
-        Assert.AreEqual(1, await db.AnalyticsEvent.Select(x => x.SessionId).Distinct().CountAsync());
+        Assert.AreEqual(1, await db.AnalyticsLedger.Select(x => x.SessionId).Distinct().CountAsync());
         clock.Now = clock.Now.AddMinutes(29);
         await analytics.Presence(Id(), visitor);
         Assert.AreEqual(1, (await analytics.PublicStats()).OnlineCount);
@@ -98,7 +98,7 @@ public class UnifiedAnalyticsTests
         var report = await analytics.Report("2026-10-23", "2026-10-23");
         Assert.IsTrue(footer.LegacyMerged);
         Assert.AreEqual(1201L, footer.TotalCount);
-        Assert.AreEqual(81L, footer.MonthCount);
+        Assert.AreEqual(1L, footer.MonthCount); // UTC-month legacy totals cannot be recast as Vietnam sessions.
         Assert.AreEqual(footer.TotalCount, report.Lifetime.TotalVisits);
         Assert.AreEqual(1, report.Current.Sessions);
     }
@@ -113,6 +113,7 @@ public class UnifiedAnalyticsTests
         Assert.IsFalse(footer.LegacyMerged);
         Assert.AreEqual(1L, footer.TotalCount);
         Assert.AreEqual(1200L, (await analytics.Lifetime()).LegacyWebsite.Single().Value);
+        Assert.AreEqual(1200L, (await history.Preview()).BalanceConflicts.Single().OriginalValue);
     }
 
     [TestMethod]
@@ -126,39 +127,35 @@ public class UnifiedAnalyticsTests
     }
 
     [TestMethod]
-    public async Task ImportKeepsOverlapOutAndCanBeRepeatedWithoutDuplicatingMovies()
+    public async Task ReportsAndPreviewNeverReadRetiredSources()
     {
         var start = (await db.AnalyticsCollection.SingleAsync()).StartedAt;
         db.AuditTrail.AddRange(Audit(start.AddMinutes(-1)), Audit(start.AddMinutes(1)));
         db.AnalyticsEvent.Add(new() { EventId = new string('A', 64), OccurredAt = start.AddMinutes(1), LocalHour = "2026-10-21T11", Kind = "movie", ContentId = "test-film", Title = "Film", SessionId = Id(), Path = "/phim/test-film" });
         await db.SaveChangesAsync();
         var plan = await history.Preview();
-        Assert.AreEqual(1L, plan.AuditBeforeAnalytics);
-        Assert.AreEqual(1L, plan.AuditOverlappingAnalytics);
+        Assert.AreEqual(0L, plan.AuditBeforeAnalytics);
+        Assert.AreEqual(0L, plan.AuditOverlappingAnalytics);
+        legacy.Values = [new() { Period = "", Value = 0 }];
         await history.Import(plan.PlanToken, default);
         await history.Import((await history.Preview()).PlanToken, default);
-        Assert.AreEqual(1, await db.MovieViewLog.CountAsync());
-        var imported = await db.MovieViewLog.SingleAsync();
-        Assert.AreEqual("Film", imported.MovieTitle);
-        Assert.AreEqual("owner", imported.UserId);
-        Assert.AreEqual("tap-1", imported.EpisodeSlug);
-        Assert.IsNull(imported.SessionId);
+        Assert.AreEqual(0, await db.MovieViewLog.CountAsync());
         Assert.AreEqual(2, await db.AuditTrail.CountAsync());
-        Assert.AreEqual(2L, (await analytics.Lifetime()).MovieOpens);
+        Assert.AreEqual(0L, (await analytics.Lifetime()).MovieOpens);
         await history.Maintain(default);
         cache.Remove(WebAnalyticsService.SummaryCache);
-        Assert.AreEqual(2, await db.MovieViewLog.CountAsync());
-        Assert.AreEqual(2L, (await analytics.Lifetime()).MovieOpens);
+        Assert.AreEqual(0, await db.MovieViewLog.CountAsync());
+        Assert.AreEqual(0L, (await analytics.Lifetime()).MovieOpens);
         var report = await analytics.Report("2026-10-20", "2026-10-23");
-        Assert.AreEqual(2, report.Current.Movies);
-        Assert.AreEqual(1, report.TopMovies.Single().UnknownSessions);
+        Assert.AreEqual(0, report.Current.Movies);
+        Assert.AreEqual(0, report.TopMovies.Count);
     }
 
     [TestMethod]
     public async Task ImportRejectsChangedSourceBeforeWritingAnything()
     {
         var plan = await history.Preview();
-        db.AuditTrail.Add(Audit(clock.Now.AddDays(-3).UtcDateTime)); await db.SaveChangesAsync();
+        db.AnalyticsLedger.Add(new() { EventId = Id(), Kind = "session", RecordType = "balance", Quantity = 42, Included = false, OccurredAt = clock.Now.UtcDateTime }); await db.SaveChangesAsync();
         await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => history.Import(plan.PlanToken, default));
         Assert.AreEqual(0, await db.MovieViewLog.CountAsync());
     }
@@ -171,7 +168,7 @@ public class UnifiedAnalyticsTests
         var writer = new AnalyticsWriter(db, clock, health, NullLogger<AnalyticsWriter>.Instance);
         var actual = new WebAnalyticsService(db, clock, new(db, clock), writer, health, cache);
         Assert.IsFalse(await actual.Record(Id(), Id(), "reel", "missing", "", "/reels", visitorId: Id()));
-        Assert.AreEqual(0, await db.AnalyticsEvent.CountAsync());
+        Assert.AreEqual(0, await db.AnalyticsLedger.CountAsync());
         Assert.AreEqual(0, await db.WebsiteSession.CountAsync());
         Assert.AreEqual(1L, health.Failures);
         Assert.AreEqual(clock.Now.UtcDateTime, health.LastFailureAt);
@@ -180,9 +177,9 @@ public class UnifiedAnalyticsTests
     [TestMethod]
     public async Task MovieCursorHandlesEqualTimesWithoutRepeatsAndRejectsMalformedCursor()
     {
-        for (var n = 1; n <= 5; n++) db.MovieViewLog.Add(new()
+        for (var n = 1; n <= 5; n++) db.AnalyticsLedger.Add(new()
         {
-            EventId = n.ToString("X64"), OccurredAt = clock.Now.UtcDateTime, LocalHour = "2026-10-23T11", MovieSlug = "film", MovieTitle = "Film", ActorName = "Owner", Source = "playback"
+            EventId = n.ToString("X64"), Kind = "movie", OccurredAt = clock.Now.UtcDateTime, LocalHour = "2026-10-23T11", ContentId = "film", Title = "Film", ActorName = "Owner", Source = "playback"
         });
         await db.SaveChangesAsync();
         var controller = new MovieViewLogsController(db, clock);
@@ -229,6 +226,7 @@ public class UnifiedAnalyticsTests
                 CREATE TABLE "SysPermission" ("PermissionCode" text, "PermissionNameVi" text, "PermissionNameEn" text, "Module" text, "ModuleNameVi" text, "ModuleNameEn" text, "DescriptionVi" text, "DescriptionEn" text, "SortOrder" integer, "FlagActive" boolean, "CreatedBy" text, "UpdatedBy" text, "CreatedDTime" timestamptz, "UpdatedDTime" timestamptz);
                 CREATE TABLE "News" ("NewsId" text PRIMARY KEY, "ShortTitle" text, "ViewCount" integer);
                 CREATE TABLE "Reel" ("ReelId" text PRIMARY KEY, "Caption" text, "ViewCount" integer);
+                CREATE TABLE "AuditTrail" ("AuditTrailId" integer PRIMARY KEY,"RecordId" text,"RequestUrl" text,"Description" text,"ChangedDTime" timestamptz,"ChangedBy" text);
                 INSERT INTO "News" VALUES ('article', 'Article', 40);
                 INSERT INTO "Reel" VALUES ('reel', 'Reel', 20);
                 """, sql)) await baseline.ExecuteNonQueryAsync();
@@ -236,7 +234,9 @@ public class UnifiedAnalyticsTests
             {
                 var assembly = typeof(AppDbContext).Assembly;
                 using var reader = new StreamReader(assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(x => x.EndsWith(name)))!);
-                await using var command = new NpgsqlCommand(await reader.ReadToEndAsync(), sql); await command.ExecuteNonQueryAsync();
+                await using var migration = await sql.BeginTransactionAsync();
+                await using var command = new NpgsqlCommand(await reader.ReadToEndAsync(), sql, migration); await command.ExecuteNonQueryAsync();
+                await migration.CommitAsync();
             }
             await Migrate("0061_WebAnalytics.sql");
             await using (var seed = new NpgsqlCommand("""
@@ -244,12 +244,20 @@ public class UnifiedAnalyticsTests
                 INSERT INTO "AnalyticsEvent" VALUES (repeat('B',64), now() - interval '1 day', '2026-10-22T11', '11111111-1111-1111-1111-111111111111', 'movie', 'film', 'Film', '/phim/film');
                 """, sql)) await seed.ExecuteNonQueryAsync();
             await Migrate("0062_UnifiedWebsiteAnalytics.sql");
+            await using (var history = new NpgsqlCommand("""
+                INSERT INTO "AuditTrail" VALUES (1,'phimapi:old-film','/api/Movie/Library/old-film/playback','Mở xem phim "Old Film" (old-film) · Tập: One (ep-1) · Nguồn: Vietsub (1) · UserId: owner',now()-interval '10 days','Owner');
+                INSERT INTO "AnalyticsLegacySnapshot" VALUES ('website:total','website','','','Redis.VisitStats','',1200,now(),true);
+                """, sql)) await history.ExecuteNonQueryAsync();
+            await Migrate("0063_CanonicalAnalyticsLedger.sql");
             AppDbContext Open() => new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(scoped, x => x.EnableRetryOnFailure()).Options);
             await using var check = Open();
             Assert.AreEqual(2, await check.AnalyticsEvent.CountAsync());
             Assert.AreEqual(1, await check.WebsiteSession.CountAsync());
             Assert.AreEqual(1, await check.MovieViewLog.CountAsync());
-            Assert.AreEqual(60L, await check.AnalyticsLegacySnapshot.SumAsync(x => x.Value));
+            Assert.AreEqual(1260L, await check.AnalyticsLegacySnapshot.SumAsync(x => x.Value));
+            var ledgerBefore = await check.AnalyticsLedger.CountAsync();
+            await Migrate("0063_CanonicalAnalyticsLedger.sql");
+            Assert.AreEqual(ledgerBefore, await check.AnalyticsLedger.CountAsync());
             var visitor = Id(); var nav = Id();
             var attempts = await Task.WhenAll(Enumerable.Range(0, 12).Select(async _ =>
             {
@@ -258,13 +266,22 @@ public class UnifiedAnalyticsTests
             }));
             Assert.IsTrue(attempts.All(x => x));
             Assert.AreEqual(1, await check.WebsiteSession.CountAsync(x => x.VisitorId == visitor));
-            Assert.AreEqual(1, await check.AnalyticsEvent.CountAsync(x => x.Kind == "article"));
+            Assert.AreEqual(1, await check.AnalyticsLedger.CountAsync(x => x.Kind == "article" && x.RecordType == "event"));
+            Assert.AreEqual(0, await check.AnalyticsEvent.CountAsync(x => x.Kind == "article"));
             Assert.AreEqual(41, await check.News.Where(x => x.NewsId == "article").Select(x => x.ViewCount).SingleAsync());
             using var reportMemory = new MemoryCache(new MemoryCacheOptions());
             var actual = Service(check, TimeProvider.System, reportMemory);
             var day = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd");
             Assert.AreEqual(1, (await actual.Report(day, day)).TopArticles.Single().Views);
-            Assert.AreEqual(1L, (await actual.Lifetime()).MovieOpens);
+            Assert.AreEqual(2L, (await actual.Lifetime()).MovieOpens);
+            await using (var rogue = new NpgsqlCommand("UPDATE \"News\" SET \"ViewCount\"=999 WHERE \"NewsId\"='article'", sql)) await rogue.ExecuteNonQueryAsync();
+            Assert.AreEqual(41, await check.News.Where(x => x.NewsId == "article").Select(x => x.ViewCount).SingleAsync());
+            var filmHistory = (ApiResponse<MovieViewLogPageDto>)((OkObjectResult)await new MovieViewLogsController(check, TimeProvider.System).Search(DateTime.UtcNow.AddDays(-12).ToString("yyyy-MM-dd"), day)).Value!;
+            Assert.AreEqual(2, filmHistory.Data!.Items.Count);
+            var importedAudit = filmHistory.Data.Items.Single(x => x.MovieSlug == "old-film");
+            Assert.AreEqual("owner", importedAudit.UserId); Assert.AreEqual("ep-1", importedAudit.EpisodeSlug);
+            var auditCursor = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{importedAudit.OccurredAt.Ticks}:{importedAudit.EventId}"));
+            Assert.IsInstanceOfType<OkObjectResult>(await new MovieViewLogsController(check, TimeProvider.System).Search(DateTime.UtcNow.AddDays(-12).ToString("yyyy-MM-dd"), day, cursor: auditCursor));
         }
         finally
         {

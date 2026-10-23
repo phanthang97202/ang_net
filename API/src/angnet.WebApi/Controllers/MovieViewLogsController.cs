@@ -23,11 +23,11 @@ public class MovieViewLogsController(AppDbContext db, TimeProvider clock) : Cont
             return BadRequest();
         var begin = DateTime.SpecifyKind(first.ToDateTime(TimeOnly.MinValue).AddHours(-7), DateTimeKind.Utc);
         var end = DateTime.SpecifyKind(last.AddDays(1).ToDateTime(TimeOnly.MinValue).AddHours(-7), DateTimeKind.Utc);
-        var query = db.MovieViewLog.AsNoTracking().Where(x => x.OccurredAt >= begin && x.OccurredAt < end);
+        var query = db.AnalyticsLedger.AsNoTracking().Where(x => x.Kind == "movie" && x.RecordType == "event" && x.Included && x.OccurredAt >= begin && x.OccurredAt < end);
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var term = keyword.Trim().ToLowerInvariant();
-            query = query.Where(x => x.MovieTitle.ToLower().Contains(term) || x.MovieSlug.ToLower().Contains(term)
+            query = query.Where(x => x.Title.ToLower().Contains(term) || x.ContentId.ToLower().Contains(term)
                 || x.ActorName.ToLower().Contains(term) || x.UserId != null && x.UserId.ToLower().Contains(term));
         }
         if (!string.IsNullOrEmpty(cursor))
@@ -51,7 +51,7 @@ public class MovieViewLogsController(AppDbContext db, TimeProvider clock) : Cont
             Items = visible.Select(x => new MovieViewLogDto
             {
                 EventId = x.EventId, OccurredAt = x.OccurredAt, UserId = x.UserId, ActorName = x.ActorName,
-                MovieSlug = x.MovieSlug, MovieTitle = x.MovieTitle, ServerId = x.ServerId,
+                MovieSlug = x.ContentId, MovieTitle = x.Title, ServerId = x.ServerId,
                 ServerName = x.ServerName, EpisodeSlug = x.EpisodeSlug, EpisodeName = x.EpisodeName, Source = x.Source,
             }).ToList(),
             NextCursor = more && tail != null ? Convert.ToBase64String(Encoding.UTF8.GetBytes($"{tail.OccurredAt.Ticks}:{tail.EventId}")) : null,

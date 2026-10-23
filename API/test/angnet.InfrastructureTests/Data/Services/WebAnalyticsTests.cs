@@ -144,7 +144,7 @@ public class WebAnalyticsTests
     public async Task SensitiveAndInvalidPathsAreNeverRecorded(string path)
     {
         await service.Record(session, navigation, "page", "", "", path);
-        Assert.AreEqual(0, await db.AnalyticsEvent.CountAsync());
+        Assert.AreEqual(0, await db.AnalyticsLedger.CountAsync());
     }
 
     [TestMethod]
@@ -158,7 +158,7 @@ public class WebAnalyticsTests
     [TestMethod]
     public async Task StorageFailureDoesNotInterruptContent()
     {
-        await db.Database.ExecuteSqlRawAsync("DROP TABLE \"AnalyticsEvent\"");
+        await db.Database.ExecuteSqlRawAsync("DROP TABLE \"AnalyticsLedger\"");
         await service.Record(session, navigation, "article", "id", "title", "/news/topic/id");
     }
 
@@ -180,8 +180,8 @@ public class WebAnalyticsTests
         await Filter("News", "Detail", "/news/topic/draft", new ApiResponse<RPNewsDto>(new RPNewsDto() { NewsId = "draft", FlagActive = false }));
         await Filter("News", "Detail", "/news/topic/missing", new ApiResponse<RPNewsDto>("Not found"));
         await Filter("News", "Detail", "/dashboard/blog", new ApiResponse<RPNewsDto>(new RPNewsDto() { NewsId = "admin", FlagActive = true }));
-        Assert.AreEqual(1, await db.AnalyticsEvent.CountAsync());
-        Assert.AreEqual("article", (await db.AnalyticsEvent.SingleAsync()).Kind);
+        Assert.AreEqual(1, await db.AnalyticsLedger.CountAsync(x => x.Kind != "session"));
+        Assert.AreEqual("article", (await db.AnalyticsLedger.SingleAsync(x => x.Kind != "session")).Kind);
     }
 
     [TestMethod]
@@ -193,7 +193,7 @@ public class WebAnalyticsTests
         await Filter("MovieLibrary", "Playback", "/phim/film", new ApiResponse<MovieLibraryPlaybackDto>(new MovieLibraryPlaybackDto() { EmbedUrl = "https://player.example/secret" }), args);
         await Filter("Reel", "View", "/reels", new ApiResponse<ReelDto>(), new() { ["reelId"] = "reel-1" });
         await Filter("Reel", "View", "/reels", new ApiResponse<ReelDto>("Not found"), new() { ["reelId"] = "reel-2" });
-        var rows = await db.AnalyticsEvent.ToListAsync();
+        var rows = await db.AnalyticsLedger.Where(x => x.Kind != "session").ToListAsync();
         Assert.AreEqual(1, rows.Count);
         Assert.IsTrue(rows.All(x => x.Kind != "movie"));
         Assert.IsTrue(rows.All(x => !x.Path.Contains("secret") && !x.Title.Contains("secret")));

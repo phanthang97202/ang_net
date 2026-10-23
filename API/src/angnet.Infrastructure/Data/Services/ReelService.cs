@@ -312,12 +312,8 @@ namespace angnet.Infrastructure.Data.Services
                 return apiResponse;
             }
 
-            var request = _httpContextAccessor.HttpContext?.Request;
-            var tracked = request != null && WebAnalyticsService.ValidContext(request.Headers["X-Blog-Session"].ToString(),
-                request.Headers["X-Blog-Navigation"].ToString(), request.Headers["X-Blog-Page"].ToString());
-            int viewCount = tracked || request?.Headers["X-Blog-Scope"].ToString() == "excluded"
-                ? await _dbContext.Reel.Where(x => x.ReelId == reelId).Select(x => x.ViewCount).SingleAsync()
-                : await _unitOfWork.ReelRespository.IncrementView(reelId);
+            // AnalyticsFilter records a validated view; never increment here.
+            int viewCount = await _dbContext.Reel.Where(x => x.ReelId == reelId).Select(x => x.ViewCount).SingleAsync();
 
             apiResponse.objResult = new { ReelId = reelId, ViewCount = viewCount };
 

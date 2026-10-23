@@ -34,6 +34,7 @@ export interface AnalyticsCounts {
 }
 export interface AnalyticsPoint extends AnalyticsCounts {
   Bucket: string;
+  HasGap?: boolean;
 }
 export interface AnalyticsTop {
   ContentId: string;
@@ -48,6 +49,8 @@ export interface AnalyticsLegacyValue {
   Value: number;
 }
 export interface AnalyticsLifetime {
+  DetailedFrom?: string | null;
+  PendingBalances?: number;
   TotalVisits: number;
   MonthVisits: number;
   ArticleViews: number;
@@ -59,6 +62,17 @@ export interface AnalyticsLifetime {
   LegacyWebsite: AnalyticsLegacyValue[];
 }
 export interface AnalyticsReport {
+  DataQuality?: Partial<
+    Record<
+      AnalyticsMetric,
+      {
+        Current: 'complete' | 'partial' | 'unavailable';
+        Previous: 'complete' | 'partial' | 'unavailable';
+        CanCompare: boolean;
+        Reason: string;
+      }
+    >
+  >;
   From: string;
   To: string;
   PreviousFrom: string;
@@ -79,6 +93,16 @@ export interface AnalyticsReport {
   LastWriteFailureAt?: string | null;
 }
 export interface AnalyticsReconciliation {
+  BalanceConflicts?: {
+    Kind: string;
+    ContentId: string;
+    Title: string;
+    Source: string;
+    OriginalValue: number | null;
+    Quantity: number;
+    Reason: string;
+  }[];
+  PendingBalances?: number;
   GeneratedAt: string;
   AnalyticsStartedAt: string;
   UnifiedAt: string;

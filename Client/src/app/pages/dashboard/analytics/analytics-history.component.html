@@ -29,6 +29,45 @@
       <span nz-icon nzType="check-circle"></span>{{ success }}
     </p>
     <ng-container *ngIf="plan as data">
+      <section
+        class="panel"
+        *ngIf="data.PendingBalances"
+        aria-label="Số dư cần đối soát">
+        <div class="panel-heading">
+          <h2>Số dư đang giữ riêng: {{ data.PendingBalances | number }}</h2>
+        </div>
+        <p class="panel-description">
+          Các dòng này không được cộng vào tổng. Hiển thị tối đa 100 trường hợp;
+          bản gốc vẫn được giữ nguyên.
+        </p>
+        <div class="table-wrap">
+          <table class="reconciliation-table">
+            <thead>
+              <tr>
+                <th>Nguồn / Nội dung</th>
+                <th class="number">Bộ đếm gốc</th>
+                <th>Lý do</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of data.BalanceConflicts">
+                <td>
+                  {{ item.Title || item.ContentId || 'Truy cập website'
+                  }}<br /><small>{{ item.Source }}</small>
+                </td>
+                <td class="number">
+                  {{
+                    item.OriginalValue === null
+                      ? 'Chưa lưu'
+                      : (item.OriginalValue | number)
+                  }}
+                </td>
+                <td>{{ item.Reason }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
       <div class="history-grid">
         <section class="panel" aria-label="Phạm vi nhập">
           <div class="panel-heading">
@@ -39,10 +78,10 @@
           </div>
           <div class="panel-description">
             <p>
-              Nhập nhật ký mở phim trước
-              <strong>{{ time(data.AnalyticsStartedAt) }}</strong
-              >. Từ mốc này trở đi, dùng dữ liệu sự kiện đã ghi nhận; các log
-              trùng giai đoạn chỉ dùng để đối soát.
+              Đã chuyển nhật ký mở phim trước
+              <strong>{{ time(data.AnalyticsStartedAt) }}</strong> vào sổ thống
+              kê chuẩn. Từ mốc này trở đi, dùng dữ liệu sự kiện đã ghi nhận; các
+              log trùng giai đoạn chỉ dùng để đối soát.
             </p>
             <p>
               Bản ghi gốc được giữ nguyên. Nhập lại cùng bản ghi không tạo thêm
@@ -70,7 +109,9 @@
                   <td class="number">
                     {{ data.AuditBeforeAnalytics | number }}
                   </td>
-                  <td>Nhập theo mã nhật ký gốc, chống trùng</td>
+                  <td>
+                    Đã chuyển vào nguồn chuẩn, chống trùng theo nhật ký gốc
+                  </td>
                 </tr>
                 <tr>
                   <td>Nhật ký phim trong giai đoạn đã có sự kiện</td>
@@ -89,7 +130,7 @@
                 <tr>
                   <td>Bản ghi trong bảng phim riêng</td>
                   <td class="number">{{ data.ExistingMovieRows | number }}</td>
-                  <td>Nguồn thống kê phim hiện tại</td>
+                  <td>Đọc cùng sổ sự kiện với dashboard và nhật ký phim</td>
                 </tr>
                 <tr>
                   <td>Lượt xem bài viết tại mốc chuyển đổi</td>
@@ -127,9 +168,10 @@
               {{ data.RedisError }}
             </p>
             <p>
-              Số tổng và số tháng được giữ đúng mức chi tiết đã lưu. Nếu không
-              xác định được phần chồng lấn, số cũ được giữ riêng, không tự cộng
-              vào tổng mới.
+              Số tháng cũ theo UTC chỉ để đối soát, không cộng vào tháng giờ
+              Việt Nam. Số tổng được giữ đúng mức chi tiết đã lưu. Nếu không xác
+              định được phần chồng lấn, số cũ được giữ riêng, không tự cộng vào
+              tổng mới.
             </p>
           </div>
           <div class="table-wrap">
@@ -173,7 +215,7 @@
           [disabled]="loading || importing || !canImport"
           (click)="apply()">
           <span nz-icon nzType="import" [nzSpin]="importing"></span
-          >{{ importing ? 'Đang nhập…' : 'Nhập theo bản đối soát này' }}
+          >{{ importing ? 'Đang phục hồi…' : 'Phục hồi bộ đếm lưu trữ' }}
         </button>
       </footer>
     </ng-container>

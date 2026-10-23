@@ -98,6 +98,8 @@ namespace angnet.Infrastructure.Data
         public DbSet<MovieWishlistModel> MovieWishlist { get; set; }
         public DbSet<MovieWatchProgressModel> MovieWatchProgress { get; set; }
         public DbSet<AnalyticsEventModel> AnalyticsEvent { get; set; }
+        public DbSet<AnalyticsLedgerModel> AnalyticsLedger { get; set; }
+        public DbSet<AnalyticsGapModel> AnalyticsGap { get; set; }
         public DbSet<AnalyticsPresenceModel> AnalyticsPresence { get; set; }
         public DbSet<AnalyticsCollectionModel> AnalyticsCollection { get; set; }
         public DbSet<WebsiteSessionModel> WebsiteSession { get; set; }
@@ -108,6 +110,17 @@ namespace angnet.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AnalyticsCollectionModel>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<AnalyticsLedgerModel>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_AnalyticsLedger_RecordType", "\"RecordType\" IN ('event','balance','excluded')");
+                t.HasCheckConstraint("CK_AnalyticsLedger_Kind", "\"Kind\" IN ('session','page','article','reel','movie')");
+                t.HasCheckConstraint("CK_AnalyticsLedger_EventGrain", "\"RecordType\" <> 'event' OR (\"Quantity\"=1 AND \"Period\"='')");
+                t.HasCheckConstraint("CK_AnalyticsLedger_Excluded", "\"RecordType\" <> 'excluded' OR NOT \"Included\"");
+            });
+            modelBuilder.Entity<AnalyticsLedgerModel>().HasIndex(x => x.LegacyAuditTrailId)
+                .IsUnique().HasFilter("\"LegacyAuditTrailId\" IS NOT NULL");
+            modelBuilder.Entity<AnalyticsLedgerModel>().HasIndex(x => x.SourceId).IsUnique()
+                .HasDatabaseName("IX_AnalyticsLedger_RedisSource").HasFilter("\"Source\"='Redis.VisitStats' AND \"RecordType\"='balance'");
             modelBuilder.Entity<WebsiteSessionModel>().HasIndex(x => x.VisitorId)
                 .IsUnique().HasDatabaseName("IX_WebsiteSession_CurrentVisitor").HasFilter("\"IsCurrent\"");
             modelBuilder.Entity<MovieViewLogModel>().HasIndex(x => x.LegacyAuditTrailId)
