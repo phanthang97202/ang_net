@@ -5,7 +5,6 @@ import {
   ShowErrorService,
   AuthService,
   LangService,
-  VisitTrackingService,
   ThemeService,
 } from './services';
 import { asapScheduler, filter, Observable, observeOn } from 'rxjs';
@@ -76,7 +75,6 @@ export class AppComponent implements OnInit {
   langService = inject(LangService);
   authService = inject(AuthService);
   errorInfoService = inject(ShowErrorService);
-  visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
   private maintenance = inject(BlogMaintenanceService);
   private analytics = inject(WebAnalyticsTrackingService);
@@ -103,6 +101,16 @@ export class AppComponent implements OnInit {
           path: '/dashboard/analytics',
           title: 'Thống kê truy cập',
           permission: 'analytics.view',
+        },
+        {
+          path: '/dashboard/movie-view-logs',
+          title: 'Nhật ký mở phim',
+          permission: 'movieviewlog.view',
+        },
+        {
+          path: '/dashboard/analytics-history',
+          title: 'Đối soát dữ liệu lịch sử',
+          permission: 'analytics.import',
         },
       ],
     },
@@ -270,7 +278,6 @@ export class AppComponent implements OnInit {
       .subscribe(() => failInitialLoading());
     this.maintenance.startMonitoring();
     this.authService.tryRefreshOnInit();
-    this.visitTrackingService.init();
     this.analytics.init();
 
     this.router.events

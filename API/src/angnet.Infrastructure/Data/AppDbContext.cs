@@ -100,11 +100,18 @@ namespace angnet.Infrastructure.Data
         public DbSet<AnalyticsEventModel> AnalyticsEvent { get; set; }
         public DbSet<AnalyticsPresenceModel> AnalyticsPresence { get; set; }
         public DbSet<AnalyticsCollectionModel> AnalyticsCollection { get; set; }
+        public DbSet<WebsiteSessionModel> WebsiteSession { get; set; }
+        public DbSet<MovieViewLogModel> MovieViewLog { get; set; }
+        public DbSet<AnalyticsLegacySnapshotModel> AnalyticsLegacySnapshot { get; set; }
 
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AnalyticsCollectionModel>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<WebsiteSessionModel>().HasIndex(x => x.VisitorId)
+                .IsUnique().HasDatabaseName("IX_WebsiteSession_CurrentVisitor").HasFilter("\"IsCurrent\"");
+            modelBuilder.Entity<MovieViewLogModel>().HasIndex(x => x.LegacyAuditTrailId)
+                .IsUnique().HasFilter("\"LegacyAuditTrailId\" IS NOT NULL");
             modelBuilder.Entity<PersonalNoteModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(n => n.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PersonalNoteModel>()

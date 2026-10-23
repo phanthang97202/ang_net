@@ -15,10 +15,16 @@ public class AnalyticsController(WebAnalyticsService analytics) : ControllerBase
     {
         if (!WebAnalyticsService.ValidContext(data.SessionId, data.NavigationId, data.Path)) return BadRequest();
         if (WebAnalyticsService.IsBot(Request.Headers.UserAgent.ToString())) return NoContent();
-        if (data.PageView) await analytics.Record(data.SessionId, data.NavigationId, "page", "", "", data.Path);
-        await analytics.Presence(data.SessionId);
-        return NoContent();
+        var saved = data.PageView
+            ? await analytics.Record(data.SessionId, data.NavigationId, "page", "", "", data.Path, visitorId: data.VisitorId)
+            : await analytics.Presence(data.SessionId, data.VisitorId, data.Active);
+        if (!saved) return StatusCode(503);
+        return Ok(new ApiResponse<VisitStatsDto>(await analytics.PublicStats(HttpContext.RequestAborted)));
     }
+
+    [AllowAnonymous, HttpGet("Stats"), EnableRateLimiting("AnalyticsTrack")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Stats(CancellationToken ct) => Ok(new ApiResponse<VisitStatsDto>(await analytics.PublicStats(ct)));
 
     [Authorize(Policy = "analytics.view"), HttpGet("Report"), EnableRateLimiting("API")]
     public async Task<IActionResult> Report(string from, string to, CancellationToken ct)

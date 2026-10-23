@@ -77,12 +77,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // inject Redis 
 ConfigurationOptions configRedis = new ConfigurationOptions
 {
+    AbortOnConnectFail = false,
+    ConnectTimeout = 3000,
+    ConnectRetry = 1,
     EndPoints = { { RedisUrl, RedisPort } },
     User = RedisUser,
     Password = RedisPassword
 };
-ConnectionMultiplexer connectRedis = ConnectionMultiplexer.Connect(configRedis);
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => connectRedis); // tùy chỉnh logic bên trong bằng lamda
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(configRedis));
 
 // log service 
 builder.Services.AddSingleton(typeof(WriteLog));  
@@ -491,4 +493,13 @@ catch (Exception ex)
 }
 
 await app.InitializeBlogMcp(mcpSettings);
+// Capture legacy counters before this version accepts traffic. Failure here is
+// reported as pending reconciliation; DB tracking itself never requires Redis.
+try
+{
+    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<angnet.Infrastructure.Data.Services.AnalyticsLegacyService>().CaptureWebsite(timeout.Token);
+}
+catch (Exception ex) { Log.Warning("Legacy analytics capture is pending ({ErrorType}); DB tracking remains enabled", ex.GetType().Name); }
 app.Run();

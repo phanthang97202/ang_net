@@ -8,6 +8,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AnalyticsLoadingComponent } from './analytics-loading.component';
+import { AnalyticsLifetimeComponent } from './analytics-lifetime.component';
 import {
   AnalyticsMetric,
   AnalyticsPoint,
@@ -36,6 +37,7 @@ export const shiftDay = (day: string, offset: number): string => {
     NzIconModule,
     NzDatePickerModule,
     AnalyticsLoadingComponent,
+    AnalyticsLifetimeComponent,
   ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss',
@@ -55,7 +57,7 @@ export class AnalyticsComponent {
       label: 'Lượt truy cập',
       icon: 'team',
       description:
-        'Phiên theo tab trình duyệt; kết thúc sau 30 phút không hoạt động.',
+        'Phiên dùng chung giữa các tab; kết thúc sau 30 phút không hoạt động. Thống kê theo lúc bắt đầu phiên.',
     },
     {
       key: 'Pages',
@@ -152,7 +154,7 @@ export class AnalyticsComponent {
         this.loading = false;
         this.report = result.data;
         this.error = result.error;
-        if (!this.report?.PreviousPeriodComplete) this.compare = false;
+        if (!this.canCompare(this.metric)) this.compare = false;
         this.draw();
       });
   }
@@ -199,6 +201,7 @@ export class AnalyticsComponent {
   }
   selectMetric(metric: AnalyticsMetric): void {
     this.metric = metric;
+    if (!this.canCompare(metric)) this.compare = false;
     this.draw();
   }
   get metricLabel(): string {
@@ -215,13 +218,31 @@ export class AnalyticsComponent {
   }
   get partial(): boolean {
     return (
-      !!this.report?.CollectionStartedAt &&
-      new Date(this.report.CollectionStartedAt).getTime() >
+      !!this.coverageStart &&
+      new Date(this.coverageStart).getTime() >
         Date.parse(`${this.from}T00:00:00+07:00`)
     );
   }
+  get coverageStart(): string | null {
+    return (
+      this.report?.Coverage?.[this.metric] ??
+      this.report?.CollectionStartedAt ??
+      null
+    );
+  }
+  canCompare(metric: AnalyticsMetric): boolean {
+    if (!this.report) return false;
+    if (!this.report.Coverage) return this.report.PreviousPeriodComplete;
+    const start = this.report.Coverage[metric];
+    return (
+      !!start &&
+      Date.parse(start) <=
+        Date.parse(`${this.report.PreviousFrom}T00:00:00+07:00`)
+    );
+  }
   delta(metric: AnalyticsMetric): string {
-    if (!this.report?.PreviousPeriodComplete) return 'Chưa đủ dữ liệu so sánh';
+    if (!this.report || !this.canCompare(metric))
+      return 'Chưa đủ dữ liệu so sánh';
     const previous = this.report.Previous[metric];
     const current = this.report.Current[metric];
     if (previous === 0)
@@ -230,7 +251,7 @@ export class AnalyticsComponent {
     return `${change > 0 ? '+' : ''}${change.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}% so với kỳ trước`;
   }
   trend(metric: AnalyticsMetric): string {
-    if (!this.report?.PreviousPeriodComplete) return '';
+    if (!this.report || !this.canCompare(metric)) return '';
     return this.report.Current[metric] > this.report.Previous[metric]
       ? 'up'
       : this.report.Current[metric] < this.report.Previous[metric]
@@ -251,6 +272,7 @@ export class AnalyticsComponent {
     this.hovered = null;
     this.chartPoints = [];
     if (!this.report) return;
+    const report = this.report;
     const points = this.report.Points;
     const covered = (point: AnalyticsPoint) => {
       const hourly = point.Bucket.includes('T');
@@ -259,9 +281,9 @@ export class AnalyticsComponent {
       );
       const end = start + (hourly ? 3_600_000 : 86_400_000);
       return (
-        !!this.report?.CollectionStartedAt &&
-        end > Date.parse(this.report.CollectionStartedAt) &&
-        start <= Date.parse(this.report.GeneratedAt)
+        !!this.coverageStart &&
+        end > Date.parse(this.coverageStart) &&
+        start <= Date.parse(report.GeneratedAt)
       );
     };
     const values = points.map(point =>

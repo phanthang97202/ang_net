@@ -14,7 +14,7 @@ namespace angnet.WebApi.Controllers;
 [Authorize(Policy = "movie.view")]
 [EnableRateLimiting("API")]
 public class MovieLibraryController(IMovieLibraryService library, IMovieWishlistService wishlist,
-    IMovieWatchProgressService progress, IAuditTrailService audit, ILogger<MovieLibraryController> logger) : ControllerBase
+    IMovieWatchProgressService progress, IMovieViewLogService viewingLog, ILogger<MovieLibraryController> logger) : ControllerBase
 {
     [HttpGet]
     public Task<IActionResult> Browse(string keyword = "", int page = 1, CancellationToken cancellationToken = default) =>
@@ -72,26 +72,18 @@ public class MovieLibraryController(IMovieLibraryService library, IMovieWishlist
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            HttpContext.Items["AnalyticsMovieTitle"] = title;
-            var result = await audit.Create(new AuditTrailDto
+            var saved = await viewingLog.RecordAsync(new MovieViewWriteDto
             {
-                RecordId = $"phimapi:{slug}",
-                Description = $"Mở xem phim \"{LogLabel(title, 500)}\" ({slug}) · "
-                    + $"Tập: {LogLabel(playback.Title, 200)} ({episodeSlug}) · "
-                    + $"Nguồn: {LogLabel(source, 200)} ({serverId}) · "
-                    + $"UserId: {User.FindFirstValue(ClaimTypes.NameIdentifier)}",
-            });
-            if (!result.Success) logger.LogWarning("Movie audit write failed for {MovieSlug}", slug);
+                MovieSlug = slug, MovieTitle = title, ServerId = serverId, ServerName = source,
+                EpisodeSlug = episodeSlug, EpisodeName = playback.Title,
+            }, cancellationToken);
+            if (!saved) logger.LogWarning("Movie viewing log write failed for {MovieSlug}", slug);
         }
         catch (Exception ex)
         {
-            // Viewing must keep working even if the audit database is unavailable.
-            logger.LogWarning(ex, "Movie audit write failed for {MovieSlug}", slug);
+            logger.LogWarning(ex, "Movie viewing log write failed for {MovieSlug}", slug);
         }
     }
-
-    private static string LogLabel(string value, int maxLength) =>
-        (value.Length <= maxLength ? value : value[..maxLength]).Replace('\r', ' ').Replace('\n', ' ');
 
     private async Task<IActionResult> Respond<T>(Func<Task<T>> request)
     {

@@ -1,0 +1,41 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+
+namespace angnet.Infrastructure.Data.Services;
+
+// Health remains available without writing another row into an unavailable DB.
+public sealed class AnalyticsWriteHealth
+{
+    private long failures;
+    private long lastFailureTicks;
+    public long Failures => Interlocked.Read(ref failures);
+    public DateTime? LastFailureAt => Interlocked.Read(ref lastFailureTicks) is var ticks && ticks != 0 ? new DateTime(ticks, DateTimeKind.Utc) : null;
+    public void Failed(DateTime now) { Interlocked.Increment(ref failures); Interlocked.Exchange(ref lastFailureTicks, now.Ticks); }
+}
+
+public sealed class AnalyticsWriter(AppDbContext db, TimeProvider clock, AnalyticsWriteHealth health, ILogger<AnalyticsWriter> logger)
+{
+    public async Task<bool> Write(Func<CancellationToken, Task> operation, CancellationToken request = default)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(request);
+        timeout.CancelAfter(TimeSpan.FromSeconds(3));
+        try
+        {
+            // Use the provider's transient retry policy, with a short overall budget.
+            // All callers use stable IDs and transactions so a retry cannot add a second view.
+            await db.Database.CreateExecutionStrategy().ExecuteAsync(0, async (_, _, ct) =>
+            {
+                await operation(ct);
+                return true;
+            }, null, timeout.Token);
+            return true;
+        }
+        catch (OperationCanceledException) when (request.IsCancellationRequested) { return false; }
+        catch (Exception ex)
+        {
+            health.Failed(clock.GetUtcNow().UtcDateTime);
+            logger.LogWarning(ex, "Analytics write failed; the same event ID can be retried safely");
+            return false;
+        }
+    }
+}

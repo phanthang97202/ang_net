@@ -36,7 +36,7 @@ public class WebAnalyticsTests
         clock = new TestClock { Now = DateTimeOffset.Parse("2026-10-23T04:00:00Z") };
         db.AnalyticsCollection.Add(new() { Id = 1, StartedAt = DateTime.Parse("2026-09-01T00:00:00Z").ToUniversalTime() });
         await db.SaveChangesAsync();
-        service = new(db, clock, NullLogger<WebAnalyticsService>.Instance);
+        service = new(db, clock, new WebsiteSessionService(db, clock), new AnalyticsWriter(db, clock, new AnalyticsWriteHealth(), NullLogger<AnalyticsWriter>.Instance), new AnalyticsWriteHealth(), new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions()));
     }
 
     [TestCleanup]
@@ -84,11 +84,11 @@ public class WebAnalyticsTests
         clock.Now = clock.Now.AddSeconds(1);
         var report = await service.Report("2026-10-23", "2026-10-23");
         Assert.AreEqual(3, report.Current.Articles);
-        Assert.AreEqual(2, report.Current.Movies);
+        Assert.AreEqual(0, report.Current.Movies);
         Assert.AreEqual(1, report.TopArticles.Count);
         Assert.AreEqual(3, report.TopArticles[0].Views);
         Assert.AreEqual(2, report.TopArticles[0].Sessions);
-        Assert.AreEqual("/phim/film-1", report.TopMovies[0].Path);
+        Assert.AreEqual(0, report.TopMovies.Count);
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class WebAnalyticsTests
         clock.Now = clock.Now.AddSeconds(1);
         var report = await service.Report("2026-10-22", "2026-10-23");
         Assert.AreEqual(2, report.Points.Count);
-        Assert.AreEqual(1, report.Current.Sessions);
+        Assert.AreEqual(2, report.Current.Sessions);
         Assert.AreEqual(1, report.Points[0].Sessions);
         Assert.AreEqual(1, report.Points[1].Sessions);
         Assert.AreEqual(2, report.Current.Pages);
@@ -125,8 +125,8 @@ public class WebAnalyticsTests
     [TestMethod]
     public async Task PresenceExpiresAndIsNotANewPageView()
     {
-        await service.Presence(session);
-        await service.Presence(session);
+        await service.Presence(session, active: true);
+        await service.Presence(session, active: true);
         var report = await service.Report("2026-10-23", "2026-10-23");
         Assert.AreEqual(1, report.Online);
         Assert.AreEqual(0, report.Current.Pages);
@@ -194,8 +194,8 @@ public class WebAnalyticsTests
         await Filter("Reel", "View", "/reels", new ApiResponse<ReelDto>(), new() { ["reelId"] = "reel-1" });
         await Filter("Reel", "View", "/reels", new ApiResponse<ReelDto>("Not found"), new() { ["reelId"] = "reel-2" });
         var rows = await db.AnalyticsEvent.ToListAsync();
-        Assert.AreEqual(2, rows.Count);
-        Assert.IsTrue(rows.Any(x => x.Kind == "movie" && x.ContentId == "film"));
+        Assert.AreEqual(1, rows.Count);
+        Assert.IsTrue(rows.All(x => x.Kind != "movie"));
         Assert.IsTrue(rows.All(x => !x.Path.Contains("secret") && !x.Title.Contains("secret")));
     }
 

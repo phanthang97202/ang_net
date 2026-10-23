@@ -23,7 +23,8 @@ describe('Web analytics navigation identity', () => {
     lastSuccessfulNavigation: { id: number };
   };
   beforeEach(() => {
-    sessionStorage.removeItem('blogAnalyticsSession');
+    localStorage.removeItem('blogAnalyticsSessionV2');
+    localStorage.removeItem('blogAnalyticsVisitor');
     router = {
       url: '/news/topic/article',
       getCurrentNavigation: () => null,
@@ -33,9 +34,12 @@ describe('Web analytics navigation identity', () => {
       providers: [{ provide: Router, useValue: router }],
     });
   });
-  afterEach(() => sessionStorage.removeItem('blogAnalyticsSession'));
+  afterEach(() => {
+    localStorage.removeItem('blogAnalyticsSessionV2');
+    localStorage.removeItem('blogAnalyticsVisitor');
+  });
 
-  it('attaches navigation context only to our content API, never external providers or admin calls', () => {
+  it('attaches navigation context only to our content API, never external providers or admin calls', async () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([analyticsInterceptor])),
@@ -44,7 +48,9 @@ describe('Web analytics navigation identity', () => {
     });
     const http = TestBed.inject(HttpClient);
     const pending = TestBed.inject(HttpTestingController);
+    await TestBed.inject(AnalyticsIdentityService).ready();
     http.get(`${environment.apiUrl}news/detail?newsId=article`).subscribe();
+    await new Promise(resolve => setTimeout(resolve, 0));
     const article = pending.expectOne(
       `${environment.apiUrl}news/detail?newsId=article`
     );
@@ -61,6 +67,7 @@ describe('Web analytics navigation identity', () => {
     external.flush({});
     router.url = '/dashboard/blog';
     http.get(`${environment.apiUrl}news/detail?newsId=article`).subscribe();
+    await new Promise(resolve => setTimeout(resolve, 0));
     const admin = pending.expectOne(
       `${environment.apiUrl}news/detail?newsId=article`
     );
@@ -104,11 +111,25 @@ describe('Web analytics navigation identity', () => {
     }
   });
 
-  it('continues safely when session storage is blocked', () => {
-    spyOn(sessionStorage, 'getItem').and.throwError('blocked');
-    spyOn(sessionStorage, 'setItem').and.throwError('blocked');
+  it('continues safely when local storage is blocked', () => {
+    spyOn(localStorage, 'getItem').and.throwError('blocked');
+    spyOn(localStorage, 'setItem').and.throwError('blocked');
     const service = TestBed.inject(AnalyticsIdentityService);
     const initial = service.context(true)!;
     expect(service.context(true)!.SessionId).toBe(initial.SessionId);
+  });
+
+  it('shares a visitor and current session between independent tabs', async () => {
+    const first = TestBed.inject(AnalyticsIdentityService);
+    await first.ready();
+    const initial = first.context(true)!;
+    const second = TestBed.runInInjectionContext(
+      () => new AnalyticsIdentityService()
+    );
+    await second.ready();
+    const otherTab = second.context(true)!;
+    expect(otherTab.VisitorId).toBe(initial.VisitorId);
+    expect(otherTab.SessionId).toBe(initial.SessionId);
+    expect(otherTab.NavigationId).not.toBe(initial.NavigationId);
   });
 });

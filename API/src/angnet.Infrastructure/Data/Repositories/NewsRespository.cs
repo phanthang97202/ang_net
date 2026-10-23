@@ -1044,12 +1044,15 @@ namespace angnet.Infrastructure.Data.Repositories
 
             //
             // Increase ViewCount of News
-            int viewCount = ++objNews.ViewCount;
-            await _dbContext.News.Where(i => i.NewsId == newsId)
-                .ExecuteUpdateAsync(setter =>
-                    setter.SetProperty(p => p.ViewCount, viewCount)
-                );
-            await _dbContext.SaveChangesAsync();
+            var request = _httpContextAccessor.HttpContext?.Request;
+            var tracked = request != null && angnet.Infrastructure.Data.Services.WebAnalyticsService.ValidContext(
+                request.Headers["X-Blog-Session"].ToString(), request.Headers["X-Blog-Navigation"].ToString(), request.Headers["X-Blog-Page"].ToString());
+            // Modern public views are incremented once, together with their event,
+            // by AnalyticsFilter. Old clients retain an atomic compatibility counter.
+            if (!tracked && request?.Headers["X-Blog-Scope"].ToString() != "excluded")
+                await _dbContext.News.Where(i => i.NewsId == newsId)
+                    .ExecuteUpdateAsync(setter => setter.SetProperty(p => p.ViewCount, p => p.ViewCount + 1));
+            int viewCount = await _dbContext.News.Where(i => i.NewsId == newsId).Select(i => i.ViewCount).SingleAsync();
 
             // Get detail News  
             RPNewsDto rsNews = new RPNewsDto();

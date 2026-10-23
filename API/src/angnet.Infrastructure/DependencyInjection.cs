@@ -97,6 +97,13 @@ namespace angnet.Infrastructure
             services.AddScoped<PersonalNoteService>();
             services.AddSingleton(TimeProvider.System);
             services.AddScoped<WebAnalyticsService>();
+            services.AddScoped<WebsiteSessionService>();
+            services.AddScoped<AnalyticsWriter>();
+            services.AddSingleton<AnalyticsWriteHealth>();
+            services.AddScoped<IMovieViewLogService, MovieViewLogService>();
+            services.AddScoped<ILegacyVisitReader, LegacyVisitReader>();
+            services.AddScoped<AnalyticsLegacyService>();
+            services.AddHostedService<AnalyticsMaintenanceWorker>();
 
             services.AddScoped<IMovieLibraryService, MovieLibraryService>();
             services.AddScoped<IMovieWishlistService, MovieWishlistService>();

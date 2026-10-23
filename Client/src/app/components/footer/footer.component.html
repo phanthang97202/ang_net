@@ -77,7 +77,9 @@
         <span class="footer-col-title">{{ 'T_STATISTIC' | translate }}</span>
         <div class="footer-stat">
           <span class="footer-stat-dot"></span>
-          <span class="footer-stat-value">{{ stats.OnlineCount }}</span>
+          <span class="footer-stat-value">{{
+            stats.Loaded === false ? '…' : stats.OnlineCount
+          }}</span>
           <span class="footer-stat-label">{{ 'T_ONLINE' | translate }}</span>
         </div>
         <div class="footer-stat">
@@ -94,7 +96,9 @@
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span class="footer-stat-value">{{ stats.MonthCount }}</span>
+          <span class="footer-stat-value">{{
+            stats.Loaded === false ? '…' : stats.MonthCount
+          }}</span>
           <span class="footer-stat-label">
             {{ 'T_VISITSTHISMONTH' | translate }}
           </span>
@@ -113,11 +117,19 @@
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
-          <span class="footer-stat-value">{{ stats.TotalCount }}</span>
+          <span class="footer-stat-value">{{
+            stats.Loaded === false ? '…' : stats.TotalCount
+          }}</span>
           <span class="footer-stat-label">{{
-            'T_TOTALVISITS' | translate
+            (stats.LegacyMerged === false
+              ? 'T_TRACKED_VISITS'
+              : 'T_TOTALVISITS'
+            ) | translate
           }}</span>
         </div>
+        <small *ngIf="stats.Loaded && stats.LegacyMerged === false">{{
+          'T_VISIT_LEGACY_PENDING' | translate
+        }}</small>
       </div>
     </div>
   </div>

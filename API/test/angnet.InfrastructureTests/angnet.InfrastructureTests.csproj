@@ -26,6 +26,8 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Configuration" />
     <Compile Include="../../src/angnet.WebApi/Controllers/AnalyticsController.cs" Link="Support/AnalyticsController.cs" />
+    <Compile Include="../../src/angnet.WebApi/Controllers/AnalyticsHistoryController.cs" Link="Support/AnalyticsHistoryController.cs" />
+    <Compile Include="../../src/angnet.WebApi/Controllers/MovieViewLogsController.cs" Link="Support/MovieViewLogsController.cs" />
     <Compile Include="../../src/angnet.WebApi/Filters/AnalyticsFilter.cs" Link="Support/AnalyticsFilter.cs" />
     <Compile Include="../../src/angnet.WebApi/Filters/SkipLoggingAttribute.cs" Link="Support/SkipLoggingAttribute.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionPolicyProvider.cs" Link="Support\PermissionPolicyProvider.cs" />

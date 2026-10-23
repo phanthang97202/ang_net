@@ -56,6 +56,14 @@
   </section>
 
   <ng-container *ngIf="!loading && report as data">
+    <app-analytics-lifetime [data]="data.Lifetime" />
+    <div *ngIf="data.WriteFailures" class="collection-notice" role="status">
+      <span nz-icon nzType="warning"></span>
+      <p>
+        Máy chủ đã gặp {{ data.WriteFailures | number }} lần lỗi ghi thống kê.
+        Số liệu trong giai đoạn lỗi có thể thiếu; cần kiểm tra nhật ký vận hành.
+      </p>
+    </div>
     <section class="metric-grid" aria-label="Chỉ số tổng quan">
       <article class="metric-card online-card">
         <div class="metric-heading">
@@ -84,14 +92,14 @@
       </button>
     </section>
 
-    <div class="collection-notice" *ngIf="!data.CollectionStartedAt || partial">
+    <div class="collection-notice" *ngIf="!coverageStart || partial">
       <span nz-icon nzType="info-circle"></span>
-      <p *ngIf="data.CollectionStartedAt">
-        Bắt đầu thu thập từ
-        <strong>{{ displayTime(data.CollectionStartedAt) }}</strong
+      <p *ngIf="coverageStart">
+        Dữ liệu chi tiết cho {{ metricLabel.toLowerCase() }} có từ
+        <strong>{{ displayTime(coverageStart) }}</strong
         >. Khoảng thời gian trước đó chưa có dữ liệu.
       </p>
-      <p *ngIf="!data.CollectionStartedAt">
+      <p *ngIf="!coverageStart">
         Chưa có mốc bắt đầu thu thập. Vui lòng kiểm tra cập nhật dữ liệu hệ
         thống.
       </p>
@@ -106,7 +114,7 @@
         <label
           class="comparison"
           [title]="
-            data.PreviousPeriodComplete
+            canCompare(metric)
               ? 'So sánh với khoảng trước có cùng độ dài, cùng thời điểm'
               : 'Chưa thu thập đủ dữ liệu của kỳ trước'
           "
@@ -114,7 +122,7 @@
             type="checkbox"
             [(ngModel)]="compare"
             (ngModelChange)="draw()"
-            [disabled]="!data.PreviousPeriodComplete" />
+            [disabled]="!canCompare(metric)" />
           So sánh kỳ trước</label
         >
       </div>
@@ -277,7 +285,19 @@
                   ></a>
                 </td>
                 <td>{{ item.Views | number }}</td>
-                <td>{{ item.Sessions | number }}</td>
+                <td
+                  [title]="
+                    item.UnknownSessions
+                      ? item.UnknownSessions +
+                        ' lượt mở cũ chưa lưu thông tin phiên'
+                      : ''
+                  ">
+                  {{
+                    item.UnknownSessions && !item.Sessions
+                      ? 'Chưa lưu'
+                      : (item.Sessions | number)
+                  }}<span *ngIf="item.UnknownSessions && item.Sessions">*</span>
+                </td>
               </tr>
               <tr
                 *ngIf="
@@ -301,8 +321,8 @@
     <p class="measurement-note">
       <span nz-icon nzType="info-circle"></span> Thống kê các trang blog, không
       gồm trang quản trị, đăng nhập và link ghi chú riêng. Phiên truy cập được
-      nhận diện theo tab trình duyệt, không phải số người duy nhất. Đã lọc các
-      bot phổ biến.
+      dùng chung giữa các tab trong cùng trình duyệt, không phải số người duy
+      nhất. Đã lọc các bot phổ biến.
     </p>
   </ng-container>
 </main>

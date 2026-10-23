@@ -28,4 +28,8 @@ public class AnalyticsCollectionModel
 {
     [Key] public int Id { get; set; }
     public DateTime StartedAt { get; set; }
+    public DateTime? UnifiedAt { get; set; }
+    public DateTime? LegacyCapturedAt { get; set; }
+    public DateTime? MovieImportedAt { get; set; }
+    public DateTime? MovieHistoryStartedAt { get; set; }
 }
