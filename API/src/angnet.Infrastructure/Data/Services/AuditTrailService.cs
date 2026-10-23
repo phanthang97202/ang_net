@@ -8,6 +8,7 @@ using System.Reflection;
 using angnet.Application.Interfaces.Persistences;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Security.Claims;
 using angnet.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using angnet.Infrastructure.Data.UnitOfWork;
@@ -102,6 +103,7 @@ namespace angnet.Infrastructure.Data.Services
                 level = EAuditTrailLevel.INFORMATION;
             }
 
+            var actorName = _httpContextAccessor.HttpContext.User.Identity?.Name;
             var auditTrailDt = new AuditTrailModel
             {
                 RecordId = data.RecordId ?? "",
@@ -118,7 +120,9 @@ namespace angnet.Infrastructure.Data.Services
                 ChangedColumns = data.ChangedColumns,
                 OldValues = data.OldValues,
                 NewValues = JsonSerializer.Serialize(requestClient),
-                ChangedBy = _httpContextAccessor.HttpContext.User.Identity?.Name ?? "",
+                ChangedBy = !string.IsNullOrWhiteSpace(actorName)
+                    ? actorName
+                    : _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
                 ChangedDTime = TCommonUtils.DTimeNow(),
                 IsRevoked = false
 

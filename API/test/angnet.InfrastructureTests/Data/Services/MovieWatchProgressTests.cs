@@ -156,7 +156,8 @@ public class MovieWatchProgressTests
         var wishlist = new Mock<IMovieWishlistService>();
         wishlist.Setup(x => x.MarkSaved(It.IsAny<string>(), It.IsAny<IEnumerable<MovieLibraryItemDto>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         await service.Save("owner", "test-film", Episode("tap-51"), default);
-        var controller = new MovieLibraryController(library.Object, wishlist.Object, service, Mock.Of<ILogger<MovieLibraryController>>())
+        var controller = new MovieLibraryController(library.Object, wishlist.Object, service,
+            Mock.Of<IAuditTrailService>(), Mock.Of<ILogger<MovieLibraryController>>())
         { ControllerContext = Context("owner") };
         var own = (OkObjectResult)await controller.Detail("test-film", default);
         Assert.AreEqual("tap-51", ((ApiResponse<MovieLibraryDetailDto>)own.Value!).Data.WatchProgress!.EpisodeSlug);

@@ -14,7 +14,7 @@ namespace angnet.WebApi.Controllers;
 [Authorize(Policy = "movie.view")]
 [EnableRateLimiting("API")]
 public class MovieLibraryController(IMovieLibraryService library, IMovieWishlistService wishlist,
-    IMovieWatchProgressService progress, ILogger<MovieLibraryController> logger) : ControllerBase
+    IMovieWatchProgressService progress, IAuditTrailService audit, ILogger<MovieLibraryController> logger) : ControllerBase
 {
     [HttpGet]
     public Task<IActionResult> Browse(string keyword = "", int page = 1, CancellationToken cancellationToken = default) =>
@@ -37,7 +37,60 @@ public class MovieLibraryController(IMovieLibraryService library, IMovieWishlist
 
     [HttpGet("{slug}/playback")]
     public Task<IActionResult> Playback(string slug, int server, string episode, CancellationToken cancellationToken) =>
-        Respond(() => library.Playback(slug, server, episode, cancellationToken));
+        Respond(async () =>
+        {
+            var result = await library.Playback(slug, server, episode, cancellationToken);
+            await LogPlayback(slug, server, episode, result, cancellationToken);
+            return result;
+        });
+
+    private async Task LogPlayback(string slug, int serverId, string episodeSlug,
+        MovieLibraryPlaybackDto playback, CancellationToken cancellationToken)
+    {
+        // An iframe cannot report confirmed playback to this application. Record
+        // opening a playable episode, never claim watch duration or completion.
+        if (string.IsNullOrEmpty(playback.Url) && string.IsNullOrEmpty(playback.EmbedUrl)) return;
+        cancellationToken.ThrowIfCancellationRequested();
+        var title = slug;
+        var source = $"Nguồn {serverId}";
+        try
+        {
+            // Same provider response is already cached by Playback. Resolve names
+            // on the server instead of accepting client-supplied movie metadata.
+            var movie = await library.Detail(slug, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(movie.Title)) title = movie.Title;
+            source = movie.Servers.FirstOrDefault(s => s.Id == serverId)?.Name ?? source;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception ex)
+        {
+            // Metadata failure must not lose the event or prevent playing. The
+            // validated slug/episode/source ID remain enough to identify it.
+            logger.LogWarning(ex, "Could not resolve movie audit labels for {MovieSlug}", slug);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        try
+        {
+            var result = await audit.Create(new AuditTrailDto
+            {
+                RecordId = $"phimapi:{slug}",
+                Description = $"Mở xem phim \"{LogLabel(title, 500)}\" ({slug}) · "
+                    + $"Tập: {LogLabel(playback.Title, 200)} ({episodeSlug}) · "
+                    + $"Nguồn: {LogLabel(source, 200)} ({serverId}) · "
+                    + $"UserId: {User.FindFirstValue(ClaimTypes.NameIdentifier)}",
+            });
+            if (!result.Success) logger.LogWarning("Movie audit write failed for {MovieSlug}", slug);
+        }
+        catch (Exception ex)
+        {
+            // Viewing must keep working even if the audit database is unavailable.
+            logger.LogWarning(ex, "Movie audit write failed for {MovieSlug}", slug);
+        }
+    }
+
+    private static string LogLabel(string value, int maxLength) =>
+        (value.Length <= maxLength ? value : value[..maxLength]).Replace('\r', ' ').Replace('\n', ' ');
 
     private async Task<IActionResult> Respond<T>(Func<Task<T>> request)
     {
