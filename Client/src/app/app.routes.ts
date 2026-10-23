@@ -238,15 +238,6 @@ const appRoutes: Routes = [
         canActivate: [canActivePermission('analytics.view')],
       },
       {
-        path: 'analytics-history',
-        title: 'Đối soát dữ liệu lịch sử',
-        loadComponent: () =>
-          import(
-            './pages/dashboard/analytics/analytics-history.component'
-          ).then(p => p.AnalyticsHistoryComponent),
-        canActivate: [canActivePermission('analytics.import')],
-      },
-      {
         path: 'movie-view-logs',
         title: 'Nhật ký mở phim',
         loadComponent: () =>

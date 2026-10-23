@@ -430,7 +430,5 @@
     "T_PNOTE_DELETE_MESSAGE": "This note will be permanently deleted. Are you sure?",
     "T_PNOTE_DELETED": "Note deleted",
     "T_PNOTE_DELETE_ERROR": "Unable to delete the note. Please try again.",
-    "T_PNOTE_EDITOR_ERROR": "Unable to load the editor. Close and reopen the note to try again.",
-    "T_TRACKED_VISITS": "Recorded visits",
-    "T_VISIT_LEGACY_PENDING": "Historical website counters are reviewed separately in administration."
+    "T_PNOTE_EDITOR_ERROR": "Unable to load the editor. Close and reopen the note to try again."
 }

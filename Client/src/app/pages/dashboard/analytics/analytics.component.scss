@@ -123,24 +123,6 @@ p {
 .metric-card .down {
   color: var(--admin-warning);
 }
-.collection-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: -4px 0 20px;
-  padding: 12px 15px;
-  background: var(--admin-primary-soft);
-  color: var(--admin-primary);
-  border-radius: 8px;
-  p {
-    margin: 0;
-    color: var(--admin-text-secondary);
-    font-size: 12px;
-  }
-  .anticon {
-    margin-top: 3px;
-  }
-}
 .chart-card {
   @include theme.surface;
   overflow: hidden;
@@ -322,30 +304,6 @@ p {
   font-size: 13px;
   background: #ffffffb0;
 }
-.chart-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  border-top: 1px solid var(--admin-border);
-  padding: 14px 0;
-  color: var(--admin-text-tertiary);
-  font-size: 11px;
-  line-height: 1.6;
-  span:last-child {
-    flex-shrink: 0;
-  }
-}
-.measurement-note {
-  display: flex;
-  gap: 8px;
-  margin: 18px 0 0;
-  color: var(--admin-text-tertiary);
-  font-size: 11px;
-  line-height: 1.8;
-  .anticon {
-    margin-top: 4px;
-  }
-}
 .error-message {
   color: var(--admin-danger);
   margin: -8px 0 16px;
@@ -371,9 +329,6 @@ p {
   }
   .timezone {
     display: none;
-  }
-  .chart-footer {
-    flex-wrap: wrap;
   }
 }
 @media (max-width: 767px) {

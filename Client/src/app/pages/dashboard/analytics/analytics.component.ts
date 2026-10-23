@@ -11,7 +11,6 @@ import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.c
 import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AnalyticsLoadingComponent } from './analytics-loading.component';
-import { AnalyticsLifetimeComponent } from './analytics-lifetime.component';
 import { AnalyticsRankingsComponent } from './analytics-rankings.component';
 import {
   AnalyticsMetric,
@@ -44,7 +43,6 @@ export const shiftDay = (day: string, offset: number): string => {
     NzCheckboxModule,
     BreadcrumbComponent,
     AnalyticsLoadingComponent,
-    AnalyticsLifetimeComponent,
     AnalyticsRankingsComponent,
   ],
   templateUrl: './analytics.component.html',
@@ -58,38 +56,31 @@ export class AnalyticsComponent {
     key: AnalyticsMetric;
     label: string;
     icon: string;
-    description: string;
   }[] = [
     {
       key: 'Sessions',
       label: 'Lượt truy cập',
       icon: 'team',
-      description:
-        'Phiên dùng chung giữa các tab; kết thúc sau 30 phút không hoạt động. Thống kê theo lúc bắt đầu phiên.',
     },
     {
       key: 'Pages',
       label: 'Lượt xem trang',
       icon: 'global',
-      description: 'Mỗi lần điều hướng đến một trang blog.',
     },
     {
       key: 'Articles',
       label: 'Mở bài viết',
       icon: 'read',
-      description: 'Mở thành công bài viết đã xuất bản.',
     },
     {
       key: 'Movies',
       label: 'Mở xem phim',
       icon: 'play-circle',
-      description: 'Mở trình phát thành công; chưa đo thời lượng xem.',
     },
     {
       key: 'Reels',
       label: 'Lượt xem reels',
       icon: 'video-camera',
-      description: 'Reel được ghi nhận xem thành công.',
     },
   ];
   readonly presets = [
@@ -215,23 +206,11 @@ export class AnalyticsComponent {
   get metricLabel(): string {
     return this.metrics.find(item => item.key === this.metric)!.label;
   }
-  get metricDescription(): string {
-    return this.metrics.find(item => item.key === this.metric)!.description;
-  }
   get tooltip() {
     return this.chartPoints.find(point => point.index === this.hovered);
   }
   get total(): number {
     return this.report?.Current[this.metric] ?? 0;
-  }
-  get partial(): boolean {
-    if (this.report?.DataQuality?.[this.metric])
-      return this.report.DataQuality[this.metric]!.Current !== 'complete';
-    return (
-      !!this.coverageStart &&
-      new Date(this.coverageStart).getTime() >
-        Date.parse(`${this.from}T00:00:00+07:00`)
-    );
   }
   get coverageStart(): string | null {
     return (
@@ -254,15 +233,12 @@ export class AnalyticsComponent {
   }
   delta(metric: AnalyticsMetric): string {
     const quality = this.report?.DataQuality?.[metric];
-    if (quality?.Current === 'unavailable' && !this.report?.Current[metric])
-      return 'Ngoài thời gian ghi nhận';
-    if (quality?.Current === 'partial') return 'Số liệu một phần';
-    if (quality && !quality.CanCompare)
-      return quality.Previous === 'partial'
-        ? 'Kỳ trước có dữ liệu một phần'
-        : 'Kỳ trước chưa được ghi nhận';
-    if (!this.report || !this.canCompare(metric))
-      return 'Kỳ trước chưa được ghi nhận';
+    if (
+      !this.report ||
+      (quality && quality.Current !== 'complete') ||
+      !this.canCompare(metric)
+    )
+      return '';
     const previous = this.report.Previous[metric];
     const current = this.report.Current[metric];
     if (previous === 0)
@@ -284,17 +260,8 @@ export class AnalyticsComponent {
       ? '—'
       : (this.report?.Current[metric] ?? 0);
   }
-  get qualityReason(): string {
-    return this.report?.DataQuality?.[this.metric]?.Reason || '';
-  }
   displayDate(value: string): string {
     return value.split('-').reverse().join('/');
-  }
-  displayTime(value: string): string {
-    return new Date(value).toLocaleString('vi-VN', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      hour12: false,
-    });
   }
 
   draw(): void {

@@ -120,16 +120,8 @@
           <span class="footer-stat-value">{{
             stats.Loaded === false ? '…' : stats.TotalCount
           }}</span>
-          <span class="footer-stat-label">{{
-            (stats.LegacyMerged === false
-              ? 'T_TRACKED_VISITS'
-              : 'T_TOTALVISITS'
-            ) | translate
-          }}</span>
+          <span class="footer-stat-label">{{ 'T_TOTALVISITS' | translate }}</span>
         </div>
-        <small *ngIf="stats.Loaded && stats.LegacyMerged === false">{{
-          'T_VISIT_LEGACY_PENDING' | translate
-        }}</small>
       </div>
     </div>
   </div>

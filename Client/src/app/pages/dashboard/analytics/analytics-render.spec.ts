@@ -26,7 +26,7 @@ import {
 import { AnalyticsComponent } from './analytics.component';
 
 describe('Canonical analytics rendered states', () => {
-  it('renders missing as a dash, preserves real partial counts and explains the selected metric', () => {
+  it('renders clean metric cards without technical data-quality notes', () => {
     TestBed.configureTestingModule({
       imports: [
         AnalyticsComponent,
@@ -100,15 +100,16 @@ describe('Canonical analytics rendered states', () => {
     ) as NodeListOf<HTMLButtonElement>;
     expect(cards[0].querySelector('strong')?.textContent).toBe('—');
     expect(cards[3].querySelector('strong')?.textContent?.trim()).toBe('1');
-    expect(cards[3].textContent).toContain('Số liệu một phần');
+    expect(cards[3].textContent).not.toContain('Số liệu một phần');
     expect(fixture.nativeElement.textContent).not.toContain(
       'Chưa đủ dữ liệu so sánh'
     );
     cards[3].click();
     fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector('.collection-notice').textContent
-    ).toContain('23/10/2026');
+    expect(fixture.nativeElement.querySelector('.collection-notice')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain(
+      'Lũy kế và dữ liệu lịch sử'
+    );
     expect(fixture.componentInstance.canCompare('Movies')).toBeFalse();
     http.verify();
     fixture.destroy();

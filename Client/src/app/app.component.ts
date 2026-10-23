@@ -107,11 +107,6 @@ export class AppComponent implements OnInit {
           title: 'Nhật ký mở phim',
           permission: 'movieviewlog.view',
         },
-        {
-          path: '/dashboard/analytics-history',
-          title: 'Đối soát dữ liệu lịch sử',
-          permission: 'analytics.import',
-        },
       ],
     },
     {

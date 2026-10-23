@@ -12,10 +12,6 @@
   </app-breadcrumb>
   <main class="analytics-page" [attr.aria-busy]="loading">
     <h1 class="sr-only">Thống kê truy cập</h1>
-    <p class="page-description">
-      Theo dõi xu hướng truy cập và nội dung được quan tâm.
-    </p>
-
     <section class="filter-bar" aria-label="Khoảng thời gian thống kê">
       <span class="filter-caption"
         ><span nz-icon nzType="calendar"></span> Khoảng thời gian</span
@@ -63,21 +59,12 @@
     </section>
 
     <ng-container *ngIf="!loading && report as data">
-      <div *ngIf="data.WriteFailures" class="collection-notice" role="status">
-        <span nz-icon nzType="warning"></span>
-        <p>
-          Máy chủ đã gặp {{ data.WriteFailures | number }} lần lỗi ghi thống kê.
-          Số liệu trong giai đoạn lỗi có thể thiếu; cần kiểm tra nhật ký vận
-          hành.
-        </p>
-      </div>
       <section class="metric-grid" aria-label="Chỉ số tổng quan">
         <article class="metric-card online-card">
           <div class="metric-heading">
             <span>Đang online</span><span class="online-dot"></span>
           </div>
-          <strong>{{ data.Online | number }}</strong
-          ><small>Hoạt động trong 90 giây gần đây</small>
+          <strong>{{ data.Online | number }}</strong>
         </article>
         <button
           *ngFor="let item of metrics"
@@ -85,11 +72,6 @@
           type="button"
           [class.active]="metric === item.key"
           [attr.aria-pressed]="metric === item.key"
-          [title]="
-            item.description +
-            ' ' +
-            (data.DataQuality?.[item.key]?.Reason || '')
-          "
           (click)="selectMetric(item.key)">
           <span class="metric-heading"
             ><span>{{ item.label }}</span
@@ -107,23 +89,6 @@
         </button>
       </section>
 
-      <div class="collection-notice" *ngIf="!coverageStart || partial">
-        <span nz-icon nzType="info-circle"></span>
-        <p *ngIf="qualityReason">
-          {{ qualityReason }}. Các số hiển thị chỉ gồm lượt thực tế đã ghi nhận;
-          số dư lịch sử nằm ở phần lũy kế.
-        </p>
-        <p *ngIf="coverageStart && !qualityReason">
-          Dữ liệu chi tiết cho {{ metricLabel.toLowerCase() }} có từ
-          <strong>{{ displayTime(coverageStart) }}</strong
-          >. Khoảng thời gian trước đó chưa có dữ liệu.
-        </p>
-        <p *ngIf="!coverageStart && !qualityReason">
-          Chưa có mốc bắt đầu thu thập. Vui lòng kiểm tra cập nhật dữ liệu hệ
-          thống.
-        </p>
-      </div>
-
       <section class="chart-card">
         <div class="section-heading">
           <div>
@@ -138,11 +103,6 @@
             [(ngModel)]="compare"
             (ngModelChange)="draw()"
             [nzDisabled]="!canCompare(metric)"
-            [title]="
-              canCompare(metric)
-                ? 'So sánh với khoảng trước có cùng độ dài, cùng thời điểm'
-                : 'Chưa thu thập đủ dữ liệu của kỳ trước'
-            "
             >So sánh kỳ trước</label
           >
         </div>
@@ -249,24 +209,11 @@
             </div>
           </div>
         </div>
-        <div class="chart-footer">
-          <span
-            >{{ metricDescription }} Lượt gọi lại cùng nội dung trong một lần mở
-            trang được gộp.</span
-          ><span>Cập nhật {{ displayTime(data.GeneratedAt) }}</span>
-        </div>
       </section>
 
       <app-analytics-rankings
         [articles]="data.TopArticles"
         [movies]="data.TopMovies" />
-      <app-analytics-lifetime [data]="data.Lifetime" />
-      <p class="measurement-note">
-        <span nz-icon nzType="info-circle"></span> Thống kê các trang blog,
-        không gồm trang quản trị, đăng nhập và link ghi chú riêng. Phiên truy
-        cập được dùng chung giữa các tab trong cùng trình duyệt, không phải số
-        người duy nhất. Đã lọc các bot phổ biến.
-      </p>
     </ng-container>
   </main>
 </div>

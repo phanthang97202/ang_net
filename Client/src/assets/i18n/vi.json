@@ -430,7 +430,5 @@
     "T_PNOTE_DELETE_MESSAGE": "Ghi chú sẽ bị xóa vĩnh viễn. Bạn có chắc muốn xóa?",
     "T_PNOTE_DELETED": "Đã xóa ghi chú",
     "T_PNOTE_DELETE_ERROR": "Chưa xóa được ghi chú. Vui lòng thử lại.",
-    "T_PNOTE_EDITOR_ERROR": "Chưa tải được trình soạn thảo. Hãy đóng rồi mở lại ghi chú.",
-    "T_TRACKED_VISITS": "Lượt truy cập đã ghi nhận",
-    "T_VISIT_LEGACY_PENDING": "Số liệu lịch sử chưa đối soát được giữ riêng."
+    "T_PNOTE_EDITOR_ERROR": "Chưa tải được trình soạn thảo. Hãy đóng rồi mở lại ghi chú."
 }

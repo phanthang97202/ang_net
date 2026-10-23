@@ -79,7 +79,7 @@ describe('Analytics dashboard data flow', () => {
       Data: { ...report(), PreviousPeriodComplete: false },
     });
     expect(component.compare).toBeFalse();
-    expect(component.delta('Sessions')).toContain('chưa được ghi nhận');
+    expect(component.delta('Sessions')).toBe('');
   });
 
   it('leaves gaps before collection began instead of inventing zeroes', () => {
@@ -149,7 +149,7 @@ describe('Analytics dashboard data flow', () => {
     request().flush({ Success: true, Data: data });
     expect(component.metricValue('Sessions')).toBe('—');
     expect(component.canCompare('Sessions')).toBeFalse();
-    expect(component.delta('Sessions')).toBe('Ngoài thời gian ghi nhận');
+    expect(component.delta('Sessions')).toBe('');
     data.DataQuality.Sessions = {
       Current: 'complete',
       Previous: 'complete',
@@ -160,7 +160,7 @@ describe('Analytics dashboard data flow', () => {
     expect(component.canCompare('Sessions')).toBeTrue();
   });
 
-  it('shows partial historical facts without drawing invented zeros before coverage', () => {
+  it('keeps partial historical facts without exposing technical labels', () => {
     const component = create();
     component.from = '2026-10-22';
     const data = report();
@@ -176,7 +176,7 @@ describe('Analytics dashboard data flow', () => {
     request().flush({ Success: true, Data: data });
     component.selectMetric('Movies');
     expect(component.chartPoints.length).toBe(2);
-    expect(component.delta('Movies')).toBe('Số liệu một phần');
+    expect(component.delta('Movies')).toBe('');
     expect(component.canCompare('Movies')).toBeFalse();
   });
 });

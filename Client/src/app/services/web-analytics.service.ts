@@ -44,23 +44,6 @@ export interface AnalyticsTop {
   Sessions: number;
   UnknownSessions?: number;
 }
-export interface AnalyticsLegacyValue {
-  Period: string;
-  Value: number;
-}
-export interface AnalyticsLifetime {
-  DetailedFrom?: string | null;
-  PendingBalances?: number;
-  TotalVisits: number;
-  MonthVisits: number;
-  ArticleViews: number;
-  ReelViews: number;
-  MovieOpens: number;
-  LegacyWebsiteImported: boolean;
-  LegacyWebsiteMerged: boolean;
-  LegacyCapturedAt: string | null;
-  LegacyWebsite: AnalyticsLegacyValue[];
-}
 export interface AnalyticsReport {
   DataQuality?: Partial<
     Record<
@@ -87,38 +70,7 @@ export interface AnalyticsReport {
   PreviousPoints: AnalyticsPoint[];
   TopArticles: AnalyticsTop[];
   TopMovies: AnalyticsTop[];
-  Lifetime?: AnalyticsLifetime;
   Coverage?: Partial<Record<AnalyticsMetric, string | null>>;
-  WriteFailures?: number;
-  LastWriteFailureAt?: string | null;
-}
-export interface AnalyticsReconciliation {
-  BalanceConflicts?: {
-    Kind: string;
-    ContentId: string;
-    Title: string;
-    Source: string;
-    OriginalValue: number | null;
-    Quantity: number;
-    Reason: string;
-  }[];
-  PendingBalances?: number;
-  GeneratedAt: string;
-  AnalyticsStartedAt: string;
-  UnifiedAt: string;
-  LegacyCapturedAt: string | null;
-  MovieImportedAt: string | null;
-  ExistingMovieRows: number;
-  AuditBeforeAnalytics: number;
-  AuditOverlappingAnalytics: number;
-  UnrecognisedAuditRows: number;
-  ArticleCounterSnapshot: number;
-  ReelCounterSnapshot: number;
-  RedisAvailable: boolean;
-  RedisSnapshotExists: boolean;
-  RedisError: string;
-  WebsiteValues: AnalyticsLegacyValue[];
-  PlanToken: string;
 }
 export interface MovieViewLog {
   EventId: string;
