@@ -1,0 +1,71 @@
+<div class="ranking-grid">
+  <section class="ranking-card" *ngFor="let kind of ['article', 'movie']">
+    <div class="section-heading">
+      <div>
+        <h2>
+          {{
+            kind === 'article'
+              ? 'Bài viết được xem nhiều'
+              : 'Phim được mở nhiều'
+          }}
+        </h2>
+        <p>Top 10 trong khoảng thời gian đã chọn</p>
+      </div>
+      <span
+        class="ranking-icon"
+        nz-icon
+        [nzType]="kind === 'article' ? 'read' : 'play-circle'"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">
+              {{ kind === 'article' ? 'Bài viết' : 'Phim' }}
+            </th>
+            <th scope="col">Lượt mở</th>
+            <th scope="col">Phiên xem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let item of kind === 'article' ? articles : movies;
+              index as index
+            ">
+            <td>
+              <span class="rank">{{ index + 1 | number: '2.0' }}</span
+              ><a [href]="item.Path" target="_blank" rel="noopener noreferrer"
+                >{{ item.Title || item.ContentId
+                }}<span nz-icon nzType="arrow-up"></span
+              ></a>
+            </td>
+            <td>{{ item.Views | number }}</td>
+            <td
+              [title]="
+                item.UnknownSessions
+                  ? item.UnknownSessions +
+                    ' lượt mở cũ chưa lưu thông tin phiên'
+                  : ''
+              ">
+              {{
+                item.UnknownSessions && !item.Sessions
+                  ? 'Chưa lưu'
+                  : (item.Sessions | number)
+              }}<span *ngIf="item.UnknownSessions && item.Sessions">*</span>
+            </td>
+          </tr>
+          <tr *ngIf="!(kind === 'article' ? articles : movies).length">
+            <td colspan="3" class="table-empty">
+              <span nz-icon nzType="bar-chart"></span>
+              <p>
+                Chưa có lượt mở
+                {{ kind === 'article' ? 'bài viết' : 'phim' }} trong khoảng này.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

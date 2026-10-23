@@ -1,18 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { AnalyticsLifetime } from '../../../services/web-analytics.service';
 
 @Component({
   selector: 'app-analytics-lifetime',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NzIconModule],
   template: `<section
     *ngIf="data as value"
     aria-label="Số liệu lũy kế"
     class="lifetime">
     <div>
-      <h2>Lũy kế và dữ liệu lịch sử</h2>
-      <p>Toàn bộ dữ liệu đã lưu, không thay đổi theo bộ lọc ngày bên dưới.</p>
+      <h2><span nz-icon nzType="history"></span>Lũy kế và dữ liệu lịch sử</h2>
+      <p>Toàn bộ dữ liệu đã lưu, không thay đổi theo bộ lọc ngày.</p>
     </div>
     <div class="totals">
       <div>
@@ -55,67 +56,7 @@ import { AnalyticsLifetime } from '../../../services/web-analytics.service';
       chi tiết theo giờ/ngày chỉ có từ lúc bắt đầu ghi sự kiện.
     </p>
   </section>`,
-  styles: [
-    `
-      .lifetime {
-        background: white;
-        border: 1px solid var(--admin-border, #e2e8f0);
-        border-radius: 12px;
-        padding: 20px 22px;
-        margin-bottom: 22px;
-      }
-      h2 {
-        font-size: 15px;
-        font-weight: 650;
-        margin: 0;
-        color: inherit;
-      }
-      p {
-        color: #667085;
-        font-size: 12px;
-        margin: 5px 0 0;
-        line-height: 1.7;
-      }
-      .totals {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 18px;
-        margin-top: 18px;
-      }
-      .totals span {
-        font-size: 11px;
-        color: #667085;
-        display: block;
-        min-height: 32px;
-      }
-      .totals strong {
-        display: block;
-        font-size: 22px;
-        font-weight: 650;
-        margin-top: 7px;
-      }
-      .note {
-        border-top: 1px solid #edf0f5;
-        padding-top: 12px;
-        margin-top: 16px;
-        color: #667085;
-      }
-      @media (max-width: 1023px) {
-        .totals {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-      }
-      @media (max-width: 767px) {
-        .lifetime {
-          padding: 16px;
-        }
-        .totals {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 16px;
-        }
-      }
-    `,
-  ],
+  styleUrl: './analytics-lifetime.component.scss',
 })
 export class AnalyticsLifetimeComponent {
   @Input() data?: AnalyticsLifetime;

@@ -19,9 +19,9 @@ import { Component } from '@angular/core';
       }
       .card,
       .chart {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-lg);
         padding: 18px;
       }
       .card {
@@ -33,7 +33,7 @@ import { Component } from '@angular/core';
         height: 12px;
         border-radius: 4px;
         margin-bottom: 16px;
-        background: #edf1f7;
+        background: var(--admin-surface-subtle);
       }
       strong {
         width: 55%;
@@ -41,7 +41,7 @@ import { Component } from '@angular/core';
       }
       .chart {
         height: 440px;
-        background: linear-gradient(100deg, #fff 20%, #f3f6fa 40%, #fff 60%);
+        background: var(--admin-surface);
       }
       @media (max-width: 1279px) {
         .cards {

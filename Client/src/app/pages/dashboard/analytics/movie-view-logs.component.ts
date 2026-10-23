@@ -12,6 +12,10 @@ import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { MovieViewLog } from '../../../services/web-analytics.service';
@@ -26,111 +30,12 @@ import { shiftDay, vietnamDay } from './analytics.component';
     RouterLink,
     NzDatePickerModule,
     NzIconModule,
+    NzButtonModule,
+    NzInputModule,
+    NzTableModule,
+    BreadcrumbComponent,
   ],
-  template: ` <main class="detail-page" [attr.aria-busy]="loading">
-    <header>
-      <div>
-        <a routerLink="/dashboard/analytics">← Thống kê truy cập</a>
-        <h1>Nhật ký mở phim</h1>
-        <p>Tài khoản, phim, tập và thời điểm mở trình phát thành công.</p>
-      </div>
-      <button type="button" (click)="search()" [disabled]="loading">
-        <span nz-icon nzType="reload" [nzSpin]="loading"></span> Làm mới
-      </button>
-    </header>
-    <form class="filters" (ngSubmit)="search()">
-      <div class="filter-field">
-        <span>Khoảng ngày</span
-        ><nz-range-picker
-          name="range"
-          aria-label="Khoảng ngày nhật ký"
-          [(ngModel)]="range"
-          nzFormat="dd/MM/yyyy"
-          [nzAllowClear]="false"></nz-range-picker>
-      </div>
-      <label class="grow"
-        >Tìm kiếm<input
-          name="keyword"
-          [(ngModel)]="keyword"
-          maxlength="200"
-          placeholder="Tên phim, tên hoặc mã tài khoản" /></label
-      ><button class="primary" type="submit">Lọc nhật ký</button>
-    </form>
-    <p class="notice">
-      Thời gian theo giờ Việt Nam. Bản ghi cũ có thể thiếu thông tin tài khoản,
-      tập hoặc nguồn phát. Nhật ký này ghi nhận mở trình phát, chưa đo thời
-      lượng xem.
-    </p>
-    <p *ngIf="error" class="notice error" role="alert">{{ error }}</p>
-    <section class="panel">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Thời điểm</th>
-              <th>Tài khoản</th>
-              <th>Phim / tập</th>
-              <th>Nguồn phát</th>
-              <th>Nguồn dữ liệu</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of rows; trackBy: track">
-              <td class="nowrap">{{ time(item.OccurredAt) }}</td>
-              <td>
-                {{ item.ActorName || item.UserId || 'Chưa có thông tin'
-                }}<small *ngIf="item.UserId && item.ActorName">{{
-                  item.UserId
-                }}</small>
-              </td>
-              <td>
-                <a
-                  [routerLink]="['/phim', item.MovieSlug]"
-                  target="_blank"
-                  rel="noopener"
-                  >{{ item.MovieTitle }}</a
-                ><small>{{
-                  item.EpisodeName ||
-                    item.EpisodeSlug ||
-                    'Chưa lưu thông tin tập'
-                }}</small>
-              </td>
-              <td>
-                {{
-                  item.ServerName ||
-                    (item.ServerId !== null
-                      ? 'Nguồn ' + item.ServerId
-                      : 'Chưa có thông tin')
-                }}
-              </td>
-              <td>
-                {{
-                  item.Source === 'playback'
-                    ? 'Ghi nhận trực tiếp'
-                    : item.Source === 'audit-legacy'
-                      ? 'Nhật ký cũ'
-                      : 'Thống kê cũ'
-                }}
-              </td>
-            </tr>
-            <tr *ngIf="!rows.length && !loading">
-              <td colspan="5" class="empty">
-                Chưa có nhật ký trong khoảng thời gian đã chọn.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-    <div #sentinel class="load-more">
-      <span *ngIf="loading" role="status">Đang tải nhật ký…</span
-      ><button *ngIf="!loading && nextCursor" type="button" (click)="more()">
-        {{ error ? 'Thử tải lại' : 'Xem thêm' }}</button
-      ><span *ngIf="!loading && rows.length && !nextCursor"
-        >Đã hiển thị hết {{ rows.length | number }} bản ghi.</span
-      >
-    </div>
-  </main>`,
+  templateUrl: './movie-view-logs.component.html',
   styleUrl: './analytics-detail.scss',
 })
 export class MovieViewLogsComponent {

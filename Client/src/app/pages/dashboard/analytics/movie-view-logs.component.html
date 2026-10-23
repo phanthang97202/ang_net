@@ -1,0 +1,161 @@
+﻿<div class="master__container analytics-shell">
+  <app-breadcrumb title="Nhật ký mở phim">
+    <button
+      breadcrumbActions
+      nz-button
+      nzType="default"
+      type="button"
+      (click)="search()"
+      [disabled]="loading">
+      <span nz-icon nzType="reload" [nzSpin]="loading"></span> Làm mới
+    </button>
+  </app-breadcrumb>
+  <main class="detail-page" [attr.aria-busy]="loading">
+    <h1 class="sr-only">Nhật ký mở phim</h1>
+    <div class="page-intro">
+      <p>Tài khoản, phim, tập và thời điểm mở trình phát thành công.</p>
+      <a routerLink="/dashboard/analytics"
+        ><span nz-icon nzType="arrow-left"></span> Thống kê truy cập</a
+      >
+    </div>
+    <p *ngIf="error" class="notice error" role="alert">
+      <span nz-icon nzType="exclamation-circle"></span>{{ error }}
+    </p>
+    <section class="panel log-panel" aria-label="Nhật ký mở phim">
+      <form class="filters" (ngSubmit)="search()">
+        <div class="filter-field date-field">
+          <span>Khoảng ngày</span>
+          <nz-range-picker
+            name="range"
+            aria-label="Khoảng ngày nhật ký"
+            [(ngModel)]="range"
+            nzFormat="dd/MM/yyyy"
+            [nzAllowClear]="false"></nz-range-picker>
+        </div>
+        <div class="filter-field grow">
+          <label for="movie-log-keyword">Tìm kiếm</label>
+          <nz-input-group nzPrefixIcon="search">
+            <input
+              nz-input
+              id="movie-log-keyword"
+              name="keyword"
+              [(ngModel)]="keyword"
+              maxlength="200"
+              placeholder="Tên phim, tên hoặc mã tài khoản" />
+          </nz-input-group>
+        </div>
+        <button nz-button nzType="primary" type="submit">
+          <span nz-icon nzType="filter"></span>Lọc nhật ký
+        </button>
+      </form>
+      <div class="panel-heading">
+        <h2>
+          <span nz-icon nzType="play-circle"></span> Lịch sử mở trình phát
+        </h2>
+        <span class="record-count"
+          >{{ rows.length | number }} bản ghi đã tải</span
+        >
+      </div>
+      <p class="table-hint">
+        <span nz-icon nzType="info-circle"></span>Thời gian theo giờ Việt Nam.
+        Bản ghi cũ có thể thiếu thông tin tài khoản, tập hoặc nguồn phát. Nhật
+        ký này ghi nhận mở trình phát, chưa đo thời lượng xem.
+      </p>
+      <nz-table
+        class="analytics-log-table"
+        [nzData]="rows"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzLoading]="loading && !rows.length"
+        [nzNoResult]="emptyState"
+        [nzScroll]="{ x: '960px' }"
+        nzSize="middle">
+        <thead>
+          <tr>
+            <th nzWidth="190px">Thời điểm</th>
+            <th nzWidth="230px">Tài khoản</th>
+            <th>Phim / tập</th>
+            <th nzWidth="160px">Nguồn phát</th>
+            <th nzWidth="170px">Nguồn dữ liệu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of rows; trackBy: track">
+            <td class="log-time">{{ time(item.OccurredAt) }}</td>
+            <td>
+              <div class="actor-cell">
+                <span class="actor-icon" aria-hidden="true"
+                  ><span nz-icon nzType="user"></span
+                ></span>
+                <div class="cell-content">
+                  <strong>{{
+                    item.ActorName || item.UserId || 'Chưa có thông tin'
+                  }}</strong
+                  ><small
+                    *ngIf="item.UserId && item.ActorName"
+                    [title]="item.UserId"
+                    >{{ item.UserId }}</small
+                  >
+                </div>
+              </div>
+            </td>
+            <td class="movie-cell">
+              <a
+                [routerLink]="['/phim', item.MovieSlug]"
+                target="_blank"
+                rel="noopener"
+                >{{ item.MovieTitle }}</a
+              ><small>{{
+                item.EpisodeName || item.EpisodeSlug || 'Chưa lưu thông tin tập'
+              }}</small>
+            </td>
+            <td class="source-cell">
+              {{
+                item.ServerName ||
+                  (item.ServerId !== null
+                    ? 'Nguồn ' + item.ServerId
+                    : 'Chưa có thông tin')
+              }}
+            </td>
+            <td>
+              <span
+                class="source-badge"
+                [class.source-badge--current]="item.Source === 'playback'"
+                >{{
+                  item.Source === 'playback'
+                    ? 'Ghi nhận trực tiếp'
+                    : item.Source === 'audit-legacy'
+                      ? 'Nhật ký cũ'
+                      : 'Thống kê cũ'
+                }}</span
+              >
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div #sentinel class="load-more">
+        <span *ngIf="loading" role="status"
+          ><span nz-icon nzType="loading" nzSpin></span> Đang tải nhật ký…</span
+        >
+        <button
+          *ngIf="!loading && nextCursor"
+          nz-button
+          nzType="default"
+          type="button"
+          (click)="more()">
+          {{ error ? 'Thử tải lại' : 'Xem thêm' }}
+        </button>
+        <span *ngIf="!loading && rows.length && !nextCursor"
+          >Đã hiển thị hết {{ rows.length | number }} bản ghi.</span
+        >
+      </div>
+    </section>
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span nz-icon nzType="video-camera"></span
+        ><strong>Chưa có nhật ký trong khoảng thời gian đã chọn.</strong>
+        <p>Thử chọn khoảng ngày khác hoặc thay đổi từ khóa tìm kiếm.</p>
+      </div>
+    </ng-template>
+  </main>
+</div>

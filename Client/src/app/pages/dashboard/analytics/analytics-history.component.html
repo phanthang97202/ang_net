@@ -1,0 +1,181 @@
+﻿<div class="master__container analytics-shell">
+  <app-breadcrumb title="Đối soát dữ liệu lịch sử">
+    <button
+      breadcrumbActions
+      nz-button
+      nzType="default"
+      type="button"
+      (click)="load()"
+      [disabled]="loading || importing">
+      <span nz-icon nzType="reload" [nzSpin]="loading"></span> Tải lại đối soát
+    </button>
+  </app-breadcrumb>
+  <main class="detail-page" [attr.aria-busy]="loading || importing">
+    <h1 class="sr-only">Đối soát dữ liệu lịch sử</h1>
+    <div class="page-intro">
+      <p>Kiểm tra nguồn, mốc thời gian và phần chồng lấn trước khi nhập.</p>
+      <a routerLink="/dashboard/analytics"
+        ><span nz-icon nzType="arrow-left"></span> Thống kê truy cập</a
+      >
+    </div>
+    <p *ngIf="loading" class="notice" role="status">
+      <span nz-icon nzType="loading" nzSpin></span>Đang kiểm tra dữ liệu lịch
+      sử…
+    </p>
+    <p *ngIf="error" class="notice error" role="alert">
+      <span nz-icon nzType="exclamation-circle"></span>{{ error }}
+    </p>
+    <p *ngIf="success" class="notice success" role="status">
+      <span nz-icon nzType="check-circle"></span>{{ success }}
+    </p>
+    <ng-container *ngIf="plan as data">
+      <div class="history-grid">
+        <section class="panel" aria-label="Phạm vi nhập">
+          <div class="panel-heading">
+            <h2><span nz-icon nzType="file-search"></span>Phạm vi nhập</h2>
+            <span class="source-badge" *ngIf="data.MovieImportedAt"
+              >Đã có dữ liệu nhập</span
+            >
+          </div>
+          <div class="panel-description">
+            <p>
+              Nhập nhật ký mở phim trước
+              <strong>{{ time(data.AnalyticsStartedAt) }}</strong
+              >. Từ mốc này trở đi, dùng dữ liệu sự kiện đã ghi nhận; các log
+              trùng giai đoạn chỉ dùng để đối soát.
+            </p>
+            <p>
+              Bản ghi gốc được giữ nguyên. Nhập lại cùng bản ghi không tạo thêm
+              lượt xem. Thông tin tài khoản, tập hoặc nguồn chưa từng lưu sẽ để
+              trống.
+            </p>
+            <p *ngIf="data.MovieImportedAt" class="last-import">
+              <span nz-icon nzType="history"></span>Lần nhập gần nhất:
+              <strong>{{ time(data.MovieImportedAt) }}</strong
+              >.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table class="reconciliation-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nguồn</th>
+                  <th scope="col" class="number">Số lượng</th>
+                  <th scope="col">Cách xử lý</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nhật ký phim trước mốc thống kê</td>
+                  <td class="number">
+                    {{ data.AuditBeforeAnalytics | number }}
+                  </td>
+                  <td>Nhập theo mã nhật ký gốc, chống trùng</td>
+                </tr>
+                <tr>
+                  <td>Nhật ký phim trong giai đoạn đã có sự kiện</td>
+                  <td class="number">
+                    {{ data.AuditOverlappingAnalytics | number }}
+                  </td>
+                  <td>Giữ để kiểm tra, không cộng thêm</td>
+                </tr>
+                <tr>
+                  <td>Log phát phim thiếu định danh</td>
+                  <td class="number">
+                    {{ data.UnrecognisedAuditRows | number }}
+                  </td>
+                  <td>Giữ nguyên để kiểm tra, không tự suy diễn</td>
+                </tr>
+                <tr>
+                  <td>Bản ghi trong bảng phim riêng</td>
+                  <td class="number">{{ data.ExistingMovieRows | number }}</td>
+                  <td>Nguồn thống kê phim hiện tại</td>
+                </tr>
+                <tr>
+                  <td>Lượt xem bài viết tại mốc chuyển đổi</td>
+                  <td class="number">
+                    {{ data.ArticleCounterSnapshot | number }}
+                  </td>
+                  <td>Đã giữ bộ đếm gốc trong DB</td>
+                </tr>
+                <tr>
+                  <td>Lượt xem reels tại mốc chuyển đổi</td>
+                  <td class="number">
+                    {{ data.ReelCounterSnapshot | number }}
+                  </td>
+                  <td>Đã giữ bộ đếm gốc trong DB</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel legacy-panel" aria-label="Bộ đếm truy cập cũ">
+          <div class="panel-heading">
+            <h2><span nz-icon nzType="database"></span>Bộ đếm truy cập cũ</h2>
+          </div>
+          <div class="panel-description">
+            <p *ngIf="data.RedisSnapshotExists" class="capture-state">
+              <span nz-icon nzType="check-circle"></span>Đã lưu vào DB lúc
+              {{ time(data.LegacyCapturedAt!) }}. Các lần xem thống kê sau không
+              cần đọc Redis.
+            </p>
+            <p *ngIf="!data.RedisSnapshotExists && data.RedisAvailable">
+              Đọc được nguồn cũ. Khi nhập, hệ thống lưu số liệu kèm mốc thời
+              gian vào DB.
+            </p>
+            <p *ngIf="!data.RedisAvailable" class="notice">
+              {{ data.RedisError }}
+            </p>
+            <p>
+              Số tổng và số tháng được giữ đúng mức chi tiết đã lưu. Nếu không
+              xác định được phần chồng lấn, số cũ được giữ riêng, không tự cộng
+              vào tổng mới.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table class="reconciliation-table legacy-table">
+              <thead>
+                <tr>
+                  <th scope="col">Kỳ</th>
+                  <th scope="col" class="number">Lượt truy cập đã lưu</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of data.WebsiteValues">
+                  <td>{{ item.Period || 'Tổng theo bộ đếm cũ' }}</td>
+                  <td class="number">{{ item.Value | number }}</td>
+                </tr>
+                <tr *ngIf="!data.WebsiteValues.length">
+                  <td colspan="2">
+                    <div class="empty-state">
+                      <span nz-icon nzType="database"></span>
+                      <p>Nguồn cũ chưa có số liệu đọc được.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <footer class="import-footer panel">
+        <div class="import-caption">
+          <span nz-icon nzType="info-circle"></span>
+          <p>
+            Bản đối soát: <strong>{{ time(data.GeneratedAt) }}</strong
+            >. Nếu nguồn thay đổi, cần tải lại trước khi nhập.
+          </p>
+        </div>
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [disabled]="loading || importing || !canImport"
+          (click)="apply()">
+          <span nz-icon nzType="import" [nzSpin]="importing"></span
+          >{{ importing ? 'Đang nhập…' : 'Nhập theo bản đối soát này' }}
+        </button>
+      </footer>
+    </ng-container>
+  </main>
+</div>

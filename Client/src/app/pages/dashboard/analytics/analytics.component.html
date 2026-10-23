@@ -1,328 +1,260 @@
-<main class="analytics-page" [attr.aria-busy]="loading">
-  <header class="page-heading">
-    <div>
-      <div class="eyebrow">TỔNG QUAN WEBSITE</div>
-      <h1>Thống kê truy cập</h1>
-      <p>Theo dõi xu hướng truy cập và nội dung được quan tâm.</p>
-    </div>
+<div class="master__container analytics-shell">
+  <app-breadcrumb title="Thống kê truy cập">
     <button
-      class="secondary-button"
+      breadcrumbActions
+      nz-button
+      nzType="default"
       type="button"
       (click)="refresh()"
       [disabled]="loading">
       <span nz-icon nzType="reload" [nzSpin]="loading"></span> Làm mới
     </button>
-  </header>
+  </app-breadcrumb>
+  <main class="analytics-page" [attr.aria-busy]="loading">
+    <h1 class="sr-only">Thống kê truy cập</h1>
+    <p class="page-description">
+      Theo dõi xu hướng truy cập và nội dung được quan tâm.
+    </p>
 
-  <section class="filter-bar" aria-label="Khoảng thời gian thống kê">
-    <div class="presets">
-      <button
-        *ngFor="let preset of presets"
-        type="button"
-        [class.selected]="activePreset === preset.days"
-        [attr.aria-pressed]="activePreset === preset.days"
-        (click)="selectPreset(preset.days)">
-        {{ preset.label }}
-      </button>
+    <section class="filter-bar" aria-label="Khoảng thời gian thống kê">
+      <span class="filter-caption"
+        ><span nz-icon nzType="calendar"></span> Khoảng thời gian</span
+      >
+      <div class="presets">
+        <button
+          *ngFor="let preset of presets"
+          type="button"
+          [class.selected]="activePreset === preset.days"
+          [attr.aria-pressed]="activePreset === preset.days"
+          (click)="selectPreset(preset.days)">
+          {{ preset.label }}
+        </button>
+      </div>
+      <div class="date-filter">
+        <nz-range-picker
+          aria-label="Chọn khoảng ngày"
+          [(ngModel)]="range"
+          (ngModelChange)="changeRange($event)"
+          nzFormat="dd/MM/yyyy"
+          [nzAllowClear]="false"
+          [nzDisabledDate]="disabledDate"></nz-range-picker
+        ><span class="timezone">Giờ Việt Nam · UTC+7</span>
+      </div>
+    </section>
+    <p *ngIf="rangeError" class="error-message" role="alert">
+      {{ rangeError }}
+    </p>
+
+    <div
+      *ngIf="loading"
+      class="loading-state"
+      role="status"
+      aria-label="Đang tải thống kê">
+      <app-analytics-loading />
     </div>
-    <div class="date-filter">
-      <nz-range-picker
-        aria-label="Chọn khoảng ngày"
-        [(ngModel)]="range"
-        (ngModelChange)="changeRange($event)"
-        nzFormat="dd/MM/yyyy"
-        [nzAllowClear]="false"
-        [nzDisabledDate]="disabledDate"></nz-range-picker
-      ><span class="timezone">Giờ Việt Nam · UTC+7</span>
-    </div>
-  </section>
-  <p *ngIf="rangeError" class="error-message" role="alert">{{ rangeError }}</p>
 
-  <div
-    *ngIf="loading"
-    class="loading-state"
-    role="status"
-    aria-label="Đang tải thống kê">
-    <app-analytics-loading />
-  </div>
-
-  <section *ngIf="!loading && error" class="error-state" role="alert">
-    <span nz-icon nzType="warning"></span>
-    <h2>Chưa tải được dữ liệu</h2>
-    <p>{{ error }}</p>
-    <button class="secondary-button" type="button" (click)="refresh()">
-      Thử lại
-    </button>
-  </section>
-
-  <ng-container *ngIf="!loading && report as data">
-    <app-analytics-lifetime [data]="data.Lifetime" />
-    <div *ngIf="data.WriteFailures" class="collection-notice" role="status">
+    <section *ngIf="!loading && error" class="error-state" role="alert">
       <span nz-icon nzType="warning"></span>
-      <p>
-        Máy chủ đã gặp {{ data.WriteFailures | number }} lần lỗi ghi thống kê.
-        Số liệu trong giai đoạn lỗi có thể thiếu; cần kiểm tra nhật ký vận hành.
-      </p>
-    </div>
-    <section class="metric-grid" aria-label="Chỉ số tổng quan">
-      <article class="metric-card online-card">
-        <div class="metric-heading">
-          <span>Đang online</span><span class="online-dot"></span>
-        </div>
-        <strong>{{ data.Online | number }}</strong
-        ><small>Hoạt động trong 90 giây gần đây</small>
-      </article>
-      <button
-        *ngFor="let item of metrics"
-        class="metric-card"
-        type="button"
-        [class.active]="metric === item.key"
-        [attr.aria-pressed]="metric === item.key"
-        [title]="item.description"
-        (click)="selectMetric(item.key)">
-        <span class="metric-heading"
-          ><span>{{ item.label }}</span
-          ><span nz-icon [nzType]="item.icon"></span></span
-        ><strong>{{ data.Current[item.key] | number }}</strong
-        ><small
-          [class.up]="trend(item.key) === 'up'"
-          [class.down]="trend(item.key) === 'down'"
-          >{{ delta(item.key) }}</small
-        >
+      <h2>Chưa tải được dữ liệu</h2>
+      <p>{{ error }}</p>
+      <button nz-button nzType="default" type="button" (click)="refresh()">
+        Thử lại
       </button>
     </section>
 
-    <div class="collection-notice" *ngIf="!coverageStart || partial">
-      <span nz-icon nzType="info-circle"></span>
-      <p *ngIf="coverageStart">
-        Dữ liệu chi tiết cho {{ metricLabel.toLowerCase() }} có từ
-        <strong>{{ displayTime(coverageStart) }}</strong
-        >. Khoảng thời gian trước đó chưa có dữ liệu.
-      </p>
-      <p *ngIf="!coverageStart">
-        Chưa có mốc bắt đầu thu thập. Vui lòng kiểm tra cập nhật dữ liệu hệ
-        thống.
-      </p>
-    </div>
+    <ng-container *ngIf="!loading && report as data">
+      <div *ngIf="data.WriteFailures" class="collection-notice" role="status">
+        <span nz-icon nzType="warning"></span>
+        <p>
+          Máy chủ đã gặp {{ data.WriteFailures | number }} lần lỗi ghi thống kê.
+          Số liệu trong giai đoạn lỗi có thể thiếu; cần kiểm tra nhật ký vận
+          hành.
+        </p>
+      </div>
+      <section class="metric-grid" aria-label="Chỉ số tổng quan">
+        <article class="metric-card online-card">
+          <div class="metric-heading">
+            <span>Đang online</span><span class="online-dot"></span>
+          </div>
+          <strong>{{ data.Online | number }}</strong
+          ><small>Hoạt động trong 90 giây gần đây</small>
+        </article>
+        <button
+          *ngFor="let item of metrics"
+          class="metric-card"
+          type="button"
+          [class.active]="metric === item.key"
+          [attr.aria-pressed]="metric === item.key"
+          [title]="item.description"
+          (click)="selectMetric(item.key)">
+          <span class="metric-heading"
+            ><span>{{ item.label }}</span
+            ><span nz-icon [nzType]="item.icon"></span></span
+          ><strong>{{ data.Current[item.key] | number }}</strong
+          ><small
+            [class.up]="trend(item.key) === 'up'"
+            [class.down]="trend(item.key) === 'down'"
+            >{{ delta(item.key) }}</small
+          >
+        </button>
+      </section>
 
-    <section class="chart-card">
-      <div class="section-heading">
-        <div>
-          <h2>Xu hướng truy cập</h2>
-          <p>{{ displayDate(data.From) }} – {{ displayDate(data.To) }}</p>
-        </div>
-        <label
-          class="comparison"
-          [title]="
-            canCompare(metric)
-              ? 'So sánh với khoảng trước có cùng độ dài, cùng thời điểm'
-              : 'Chưa thu thập đủ dữ liệu của kỳ trước'
-          "
-          ><input
-            type="checkbox"
-            [(ngModel)]="compare"
-            (ngModelChange)="draw()"
-            [disabled]="!canCompare(metric)" />
-          So sánh kỳ trước</label
-        >
+      <div class="collection-notice" *ngIf="!coverageStart || partial">
+        <span nz-icon nzType="info-circle"></span>
+        <p *ngIf="coverageStart">
+          Dữ liệu chi tiết cho {{ metricLabel.toLowerCase() }} có từ
+          <strong>{{ displayTime(coverageStart) }}</strong
+          >. Khoảng thời gian trước đó chưa có dữ liệu.
+        </p>
+        <p *ngIf="!coverageStart">
+          Chưa có mốc bắt đầu thu thập. Vui lòng kiểm tra cập nhật dữ liệu hệ
+          thống.
+        </p>
       </div>
-      <div class="chart-toolbar">
-        <div class="chart-tabs" role="group" aria-label="Chỉ số trên biểu đồ">
-          <button
-            *ngFor="let item of metrics"
-            type="button"
-            [class.selected]="metric === item.key"
-            [attr.aria-pressed]="metric === item.key"
-            (click)="selectMetric(item.key)">
-            {{ item.label }}
-          </button>
-        </div>
-        <span class="chart-total"
-          >{{ total | number }} <span>trong kỳ</span></span
-        >
-      </div>
-      <div class="chart-legend">
-        <span><i></i>{{ metricLabel }}</span
-        ><span *ngIf="compare"><i class="previous"></i>Kỳ trước</span>
-      </div>
-      <div class="plot-wrapper">
-        <div class="y-labels">
-          <span *ngFor="let value of yLabels">{{
-            value | number: '1.0-1'
-          }}</span>
-        </div>
-        <div class="plot">
-          <svg
-            viewBox="0 0 1000 244"
-            preserveAspectRatio="none"
-            role="group"
-            [attr.aria-label]="metricLabel + ' theo thời gian'"
-            (mouseleave)="hovered = null">
-            <defs>
-              <linearGradient id="analytics-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#1677ff" stop-opacity="0.15" />
-                <stop offset="100%" stop-color="#1677ff" stop-opacity="0.01" />
-              </linearGradient>
-            </defs>
-            <line
-              *ngFor="let y of [16, 68.5, 121, 173.5, 226]"
-              x1="0"
-              x2="1000"
-              [attr.y1]="y"
-              [attr.y2]="y"
-              class="grid-line" />
-            <path [attr.d]="areaPath" fill="url(#analytics-area)" />
-            <path
-              *ngIf="compare"
-              [attr.d]="previousPath"
-              class="previous-line" />
-            <path [attr.d]="currentPath" class="current-line" />
-            <ng-container *ngFor="let point of chartPoints">
-              <line
-                *ngIf="hovered === point.index"
-                [attr.x1]="point.x"
-                [attr.x2]="point.x"
-                y1="10"
-                y2="226"
-                class="hover-line" />
-              <circle
-                [attr.cx]="point.x"
-                [attr.cy]="point.y"
-                [attr.r]="hovered === point.index ? 5 : 3"
-                class="data-point" />
-              <rect
-                [attr.x]="point.x - 500 / data.Points.length"
-                [attr.width]="1000 / data.Points.length"
-                y="0"
-                height="244"
-                fill="transparent"
-                tabindex="0"
-                role="img"
-                [attr.aria-label]="
-                  point.label + ': ' + point.value + ' ' + metricLabel
-                "
-                (mouseenter)="hovered = point.index"
-                (focus)="hovered = point.index"
-                (blur)="hovered = null" />
-            </ng-container>
-          </svg>
-          <div
-            *ngIf="tooltip as point"
-            class="chart-tooltip"
-            [style.left.%]="point.x / 10"
-            role="status">
-            <span>{{ point.label }}</span
-            ><strong
-              >{{ point.value | number }}
-              {{ metricLabel.toLowerCase() }}</strong
-            >
-          </div>
-          <div class="chart-empty" *ngIf="!chartPoints.length">
-            Khoảng thời gian này chưa có dữ liệu.
-          </div>
-          <div class="x-labels">
-            <span
-              *ngFor="let label of xLabels"
-              [style.left.%]="label.position"
-              >{{ label.label }}</span
-            >
-          </div>
-        </div>
-      </div>
-      <div class="chart-footer">
-        <span
-          >{{ metricDescription }} Lượt gọi lại cùng nội dung trong một lần mở
-          trang được gộp.</span
-        ><span>Cập nhật {{ displayTime(data.GeneratedAt) }}</span>
-      </div>
-    </section>
 
-    <div class="ranking-grid">
-      <section class="ranking-card" *ngFor="let kind of ['article', 'movie']">
+      <section class="chart-card">
         <div class="section-heading">
           <div>
-            <h2>
-              {{
-                kind === 'article'
-                  ? 'Bài viết được xem nhiều'
-                  : 'Phim được mở nhiều'
-              }}
-            </h2>
-            <p>Top 10 trong khoảng thời gian đã chọn</p>
+            <h2>Xu hướng truy cập</h2>
+            <p>{{ displayDate(data.From) }} – {{ displayDate(data.To) }}</p>
           </div>
-          <span
-            class="ranking-icon"
-            nz-icon
-            [nzType]="kind === 'article' ? 'read' : 'play-circle'"></span>
+          <label
+            nz-checkbox
+            nzId="analytics-compare-period"
+            for="analytics-compare-period"
+            class="comparison"
+            [(ngModel)]="compare"
+            (ngModelChange)="draw()"
+            [nzDisabled]="!canCompare(metric)"
+            [title]="
+              canCompare(metric)
+                ? 'So sánh với khoảng trước có cùng độ dài, cùng thời điểm'
+                : 'Chưa thu thập đủ dữ liệu của kỳ trước'
+            "
+            >So sánh kỳ trước</label
+          >
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">
-                  {{ kind === 'article' ? 'Bài viết' : 'Phim' }}
-                </th>
-                <th scope="col">Lượt mở</th>
-                <th scope="col">Phiên xem</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                *ngFor="
-                  let item of kind === 'article'
-                    ? data.TopArticles
-                    : data.TopMovies;
-                  index as index
-                ">
-                <td>
-                  <span class="rank">{{ index + 1 | number: '2.0' }}</span
-                  ><a
-                    [href]="item.Path"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >{{ item.Title || item.ContentId
-                    }}<span nz-icon nzType="arrow-up"></span
-                  ></a>
-                </td>
-                <td>{{ item.Views | number }}</td>
-                <td
-                  [title]="
-                    item.UnknownSessions
-                      ? item.UnknownSessions +
-                        ' lượt mở cũ chưa lưu thông tin phiên'
-                      : ''
-                  ">
-                  {{
-                    item.UnknownSessions && !item.Sessions
-                      ? 'Chưa lưu'
-                      : (item.Sessions | number)
-                  }}<span *ngIf="item.UnknownSessions && item.Sessions">*</span>
-                </td>
-              </tr>
-              <tr
-                *ngIf="
-                  !(kind === 'article' ? data.TopArticles : data.TopMovies)
-                    .length
-                ">
-                <td colspan="3" class="table-empty">
-                  <span nz-icon nzType="bar-chart"></span>
-                  <p>
-                    Chưa có lượt mở
-                    {{ kind === 'article' ? 'bài viết' : 'phim' }} trong khoảng
-                    này.
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="chart-toolbar">
+          <div class="chart-tabs" role="group" aria-label="Chỉ số trên biểu đồ">
+            <button
+              *ngFor="let item of metrics"
+              type="button"
+              [class.selected]="metric === item.key"
+              [attr.aria-pressed]="metric === item.key"
+              (click)="selectMetric(item.key)">
+              {{ item.label }}
+            </button>
+          </div>
+          <span class="chart-total"
+            >{{ total | number }} <span>trong kỳ</span></span
+          >
+        </div>
+        <div class="chart-legend">
+          <span><i></i>{{ metricLabel }}</span
+          ><span *ngIf="compare"><i class="previous"></i>Kỳ trước</span>
+        </div>
+        <div class="plot-wrapper">
+          <div class="y-labels">
+            <span *ngFor="let value of yLabels">{{
+              value | number: '1.0-1'
+            }}</span>
+          </div>
+          <div class="plot">
+            <svg
+              viewBox="0 0 1000 244"
+              preserveAspectRatio="none"
+              role="group"
+              [attr.aria-label]="metricLabel + ' theo thời gian'"
+              (mouseleave)="hovered = null">
+              <defs>
+                <linearGradient id="analytics-area" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" class="area-stop" stop-opacity="0.12" />
+                  <stop offset="100%" class="area-stop" stop-opacity="0.01" />
+                </linearGradient>
+              </defs>
+              <line
+                *ngFor="let y of [16, 68.5, 121, 173.5, 226]"
+                x1="0"
+                x2="1000"
+                [attr.y1]="y"
+                [attr.y2]="y"
+                class="grid-line" />
+              <path [attr.d]="areaPath" fill="url(#analytics-area)" />
+              <path
+                *ngIf="compare"
+                [attr.d]="previousPath"
+                class="previous-line" />
+              <path [attr.d]="currentPath" class="current-line" />
+              <ng-container *ngFor="let point of chartPoints">
+                <line
+                  *ngIf="hovered === point.index"
+                  [attr.x1]="point.x"
+                  [attr.x2]="point.x"
+                  y1="10"
+                  y2="226"
+                  class="hover-line" />
+                <circle
+                  [attr.cx]="point.x"
+                  [attr.cy]="point.y"
+                  [attr.r]="hovered === point.index ? 5 : 3"
+                  class="data-point" />
+                <rect
+                  [attr.x]="point.x - 500 / data.Points.length"
+                  [attr.width]="1000 / data.Points.length"
+                  y="0"
+                  height="244"
+                  fill="transparent"
+                  tabindex="0"
+                  role="img"
+                  [attr.aria-label]="
+                    point.label + ': ' + point.value + ' ' + metricLabel
+                  "
+                  (mouseenter)="hovered = point.index"
+                  (focus)="hovered = point.index"
+                  (blur)="hovered = null" />
+              </ng-container>
+            </svg>
+            <div
+              *ngIf="tooltip as point"
+              class="chart-tooltip"
+              [style.left.%]="point.x / 10"
+              role="status">
+              <span>{{ point.label }}</span
+              ><strong
+                >{{ point.value | number }}
+                {{ metricLabel.toLowerCase() }}</strong
+              >
+            </div>
+            <div class="chart-empty" *ngIf="!chartPoints.length">
+              Khoảng thời gian này chưa có dữ liệu.
+            </div>
+            <div class="x-labels">
+              <span
+                *ngFor="let label of xLabels"
+                [style.left.%]="label.position"
+                >{{ label.label }}</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="chart-footer">
+          <span
+            >{{ metricDescription }} Lượt gọi lại cùng nội dung trong một lần mở
+            trang được gộp.</span
+          ><span>Cập nhật {{ displayTime(data.GeneratedAt) }}</span>
         </div>
       </section>
-    </div>
-    <p class="measurement-note">
-      <span nz-icon nzType="info-circle"></span> Thống kê các trang blog, không
-      gồm trang quản trị, đăng nhập và link ghi chú riêng. Phiên truy cập được
-      dùng chung giữa các tab trong cùng trình duyệt, không phải số người duy
-      nhất. Đã lọc các bot phổ biến.
-    </p>
-  </ng-container>
-</main>
+
+      <app-analytics-rankings
+        [articles]="data.TopArticles"
+        [movies]="data.TopMovies" />
+      <app-analytics-lifetime [data]="data.Lifetime" />
+      <p class="measurement-note">
+        <span nz-icon nzType="info-circle"></span> Thống kê các trang blog,
+        không gồm trang quản trị, đăng nhập và link ghi chú riêng. Phiên truy
+        cập được dùng chung giữa các tab trong cùng trình duyệt, không phải số
+        người duy nhất. Đã lọc các bot phổ biến.
+      </p>
+    </ng-container>
+  </main>
+</div>

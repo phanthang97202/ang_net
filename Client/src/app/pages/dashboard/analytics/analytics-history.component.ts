@@ -4,145 +4,22 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../environments/environment';
 import { AnalyticsReconciliation } from '../../../services/web-analytics.service';
 
 @Component({
   selector: 'app-analytics-history',
   standalone: true,
-  imports: [CommonModule, RouterLink, NzIconModule],
-  template: ` <main class="detail-page" [attr.aria-busy]="loading || importing">
-    <header>
-      <div>
-        <a routerLink="/dashboard/analytics">← Thống kê truy cập</a>
-        <h1>Đối soát dữ liệu lịch sử</h1>
-        <p>Kiểm tra nguồn, mốc thời gian và phần chồng lấn trước khi nhập.</p>
-      </div>
-      <button type="button" (click)="load()" [disabled]="loading || importing">
-        <span nz-icon nzType="reload" [nzSpin]="loading"></span> Tải lại đối
-        soát
-      </button>
-    </header>
-    <p *ngIf="loading" class="notice" role="status">
-      Đang kiểm tra dữ liệu lịch sử…
-    </p>
-    <p *ngIf="error" class="notice error" role="alert">{{ error }}</p>
-    <p *ngIf="success" class="notice success" role="status">{{ success }}</p>
-    <ng-container *ngIf="plan as data">
-      <section class="panel">
-        <h2>Phạm vi nhập</h2>
-        <p>
-          Nhập nhật ký mở phim trước
-          <strong>{{ time(data.AnalyticsStartedAt) }}</strong
-          >. Từ mốc này trở đi, dùng dữ liệu sự kiện đã ghi nhận; các log trùng
-          giai đoạn chỉ dùng để đối soát.
-        </p>
-        <p>
-          Bản ghi gốc được giữ nguyên. Nhập lại cùng bản ghi không tạo thêm lượt
-          xem. Thông tin tài khoản, tập hoặc nguồn chưa từng lưu sẽ để trống.
-        </p>
-        <p *ngIf="data.MovieImportedAt">
-          Lần nhập gần nhất: <strong>{{ time(data.MovieImportedAt) }}</strong
-          >.
-        </p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Nguồn</th>
-                <th>Số lượng</th>
-                <th>Cách xử lý</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Nhật ký phim trước mốc thống kê</td>
-                <td>{{ data.AuditBeforeAnalytics | number }}</td>
-                <td>Nhập theo mã nhật ký gốc, chống trùng</td>
-              </tr>
-              <tr>
-                <td>Nhật ký phim trong giai đoạn đã có sự kiện</td>
-                <td>{{ data.AuditOverlappingAnalytics | number }}</td>
-                <td>Giữ để kiểm tra, không cộng thêm</td>
-              </tr>
-              <tr>
-                <td>Log phát phim thiếu định danh</td>
-                <td>{{ data.UnrecognisedAuditRows | number }}</td>
-                <td>Giữ nguyên để kiểm tra, không tự suy diễn</td>
-              </tr>
-              <tr>
-                <td>Bản ghi trong bảng phim riêng</td>
-                <td>{{ data.ExistingMovieRows | number }}</td>
-                <td>Nguồn thống kê phim hiện tại</td>
-              </tr>
-              <tr>
-                <td>Lượt xem bài viết tại mốc chuyển đổi</td>
-                <td>{{ data.ArticleCounterSnapshot | number }}</td>
-                <td>Đã giữ bộ đếm gốc trong DB</td>
-              </tr>
-              <tr>
-                <td>Lượt xem reels tại mốc chuyển đổi</td>
-                <td>{{ data.ReelCounterSnapshot | number }}</td>
-                <td>Đã giữ bộ đếm gốc trong DB</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section class="panel">
-        <h2>Bộ đếm truy cập cũ</h2>
-        <p *ngIf="data.RedisSnapshotExists">
-          Đã lưu vào DB lúc {{ time(data.LegacyCapturedAt!) }}. Các lần xem
-          thống kê sau không cần đọc Redis.
-        </p>
-        <p *ngIf="!data.RedisSnapshotExists && data.RedisAvailable">
-          Đọc được nguồn cũ. Khi nhập, hệ thống lưu số liệu kèm mốc thời gian
-          vào DB.
-        </p>
-        <p *ngIf="!data.RedisAvailable" class="notice">{{ data.RedisError }}</p>
-        <p>
-          Số tổng và số tháng được giữ đúng mức chi tiết đã lưu. Nếu không xác
-          định được phần chồng lấn, số cũ được giữ riêng, không tự cộng vào tổng
-          mới.
-        </p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Kỳ</th>
-                <th>Lượt truy cập đã lưu</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of data.WebsiteValues">
-                <td>{{ item.Period || 'Tổng theo bộ đếm cũ' }}</td>
-                <td>{{ item.Value | number }}</td>
-              </tr>
-              <tr *ngIf="!data.WebsiteValues.length">
-                <td colspan="2" class="empty">
-                  Nguồn cũ chưa có số liệu đọc được.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <footer>
-        <p>
-          Bản đối soát: {{ time(data.GeneratedAt) }}. Nếu nguồn thay đổi, cần
-          tải lại trước khi nhập.
-        </p>
-        <button
-          type="button"
-          class="primary"
-          [disabled]="loading || importing || !canImport"
-          (click)="apply()">
-          <span nz-icon nzType="import" [nzSpin]="importing"></span>
-          {{ importing ? 'Đang nhập…' : 'Nhập theo bản đối soát này' }}
-        </button>
-      </footer>
-    </ng-container>
-  </main>`,
+  imports: [
+    CommonModule,
+    RouterLink,
+    NzIconModule,
+    NzButtonModule,
+    BreadcrumbComponent,
+  ],
+  templateUrl: './analytics-history.component.html',
   styleUrl: './analytics-detail.scss',
 })
 export class AnalyticsHistoryComponent {

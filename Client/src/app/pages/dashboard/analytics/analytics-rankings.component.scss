@@ -1,0 +1,105 @@
+@use './analytics-theme' as theme;
+:host {
+  display: block;
+}
+.ranking-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.ranking-card {
+  @include theme.surface;
+  overflow: hidden;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+h2 {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 16px;
+  font-weight: 650;
+}
+p {
+  margin: 6px 0 0;
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+.ranking-icon {
+  color: var(--admin-text-tertiary);
+  font-size: 20px;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  @include theme.table;
+  th:not(:first-child),
+  td:not(:first-child) {
+    width: 78px;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  td:first-child {
+    max-width: 0;
+  }
+}
+a {
+  color: var(--admin-text);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  &:hover {
+    color: var(--admin-primary);
+  }
+  &:focus-visible {
+    outline: 3px solid var(--admin-focus);
+    outline-offset: 3px;
+  }
+  .anticon {
+    margin-left: 6px;
+    color: var(--admin-text-tertiary);
+    font-size: 10px;
+    transform: rotate(45deg);
+  }
+}
+.rank {
+  margin-right: 12px;
+  color: var(--admin-text-tertiary);
+  font-size: 11px;
+}
+table .table-empty {
+  padding: 36px 20px;
+  text-align: center;
+  .anticon {
+    color: var(--admin-text-tertiary);
+    font-size: 28px;
+  }
+  p {
+    margin-top: 14px;
+    line-height: 1.7;
+  }
+}
+@media (max-width: 1279px) {
+  .ranking-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .section-heading {
+    padding: 16px;
+  }
+  h2 {
+    font-size: 15px;
+  }
+  td:first-child {
+    min-width: 125px;
+  }
+  .rank {
+    margin-right: 6px;
+  }
+}

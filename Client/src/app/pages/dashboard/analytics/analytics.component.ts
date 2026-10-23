@@ -5,10 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
 import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AnalyticsLoadingComponent } from './analytics-loading.component';
 import { AnalyticsLifetimeComponent } from './analytics-lifetime.component';
+import { AnalyticsRankingsComponent } from './analytics-rankings.component';
 import {
   AnalyticsMetric,
   AnalyticsPoint,
@@ -36,8 +40,12 @@ export const shiftDay = (day: string, offset: number): string => {
     FormsModule,
     NzIconModule,
     NzDatePickerModule,
+    NzButtonModule,
+    NzCheckboxModule,
+    BreadcrumbComponent,
     AnalyticsLoadingComponent,
     AnalyticsLifetimeComponent,
+    AnalyticsRankingsComponent,
   ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss',
