@@ -28,6 +28,7 @@ import { SwitchLangComponent } from './components/switch-lang/switch-lang.compon
 import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
 import { PersonalNotesWidgetComponent } from './components/personal-notes/personal-notes-widget.component';
 import { BlogMaintenanceService } from './services/blog-maintenance.service';
+import { WebAnalyticsTrackingService } from './services/web-analytics.service';
 import {
   failInitialLoading,
   finishInitialLoading,
@@ -78,6 +79,7 @@ export class AppComponent implements OnInit {
   visitTrackingService = inject(VisitTrackingService);
   themeService = inject(ThemeService);
   private maintenance = inject(BlogMaintenanceService);
+  private analytics = inject(WebAnalyticsTrackingService);
   private zone = inject(NgZone);
 
   onPageActivated(): void {
@@ -93,6 +95,17 @@ export class AppComponent implements OnInit {
     icon: string;
     children: { path: string; title: string; permission: string }[];
   }[] = [
+    {
+      title: 'Thống kê',
+      icon: 'bar-chart',
+      children: [
+        {
+          path: '/dashboard/analytics',
+          title: 'Thống kê truy cập',
+          permission: 'analytics.view',
+        },
+      ],
+    },
     {
       title: 'Người dùng',
       icon: 'team',
@@ -258,10 +271,15 @@ export class AppComponent implements OnInit {
     this.maintenance.startMonitoring();
     this.authService.tryRefreshOnInit();
     this.visitTrackingService.init();
+    this.analytics.init();
 
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
+      .subscribe(event => {
         const url = event.urlAfterRedirects.split(/[?#]/)[0];
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
         const isLayoutImmersive =

@@ -25,6 +25,9 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.Configuration" />
+    <Compile Include="../../src/angnet.WebApi/Controllers/AnalyticsController.cs" Link="Support/AnalyticsController.cs" />
+    <Compile Include="../../src/angnet.WebApi/Filters/AnalyticsFilter.cs" Link="Support/AnalyticsFilter.cs" />
+    <Compile Include="../../src/angnet.WebApi/Filters/SkipLoggingAttribute.cs" Link="Support/SkipLoggingAttribute.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionPolicyProvider.cs" Link="Support\PermissionPolicyProvider.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ShiftReportController.cs" Link="Support\ShiftReportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\RevenueReportController.cs" Link="Support\RevenueReportController.cs" />

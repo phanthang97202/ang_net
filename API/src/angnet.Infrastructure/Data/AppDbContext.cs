@@ -97,10 +97,14 @@ namespace angnet.Infrastructure.Data
 
         public DbSet<MovieWishlistModel> MovieWishlist { get; set; }
         public DbSet<MovieWatchProgressModel> MovieWatchProgress { get; set; }
+        public DbSet<AnalyticsEventModel> AnalyticsEvent { get; set; }
+        public DbSet<AnalyticsPresenceModel> AnalyticsPresence { get; set; }
+        public DbSet<AnalyticsCollectionModel> AnalyticsCollection { get; set; }
 
         // ==========================================================================================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AnalyticsCollectionModel>().Property(x => x.Id).ValueGeneratedNever();
             modelBuilder.Entity<PersonalNoteModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(n => n.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PersonalNoteModel>()

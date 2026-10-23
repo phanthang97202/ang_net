@@ -95,6 +95,8 @@ namespace angnet.Infrastructure
             services.AddScoped<MyBlogService>();
             services.AddScoped<BlogNotificationService>();
             services.AddScoped<PersonalNoteService>();
+            services.AddSingleton(TimeProvider.System);
+            services.AddScoped<WebAnalyticsService>();
 
             services.AddScoped<IMovieLibraryService, MovieLibraryService>();
             services.AddScoped<IMovieWishlistService, MovieWishlistService>();

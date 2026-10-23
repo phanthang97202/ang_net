@@ -72,6 +72,7 @@ public class MovieLibraryController(IMovieLibraryService library, IMovieWishlist
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
+            HttpContext.Items["AnalyticsMovieTitle"] = title;
             var result = await audit.Create(new AuditTrailDto
             {
                 RecordId = $"phimapi:{slug}",

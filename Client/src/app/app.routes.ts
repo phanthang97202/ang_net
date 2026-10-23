@@ -11,9 +11,9 @@ const appRoutes: Routes = [
     path: 'shared-note/:token/edit',
     title: 'T_PNOTE_EDITOR',
     loadComponent: () =>
-      import('./pages/personal-note-shared/personal-note-shared.component').then(
-        p => p.PersonalNoteSharedComponent
-      ),
+      import(
+        './pages/personal-note-shared/personal-note-shared.component'
+      ).then(p => p.PersonalNoteSharedComponent),
   },
   {
     path: 'shared-note/:token',
@@ -124,9 +124,9 @@ const appRoutes: Routes = [
         title: 'T_PAGE_CALCULATING_HOTEL_FEE',
         path: 'calculating-hotel-fee',
         loadComponent: () =>
-          import('./pages/tools/caculating-hotel-fee/calculating-hotel-fee.component').then(
-            p => p.CalculatingHotelFeeComponent
-          ),
+          import(
+            './pages/tools/caculating-hotel-fee/calculating-hotel-fee.component'
+          ).then(p => p.CalculatingHotelFeeComponent),
       },
       {
         title: 'T_PAGE_SHIFT_REPORT',
@@ -160,9 +160,9 @@ const appRoutes: Routes = [
     title: 'T_PAGE_CHESS_VS_COMPUTER',
     path: 'game/chess/vs-computer',
     loadComponent: () =>
-      import('./pages/game/chess/chess-vs-computer/chess-vs-computer.component').then(
-        p => p.ChessVsComputerComponent
-      ),
+      import(
+        './pages/game/chess/chess-vs-computer/chess-vs-computer.component'
+      ).then(p => p.ChessVsComputerComponent),
   },
   {
     title: 'T_PAGE_CHESS_ROOM',
@@ -229,6 +229,15 @@ const appRoutes: Routes = [
         // khu quản trị, kể cả người chỉ có đúng một quyền.
       },
       {
+        path: 'analytics',
+        title: 'Thống kê truy cập',
+        loadComponent: () =>
+          import('./pages/dashboard/analytics/analytics.component').then(
+            p => p.AnalyticsComponent
+          ),
+        canActivate: [canActivePermission('analytics.view')],
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./pages/dashboard/user-list/user-list.component').then(
@@ -247,17 +256,17 @@ const appRoutes: Routes = [
       {
         path: 'mstprovince',
         loadComponent: () =>
-          import('./pages/dashboard/mst-province/mst-province-list/mst-province-list.component').then(
-            p => p.MstProvinceComponent
-          ),
+          import(
+            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
+          ).then(p => p.MstProvinceComponent),
         canActivate: [canActivePermission('master.view')],
       },
       {
         path: 'mstdistrict',
         loadComponent: () =>
-          import('./pages/dashboard/mst-province/mst-province-list/mst-province-list.component').then(
-            p => p.MstProvinceComponent
-          ),
+          import(
+            './pages/dashboard/mst-province/mst-province-list/mst-province-list.component'
+          ).then(p => p.MstProvinceComponent),
         canActivate: [canActivePermission('master.view')],
       },
       {
@@ -279,9 +288,9 @@ const appRoutes: Routes = [
       {
         path: 'media',
         loadComponent: () =>
-          import('./pages/dashboard/media-library/media-library.component').then(
-            p => p.MediaLibraryComponent
-          ),
+          import(
+            './pages/dashboard/media-library/media-library.component'
+          ).then(p => p.MediaLibraryComponent),
         canActivate: [canActivePermission('media.view')],
       },
 
@@ -311,25 +320,25 @@ const appRoutes: Routes = [
       {
         path: 'audittrail',
         loadComponent: () =>
-          import('./pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component').then(
-            p => p.AuditTrailComponent
-          ),
+          import(
+            './pages/dashboard/audit-trail/audit-trail-list/audit-trail-list.component'
+          ).then(p => p.AuditTrailComponent),
         canActivate: [canActivePermission('audittrail.view')],
       },
       {
         path: 'sysparameter',
         loadComponent: () =>
-          import('./pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component').then(
-            p => p.SysParameterComponent
-          ),
+          import(
+            './pages/dashboard/sys-parameter/sys-parameter-list/sys-parameter-list.component'
+          ).then(p => p.SysParameterComponent),
         canActivate: [canActivePermission('sysparameter.view')],
       },
       {
         path: 'newscategory',
         loadComponent: () =>
-          import('./pages/dashboard/news-category/news-category-list/news-category-list.component').then(
-            p => p.NewsCategoryComponent
-          ),
+          import(
+            './pages/dashboard/news-category/news-category-list/news-category-list.component'
+          ).then(p => p.NewsCategoryComponent),
         canActivate: [canActivePermission('newscategory.view')],
       },
       {
@@ -337,9 +346,9 @@ const appRoutes: Routes = [
         // thay vì seed thêm permission riêng.
         path: 'subscriber',
         loadComponent: () =>
-          import('./pages/dashboard/subscriber/subscriber-list/subscriber-list.component').then(
-            p => p.SubscriberComponent
-          ),
+          import(
+            './pages/dashboard/subscriber/subscriber-list/subscriber-list.component'
+          ).then(p => p.SubscriberComponent),
         canActivate: [canActivePermission('subscriber.view')],
       },
       {
@@ -347,9 +356,9 @@ const appRoutes: Routes = [
         // với tham số hệ thống, không đặt quyền riêng.
         path: 'menu',
         loadComponent: () =>
-          import('./pages/dashboard/sys-menu/sys-menu-list/sys-menu-list.component').then(
-            p => p.SysMenuComponent
-          ),
+          import(
+            './pages/dashboard/sys-menu/sys-menu-list/sys-menu-list.component'
+          ).then(p => p.SysMenuComponent),
         canActivate: [canActivePermission('sysparameter.view')],
       },
       {

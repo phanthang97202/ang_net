@@ -191,6 +191,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Prevent DDoS attack (free) // [EnableRateLimitingAttribute("API")]
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("AnalyticsTrack", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(1), PermitLimit = 120, QueueLimit = 0
+            }));
     options.AddFixedWindowLimiter("API", limiter =>
     {
         //Ý nghĩa: Thời gian một "cửa sổ" giới hạn(10 giây).
@@ -298,6 +305,7 @@ builder.Services.Configure<RequestTimeoutOptions>(options =>
 
 builder.Services.AddControllers(options =>
 {
+    options.Filters.Add<angnet.WebApi.Filters.AnalyticsFilter>();
     var policyBuilder = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser();
 

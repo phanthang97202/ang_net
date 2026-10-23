@@ -16,9 +16,11 @@ import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
   provideHttpClient,
+  withInterceptors,
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { authInterceptorProvider } from './middlewares';
+import { analyticsInterceptor } from './services/web-analytics.service';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -50,7 +52,10 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(FormsModule),
     provideAnimationsAsync(),
     // using interceptor with DI
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(
+      withInterceptors([analyticsInterceptor]),
+      withInterceptorsFromDi()
+    ),
     authInterceptorProvider,
     // using interceptor with Fn
     // provideHttpClient(withInterceptors([authInterceptorProvider])),
