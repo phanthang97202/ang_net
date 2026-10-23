@@ -149,6 +149,7 @@ public class MovieViewLogDto
     public string EventId { get; set; } = "";
     public DateTime OccurredAt { get; set; }
     public string? UserId { get; set; }
+    public string UserName { get; set; } = "";
     public string ActorName { get; set; } = "";
     public string Source { get; set; } = "";
 }

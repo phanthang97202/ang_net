@@ -12,12 +12,6 @@
   </app-breadcrumb>
   <main class="detail-page" [attr.aria-busy]="loading">
     <h1 class="sr-only">Nhật ký mở phim</h1>
-    <div class="page-intro">
-      <p>Tài khoản, phim, tập và thời điểm mở trình phát thành công.</p>
-      <a routerLink="/dashboard/analytics"
-        ><span nz-icon nzType="arrow-left"></span> Thống kê truy cập</a
-      >
-    </div>
     <p *ngIf="error" class="notice error" role="alert">
       <span nz-icon nzType="exclamation-circle"></span>{{ error }}
     </p>
@@ -41,7 +35,7 @@
               name="keyword"
               [(ngModel)]="keyword"
               maxlength="200"
-              placeholder="Tên phim, tên hoặc mã tài khoản" />
+              placeholder="Tên phim hoặc username" />
           </nz-input-group>
         </div>
         <button nz-button nzType="primary" type="submit">
@@ -53,14 +47,9 @@
           <span nz-icon nzType="play-circle"></span> Lịch sử mở trình phát
         </h2>
         <span class="record-count"
-          >{{ rows.length | number }} bản ghi đã tải</span
+          >{{ rows.length | number }} bản ghi</span
         >
       </div>
-      <p class="table-hint">
-        <span nz-icon nzType="info-circle"></span>Thời gian theo giờ Việt Nam.
-        Bản ghi cũ có thể thiếu thông tin tài khoản, tập hoặc nguồn phát. Nhật
-        ký này ghi nhận mở trình phát, chưa đo thời lượng xem.
-      </p>
       <nz-table
         class="analytics-log-table"
         [nzData]="rows"
@@ -68,7 +57,7 @@
         [nzShowPagination]="false"
         [nzLoading]="loading && !rows.length"
         [nzNoResult]="emptyState"
-        [nzScroll]="{ x: '960px' }"
+        [nzScroll]="{ x: '820px' }"
         nzSize="middle">
         <thead>
           <tr>
@@ -76,28 +65,13 @@
             <th nzWidth="230px">Tài khoản</th>
             <th>Phim / tập</th>
             <th nzWidth="160px">Nguồn phát</th>
-            <th nzWidth="170px">Nguồn dữ liệu</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of rows; trackBy: track">
             <td class="log-time">{{ time(item.OccurredAt) }}</td>
-            <td>
-              <div class="actor-cell">
-                <span class="actor-icon" aria-hidden="true"
-                  ><span nz-icon nzType="user"></span
-                ></span>
-                <div class="cell-content">
-                  <strong>{{
-                    item.ActorName || item.UserId || 'Chưa có thông tin'
-                  }}</strong
-                  ><small
-                    *ngIf="item.UserId && item.ActorName"
-                    [title]="item.UserId"
-                    >{{ item.UserId }}</small
-                  >
-                </div>
-              </div>
+            <td class="account-cell">
+              {{ item.UserName || item.ActorName || 'Chưa có thông tin' }}
             </td>
             <td class="movie-cell">
               <a
@@ -116,19 +90,6 @@
                     ? 'Nguồn ' + item.ServerId
                     : 'Chưa có thông tin')
               }}
-            </td>
-            <td>
-              <span
-                class="source-badge"
-                [class.source-badge--current]="item.Source === 'playback'"
-                >{{
-                  item.Source === 'playback'
-                    ? 'Ghi nhận trực tiếp'
-                    : item.Source === 'audit-legacy'
-                      ? 'Nhật ký cũ'
-                      : 'Thống kê cũ'
-                }}</span
-              >
             </td>
           </tr>
         </tbody>

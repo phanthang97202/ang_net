@@ -76,6 +76,7 @@ export interface MovieViewLog {
   EventId: string;
   OccurredAt: string;
   UserId: string | null;
+  UserName: string;
   ActorName: string;
   MovieSlug: string;
   MovieTitle: string;
@@ -83,7 +84,6 @@ export interface MovieViewLog {
   EpisodeName: string | null;
   ServerId: number | null;
   ServerName: string | null;
-  Source: string;
 }
 export const publicAnalyticsPath = (path: string): boolean =>
   path.length <= 500 &&

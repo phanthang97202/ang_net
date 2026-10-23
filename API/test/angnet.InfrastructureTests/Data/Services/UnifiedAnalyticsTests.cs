@@ -177,9 +177,11 @@ public class UnifiedAnalyticsTests
     [TestMethod]
     public async Task MovieCursorHandlesEqualTimesWithoutRepeatsAndRejectsMalformedCursor()
     {
+        db.Users.Add(new AppUser { Id = "owner-id", UserName = "owner_name", FullName = "Owner" });
         for (var n = 1; n <= 5; n++) db.AnalyticsLedger.Add(new()
         {
-            EventId = n.ToString("X64"), Kind = "movie", OccurredAt = clock.Now.UtcDateTime, LocalHour = "2026-10-23T11", ContentId = "film", Title = "Film", ActorName = "Owner", Source = "playback"
+            EventId = n.ToString("X64"), Kind = "movie", OccurredAt = clock.Now.UtcDateTime, LocalHour = "2026-10-23T11",
+            ContentId = "film", Title = "Film", UserId = n == 1 ? "owner-id" : null, ActorName = "Owner", Source = "playback"
         });
         await db.SaveChangesAsync();
         var controller = new MovieViewLogsController(db, clock);
@@ -191,6 +193,9 @@ public class UnifiedAnalyticsTests
         Assert.IsNull(third.NextCursor);
         Assert.IsInstanceOfType<BadRequestResult>(await controller.Search("2026-10-23", "2026-10-23", cursor: "bad"));
         Assert.AreEqual(0, Data(await controller.Search("2026-10-23", "2026-10-23", "missing")).Items.Count);
+        var byUserName = Data(await controller.Search("2026-10-23", "2026-10-23", "owner_name"));
+        Assert.AreEqual(1, byUserName.Items.Count);
+        Assert.AreEqual("owner_name", byUserName.Items[0].UserName);
     }
 
     private static AuditTrailModel Audit(DateTime at) => new()

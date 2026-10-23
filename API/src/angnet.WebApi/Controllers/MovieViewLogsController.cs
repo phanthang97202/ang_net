@@ -28,7 +28,9 @@ public class MovieViewLogsController(AppDbContext db, TimeProvider clock) : Cont
         {
             var term = keyword.Trim().ToLowerInvariant();
             query = query.Where(x => x.Title.ToLower().Contains(term) || x.ContentId.ToLower().Contains(term)
-                || x.ActorName.ToLower().Contains(term) || x.UserId != null && x.UserId.ToLower().Contains(term));
+                || x.ActorName.ToLower().Contains(term) || x.UserId != null &&
+                (x.UserId.ToLower().Contains(term) || db.Users.Any(user => user.Id == x.UserId
+                    && user.UserName != null && user.UserName.ToLower().Contains(term))));
         }
         if (!string.IsNullOrEmpty(cursor))
         {
@@ -46,11 +48,15 @@ public class MovieViewLogsController(AppDbContext db, TimeProvider clock) : Cont
         var more = rows.Count > pageSize;
         var visible = rows.Take(pageSize).ToList();
         var tail = visible.LastOrDefault();
+        var userIds = visible.Where(x => x.UserId != null).Select(x => x.UserId!).Distinct().ToList();
+        var userNames = await db.Users.AsNoTracking().Where(x => userIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.UserName ?? "", ct);
         return Ok(new ApiResponse<MovieViewLogPageDto>(new MovieViewLogPageDto
         {
             Items = visible.Select(x => new MovieViewLogDto
             {
-                EventId = x.EventId, OccurredAt = x.OccurredAt, UserId = x.UserId, ActorName = x.ActorName,
+                EventId = x.EventId, OccurredAt = x.OccurredAt, UserId = x.UserId,
+                UserName = userNames.GetValueOrDefault(x.UserId ?? "") ?? x.ActorName, ActorName = x.ActorName,
                 MovieSlug = x.ContentId, MovieTitle = x.Title, ServerId = x.ServerId,
                 ServerName = x.ServerName, EpisodeSlug = x.EpisodeSlug, EpisodeName = x.EpisodeName, Source = x.Source,
             }).ToList(),

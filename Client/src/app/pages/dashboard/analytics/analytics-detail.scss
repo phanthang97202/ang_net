@@ -178,43 +178,11 @@ td.number {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-.table-hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: -4px 20px 18px;
-  font-size: 12px;
-  > .anticon {
-    margin-top: 4px;
-    flex-shrink: 0;
-  }
-}
-.actor-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.actor-icon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--admin-border);
-  border-radius: 50%;
-  background: var(--admin-surface-subtle);
-  color: var(--admin-text-secondary);
-}
-.cell-content {
-  min-width: 0;
-  strong {
-    display: block;
-    color: var(--admin-text);
-    font-size: 13px;
-    font-weight: 500;
-    overflow-wrap: anywhere;
-  }
+.account-cell {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 .log-time {
   white-space: nowrap;
@@ -241,24 +209,6 @@ td small {
 .source-cell {
   color: var(--admin-text-secondary);
   font-size: 12px;
-}
-.source-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 2px 8px;
-  border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius-sm);
-  background: var(--admin-surface-subtle);
-  color: var(--admin-text-secondary);
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.source-badge--current {
-  background: var(--admin-primary-soft);
-  color: var(--admin-primary);
-  border-color: #bfdbfe;
 }
 .load-more {
   display: flex;
@@ -347,9 +297,6 @@ td small {
   }
   .panel-heading h2 {
     font-size: 15px;
-  }
-  .table-hint {
-    margin-inline: 16px;
   }
   .filter-field,
   .date-field,
