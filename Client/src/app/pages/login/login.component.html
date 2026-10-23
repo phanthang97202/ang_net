@@ -28,7 +28,9 @@
         alt="" />
       <span>Phan<em>Thang</em></span>
     </a>
-    @if (!appearanceLoading && heroImageLoaded && appearance.description !== '') {
+    @if (
+      !appearanceLoading && heroImageLoaded && appearance.description !== ''
+    ) {
       <p class="login__hero-tagline">
         {{ appearance.description ?? ('T_LOGIN_TAGLINE' | translate) }}
       </p>
@@ -36,18 +38,6 @@
   </aside>
 
   <section class="login__panel" aria-labelledby="login-title">
-    <a
-      class="login__home"
-      routerLink="/"
-      [attr.aria-label]="'T_LOGIN_BACK_HOME' | translate">
-      <span
-        nz-icon
-        nzType="arrow-left"
-        nzTheme="outline"
-        aria-hidden="true"></span>
-      <span>{{ 'T_LOGIN_BACK_HOME' | translate }}</span>
-    </a>
-
     <div class="login__content">
       <a
         class="login__brand login__brand--mobile"
@@ -64,7 +54,6 @@
         <h1 id="login-title" class="login__title">
           {{ 'T_LOGIN_WELCOME' | translate }}
         </h1>
-        <p class="login__subtitle">{{ 'T_LOGIN_SUBTITLE' | translate }}</p>
       </header>
 
       <form
@@ -148,10 +137,6 @@
 
       <!-- Nút do SDK của Google tự render vào đây, không tự dựng lại được -->
       <div #googleButton id="google-button" class="login__google"></div>
-
-      <p class="login__register">
-        {{ 'T_LOGIN_ACCOUNT_HELP' | translate }}
-      </p>
     </div>
   </section>
 </main>
