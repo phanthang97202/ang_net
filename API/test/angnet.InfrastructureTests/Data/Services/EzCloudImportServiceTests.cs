@@ -123,6 +123,101 @@ public class EzCloudImportServiceTests
         Assert.AreEqual(EzCloudImportError.InvalidToken, exception.Error);
     }
 
+    [TestMethod]
+    public async Task Import_NetsRefundsAndRecordsExcessRefundAsExpense()
+    {
+        var result = await Import(_ => Page(2,
+            Payment(1, "FO", 1, 500000, room: 5), Payment(2, "FO", 1, -100000, room: 5),
+            Payment(3, "FO", 1, -300000, room: 6)));
+
+        Assert.AreEqual(2, result.Transactions.Count);
+        Assert.AreEqual("105", result.Transactions[0].RoomNumber);
+        Assert.AreEqual(400000m, result.Transactions[0].CashAmount);
+        Assert.AreEqual("Hoàn tiền 106", result.Transactions[1].ExpenseDescription);
+        Assert.AreEqual(300000m, result.Transactions[1].ExpenseAmount);
+        Assert.AreEqual(2, result.Transactions[1].OrderNumber);
+        Assert.IsTrue(result.Warnings.Any(x => x.Contains("hoàn tiền")));
+    }
+
+    [TestMethod]
+    public async Task Import_TreatsPositiveExpenditureReceiptsAsIncome()
+    {
+        var result = await Import(_ => Page(2,
+            Payment(1, "EXPENDITURE", 1, 200000, description: "Thu tiền giặt ủi"),
+            Payment(2, "EXPENDITURE", 0, -50000, description: "Mua vật tư")));
+
+        Assert.AreEqual(200000m, result.Summary.TotalCash);
+        Assert.AreEqual(50000m, result.Summary.TotalExpense);
+        Assert.AreEqual("Thu tiền giặt ủi", result.Transactions[0].PrepaidNote);
+        Assert.AreEqual("Mua vật tư", result.Transactions[1].ExpenseDescription);
+    }
+
+    [TestMethod]
+    public async Task Import_ReadsEveryPageWhenTotalRecordsIsMissing()
+    {
+        var all = Enumerable.Range(1, 250).Select(i => Payment(i, "FO", 1, 1000, room: i)).ToArray();
+        var calls = 0;
+        var result = await Import(page => { calls++; return Page(null, all.Skip((page - 1) * 200).Take(200).ToArray()); });
+
+        Assert.AreEqual(250, result.Transactions.Count);
+        Assert.AreEqual(2, calls);
+    }
+
+    [TestMethod]
+    public async Task Import_StopsWithoutDuplicatesWhenPagingIsIgnored()
+    {
+        var firstPage = Enumerable.Range(1, 200).Select(i => Payment(i, "FO", 1, 1000, room: i)).ToArray();
+        var calls = 0;
+        var result = await Import(_ => { calls++; return Page(null, firstPage); });
+
+        Assert.AreEqual(200, result.Transactions.Count);
+        Assert.AreEqual(2, calls);
+    }
+
+    [TestMethod]
+    public async Task Import_TruncatesExpenseDescriptionToTheStoredLength()
+    {
+        var result = await Import(_ => Page(1, Payment(1, "EXPENDITURE", 0, -1000, description: new string('x', 900))));
+
+        Assert.AreEqual(500, result.Transactions[0].ExpenseDescription.Length);
+    }
+
+    private static object Payment(long id, string module, int invoiceGroup, decimal amount, int room = 0, string description = "") => new
+    {
+        PaymentId = id, ReservationRoomId = room, ReservationNumber = room > 0 ? $"#{room}" : null,
+        TransactionName = room > 0 ? $"{100 + room}" : null, Description = description, Amount = amount,
+        PaymentMethodName = "Tiền mặt", InvoiceGroup = invoiceGroup, Module = module, IsDeleted = false
+    };
+
+    private static string Page(int? totalRecords, params object[] payments) => JsonSerializer.Serialize(new
+    {
+        data = totalRecords is null
+            ? (object)new { DailyPaymentList = payments }
+            : new { TotalRecords = totalRecords, DailyPaymentList = payments }
+    });
+
+    private static Task<EzCloudImportResultDto> Import(Func<int, string> page) =>
+        new EzCloudImportService(new HttpClient(new PagedHandler(page)) { BaseAddress = new Uri("https://pms.ezcloudhotel.com/") })
+            .ImportShiftTransactionsAsync(new EzCloudImportRequestDto
+            {
+                AccessToken = "paged-response-token-with-safe-length",
+                StartTime = new DateTimeOffset(2026, 10, 24, 7, 0, 0, TimeSpan.FromHours(7)),
+                EndTime = new DateTimeOffset(2026, 10, 24, 19, 0, 0, TimeSpan.FromHours(7))
+            });
+
+    private sealed class PagedHandler(Func<int, string> page) : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(page(body.RootElement.GetProperty("page").GetInt32()), Encoding.UTF8, "application/json")
+            };
+        }
+    }
+
     private sealed class StubHandler(HttpStatusCode status, string responseBody) : HttpMessageHandler
     {
         public string Authorization { get; private set; } = string.Empty;

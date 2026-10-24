@@ -102,7 +102,6 @@ public class ReportPermissionTests
     [DataRow("PUT", "/api/ShiftReport/Update/1", "shiftreport.update", 200)]
     [DataRow("DELETE", "/api/ShiftReport/Delete/1", "shiftreport.delete", 204)]
     [DataRow("GET", "/api/RevenueReports?receptionistName=Test&shiftType=Day&roomNumber=101", "revenuereport.view", 200)]
-    [DataRow("POST", "/api/EzCloudImport/ShiftTransactions", "shiftreport.view", 200)]
     public async Task Endpoints_RequireExactPermissionBeforeCallingServices(
         string method, string path, string permission, int successStatus)
     {
@@ -122,6 +121,24 @@ public class ReportPermissionTests
         Assert.AreEqual((HttpStatusCode)successStatus, await Send(method, path, Token([permission])));
         Assert.AreEqual((HttpStatusCode)successStatus, await Send(method, path, Token([], admin: true)));
         Assert.AreEqual(2, _shifts.Invocations.Count + _revenue.Invocations.Count + _ezCloud.Invocations.Count);
+    }
+
+    [TestMethod]
+    public async Task EzCloudImport_RequiresViewPlusCreateOrUpdate()
+    {
+        const string path = "/api/EzCloudImport/ShiftTransactions";
+        _ezCloud.Invocations.Clear();
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("POST", path, null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path, Token(["shiftreport.view"])), "View only");
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path, Token(["shiftreport.create"])), "Create without view");
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path,
+            Token(["shiftreport.view", "shiftreport.delete", "revenuereport.view", "rentalstatistics.view"])));
+        Assert.AreEqual(0, _ezCloud.Invocations.Count, "Denied requests must not call ezCloud");
+
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", "shiftreport.create"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", "shiftreport.update"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token([], admin: true)));
+        Assert.AreEqual(3, _ezCloud.Invocations.Count);
     }
 
     [TestMethod]

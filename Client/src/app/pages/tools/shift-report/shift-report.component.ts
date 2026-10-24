@@ -482,8 +482,41 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       this.message.warning('Hãy chọn ít nhất một dòng giao dịch.');
       return;
     }
-    this.replaceTransactions(selected);
-    this.cancelEzCloudPreview();
+    const apply = () => {
+      this.replaceTransactions(selected);
+      this.cancelEzCloudPreview();
+    };
+    const filled = this.transactions.controls.filter(control =>
+      this.hasTransactionData(control.value)
+    ).length;
+    if (!filled) {
+      apply();
+      return;
+    }
+    // Sửa báo cáo cũ thì bảng thường đã có dòng nhập tay - hỏi trước khi thay.
+    this.modal.confirm({
+      nzTitle: `Thay ${filled} dòng giao dịch đang có?`,
+      nzContent: `Bảng giao dịch sẽ được thay bằng ${selected.length} dòng từ ezCloud. Báo cáo chỉ thay đổi khi bạn bấm lưu.`,
+      nzOkText: 'Thay thế',
+      nzCancelText: 'Quay lại',
+      nzOnOk: apply,
+    });
+  }
+
+  private hasTransactionData(row: Record<string, unknown>): boolean {
+    return [
+      'roomNumber',
+      'invoiceCode',
+      'customerType',
+      'cashAmount',
+      'transferAmount',
+      'prepaidNote',
+      'expenseDescription',
+      'expenseAmount',
+    ].some(key => {
+      const value = row[key];
+      return typeof value === 'string' ? value.trim() !== '' : !!value;
+    });
   }
 
   private replaceTransactions(transactions: ShiftReportTransaction[]): void {

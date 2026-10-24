@@ -364,6 +364,43 @@ describe('Shift report permissions', () => {
     );
   });
 
+  it('asks before replacing transactions that already hold data', () => {
+    permissions.add('shiftreport.update');
+    component.editingId = 1;
+    component.transactions.clear();
+    component.addTransaction();
+    component.transactions.at(0).patchValue({ roomNumber: '101' });
+    component.ezCloudPreviewResult = {
+      Transactions: [
+        {
+          OrderNumber: 1,
+          RoomNumber: '202',
+          IsUseExpenseForReportRevenue: true,
+        },
+      ],
+      Summary: {
+        TransactionCount: 1,
+        SkippedDeletedCount: 0,
+        TotalCash: 0,
+        TotalTransfer: 0,
+        TotalExpense: 0,
+      },
+      Warnings: [],
+    };
+    component.isEzCloudPreviewVisible = true;
+    component.toggleEzCloudRow(0, true);
+
+    component.applyEzCloudSelection();
+    expect(modal.confirm).toHaveBeenCalled();
+    expect(component.transactions.at(0).value.roomNumber).toBe('101');
+    expect(component.isEzCloudPreviewVisible).toBeTrue();
+
+    modal.confirm.calls.mostRecent().args[0].nzOnOk();
+    expect(component.transactions.length).toBe(1);
+    expect(component.transactions.at(0).value.roomNumber).toBe('202');
+    expect(component.isEzCloudPreviewVisible).toBeFalse();
+  });
+
   it('clears an expired ezCloud token and opens the token popup again', () => {
     permissions.add('shiftreport.create');
     component.reportForm.patchValue({

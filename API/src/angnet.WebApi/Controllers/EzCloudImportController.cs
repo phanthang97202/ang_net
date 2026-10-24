@@ -11,7 +11,8 @@ namespace angnet.WebApi.Controllers;
 [Route("api/EzCloudImport")]
 [Authorize]
 [EnableRateLimiting("API")]
-public class EzCloudImportController(IEzCloudImportService service, ILogger<EzCloudImportController> logger)
+public class EzCloudImportController(
+    IEzCloudImportService service, IAuthorizationService authorization, ILogger<EzCloudImportController> logger)
     : ControllerBase
 {
     [HttpPost("ShiftTransactions")]
@@ -19,6 +20,11 @@ public class EzCloudImportController(IEzCloudImportService service, ILogger<EzCl
     public async Task<ActionResult<EzCloudImportResultDto>> ImportShiftTransactions(
         [FromBody] EzCloudImportRequestDto request, CancellationToken cancellationToken)
     {
+        // Kết quả chỉ dùng để điền form tạo/sửa báo cáo, khớp nút trên giao diện.
+        if (!(await authorization.AuthorizeAsync(User, "shiftreport.create")).Succeeded
+            && !(await authorization.AuthorizeAsync(User, "shiftreport.update")).Succeeded)
+            return Forbid();
+
         try
         {
             return Ok(await service.ImportShiftTransactionsAsync(request, cancellationToken));

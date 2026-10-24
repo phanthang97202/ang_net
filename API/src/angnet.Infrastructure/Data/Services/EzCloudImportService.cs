@@ -68,17 +68,20 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
             throw new ArgumentException("Access token ezCloud không hợp lệ.");
 
         var payments = new List<EzCloudPayment>();
-        var totalRecords = int.MaxValue;
-        for (var page = 1; page <= MaxPages && payments.Count < totalRecords; page++)
+        var seenPaymentIds = new HashSet<long>();
+        var complete = false;
+        for (var page = 1; page <= MaxPages && !complete; page++)
         {
             var data = await GetPageAsync(token, request.StartTime, request.EndTime, page, cancellationToken);
-            totalRecords = Math.Max(0, data.TotalRecords);
-            var pageItems = data.DailyPaymentList;
-            payments.AddRange(pageItems);
-            if (pageItems.Count == 0 || pageItems.Count < PageSize) break;
+            // PaymentId chặn trùng khi ezCloud bỏ qua tham số phân trang và trả lại cùng dữ liệu.
+            var added = data.DailyPaymentList.Where(x => x.PaymentId <= 0 || seenPaymentIds.Add(x.PaymentId)).ToList();
+            payments.AddRange(added);
+            // Thiếu TotalRecords thì chỉ dừng khi trang chưa đầy, không coi trang đầu là đủ.
+            complete = data.DailyPaymentList.Count < PageSize || added.Count == 0
+                       || (data.TotalRecords > 0 && payments.Count >= data.TotalRecords);
         }
 
-        if (payments.Count < totalRecords)
+        if (!complete)
             throw new EzCloudImportException(EzCloudImportError.InvalidResponse,
                 "ezCloud trả về quá nhiều giao dịch cho một ca. Hãy thu hẹp khoảng thời gian.");
 
@@ -220,51 +223,69 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
 
     private static EzCloudImportResultDto Map(List<EzCloudPayment> payments)
     {
-        var active = payments.Where(x => !x.IsDeleted).ToList();
+        var active = payments.Where(x => !x.IsDeleted && !IsPos(x) && x.Amount != 0).ToList();
         var result = new EzCloudImportResultDto();
         var unknownNonCashMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var refunds = new List<TransactionDto>();
+        var refundCount = 0;
 
-        var revenueGroups = active
-            .Where(x => x.InvoiceGroup == 1 && !IsExpense(x) && !IsPos(x) && Math.Abs(x.Amount) > 0)
-            .GroupBy(RevenueKey);
-        foreach (var group in revenueGroups)
+        foreach (var group in active.Where(IsIncome).GroupBy(RevenueKey))
         {
             var first = group.First();
-            var transaction = new TransactionDto
-            {
-                OrderNumber = result.Transactions.Count + 1,
-                RoomNumber = Clean(first.TransactionName ?? first.RoomName, 20),
-                InvoiceCode = Clean(first.ReservationNumber ?? first.TransactionNumber, 50),
-                CustomerType = ExtractCustomerType(first.TravellerName ?? first.Description),
-                IsUseExpenseForReportRevenue = true
-            };
+            // Cộng theo dấu: khoản hoàn (số âm) trừ vào chính dòng của phòng đó.
+            decimal cash = 0, transfer = 0;
             foreach (var payment in group)
             {
-                var amount = Math.Abs(payment.Amount);
+                if (payment.Amount < 0) refundCount++;
                 if (IsCash(payment.PaymentMethodName))
-                    transaction.CashAmount = (transaction.CashAmount ?? 0) + amount;
+                    cash += payment.Amount;
                 else
                 {
-                    transaction.TransferAmount = (transaction.TransferAmount ?? 0) + amount;
+                    transfer += payment.Amount;
                     if (!IsKnownNonCash(payment.PaymentMethodName))
                         unknownNonCashMethods.Add(Clean(payment.PaymentMethodName, 100));
                 }
             }
-            result.Transactions.Add(transaction);
+
+            var roomNumber = Clean(first.TransactionName ?? first.RoomName, 20);
+            var invoiceCode = Clean(first.ReservationNumber ?? first.TransactionNumber, 50);
+            if (cash > 0 || transfer > 0)
+                result.Transactions.Add(new TransactionDto
+                {
+                    RoomNumber = roomNumber,
+                    InvoiceCode = invoiceCode,
+                    CustomerType = ExtractCustomerType(first.TravellerName ?? first.Description),
+                    CashAmount = cash > 0 ? cash : null,
+                    TransferAmount = transfer > 0 ? transfer : null,
+                    // Phiếu thu khác (module thu chi) không có phòng: giữ lý do thu để lễ tân đối chiếu.
+                    PrepaidNote = IsExpense(first) ? Clean(first.Description ?? first.Note, 200) : string.Empty,
+                    IsUseExpenseForReportRevenue = true
+                });
+
+            // Form báo cáo không nhận số âm: phần hoàn vượt số đã thu trong ca (vd cọc
+            // thu từ ca trước) ghi thành khoản chi để tiền bàn giao vẫn đúng.
+            var refunded = Math.Max(0, -cash) + Math.Max(0, -transfer);
+            if (refunded > 0)
+                refunds.Add(new TransactionDto
+                {
+                    ExpenseDescription = Clean($"Hoàn tiền {(roomNumber.Length > 0 ? roomNumber : invoiceCode)}", 500),
+                    ExpenseAmount = refunded,
+                    IsUseExpenseForReportRevenue = true
+                });
         }
 
-        foreach (var expense in active.Where(x => !IsPos(x)
-                                                   && (x.InvoiceGroup != 1 || IsExpense(x))
-                                                   && Math.Abs(x.Amount) > 0))
+        result.Transactions.AddRange(refunds);
+        foreach (var expense in active.Where(x => !IsIncome(x)))
         {
             result.Transactions.Add(new TransactionDto
             {
-                OrderNumber = result.Transactions.Count + 1,
-                ExpenseDescription = Clean(expense.Description ?? expense.Note ?? expense.TransactionName, 2000),
+                ExpenseDescription = Clean(expense.Description ?? expense.Note ?? expense.TransactionName, 500),
                 ExpenseAmount = Math.Abs(expense.Amount),
                 IsUseExpenseForReportRevenue = true
             });
         }
+        for (var i = 0; i < result.Transactions.Count; i++)
+            result.Transactions[i].OrderNumber = i + 1;
 
         result.Summary = new EzCloudImportSummaryDto
         {
@@ -276,6 +297,9 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         };
         if (unknownNonCashMethods.Count > 0)
             result.Warnings.Add($"Phương thức {string.Join(", ", unknownNonCashMethods)} được đưa vào cột Chuyển khoản.");
+        if (refundCount > 0)
+            result.Warnings.Add($"Có {refundCount} khoản hoàn tiền/giảm trừ: đã trừ vào dòng của phòng tương ứng, "
+                                + "phần vượt số đã thu trong ca được ghi thành khoản chi. Hãy kiểm tra lại.");
         if (result.Summary.SkippedDeletedCount > 0)
             result.Warnings.Add($"Đã bỏ qua {result.Summary.SkippedDeletedCount} giao dịch bị xóa trên ezCloud.");
         return result;
@@ -288,6 +312,11 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         if (!string.IsNullOrWhiteSpace(reservation)) return $"reservation:{reservation.Trim()}";
         return $"payment:{payment.PaymentId}";
     }
+
+    // Khoản thu: phiếu thu lễ tân (kể cả khoản hoàn số âm của phiếu đó), hoặc phiếu
+    // thu khác số dương trong module thu chi. Còn lại là khoản chi.
+    private static bool IsIncome(EzCloudPayment payment) =>
+        payment.InvoiceGroup == 1 && (!IsExpense(payment) || payment.Amount > 0);
 
     private static bool IsExpense(EzCloudPayment payment) =>
         string.Equals(payment.Module, "EXPENDITURE", StringComparison.OrdinalIgnoreCase);
