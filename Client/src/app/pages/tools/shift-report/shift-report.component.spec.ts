@@ -485,6 +485,83 @@ describe('Shift report permissions', () => {
         unitPrice: 150000,
       });
     });
+
+    describe('compared with rows the report already holds', () => {
+      const openAgainstReport = () => {
+        permissions.add('shiftreport.create');
+        component.transactions.clear();
+        component.addTransaction();
+        component.transactions.at(0).patchValue({
+          invoiceCode: '205',
+          roomNumber: '502',
+          cashAmount: 300000,
+        });
+        component.addTransaction();
+        component.transactions
+          .at(1)
+          .patchValue({ invoiceCode: '#208', transferAmount: 1000000 });
+        const row = (
+          invoice: string,
+          room: string,
+          type: string,
+          cash: number,
+          transfer = 0
+        ) => ({
+          OrderNumber: 0,
+          InvoiceCode: invoice,
+          RoomNumber: room,
+          CustomerType: type,
+          CashAmount: cash || undefined,
+          TransferAmount: transfer || undefined,
+          IsUseExpenseForReportRevenue: true,
+        });
+        component['openEzCloudPreview']({
+          ...preview(),
+          Transactions: [
+            row('205', '502', 'k.giờ', 300000),
+            row('208', '603', 'k.ngày', 0, 1700000),
+            row('207', '203', 'k.giờ', 260000),
+            row('205', '502', 'k.giờ', 300000),
+          ],
+        });
+      };
+
+      it('marks already imported and changed rows and leaves their room sales unticked', () => {
+        openAgainstReport();
+        // Dòng 205 thứ hai không còn dòng báo cáo nào để ghép nên là dòng mới.
+        expect(component.ezCloudRowStatus).toEqual([
+          'same',
+          'changed',
+          'new',
+          'new',
+        ]);
+        expect(component.ezCloudStatusCounts).toEqual({
+          new: 2,
+          same: 1,
+          changed: 1,
+        });
+        expect([...component.ezCloudRoomSaleRows]).toEqual([2, 3]);
+
+        component.selectNewEzCloudRows();
+        expect([...component.ezCloudSelectedRows]).toEqual([2, 3]);
+      });
+
+      it('asks before appending rows the report already holds', () => {
+        openAgainstReport();
+        component.toggleEzCloudRow(0, true);
+        component.toggleEzCloudRow(2, true);
+
+        component.applyEzCloudSelection();
+        expect(modal.confirm).toHaveBeenCalled();
+        expect(modal.confirm.calls.mostRecent().args[0].nzTitle).toContain(
+          '1 dòng'
+        );
+        expect(component.transactions.length).toBe(2);
+
+        modal.confirm.calls.mostRecent().args[0].nzOnOk();
+        expect(component.transactions.length).toBe(4);
+      });
+    });
   });
 
   it('clears an expired ezCloud token and opens the token popup again', () => {

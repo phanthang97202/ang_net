@@ -793,13 +793,32 @@
               {{ formatCurrency(ezCloudSelectedSummary.expense) }}đ · Bán phòng
               {{ ezCloudSelectedRoomSaleCount }} lượt
             </span>
+            <span class="ezcloud-status-legend">
+              <nz-tag nzColor="green">Mới {{ ezCloudStatusCounts.new }}</nz-tag>
+              <nz-tag>Đã có {{ ezCloudStatusCounts.same }}</nz-tag>
+              <nz-tag nzColor="orange">
+                Khác số tiền {{ ezCloudStatusCounts.changed }}
+              </nz-tag>
+            </span>
           </div>
-          <button
-            nz-button
-            type="button"
-            (click)="toggleAllEzCloudRows(!isAllEzCloudRowsSelected)">
-            {{ isAllEzCloudRowsSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
-          </button>
+          <div class="ezcloud-preview-actions">
+            <button
+              *ngIf="
+                ezCloudStatusCounts.new &&
+                ezCloudStatusCounts.new < preview.Transactions.length
+              "
+              nz-button
+              type="button"
+              (click)="selectNewEzCloudRows()">
+              Chọn {{ ezCloudStatusCounts.new }} dòng mới
+            </button>
+            <button
+              nz-button
+              type="button"
+              (click)="toggleAllEzCloudRows(!isAllEzCloudRowsSelected)">
+              {{ isAllEzCloudRowsSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+            </button>
+          </div>
         </div>
 
         <div
@@ -848,7 +867,7 @@
           [nzData]="preview.Transactions"
           [nzFrontPagination]="false"
           [nzShowPagination]="false"
-          [nzScroll]="{ x: '1270px', y: '420px' }">
+          [nzScroll]="{ x: '1390px', y: '420px' }">
           <thead>
             <tr>
               <th nzWidth="52px" nzLeft>
@@ -861,6 +880,7 @@
                   (ngModelChange)="toggleAllEzCloudRows($event)"></label>
               </th>
               <th nzWidth="60px">STT</th>
+              <th nzWidth="120px">Trạng thái</th>
               <th nzWidth="100px">Thời gian</th>
               <th nzWidth="100px">Số phòng</th>
               <th nzWidth="120px">Mã phòng</th>
@@ -878,6 +898,10 @@
               *ngFor="
                 let transaction of ezCloudPreviewTable.data;
                 let rowIndex = index
+              "
+              [class.ezcloud-row--same]="ezCloudRowStatus[rowIndex] === 'same'"
+              [class.ezcloud-row--changed]="
+                ezCloudRowStatus[rowIndex] === 'changed'
               ">
               <td nzLeft>
                 <label
@@ -888,6 +912,13 @@
                   (ngModelChange)="toggleEzCloudRow(rowIndex, $event)"></label>
               </td>
               <td>{{ rowIndex + 1 }}</td>
+              <td [ngSwitch]="ezCloudRowStatus[rowIndex]">
+                <nz-tag *ngSwitchCase="'same'">Đã có</nz-tag>
+                <nz-tag *ngSwitchCase="'changed'" nzColor="orange">
+                  Khác số tiền
+                </nz-tag>
+                <nz-tag *ngSwitchDefault nzColor="green">Mới</nz-tag>
+              </td>
               <td class="ezcloud-preview-time">
                 {{
                   transaction.PaymentTime

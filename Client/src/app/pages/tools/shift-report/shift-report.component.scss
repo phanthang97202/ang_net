@@ -245,6 +245,27 @@
   white-space: nowrap;
 }
 
+.ezcloud-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ezcloud-status-legend {
+  margin-top: 6px;
+}
+
+// Dòng báo cáo đã có: mờ đi; đã có nhưng số tiền đổi: nền vàng để dễ thấy.
+// Áp cả cho ô cố định bên trái (ô checkbox) vốn có nền riêng.
+.ezcloud-row--same > td {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.ezcloud-row--changed > td {
+  background: #fff7e6;
+}
+
 .ezcloud-preview-warnings {
   padding: 10px 12px;
   margin-bottom: 12px;

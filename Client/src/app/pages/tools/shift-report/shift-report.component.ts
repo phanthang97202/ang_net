@@ -56,6 +56,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   // Dòng nào (trong số được chọn) sinh thêm một lượt ở bảng Bán phòng.
   ezCloudRoomSaleRows = new Set<number>();
   ezCloudImportMode: 'append' | 'overwrite' = 'append';
+  // So với bảng giao dịch lúc mở xem trước: dòng nào báo cáo đã có / đã có nhưng
+  // số tiền đổi (vd khách trả thêm) / còn mới.
+  ezCloudRowStatus: ('new' | 'same' | 'changed')[] = [];
 
   isAiAssistantVisible = false;
   isAdmin = false;
@@ -420,17 +423,84 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
     this.ezCloudPreviewResult = result;
     this.ezCloudSelectedRows = new Set<number>();
-    // Mặc định chỉ khách mới vào; khoản thu lúc trả phòng (/out) không phải lượt bán mới.
+    this.ezCloudRowStatus = this.compareWithReport(result.Transactions);
+    // Mặc định chỉ khách mới vào; khoản thu lúc trả phòng (/out) không phải lượt
+    // bán mới, dòng báo cáo đã có thì lượt bán đã được thêm từ lần trước.
     this.ezCloudRoomSaleRows = new Set(
       result.Transactions.flatMap((row, index) =>
         this.ezCloudRoomCategory(row) &&
-        !(row.CustomerType || '').includes('/out')
+        !(row.CustomerType || '').includes('/out') &&
+        this.ezCloudRowStatus[index] === 'new'
           ? [index]
           : []
       )
     );
     this.ezCloudImportMode = 'append';
     this.isEzCloudPreviewVisible = true;
+  }
+
+  // Mỗi dòng báo cáo chỉ ghép với một dòng ezCloud; ghép khớp cả số tiền trước,
+  // rồi mới ghép theo mã phòng (hoặc phòng/ghi chú/nội dung chi khi không có mã).
+  private compareWithReport(
+    rows: ShiftReportTransaction[]
+  ): ('new' | 'same' | 'changed')[] {
+    const text = (value: unknown) =>
+      String(value ?? '')
+        .trim()
+        .replace(/^#/, '')
+        .toLowerCase();
+    const money = (value: unknown) => Number(value) || 0;
+    const existing = this.transactions.controls
+      .map(control => control.value)
+      .filter(value => this.hasTransactionData(value));
+    const sameKey = (
+      row: ShiftReportTransaction,
+      value: Record<string, unknown>
+    ) =>
+      text(row.InvoiceCode)
+        ? text(row.InvoiceCode) === text(value['invoiceCode'])
+        : text(row.RoomNumber) === text(value['roomNumber']) &&
+          text(row.PrepaidNote) === text(value['prepaidNote']) &&
+          text(row.ExpenseDescription) === text(value['expenseDescription']);
+    const sameMoney = (
+      row: ShiftReportTransaction,
+      value: Record<string, unknown>
+    ) =>
+      money(row.CashAmount) === money(value['cashAmount']) &&
+      money(row.TransferAmount) === money(value['transferAmount']) &&
+      money(row.ExpenseAmount) === money(value['expenseAmount']);
+
+    const used = new Set<number>();
+    const status: ('new' | 'same' | 'changed')[] = rows.map(() => 'new');
+    for (const exact of [true, false])
+      rows.forEach((row, index) => {
+        if (status[index] !== 'new') return;
+        const match = existing.findIndex(
+          (value, i) =>
+            !used.has(i) &&
+            sameKey(row, value) &&
+            (!exact || sameMoney(row, value))
+        );
+        if (match < 0) return;
+        used.add(match);
+        status[index] = exact ? 'same' : 'changed';
+      });
+    return status;
+  }
+
+  get ezCloudStatusCounts(): { new: number; same: number; changed: number } {
+    return this.ezCloudRowStatus.reduce(
+      (counts, status) => ({ ...counts, [status]: counts[status] + 1 }),
+      { new: 0, same: 0, changed: 0 }
+    );
+  }
+
+  selectNewEzCloudRows(): void {
+    this.ezCloudSelectedRows = new Set(
+      this.ezCloudRowStatus.flatMap((status, index) =>
+        status === 'new' ? [index] : []
+      )
+    );
   }
 
   // k.giờ / k.đêm / k.ngày -> loại khách của bảng Bán phòng; không rõ thì không tạo được.
@@ -520,6 +590,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.ezCloudPreviewResult = null;
     this.ezCloudSelectedRows = new Set<number>();
     this.ezCloudRoomSaleRows = new Set<number>();
+    this.ezCloudRowStatus = [];
   }
 
   applyEzCloudSelection(): void {
@@ -545,6 +616,20 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       this.cancelEzCloudPreview();
     };
     const existing = this.ezCloudExistingCounts;
+    const duplicates = indexes.filter(
+      index => this.ezCloudRowStatus[index] !== 'new'
+    ).length;
+    if (!overwrite && duplicates) {
+      this.modal.confirm({
+        nzTitle: `${duplicates} dòng đã chọn đã có trong báo cáo`,
+        nzContent:
+          'Thêm tiếp sẽ ghi trùng các dòng này. Muốn cập nhật số tiền thì chọn Ghi đè hoặc sửa tay. Vẫn thêm?',
+        nzOkText: 'Vẫn thêm',
+        nzCancelText: 'Quay lại',
+        nzOnOk: apply,
+      });
+      return;
+    }
     if (!overwrite || (!existing.transactions && !existing.roomSales)) {
       apply();
       return;
