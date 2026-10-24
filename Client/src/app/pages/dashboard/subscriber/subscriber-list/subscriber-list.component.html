@@ -1,11 +1,11 @@
-<div class="master__container subscriber-page">
+<div class="master__container subscriber-page admin-fit-page">
   <app-breadcrumb
     title="Người đăng ký nhận bài"
     [buttons]="listButtonsHeader" />
 
   <main class="subscriber-page__content">
     <section
-      class="subscriber-page__panel"
+      class="subscriber-page__panel admin-fit-panel"
       aria-label="Danh sách người đăng ký">
       <form
         class="subscriber-page__toolbar"
@@ -57,7 +57,7 @@
 
       <!-- Phân trang ở server nên tắt nzFrontPagination, tự truyền total/index. -->
       <nz-table
-        class="subscriber-page__table"
+        class="subscriber-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzTotal]="itemCount"

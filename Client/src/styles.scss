@@ -1228,6 +1228,76 @@ html.cdk-global-scrollblock {
   border-radius: var(--admin-radius-lg);
   background: var(--admin-surface);
 }
+// Trang danh sách vừa khung cửa sổ: tiêu đề, bộ lọc và phân trang luôn trong
+// tầm nhìn, chỉ thân bảng cuộn (tiêu đề cột dính trên cùng). Gắn 3 class:
+// admin-fit-page (gốc trang, con trực tiếp là <main>), admin-fit-panel (khối
+// chứa bảng, con trực tiếp của <main>) và admin-fit-table (nz-table, con trực
+// tiếp của panel). Ít dòng thì bảng co theo nội dung, phân trang nằm ngay dưới.
+// Màn hình hẹp giữ cuộn cả trang: bộ lọc xếp nhiều dòng chiếm gần hết chiều cao.
+@media (min-width: 768px) {
+  .admin-ui .admin-fit-page {
+    display: flex;
+    flex-direction: column;
+    // Cửa sổ quá thấp thì cả trang cuộn thay vì bóp bảng còn vài dòng.
+    height: max(100vh, 520px);
+    > * {
+      flex: none;
+    }
+    > main {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+      > * {
+        flex: none;
+      }
+    }
+  }
+  .admin-ui .admin-fit-page > main > .admin-fit-panel,
+  .admin-ui .admin-fit-panel > .admin-fit-table {
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .admin-ui .admin-fit-panel > * {
+    flex: none;
+  }
+  // nz-table > nz-spin > .ant-spin-container > .ant-table > .ant-table-container
+  // > .ant-table-content (phần cuộn); phân trang là con của .ant-spin-container.
+  .admin-ui .admin-fit-table {
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table,
+    .ant-table-container {
+      display: flex;
+      flex: 0 1 auto;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .ant-table-content {
+      flex: 0 1 auto;
+      min-height: 0;
+      // nz-table đặt inline overflow-y: hidden khi chỉ có nzScroll.x.
+      overflow-y: auto !important;
+    }
+    .ant-table-thead > tr > th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+    .ant-table-thead > tr > th.ant-table-cell-fix-left,
+    .ant-table-thead > tr > th.ant-table-cell-fix-right {
+      z-index: 4;
+    }
+    .ant-table-pagination {
+      flex: none;
+      // Phân trang giờ luôn ở góc dưới phải, đúng chỗ nút chat nổi (48px,
+      // cách mép 24px) - chừa chỗ để nút không che ô chọn số dòng.
+      padding-right: 56px;
+    }
+  }
+}
 .admin-ui .ant-input-affix-wrapper > .ant-input {
   min-height: 0;
   height: auto;

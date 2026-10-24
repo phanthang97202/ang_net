@@ -1,8 +1,10 @@
-<div class="master__container note-admin-page">
+<div class="master__container note-admin-page admin-fit-page">
   <app-breadcrumb title="Ghi chú" [buttons]="[]" />
 
   <main class="note-admin-page__content">
-    <section class="note-admin-page__panel" aria-label="Danh sách ghi chú">
+    <section
+      class="note-admin-page__panel admin-fit-panel"
+      aria-label="Danh sách ghi chú">
       <form
         class="note-admin-page__toolbar"
         nz-form
@@ -52,7 +54,7 @@
       </form>
 
       <nz-table
-        class="note-admin-page__table"
+        class="note-admin-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzTotal]="itemCount"

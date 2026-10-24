@@ -1,8 +1,10 @@
-<div class="master__container sysparam-page">
+<div class="master__container sysparam-page admin-fit-page">
   <app-breadcrumb title="Tham số hệ thống" [buttons]="listButtonsHeader" />
 
   <main class="sysparam-page__content">
-    <section class="sysparam-page__panel" aria-label="Danh sách tham số">
+    <section
+      class="sysparam-page__panel admin-fit-panel"
+      aria-label="Danh sách tham số">
       <form
         class="sysparam-page__toolbar"
         nz-form
@@ -54,7 +56,7 @@
       </form>
 
       <nz-table
-        class="sysparam-page__table"
+        class="sysparam-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzScroll]="{ x: '1280px' }"

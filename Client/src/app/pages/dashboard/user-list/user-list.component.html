@@ -1,4 +1,4 @@
-<div class="master__container user-page">
+<div class="master__container user-page admin-fit-page">
   <app-breadcrumb title="Người dùng"
     ><ng-container breadcrumbActions
       ><button
@@ -12,7 +12,9 @@
   >
 
   <main class="user-page__content">
-    <section class="user-page__panel" aria-label="Danh sách người dùng">
+    <section
+      class="user-page__panel admin-fit-panel"
+      aria-label="Danh sách người dùng">
       <div class="admin-list-toolbar">
         <nz-input-group nzPrefixIcon="search">
           <input
@@ -24,7 +26,7 @@
         <button nz-button nzType="text" (click)="keyword = ''">Đặt lại</button>
       </div>
       <nz-table
-        class="user-page__table"
+        class="user-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="filteredUsers"
         [nzFrontPagination]="false"

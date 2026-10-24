@@ -1,4 +1,4 @@
-<div class="master__container email-report-page">
+<div class="master__container email-report-page admin-fit-page">
   <app-breadcrumb
     title="Báo cáo gửi mail bài viết"
     [buttons]="listButtonsHeader" />
@@ -71,7 +71,9 @@
       </article>
     </section>
 
-    <section class="email-report-page__panel" aria-label="Nhật ký gửi mail">
+    <section
+      class="email-report-page__panel admin-fit-panel"
+      aria-label="Nhật ký gửi mail">
       <form
         class="email-report-page__toolbar"
         nz-form
@@ -123,7 +125,7 @@
       </form>
 
       <nz-table
-        class="email-report-page__table"
+        class="email-report-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzTotal]="itemCount"

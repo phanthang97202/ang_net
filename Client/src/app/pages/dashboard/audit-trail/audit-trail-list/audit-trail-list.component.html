@@ -1,8 +1,10 @@
-<div class="master__container audit-page">
+<div class="master__container audit-page admin-fit-page">
   <app-breadcrumb title="Nhật ký hệ thống" />
 
   <main class="audit-page__content">
-    <section class="audit-page__panel" aria-label="Nhật ký hệ thống">
+    <section
+      class="audit-page__panel admin-fit-panel"
+      aria-label="Nhật ký hệ thống">
       <form
         class="audit-page__toolbar"
         nz-form
@@ -81,7 +83,7 @@
            vẽ thanh phân trang theo tổng số bản ghi thật thay vì theo số dòng
            đang có trong dataSource. -->
       <nz-table
-        class="audit-page__table"
+        class="audit-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzFrontPagination]="false"

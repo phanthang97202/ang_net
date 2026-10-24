@@ -1,8 +1,10 @@
-<div class="master__container category-list-page">
+<div class="master__container category-list-page admin-fit-page">
   <app-breadcrumb title="Danh mục tin" [buttons]="listButtonsHeader" />
 
   <main class="category-list-page__content">
-    <section class="category-list-page__panel" aria-label="Danh sách danh mục">
+    <section
+      class="category-list-page__panel admin-fit-panel"
+      aria-label="Danh sách danh mục">
       <form
         class="category-list-page__toolbar"
         nz-form
@@ -39,7 +41,7 @@
       </form>
 
       <nz-table
-        class="category-list-page__table"
+        class="category-list-page__table admin-fit-table"
         [nzData]="treeRows"
         [nzScroll]="{ x: '1090px' }"
         [nzFrontPagination]="false"

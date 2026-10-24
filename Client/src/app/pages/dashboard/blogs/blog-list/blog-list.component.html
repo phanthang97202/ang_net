@@ -1,8 +1,10 @@
-<div class="master__container blog-list-page">
+<div class="master__container blog-list-page admin-fit-page">
   <app-breadcrumb title="Bài viết" [buttons]="listButtonsHeader" />
 
   <main class="blog-list-page__content">
-    <section class="blog-list-page__panel" aria-label="Danh sách bài viết">
+    <section
+      class="blog-list-page__panel admin-fit-panel"
+      aria-label="Danh sách bài viết">
       <form
         class="blog-list-page__filters"
         (ngSubmit)="applyFilters()"
@@ -103,7 +105,7 @@
       </form>
 
       <nz-table
-        class="blog-list-page__table"
+        class="blog-list-page__table admin-fit-table"
         nzShowSizeChanger
         [nzData]="dataSource"
         [nzFrontPagination]="false"

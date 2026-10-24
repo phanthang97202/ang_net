@@ -1,8 +1,10 @@
-<div class="master__container menu-list-page">
+<div class="master__container menu-list-page admin-fit-page">
   <app-breadcrumb title="Menu trang chủ" [buttons]="listButtonsHeader" />
 
   <main class="menu-list-page__content">
-    <section class="menu-list-page__panel" aria-label="Danh sách menu">
+    <section
+      class="menu-list-page__panel admin-fit-panel"
+      aria-label="Danh sách menu">
       <div class="admin-list-toolbar">
         <nz-input-group nzPrefixIcon="search">
           <input
@@ -15,7 +17,7 @@
       </div>
       <nz-table
         #menuTable
-        class="menu-list-page__table"
+        class="menu-list-page__table admin-fit-table"
         [nzData]="filteredRows"
         [nzFrontPagination]="false"
         [nzShowPagination]="false"
