@@ -14,7 +14,10 @@
     </a>
 
     <!-- Nav Links -->
-    <ul class="navbar-links">
+    <ul class="navbar-links" [attr.aria-busy]="menuLoading">
+      <li *ngIf="menuLoading" aria-hidden="true">
+        <app-config-skeleton variant="nav"></app-config-skeleton>
+      </li>
       <ng-container *ngFor="let route of visibleRoutes(listRoute)">
         <!-- No children -->
         <li *ngIf="!route.children" class="nav-item">
@@ -268,7 +271,10 @@
       </button>
     </div>
 
-    <ul class="mobile-nav-list">
+    <ul class="mobile-nav-list" [attr.aria-busy]="menuLoading">
+      <li *ngIf="menuLoading" aria-hidden="true">
+        <app-config-skeleton variant="nav-list"></app-config-skeleton>
+      </li>
       <ng-container *ngFor="let route of visibleRoutes(listRoute)">
         <li *ngIf="!route.children" class="mobile-nav-item">
           <a

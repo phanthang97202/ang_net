@@ -116,6 +116,35 @@
     min-height: 42px;
   }
 }
+// Menu điều hướng: mỗi vạch chiếm đúng chỗ một mục menu thật (desktop cao 36px,
+// mobile cao 46px) để menu hiện ra không làm giật layout.
+.placeholder--nav {
+  .row {
+    gap: 0.25rem;
+    margin: 0;
+  }
+  .bar {
+    width: 56px;
+    height: 12px;
+    margin: 12px 0.9rem;
+  }
+  .bar:nth-child(even) {
+    width: 44px;
+  }
+}
+.placeholder--nav-list {
+  .bar {
+    width: 42%;
+    height: 14px;
+    margin: 16px 1.5rem 32px;
+  }
+  .bar:nth-child(even) {
+    width: 30%;
+  }
+  .bar:last-child {
+    margin-bottom: 16px;
+  }
+}
 @keyframes config-shimmer {
   from {
     background-position: 100% 0;

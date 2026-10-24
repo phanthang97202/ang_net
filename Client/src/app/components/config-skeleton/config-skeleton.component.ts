@@ -52,6 +52,16 @@ import { Component, Input } from '@angular/core';
         @case ('text') {
           <span class="bar medium"></span>
         }
+        @case ('nav') {
+          <div class="row">
+            <span class="bar"></span><span class="bar"></span
+            ><span class="bar"></span><span class="bar"></span>
+          </div>
+        }
+        @case ('nav-list') {
+          <span class="bar"></span><span class="bar"></span
+          ><span class="bar"></span><span class="bar"></span>
+        }
         @default {
           <span class="bar image"></span>
         }
@@ -68,5 +78,7 @@ export class ConfigSkeletonComponent {
     | 'socials'
     | 'footer'
     | 'text'
+    | 'nav'
+    | 'nav-list'
     | 'image' = 'text';
 }

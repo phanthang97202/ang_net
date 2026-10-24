@@ -31,8 +31,9 @@ import {
 import { ISysMenuTree } from '../../interfaces';
 import { SwitchLangComponent } from '../switch-lang/switch-lang.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
-import { Subscription } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
 import { NotificationMenuComponent } from '../notification-menu/notification-menu.component';
+import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 
 interface RouteItem {
   path?: string;
@@ -69,6 +70,7 @@ interface RouteItem {
     ThemeToggleComponent,
     TranslateModule,
     NotificationMenuComponent,
+    ConfigSkeletonComponent,
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
@@ -146,9 +148,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // { path: '/about', title: 'AboutMe', icon: 'user' },
   ];
 
-  // Menu đang hiển thị. Khởi tạo bằng bản dự phòng để lần vẽ đầu tiên đã có nội
-  // dung, rồi thay bằng dữ liệu API khi tải xong.
-  listRoute: RouteItem[] = this.fallbackRoute;
+  // Menu đang hiển thị. Rỗng trong lúc chờ API (template vẽ skeleton): vẽ bản
+  // dự phòng trước rồi nhảy sang menu thật ngay sau đó dễ khiến người dùng bấm
+  // nhầm. Chỉ dùng bản dự phòng khi API lỗi, rỗng hoặc treo.
+  listRoute: RouteItem[] = [];
+  menuLoading = true;
 
   // Menu lấy từ API là chữ hiển thị sẵn (TitleVi/TitleEn) chứ không phải khóa
   // i18n, nên template phải biết đang dùng nguồn nào để render cho đúng.
@@ -211,27 +215,38 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private fetchMenu(): void {
-    this.api.SysMenuGetActive().subscribe({
-      next: response => {
-        const tree = response?.DataList || [];
+    this.api
+      .SysMenuGetActive()
+      // API treo (vd server đang khởi động lại) thì không để skeleton mãi.
+      .pipe(timeout({ first: 15000 }))
+      .subscribe({
+        next: response => {
+          const tree = response?.DataList || [];
 
-        // Rỗng thì giữ menu dự phòng: bảng SysMenu có thể chưa được migrator tạo
-        // hoặc chưa seed, lúc đó thà hiện menu cũ còn hơn trang chủ trống trơn.
-        if (!response?.Success || tree.length === 0) {
-          return;
-        }
+          // Rỗng thì dùng menu dự phòng: bảng SysMenu có thể chưa được migrator
+          // tạo hoặc chưa seed, lúc đó thà hiện menu cũ còn hơn trang chủ trống trơn.
+          if (!response?.Success || tree.length === 0) {
+            this.useFallbackMenu();
+            return;
+          }
 
-        this.menuTree = tree;
-        this.listRoute = this.toRouteItems(tree);
-        this.isMenuFromApi = true;
+          this.menuTree = tree;
+          this.listRoute = this.toRouteItems(tree);
+          this.isMenuFromApi = true;
+          this.menuLoading = false;
 
-        if (this.hasNoteRoute(this.listRoute)) {
-          this.noteRealtime.initialize();
-        }
-      },
-      // Nuốt lỗi có chủ đích: API menu hỏng thì vẫn còn menu dự phòng.
-      error: () => undefined,
-    });
+          if (this.hasNoteRoute(this.listRoute)) {
+            this.noteRealtime.initialize();
+          }
+        },
+        // Nuốt lỗi có chủ đích: API menu hỏng thì vẫn còn menu dự phòng.
+        error: () => this.useFallbackMenu(),
+      });
+  }
+
+  private useFallbackMenu(): void {
+    this.listRoute = this.fallbackRoute;
+    this.menuLoading = false;
   }
 
   private toRouteItems(tree: ISysMenuTree[]): RouteItem[] {

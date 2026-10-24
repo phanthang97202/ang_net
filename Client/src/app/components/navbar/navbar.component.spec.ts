@@ -2,7 +2,7 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { NEVER, Observable, Subject, of, throwError } from 'rxjs';
 import {
   ApiService,
   AuthService,
@@ -177,6 +177,87 @@ describe('Navbar account greeting', () => {
     f.detectChanges();
     tick(500);
     f.destroy();
+  }));
+});
+
+describe('Navbar menu loading', () => {
+  beforeEach(provideNotifications);
+  const setup = (menu$: Observable<unknown>) => {
+    TestBed.configureTestingModule({
+      imports: [NavbarComponent, TranslateModule.forRoot()],
+      providers: [
+        provideRouter([]),
+        {
+          provide: NZ_ICONS,
+          useValue: [
+            HomeOutline,
+            ToolOutline,
+            CalculatorOutline,
+            PlayCircleOutline,
+            TrophyOutline,
+            AppstoreOutline,
+          ],
+        },
+        { provide: ApiService, useValue: { SysMenuGetActive: () => menu$ } },
+        {
+          provide: LangService,
+          useValue: { getLang: () => 'vi', $langSubjectObservable: of('vi') },
+        },
+        { provide: NoteRealtimeService, useValue: { unreadCount$: of(0) } },
+        {
+          provide: AuthService,
+          useValue: { isLoggedIn: () => false, hasPermission: () => false },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(NavbarComponent);
+    fixture.componentInstance.isMobileMenuOpen = true;
+    fixture.detectChanges();
+    return fixture;
+  };
+  const count = (fixture: { nativeElement: HTMLElement }, selector: string) =>
+    fixture.nativeElement.querySelectorAll(selector).length;
+
+  it('shows skeletons instead of the fallback menu until the API menu arrives', () => {
+    const menu$ = new Subject<unknown>();
+    const fixture = setup(menu$);
+    expect(count(fixture, 'app-config-skeleton')).toBe(2);
+    expect(count(fixture, 'a[href="/reels"]')).toBe(0);
+    menu$.next({
+      Success: true,
+      DataList: [
+        {
+          TitleVi: 'Tính phí',
+          Path: '/tools/calculating-hotel-fee',
+          Icon: 'calculator',
+          Children: [],
+        },
+      ],
+    });
+    fixture.detectChanges();
+    expect(count(fixture, 'app-config-skeleton')).toBe(0);
+    expect(count(fixture, 'a[href="/tools/calculating-hotel-fee"]')).toBe(2);
+    expect(count(fixture, 'a[href="/reels"]')).toBe(0);
+    fixture.destroy();
+  });
+
+  it('falls back to the built-in menu when the API fails', () => {
+    const fixture = setup(throwError(() => new Error('down')));
+    expect(count(fixture, 'app-config-skeleton')).toBe(0);
+    expect(count(fixture, 'a[href="/reels"]')).toBe(2);
+    fixture.destroy();
+  });
+
+  it('stops waiting for a hung menu API after 15 seconds', fakeAsync(() => {
+    const fixture = setup(NEVER);
+    tick(14999);
+    fixture.detectChanges();
+    expect(count(fixture, 'app-config-skeleton')).toBe(2);
+    tick(1);
+    fixture.detectChanges();
+    expect(count(fixture, 'app-config-skeleton')).toBe(0);
+    expect(count(fixture, 'a[href="/reels"]')).toBe(2);
+    fixture.destroy();
   }));
 });
 
