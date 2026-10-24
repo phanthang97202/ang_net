@@ -180,12 +180,16 @@
 
 .ezcloud-import-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 8px;
   margin: -4px 0 12px;
-  color: var(--color-text-muted, #666);
-  font-size: 12px;
+}
+
+.ezcloud-import-range {
+  width: 340px;
+  max-width: 100%;
 }
 
 .ezcloud-token-help,

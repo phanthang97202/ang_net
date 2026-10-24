@@ -26,7 +26,8 @@ namespace angnet.InfrastructureTests.Authorization;
 public class ReportPermissionTests
 {
     private static readonly string[] Permissions = ["shiftreport.view", "shiftreport.create",
-        "shiftreport.update", "shiftreport.delete", "revenuereport.view", "rentalstatistics.view"];
+        "shiftreport.update", "shiftreport.delete", "revenuereport.view", "rentalstatistics.view",
+        "shiftreport.import_ezcloud"];
     private static readonly SymmetricSecurityKey Key = new(Encoding.UTF8.GetBytes(
         "report-authorization-tests-only-signing-key-2026"));
     private static WebApplication _app = null!;
@@ -124,21 +125,48 @@ public class ReportPermissionTests
     }
 
     [TestMethod]
-    public async Task EzCloudImport_RequiresViewPlusCreateOrUpdate()
+    public async Task EzCloudImport_RequiresViewImportAndCreateOrUpdate()
     {
         const string path = "/api/EzCloudImport/ShiftTransactions";
+        const string import = "shiftreport.import_ezcloud";
         _ezCloud.Invocations.Clear();
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("POST", path, null));
-        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path, Token(["shiftreport.view"])), "View only");
-        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path, Token(["shiftreport.create"])), "Create without view");
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path, Token([import])), "Import only");
         Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path,
-            Token(["shiftreport.view", "shiftreport.delete", "revenuereport.view", "rentalstatistics.view"])));
+            Token(Permissions.Where(p => p != import))), "Every report permission except import");
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path,
+            Token(["shiftreport.view", import])), "Import without create or update");
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("POST", path,
+            Token([import, "shiftreport.create"])), "Import without view");
         Assert.AreEqual(0, _ezCloud.Invocations.Count, "Denied requests must not call ezCloud");
 
-        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", "shiftreport.create"])));
-        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", "shiftreport.update"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", import, "shiftreport.create"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token(["shiftreport.view", import, "shiftreport.update"])));
         Assert.AreEqual(HttpStatusCode.OK, await Send("POST", path, Token([], admin: true)));
         Assert.AreEqual(3, _ezCloud.Invocations.Count);
+    }
+
+    [TestMethod]
+    public void EzCloudImportPermission_IsSeededInTheShiftReportGroupAndEnforced()
+    {
+        var assembly = typeof(angnet.Infrastructure.Data.AppDbContext).Assembly;
+        string Script(string file)
+        {
+            var name = assembly.GetManifestResourceNames().Single(n => n.EndsWith(file));
+            using var reader = new StreamReader(assembly.GetManifestResourceStream(name)!);
+            return reader.ReadToEnd();
+        }
+        // Màn phân quyền gom nhóm theo (Module, ModuleNameVi, ModuleNameEn): lệch một
+        // ký tự là quyền mới tách thành nhóm riêng thay vì nằm trong "Bao cao ca".
+        const string group = "'shiftreport', 'Bao cao ca', 'Shift reports'";
+        StringAssert.Contains(Script("0012_SeedDanhMucPermission.sql"), group);
+        var seed = Script("0065_QuyenNhapGiaoDichEzCloud.sql");
+        StringAssert.Contains(seed, "'shiftreport.import_ezcloud'");
+        StringAssert.Contains(seed, group);
+        Assert.IsTrue(typeof(EzCloudImportController)
+            .GetMethod(nameof(EzCloudImportController.ImportShiftTransactions))!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>()
+            .Any(a => a.Policy == "shiftreport.import_ezcloud"));
     }
 
     [TestMethod]

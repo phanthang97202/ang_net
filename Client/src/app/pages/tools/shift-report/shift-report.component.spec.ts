@@ -302,6 +302,7 @@ describe('Shift report permissions', () => {
 
   it('previews ezCloud rows and imports only selected transactions', () => {
     permissions.add('shiftreport.create');
+    permissions.add('shiftreport.import_ezcloud');
     const start = new Date(2026, 9, 24, 7);
     const end = new Date(2026, 9, 24, 19);
     component.reportForm.patchValue({ startTime: start, endTime: end });
@@ -394,6 +395,7 @@ describe('Shift report permissions', () => {
     });
     const openWithExistingRow = () => {
       permissions.add('shiftreport.update');
+      permissions.add('shiftreport.import_ezcloud');
       component.editingId = 1;
       component.transactions.clear();
       component.addTransaction();
@@ -460,6 +462,7 @@ describe('Shift report permissions', () => {
 
     it('creates room sales only for ticked arrivals, priced from the room list', () => {
       permissions.add('shiftreport.create');
+      permissions.add('shiftreport.import_ezcloud');
       component['roomPrices'] = [{ roomNumber: '502', hourPrice: 150000 }];
       component.transactions.clear();
       component.ezCloudPreviewResult = null;
@@ -489,6 +492,7 @@ describe('Shift report permissions', () => {
     describe('compared with rows the report already holds', () => {
       const openAgainstReport = () => {
         permissions.add('shiftreport.create');
+        permissions.add('shiftreport.import_ezcloud');
         component.transactions.clear();
         component.addTransaction();
         component.transactions.at(0).patchValue({
@@ -564,8 +568,82 @@ describe('Shift report permissions', () => {
     });
   });
 
+  it('syncs from the shift times until the user picks a custom range', () => {
+    permissions.add('shiftreport.create');
+    permissions.add('shiftreport.import_ezcloud');
+    sessionStorage.setItem(
+      'ezcloud.pms.accessToken',
+      'test-access-token-with-safe-length'
+    );
+    api.importEzCloudTransactions.and.returnValue(
+      of({
+        Transactions: [
+          {
+            OrderNumber: 1,
+            RoomNumber: '101',
+            IsUseExpenseForReportRevenue: true,
+          },
+        ],
+        Summary: {
+          TransactionCount: 1,
+          SkippedDeletedCount: 0,
+          TotalCash: 0,
+          TotalTransfer: 0,
+          TotalExpense: 0,
+        },
+        Warnings: [],
+      })
+    );
+    const shiftStart = new Date(2026, 9, 24, 19);
+    const shiftEnd = new Date(2026, 9, 25, 7);
+    // Đổi Loại ca cập nhật giờ không phát valueChanges - ô vẫn phải theo kịp.
+    component.reportForm.patchValue(
+      { startTime: shiftStart, endTime: shiftEnd },
+      { emitEvent: false }
+    );
+    expect(component.ezCloudRange).toEqual([shiftStart, shiftEnd]);
+    expect(component.ezCloudRange).toBe(component.ezCloudRange);
+
+    const customStart = new Date(2026, 9, 24, 21);
+    const customEnd = new Date(2026, 9, 24, 23, 30);
+    component.setEzCloudRange([customStart, customEnd]);
+    component.reportForm.patchValue({ startTime: new Date(2026, 9, 24, 7) });
+    component.importFromEzCloud();
+    expect(api.importEzCloudTransactions).toHaveBeenCalledWith({
+      AccessToken: 'test-access-token-with-safe-length',
+      StartTime: customStart.toISOString(),
+      EndTime: customEnd.toISOString(),
+    });
+
+    component.setEzCloudRange(null);
+    expect(component.ezCloudRange[0]).toEqual(new Date(2026, 9, 24, 7));
+
+    api.importEzCloudTransactions.calls.reset();
+    component.setEzCloudRange([customStart, new Date(2026, 9, 26, 0)]);
+    component.importFromEzCloud();
+    expect(api.importEzCloudTransactions).not.toHaveBeenCalled();
+  });
+
+  it('needs the dedicated ezCloud permission on top of create or update', () => {
+    permissions.add('shiftreport.create');
+    sessionStorage.setItem(
+      'ezcloud.pms.accessToken',
+      'test-access-token-with-safe-length'
+    );
+    expect(component.canImportEzCloud).toBeFalse();
+    component.importFromEzCloud();
+    expect(api.importEzCloudTransactions).not.toHaveBeenCalled();
+    expect(component.isEzCloudTokenVisible).toBeFalse();
+
+    permissions.add('shiftreport.import_ezcloud');
+    expect(component.canImportEzCloud).toBeTrue();
+    permissions.delete('shiftreport.create');
+    expect(component.canImportEzCloud).toBeFalse();
+  });
+
   it('clears an expired ezCloud token and opens the token popup again', () => {
     permissions.add('shiftreport.create');
+    permissions.add('shiftreport.import_ezcloud');
     component.reportForm.patchValue({
       startTime: new Date(2026, 9, 24, 7),
       endTime: new Date(2026, 9, 24, 19),

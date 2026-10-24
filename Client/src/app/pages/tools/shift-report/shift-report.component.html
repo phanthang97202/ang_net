@@ -305,14 +305,29 @@
         <!-- Transactions Section -->
         <nz-divider nzText="Giao dịch trong ca"></nz-divider>
 
-        <div class="ezcloud-import-actions">
-          <span>
-            Lấy các khoản thu/chi đúng theo giờ bắt đầu và kết thúc ca.
-          </span>
+        <div *ngIf="canImportEzCloud" class="ezcloud-import-actions">
+          <!-- Mặc định theo giờ bắt đầu/kết thúc ca; chỉnh tay thì giữ khoảng đã chọn. -->
+          <nz-range-picker
+            class="ezcloud-import-range"
+            nzShowTime
+            nzFormat="dd/MM/yyyy HH:mm"
+            [nzAllowClear]="false"
+            aria-label="Khoảng thời gian đồng bộ từ ezCloud"
+            [ngModel]="ezCloudRange"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="setEzCloudRange($event)"></nz-range-picker>
+          <button
+            *ngIf="ezCloudCustomRange"
+            nz-button
+            nzType="link"
+            type="button"
+            (click)="setEzCloudRange(null)">
+            Theo giờ ca
+          </button>
           <button
             nz-button
             type="button"
-            [disabled]="!canSave || isEzCloudLoading"
+            [disabled]="isEzCloudLoading"
             [nzLoading]="isEzCloudLoading"
             (click)="importFromEzCloud()">
             <span nz-icon nzType="cloud-download"></span>

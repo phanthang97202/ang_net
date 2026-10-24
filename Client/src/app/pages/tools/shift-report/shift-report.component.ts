@@ -59,6 +59,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   // So với bảng giao dịch lúc mở xem trước: dòng nào báo cáo đã có / đã có nhưng
   // số tiền đổi (vd khách trả thêm) / còn mới.
   ezCloudRowStatus: ('new' | 'same' | 'changed')[] = [];
+  // Khoảng thời gian đồng bộ người dùng tự chọn; null = theo giờ bắt đầu/kết thúc ca.
+  ezCloudCustomRange: Date[] | null = null;
+  private ezCloudShiftRange: Date[] = [];
 
   isAiAssistantVisible = false;
   isAdmin = false;
@@ -133,6 +136,11 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
 
   get canSave(): boolean {
     return this.editingId !== null ? this.canUpdate : this.canCreate;
+  }
+
+  // Quyền riêng, khớp API: có quyền tạo/sửa báo cáo chưa đủ để lấy từ ezCloud.
+  get canImportEzCloud(): boolean {
+    return this.canSave && this.hasPermission('shiftreport.import_ezcloud');
   }
 
   private hasPermission(permission: string): boolean {
@@ -309,10 +317,8 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   importFromEzCloud(): void {
-    if (!this.canSave) {
-      this.message.warning(
-        'Bạn không có quyền cập nhật giao dịch của báo cáo này.'
-      );
+    if (!this.canImportEzCloud) {
+      this.message.warning('Bạn không có quyền lấy giao dịch từ ezCloud.');
       return;
     }
     const token = this.getEzCloudToken();
@@ -368,17 +374,39 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadEzCloudTransactions(token: string): void {
+  // Đọc thẳng giờ ca từ form (đổi Loại ca cập nhật giờ với emitEvent: false nên
+  // không nghe valueChanges được). Chỉ tạo mảng mới khi giờ thật sự đổi, để
+  // ngModel của ô chọn khoảng không bị coi là đổi giá trị ở mỗi lần render.
+  get ezCloudRange(): Date[] {
+    if (this.ezCloudCustomRange) return this.ezCloudCustomRange;
     const start = new Date(this.reportForm.get('startTime')?.value);
     const end = new Date(this.reportForm.get('endTime')?.value);
+    const [cachedStart, cachedEnd] = this.ezCloudShiftRange;
     if (
-      !Number.isFinite(start.getTime()) ||
-      !Number.isFinite(end.getTime()) ||
+      cachedStart?.getTime() !== start.getTime() ||
+      cachedEnd?.getTime() !== end.getTime()
+    )
+      this.ezCloudShiftRange = [start, end];
+    return this.ezCloudShiftRange;
+  }
+
+  setEzCloudRange(range: Date[] | null): void {
+    this.ezCloudCustomRange = range?.length === 2 ? range : null;
+  }
+
+  private loadEzCloudTransactions(token: string): void {
+    const [start, end] = this.ezCloudRange;
+    if (
+      !Number.isFinite(start?.getTime()) ||
+      !Number.isFinite(end?.getTime()) ||
       end <= start
     ) {
-      this.message.warning(
-        'Hãy chọn giờ bắt đầu và kết thúc ca hợp lệ trước khi đồng bộ.'
-      );
+      this.message.warning('Hãy chọn khoảng thời gian đồng bộ hợp lệ.');
+      return;
+    }
+    // Giới hạn của API: một lần lấy tối đa 24 giờ.
+    if (end.getTime() - start.getTime() > 24 * 60 * 60 * 1000) {
+      this.message.warning('Khoảng thời gian đồng bộ tối đa 24 giờ.');
       return;
     }
 
@@ -594,7 +622,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   }
 
   applyEzCloudSelection(): void {
-    if (!this.canSave || !this.ezCloudPreviewResult) return;
+    if (!this.canImportEzCloud || !this.ezCloudPreviewResult) return;
     const indexes = [...this.ezCloudSelectedRows].sort((a, b) => a - b);
     const rows = this.ezCloudPreviewResult.Transactions;
     if (!indexes.length) {
@@ -899,6 +927,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     if (!this.requirePermission('shiftreport.create')) return;
     this.modalTitle = 'Tạo báo cáo ca mới';
     this.editingId = null;
+    this.ezCloudCustomRange = null;
 
     const today = new Date();
     const suggestedShiftType = this.getSuggestedShiftType();
@@ -930,6 +959,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     if (!this.requirePermission('shiftreport.update')) return;
     this.modalTitle = 'Chỉnh sửa báo cáo ca';
     this.editingId = id;
+    this.ezCloudCustomRange = null;
     this.isLoading = true;
 
     this.shiftReportService.getById(id).subscribe({

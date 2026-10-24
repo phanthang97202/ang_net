@@ -17,6 +17,8 @@ public class EzCloudImportController(
 {
     [HttpPost("ShiftTransactions")]
     [Authorize(Policy = "shiftreport.view")]
+    // Quyền riêng: có quyền tạo/sửa báo cáo chưa đủ để gọi sang ezCloud.
+    [Authorize(Policy = "shiftreport.import_ezcloud")]
     public async Task<ActionResult<EzCloudImportResultDto>> ImportShiftTransactions(
         [FromBody] EzCloudImportRequestDto request, CancellationToken cancellationToken)
     {
