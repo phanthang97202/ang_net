@@ -11,6 +11,8 @@ import {
   DrinkStock,
   ShiftRentalQuery,
   ShiftRentalStatistics,
+  EzCloudImportRequest,
+  EzCloudImportResult,
 } from '../types/shift-report-type';
 
 @Injectable({
@@ -72,6 +74,15 @@ export class ShiftReportService {
 
   getById(id: number): Observable<ShiftReportResponse> {
     return this.http.get<ShiftReportResponse>(`${this.apiUrl}/GetById/${id}`);
+  }
+
+  importEzCloudTransactions(
+    request: EzCloudImportRequest
+  ): Observable<EzCloudImportResult> {
+    return this.http.post<EzCloudImportResult>(
+      `${environment.apiUrl}EzCloudImport/ShiftTransactions`,
+      request
+    );
   }
 
   create(dto: CreateShiftReportDto): Observable<ShiftReportResponse> {

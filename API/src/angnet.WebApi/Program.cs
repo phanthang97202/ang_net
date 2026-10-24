@@ -62,6 +62,11 @@ var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 // register infrastructure 
 builder.Services.AddInfrastructure();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IEzCloudImportService, EzCloudImportService>(client =>
+{
+    client.BaseAddress = new Uri("https://pms.ezcloudhotel.com/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddScoped<angnet.Application.Interfaces.Services.IReelMediaStorage, angnet.WebApi.Cloudinary.ReelMediaStorage>();
 
 // inject AppDbContext

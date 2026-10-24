@@ -33,6 +33,7 @@
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionPolicyProvider.cs" Link="Support\PermissionPolicyProvider.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ShiftReportController.cs" Link="Support\ShiftReportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\RentalStatisticsController.cs" Link="Support\RentalStatisticsController.cs" />
+    <Compile Include="..\..\src\angnet.WebApi\Controllers\EzCloudImportController.cs" Link="Support\EzCloudImportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\RevenueReportController.cs" Link="Support\RevenueReportController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Authorization Policy\PermissionHandler.cs" Link="Support\PermissionHandler.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\MovieWishlistController.cs" Link="Support\MovieWishlistController.cs" />

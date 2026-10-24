@@ -8,7 +8,8 @@ import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 import * as icons from '@ant-design/icons-angular/icons';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService, SysParameterConfigService } from '../../../services';
 import { ShiftReportComponent } from './shift-report.component';
 import { ShiftReportModule } from './shift-report.module';
@@ -36,6 +37,7 @@ describe('Shift report permissions', () => {
       'create',
       'update',
       'delete',
+      'importEzCloudTransactions',
     ]);
     api.getAll.and.returnValue(of({ Items: [], TotalCount: 0 }));
     api.getDrinkStock.and.returnValue(of([]));
@@ -43,6 +45,7 @@ describe('Shift report permissions', () => {
     api.update.and.returnValue(of({ Id: 1 }));
     api.delete.and.returnValue(of(undefined));
     modal = jasmine.createSpyObj('NzModalService', ['confirm']);
+    sessionStorage.removeItem('ezcloud.pms.accessToken');
     component = new ShiftReportComponent(
       new FormBuilder(),
       api,
@@ -294,5 +297,86 @@ describe('Shift report permissions', () => {
     expect(api.getAll).not.toHaveBeenCalled();
     expect(api.getDrinkStock).not.toHaveBeenCalled();
     expect(api.getById).not.toHaveBeenCalled();
+  });
+
+  it('imports ezCloud transactions into the editable form after confirmation', () => {
+    permissions.add('shiftreport.create');
+    const start = new Date(2026, 9, 24, 7);
+    const end = new Date(2026, 9, 24, 19);
+    component.reportForm.patchValue({ startTime: start, endTime: end });
+    sessionStorage.setItem(
+      'ezcloud.pms.accessToken',
+      'test-access-token-with-safe-length'
+    );
+    api.importEzCloudTransactions.and.returnValue(
+      of({
+        Transactions: [
+          {
+            OrderNumber: 1,
+            RoomNumber: '202',
+            InvoiceCode: '203',
+            CustomerType: 'k.ngày',
+            CashAmount: 300000,
+            TransferAmount: 700000,
+            IsUseExpenseForReportRevenue: true,
+          },
+        ],
+        Summary: {
+          TransactionCount: 1,
+          SkippedDeletedCount: 0,
+          TotalCash: 300000,
+          TotalTransfer: 700000,
+          TotalExpense: 0,
+        },
+        Warnings: [],
+      })
+    );
+
+    component.importFromEzCloud();
+    expect(api.importEzCloudTransactions).toHaveBeenCalledWith({
+      AccessToken: 'test-access-token-with-safe-length',
+      StartTime: start.toISOString(),
+      EndTime: end.toISOString(),
+    });
+    modal.confirm.calls.mostRecent().args[0].nzOnOk();
+    expect(component.transactions.length).toBe(1);
+    expect(component.transactions.at(0).value).toEqual(
+      jasmine.objectContaining({
+        roomNumber: '202',
+        invoiceCode: '203',
+        customerType: 'k.ngày',
+        cashAmount: 300000,
+        transferAmount: 700000,
+      })
+    );
+  });
+
+  it('clears an expired ezCloud token and opens the token popup again', () => {
+    permissions.add('shiftreport.create');
+    component.reportForm.patchValue({
+      startTime: new Date(2026, 9, 24, 7),
+      endTime: new Date(2026, 9, 24, 19),
+    });
+    sessionStorage.setItem(
+      'ezcloud.pms.accessToken',
+      'expired-access-token-with-safe-length'
+    );
+    api.importEzCloudTransactions.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 422,
+            error: {
+              Code: 'EzCloudTokenInvalid',
+              Message: 'Token hết hạn',
+            },
+          })
+      )
+    );
+
+    component.importFromEzCloud();
+    expect(sessionStorage.getItem('ezcloud.pms.accessToken')).toBeNull();
+    expect(component.isEzCloudTokenVisible).toBeTrue();
+    expect(component.ezCloudTokenError).toBe('Token hết hạn');
   });
 });

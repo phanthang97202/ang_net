@@ -33,6 +33,7 @@ public class ReportPermissionTests
     private static HttpClient _client = null!;
     private static Mock<IShiftReportService> _shifts = null!;
     private static Mock<IRevenueReportService> _revenue = null!;
+    private static Mock<IEzCloudImportService> _ezCloud = null!;
 
     [ClassInitialize]
     public static async Task StartServer(TestContext _)
@@ -52,12 +53,17 @@ public class ReportPermissionTests
         _revenue.Setup(s => s.GetRevenueReportAsync(It.IsAny<RevenueReportQueryParams>())).ReturnsAsync(
             new RevenueReportResponse { Summary = new(), RevenueByDate = [], RevenueByShiftType = [],
                 RevenueByReceptionist = [], RevenueByRoom = [], Details = [] });
+        _ezCloud = new(MockBehavior.Strict);
+        _ezCloud.Setup(s => s.ImportShiftTransactionsAsync(
+                It.IsAny<EzCloudImportRequestDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EzCloudImportResultDto());
 
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.Logging.ClearProviders();
         builder.Services.AddSingleton(_shifts.Object);
         builder.Services.AddSingleton(_revenue.Object);
+        builder.Services.AddSingleton(_ezCloud.Object);
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             options.TokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true, ValidIssuer = "report-tests",
@@ -96,11 +102,13 @@ public class ReportPermissionTests
     [DataRow("PUT", "/api/ShiftReport/Update/1", "shiftreport.update", 200)]
     [DataRow("DELETE", "/api/ShiftReport/Delete/1", "shiftreport.delete", 204)]
     [DataRow("GET", "/api/RevenueReports?receptionistName=Test&shiftType=Day&roomNumber=101", "revenuereport.view", 200)]
+    [DataRow("POST", "/api/EzCloudImport/ShiftTransactions", "shiftreport.view", 200)]
     public async Task Endpoints_RequireExactPermissionBeforeCallingServices(
         string method, string path, string permission, int successStatus)
     {
         _shifts.Invocations.Clear();
         _revenue.Invocations.Clear();
+        _ezCloud.Invocations.Clear();
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Send(method, path, null), "Anonymous request");
         Assert.AreEqual(HttpStatusCode.Forbidden, await Send(method, path, Token([])), "Logged in without permission");
         Assert.AreEqual(HttpStatusCode.Forbidden, await Send(method, path,
@@ -109,16 +117,17 @@ public class ReportPermissionTests
             Token([permission], expired: true)), "Expired permission token");
         Assert.AreEqual(0, _shifts.Invocations.Count, "Denied requests must not touch reports");
         Assert.AreEqual(0, _revenue.Invocations.Count, "Denied requests must not read revenue");
+        Assert.AreEqual(0, _ezCloud.Invocations.Count, "Denied requests must not call ezCloud");
 
         Assert.AreEqual((HttpStatusCode)successStatus, await Send(method, path, Token([permission])));
         Assert.AreEqual((HttpStatusCode)successStatus, await Send(method, path, Token([], admin: true)));
-        Assert.AreEqual(2, _shifts.Invocations.Count + _revenue.Invocations.Count);
+        Assert.AreEqual(2, _shifts.Invocations.Count + _revenue.Invocations.Count + _ezCloud.Invocations.Count);
     }
 
     [TestMethod]
     public void ReportControllers_HaveNoAnonymousActions()
     {
-        foreach (var type in new[] { typeof(ShiftReportController), typeof(RevenueReportsController), typeof(RentalStatisticsController) }) {
+        foreach (var type in new[] { typeof(ShiftReportController), typeof(RevenueReportsController), typeof(RentalStatisticsController), typeof(EzCloudImportController) }) {
             Assert.IsFalse(type.IsDefined(typeof(AllowAnonymousAttribute), true));
             foreach (var action in type.GetMethods().Where(m => m.GetCustomAttributes(true)
                 .OfType<Microsoft.AspNetCore.Mvc.Routing.HttpMethodAttribute>().Any())) {
@@ -144,11 +153,17 @@ public class ReportPermissionTests
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), path);
         if (token is not null) request.Headers.Authorization = new("Bearer", token);
-        if (method is "POST" or "PUT") request.Content = JsonContent.Create(new {
-            Id = 1, ShiftDate = "2026-10-08", ShiftType = "Day", ReceptionistName = "Test",
-            StartTime = "2026-10-08T07:00:00", EndTime = "2026-10-08T19:00:00",
-            Transactions = Array.Empty<object>(), RoomSales = Array.Empty<object>(), DrinkSales = Array.Empty<object>()
-        });
+        if (path.Contains("EzCloudImport"))
+            request.Content = JsonContent.Create(new {
+                AccessToken = "test-access-token-with-safe-length",
+                StartTime = "2026-10-08T07:00:00+07:00", EndTime = "2026-10-08T19:00:00+07:00"
+            });
+        else if (method is "POST" or "PUT")
+            request.Content = JsonContent.Create(new {
+                Id = 1, ShiftDate = "2026-10-08", ShiftType = "Day", ReceptionistName = "Test",
+                StartTime = "2026-10-08T07:00:00", EndTime = "2026-10-08T19:00:00",
+                Transactions = Array.Empty<object>(), RoomSales = Array.Empty<object>(), DrinkSales = Array.Empty<object>()
+            });
         using var response = await _client.SendAsync(request);
         return response.StatusCode;
     }

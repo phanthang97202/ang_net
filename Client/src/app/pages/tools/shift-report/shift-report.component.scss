@@ -177,3 +177,46 @@
   margin-top: 2px;
   line-height: 1.2;
 }
+
+.ezcloud-import-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -4px 0 12px;
+  color: var(--color-text-muted, #666);
+  font-size: 12px;
+}
+
+.ezcloud-token-help,
+.ezcloud-token-note {
+  color: var(--color-text-muted, #666);
+}
+
+.ezcloud-token-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.ezcloud-token-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.ezcloud-token-error {
+  margin-top: 8px;
+  color: #cf1322;
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .ezcloud-import-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ezcloud-import-actions button {
+    min-height: 44px;
+  }
+}

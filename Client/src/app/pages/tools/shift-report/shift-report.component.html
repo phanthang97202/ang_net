@@ -305,6 +305,21 @@
         <!-- Transactions Section -->
         <nz-divider nzText="Giao dịch trong ca"></nz-divider>
 
+        <div class="ezcloud-import-actions">
+          <span>
+            Lấy các khoản thu/chi đúng theo giờ bắt đầu và kết thúc ca.
+          </span>
+          <button
+            nz-button
+            type="button"
+            [disabled]="!canSave || isEzCloudLoading"
+            [nzLoading]="isEzCloudLoading"
+            (click)="importFromEzCloud()">
+            <span nz-icon nzType="cloud-download"></span>
+            Lấy từ ezCloud
+          </button>
+        </div>
+
         <div formArrayName="transactions">
           <div class="table-responsive">
             <nz-table
@@ -707,6 +722,52 @@
           {{ editingId ? 'Cập nhật' : 'Tạo mới' }}
         </button>
       </div>
+    </ng-template>
+  </nz-modal>
+
+  <nz-modal
+    [(nzVisible)]="isEzCloudTokenVisible"
+    nzTitle="Access token ezCloud"
+    [nzMaskClosable]="false"
+    (nzOnCancel)="cancelEzCloudToken()"
+    [nzFooter]="ezCloudTokenFooter">
+    <ng-container *nzModalContent>
+      <p class="ezcloud-token-help">
+        Token chỉ được giữ trong tab trình duyệt này và không được lưu vào cơ sở
+        dữ liệu. Có thể dán cả tiền tố <code>Bearer</code>.
+      </p>
+      <label class="ezcloud-token-label" for="ezcloud-access-token">
+        Access token
+      </label>
+      <input
+        id="ezcloud-access-token"
+        nz-input
+        type="password"
+        autocomplete="off"
+        spellcheck="false"
+        maxlength="16384"
+        [(ngModel)]="ezCloudToken"
+        [ngModelOptions]="{ standalone: true }"
+        (keyup.enter)="submitEzCloudToken()"
+        placeholder="Dán access token của pms.ezcloudhotel.com" />
+      <div *ngIf="ezCloudTokenError" class="ezcloud-token-error" role="alert">
+        {{ ezCloudTokenError }}
+      </div>
+      <p class="ezcloud-token-note">
+        Khi token hết hạn, hệ thống sẽ tự xóa token cũ và mở lại cửa sổ này.
+      </p>
+    </ng-container>
+    <ng-template #ezCloudTokenFooter>
+      <button nz-button type="button" (click)="cancelEzCloudToken()">
+        Hủy
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        type="button"
+        (click)="submitEzCloudToken()">
+        Lưu trong tab và lấy dữ liệu
+      </button>
     </ng-template>
   </nz-modal>
 

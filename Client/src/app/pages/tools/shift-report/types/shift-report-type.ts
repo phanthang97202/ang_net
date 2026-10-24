@@ -20,6 +20,26 @@ export interface ShiftReportTransaction extends BaseModel {
   IsUseExpenseForReportRevenue: boolean;
 }
 
+export interface EzCloudImportRequest {
+  AccessToken: string;
+  StartTime: string;
+  EndTime: string;
+}
+
+export interface EzCloudImportSummary {
+  TransactionCount: number;
+  SkippedDeletedCount: number;
+  TotalCash: number;
+  TotalTransfer: number;
+  TotalExpense: number;
+}
+
+export interface EzCloudImportResult {
+  Transactions: ShiftReportTransaction[];
+  Summary: EzCloudImportSummary;
+  Warnings: string[];
+}
+
 export interface ShiftReportRoomSale extends BaseModel {
   Id?: number;
   RoomNumber: string;

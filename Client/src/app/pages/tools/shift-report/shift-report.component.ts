@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -8,6 +9,8 @@ import {
   ShiftReportListItem,
   ShiftRoomPrice,
   DrinkStock,
+  EzCloudImportResult,
+  ShiftReportTransaction,
 } from './types/shift-report-type';
 // import { ShiftReportMockService } from './services/shift-report-mock.service';
 import { ExcelExportService } from './services/excel-report.service';
@@ -37,11 +40,16 @@ interface DrinkSaleFormValue {
   styleUrls: ['./shift-report.component.scss'],
 })
 export class ShiftReportComponent implements OnInit, OnDestroy {
+  private readonly ezCloudTokenKey = 'ezcloud.pms.accessToken';
   reportForm!: FormGroup;
   isLoading = false;
   isModalVisible = false;
   modalTitle = 'Tạo báo cáo ca mới';
   editingId: number | null = null;
+  isEzCloudLoading = false;
+  isEzCloudTokenVisible = false;
+  ezCloudToken = '';
+  ezCloudTokenError = '';
 
   isAiAssistantVisible = false;
   isAdmin = false;
@@ -289,6 +297,160 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.transactions.controls.forEach((control, i) => {
       control.patchValue({ orderNumber: i + 1 });
     });
+  }
+
+  importFromEzCloud(): void {
+    if (!this.canSave) {
+      this.message.warning(
+        'Bạn không có quyền cập nhật giao dịch của báo cáo này.'
+      );
+      return;
+    }
+    const token = this.getEzCloudToken();
+    if (!token) {
+      this.openEzCloudTokenModal();
+      return;
+    }
+    this.loadEzCloudTransactions(token);
+  }
+
+  openEzCloudTokenModal(message = ''): void {
+    this.ezCloudToken = '';
+    this.ezCloudTokenError = message;
+    this.isEzCloudTokenVisible = true;
+  }
+
+  cancelEzCloudToken(): void {
+    this.isEzCloudTokenVisible = false;
+    this.ezCloudToken = '';
+    this.ezCloudTokenError = '';
+  }
+
+  submitEzCloudToken(): void {
+    const token = this.ezCloudToken.trim();
+    if (token.length < 20) {
+      this.ezCloudTokenError = 'Access token không hợp lệ.';
+      return;
+    }
+    try {
+      sessionStorage.setItem(this.ezCloudTokenKey, token);
+    } catch {
+      // Trình duyệt có thể chặn sessionStorage; token vẫn dùng được cho lần gọi này.
+    }
+    this.isEzCloudTokenVisible = false;
+    this.ezCloudTokenError = '';
+    this.loadEzCloudTransactions(token);
+    this.ezCloudToken = '';
+  }
+
+  private getEzCloudToken(): string {
+    try {
+      return sessionStorage.getItem(this.ezCloudTokenKey)?.trim() || '';
+    } catch {
+      return '';
+    }
+  }
+
+  private clearEzCloudToken(): void {
+    try {
+      sessionStorage.removeItem(this.ezCloudTokenKey);
+    } catch {
+      // Không có token nào được lưu nếu sessionStorage không khả dụng.
+    }
+  }
+
+  private loadEzCloudTransactions(token: string): void {
+    const start = new Date(this.reportForm.get('startTime')?.value);
+    const end = new Date(this.reportForm.get('endTime')?.value);
+    if (
+      !Number.isFinite(start.getTime()) ||
+      !Number.isFinite(end.getTime()) ||
+      end <= start
+    ) {
+      this.message.warning(
+        'Hãy chọn giờ bắt đầu và kết thúc ca hợp lệ trước khi đồng bộ.'
+      );
+      return;
+    }
+
+    this.isEzCloudLoading = true;
+    this.shiftReportService
+      .importEzCloudTransactions({
+        AccessToken: token,
+        StartTime: start.toISOString(),
+        EndTime: end.toISOString(),
+      })
+      .subscribe({
+        next: result => {
+          this.isEzCloudLoading = false;
+          this.confirmEzCloudImport(result);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isEzCloudLoading = false;
+          if (
+            error.status === 422 &&
+            error.error?.Code === 'EzCloudTokenInvalid'
+          ) {
+            this.clearEzCloudToken();
+            this.openEzCloudTokenModal(
+              error.error?.Message ||
+                'Access token ezCloud đã hết hạn. Hãy nhập token mới.'
+            );
+            return;
+          }
+          this.message.error(
+            error.error?.Message || 'Không thể lấy giao dịch từ ezCloud.'
+          );
+        },
+      });
+  }
+
+  private confirmEzCloudImport(result: EzCloudImportResult): void {
+    if (!result.Transactions.length) {
+      this.message.info(
+        'Không có giao dịch ezCloud trong khoảng thời gian của ca.'
+      );
+      return;
+    }
+    const summary = result.Summary;
+    const warning = result.Warnings?.length
+      ? `\n${result.Warnings.join('\n')}`
+      : '';
+    this.modal.confirm({
+      nzTitle: 'Nhập giao dịch từ ezCloud',
+      nzContent:
+        `${summary.TransactionCount} dòng · Tiền mặt ${this.formatCurrency(summary.TotalCash)}đ · ` +
+        `Không tiền mặt ${this.formatCurrency(summary.TotalTransfer)}đ · ` +
+        `Chi ${this.formatCurrency(summary.TotalExpense)}đ.${warning}\n` +
+        'Các dòng giao dịch hiện tại sẽ được thay thế; bán phòng và bán nước được giữ nguyên.',
+      nzOkText: 'Điền vào báo cáo',
+      nzCancelText: 'Hủy',
+      nzOnOk: () => this.replaceTransactions(result.Transactions),
+    });
+  }
+
+  private replaceTransactions(transactions: ShiftReportTransaction[]): void {
+    if (!this.canSave) return;
+    this.transactions.clear();
+    transactions.forEach((transaction, index) => {
+      this.transactions.push(
+        this.fb.group({
+          orderNumber: [index + 1],
+          roomNumber: [transaction.RoomNumber || ''],
+          invoiceCode: [transaction.InvoiceCode || ''],
+          customerType: [transaction.CustomerType || ''],
+          cashAmount: [transaction.CashAmount || null],
+          transferAmount: [transaction.TransferAmount || null],
+          prepaidNote: [transaction.PrepaidNote || ''],
+          expenseDescription: [transaction.ExpenseDescription || ''],
+          expenseAmount: [transaction.ExpenseAmount || null],
+          isUseExpenseForReportRevenue: [
+            transaction.IsUseExpenseForReportRevenue,
+          ],
+        })
+      );
+    });
+    this.message.success(`Đã điền ${transactions.length} dòng từ ezCloud.`);
   }
 
   // Giá để trống khi phòng chưa khai báo trong SHIFT_ROOM_PRICES - người dùng
