@@ -71,6 +71,11 @@
           routerLink="/tools/revenue-report">
           {{ 'T_REVENUESHIFTREPORT' | translate }}
         </a>
+        <a
+          *ngIf="canViewReport('rentalstatistics.view')"
+          routerLink="/tools/rental-statistics">
+          {{ 'T_RENTALSTATISTICS' | translate }}
+        </a>
       </div>
 
       <div class="footer-col" *ngIf="stats$ | async as stats">

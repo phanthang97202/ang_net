@@ -129,6 +129,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
           title: 'RevenueShiftReport',
           icon: 'dollar',
         },
+        {
+          path: '/tools/rental-statistics',
+          title: 'RentalStatistics',
+          icon: 'line-chart',
+        },
       ],
     },
     { path: '/reels', title: 'Reels', icon: 'play-circle' },
@@ -259,11 +264,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const permission =
         path === '/tools/shift-report'
           ? 'shiftreport.view'
-          : path === '/tools/revenue-report'
-            ? 'revenuereport.view'
-            : path === '/phim' || path === '/anime'
-              ? 'movie.view'
-              : null;
+          : path === '/tools/rental-statistics'
+            ? 'rentalstatistics.view'
+            : path === '/tools/revenue-report'
+              ? 'revenuereport.view'
+              : path === '/phim' || path === '/anime'
+                ? 'movie.view'
+                : null;
       if (
         permission &&
         (!this.authService.isLoggedIn() ||

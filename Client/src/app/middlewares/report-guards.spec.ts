@@ -12,6 +12,7 @@ describe('Report route guards', () => {
   for (const [path, permission] of [
     ['shift-report', 'shiftreport.view'],
     ['revenue-report', 'revenuereport.view'],
+    ['rental-statistics', 'rentalstatistics.view'],
   ]) {
     it(`protects /tools/${path} from anonymous and unpermitted direct navigation`, () => {
       let loggedIn = false;

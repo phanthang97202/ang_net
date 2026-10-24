@@ -19,9 +19,10 @@ namespace angnet.Infrastructure.Data.Services
         Task<ShiftReportResponseDto> GetByIdAsync(int id);
         Task<PagedResult<ShiftReportListDto>> GetAllAsync(ShiftReportQueryParams queryParams);
         Task<List<DrinkStockDto>> GetDrinkStockAsync();
+        Task<ShiftRentalStatisticsDto> GetRentalStatisticsAsync(ShiftRentalStatisticsQuery query, CancellationToken ct = default);
     }
 
-    public class ShiftReportService : IShiftReportService
+    public partial class ShiftReportService : IShiftReportService
     {
         private readonly AppDbContext _context;
         private readonly IAuditTrailService _auditTrailService;

@@ -26,7 +26,7 @@ namespace angnet.InfrastructureTests.Authorization;
 public class ReportPermissionTests
 {
     private static readonly string[] Permissions = ["shiftreport.view", "shiftreport.create",
-        "shiftreport.update", "shiftreport.delete", "revenuereport.view"];
+        "shiftreport.update", "shiftreport.delete", "revenuereport.view", "rentalstatistics.view"];
     private static readonly SymmetricSecurityKey Key = new(Encoding.UTF8.GetBytes(
         "report-authorization-tests-only-signing-key-2026"));
     private static WebApplication _app = null!;
@@ -41,6 +41,8 @@ public class ReportPermissionTests
         _shifts.Setup(s => s.GetAllAsync(It.IsAny<ShiftReportQueryParams>())).ReturnsAsync(
             new PagedResult<ShiftReportListDto> { Items = [], PageNumber = 1, PageSize = 10 });
         _shifts.Setup(s => s.GetDrinkStockAsync()).ReturnsAsync([]);
+        _shifts.Setup(s => s.GetRentalStatisticsAsync(It.IsAny<ShiftRentalStatisticsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ShiftRentalStatisticsDto());
         var report = new ShiftReportResponseDto { Id = 1, Transactions = [], RoomSales = [], DrinkSales = [] };
         _shifts.Setup(s => s.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(report);
         _shifts.Setup(s => s.CreateAsync(It.IsAny<CreateShiftReportDto>())).ReturnsAsync(report);
@@ -89,6 +91,7 @@ public class ReportPermissionTests
     [DataRow("GET", "/api/ShiftReport/GetById/1", "shiftreport.view", 200)]
     [DataRow("GET", "/api/ShiftReport/GetDrinkStock", "shiftreport.view", 200)]
     [DataRow("GET", "/api/ShiftReport/GetSummary", "shiftreport.view", 200)]
+    [DataRow("GET", "/api/RentalStatistics?fromDate=2026-10-01&toDate=2026-10-24", "rentalstatistics.view", 200)]
     [DataRow("POST", "/api/ShiftReport/Create", "shiftreport.create", 201)]
     [DataRow("PUT", "/api/ShiftReport/Update/1", "shiftreport.update", 200)]
     [DataRow("DELETE", "/api/ShiftReport/Delete/1", "shiftreport.delete", 204)]
@@ -115,7 +118,7 @@ public class ReportPermissionTests
     [TestMethod]
     public void ReportControllers_HaveNoAnonymousActions()
     {
-        foreach (var type in new[] { typeof(ShiftReportController), typeof(RevenueReportsController) }) {
+        foreach (var type in new[] { typeof(ShiftReportController), typeof(RevenueReportsController), typeof(RentalStatisticsController) }) {
             Assert.IsFalse(type.IsDefined(typeof(AllowAnonymousAttribute), true));
             foreach (var action in type.GetMethods().Where(m => m.GetCustomAttributes(true)
                 .OfType<Microsoft.AspNetCore.Mvc.Routing.HttpMethodAttribute>().Any())) {

@@ -33,6 +33,7 @@ function provideNotifications(): void {
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import {
   HomeOutline,
+  LineChartOutline,
   ToolOutline,
   CalculatorOutline,
   FileTextOutline,
@@ -199,6 +200,12 @@ describe('Navbar report permissions', () => {
             Children: [],
           },
           {
+            TitleVi: 'Thống kê thuê phòng',
+            Path: '/tools/rental-statistics',
+            Icon: 'line-chart',
+            Children: [],
+          },
+          {
             TitleVi: 'Doanh thu',
             Path: '/tools/revenue-report',
             Icon: 'dollar',
@@ -214,6 +221,7 @@ describe('Navbar report permissions', () => {
             provide: NZ_ICONS,
             useValue: [
               HomeOutline,
+              LineChartOutline,
               ToolOutline,
               CalculatorOutline,
               FileTextOutline,
@@ -257,6 +265,7 @@ describe('Navbar report permissions', () => {
       fixture.detectChanges();
       expect(links('/tools/shift-report')).toBe(0);
       expect(links('/tools/revenue-report')).toBe(0);
+      expect(links('/tools/rental-statistics')).toBe(0);
       if (fromApi)
         expect(fixture.nativeElement.querySelector('.nav-dropdown')).toBeNull();
 
@@ -265,19 +274,28 @@ describe('Navbar report permissions', () => {
       fixture.detectChanges();
       expect(links('/tools/shift-report')).toBe(2);
       expect(links('/tools/revenue-report')).toBe(0);
+      expect(links('/tools/rental-statistics')).toBe(0);
+      permissions.clear();
+      permissions.add('rentalstatistics.view');
+      fixture.detectChanges();
+      expect(links('/tools/rental-statistics')).toBe(2);
+      expect(links('/tools/shift-report')).toBe(0);
       permissions.clear();
       permissions.add('revenuereport.view');
       fixture.detectChanges();
       expect(links('/tools/shift-report')).toBe(0);
       expect(links('/tools/revenue-report')).toBe(2);
+      expect(links('/tools/rental-statistics')).toBe(0);
       admin = true;
       fixture.detectChanges();
       expect(links('/tools/shift-report')).toBe(2);
       expect(links('/tools/revenue-report')).toBe(2);
+      expect(links('/tools/rental-statistics')).toBe(2);
       loggedIn = false;
       fixture.detectChanges();
       expect(links('/tools/shift-report')).toBe(0);
       expect(links('/tools/revenue-report')).toBe(0);
+      expect(links('/tools/rental-statistics')).toBe(0);
       fixture.destroy();
     });
   }

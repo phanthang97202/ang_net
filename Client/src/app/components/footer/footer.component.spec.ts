@@ -72,5 +72,11 @@ describe('FooterComponent', () => {
     fixture.detectChanges();
     expect(link('/tools/shift-report')).toBeNull();
     expect(link('/tools/revenue-report')).not.toBeNull();
+    expect(link('/tools/rental-statistics')).toBeNull();
+    permissions.clear();
+    permissions.add('rentalstatistics.view');
+    fixture.detectChanges();
+    expect(link('/tools/revenue-report')).toBeNull();
+    expect(link('/tools/rental-statistics')).not.toBeNull();
   });
 });

@@ -9,6 +9,8 @@ import {
   ShiftReportQueryParams,
   ShiftReportResponse,
   DrinkStock,
+  ShiftRentalQuery,
+  ShiftRentalStatistics,
 } from '../types/shift-report-type';
 
 @Injectable({
@@ -52,6 +54,20 @@ export class ShiftReportService {
   // Ton kho nuoc con lai = so nhap khai trong tham so he thong tru tong da ban.
   getDrinkStock(): Observable<DrinkStock[]> {
     return this.http.get<DrinkStock[]>(`${this.apiUrl}/GetDrinkStock`);
+  }
+
+  getRentalStatistics(
+    query: ShiftRentalQuery
+  ): Observable<ShiftRentalStatistics> {
+    let params = new HttpParams()
+      .set('fromDate', query.fromDate)
+      .set('toDate', query.toDate);
+    if (query.receptionistName)
+      params = params.set('receptionistName', query.receptionistName);
+    return this.http.get<ShiftRentalStatistics>(
+      `${environment.apiUrl}RentalStatistics`,
+      { params }
+    );
   }
 
   getById(id: number): Observable<ShiftReportResponse> {

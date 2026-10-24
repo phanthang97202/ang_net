@@ -113,6 +113,39 @@ export interface ShiftReportQueryParams {
   pageSize?: number;
 }
 
+export interface ShiftRentalQuery {
+  fromDate: string;
+  toDate: string;
+  receptionistName?: string;
+}
+export interface ShiftRentalDay {
+  Date: string;
+  DayRentals: number;
+  NightRentals: number;
+  OtherRentals: number;
+  DayReports: number;
+  NightReports: number;
+  OtherReports: number;
+  // Có báo cáo của bất kỳ lễ tân nào, không phụ thuộc bộ lọc lễ tân.
+  DayShiftReported: boolean;
+  NightShiftReported: boolean;
+}
+export interface ShiftRentalStatistics {
+  FromDate: string;
+  ToDate: string;
+  ReceptionistName: string;
+  Receptionists: string[];
+  Summary: {
+    TotalRentals: number;
+    DayRentals: number;
+    NightRentals: number;
+    OtherRentals: number;
+    TotalReports: number;
+    IncompleteDays: number;
+  };
+  Days: ShiftRentalDay[];
+}
+
 // Bảng giá phòng, cấu hình qua tham số hệ thống SHIFT_ROOM_PRICES. Mỗi phòng
 // thuộc 1 loại phòng và có 3 mức giá theo loại khách (ngày / đêm / giờ) - dùng
 // để tự điền đơn giá khi nhập số phòng/loại khách ở bảng "Bán phòng ngày".

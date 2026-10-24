@@ -138,6 +138,15 @@ const appRoutes: Routes = [
           ),
       },
       {
+        title: 'T_PAGE_RENTAL_STATISTICS',
+        path: 'rental-statistics',
+        canActivate: [canActivePermission('rentalstatistics.view', '/')],
+        loadComponent: () =>
+          import(
+            './pages/tools/rental-statistics/shift-rental-statistics.component'
+          ).then(p => p.ShiftRentalStatisticsComponent),
+      },
+      {
         title: 'T_PAGE_REVENUE_REPORT',
         path: 'revenue-report',
         canActivate: [canActivePermission('revenuereport.view', '/')],

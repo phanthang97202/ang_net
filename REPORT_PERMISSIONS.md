@@ -9,6 +9,7 @@ Triển khai Client và API cùng nhau. API kiểm tra quyền trên từng endp
 | `shiftreport.update` | `PUT /api/ShiftReport/Update/{id}` |
 | `shiftreport.delete` | `DELETE /api/ShiftReport/Delete/{id}` |
 | `revenuereport.view` | `GET /api/RevenueReports`; vào `/tools/revenue-report`, lọc và in doanh thu |
+| `rentalstatistics.view` | `GET /api/RentalStatistics`; vào `/tools/rental-statistics`, xem lượt thuê phòng theo ngày, ca và lễ tân |
 
 Để thao tác qua màn quản lý ca, cấp `shiftreport.view` cùng các quyền tạo/sửa/xóa cần thiết. Quyền CRUD không tự cấp các quyền khác. API CRUD kiểm tra mã quyền riêng của thao tác đó. In/Excel dùng quyền xem vì dữ liệu đã được cung cấp cho người xem; không có endpoint xuất file riêng. Nút xuất Excel doanh thu hiện vẫn là TODO có sẵn, thay đổi này không triển khai chức năng xuất đó. Trợ lý AI giữ giới hạn Admin; các công cụ của nó gọi qua API báo cáo đã được bảo vệ.
 
@@ -16,7 +17,7 @@ Menu API, menu dự phòng ở navbar và link footer đều lọc theo quyền 
 
 ## Cấp quyền và chuyển phiên
 
-1. API startup migrator chạy script `0038_SeedQuyenBaoCaoDoanhThu.sql`, bổ sung `revenuereport.view` vào danh mục. Bốn quyền `shiftreport.*` đã có từ script 0012.
+1. API startup migrator chạy script `0038_SeedQuyenBaoCaoDoanhThu.sql`, bổ sung `revenuereport.view` vào danh mục. Bốn quyền `shiftreport.*` đã có từ script 0012. Script `0064_ThongKeThuePhong.sql` bổ sung `rentalstatistics.view` và mục menu Thống kê thuê phòng.
 2. Trong quản lý vai trò, chọn quyền tương ứng rồi gán vai trò cho tài khoản. Migration không tự cấp quyền hay thay đổi vai trò/tài khoản hiện có.
 3. Đăng nhập lại hoặc lấy access token mới sau khi thay đổi quyền. Hệ thống gộp role claims vào JWT khi phát token; việc đổi vai trò/quyền không tự thay đổi claims trong token đang dùng. Khi cần áp dụng ngay, Admin dùng **Thu hồi mọi phiên** trong quản lý người dùng: access/refresh token cũ bị vô hiệu hóa và người dùng phải đăng nhập lại để nhận quyền mới. Không truy vấn DB danh sách quyền trên mỗi request; việc kiểm tra tài khoản và phiên dùng cơ chế trong `ACCOUNT_LOGIN.md`.
 

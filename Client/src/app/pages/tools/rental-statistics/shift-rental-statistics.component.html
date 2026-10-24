@@ -1,0 +1,275 @@
+<section
+  class="rental-statistics"
+  aria-label="Thống kê lượt thuê phòng"
+  [attr.aria-busy]="loading">
+  <h1>Thống kê thuê phòng</h1>
+  <form class="filters" (ngSubmit)="load()">
+    <div class="field">
+      <span>Khoảng ngày</span
+      ><nz-range-picker
+        name="rentalRange"
+        aria-label="Khoảng ngày thống kê thuê phòng"
+        [(ngModel)]="range"
+        nzFormat="dd/MM/yyyy"
+        [nzDisabledDate]="disabledDate"
+        [nzAllowClear]="false" />
+    </div>
+    <div class="field">
+      <span>Lễ tân</span
+      ><nz-select
+        name="rentalReceptionist"
+        aria-label="Lễ tân trực ca"
+        [(ngModel)]="receptionist"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Tất cả lễ tân"
+        ><nz-option
+          *ngFor="let name of receptionists"
+          [nzValue]="name"
+          [nzLabel]="name"
+      /></nz-select>
+    </div>
+    <button nz-button nzType="primary" type="submit">
+      <span nz-icon nzType="filter"></span>Lọc
+    </button>
+    <button nz-button type="button" (click)="reset()">
+      <span nz-icon nzType="reload"></span>Đặt lại
+    </button>
+  </form>
+  <div *ngIf="loading" class="state" role="status">
+    <span nz-icon nzType="loading" nzSpin></span>Đang tải…
+  </div>
+  <div *ngIf="error" class="error" role="alert">{{ error }}</div>
+  <ng-container *ngIf="data as report">
+    <div class="applied">
+      <span
+        >{{ report.FromDate | date: 'dd/MM/yyyy' }} –
+        {{ report.ToDate | date: 'dd/MM/yyyy' }}</span
+      ><span>{{ report.ReceptionistName || 'Tất cả lễ tân' }}</span
+      ><span>{{ report.Summary.TotalReports | number }} báo cáo</span
+      ><span *ngIf="report.Summary.IncompleteDays"
+        >{{ report.Summary.IncompleteDays | number }} ngày thiếu ca</span
+      >
+    </div>
+    <div class="summary">
+      <article>
+        <span>Tổng lượt thuê</span
+        ><strong>{{ report.Summary.TotalRentals | number }}</strong>
+      </article>
+      <article class="day-card">
+        <span>Ca ngày</span
+        ><strong>{{ report.Summary.DayRentals | number }}</strong
+        ><small>{{
+          share ? (share.day | number: '1.0-1') + '% (ngày đủ 2 ca)' : '—'
+        }}</small>
+      </article>
+      <article class="night-card">
+        <span>Ca đêm</span
+        ><strong>{{ report.Summary.NightRentals | number }}</strong
+        ><small>{{
+          share ? (share.night | number: '1.0-1') + '% (ngày đủ 2 ca)' : '—'
+        }}</small>
+      </article>
+    </div>
+    <div *ngIf="!report.Summary.TotalReports" class="state">
+      <span nz-icon nzType="line-chart"></span>Chưa có báo cáo
+    </div>
+    <div *ngIf="report.Summary.TotalReports" class="chart-panel">
+      <div class="chart-heading">
+        <h2>Lượt thuê theo ngày</h2>
+        <div class="chart-controls">
+          <div class="chart-types" role="group" aria-label="Loại biểu đồ">
+            <button
+              type="button"
+              [class.active]="chartType === 'bar'"
+              [attr.aria-pressed]="chartType === 'bar'"
+              (click)="chartType = 'bar'">
+              <span nz-icon nzType="bar-chart"></span>Cột
+            </button>
+            <button
+              type="button"
+              [class.active]="chartType === 'line'"
+              [attr.aria-pressed]="chartType === 'line'"
+              [disabled]="mode === 'share'"
+              [title]="mode === 'share' ? 'Chế độ % dùng cột hoặc miền' : ''"
+              (click)="chartType = 'line'">
+              <span nz-icon nzType="line-chart"></span>Đường
+            </button>
+            <button
+              type="button"
+              [class.active]="chartType === 'area'"
+              [attr.aria-pressed]="chartType === 'area'"
+              (click)="chartType = 'area'">
+              <span nz-icon nzType="area-chart"></span>Miền
+            </button>
+          </div>
+          <div class="mode" role="group" aria-label="Đơn vị biểu đồ">
+            <button
+              type="button"
+              [class.active]="mode === 'count'"
+              [attr.aria-pressed]="mode === 'count'"
+              (click)="setMode('count')">
+              Số lượt</button
+            ><button
+              type="button"
+              [class.active]="mode === 'share'"
+              [attr.aria-pressed]="mode === 'share'"
+              [disabled]="!!report.ReceptionistName"
+              [title]="
+                report.ReceptionistName
+                  ? 'Tỷ trọng ca chỉ xem được khi chọn tất cả lễ tân'
+                  : ''
+              "
+              (click)="setMode('share')">
+              Tỷ trọng %
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="day-key"></i>Ca ngày</span
+        ><span><i class="night-key"></i>Ca đêm</span
+        ><small>{{ mode === 'count' ? 'Lượt thuê' : '%' }}</small>
+      </div>
+      <div class="plot">
+        <div class="axis" aria-hidden="true">
+          <span
+            *ngFor="let tick of ticks"
+            [style.bottom.%]="(tick / axisMax) * 100"
+            >{{ tick | number: '1.0-0' }}{{ mode === 'share' ? '%' : '' }}</span
+          >
+        </div>
+        <div
+          #chartScroll
+          class="chart-scroll"
+          tabindex="0"
+          aria-label="Biểu đồ theo ngày, cuộn ngang để xem thêm">
+          <div class="canvas" [style.min-width.px]="report.Days.length * 58">
+            <div class="guides" aria-hidden="true">
+              <i
+                *ngFor="let tick of ticks"
+                [style.bottom.%]="(tick / axisMax) * 100"></i>
+            </div>
+            <svg
+              *ngIf="chartType !== 'bar'"
+              class="line-graph"
+              [attr.viewBox]="'0 0 ' + report.Days.length * 58 + ' 240'"
+              preserveAspectRatio="none"
+              aria-hidden="true">
+              <path
+                *ngIf="chartType === 'area'"
+                class="area day"
+                [attr.d]="linePath('day', true)" />
+              <path
+                *ngIf="chartType === 'area'"
+                class="area night"
+                [attr.d]="linePath('night', true)" />
+              <path
+                class="line day"
+                [attr.d]="linePath('day')"
+                vector-effect="non-scaling-stroke" />
+              <path
+                *ngIf="mode === 'count'"
+                class="line night"
+                [attr.d]="linePath('night')"
+                vector-effect="non-scaling-stroke" />
+            </svg>
+            <div
+              class="columns"
+              [class.share]="mode === 'share' && chartType === 'bar'"
+              [class.line-view]="chartType !== 'bar'">
+              <button
+                *ngFor="let day of report.Days; index as index"
+                type="button"
+                class="column"
+                [class.selected]="selectedIndex === index"
+                [attr.aria-label]="describe(day)"
+                [attr.aria-pressed]="selectedIndex === index"
+                (mouseenter)="selectedIndex = index"
+                (focus)="selectedIndex = index"
+                (click)="selectedIndex = index">
+                <span class="bars" aria-hidden="true">
+                  <span
+                    *ngIf="chartType === 'bar'"
+                    class="bar day"
+                    [style.height.%]="height(day, 'day')"></span
+                  ><span
+                    *ngIf="chartType === 'bar'"
+                    class="bar night"
+                    [style.height.%]="height(day, 'night')"></span>
+                  <span
+                    *ngIf="chartType !== 'bar' && hasPoint(day, 'day')"
+                    class="point day"
+                    [style.bottom.%]="height(day, 'day')"></span
+                  ><span
+                    *ngIf="
+                      chartType !== 'bar' &&
+                      mode === 'count' &&
+                      hasPoint(day, 'night')
+                    "
+                    class="point night"
+                    [style.bottom.%]="height(day, 'night')"></span>
+                </span>
+                <span class="date">{{ day.Date | date: 'dd/MM' }}</span
+                ><span class="coverage-label">{{ coverageLabel(day) }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="selected as day" class="day-detail" aria-live="polite">
+        <strong>{{ day.Date | date: 'dd/MM/yyyy' }}</strong
+        ><span class="day-detail-count"
+          >Ca ngày:
+          <b>{{ day.DayReports ? (day.DayRentals | number) + ' lượt' : '—' }}</b
+          ><small *ngIf="hasShare(day)"
+            >{{
+              percent(day.DayRentals, day.DayRentals + day.NightRentals)
+                | number: '1.0-1'
+            }}%</small
+          ></span
+        ><span class="night-detail-count"
+          >Ca đêm:
+          <b>{{
+            day.NightReports ? (day.NightRentals | number) + ' lượt' : '—'
+          }}</b
+          ><small *ngIf="hasShare(day)"
+            >{{
+              percent(day.NightRentals, day.DayRentals + day.NightRentals)
+                | number: '1.0-1'
+            }}%</small
+          ></span
+        ><span *ngIf="day.OtherRentals"
+          >Ca khác: {{ day.OtherRentals | number }} lượt</span
+        >
+      </div>
+    </div>
+    <details *ngIf="report.Summary.TotalReports" class="details">
+      <summary>Số liệu từng ngày</summary>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Ngày ca</th>
+              <th>Ca ngày</th>
+              <th>Ca đêm</th>
+              <th *ngIf="report.Summary.OtherRentals">Ca khác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let day of report.Days">
+              <td>{{ day.Date | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ day.DayReports ? (day.DayRentals | number) : '—' }}</td>
+              <td>
+                {{ day.NightReports ? (day.NightRentals | number) : '—' }}
+              </td>
+              <td *ngIf="report.Summary.OtherRentals">
+                {{ day.OtherReports ? (day.OtherRentals | number) : '—' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </ng-container>
+</section>
