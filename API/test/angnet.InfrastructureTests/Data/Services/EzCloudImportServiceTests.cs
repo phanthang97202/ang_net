@@ -80,7 +80,7 @@ public class EzCloudImportServiceTests
             "data": {
               "TotalRecords": "1",
               "DailyPaymentList": [
-                { "PaymentId": 11, "ReservationRoomId": 12, "TransactionNumber": "#205", "RoomName": "303", "Description": "k.đêm - Guest", "Amount": 450000, "PaymentMethodName": "Cash", "InvoiceGroup": 1, "Module": "FO", "IsDeleted": false }
+                { "PaymentId": 11, "ReservationRoomId": 12, "ReservationNumber": 205, "TransactionNumber": 205, "TransactionName": "303", "Description": "k.đêm - Guest", "Amount": 450000, "PaymentMethodName": "Cash", "InvoiceGroup": 1, "Module": "FO", "IsDeleted": false }
               ]
             }
           }

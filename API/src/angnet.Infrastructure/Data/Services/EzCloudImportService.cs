@@ -29,6 +29,24 @@ public sealed class EzCloudImportException(EzCloudImportError error, string mess
     public EzCloudImportError Error { get; } = error;
 }
 
+internal sealed class EzCloudFlexibleStringConverter : JsonConverter<string?>
+{
+    public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String) return reader.GetString();
+        if (reader.TokenType == JsonTokenType.Null) return null;
+        if (reader.TokenType == JsonTokenType.Number)
+        {
+            using var document = JsonDocument.ParseValue(ref reader);
+            return document.RootElement.GetRawText();
+        }
+        throw new JsonException($"Cannot convert {reader.TokenType} to a string.");
+    }
+
+    public override void Write(Utf8JsonWriter writer, string? value, JsonSerializerOptions options) =>
+        writer.WriteStringValue(value);
+}
+
 public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzCloudImportService
 {
     private const string DailyPaymentPath = "api/statistics/get-daily-payment-list";
@@ -351,7 +369,9 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
     {
         public long PaymentId { get; init; }
         public long ReservationRoomId { get; init; }
+        [JsonConverter(typeof(EzCloudFlexibleStringConverter))]
         public string? ReservationNumber { get; init; }
+        [JsonConverter(typeof(EzCloudFlexibleStringConverter))]
         public string? TransactionNumber { get; init; }
         public string? TransactionName { get; init; }
         public string? RoomName { get; init; }
