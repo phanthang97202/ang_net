@@ -771,6 +771,126 @@
     </ng-template>
   </nz-modal>
 
+  <nz-modal
+    [(nzVisible)]="isEzCloudPreviewVisible"
+    nzTitle="Chọn giao dịch từ ezCloud"
+    [nzWidth]="1180"
+    [nzMaskClosable]="false"
+    (nzOnCancel)="cancelEzCloudPreview()"
+    [nzFooter]="ezCloudPreviewFooter">
+    <ng-container *nzModalContent>
+      <ng-container *ngIf="ezCloudPreviewResult as preview">
+        <div class="ezcloud-preview-toolbar">
+          <div>
+            <strong>
+              Đã chọn {{ ezCloudSelectedCount }}/{{ preview.Transactions.length }}
+              dòng
+            </strong>
+            <span>
+              Tiền mặt {{ formatCurrency(ezCloudSelectedSummary.cash) }}đ ·
+              Chuyển khoản
+              {{ formatCurrency(ezCloudSelectedSummary.transfer) }}đ · Chi
+              {{ formatCurrency(ezCloudSelectedSummary.expense) }}đ
+            </span>
+          </div>
+          <button
+            nz-button
+            type="button"
+            (click)="toggleAllEzCloudRows(!isAllEzCloudRowsSelected)">
+            {{ isAllEzCloudRowsSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+          </button>
+        </div>
+
+        <div *ngIf="preview.Warnings.length" class="ezcloud-preview-warnings">
+          <div *ngFor="let warning of preview.Warnings">
+            <span nz-icon nzType="warning" nzTheme="outline"></span>
+            {{ warning }}
+          </div>
+        </div>
+
+        <nz-table
+          #ezCloudPreviewTable
+          nzSize="small"
+          [nzData]="preview.Transactions"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [nzScroll]="{ x: '1080px', y: '420px' }">
+          <thead>
+            <tr>
+              <th nzWidth="52px" nzLeft>
+                <label
+                  nz-checkbox
+                  aria-label="Chọn tất cả giao dịch ezCloud"
+                  [ngModel]="isAllEzCloudRowsSelected"
+                  [ngModelOptions]="{ standalone: true }"
+                  [nzIndeterminate]="isEzCloudSelectionIndeterminate"
+                  (ngModelChange)="toggleAllEzCloudRows($event)"></label>
+              </th>
+              <th nzWidth="60px">STT</th>
+              <th nzWidth="100px">Số phòng</th>
+              <th nzWidth="120px">Mã phòng</th>
+              <th nzWidth="110px">Loại khách</th>
+              <th nzWidth="130px" class="text-right">Tiền mặt</th>
+              <th nzWidth="140px" class="text-right">Chuyển khoản</th>
+              <th nzWidth="180px">Đặt cọc/TT trước</th>
+              <th nzWidth="220px">Nội dung chi</th>
+              <th nzWidth="130px" class="text-right">Tiền chi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let transaction of ezCloudPreviewTable.data;
+                let rowIndex = index
+              ">
+              <td nzLeft>
+                <label
+                  nz-checkbox
+                  [attr.aria-label]="'Chọn dòng ' + (rowIndex + 1)"
+                  [ngModel]="ezCloudSelectedRows.has(rowIndex)"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="toggleEzCloudRow(rowIndex, $event)"></label>
+              </td>
+              <td>{{ rowIndex + 1 }}</td>
+              <td>{{ transaction.RoomNumber || '—' }}</td>
+              <td>{{ transaction.InvoiceCode || '—' }}</td>
+              <td>{{ transaction.CustomerType || '—' }}</td>
+              <td class="text-right">
+                {{ formatCurrency(transaction.CashAmount || 0) }}
+              </td>
+              <td class="text-right">
+                {{ formatCurrency(transaction.TransferAmount || 0) }}
+              </td>
+              <td>{{ transaction.PrepaidNote || '—' }}</td>
+              <td>{{ transaction.ExpenseDescription || '—' }}</td>
+              <td class="text-right">
+                {{ formatCurrency(transaction.ExpenseAmount || 0) }}
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+
+        <p class="ezcloud-preview-note">
+          Chỉ các dòng đã chọn mới thay thế bảng giao dịch hiện tại. Dữ liệu bán
+          phòng và bán nước vẫn được giữ nguyên.
+        </p>
+      </ng-container>
+    </ng-container>
+    <ng-template #ezCloudPreviewFooter>
+      <button nz-button type="button" (click)="cancelEzCloudPreview()">
+        Hủy
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        type="button"
+        [disabled]="ezCloudSelectedCount === 0"
+        (click)="applyEzCloudSelection()">
+        Đưa {{ ezCloudSelectedCount }} dòng vào báo cáo
+      </button>
+    </ng-template>
+  </nz-modal>
+
   <!-- Floating button mở trợ lý AI - chỉ hiện với Admin -->
   <button
     *ngIf="isAdmin"

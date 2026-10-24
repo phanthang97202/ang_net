@@ -71,6 +71,58 @@ public class EzCloudImportServiceTests
         Assert.AreEqual(EzCloudImportError.InvalidToken, exception.Error);
     }
 
+    [TestMethod]
+    public async Task Import_UnwrapsNestedResultData()
+    {
+        var service = new EzCloudImportService(new HttpClient(new StubHandler(HttpStatusCode.OK, """
+        {
+          "result": {
+            "data": {
+              "TotalRecords": "1",
+              "DailyPaymentList": [
+                { "PaymentId": 11, "ReservationRoomId": 12, "TransactionNumber": "#205", "RoomName": "303", "Description": "k.đêm - Guest", "Amount": 450000, "PaymentMethodName": "Cash", "InvoiceGroup": 1, "Module": "FO", "IsDeleted": false }
+              ]
+            }
+          }
+        }
+        """))
+        {
+            BaseAddress = new Uri("https://pms.ezcloudhotel.com/")
+        });
+
+        var result = await service.ImportShiftTransactionsAsync(new EzCloudImportRequestDto
+        {
+            AccessToken = "nested-response-token-with-safe-length",
+            StartTime = DateTimeOffset.UtcNow,
+            EndTime = DateTimeOffset.UtcNow.AddHours(12)
+        });
+
+        Assert.AreEqual(1, result.Transactions.Count);
+        Assert.AreEqual("303", result.Transactions[0].RoomNumber);
+        Assert.AreEqual("205", result.Transactions[0].InvoiceCode);
+        Assert.AreEqual(450000m, result.Transactions[0].CashAmount);
+    }
+
+    [TestMethod]
+    public async Task Import_MapsSuccessfulAuthErrorEnvelopeToInvalidToken()
+    {
+        var service = new EzCloudImportService(new HttpClient(new StubHandler(HttpStatusCode.OK,
+            "{\"statusCode\":401,\"message\":\"Access token expired\"}"))
+        {
+            BaseAddress = new Uri("https://pms.ezcloudhotel.com/")
+        });
+
+        var exception = await Assert.ThrowsExceptionAsync<EzCloudImportException>(() =>
+            service.ImportShiftTransactionsAsync(new EzCloudImportRequestDto
+            {
+                AccessToken = "expired-envelope-token-with-safe-length",
+                StartTime = DateTimeOffset.UtcNow,
+                EndTime = DateTimeOffset.UtcNow.AddHours(12)
+            }));
+
+        Assert.AreEqual(EzCloudImportError.InvalidToken, exception.Error);
+    }
+
     private sealed class StubHandler(HttpStatusCode status, string responseBody) : HttpMessageHandler
     {
         public string Authorization { get; private set; } = string.Empty;

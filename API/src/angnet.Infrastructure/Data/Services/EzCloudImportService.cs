@@ -53,9 +53,7 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         var totalRecords = int.MaxValue;
         for (var page = 1; page <= MaxPages && payments.Count < totalRecords; page++)
         {
-            var response = await GetPageAsync(token, request.StartTime, request.EndTime, page, cancellationToken);
-            var data = response.Data ?? throw new EzCloudImportException(EzCloudImportError.InvalidResponse,
-                "Dữ liệu ezCloud trả về không đúng định dạng dự kiến.");
+            var data = await GetPageAsync(token, request.StartTime, request.EndTime, page, cancellationToken);
             totalRecords = Math.Max(0, data.TotalRecords);
             var pageItems = data.DailyPaymentList;
             payments.AddRange(pageItems);
@@ -69,7 +67,7 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         return Map(payments);
     }
 
-    private async Task<EzCloudDailyPaymentResponse> GetPageAsync(
+    private async Task<EzCloudDailyPaymentData> GetPageAsync(
         string token, DateTimeOffset start, DateTimeOffset end, int page, CancellationToken cancellationToken)
     {
         var body = new EzCloudDailyPaymentRequest
@@ -103,14 +101,103 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
 
         try
         {
-            return await response.Content.ReadFromJsonAsync<EzCloudDailyPaymentResponse>(JsonOptions, cancellationToken)
-                   ?? throw new JsonException("Empty response");
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+            if (TryFindPaymentData(document.RootElement, 0, out var data)) return data;
+
+            if (LooksLikeAuthenticationError(document.RootElement))
+                throw new EzCloudImportException(EzCloudImportError.InvalidToken,
+                    "Access token ezCloud đã hết hạn hoặc không có quyền đọc báo cáo thanh toán.");
+
+            throw new EzCloudImportException(EzCloudImportError.InvalidResponse,
+                "Dữ liệu ezCloud trả về không đúng định dạng dự kiến.");
         }
         catch (JsonException)
         {
             throw new EzCloudImportException(EzCloudImportError.InvalidResponse,
                 "Dữ liệu ezCloud trả về không đúng định dạng dự kiến.");
         }
+    }
+
+    private static bool TryFindPaymentData(
+        JsonElement element, int depth, out EzCloudDailyPaymentData data)
+    {
+        data = new EzCloudDailyPaymentData();
+        if (depth > 4 || element.ValueKind != JsonValueKind.Object) return false;
+
+        if (TryGetProperty(element, "DailyPaymentList", out var listElement)
+            && listElement.ValueKind is JsonValueKind.Array or JsonValueKind.Null)
+        {
+            data = new EzCloudDailyPaymentData
+            {
+                DailyPaymentList = listElement.ValueKind == JsonValueKind.Array
+                    ? listElement.Deserialize<List<EzCloudPayment>>(JsonOptions) ?? []
+                    : [],
+                TotalRecords = TryGetProperty(element, "TotalRecords", out var totalElement)
+                    ? ReadInt(totalElement)
+                    : 0
+            };
+            return true;
+        }
+
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Value.ValueKind == JsonValueKind.Object
+                && TryFindPaymentData(property.Value, depth + 1, out data))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool LooksLikeAuthenticationError(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Object) return false;
+        foreach (var property in element.EnumerateObject())
+        {
+            if (property.Name.Equals("status", StringComparison.OrdinalIgnoreCase)
+                || property.Name.Equals("statusCode", StringComparison.OrdinalIgnoreCase)
+                || property.Name.Equals("code", StringComparison.OrdinalIgnoreCase))
+            {
+                var status = ReadInt(property.Value);
+                if (status is 401 or 403) return true;
+            }
+
+            if (property.Name.Contains("message", StringComparison.OrdinalIgnoreCase)
+                || property.Name.Contains("error", StringComparison.OrdinalIgnoreCase))
+            {
+                var message = property.Value.ToString();
+                if (message.Contains("token", StringComparison.OrdinalIgnoreCase)
+                    || message.Contains("auth", StringComparison.OrdinalIgnoreCase)
+                    || message.Contains("login", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            if (property.Value.ValueKind == JsonValueKind.Object
+                && LooksLikeAuthenticationError(property.Value))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool TryGetProperty(JsonElement element, string name, out JsonElement value)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (!property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) continue;
+            value = property.Value;
+            return true;
+        }
+        value = default;
+        return false;
+    }
+
+    private static int ReadInt(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out var number)) return number;
+        return element.ValueKind == JsonValueKind.String
+               && int.TryParse(element.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out number)
+            ? number
+            : 0;
     }
 
     private static EzCloudImportResultDto Map(List<EzCloudPayment> payments)
@@ -252,11 +339,6 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         [JsonPropertyName("pageSize")] public int PageSize { get; init; }
         [JsonPropertyName("skip")] public int Skip { get; init; }
         [JsonPropertyName("take")] public int Take { get; init; }
-    }
-
-    private sealed class EzCloudDailyPaymentResponse
-    {
-        public EzCloudDailyPaymentData? Data { get; init; }
     }
 
     private sealed class EzCloudDailyPaymentData

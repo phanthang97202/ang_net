@@ -210,6 +210,51 @@
   font-size: 12px;
 }
 
+.ezcloud-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.ezcloud-preview-toolbar strong,
+.ezcloud-preview-toolbar span {
+  display: block;
+}
+
+.ezcloud-preview-toolbar span,
+.ezcloud-preview-note {
+  color: var(--color-text-muted, #666);
+  font-size: 12px;
+}
+
+.ezcloud-preview-warnings {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ffe58f;
+  border-radius: 6px;
+  background: #fffbe6;
+  color: #874d00;
+  font-size: 12px;
+}
+
+.ezcloud-preview-warnings div + div {
+  margin-top: 4px;
+}
+
+.ezcloud-preview-warnings [nz-icon] {
+  margin-right: 6px;
+}
+
+.ezcloud-preview-note {
+  margin: 12px 0 0;
+}
+
+.text-right {
+  text-align: right;
+}
+
 @media (max-width: 767px) {
   .ezcloud-import-actions {
     align-items: stretch;
@@ -217,6 +262,15 @@
   }
 
   .ezcloud-import-actions button {
+    min-height: 44px;
+  }
+
+  .ezcloud-preview-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ezcloud-preview-toolbar button {
     min-height: 44px;
   }
 }

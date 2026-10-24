@@ -50,6 +50,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   isEzCloudTokenVisible = false;
   ezCloudToken = '';
   ezCloudTokenError = '';
+  isEzCloudPreviewVisible = false;
+  ezCloudPreviewResult: EzCloudImportResult | null = null;
+  ezCloudSelectedRows = new Set<number>();
 
   isAiAssistantVisible = false;
   isAdmin = false;
@@ -383,7 +386,7 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       .subscribe({
         next: result => {
           this.isEzCloudLoading = false;
-          this.confirmEzCloudImport(result);
+          this.openEzCloudPreview(result);
         },
         error: (error: HttpErrorResponse) => {
           this.isEzCloudLoading = false;
@@ -405,28 +408,82 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
       });
   }
 
-  private confirmEzCloudImport(result: EzCloudImportResult): void {
+  private openEzCloudPreview(result: EzCloudImportResult): void {
     if (!result.Transactions.length) {
       this.message.info(
         'Không có giao dịch ezCloud trong khoảng thời gian của ca.'
       );
       return;
     }
-    const summary = result.Summary;
-    const warning = result.Warnings?.length
-      ? `\n${result.Warnings.join('\n')}`
-      : '';
-    this.modal.confirm({
-      nzTitle: 'Nhập giao dịch từ ezCloud',
-      nzContent:
-        `${summary.TransactionCount} dòng · Tiền mặt ${this.formatCurrency(summary.TotalCash)}đ · ` +
-        `Không tiền mặt ${this.formatCurrency(summary.TotalTransfer)}đ · ` +
-        `Chi ${this.formatCurrency(summary.TotalExpense)}đ.${warning}\n` +
-        'Các dòng giao dịch hiện tại sẽ được thay thế; bán phòng và bán nước được giữ nguyên.',
-      nzOkText: 'Điền vào báo cáo',
-      nzCancelText: 'Hủy',
-      nzOnOk: () => this.replaceTransactions(result.Transactions),
-    });
+    this.ezCloudPreviewResult = result;
+    this.ezCloudSelectedRows = new Set<number>();
+    this.isEzCloudPreviewVisible = true;
+  }
+
+  get ezCloudSelectedCount(): number {
+    return this.ezCloudSelectedRows.size;
+  }
+
+  get isAllEzCloudRowsSelected(): boolean {
+    const total = this.ezCloudPreviewResult?.Transactions.length ?? 0;
+    return total > 0 && this.ezCloudSelectedRows.size === total;
+  }
+
+  get isEzCloudSelectionIndeterminate(): boolean {
+    const selected = this.ezCloudSelectedRows.size;
+    const total = this.ezCloudPreviewResult?.Transactions.length ?? 0;
+    return selected > 0 && selected < total;
+  }
+
+  get ezCloudSelectedSummary(): {
+    cash: number;
+    transfer: number;
+    expense: number;
+  } {
+    const rows = this.ezCloudPreviewResult?.Transactions ?? [];
+    return rows.reduce(
+      (summary, row, index) => {
+        if (!this.ezCloudSelectedRows.has(index)) return summary;
+        summary.cash += row.CashAmount ?? 0;
+        summary.transfer += row.TransferAmount ?? 0;
+        summary.expense += row.ExpenseAmount ?? 0;
+        return summary;
+      },
+      { cash: 0, transfer: 0, expense: 0 }
+    );
+  }
+
+  toggleAllEzCloudRows(checked: boolean): void {
+    const total = this.ezCloudPreviewResult?.Transactions.length ?? 0;
+    this.ezCloudSelectedRows = checked
+      ? new Set(Array.from({ length: total }, (_, index) => index))
+      : new Set<number>();
+  }
+
+  toggleEzCloudRow(index: number, checked: boolean): void {
+    const selected = new Set(this.ezCloudSelectedRows);
+    if (checked) selected.add(index);
+    else selected.delete(index);
+    this.ezCloudSelectedRows = selected;
+  }
+
+  cancelEzCloudPreview(): void {
+    this.isEzCloudPreviewVisible = false;
+    this.ezCloudPreviewResult = null;
+    this.ezCloudSelectedRows = new Set<number>();
+  }
+
+  applyEzCloudSelection(): void {
+    if (!this.canSave || !this.ezCloudPreviewResult) return;
+    const selected = this.ezCloudPreviewResult.Transactions.filter(
+      (_, index) => this.ezCloudSelectedRows.has(index)
+    );
+    if (!selected.length) {
+      this.message.warning('Hãy chọn ít nhất một dòng giao dịch.');
+      return;
+    }
+    this.replaceTransactions(selected);
+    this.cancelEzCloudPreview();
   }
 
   private replaceTransactions(transactions: ShiftReportTransaction[]): void {

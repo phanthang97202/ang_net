@@ -299,7 +299,7 @@ describe('Shift report permissions', () => {
     expect(api.getById).not.toHaveBeenCalled();
   });
 
-  it('imports ezCloud transactions into the editable form after confirmation', () => {
+  it('previews ezCloud rows and imports only selected transactions', () => {
     permissions.add('shiftreport.create');
     const start = new Date(2026, 9, 24, 7);
     const end = new Date(2026, 9, 24, 19);
@@ -320,13 +320,19 @@ describe('Shift report permissions', () => {
             TransferAmount: 700000,
             IsUseExpenseForReportRevenue: true,
           },
+          {
+            OrderNumber: 2,
+            ExpenseDescription: 'Mua vật tư',
+            ExpenseAmount: 50000,
+            IsUseExpenseForReportRevenue: true,
+          },
         ],
         Summary: {
-          TransactionCount: 1,
+          TransactionCount: 2,
           SkippedDeletedCount: 0,
           TotalCash: 300000,
           TotalTransfer: 700000,
-          TotalExpense: 0,
+          TotalExpense: 50000,
         },
         Warnings: [],
       })
@@ -338,7 +344,14 @@ describe('Shift report permissions', () => {
       StartTime: start.toISOString(),
       EndTime: end.toISOString(),
     });
-    modal.confirm.calls.mostRecent().args[0].nzOnOk();
+    expect(component.isEzCloudPreviewVisible).toBeTrue();
+    expect(component.ezCloudSelectedCount).toBe(0);
+    expect(component.ezCloudSelectedSummary.expense).toBe(0);
+
+    component.toggleEzCloudRow(0, true);
+    component.applyEzCloudSelection();
+
+    expect(component.isEzCloudPreviewVisible).toBeFalse();
     expect(component.transactions.length).toBe(1);
     expect(component.transactions.at(0).value).toEqual(
       jasmine.objectContaining({
