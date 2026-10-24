@@ -34,8 +34,13 @@ export interface EzCloudImportSummary {
   TotalExpense: number;
 }
 
+export interface EzCloudTransaction extends ShiftReportTransaction {
+  // Giờ lập phiếu sớm nhất của dòng trên ezCloud (ISO), chỉ để xem trước.
+  PaymentTime?: string | null;
+}
+
 export interface EzCloudImportResult {
-  Transactions: ShiftReportTransaction[];
+  Transactions: EzCloudTransaction[];
   Summary: EzCloudImportSummary;
   Warnings: string[];
 }

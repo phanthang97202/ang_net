@@ -226,7 +226,7 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         var active = payments.Where(x => !x.IsDeleted && !IsPos(x) && x.Amount != 0).ToList();
         var result = new EzCloudImportResultDto();
         var unknownNonCashMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var refunds = new List<TransactionDto>();
+        var refunds = new List<EzCloudTransactionDto>();
         var refundCount = 0;
 
         foreach (var group in active.Where(IsIncome).GroupBy(RevenueKey))
@@ -250,8 +250,9 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
             var roomNumber = Clean(first.TransactionName ?? first.RoomName, 20);
             var invoiceCode = Clean(first.ReservationNumber ?? first.TransactionNumber, 50);
             if (cash > 0 || transfer > 0)
-                result.Transactions.Add(new TransactionDto
+                result.Transactions.Add(new EzCloudTransactionDto
                 {
+                    PaymentTime = EarliestPaymentTime(group.Where(x => x.Amount > 0)),
                     RoomNumber = roomNumber,
                     InvoiceCode = invoiceCode,
                     CustomerType = ExtractCustomerType(first.TravellerName ?? first.Description),
@@ -266,8 +267,9 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
             // thu từ ca trước) ghi thành khoản chi để tiền bàn giao vẫn đúng.
             var refunded = Math.Max(0, -cash) + Math.Max(0, -transfer);
             if (refunded > 0)
-                refunds.Add(new TransactionDto
+                refunds.Add(new EzCloudTransactionDto
                 {
+                    PaymentTime = EarliestPaymentTime(group.Where(x => x.Amount < 0)),
                     ExpenseDescription = Clean($"Hoàn tiền {(roomNumber.Length > 0 ? roomNumber : invoiceCode)}", 500),
                     ExpenseAmount = refunded,
                     IsUseExpenseForReportRevenue = true
@@ -277,8 +279,9 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         result.Transactions.AddRange(refunds);
         foreach (var expense in active.Where(x => !IsIncome(x)))
         {
-            result.Transactions.Add(new TransactionDto
+            result.Transactions.Add(new EzCloudTransactionDto
             {
+                PaymentTime = EarliestPaymentTime([expense]),
                 ExpenseDescription = Clean(expense.Description ?? expense.Note ?? expense.TransactionName, 500),
                 ExpenseAmount = Math.Abs(expense.Amount),
                 IsUseExpenseForReportRevenue = true
@@ -312,6 +315,32 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         if (!string.IsNullOrWhiteSpace(reservation)) return $"reservation:{reservation.Trim()}";
         return $"payment:{payment.PaymentId}";
     }
+
+    // Tên trường giờ lập phiếu của ezCloud chưa được xác nhận bằng dữ liệu thật (xem
+    // LiveEzCloudProbeTests): chỉ nhận các tên chỉ giờ thu/lập phiếu, không bao giờ lấy
+    // giờ check-in/check-out vì dễ bị hiểu nhầm là giờ thu tiền. Không khớp thì để trống.
+    private static readonly string[] PaymentTimeFields =
+    [
+        "PaymentDate", "PaymentTime", "PaymentDateTime",
+        "CreatedDate", "CreatedTime", "CreatedDateTime", "CreateDate", "CreatedOn", "CreatedAt"
+    ];
+
+    private static string? EarliestPaymentTime(IEnumerable<EzCloudPayment> payments) =>
+        payments.Select(ReadPaymentTime).OfType<string>().Order(StringComparer.Ordinal).FirstOrDefault();
+
+    private static string? ReadPaymentTime(EzCloudPayment payment)
+    {
+        if (payment.Extra is null) return null;
+        foreach (var name in PaymentTimeFields)
+            foreach (var (key, value) in payment.Extra)
+                if (key.Equals(name, StringComparison.OrdinalIgnoreCase) && value.ValueKind == JsonValueKind.String
+                    && IsoTimeRegex().IsMatch(value.GetString()!))
+                    return value.GetString();
+        return null;
+    }
+
+    [GeneratedRegex(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}")]
+    private static partial Regex IsoTimeRegex();
 
     // Khoản thu: phiếu thu lễ tân (kể cả khoản hoàn số âm của phiếu đó), hoặc phiếu
     // thu khác số dương trong module thu chi. Còn lại là khoản chi.
@@ -412,5 +441,6 @@ public sealed partial class EzCloudImportService(HttpClient httpClient) : IEzClo
         public int InvoiceGroup { get; init; }
         public string? Module { get; init; }
         public bool IsDeleted { get; init; }
+        [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; init; }
     }
 }

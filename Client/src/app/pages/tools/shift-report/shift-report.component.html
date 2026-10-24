@@ -790,7 +790,8 @@
               Tiền mặt {{ formatCurrency(ezCloudSelectedSummary.cash) }}đ ·
               Chuyển khoản
               {{ formatCurrency(ezCloudSelectedSummary.transfer) }}đ · Chi
-              {{ formatCurrency(ezCloudSelectedSummary.expense) }}đ
+              {{ formatCurrency(ezCloudSelectedSummary.expense) }}đ · Bán phòng
+              {{ ezCloudSelectedRoomSaleCount }} lượt
             </span>
           </div>
           <button
@@ -799,6 +800,39 @@
             (click)="toggleAllEzCloudRows(!isAllEzCloudRowsSelected)">
             {{ isAllEzCloudRowsSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
           </button>
+        </div>
+
+        <div
+          *ngIf="
+            ezCloudExistingCounts.transactions ||
+            ezCloudExistingCounts.roomSales
+          "
+          class="ezcloud-import-mode">
+          <span>
+            Báo cáo đang có {{ ezCloudExistingCounts.transactions }} dòng giao
+            dịch và {{ ezCloudExistingCounts.roomSales }} dòng bán phòng:
+          </span>
+          <div role="group" aria-label="Cách đưa dữ liệu vào báo cáo">
+            <button
+              nz-button
+              type="button"
+              [nzType]="ezCloudImportMode === 'append' ? 'primary' : 'default'"
+              [attr.aria-pressed]="ezCloudImportMode === 'append'"
+              (click)="ezCloudImportMode = 'append'">
+              Thêm tiếp vào sau
+            </button>
+            <button
+              nz-button
+              type="button"
+              [nzType]="
+                ezCloudImportMode === 'overwrite' ? 'primary' : 'default'
+              "
+              [nzDanger]="ezCloudImportMode === 'overwrite'"
+              [attr.aria-pressed]="ezCloudImportMode === 'overwrite'"
+              (click)="ezCloudImportMode = 'overwrite'">
+              Ghi đè dữ liệu cũ
+            </button>
+          </div>
         </div>
 
         <div *ngIf="preview.Warnings.length" class="ezcloud-preview-warnings">
@@ -814,7 +848,7 @@
           [nzData]="preview.Transactions"
           [nzFrontPagination]="false"
           [nzShowPagination]="false"
-          [nzScroll]="{ x: '1080px', y: '420px' }">
+          [nzScroll]="{ x: '1270px', y: '420px' }">
           <thead>
             <tr>
               <th nzWidth="52px" nzLeft>
@@ -827,9 +861,11 @@
                   (ngModelChange)="toggleAllEzCloudRows($event)"></label>
               </th>
               <th nzWidth="60px">STT</th>
+              <th nzWidth="100px">Thời gian</th>
               <th nzWidth="100px">Số phòng</th>
               <th nzWidth="120px">Mã phòng</th>
               <th nzWidth="110px">Loại khách</th>
+              <th nzWidth="90px">Bán phòng</th>
               <th nzWidth="130px" class="text-right">Tiền mặt</th>
               <th nzWidth="140px" class="text-right">Chuyển khoản</th>
               <th nzWidth="180px">Đặt cọc/TT trước</th>
@@ -852,9 +888,39 @@
                   (ngModelChange)="toggleEzCloudRow(rowIndex, $event)"></label>
               </td>
               <td>{{ rowIndex + 1 }}</td>
+              <td class="ezcloud-preview-time">
+                {{
+                  transaction.PaymentTime
+                    ? (transaction.PaymentTime | date: 'HH:mm dd/MM')
+                    : '—'
+                }}
+              </td>
               <td>{{ transaction.RoomNumber || '—' }}</td>
               <td>{{ transaction.InvoiceCode || '—' }}</td>
               <td>{{ transaction.CustomerType || '—' }}</td>
+              <td>
+                <label
+                  *ngIf="
+                    ezCloudRoomCategory(transaction) as category;
+                    else noRoomSale
+                  "
+                  nz-checkbox
+                  [nzId]="'ezcloud-room-sale-' + rowIndex"
+                  [attr.for]="'ezcloud-room-sale-' + rowIndex"
+                  [title]="category"
+                  [attr.aria-label]="
+                    'Tạo lượt bán phòng ' +
+                    transaction.RoomNumber +
+                    ' ' +
+                    category
+                  "
+                  [ngModel]="ezCloudRoomSaleRows.has(rowIndex)"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="
+                    toggleEzCloudRoomSale(rowIndex, $event)
+                  "></label>
+                <ng-template #noRoomSale>—</ng-template>
+              </td>
               <td class="text-right">
                 {{ formatCurrency(transaction.CashAmount || 0) }}
               </td>
@@ -871,8 +937,10 @@
         </nz-table>
 
         <p class="ezcloud-preview-note">
-          Chỉ các dòng đã chọn mới thay thế bảng giao dịch hiện tại. Dữ liệu bán
-          phòng và bán nước vẫn được giữ nguyên.
+          Dòng được chọn có tick "Bán phòng" sẽ thêm một lượt vào bảng Bán
+          phòng, giá lấy theo bảng giá phòng. Bỏ tick với khoản thu lúc khách
+          trả phòng (lượt bán đã tính lúc nhận phòng). Dữ liệu bán nước luôn
+          được giữ nguyên.
         </p>
       </ng-container>
     </ng-container>

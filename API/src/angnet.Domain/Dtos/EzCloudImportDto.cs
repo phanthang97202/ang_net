@@ -23,9 +23,15 @@ public class EzCloudImportSummaryDto
     public decimal TotalExpense { get; set; }
 }
 
+public class EzCloudTransactionDto : TransactionDto
+{
+    // Giờ lập phiếu thu/chi sớm nhất của dòng trên ezCloud (ISO 8601), chỉ để xem trước.
+    public string? PaymentTime { get; set; }
+}
+
 public class EzCloudImportResultDto
 {
-    public List<TransactionDto> Transactions { get; set; } = [];
+    public List<EzCloudTransactionDto> Transactions { get; set; } = [];
     public EzCloudImportSummaryDto Summary { get; set; } = new();
     public List<string> Warnings { get; set; } = [];
 }

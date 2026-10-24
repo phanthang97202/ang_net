@@ -55,7 +55,8 @@ public class LiveEzCloudProbeTests
             var values = times.Select(p => p.Value.GetString()!).Order().ToList();
             Console.WriteLine($"  {times.Key}: {values[0]} .. {values[^1]}");
         }
-        Console.WriteLine($"MappedRows={result.Transactions.Count}; Warnings={result.Warnings.Count}");
+        Console.WriteLine($"MappedRows={result.Transactions.Count}; Warnings={result.Warnings.Count}; " +
+                          $"RowsWithPaymentTime={result.Transactions.Count(x => x.PaymentTime != null)}");
     }
 
     private static DateTimeOffset? ReadTime(string name) =>

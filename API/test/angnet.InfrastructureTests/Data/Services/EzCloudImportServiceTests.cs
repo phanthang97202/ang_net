@@ -182,6 +182,21 @@ public class EzCloudImportServiceTests
         Assert.AreEqual(500, result.Transactions[0].ExpenseDescription.Length);
     }
 
+    [TestMethod]
+    public async Task Import_ShowsEarliestPaymentTimeButNeverCheckInTime()
+    {
+        var result = await Import(_ => $$"""
+        { "data": { "TotalRecords": 3, "DailyPaymentList": [
+          { "PaymentId": 1, "ReservationRoomId": 5, "TransactionName": "105", "Amount": 100, "PaymentMethodName": "Tiền mặt", "InvoiceGroup": 1, "Module": "FO", "PaymentDate": "2026-10-24T15:30:00" },
+          { "PaymentId": 2, "ReservationRoomId": 5, "TransactionName": "105", "Amount": 200, "PaymentMethodName": "Tiền mặt", "InvoiceGroup": 1, "Module": "FO", "PaymentDate": "2026-10-24T08:05:00" },
+          { "PaymentId": 3, "ReservationRoomId": 6, "TransactionName": "106", "Amount": 300, "PaymentMethodName": "Tiền mặt", "InvoiceGroup": 1, "Module": "FO", "CheckInDate": "2026-10-24T09:00:00" }
+        ] } }
+        """);
+
+        Assert.AreEqual("2026-10-24T08:05:00", result.Transactions[0].PaymentTime);
+        Assert.IsNull(result.Transactions[1].PaymentTime);
+    }
+
     private static object Payment(long id, string module, int invoiceGroup, decimal amount, int room = 0, string description = "") => new
     {
         PaymentId = id, ReservationRoomId = room, ReservationNumber = room > 0 ? $"#{room}" : null,

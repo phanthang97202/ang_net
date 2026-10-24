@@ -17,6 +17,7 @@ import { ShiftReportService } from './services/shift-report.service';
 import { AiAssistantService } from './services/ai-assistant.service';
 import { ExcelExportService } from './services/excel-report.service';
 import { PrintService } from './services/print.service';
+import { EzCloudImportResult } from './types/shift-report-type';
 
 describe('Shift report permissions', () => {
   let component: ShiftReportComponent;
@@ -362,43 +363,128 @@ describe('Shift report permissions', () => {
         transferAmount: 700000,
       })
     );
+    expect(component.roomSales.length).toBe(1);
+    expect(component.roomSales.at(0).value).toEqual(
+      jasmine.objectContaining({
+        roomNumber: '202',
+        roomCategory: 'KHÁCH NGÀY',
+        unitPrice: null,
+      })
+    );
   });
 
-  it('asks before replacing transactions that already hold data', () => {
-    permissions.add('shiftreport.update');
-    component.editingId = 1;
-    component.transactions.clear();
-    component.addTransaction();
-    component.transactions.at(0).patchValue({ roomNumber: '101' });
-    component.ezCloudPreviewResult = {
-      Transactions: [
-        {
-          OrderNumber: 1,
-          RoomNumber: '202',
-          IsUseExpenseForReportRevenue: true,
-        },
-      ],
+  describe('applying a reviewed ezCloud preview', () => {
+    const preview = (
+      ...rows: { RoomNumber: string; CustomerType: string }[]
+    ): EzCloudImportResult => ({
+      Transactions: rows.map((row, index) => ({
+        ...row,
+        OrderNumber: index + 1,
+        CashAmount: 100000,
+        IsUseExpenseForReportRevenue: true,
+      })),
       Summary: {
-        TransactionCount: 1,
+        TransactionCount: rows.length,
         SkippedDeletedCount: 0,
         TotalCash: 0,
         TotalTransfer: 0,
         TotalExpense: 0,
       },
       Warnings: [],
+    });
+    const openWithExistingRow = () => {
+      permissions.add('shiftreport.update');
+      component.editingId = 1;
+      component.transactions.clear();
+      component.addTransaction();
+      component.transactions.at(0).patchValue({ roomNumber: '101' });
+      component.addTransaction(); // dòng trống
+      component.addRoomSale();
+      component.roomSales
+        .at(0)
+        .patchValue({ roomNumber: '101', unitPrice: 200000 });
+      api.importEzCloudTransactions.and.returnValue(
+        of(preview({ RoomNumber: '202', CustomerType: 'k.ngày' }))
+      );
+      component.reportForm.patchValue({
+        startTime: new Date(2026, 9, 24, 7),
+        endTime: new Date(2026, 9, 24, 19),
+      });
+      sessionStorage.setItem(
+        'ezcloud.pms.accessToken',
+        'test-access-token-with-safe-length'
+      );
+      component.importFromEzCloud();
+      component.toggleEzCloudRow(0, true);
     };
-    component.isEzCloudPreviewVisible = true;
-    component.toggleEzCloudRow(0, true);
 
-    component.applyEzCloudSelection();
-    expect(modal.confirm).toHaveBeenCalled();
-    expect(component.transactions.at(0).value.roomNumber).toBe('101');
-    expect(component.isEzCloudPreviewVisible).toBeTrue();
+    it('appends after existing rows by default and drops only blank rows', () => {
+      openWithExistingRow();
+      expect(component.ezCloudExistingCounts).toEqual({
+        transactions: 1,
+        roomSales: 1,
+      });
 
-    modal.confirm.calls.mostRecent().args[0].nzOnOk();
-    expect(component.transactions.length).toBe(1);
-    expect(component.transactions.at(0).value.roomNumber).toBe('202');
-    expect(component.isEzCloudPreviewVisible).toBeFalse();
+      component.applyEzCloudSelection();
+      expect(modal.confirm).not.toHaveBeenCalled();
+      expect(
+        component.transactions.controls.map(c => [
+          c.value.orderNumber,
+          c.value.roomNumber,
+        ])
+      ).toEqual([
+        [1, '101'],
+        [2, '202'],
+      ]);
+      expect(component.roomSales.controls.map(c => c.value.roomNumber)).toEqual(
+        ['101', '202']
+      );
+    });
+
+    it('asks before overwriting and then replaces both tables', () => {
+      openWithExistingRow();
+      component.ezCloudImportMode = 'overwrite';
+
+      component.applyEzCloudSelection();
+      expect(modal.confirm).toHaveBeenCalled();
+      expect(component.transactions.length).toBe(2);
+      expect(component.isEzCloudPreviewVisible).toBeTrue();
+
+      modal.confirm.calls.mostRecent().args[0].nzOnOk();
+      expect(component.transactions.length).toBe(1);
+      expect(component.transactions.at(0).value.roomNumber).toBe('202');
+      expect(component.roomSales.length).toBe(1);
+      expect(component.roomSales.at(0).value.roomNumber).toBe('202');
+      expect(component.isEzCloudPreviewVisible).toBeFalse();
+    });
+
+    it('creates room sales only for ticked arrivals, priced from the room list', () => {
+      permissions.add('shiftreport.create');
+      component['roomPrices'] = [{ roomNumber: '502', hourPrice: 150000 }];
+      component.transactions.clear();
+      component.ezCloudPreviewResult = null;
+      component['openEzCloudPreview'](
+        preview(
+          { RoomNumber: '502', CustomerType: 'k.giờ' },
+          { RoomNumber: '603', CustomerType: 'k.ngày/out' },
+          { RoomNumber: '203', CustomerType: 'k.đêm' },
+          { RoomNumber: '', CustomerType: '' }
+        )
+      );
+      expect([...component.ezCloudRoomSaleRows]).toEqual([0, 2]);
+      component.toggleAllEzCloudRows(true);
+      component.toggleEzCloudRoomSale(2, false);
+      expect(component.ezCloudSelectedRoomSaleCount).toBe(1);
+
+      component.applyEzCloudSelection();
+      expect(component.transactions.length).toBe(4);
+      expect(component.roomSales.length).toBe(1);
+      expect(component.roomSales.at(0).value).toEqual({
+        roomNumber: '502',
+        roomCategory: 'KHÁCH GIỜ',
+        unitPrice: 150000,
+      });
+    });
   });
 
   it('clears an expired ezCloud token and opens the token popup again', () => {

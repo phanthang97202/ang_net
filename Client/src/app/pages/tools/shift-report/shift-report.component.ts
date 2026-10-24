@@ -53,6 +53,9 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
   isEzCloudPreviewVisible = false;
   ezCloudPreviewResult: EzCloudImportResult | null = null;
   ezCloudSelectedRows = new Set<number>();
+  // Dòng nào (trong số được chọn) sinh thêm một lượt ở bảng Bán phòng.
+  ezCloudRoomSaleRows = new Set<number>();
+  ezCloudImportMode: 'append' | 'overwrite' = 'append';
 
   isAiAssistantVisible = false;
   isAdmin = false;
@@ -417,7 +420,52 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     }
     this.ezCloudPreviewResult = result;
     this.ezCloudSelectedRows = new Set<number>();
+    // Mặc định chỉ khách mới vào; khoản thu lúc trả phòng (/out) không phải lượt bán mới.
+    this.ezCloudRoomSaleRows = new Set(
+      result.Transactions.flatMap((row, index) =>
+        this.ezCloudRoomCategory(row) &&
+        !(row.CustomerType || '').includes('/out')
+          ? [index]
+          : []
+      )
+    );
+    this.ezCloudImportMode = 'append';
     this.isEzCloudPreviewVisible = true;
+  }
+
+  // k.giờ / k.đêm / k.ngày -> loại khách của bảng Bán phòng; không rõ thì không tạo được.
+  ezCloudRoomCategory(row: ShiftReportTransaction): string | null {
+    const type = (row.CustomerType || '').toLowerCase();
+    if (!row.RoomNumber) return null;
+    if (type.startsWith('k.giờ')) return 'KHÁCH GIỜ';
+    if (type.startsWith('k.đêm')) return 'KHÁCH ĐÊM';
+    if (type.startsWith('k.ngày')) return 'KHÁCH NGÀY';
+    return null;
+  }
+
+  toggleEzCloudRoomSale(index: number, checked: boolean): void {
+    const rows = new Set(this.ezCloudRoomSaleRows);
+    if (checked) rows.add(index);
+    else rows.delete(index);
+    this.ezCloudRoomSaleRows = rows;
+  }
+
+  get ezCloudSelectedRoomSaleCount(): number {
+    return [...this.ezCloudSelectedRows].filter(index =>
+      this.ezCloudRoomSaleRows.has(index)
+    ).length;
+  }
+
+  // Số dòng đã có dữ liệu trong báo cáo đang mở (dòng trống mặc định không tính).
+  get ezCloudExistingCounts(): { transactions: number; roomSales: number } {
+    return {
+      transactions: this.transactions.controls.filter(control =>
+        this.hasTransactionData(control.value)
+      ).length,
+      roomSales: this.roomSales.controls.filter(control =>
+        this.hasRoomSaleData(control.value)
+      ).length,
+    };
   }
 
   get ezCloudSelectedCount(): number {
@@ -471,36 +519,52 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     this.isEzCloudPreviewVisible = false;
     this.ezCloudPreviewResult = null;
     this.ezCloudSelectedRows = new Set<number>();
+    this.ezCloudRoomSaleRows = new Set<number>();
   }
 
   applyEzCloudSelection(): void {
     if (!this.canSave || !this.ezCloudPreviewResult) return;
-    const selected = this.ezCloudPreviewResult.Transactions.filter(
-      (_, index) => this.ezCloudSelectedRows.has(index)
-    );
-    if (!selected.length) {
+    const indexes = [...this.ezCloudSelectedRows].sort((a, b) => a - b);
+    const rows = this.ezCloudPreviewResult.Transactions;
+    if (!indexes.length) {
       this.message.warning('Hãy chọn ít nhất một dòng giao dịch.');
       return;
     }
+    const transactions = indexes.map(index => rows[index]);
+    const roomSales = indexes
+      .filter(index => this.ezCloudRoomSaleRows.has(index))
+      .flatMap(index => {
+        const roomCategory = this.ezCloudRoomCategory(rows[index]);
+        return roomCategory
+          ? [{ roomNumber: rows[index].RoomNumber || '', roomCategory }]
+          : [];
+      });
+    const overwrite = this.ezCloudImportMode === 'overwrite';
     const apply = () => {
-      this.replaceTransactions(selected);
+      this.importIntoReport(transactions, roomSales, overwrite);
       this.cancelEzCloudPreview();
     };
-    const filled = this.transactions.controls.filter(control =>
-      this.hasTransactionData(control.value)
-    ).length;
-    if (!filled) {
+    const existing = this.ezCloudExistingCounts;
+    if (!overwrite || (!existing.transactions && !existing.roomSales)) {
       apply();
       return;
     }
-    // Sửa báo cáo cũ thì bảng thường đã có dòng nhập tay - hỏi trước khi thay.
     this.modal.confirm({
-      nzTitle: `Thay ${filled} dòng giao dịch đang có?`,
-      nzContent: `Bảng giao dịch sẽ được thay bằng ${selected.length} dòng từ ezCloud. Báo cáo chỉ thay đổi khi bạn bấm lưu.`,
-      nzOkText: 'Thay thế',
+      nzTitle: 'Ghi đè dữ liệu đang có?',
+      nzContent: `${existing.transactions} dòng giao dịch và ${existing.roomSales} dòng bán phòng hiện có sẽ được thay bằng ${transactions.length} giao dịch và ${roomSales.length} lượt bán phòng từ ezCloud. Báo cáo chỉ thay đổi khi bạn bấm lưu.`,
+      nzOkText: 'Ghi đè',
+      nzOkDanger: true,
       nzCancelText: 'Quay lại',
       nzOnOk: apply,
     });
+  }
+
+  private hasRoomSaleData(row: Record<string, unknown>): boolean {
+    const roomNumber = row['roomNumber'];
+    return (
+      (typeof roomNumber === 'string' && roomNumber.trim() !== '') ||
+      row['unitPrice'] != null
+    );
   }
 
   private hasTransactionData(row: Record<string, unknown>): boolean {
@@ -519,13 +583,27 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
     });
   }
 
-  private replaceTransactions(transactions: ShiftReportTransaction[]): void {
+  private importIntoReport(
+    transactions: ShiftReportTransaction[],
+    roomSales: { roomNumber: string; roomCategory: string }[],
+    overwrite: boolean
+  ): void {
     if (!this.canSave) return;
-    this.transactions.clear();
-    transactions.forEach((transaction, index) => {
+    // Ghi đè bỏ hết dòng cũ; thêm tiếp chỉ bỏ dòng trống (vd dòng mặc định khi tạo).
+    const prune = (
+      array: FormArray,
+      hasData: (row: Record<string, unknown>) => boolean
+    ) => {
+      for (let i = array.length - 1; i >= 0; i--)
+        if (overwrite || !hasData(array.at(i).value)) array.removeAt(i);
+    };
+    prune(this.transactions, row => this.hasTransactionData(row));
+    prune(this.roomSales, row => this.hasRoomSaleData(row));
+
+    transactions.forEach(transaction => {
       this.transactions.push(
         this.fb.group({
-          orderNumber: [index + 1],
+          orderNumber: [0],
           roomNumber: [transaction.RoomNumber || ''],
           invoiceCode: [transaction.InvoiceCode || ''],
           customerType: [transaction.CustomerType || ''],
@@ -540,7 +618,31 @@ export class ShiftReportComponent implements OnInit, OnDestroy {
         })
       );
     });
-    this.message.success(`Đã điền ${transactions.length} dòng từ ezCloud.`);
+    this.transactions.controls.forEach((control, i) =>
+      control.patchValue({ orderNumber: i + 1 })
+    );
+
+    let missingPrice = 0;
+    roomSales.forEach(sale => {
+      const unitPrice = this.lookupUnitPrice(
+        sale.roomNumber,
+        sale.roomCategory
+      );
+      if (unitPrice == null) missingPrice++;
+      const group = this.createRoomSaleForm();
+      group.patchValue({ ...sale, unitPrice });
+      this.roomSales.push(group);
+    });
+
+    this.message.success(
+      `Đã ${overwrite ? 'ghi đè bằng' : 'thêm'} ${transactions.length} giao dịch` +
+        (roomSales.length ? ` và ${roomSales.length} lượt bán phòng` : '') +
+        ' từ ezCloud.'
+    );
+    if (missingPrice)
+      this.message.warning(
+        `${missingPrice} lượt bán phòng chưa có giá trong bảng giá phòng, hãy điền đơn giá.`
+      );
   }
 
   // Giá để trống khi phòng chưa khai báo trong SHIFT_ROOM_PRICES - người dùng
