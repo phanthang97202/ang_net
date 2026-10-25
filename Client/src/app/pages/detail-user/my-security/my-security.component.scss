@@ -68,7 +68,7 @@ h2 {
 .security__card {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   padding: 24px;
   border: 1px solid var(--color-border);
@@ -95,8 +95,11 @@ h3 {
   color: var(--color-text);
   font-size: 0.95rem;
   font-weight: 700;
+  line-height: 1.4;
 }
 button {
+  // Hai nút có nhãn dài ngắn khác nhau; cùng bề rộng để mép trái thẳng hàng
+  min-width: 168px;
   min-height: 44px;
   padding: 10px 16px;
   border: 1px solid var(--color-border);

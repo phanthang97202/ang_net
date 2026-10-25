@@ -24,26 +24,24 @@
     </div>
   } @else {
     <header class="collection__header">
-      @if (showBack) {
-        <nav class="collection__breadcrumb" aria-label="Breadcrumb">
-          <button type="button" (click)="back.emit()">
-            {{ 'T_ARCHIVE_LIBRARY' | translate }}
-          </button>
-          <span
-            class="collection__breadcrumb-separator"
-            nz-icon
-            nzType="right"
-            nzTheme="outline"
-            aria-hidden="true"></span>
-          <span class="collection__breadcrumb-current" aria-current="page">
-            {{ collection.Name }}
-          </span>
-        </nav>
-      }
-
       <div class="collection__title-row">
         <div class="collection__identity">
-          <h2>{{ collection.Name }}</h2>
+          @if (showBack) {
+            <nav class="collection__breadcrumb" aria-label="Breadcrumb">
+              <button type="button" (click)="back.emit()">
+                {{ 'T_ARCHIVE_COLLECTION' | translate }}
+              </button>
+              <span
+                class="collection__breadcrumb-separator"
+                nz-icon
+                nzType="arrow-right"
+                nzTheme="outline"
+                aria-hidden="true"></span>
+              <h2 aria-current="page">{{ collection.Name }}</h2>
+            </nav>
+          } @else {
+            <h2>{{ collection.Name }}</h2>
+          }
           <div class="collection__meta">
             <span class="collection__pill collection__pill--accent">
               <span nz-icon [nzType]="visibility.icon" nzTheme="outline"></span>

@@ -19,22 +19,23 @@
 }
 
 .collection__breadcrumb {
-  display: inline-flex;
-  align-self: flex-start;
+  display: flex;
   align-items: center;
-  gap: 0.55rem;
-  color: var(--color-text-muted);
+  gap: 0.7rem;
+  min-width: 0;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.78rem;
 
   button {
+    flex-shrink: 0;
     padding: 0;
     border: 0;
     background: transparent;
-    color: inherit;
+    color: var(--color-text);
     cursor: pointer;
     font: inherit;
-    font-weight: 600;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.25;
     transition: color 0.2s ease;
 
     &:hover {
@@ -51,16 +52,9 @@
 
 .collection__breadcrumb-separator {
   flex-shrink: 0;
-  font-size: 0.68rem;
-  opacity: 0.65;
-}
-
-.collection__breadcrumb-current {
-  overflow: hidden;
-  color: var(--color-text);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: 1.15rem;
+  opacity: 0.7;
 }
 
 .collection__title-row {
