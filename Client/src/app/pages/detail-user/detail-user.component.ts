@@ -29,7 +29,7 @@ export interface ProfileNavItem {
 }
 
 export interface ProfileNavSection {
-  titleKey: string;
+  titleKey?: string;
   items: ProfileNavItem[];
 }
 
@@ -71,7 +71,6 @@ export class DetailUserComponent implements OnInit {
 
   profileNav: ProfileNavSection[] = [
     {
-      titleKey: 'T_ACCOUNT',
       items: [
         {
           id: 'profile',
@@ -102,12 +101,6 @@ export class DetailUserComponent implements OnInit {
           icon: 'read',
           available: true,
         },
-        {
-          id: 'activity',
-          labelKey: 'T_MYACTIVITY',
-          icon: 'history',
-          available: true,
-        },
         // Admin cấp quyền dùng thư viện theo vai trò; không có quyền thì ẩn hẳn
         ...(this.authService.hasPermission('archive.use')
           ? [
@@ -119,6 +112,12 @@ export class DetailUserComponent implements OnInit {
               },
             ]
           : []),
+        {
+          id: 'activity',
+          labelKey: 'T_MYACTIVITY',
+          icon: 'history',
+          available: true,
+        },
       ],
     },
   ];

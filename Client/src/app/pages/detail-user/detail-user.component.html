@@ -1,9 +1,11 @@
 <div class="profile">
   <!-- Sidebar: sinh ra từ profileNav nên thêm tab mới chỉ cần sửa mảng đó -->
   <aside class="profile__sidebar" [attr.aria-label]="'T_ACCOUNT' | translate">
-    @for (section of profileNav; track section.titleKey) {
+    @for (section of profileNav; track $index) {
       <div class="profile__nav-section">
-        <p class="profile__nav-title">{{ section.titleKey | translate }}</p>
+        @if (section.titleKey) {
+          <p class="profile__nav-title">{{ section.titleKey | translate }}</p>
+        }
         @for (item of section.items; track item.id) {
           <button
             type="button"
@@ -114,7 +116,7 @@
               </form>
             </article>
             <article
-              class="profile__card"
+              class="profile__card profile__personal-card"
               aria-labelledby="profile-personal-title">
               <h2 id="profile-personal-title" class="profile__card-title">
                 {{ 'T_PERSONALDETAILS' | translate }}
@@ -194,52 +196,6 @@
                 </div>
               </dl>
             </article>
-
-            <article
-              class="profile__card profile__card--security"
-              aria-labelledby="profile-security-title">
-              <h2 id="profile-security-title" class="profile__card-title">
-                {{ 'T_SECURITY' | translate }}
-              </h2>
-              <dl class="profile__security-rows">
-                <div class="profile__row">
-                  <dt>{{ 'T_TWOFACTORAUTH' | translate }}</dt>
-                  <dd>
-                    <span
-                      class="profile__badge"
-                      [class.is-on]="userInfo.TwoFacotrEnabled">
-                      {{
-                        (userInfo.TwoFacotrEnabled
-                          ? 'T_PROFILE_ENABLED'
-                          : 'T_PROFILE_DISABLED'
-                        ) | translate
-                      }}
-                    </span>
-                  </dd>
-                </div>
-                <div class="profile__row">
-                  <dt>{{ 'T_PHONEVERIFIED' | translate }}</dt>
-                  <dd>
-                    <span
-                      class="profile__badge"
-                      [class.is-on]="userInfo.PhoneNumberConfirmed">
-                      {{
-                        (userInfo.PhoneNumberConfirmed
-                          ? 'T_PROFILE_VERIFIED'
-                          : 'T_PROFILE_UNVERIFIED'
-                        ) | translate
-                      }}
-                    </span>
-                  </dd>
-                </div>
-                <div class="profile__row">
-                  <dt>{{ 'T_ACCESSFAILEDCOUNT' | translate }}</dt>
-                  <dd class="profile__security-count">
-                    {{ userInfo.AccessFailedCount }}
-                  </dd>
-                </div>
-              </dl>
-            </article>
           </div>
         }
         @case ('posts') {
@@ -249,7 +205,7 @@
           <app-my-activity />
         }
         @case ('security') {
-          <app-my-security />
+          <app-my-security [userInfo]="userInfo" />
         }
         @case ('reels') {
           <app-my-reels />

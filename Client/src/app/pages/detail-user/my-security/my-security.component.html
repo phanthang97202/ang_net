@@ -2,6 +2,40 @@
   <header>
     <h2 id="my-security-title">{{ 'T_SECURITY' | translate }}</h2>
   </header>
+  <dl class="security__summary">
+    <div class="security__summary-item">
+      <dt>{{ 'T_TWOFACTORAUTH' | translate }}</dt>
+      <dd>
+        <span class="security__badge" [class.is-on]="userInfo.TwoFacotrEnabled">
+          {{
+            (userInfo.TwoFacotrEnabled
+              ? 'T_PROFILE_ENABLED'
+              : 'T_PROFILE_DISABLED'
+            ) | translate
+          }}
+        </span>
+      </dd>
+    </div>
+    <div class="security__summary-item">
+      <dt>{{ 'T_PHONEVERIFIED' | translate }}</dt>
+      <dd>
+        <span
+          class="security__badge"
+          [class.is-on]="userInfo.PhoneNumberConfirmed">
+          {{
+            (userInfo.PhoneNumberConfirmed
+              ? 'T_PROFILE_VERIFIED'
+              : 'T_PROFILE_UNVERIFIED'
+            ) | translate
+          }}
+        </span>
+      </dd>
+    </div>
+    <div class="security__summary-item">
+      <dt>{{ 'T_ACCESSFAILEDCOUNT' | translate }}</dt>
+      <dd class="security__count">{{ userInfo.AccessFailedCount }}</dd>
+    </div>
+  </dl>
   <article class="security__card">
     <span
       class="security__icon"
@@ -11,7 +45,6 @@
       aria-hidden="true"></span>
     <div class="security__body">
       <h3>{{ 'T_SELF_REVOKE_TITLE' | translate }}</h3>
-      <p>{{ 'T_SELF_REVOKE_DESC' | translate }}</p>
     </div>
     <button type="button" [disabled]="saving" (click)="confirm('revoke')">
       {{ 'T_SELF_REVOKE_TITLE' | translate }}
@@ -26,10 +59,6 @@
       aria-hidden="true"></span>
     <div class="security__body">
       <h3>{{ 'T_SELF_LOCK_TITLE' | translate }}</h3>
-      <p>{{ 'T_SELF_LOCK_DESC' | translate }}</p>
-      @if (auth.isAdminPermission()) {
-        <p class="security__hint">{{ 'T_SELF_LOCK_ADMIN' | translate }}</p>
-      }
     </div>
     <button
       class="security__lock"

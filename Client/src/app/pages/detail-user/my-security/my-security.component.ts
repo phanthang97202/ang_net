@@ -1,10 +1,11 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, Input, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { finalize } from 'rxjs';
+import { IUser } from '../../../interfaces';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -15,6 +16,8 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './my-security.component.scss',
 })
 export class MySecurityComponent {
+  @Input({ required: true }) userInfo!: IUser;
+
   auth = inject(AuthService);
   private translate = inject(TranslateService);
   private messages = inject(NzMessageService);
