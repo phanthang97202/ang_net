@@ -1,5 +1,4 @@
 // ── Variables ──────────────────────────────────────────
-$font-serif: 'Playfair Display', serif;
 $font-sans: 'Montserrat', sans-serif;
 // Sass rgba() không nhận var() làm màu đầu vào để pha alpha, nên các chỗ
 // hover accent-tint (rgba($color-accent, N)) được thay trực tiếp bằng
@@ -64,21 +63,8 @@ $nav-height: 64px;
 .navbar-logo {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
     min-height: 44px;
-    font-family: $font-serif;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: $color-dark;
-    text-decoration: none;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
     flex-shrink: 0;
-
-    em {
-        color: $color-accent;
-        font-style: italic;
-    }
 }
 
 .navbar-logo-image {
@@ -88,6 +74,12 @@ $nav-height: 64px;
     flex-shrink: 0;
     border-radius: 10px;
     object-fit: contain;
+}
+
+.navbar-logo-image--desktop {
+    width: 164px;
+    height: 47px;
+    border-radius: 0;
 }
 
 .navbar-logo:focus-visible {

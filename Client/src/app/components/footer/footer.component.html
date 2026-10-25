@@ -7,18 +7,14 @@
         *ngIf="contentLoading"
         variant="footer"></app-config-skeleton>
       <ng-container *ngIf="!contentLoading">
-        <a routerLink="/" class="footer-logo">
+        <a routerLink="/" class="footer-logo" aria-label="PhanThang">
           <img
             class="footer-logo-image"
-            src="assets/images/phanthangblog_logo.png"
-            width="40"
-            height="40"
+            src="assets/images/logo_phanthangblog_trim.png"
+            width="153"
+            height="32"
             alt=""
             loading="lazy" />
-          <span class="footer-wordmark"
-            >{{ footerContent.brandName
-            }}<em>{{ footerContent.brandAccent }}</em></span
-          >
         </a>
         <p class="footer-tagline">{{ footerContent.tagline }}</p>
       </ng-container>

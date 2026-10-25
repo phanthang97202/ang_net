@@ -21,33 +21,16 @@
 .footer-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
   min-height: 44px;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--color-text);
-  text-decoration: none;
-  letter-spacing: 0.01em;
-
-  em {
-    color: var(--color-accent);
-    font-style: italic;
-  }
 }
 
 .footer-logo-image {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 153px;
+  height: 32px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 0;
   object-fit: contain;
-}
-
-.footer-wordmark {
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 
 .footer-logo:focus-visible {
