@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ChangeEvent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import {
   Alignment,
@@ -71,12 +72,13 @@ type EditorVariant = 'full' | 'note';
 @Component({
   selector: 'app-text-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, CKEditorModule],
+  imports: [CommonModule, FormsModule, CKEditorModule, TranslateModule],
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss',
 })
 export class TextEditorComponent implements OnChanges {
   private editorStyles = inject(EditorStylesService);
+  private translate = inject(TranslateService);
   editorStylesReady = false;
   editorStylesError = '';
 
@@ -317,16 +319,14 @@ export class TextEditorComponent implements OnChanges {
 
     const input = window.prompt(
       type === 'pdf'
-        ? 'Dán link file PDF (https://...)'
-        : 'Dán link nhúng iframe, hoặc link/mã nhúng TikTok, Facebook, Instagram'
+        ? this.translate.instant('T_EDITOR_PDF_PROMPT')
+        : this.translate.instant('T_EDITOR_EMBED_PROMPT')
     );
     if (!input) return;
 
     const src = this.toEmbedSrc(input, type);
     if (!src) {
-      window.alert(
-        'Link không hợp lệ. Hãy dán một đường dẫn http/https hợp lệ.'
-      );
+      window.alert(this.translate.instant('T_EDITOR_INVALID_LINK'));
       return;
     }
 

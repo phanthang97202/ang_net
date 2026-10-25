@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { ScrollRevealDirective } from '../../directives';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../services';
 
 interface SubscribeForm {
@@ -21,6 +21,7 @@ interface SubscribeForm {
 export class SubscribeNotifyComponent {
   private api = inject(ApiService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   form: SubscribeForm = { email: '' };
   isLoading = false;
@@ -34,7 +35,7 @@ export class SubscribeNotifyComponent {
 
     // ── Validate client-side ────────────────────────────
     if (!this.isValidEmail(this.form.email)) {
-      this.errorMsg = 'Vui lòng nhập email hợp lệ.';
+      this.errorMsg = this.translate.instant('T_SUBSCRIBE_INVALID_EMAIL');
       return;
     }
 
@@ -56,10 +57,10 @@ export class SubscribeNotifyComponent {
             return;
           }
           this.errorMsg =
-            res?.ErrorMessage || 'Đăng ký thất bại, vui lòng thử lại.';
+            res?.ErrorMessage || this.translate.instant('T_SUBSCRIBE_ERROR');
         },
         error: () => {
-          this.errorMsg = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+          this.errorMsg = this.translate.instant('T_SUBSCRIBE_RETRY_ERROR');
         },
       });
   }

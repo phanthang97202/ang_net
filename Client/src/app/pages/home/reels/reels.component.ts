@@ -10,7 +10,7 @@ import {
   ViewChildren,
   inject,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -21,7 +21,7 @@ import { ReelItemComponent } from './reel-item/reel-item.component';
 import { ReelCommentsComponent } from './reel-comments/reel-comments.component';
 
 interface ReelMenuItem {
-  label: string;
+  labelKey: string;
   icon: string;
   /** Có route thật thì điều hướng, không thì báo đang phát triển */
   route?: string;
@@ -48,18 +48,24 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private message = inject(NzMessageService);
+  private translate = inject(TranslateService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly deletedIds = new Set<string>();
 
   menuItems: ReelMenuItem[] = [
-    { label: 'Đề xuất', icon: 'home', route: '/reels', active: true },
-    { label: 'Khám phá', icon: 'compass' },
-    { label: 'Đã follow', icon: 'usergroup-add' },
-    { label: 'Bạn bè', icon: 'team' },
-    { label: 'LIVE', icon: 'video-camera' },
-    { label: 'Tin nhắn', icon: 'message' },
-    { label: 'Hoạt động', icon: 'bell' },
-    { label: 'Hồ sơ', icon: 'user', route: '/userinfor' },
+    {
+      labelKey: 'T_REELS_FOR_YOU',
+      icon: 'home',
+      route: '/reels',
+      active: true,
+    },
+    { labelKey: 'T_REELS_DISCOVER', icon: 'compass' },
+    { labelKey: 'T_REELS_FOLLOWING', icon: 'usergroup-add' },
+    { labelKey: 'T_REELS_FRIENDS', icon: 'team' },
+    { labelKey: 'T_REELS_LIVE', icon: 'video-camera' },
+    { labelKey: 'T_REELS_MESSAGES', icon: 'message' },
+    { labelKey: 'T_REELS_ACTIVITY', icon: 'bell' },
+    { labelKey: 'T_REELS_PROFILE', icon: 'user', route: '/userinfor' },
   ];
 
   lstReels: IReelDto[] = [];
@@ -106,12 +112,12 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.feedSub = this.apiService.ReelDetail(reelId).subscribe({
       next: response => {
         if (response.Success && response.Data) this.lstReels = [response.Data];
-        else this.message.info('Reel không còn khả dụng.');
+        else this.message.info(this.translate.instant('T_REELS_UNAVAILABLE'));
         this.isLoading = false;
         this.loadNextPage();
       },
       error: () => {
-        this.message.info('Reel không còn khả dụng.');
+        this.message.info(this.translate.instant('T_REELS_UNAVAILABLE'));
         this.isLoading = false;
         this.loadNextPage();
       },
@@ -161,7 +167,11 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate([item.route]);
       return;
     }
-    this.message.info(`"${item.label}" đang được phát triển.`);
+    this.message.info(
+      this.translate.instant('T_REELS_IN_DEVELOPMENT_NAMED', {
+        name: this.translate.instant(item.labelKey),
+      })
+    );
   }
 
   private readAccount(): void {

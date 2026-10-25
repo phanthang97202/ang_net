@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApiService, AuthService } from '../../services';
 
 @Component({
@@ -32,12 +32,16 @@ export class NewsRatingComponent {
   }
 
   // Báo lên trang cha để nó cập nhật lại điểm trung bình đang hiển thị chỗ khác.
-  @Output() rated = new EventEmitter<{ avgPoint: number; totalPoint: number }>();
+  @Output() rated = new EventEmitter<{
+    avgPoint: number;
+    totalPoint: number;
+  }>();
 
   private api = inject(ApiService);
   private auth = inject(AuthService);
   private message = inject(NzMessageService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   readonly stars = [1, 2, 3, 4, 5];
 
@@ -77,7 +81,7 @@ export class NewsRatingComponent {
 
   rate(star: number): void {
     if (!this.isLoggedIn) {
-      this.message.info('Bạn cần đăng nhập để đánh giá bài viết.');
+      this.message.info(this.translate.instant('T_RATING_LOGIN_REQUIRED'));
       return;
     }
     if (this.isSubmitting) return;
@@ -100,20 +104,24 @@ export class NewsRatingComponent {
             // báo chung chung thì không lần ra được hỏng ở đâu.
             this.message.error(
               res?.ErrorMessage
-                ? `Không gửi được đánh giá (${res.ErrorMessage}).`
-                : 'Không gửi được đánh giá, vui lòng thử lại.'
+                ? this.translate.instant('T_RATING_ERROR_DETAIL', {
+                    message: res.ErrorMessage,
+                  })
+                : this.translate.instant('T_RATING_ERROR')
             );
             return;
           }
           this.applyLocalAverage(previousStars, star);
           this.message.success(
-            previousStars > 0 ? 'Đã cập nhật đánh giá.' : 'Cảm ơn đánh giá!'
+            this.translate.instant(
+              previousStars > 0 ? 'T_RATING_UPDATED' : 'T_RATING_THANKS'
+            )
           );
         },
         error: () => {
           this.isSubmitting = false;
           this.myStars = previousStars;
-          this.message.error('Không gửi được đánh giá, vui lòng thử lại.');
+          this.message.error(this.translate.instant('T_RATING_ERROR'));
         },
       });
   }
@@ -129,7 +137,10 @@ export class NewsRatingComponent {
 
     this.totalPoint = total;
     this.avgPoint = total > 0 ? (sum + star * 2) / total : 0;
-    this.rated.emit({ avgPoint: this.avgPoint, totalPoint: this.totalPoint });
+    this.rated.emit({
+      avgPoint: this.avgPoint,
+      totalPoint: this.totalPoint,
+    });
   }
 
   private toStars(point: number): number {

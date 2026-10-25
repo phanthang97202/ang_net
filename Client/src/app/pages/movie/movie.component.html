@@ -1,11 +1,21 @@
 <main class="movie-page">
   <section *ngIf="!slug" class="movie-search-view">
-    <nav class="movie-tabs" aria-label="Thư viện phim">
-      <a routerLink="/phim" class="blog-btn" [class.blog-btn--primary]="!wishlistView"
-        [attr.aria-current]="!wishlistView ? 'page' : null">Khám phá</a>
-      <a routerLink="/phim" [queryParams]="{ view: 'wishlist' }" class="blog-btn"
+    <nav class="movie-tabs" [attr.aria-label]="'T_MOVIE_LIBRARY' | translate">
+      <a
+        routerLink="/phim"
+        class="blog-btn"
+        [class.blog-btn--primary]="!wishlistView"
+        [attr.aria-current]="!wishlistView ? 'page' : null"
+        >{{ 'T_MOVIE_DISCOVER' | translate }}</a
+      >
+      <a
+        routerLink="/phim"
+        [queryParams]="{ view: 'wishlist' }"
+        class="blog-btn"
         [class.blog-btn--primary]="wishlistView"
-        [attr.aria-current]="wishlistView ? 'page' : null">Yêu thích</a>
+        [attr.aria-current]="wishlistView ? 'page' : null"
+        >{{ 'T_MOVIE_FAVORITES' | translate }}</a
+      >
     </nav>
     <form class="movie-search" (ngSubmit)="search()">
       <span nz-icon nzType="search" nzTheme="outline"></span>
@@ -14,85 +24,140 @@
         name="keyword"
         type="search"
         maxlength="100"
-        placeholder="Tìm phim theo tên Việt hoặc tên gốc..."
-        aria-label="Tên phim cần tìm" />
+        [placeholder]="'T_MOVIE_SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'T_MOVIE_SEARCH_LABEL' | translate" />
       <button
         class="blog-btn blog-btn--primary"
         type="submit"
         [disabled]="loading">
-        Tìm kiếm
+        {{ 'T_SEARCH' | translate }}
       </button>
     </form>
 
     <section *ngIf="catalog as list" class="movie-results">
       <div class="section-heading">
         <div>
-          <span>{{ wishlistView ? 'ĐÃ LƯU' : query ? 'KẾT QUẢ TÌM KIẾM' : 'MỚI CẬP NHẬT' }}</span>
+          <span>{{
+            (wishlistView
+              ? 'T_MOVIE_SAVED'
+              : query
+                ? 'T_MOVIE_SEARCH_RESULTS'
+                : 'T_MOVIE_LATEST'
+            ) | translate
+          }}</span>
           <h2>
-            {{ query ? 'Kết quả cho “' + query + '”' : wishlistView ? 'Phim yêu thích' : 'Khám phá phim' }}
+            {{
+              (query
+                ? 'T_MOVIE_RESULTS_FOR'
+                : wishlistView
+                  ? 'T_MOVIE_FAVORITES_TITLE'
+                  : 'T_MOVIE_DISCOVER_TITLE'
+              ) | translate: { query: query }
+            }}
           </h2>
         </div>
-        <strong>{{ list.TotalItems | number }} phim</strong>
+        <strong>{{
+          'T_MOVIE_COUNT' | translate: { count: (list.TotalItems | number) }
+        }}</strong>
       </div>
       <div class="movie-grid">
-        <article
-          *ngFor="let movie of list.Items"
-          class="movie-card">
-          <a class="movie-card__link"
-          [routerLink]="['/phim', movie.Slug]"
-          [queryParams]="{ q: query || null, page: page, view: wishlistView ? 'wishlist' : null }">
-          <div class="movie-card__poster">
-            <img [src]="movie.PosterUrl" [alt]="movie.Title" loading="lazy" />
-            <span *ngIf="movie.Quality || movie.Language" class="movie-card__score"
-              >{{ movie.Quality }} · {{ movie.Language }}</span
-            >
-            <span class="movie-card__action"
-              ><span nz-icon nzType="play-circle" nzTheme="fill"></span
-            ></span>
-          </div>
-          <div class="movie-card__body">
-            <h3>{{ movie.Title }}</h3>
-            <p>{{ movie.OriginalTitle }}</p>
-            <div class="movie-card__meta">
-              <span>{{ movie.Year || '—' }}</span
-              ><span>{{ movie.EpisodeStatus }}</span>
+        <article *ngFor="let movie of list.Items" class="movie-card">
+          <a
+            class="movie-card__link"
+            [routerLink]="['/phim', movie.Slug]"
+            [queryParams]="{
+              q: query || null,
+              page: page,
+              view: wishlistView ? 'wishlist' : null,
+            }">
+            <div class="movie-card__poster">
+              <img [src]="movie.PosterUrl" [alt]="movie.Title" loading="lazy" />
+              <span
+                *ngIf="movie.Quality || movie.Language"
+                class="movie-card__score"
+                >{{ movie.Quality }} · {{ movie.Language }}</span
+              >
+              <span class="movie-card__action"
+                ><span nz-icon nzType="play-circle" nzTheme="fill"></span
+              ></span>
             </div>
-          </div>
+            <div class="movie-card__body">
+              <h3>{{ movie.Title }}</h3>
+              <p>{{ movie.OriginalTitle }}</p>
+              <div class="movie-card__meta">
+                <span>{{ movie.Year || '—' }}</span
+                ><span>{{ movie.EpisodeStatus }}</span>
+              </div>
+            </div>
           </a>
-          <button type="button" class="movie-save" [class.movie-save--active]="movie.IsWishlisted"
-            [disabled]="wishlistPending.has(movie.Slug)" [attr.aria-pressed]="movie.IsWishlisted"
-            [attr.aria-label]="(movie.IsWishlisted ? 'Bỏ yêu thích: ' : 'Lưu yêu thích: ') + movie.Title"
-            [title]="movie.IsWishlisted ? 'Bỏ yêu thích' : 'Lưu yêu thích'"
+          <button
+            type="button"
+            class="movie-save"
+            [class.movie-save--active]="movie.IsWishlisted"
+            [disabled]="wishlistPending.has(movie.Slug)"
+            [attr.aria-pressed]="movie.IsWishlisted"
+            [attr.aria-label]="
+              (movie.IsWishlisted
+                ? 'T_MOVIE_REMOVE_FAVORITE_NAMED'
+                : 'T_MOVIE_SAVE_FAVORITE_NAMED'
+              ) | translate: { title: movie.Title }
+            "
+            [title]="
+              (movie.IsWishlisted
+                ? 'T_MOVIE_REMOVE_FAVORITE'
+                : 'T_MOVIE_SAVE_FAVORITE'
+              ) | translate
+            "
             (click)="toggleWishlist(movie)">
-            <span nz-icon nzType="heart" [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
+            <span
+              nz-icon
+              nzType="heart"
+              [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
           </button>
         </article>
       </div>
       <div *ngIf="!list.Items.length" class="movie-empty">
-        <h2>{{ wishlistView && !query ? 'Chưa có phim yêu thích' : 'Chưa tìm thấy phim phù hợp' }}</h2>
+        <h2>
+          {{
+            (wishlistView && !query
+              ? 'T_MOVIE_EMPTY_FAVORITES'
+              : 'T_MOVIE_NO_RESULTS'
+            ) | translate
+          }}
+        </h2>
         <p>
-          {{ wishlistView ? 'Nhấn nút trái tim trên phim bạn thích để lưu vào đây.' : 'Thử tên tiếng Việt, tên gốc hoặc một từ khóa ngắn hơn.' }}
+          {{
+            (wishlistView
+              ? 'T_MOVIE_EMPTY_FAVORITES_HINT'
+              : 'T_MOVIE_NO_RESULTS_HINT'
+            ) | translate
+          }}
         </p>
-        <a routerLink="/phim" class="blog-btn">Khám phá phim</a>
+        <a routerLink="/phim" class="blog-btn">{{
+          'T_MOVIE_DISCOVER_TITLE' | translate
+        }}</a>
       </div>
       <nav
         *ngIf="list.TotalPages > 1"
         class="movie-pagination"
-        aria-label="Phân trang phim">
+        [attr.aria-label]="'T_MOVIE_PAGINATION' | translate">
         <button
           class="blog-btn"
           type="button"
           [disabled]="list.Page <= 1"
           (click)="changePage(list.Page - 1)">
-          Trang trước
+          {{ 'T_MOVIE_PREVIOUS_PAGE' | translate }}
         </button>
-        <span>Trang {{ list.Page }} / {{ list.TotalPages }}</span>
+        <span>{{
+          'T_MOVIE_PAGE_STATUS'
+            | translate: { page: list.Page, total: list.TotalPages }
+        }}</span>
         <button
           class="blog-btn blog-btn--primary"
           type="button"
           [disabled]="list.Page >= list.TotalPages"
           (click)="changePage(list.Page + 1)">
-          Trang sau
+          {{ 'T_MOVIE_NEXT_PAGE' | translate }}
         </button>
       </nav>
     </section>
@@ -100,23 +165,39 @@
 
   <div *ngIf="loading" class="movie-loading" role="status">
     <span class="movie-loading__mark"></span>
-    <p>{{ wishlistView && !slug ? 'Đang tải phim yêu thích...' : 'Đang tải từ nguồn phim...' }}</p>
+    <p>
+      {{
+        (wishlistView && !slug
+          ? 'T_MOVIE_LOADING_FAVORITES'
+          : 'T_MOVIE_LOADING_LIBRARY'
+        ) | translate
+      }}
+    </p>
   </div>
   <div *ngIf="error" class="movie-empty" role="alert">
     <h2>{{ error }}</h2>
     <button type="button" class="blog-btn blog-btn--primary" (click)="load()">
-      Thử lại
+      {{ 'T_MOVIE_RETRY' | translate }}
     </button>
-    <a *ngIf="slug" routerLink="/phim" class="movie-back">Về thư viện phim</a>
+    <a *ngIf="slug" routerLink="/phim" class="movie-back">{{
+      'T_MOVIE_BACK_LIBRARY' | translate
+    }}</a>
   </div>
 
   <article *ngIf="detail as movie" class="movie-detail">
     <a
       class="movie-back"
       routerLink="/phim"
-      [queryParams]="{ q: query || null, page: page, view: wishlistView ? 'wishlist' : null }">
+      [queryParams]="{
+        q: query || null,
+        page: page,
+        view: wishlistView ? 'wishlist' : null,
+      }">
       <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-      {{ wishlistView ? 'Về phim yêu thích' : 'Về thư viện phim' }}
+      {{
+        (wishlistView ? 'T_MOVIE_BACK_FAVORITES' : 'T_MOVIE_BACK_LIBRARY')
+          | translate
+      }}
     </a>
     <section
       class="movie-detail__hero"
@@ -130,24 +211,45 @@
           [src]="movie.PosterUrl"
           [alt]="movie.Title" />
         <div class="movie-detail__info">
-          <span class="movie-eyebrow">PHIM</span>
+          <span class="movie-eyebrow">{{ 'T_MOVIE_LABEL' | translate }}</span>
           <h1>{{ movie.Title }}</h1>
-          <p class="movie-detail__native">{{ movie.OriginalTitle }}</p>
+          <p class="movie-detail__native">
+            {{ movie.OriginalTitle }}
+          </p>
           <div class="movie-detail__badges">
-            <span>{{ movie.Year || 'Đang cập nhật' }}</span
+            <span>{{ movie.Year || ('T_MOVIE_UPDATING' | translate) }}</span
             ><span>{{ movie.EpisodeStatus }}</span>
             <span>{{ movie.Quality }} · {{ movie.Language }}</span>
-            <span *ngIf="movie.WatchProgress">Tiến trình: {{ movie.WatchProgress.EpisodeName }}</span>
+            <span *ngIf="movie.WatchProgress">{{
+              'T_MOVIE_PROGRESS'
+                | translate
+                  : {
+                      episode: movie.WatchProgress.EpisodeName,
+                    }
+            }}</span>
           </div>
-          <p class="movie-detail__description">{{ movie.Description }}</p>
+          <p class="movie-detail__description">
+            {{ movie.Description }}
+          </p>
           <div class="movie-detail__genres">
             <span *ngFor="let genre of movie.Genres">{{ genre }}</span>
           </div>
-          <button type="button" class="blog-btn blog-btn--primary movie-save-detail"
-            [disabled]="wishlistPending.has(movie.Slug)" [attr.aria-pressed]="movie.IsWishlisted"
+          <button
+            type="button"
+            class="blog-btn blog-btn--primary movie-save-detail"
+            [disabled]="wishlistPending.has(movie.Slug)"
+            [attr.aria-pressed]="movie.IsWishlisted"
             (click)="toggleWishlist(movie)">
-            <span nz-icon nzType="heart" [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
-            {{ movie.IsWishlisted ? 'Đã yêu thích' : 'Lưu yêu thích' }}
+            <span
+              nz-icon
+              nzType="heart"
+              [nzTheme]="movie.IsWishlisted ? 'fill' : 'outline'"></span>
+            {{
+              (movie.IsWishlisted
+                ? 'T_MOVIE_FAVORITED'
+                : 'T_MOVIE_SAVE_FAVORITE'
+              ) | translate
+            }}
           </button>
         </div>
       </div>
@@ -160,12 +262,20 @@
         class="movie-player">
         <div class="section-heading movie-player__heading">
           <div>
-            <h2>{{ playback?.Title || (playbackError ? 'Chưa thể phát phim' : 'Đang mở tập phim…') }}</h2>
+            <h2>
+              {{
+                playback?.Title ||
+                  ((playbackError
+                    ? 'T_MOVIE_CANNOT_PLAY'
+                    : 'T_MOVIE_OPENING_EPISODE'
+                  ) | translate)
+              }}
+            </h2>
           </div>
         </div>
         <div *ngIf="loadingPlayback" class="movie-loading" role="status">
           <span class="movie-loading__mark"></span>
-          <p>Đang lấy nguồn phát...</p>
+          <p>{{ 'T_MOVIE_LOADING_SOURCE' | translate }}</p>
         </div>
         <div
           *ngIf="playbackError"
@@ -192,24 +302,29 @@
         </p>
         <p *ngIf="progressError" class="movie-player__notice" role="status">
           {{ progressError }}
-          <button type="button" class="movie-progress-retry" (click)="retryProgressSave()">Thử lưu lại</button>
+          <button
+            type="button"
+            class="movie-progress-retry"
+            (click)="retryProgressSave()">
+            {{ 'T_MOVIE_RETRY_SAVE' | translate }}
+          </button>
         </p>
         <div
           class="movie-player__actions"
           role="group"
-          aria-label="Điều khiển phát phim">
+          [attr.aria-label]="'T_MOVIE_PLAYER_CONTROLS' | translate">
           <div
             *ngIf="playback?.Url && playback?.EmbedUrl"
             class="movie-player__source-nav"
             role="group"
-            aria-label="Chọn trình phát">
+            [attr.aria-label]="'T_MOVIE_CHOOSE_PLAYER' | translate">
             <button
               type="button"
               class="blog-btn"
               [class.blog-btn--primary]="!!safeEmbedUrl"
               [attr.aria-pressed]="!!safeEmbedUrl"
               (click)="useEmbed()">
-              Trình phát mặc định
+              {{ 'T_MOVIE_DEFAULT_PLAYER' | translate }}
             </button>
             <button
               type="button"
@@ -217,19 +332,36 @@
               [class.blog-btn--primary]="!safeEmbedUrl"
               [attr.aria-pressed]="!safeEmbedUrl"
               (click)="useHls()">
-              Trình phát HLS
+              {{ 'T_MOVIE_HLS_PLAYER' | translate }}
             </button>
           </div>
-          <div class="movie-player__episode-nav" role="group" aria-label="Chuyển tập phim">
-            <button type="button" class="blog-btn"
-              [disabled]="loadingPlayback || !previousEpisode" (click)="changeEpisode(-1)">
-              <span nz-icon nzType="arrow-left" nzTheme="outline" aria-hidden="true"></span>
-              Tập trước
+          <div
+            class="movie-player__episode-nav"
+            role="group"
+            [attr.aria-label]="'T_MOVIE_EPISODE_NAV' | translate">
+            <button
+              type="button"
+              class="blog-btn"
+              [disabled]="loadingPlayback || !previousEpisode"
+              (click)="changeEpisode(-1)">
+              <span
+                nz-icon
+                nzType="arrow-left"
+                nzTheme="outline"
+                aria-hidden="true"></span>
+              {{ 'T_MOVIE_PREVIOUS_EPISODE' | translate }}
             </button>
-            <button type="button" class="blog-btn"
-              [disabled]="loadingPlayback || !nextEpisode" (click)="changeEpisode(1)">
-              Tập sau
-              <span nz-icon nzType="arrow-right" nzTheme="outline" aria-hidden="true"></span>
+            <button
+              type="button"
+              class="blog-btn"
+              [disabled]="loadingPlayback || !nextEpisode"
+              (click)="changeEpisode(1)">
+              {{ 'T_MOVIE_NEXT_EPISODE' | translate }}
+              <span
+                nz-icon
+                nzType="arrow-right"
+                nzTheme="outline"
+                aria-hidden="true"></span>
             </button>
           </div>
         </div>
@@ -239,13 +371,13 @@
         #episodeSidebar
         class="movie-episodes"
         [class.movie-episodes--open]="episodesOpen"
-        aria-label="Danh sách tập phim">
+        [attr.aria-label]="'T_MOVIE_EPISODE_LIST' | translate">
         <button
           #episodeToggle
           type="button"
           class="movie-episodes__toggle"
-          aria-label="Danh sách tập"
-          title="Danh sách tập"
+          [attr.aria-label]="'T_MOVIE_EPISODE_LIST' | translate"
+          [title]="'T_MOVIE_EPISODE_LIST' | translate"
           aria-controls="movie-episode-panel"
           [attr.aria-expanded]="episodesOpen"
           (click)="toggleEpisodeSidebar()">
@@ -259,16 +391,19 @@
         <section
           id="movie-episode-panel"
           class="movie-episodes__panel"
-          aria-label="Chọn tập phim">
+          [attr.aria-label]="'T_MOVIE_CHOOSE_EPISODE' | translate">
           <div class="section-heading">
             <div>
-              <h2>Danh sách tập</h2>
+              <h2>{{ 'T_MOVIE_EPISODE_LIST' | translate }}</h2>
             </div>
-            <strong>{{ server?.Episodes?.length || 0 }} tập</strong>
+            <strong>{{
+              'T_MOVIE_EPISODE_COUNT'
+                | translate: { count: server?.Episodes?.length || 0 }
+            }}</strong>
             <button
               type="button"
               class="movie-episodes__close"
-              aria-label="Đóng danh sách tập"
+              [attr.aria-label]="'T_MOVIE_CLOSE_EPISODE_LIST' | translate"
               (click)="closeEpisodeSidebar()">
               <span
                 nz-icon
@@ -281,7 +416,7 @@
             <div
               class="movie-servers"
               role="group"
-              aria-label="Chọn nguồn phát">
+              [attr.aria-label]="'T_MOVIE_CHOOSE_SOURCE' | translate">
               <button
                 *ngFor="let item of movie.Servers"
                 type="button"
@@ -313,8 +448,10 @@
             </div>
             <ng-template #noEpisodes
               ><div class="movie-empty movie-empty--compact">
-                <h2>Nguồn phim chưa cập nhật tập</h2>
-                <p>Bạn có thể quay lại sau hoặc chọn phim khác.</p>
+                <h2>{{ 'T_MOVIE_NO_EPISODES' | translate }}</h2>
+                <p>
+                  {{ 'T_MOVIE_NO_EPISODES_HINT' | translate }}
+                </p>
               </div></ng-template
             >
           </div>

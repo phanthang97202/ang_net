@@ -11,7 +11,7 @@ import {
 } from '../../services';
 import { IFooterContent, ISocialLink } from '../../interfaces';
 import { SocialLinksComponent } from '../social-links/social-links.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
 
 // Admin cấu hình URL này qua SysParameter (FOOTER_MAP_EMBED); chỉ chấp nhận
@@ -27,13 +27,12 @@ const DEFAULT_SOCIALS: ISocialLink[] = [
   { icon: 'linkedin', link: '#' },
 ];
 
-const DEFAULT_FOOTER_CONTENT: IFooterContent = {
+const defaultFooterContent = (translate: TranslateService): IFooterContent => ({
   brandName: 'Phan',
   brandAccent: 'Thang',
-  tagline:
-    'Góc nhỏ ghi lại những chuyến đi, khoảnh khắc đời thường và những câu chuyện thật của Phan Thang.',
-  copyright: '© {year} — Phan Thang. Đã đăng ký bản quyền.',
-};
+  tagline: translate.instant('T_FOOTER_DEFAULT_TAGLINE'),
+  copyright: translate.instant('T_FOOTER_DEFAULT_COPYRIGHT'),
+});
 
 @Component({
   selector: 'app-footer',
@@ -54,11 +53,12 @@ export class FooterComponent implements OnInit {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
   private sanitizer = inject(DomSanitizer);
+  private translate = inject(TranslateService);
 
   currentYear = new Date().getFullYear();
   stats$ = this.visitTrackingService.stats$;
   socials: ISocialLink[] = DEFAULT_SOCIALS;
-  footerContent: IFooterContent = DEFAULT_FOOTER_CONTENT;
+  footerContent: IFooterContent = defaultFooterContent(this.translate);
   contentLoading = true;
   socialsLoading = true;
   mapLoading = true;
@@ -86,7 +86,10 @@ export class FooterComponent implements OnInit {
       .getJson<IFooterContent>(SYS_PARAM_CODE.FOOTER_CONTENT)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        this.footerContent = { ...DEFAULT_FOOTER_CONTENT, ...data };
+        this.footerContent = {
+          ...defaultFooterContent(this.translate),
+          ...data,
+        };
         this.contentLoading = false;
       });
 

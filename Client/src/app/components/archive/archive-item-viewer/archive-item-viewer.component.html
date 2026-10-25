@@ -63,7 +63,7 @@
       @if (item.Kind === 'Link') {
         <a [href]="item.SourceUrl" target="_blank" rel="noopener noreferrer">
           <span nz-icon nzType="link" nzTheme="outline"></span>
-          Mở link gốc
+          {{ 'T_ARCHIVE_OPEN_ORIGINAL_LINK' | translate }}
         </a>
       }
     </p>

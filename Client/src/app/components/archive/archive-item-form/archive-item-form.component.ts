@@ -14,6 +14,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { lastValueFrom, tap } from 'rxjs';
 import {
   IArchiveCollection,
@@ -57,6 +58,7 @@ const MAX_FILES_PER_BATCH = 20;
     ReactiveFormsModule,
     NzModalModule,
     NzIconModule,
+    TranslateModule,
     ArchiveProviderIconComponent,
   ],
   templateUrl: './archive-item-form.component.html',
@@ -74,6 +76,7 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
   private auth = inject(AuthService);
+  private translate = inject(TranslateService);
 
   get canUpload(): boolean {
     return this.auth.hasPermission('archive.upload');
@@ -139,7 +142,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   }
 
   get title(): string {
-    return this.isEdit ? 'Sửa mục lưu trữ' : 'Thêm vào bộ sưu tập';
+    return this.translate.instant(
+      this.isEdit ? 'T_ARCHIVE_EDIT_ITEM' : 'T_ARCHIVE_ADD_TO_COLLECTION'
+    );
   }
 
   setMode(mode: ItemFormMode): void {
@@ -165,11 +170,15 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     event.preventDefault();
     if (this.isSaving) return;
     if (!this.canUpload) {
-      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_UPLOAD_PERMISSION_REQUIRED')
+      );
       return;
     }
     if (!file.size || file.size >= 2 * 1024 * 1024) {
-      this.message.warning('Ảnh phải có dung lượng nhỏ hơn 2 MB.');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_PASTED_IMAGE_TOO_LARGE')
+      );
       return;
     }
     if (
@@ -177,7 +186,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
         file.type
       )
     ) {
-      this.message.warning('Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_PASTED_IMAGE_FORMAT_ERROR')
+      );
       return;
     }
 
@@ -190,7 +201,10 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
       this.pasteReader = undefined;
       this.isReadingImage = false;
       if (typeof reader.result !== 'string') return;
-      this.form.patchValue({ SourceUrl: reader.result, LinkKind: 'Image' });
+      this.form.patchValue({
+        SourceUrl: reader.result,
+        LinkKind: 'Image',
+      });
       this.form.controls.SourceUrl.markAsDirty();
       this.linkPreview = null;
     };
@@ -198,7 +212,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
       if (this.pasteReader !== reader) return;
       this.pasteReader = undefined;
       this.isReadingImage = false;
-      this.message.error('Không thể đọc ảnh vừa dán. Vui lòng thử lại.');
+      this.message.error(
+        this.translate.instant('T_ARCHIVE_PASTED_IMAGE_READ_ERROR')
+      );
     };
     reader.readAsDataURL(file);
   }
@@ -278,12 +294,16 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
       f => f.type.startsWith('image/') || f.type.startsWith('video/')
     );
     if (accepted.length < selected.length) {
-      this.message.warning('Chỉ nhận file ảnh hoặc video');
+      this.message.warning(this.translate.instant('T_ARCHIVE_FILE_TYPE_ERROR'));
     }
 
     const room = MAX_FILES_PER_BATCH - this.files.length;
     if (accepted.length > room) {
-      this.message.warning(`Mỗi lần tải tối đa ${MAX_FILES_PER_BATCH} file`);
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_MAX_FILES', {
+          count: MAX_FILES_PER_BATCH,
+        })
+      );
     }
 
     // Chỉ xem trước tại máy; file chỉ được tải lên khi bấm Lưu
@@ -301,12 +321,16 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
   private async saveUploads(): Promise<void> {
     if (!this.canUpload) {
-      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_UPLOAD_PERMISSION_REQUIRED')
+      );
       return;
     }
     const queue = this.files.filter(f => f.status !== 'done');
     if (queue.length === 0) {
-      this.message.warning('Hãy chọn ít nhất một ảnh hoặc video');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_SELECT_FILE_REQUIRED')
+      );
       return;
     }
 
@@ -329,7 +353,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
             })
           )
         );
-        if (uploaded.type !== 'done') throw new Error('Tải file thất bại');
+        if (uploaded.type !== 'done') {
+          throw new Error(this.translate.instant('T_ARCHIVE_UPLOAD_ERROR'));
+        }
         deleteToken = uploaded.deleteToken;
 
         const response = await lastValueFrom(
@@ -338,7 +364,10 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
           )
         );
         if (!response?.Success) {
-          throw new Error(response?.ErrorMessage || 'Không lưu được mục');
+          throw new Error(
+            response?.ErrorMessage ||
+              this.translate.instant('T_ARCHIVE_ITEM_SAVE_ERROR')
+          );
         }
 
         pending.status = 'done';
@@ -360,11 +389,19 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
 
     const failed = this.files.filter(f => f.status === 'error').length;
     if (failed === 0) {
-      this.message.success(`Đã lưu ${savedCount} mục`);
+      this.message.success(
+        this.translate.instant('T_ARCHIVE_ITEMS_SAVED', {
+          count: savedCount,
+        })
+      );
       this.closed.emit();
     } else {
       // Giữ modal mở, file lỗi vẫn ở đó để bấm Lưu thử lại
-      this.message.error(`${failed} file chưa lưu được`);
+      this.message.error(
+        this.translate.instant('T_ARCHIVE_FILES_SAVE_FAILED', {
+          count: failed,
+        })
+      );
       for (const done of this.files.filter(f => f.status === 'done')) {
         URL.revokeObjectURL(done.previewUrl);
       }
@@ -403,11 +440,15 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     const value = this.form.getRawValue();
     const url = value.SourceUrl.trim();
     if (this.hasPastedImage && !this.canUpload) {
-      this.message.warning('Bạn chưa được cấp quyền tải ảnh/video từ thiết bị');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_UPLOAD_PERMISSION_REQUIRED')
+      );
       return;
     }
     if (!this.hasPastedImage && !this.isHttpUrl(url)) {
-      this.message.warning('Link cần bắt đầu bằng http:// hoặc https://');
+      this.message.warning(
+        this.translate.instant('T_ARCHIVE_LINK_PROTOCOL_ERROR')
+      );
       return;
     }
 
@@ -463,10 +504,12 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
   ): void {
     this.isSaving = false;
     if (!success) {
-      this.message.error(errorMessage || 'Không lưu được mục');
+      this.message.error(
+        errorMessage || this.translate.instant('T_ARCHIVE_ITEM_SAVE_ERROR')
+      );
       return;
     }
-    this.message.success('Đã lưu');
+    this.message.success(this.translate.instant('T_SAVED'));
     this.saved.emit();
     this.closed.emit();
   }
@@ -490,7 +533,9 @@ export class ArchiveItemFormComponent implements OnChanges, OnDestroy {
     if (err instanceof HttpErrorResponse) {
       return err.error?.error?.message || err.message;
     }
-    return err instanceof Error ? err.message : 'Tải file thất bại';
+    return err instanceof Error
+      ? err.message
+      : this.translate.instant('T_ARCHIVE_UPLOAD_ERROR');
   }
 
   private clearFiles(): void {

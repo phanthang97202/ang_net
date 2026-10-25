@@ -8,6 +8,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { IButtonBreadcrumb } from '../../interfaces';
 import { ButtonCommonComponent } from '../../component-ui-common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
@@ -21,6 +22,7 @@ import { ButtonCommonComponent } from '../../component-ui-common';
     NzPageHeaderModule,
     NzSpaceModule,
     ButtonCommonComponent,
+    TranslateModule,
   ],
   templateUrl: './breadcrumb.component.html',
   styleUrls: ['./breadcrumb.component.scss'],

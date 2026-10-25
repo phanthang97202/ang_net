@@ -1,14 +1,14 @@
 <div class="reel-comments">
   <header class="reel-comments__header">
     <span class="reel-comments__title">
-      Bình luận
+      {{ 'T_COMMENTS' | translate }}
       <span class="reel-comments__count">{{ reel.CommentCount }}</span>
     </span>
     <button
       type="button"
       class="reel-comments__close"
       (click)="close()"
-      aria-label="Đóng">
+      [attr.aria-label]="'T_REELS_CLOSE_COMMENTS' | translate">
       <span nz-icon nzType="close" nzTheme="outline"></span>
     </button>
   </header>
@@ -17,7 +17,10 @@
     @for (comment of comments; track trackByCommentId($index, comment)) {
       <article class="reel-comments__item">
         @if (comment.UserAvatar) {
-          <img class="reel-comments__avatar" [src]="comment.UserAvatar" alt="" />
+          <img
+            class="reel-comments__avatar"
+            [src]="comment.UserAvatar"
+            alt="" />
         } @else {
           <span class="reel-comments__avatar reel-comments__avatar--fallback">{{
             authorInitial(comment)
@@ -25,7 +28,9 @@
         }
 
         <div class="reel-comments__content">
-          <p class="reel-comments__author">{{ comment.UserFullName }}</p>
+          <p class="reel-comments__author">
+            {{ comment.UserFullName }}
+          </p>
           <p class="reel-comments__text">{{ comment.Content }}</p>
           <div class="reel-comments__meta">
             <span>{{ comment.CreatedDTime | timeAgo }}</span>
@@ -33,7 +38,7 @@
               type="button"
               class="reel-comments__reply-btn"
               (click)="startReply(comment)">
-              Trả lời
+              {{ 'T_COMMENT_REPLY' | translate }}
             </button>
           </div>
 
@@ -43,20 +48,28 @@
               class="reel-comments__toggle-replies"
               (click)="toggleReplies(comment)">
               @if (expandedReplies.has(comment.CommentId)) {
-                Ẩn câu trả lời
+                {{ 'T_REELS_HIDE_REPLIES' | translate }}
               } @else {
-                Xem {{ comment.ReplyCount }} câu trả lời
+                {{
+                  'T_COMMENT_VIEW_REPLIES'
+                    | translate: { count: comment.ReplyCount }
+                }}
               }
             </button>
           }
 
           @if (loadingRepliesFor === comment.CommentId) {
-            <p class="reel-comments__loading">{{ 'T_LOADING' | translate }}</p>
+            <p class="reel-comments__loading">
+              {{ 'T_LOADING' | translate }}
+            </p>
           }
 
           @if (expandedReplies.has(comment.CommentId)) {
             <div class="reel-comments__replies">
-              @for (reply of comment.Replies; track trackByCommentId($index, reply)) {
+              @for (
+                reply of comment.Replies;
+                track trackByCommentId($index, reply)
+              ) {
                 <article class="reel-comments__item reel-comments__item--reply">
                   @if (reply.UserAvatar) {
                     <img
@@ -70,15 +83,19 @@
                     >
                   }
                   <div class="reel-comments__content">
-                    <p class="reel-comments__author">{{ reply.UserFullName }}</p>
-                    <p class="reel-comments__text">{{ reply.Content }}</p>
+                    <p class="reel-comments__author">
+                      {{ reply.UserFullName }}
+                    </p>
+                    <p class="reel-comments__text">
+                      {{ reply.Content }}
+                    </p>
                     <div class="reel-comments__meta">
                       <span>{{ reply.CreatedDTime | timeAgo }}</span>
                       <button
                         type="button"
                         class="reel-comments__reply-btn"
                         (click)="startReply(reply)">
-                        Trả lời
+                        {{ 'T_COMMENT_REPLY' | translate }}
                       </button>
                     </div>
                   </div>
@@ -92,12 +109,14 @@
 
     @if (!isLoading && comments.length === 0) {
       <p class="reel-comments__empty">
-        Chưa có bình luận nào. Hãy là người đầu tiên!
+        {{ 'T_REELS_COMMENT_EMPTY' | translate }}
       </p>
     }
 
     @if (isLoading) {
-      <p class="reel-comments__loading">{{ 'T_LOADINGCOMMENTS' | translate }}</p>
+      <p class="reel-comments__loading">
+        {{ 'T_LOADINGCOMMENTS' | translate }}
+      </p>
     }
 
     <!-- Sentinel để tự tải trang tiếp theo khi cuộn tới cuối -->
@@ -109,9 +128,12 @@
       @if (replyTo) {
         <div class="reel-comments__replying">
           <span
-            >{{ 'T_REPLYINGTO' | translate }} <strong>{{ replyTo.UserFullName }}</strong></span
+            >{{ 'T_REPLYINGTO' | translate }}
+            <strong>{{ replyTo.UserFullName }}</strong></span
           >
-          <button type="button" (click)="cancelReply()">{{ 'T_CANCEL' | translate }}</button>
+          <button type="button" (click)="cancelReply()">
+            {{ 'T_CANCEL' | translate }}
+          </button>
         </div>
       }
 
@@ -142,13 +164,13 @@
           class="reel-comments__send"
           [disabled]="!draft.trim() || isSending"
           (click)="send()"
-          aria-label="Gửi">
+          [attr.aria-label]="'T_COMMENT_SEND' | translate">
           <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
         </button>
       </div>
     } @else {
       <button type="button" class="reel-comments__login" (click)="goLogin()">
-        Đăng nhập để bình luận
+        {{ 'T_REELS_LOGIN_TO_COMMENT' | translate }}
       </button>
     }
   </footer>

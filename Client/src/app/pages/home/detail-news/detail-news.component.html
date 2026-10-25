@@ -58,14 +58,14 @@
             <button
               type="button"
               class="detail-slide-nav detail-slide-nav--prev"
-              aria-label="Ảnh trước"
+              [attr.aria-label]="'T_PREVIOUSIMAGE' | translate"
               (click)="prevSlide()">
               <span nz-icon nzType="left" nzTheme="outline"></span>
             </button>
             <button
               type="button"
               class="detail-slide-nav detail-slide-nav--next"
-              aria-label="Ảnh tiếp theo"
+              [attr.aria-label]="'T_NEXTIMAGE' | translate"
               (click)="nextSlide()">
               <span nz-icon nzType="right" nzTheme="outline"></span>
             </button>
@@ -73,7 +73,6 @@
               {{ activeSlide + 1 }}/{{ slides.length }}
             </span>
           </ng-container>
-
         </div>
 
         <div class="detail-body">
@@ -87,7 +86,8 @@
 
           <p class="detail-meta">
             <span class="detail-author">{{ detailNews.FullName }}</span>
-            · {{ detailNews.CreatedDTime | date: 'HH:mm dd/MM/yyyy' }}
+            ·
+            {{ detailNews.CreatedDTime | date: 'HH:mm dd/MM/yyyy' }}
             <span class="detail-meta-sep">—</span>
             {{ getReadingTime() }} {{ 'T_MINUTESREAD' | translate }}
             <span class="detail-meta-sep">—</span>
@@ -142,7 +142,10 @@
       <!-- Khối bình luận cần NewsId của bài, mà detailNews chỉ có sau khi API trả
            về - render sớm hơn thì binding đọc thuộc tính trên undefined và ném
            lỗi ngay giữa change detection. -->
-      <section *ngIf="!isLoading" id="news-comments" aria-label="Bình luận">
+      <section
+        *ngIf="!isLoading"
+        id="news-comments"
+        [attr.aria-label]="'T_COMMENTS' | translate">
         @defer (on viewport) {
           <app-news-comments
             [newsId]="detailNews.NewsId"

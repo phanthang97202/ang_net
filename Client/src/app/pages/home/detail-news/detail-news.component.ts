@@ -12,7 +12,7 @@ import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NewsImgDirective } from '../../../directives/news-img.directive';
@@ -54,6 +54,7 @@ export class DetailNewsComponent implements OnInit {
   private authService = inject(AuthService);
   private message = inject(NzMessageService);
   private langService = inject(LangService);
+  private translate = inject(TranslateService);
 
   // Chặn bấm tim liên tiếp khi request trước chưa về, tránh trạng thái nhảy loạn.
   isLiking = false;
@@ -78,7 +79,7 @@ export class DetailNewsComponent implements OnInit {
     if (!this.detailNews) return;
 
     if (!this.authService.isLoggedIn()) {
-      this.message.info('Bạn cần đăng nhập để thích bài viết.');
+      this.message.info(this.translate.instant('T_NEWS_LIKE_LOGIN_REQUIRED'));
       return;
     }
     if (this.isLiking) return;
@@ -101,8 +102,10 @@ export class DetailNewsComponent implements OnInit {
             this.detailNews.LikeCount = previousCount;
             this.message.error(
               res?.ErrorMessage
-                ? `Không thực hiện được (${res.ErrorMessage}).`
-                : 'Không thực hiện được, vui lòng thử lại.'
+                ? this.translate.instant('T_ACTION_ERROR_DETAIL', {
+                    message: res.ErrorMessage,
+                  })
+                : this.translate.instant('T_ACTION_RETRY_ERROR')
             );
             return;
           }
@@ -117,7 +120,7 @@ export class DetailNewsComponent implements OnInit {
           this.isLiking = false;
           this.detailNews.IsLikedByMe = previousLiked;
           this.detailNews.LikeCount = previousCount;
-          this.message.error('Không thực hiện được, vui lòng thử lại.');
+          this.message.error(this.translate.instant('T_ACTION_RETRY_ERROR'));
         },
       });
   }

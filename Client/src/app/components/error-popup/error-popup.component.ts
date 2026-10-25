@@ -10,7 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzModalModule, NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { take } from 'rxjs';
 import {
@@ -39,6 +39,7 @@ export class ErrorPopupComponent implements OnChanges, OnDestroy {
   errorInfoService = inject(ShowErrorService);
   private modal = inject(NzModalService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
   private currentModal: NzModalRef | null = null;
   private lastErrorId?: number;
   private hasOpened = false;
@@ -63,7 +64,7 @@ export class ErrorPopupComponent implements OnChanges, OnDestroy {
         })
       : this.modal.error({
           nzIconType: this.errorInfo.icon || 'error',
-          nzTitle: this.errorInfo.title || 'Lỗi',
+          nzTitle: this.errorInfo.title || this.translate.instant('T_ERROR'),
           nzContent: this.rawContent,
           nzCentered: true,
           nzOnOk: () => this.closeModal(),
@@ -89,7 +90,8 @@ export class ErrorPopupComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const current = changes['errorInfo']?.currentValue as
-      IErrorInfoWithId | undefined;
+      | IErrorInfoWithId
+      | undefined;
     if (
       current?.message &&
       (!this.hasOpened ||

@@ -26,6 +26,7 @@ import {
 } from 'rxjs';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   IMovieLibraryCatalog,
   IMovieLibraryDetail,
@@ -45,6 +46,7 @@ import { MovieVideoComponent } from './movie-video.component';
     FormsModule,
     RouterLink,
     NzIconModule,
+    TranslateModule,
     MovieVideoComponent,
   ],
   templateUrl: './movie.component.html',
@@ -61,6 +63,7 @@ export class MovieComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
   private readonly messages = inject(NzMessageService);
+  private readonly translate = inject(TranslateService);
   private request?: Subscription;
   private playbackRequest?: Subscription;
   private embedFallbackAttempted = false;
@@ -102,7 +105,8 @@ export class MovieComponent implements OnInit {
     this.progressWrites
       .pipe(
         concatMap(entry =>
-          this.api.saveWatchProgress(entry.slug, entry.serverId, entry.episodeSlug)
+          this.api
+            .saveWatchProgress(entry.slug, entry.serverId, entry.episodeSlug)
             .pipe(
               tap(response => {
                 if (!response.Success || !response.Data) {
@@ -115,7 +119,9 @@ export class MovieComponent implements OnInit {
               }),
               catchError(() => {
                 if (this.detail?.Slug === entry.slug) {
-                  this.progressError = 'Chưa lưu được tiến trình xem.';
+                  this.progressError = this.translate.instant(
+                    'T_MOVIE_PROGRESS_SAVE_ERROR'
+                  );
                 }
                 return EMPTY;
               })
@@ -144,7 +150,10 @@ export class MovieComponent implements OnInit {
         })),
         distinctUntilChanged(
           (a, b) =>
-            a.slug === b.slug && a.keyword === b.keyword && a.page === b.page && a.wishlist === b.wishlist
+            a.slug === b.slug &&
+            a.keyword === b.keyword &&
+            a.page === b.page &&
+            a.wishlist === b.wishlist
         ),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -159,13 +168,21 @@ export class MovieComponent implements OnInit {
 
   search(): void {
     void this.router.navigate(['/phim'], {
-      queryParams: { q: this.keyword.trim() || null, page: null, view: this.wishlistView ? 'wishlist' : null },
+      queryParams: {
+        q: this.keyword.trim() || null,
+        page: null,
+        view: this.wishlistView ? 'wishlist' : null,
+      },
     });
   }
 
   changePage(page: number): void {
     void this.router.navigate(['/phim'], {
-      queryParams: { q: this.query || null, page, view: this.wishlistView ? 'wishlist' : null },
+      queryParams: {
+        q: this.query || null,
+        page,
+        view: this.wishlistView ? 'wishlist' : null,
+      },
     });
   }
 
@@ -184,7 +201,9 @@ export class MovieComponent implements OnInit {
         next: response => {
           this.loading = false;
           if (!response.Success || !response.Data) {
-            this.error = response.ErrorMessage || 'Không thể tải phim.';
+            this.error =
+              response.ErrorMessage ||
+              this.translate.instant('T_MOVIE_LOAD_ERROR');
             return;
           }
           this.detail = response.Data;
@@ -205,7 +224,8 @@ export class MovieComponent implements OnInit {
           this.loading = false;
           if (!response.Success || !response.Data) {
             this.error =
-              response.ErrorMessage || 'Không thể tải danh sách phim.';
+              response.ErrorMessage ||
+              this.translate.instant('T_MOVIE_LIST_LOAD_ERROR');
             return;
           }
           this.catalog = response.Data;
@@ -222,25 +242,34 @@ export class MovieComponent implements OnInit {
     const request = movie.IsWishlisted
       ? this.api.removeWishlist(movie.Slug)
       : this.api.saveWishlist(movie.Slug);
-    request.pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.wishlistPending.delete(movie.Slug))
-    ).subscribe({
-      next: response => {
-        if (!response.Success) {
-          this.messages.error(response.ErrorMessage || 'Không thể cập nhật yêu thích.');
-          return;
-        }
-        movie.IsWishlisted = response.Data;
-        this.catalog?.Items.filter(item => item.Slug === movie.Slug)
-          .forEach(item => item.IsWishlisted = response.Data);
-        if (this.detail?.Slug === movie.Slug) this.detail.IsWishlisted = response.Data;
-        if (!response.Data && this.wishlistView && !this.slug) this.load();
-      },
-      error: err => this.messages.error(
-        err?.error?.ErrorMessage || 'Không thể cập nhật yêu thích. Vui lòng thử lại.'
-      ),
-    });
+    request
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.wishlistPending.delete(movie.Slug))
+      )
+      .subscribe({
+        next: response => {
+          if (!response.Success) {
+            this.messages.error(
+              response.ErrorMessage ||
+                this.translate.instant('T_MOVIE_WISHLIST_UPDATE_ERROR')
+            );
+            return;
+          }
+          movie.IsWishlisted = response.Data;
+          this.catalog?.Items.filter(item => item.Slug === movie.Slug).forEach(
+            item => (item.IsWishlisted = response.Data)
+          );
+          if (this.detail?.Slug === movie.Slug)
+            this.detail.IsWishlisted = response.Data;
+          if (!response.Data && this.wishlistView && !this.slug) this.load();
+        },
+        error: err =>
+          this.messages.error(
+            err?.error?.ErrorMessage ||
+              this.translate.instant('T_MOVIE_WISHLIST_UPDATE_RETRY')
+          ),
+      });
   }
 
   selectServer(server: IMovieLibraryServer): void {
@@ -256,21 +285,36 @@ export class MovieComponent implements OnInit {
     const progress = this.detail?.WatchProgress;
     if (!this.detail) return;
     if (!progress) {
-      const firstEpisode = this.server?.Episodes.find(episode => episode.HasSource);
+      const firstEpisode = this.server?.Episodes.find(
+        episode => episode.HasSource
+      );
       if (firstEpisode) this.playEpisode(firstEpisode);
-      else this.playbackError = 'Phim chưa có tập khả dụng để phát.';
+      else
+        this.playbackError = this.translate.instant(
+          'T_MOVIE_NO_PLAYABLE_EPISODE'
+        );
       return;
     }
-    const hasEpisode = (server: IMovieLibraryServer) => server.Episodes.some(
-      episode => episode.Slug === progress.EpisodeSlug && episode.HasSource
-    );
+    const hasEpisode = (server: IMovieLibraryServer) =>
+      server.Episodes.some(
+        episode => episode.Slug === progress.EpisodeSlug && episode.HasSource
+      );
     // Provider server IDs are array positions and can change; prefer the saved name.
-    const server = this.detail.Servers.find(s => s.Name === progress.ServerName && hasEpisode(s)) ||
-      this.detail.Servers.find(s => s.Id === progress.ServerId && hasEpisode(s)) ||
+    const server =
+      this.detail.Servers.find(
+        s => s.Name === progress.ServerName && hasEpisode(s)
+      ) ||
+      this.detail.Servers.find(
+        s => s.Id === progress.ServerId && hasEpisode(s)
+      ) ||
       this.detail.Servers.find(hasEpisode);
-    const episode = server?.Episodes.find(e => e.Slug === progress.EpisodeSlug && e.HasSource);
+    const episode = server?.Episodes.find(
+      e => e.Slug === progress.EpisodeSlug && e.HasSource
+    );
     if (!server || !episode) {
-      this.playbackError = 'Tập đã lưu chưa có nguồn phát. Vui lòng chọn tập khác.';
+      this.playbackError = this.translate.instant(
+        'T_MOVIE_SAVED_EPISODE_UNAVAILABLE'
+      );
       return;
     }
     this.server = server;
@@ -279,9 +323,12 @@ export class MovieComponent implements OnInit {
 
   retryProgressSave(): void {
     if (
-      !this.detail || !this.server || !this.selectedEpisode ||
+      !this.detail ||
+      !this.server ||
+      !this.selectedEpisode ||
       (!this.safeEmbedUrl && !this.playback?.Url)
-    ) return;
+    )
+      return;
     this.progressError = '';
     this.progressWrites.next({
       slug: this.detail.Slug,
@@ -370,7 +417,8 @@ export class MovieComponent implements OnInit {
           this.loadingPlayback = false;
           if (!response.Success || !response.Data) {
             this.playbackError =
-              response.ErrorMessage || 'Tập phim chưa có nguồn phát.';
+              response.ErrorMessage ||
+              this.translate.instant('T_MOVIE_EPISODE_NO_SOURCE');
             return;
           }
           this.playback = response.Data;
@@ -378,8 +426,9 @@ export class MovieComponent implements OnInit {
           if (this.playback.EmbedUrl) this.useEmbed();
           if (!this.safeEmbedUrl && this.playback.Url) this.playbackError = '';
           if (!this.safeEmbedUrl && !this.playback.Url) {
-            this.playbackError =
-              'Tập phim chưa có trình phát khả dụng. Hãy thử nguồn khác.';
+            this.playbackError = this.translate.instant(
+              'T_MOVIE_PLAYER_UNAVAILABLE'
+            );
           }
           if (this.safeEmbedUrl || this.playback.Url) this.retryProgressSave();
         },
@@ -387,7 +436,7 @@ export class MovieComponent implements OnInit {
           this.loadingPlayback = false;
           this.playbackError =
             err?.error?.ErrorMessage ||
-            'Không thể mở tập phim. Hãy thử lại hoặc chọn nguồn khác.';
+            this.translate.instant('T_MOVIE_EPISODE_OPEN_ERROR');
         },
       });
   }
@@ -409,7 +458,9 @@ export class MovieComponent implements OnInit {
       this.playbackError = '';
       this.playbackNotice = '';
     } catch {
-      this.playbackError = 'Nguồn trình phát mặc định không hợp lệ.';
+      this.playbackError = this.translate.instant(
+        'T_MOVIE_DEFAULT_PLAYER_INVALID'
+      );
     }
   }
 
@@ -420,13 +471,11 @@ export class MovieComponent implements OnInit {
       this.embedFallbackAttempted = true;
       this.useEmbed();
       if (this.safeEmbedUrl) {
-        this.playbackNotice =
-          'HLS gặp lỗi, đã tự chuyển sang trình phát mặc định.';
+        this.playbackNotice = this.translate.instant('T_MOVIE_HLS_FALLBACK');
         return;
       }
     }
-    this.playbackError =
-      'Không thể phát video bằng HLS. Hãy chọn trình phát mặc định hoặc thử nguồn khác.';
+    this.playbackError = this.translate.instant('T_MOVIE_HLS_ERROR');
   }
 
   useHls(): void {
@@ -451,6 +500,6 @@ export class MovieComponent implements OnInit {
     this.loading = false;
     this.error =
       err?.error?.ErrorMessage ||
-      'Không thể kết nối nguồn phim. Vui lòng thử lại.';
+      this.translate.instant('T_MOVIE_SOURCE_CONNECTION_ERROR');
   }
 }

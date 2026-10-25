@@ -96,7 +96,12 @@ export class DetailUserComponent implements OnInit {
           icon: 'play-circle',
           available: true,
         },
-        { id: 'posts', labelKey: 'T_MYPOSTS', icon: 'read', available: true },
+        {
+          id: 'posts',
+          labelKey: 'T_MYPOSTS',
+          icon: 'read',
+          available: true,
+        },
         {
           id: 'activity',
           labelKey: 'T_MYACTIVITY',
@@ -255,7 +260,7 @@ export class DetailUserComponent implements OnInit {
 
   selectTab(item: ProfileNavItem): void {
     if (!item.available) {
-      this.message.info('Mục này đang được phát triển.');
+      this.message.info(this.translate.instant('T_FEATURE_UNDER_DEVELOPMENT'));
       return;
     }
     this.router.navigate([], {

@@ -14,13 +14,13 @@
       rows="2"
       [(ngModel)]="draft"
       [disabled]="isSending"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder || ('T_COMMENT_PLACEHOLDER' | translate)"
       (keydown)="onKeydown($event)"></textarea>
 
     <div class="composer__actions">
       @if (prefillToken > 0) {
         <button type="button" class="composer__cancel" (click)="cancel()">
-          Hủy
+          {{ 'T_CANCEL' | translate }}
         </button>
       }
       <button
@@ -28,7 +28,7 @@
         class="composer__send"
         [disabled]="!canSend"
         (click)="send()"
-        aria-label="Gửi bình luận">
+        [attr.aria-label]="'T_COMMENT_SEND' | translate">
         <span nz-icon nzType="send" nzTheme="outline"></span>
       </button>
     </div>

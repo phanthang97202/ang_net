@@ -27,7 +27,7 @@
         class="topics-nav-btn topics-nav-btn--prev"
         (click)="goToPage(currentPage - 1)"
         [disabled]="currentPage === 0"
-        aria-label="Chủ đề trước">
+        [attr.aria-label]="'T_PREVIOUSTOPICS' | translate">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -90,7 +90,7 @@
         class="topics-nav-btn topics-nav-btn--next"
         (click)="goToPage(currentPage + 1)"
         [disabled]="currentPage === pages.length - 1"
-        aria-label="Chủ đề sau">
+        [attr.aria-label]="'T_NEXTTOPICS' | translate">
         <svg
           viewBox="0 0 24 24"
           fill="none"

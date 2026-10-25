@@ -4,10 +4,12 @@
       <span class="collection__empty-icon">
         <span nz-icon nzType="lock" nzTheme="outline" aria-hidden="true"></span>
       </span>
-      <h3>Không tìm thấy bộ sưu tập</h3>
-      <p>Bộ sưu tập không tồn tại, đã bị xoá hoặc đang ở chế độ riêng tư.</p>
+      <h3>{{ 'T_ARCHIVE_COLLECTION_NOT_FOUND' | translate }}</h3>
+      <p>{{ 'T_ARCHIVE_COLLECTION_NOT_FOUND_HINT' | translate }}</p>
       @if (showBack) {
-        <button type="button" class="blog-btn" (click)="back.emit()">Quay lại thư viện</button>
+        <button type="button" class="blog-btn" (click)="back.emit()">
+          {{ 'T_ARCHIVE_BACK_TO_LIBRARY' | translate }}
+        </button>
       }
     </div>
   } @else if (!collection) {
@@ -25,7 +27,7 @@
       @if (showBack) {
         <button type="button" class="collection__back" (click)="back.emit()">
           <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-          Thư viện lưu trữ
+          {{ 'T_ARCHIVE_LIBRARY' | translate }}
         </button>
       }
 
@@ -35,9 +37,14 @@
           <div class="collection__meta">
             <span class="collection__pill collection__pill--accent">
               <span nz-icon [nzType]="visibility.icon" nzTheme="outline"></span>
-              {{ visibility.label }}
+              {{ visibility.labelKey | translate }}
             </span>
-            <span class="collection__pill">{{ collection.ItemCount }} mục</span>
+            <span class="collection__pill">
+              {{
+                'T_ARCHIVE_ITEM_COUNT'
+                  | translate: { count: collection.ItemCount }
+              }}
+            </span>
             @if (!collection.IsOwner) {
               <span class="collection__owner">
                 @if (collection.OwnerAvatar) {
@@ -54,12 +61,15 @@
             @if (collection.Visibility !== 'Private') {
               <button type="button" class="blog-btn" (click)="copyShareLink()">
                 <span nz-icon nzType="share-alt" nzTheme="outline"></span>
-                Chia sẻ
+                {{ 'T_SHARE' | translate }}
               </button>
             }
-            <button type="button" class="blog-btn blog-btn--primary" (click)="openAddItem()">
+            <button
+              type="button"
+              class="blog-btn blog-btn--primary"
+              (click)="openAddItem()">
               <span nz-icon nzType="plus" nzTheme="outline"></span>
-              Thêm
+              {{ 'T_ADD' | translate }}
             </button>
             <button
               type="button"
@@ -69,16 +79,27 @@
               nzTrigger="click"
               nzPlacement="bottomRight"
               nzOverlayClassName="blog-dropdown"
-              aria-label="Tuỳ chọn bộ sưu tập">
+              [attr.aria-label]="'T_ARCHIVE_COLLECTION_OPTIONS' | translate">
               <span nz-icon nzType="ellipsis" nzTheme="outline"></span>
             </button>
             <nz-dropdown-menu #collectionMenu="nzDropdownMenu">
               <ul nz-menu>
-                <li nz-menu-item tabindex="0" (click)="isCollectionFormOpen = true" (keydown.enter)="isCollectionFormOpen = true">
-                  <span nz-icon nzType="edit" nzTheme="outline"></span> Sửa thông tin
+                <li
+                  nz-menu-item
+                  tabindex="0"
+                  (click)="isCollectionFormOpen = true"
+                  (keydown.enter)="isCollectionFormOpen = true">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                  {{ 'T_ARCHIVE_EDIT_INFO' | translate }}
                 </li>
-                <li nz-menu-item nzDanger tabindex="0" (click)="confirmDeleteCollection()" (keydown.enter)="confirmDeleteCollection()">
-                  <span nz-icon nzType="delete" nzTheme="outline"></span> Xoá bộ sưu tập
+                <li
+                  nz-menu-item
+                  nzDanger
+                  tabindex="0"
+                  (click)="confirmDeleteCollection()"
+                  (keydown.enter)="confirmDeleteCollection()">
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  {{ 'T_ARCHIVE_DELETE_COLLECTION' | translate }}
                 </li>
               </ul>
             </nz-dropdown-menu>
@@ -87,7 +108,9 @@
       </div>
 
       @if (collection.Description) {
-        <p class="collection__description">{{ collection.Description }}</p>
+        <p class="collection__description">
+          {{ collection.Description }}
+        </p>
       }
     </header>
 
@@ -100,17 +123,28 @@
     } @else if (items.length === 0) {
       <div class="collection__empty">
         <span class="collection__empty-icon">
-          <span nz-icon nzType="folder-open" nzTheme="outline" aria-hidden="true"></span>
+          <span
+            nz-icon
+            nzType="folder-open"
+            nzTheme="outline"
+            aria-hidden="true"></span>
         </span>
-        <h3>Bộ sưu tập còn trống</h3>
+        <h3>{{ 'T_ARCHIVE_COLLECTION_EMPTY' | translate }}</h3>
         @if (collection.IsOwner) {
-          <p>Tải ảnh, video lên hoặc dán link YouTube, TikTok, Facebook, Instagram.</p>
-          <button type="button" class="blog-btn blog-btn--primary" (click)="openAddItem()">
+          <p>
+            {{ 'T_ARCHIVE_COLLECTION_EMPTY_OWNER_HINT' | translate }}
+          </p>
+          <button
+            type="button"
+            class="blog-btn blog-btn--primary"
+            (click)="openAddItem()">
             <span nz-icon nzType="plus" nzTheme="outline"></span>
-            Thêm mục đầu tiên
+            {{ 'T_ARCHIVE_ADD_FIRST_ITEM' | translate }}
           </button>
         } @else {
-          <p>Chủ bộ sưu tập chưa thêm nội dung nào.</p>
+          <p>
+            {{ 'T_ARCHIVE_COLLECTION_EMPTY_VISITOR_HINT' | translate }}
+          </p>
         }
       </div>
     } @else {
@@ -120,24 +154,38 @@
             <button
               type="button"
               class="collection__tile-open"
-              [attr.aria-label]="item.Title || 'Xem mục'"
+              [attr.aria-label]="
+                item.Title || ('T_ARCHIVE_VIEW_ITEM' | translate)
+              "
               (click)="open(index)">
               @if (item.ThumbnailUrl) {
-                <img [src]="item.ThumbnailUrl" [alt]="item.Title" loading="lazy" />
+                <img
+                  [src]="item.ThumbnailUrl"
+                  [alt]="item.Title"
+                  loading="lazy" />
               } @else {
-                <span class="collection__tile-placeholder" [attr.data-provider]="item.Provider">
-                  <app-archive-provider-icon [provider]="item.Provider" [kind]="item.Kind" />
+                <span
+                  class="collection__tile-placeholder"
+                  [attr.data-provider]="item.Provider">
+                  <app-archive-provider-icon
+                    [provider]="item.Provider"
+                    [kind]="item.Kind" />
                 </span>
               }
 
-              @if (item.Kind === 'Video' || (item.Kind === 'Link' && item.Provider !== 'Web')) {
+              @if (
+                item.Kind === 'Video' ||
+                (item.Kind === 'Link' && item.Provider !== 'Web')
+              ) {
                 <span class="collection__tile-play" aria-hidden="true">
                   <span nz-icon nzType="caret-right" nzTheme="fill"></span>
                 </span>
               }
 
               <span class="collection__tile-source">
-                <app-archive-provider-icon [provider]="item.Provider" [kind]="item.Kind" />
+                <app-archive-provider-icon
+                  [provider]="item.Provider"
+                  [kind]="item.Kind" />
                 @if (item.DurationSeconds) {
                   {{ formatDuration(item.DurationSeconds) }}
                 }
@@ -157,21 +205,37 @@
                 nzTrigger="click"
                 nzPlacement="bottomRight"
                 nzOverlayClassName="blog-dropdown"
-                aria-label="Tuỳ chọn mục">
+                [attr.aria-label]="'T_ARCHIVE_ITEM_OPTIONS' | translate">
                 <span nz-icon nzType="more" nzTheme="outline"></span>
               </button>
               <nz-dropdown-menu #itemMenu="nzDropdownMenu">
                 <ul nz-menu>
-                  <li nz-menu-item tabindex="0" (click)="openEditItem(item)" (keydown.enter)="openEditItem(item)">
-                    <span nz-icon nzType="edit" nzTheme="outline"></span> Sửa
+                  <li
+                    nz-menu-item
+                    tabindex="0"
+                    (click)="openEditItem(item)"
+                    (keydown.enter)="openEditItem(item)">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                    {{ 'T_EDIT' | translate }}
                   </li>
                   @if (item.ThumbnailUrl) {
-                    <li nz-menu-item tabindex="0" (click)="setAsCover(item)" (keydown.enter)="setAsCover(item)">
-                      <span nz-icon nzType="picture" nzTheme="outline"></span> Đặt làm ảnh bìa
+                    <li
+                      nz-menu-item
+                      tabindex="0"
+                      (click)="setAsCover(item)"
+                      (keydown.enter)="setAsCover(item)">
+                      <span nz-icon nzType="picture" nzTheme="outline"></span>
+                      {{ 'T_ARCHIVE_SET_AS_COVER' | translate }}
                     </li>
                   }
-                  <li nz-menu-item nzDanger tabindex="0" (click)="confirmDeleteItem(item)" (keydown.enter)="confirmDeleteItem(item)">
-                    <span nz-icon nzType="delete" nzTheme="outline"></span> Xoá
+                  <li
+                    nz-menu-item
+                    nzDanger
+                    tabindex="0"
+                    (click)="confirmDeleteItem(item)"
+                    (keydown.enter)="confirmDeleteItem(item)">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                    {{ 'T_DELETE' | translate }}
                   </li>
                 </ul>
               </nz-dropdown-menu>
@@ -182,8 +246,12 @@
 
       @if (hasMore) {
         <div class="collection__more">
-          <button type="button" class="blog-btn" [disabled]="isLoadingMore" (click)="loadMore()">
-            {{ isLoadingMore ? 'Đang tải...' : 'Xem thêm' }}
+          <button
+            type="button"
+            class="blog-btn"
+            [disabled]="isLoadingMore"
+            (click)="loadMore()">
+            {{ (isLoadingMore ? 'T_LOADING' : 'T_VIEW_MORE') | translate }}
           </button>
         </div>
       }
@@ -206,24 +274,29 @@
             <button
               type="button"
               class="blog-icon-btn"
-              aria-label="Mục trước"
+              [attr.aria-label]="'T_ARCHIVE_PREVIOUS_ITEM' | translate"
               [disabled]="viewingIndex === 0"
               (click)="step(-1)">
               <span nz-icon nzType="left" nzTheme="outline"></span>
             </button>
-            <span class="collection__viewer-count">{{ (viewingIndex ?? 0) + 1 }} / {{ itemCount }}</span>
+            <span class="collection__viewer-count"
+              >{{ (viewingIndex ?? 0) + 1 }} / {{ itemCount }}</span
+            >
             <button
               type="button"
               class="blog-icon-btn"
-              aria-label="Mục sau"
+              [attr.aria-label]="'T_ARCHIVE_NEXT_ITEM' | translate"
               [disabled]="(viewingIndex ?? 0) >= items.length - 1"
               (click)="step(1)">
               <span nz-icon nzType="right" nzTheme="outline"></span>
             </button>
             @if (collection.IsOwner) {
-              <button type="button" class="blog-btn collection__viewer-edit" (click)="openEditItem(item)">
+              <button
+                type="button"
+                class="blog-btn collection__viewer-edit"
+                (click)="openEditItem(item)">
                 <span nz-icon nzType="edit" nzTheme="outline"></span>
-                Sửa
+                {{ 'T_EDIT' | translate }}
               </button>
             }
           </div>
@@ -242,14 +315,26 @@
       [nzClosable]="!isConfirming"
       [nzMaskClosable]="!isConfirming"
       (nzOnCancel)="cancelConfirm()">
-      <p *nzModalContent class="collection__confirm-text">{{ pendingConfirm?.message }}</p>
+      <p *nzModalContent class="collection__confirm-text">
+        {{ pendingConfirm?.message }}
+      </p>
       <div *nzModalFooter class="collection__confirm-footer">
-        <button type="button" class="blog-btn" [disabled]="isConfirming" (click)="cancelConfirm()">Huỷ</button>
-        <button type="button" class="blog-btn blog-btn--danger" [disabled]="isConfirming" (click)="runConfirm()">
+        <button
+          type="button"
+          class="blog-btn"
+          [disabled]="isConfirming"
+          (click)="cancelConfirm()">
+          {{ 'T_CANCEL' | translate }}
+        </button>
+        <button
+          type="button"
+          class="blog-btn blog-btn--danger"
+          [disabled]="isConfirming"
+          (click)="runConfirm()">
           @if (isConfirming) {
             <span class="blog-spinner" aria-hidden="true"></span>
           }
-          Xoá
+          {{ 'T_DELETE' | translate }}
         </button>
       </div>
     </nz-modal>

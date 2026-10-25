@@ -1,7 +1,7 @@
 <section class="comments">
   <header class="comments__head">
     <h2 class="comments__title">
-      Bình luận
+      {{ 'T_COMMENTS' | translate }}
       <span class="comments__count">({{ totalCount }})</span>
     </h2>
 
@@ -14,7 +14,7 @@
         [class.is-active]="sort === 'Popular'"
         (click)="setSort('Popular')">
         <span nz-icon nzType="rise" nzTheme="outline"></span>
-        Nổi bật
+        {{ 'T_COMMENT_POPULAR' | translate }}
       </button>
       <button
         type="button"
@@ -22,7 +22,7 @@
         [class.is-active]="sort === 'Newest'"
         (click)="setSort('Newest')">
         <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
-        Mới nhất
+        {{ 'T_COMMENT_NEWEST' | translate }}
       </button>
     </div>
   </header>
@@ -46,7 +46,7 @@
     <!-- Đăng nhập ngay tại chỗ, không đẩy người đọc rời khỏi bài viết -->
     <div class="comments__signin">
       <p class="comments__signin-text">
-        Đăng nhập để tham gia bình luận về bài viết này.
+        {{ 'T_COMMENT_SIGN_IN_HINT' | translate }}
       </p>
       <app-google-signin-button (credential)="onGoogleCredential($event)" />
     </div>
@@ -88,12 +88,14 @@
 
     @if (!isLoading && comments.length === 0) {
       <p class="comments__empty">
-        Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ ý kiến!
+        {{ 'T_COMMENT_EMPTY' | translate }}
       </p>
     }
 
     @if (isLoading) {
-      <p class="comments__loading">{{ 'T_LOADINGCOMMENTS' | translate }}</p>
+      <p class="comments__loading">
+        {{ 'T_LOADINGCOMMENTS' | translate }}
+      </p>
     }
   </div>
 
@@ -103,7 +105,7 @@
       class="comments__more"
       [disabled]="isLoading"
       (click)="loadMore()">
-      Xem thêm bình luận
+      {{ 'T_COMMENT_LOAD_MORE' | translate }}
     </button>
   }
 </section>

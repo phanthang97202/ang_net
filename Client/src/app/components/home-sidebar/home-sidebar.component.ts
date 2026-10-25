@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { catchError, finalize, of, switchMap } from 'rxjs';
 import { SocialLinksComponent } from '../social-links/social-links.component';
 import { HotKeywordsComponent } from '../hot-keywords/hot-keywords.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzImageModule, NzImageService } from 'ng-zorro-antd/image';
 import {
@@ -28,15 +28,14 @@ import {
 } from '../../interfaces';
 
 // Giá trị mặc định khi tham số chưa cấu hình ở admin.
-const DEFAULT_INTRO: IHomeIntro = {
+const defaultIntro = (translate: TranslateService): IHomeIntro => ({
   name: 'Phan Thang',
   avatar:
     'https://res.cloudinary.com/dumdpgmgs/image/upload/v1784814350/IMG_20230128_191009_apuscf.jpg',
   shortDescription: '09h53 09-07-2002',
-  description:
-    'Phan Thang chia sẻ những suy nghĩ, trải nghiệm cuộc sống và góc nhìn cá nhân về công việc, sáng tạo và sự trưởng thành mỗi ngày.',
-  address: 'Hà Nam City',
-};
+  description: translate.instant('T_HOME_INTRO_DEFAULT_DESCRIPTION'),
+  address: translate.instant('T_HOME_INTRO_DEFAULT_ADDRESS'),
+});
 
 const DEFAULT_SOCIALS: ISocialLink[] = [
   { icon: 'twitter', link: '#' },
@@ -89,8 +88,9 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
   private imageService = inject(NzImageService);
   private api = inject(ApiService);
   private langService = inject(LangService);
+  private translate = inject(TranslateService);
 
-  intro: IHomeIntro = DEFAULT_INTRO;
+  intro: IHomeIntro = defaultIntro(this.translate);
   socials: ISocialLink[] = DEFAULT_SOCIALS;
   featuredImages: IHomeFeaturedImage[] = DEFAULT_FEATURED;
   introLoading = true;
@@ -111,7 +111,7 @@ export class HomeSidebarComponent implements OnInit, OnDestroy {
       .getJson<IHomeIntro>(SYS_PARAM_CODE.HOME_INTRO)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        this.intro = data || DEFAULT_INTRO;
+        this.intro = data || defaultIntro(this.translate);
         this.introLoading = false;
       });
 

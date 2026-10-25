@@ -11,18 +11,19 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-news-comment-composer',
   standalone: true,
-  imports: [FormsModule, NzIconModule],
+  imports: [FormsModule, NzIconModule, TranslateModule],
   templateUrl: './news-comment-composer.component.html',
   styleUrl: './news-comment-composer.component.scss',
 })
 export class NewsCommentComposerComponent implements OnChanges, OnDestroy {
   @Input() avatarUrl: string | null = null;
   @Input() initial = '';
-  @Input() placeholder = 'Viết bình luận của bạn...';
+  @Input() placeholder = '';
   @Input() isSending = false;
   /** Nội dung điền sẵn (vd "@Tên ") kèm mốc thời gian để mỗi lần bấm Trả lời đều kích hoạt lại */
   @Input() prefill = '';

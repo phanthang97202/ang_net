@@ -4,20 +4,20 @@
     <a class="reels__logo" routerLink="/">Phan<span>Thang</span></a>
 
     <nav class="reels__menu">
-      @for (item of menuItems; track item.label) {
+      @for (item of menuItems; track item.labelKey) {
         <button
           type="button"
           class="reels__menu-item"
           [class.is-active]="item.active"
           (click)="onMenuClick(item)">
           <span nz-icon [nzType]="item.icon" nzTheme="outline"></span>
-          <span class="reels__menu-label">{{ item.label }}</span>
+          <span class="reels__menu-label">{{ item.labelKey | translate }}</span>
         </button>
       }
     </nav>
 
     <p class="reels__sidebar-note">
-      Một số mục đang được phát triển và sẽ sớm có mặt.
+      {{ 'T_REELS_IN_DEVELOPMENT' | translate }}
     </p>
   </aside>
 
@@ -42,7 +42,9 @@
         }
 
         @if (!isLoading && lstReels.length === 0) {
-          <div class="reels__empty">{{ 'T_NOREELS' | translate }}</div>
+          <div class="reels__empty">
+            {{ 'T_NOREELS' | translate }}
+          </div>
         }
       </div>
 
@@ -69,7 +71,7 @@
           </span>
         } @else {
           <button type="button" class="reels__login" (click)="goLogin()">
-            Đăng nhập
+            {{ 'T_LOGIN' | translate }}
           </button>
         }
       </div>
@@ -81,7 +83,7 @@
           class="reels__btn"
           [disabled]="activeIndex === 0"
           (click)="scrollToIndex(activeIndex - 1)"
-          aria-label="Reel trước">
+          [attr.aria-label]="'T_REELS_PREVIOUS' | translate">
           <span nz-icon nzType="up" nzTheme="outline"></span>
         </button>
         <button
@@ -89,7 +91,7 @@
           class="reels__btn"
           [disabled]="activeIndex >= lstReels.length - 1"
           (click)="scrollToIndex(activeIndex + 1)"
-          aria-label="Reel tiếp theo">
+          [attr.aria-label]="'T_REELS_NEXT' | translate">
           <span nz-icon nzType="down" nzTheme="outline"></span>
         </button>
       </div>

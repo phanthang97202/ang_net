@@ -1,5 +1,11 @@
-import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   FormControl,
   FormGroup,
@@ -18,7 +24,10 @@ import {
   CloudinaryUploadResult,
   ShowErrorService,
 } from '../../../../services';
-import { IReelCreateRequest, IReelMediaCreateDto } from '../../../../interfaces';
+import {
+  IReelCreateRequest,
+  IReelMediaCreateDto,
+} from '../../../../interfaces';
 
 type CreateReelStatus = 'idle' | 'selected' | 'uploading' | 'creating';
 type CreateReelMode = 'video' | 'image';
@@ -43,6 +52,7 @@ export class CreateReelComponent implements OnDestroy {
   private showErrorService = inject(ShowErrorService);
   private message = inject(NzMessageService);
   private auth = inject(AuthService);
+  private translate = inject(TranslateService);
 
   // Khớp đúng giới hạn đã khoá ở 2 preset trên Cloudinary, để người dùng nhận
   // thông báo rõ ràng thay vì lỗi 400 khó hiểu trả về từ Cloudinary.
@@ -66,7 +76,9 @@ export class CreateReelComponent implements OnDestroy {
   ];
 
   mode: CreateReelMode = 'video';
-  source: 'upload' | 'link' = this.auth.hasPermission('reel.upload_video') ? 'upload' : 'link';
+  source: 'upload' | 'link' = this.auth.hasPermission('reel.upload_video')
+    ? 'upload'
+    : 'link';
   linkInput = new FormControl('', { nonNullable: true });
   status: CreateReelStatus = 'idle';
   selectedFile: File | null = null;
@@ -93,7 +105,9 @@ export class CreateReelComponent implements OnDestroy {
   }
 
   get canUpload(): boolean {
-    return this.auth.hasPermission(this.isImageMode ? 'reel.upload_image' : 'reel.upload_video');
+    return this.auth.hasPermission(
+      this.isImageMode ? 'reel.upload_image' : 'reel.upload_video'
+    );
   }
 
   setSource(source: 'upload' | 'link'): void {
@@ -108,15 +122,22 @@ export class CreateReelComponent implements OnDestroy {
     const value = this.linkInput.value.trim();
     try {
       const url = new URL(value);
-      if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error();
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        url.username ||
+        url.password
+      )
+        throw new Error();
     } catch {
-      this.message.warning('Nhập link ảnh/video trực tiếp bắt đầu bằng https:// hoặc http://');
+      this.message.warning(this.translate.instant('T_REEL_DIRECT_LINK_ERROR'));
       return;
     }
     if (this.isImageMode) {
       if (this.selectedImages.length >= this.maxImages) return;
       if (this.selectedImages.some(image => image.previewUrl === value)) {
-        this.message.warning('Ảnh này đã được thêm');
+        this.message.warning(
+          this.translate.instant('T_REEL_IMAGE_ALREADY_ADDED')
+        );
         return;
       }
       this.selectedImages.push({ file: null, previewUrl: value });
@@ -149,15 +170,21 @@ export class CreateReelComponent implements OnDestroy {
 
   get progressLabel(): string {
     if (this.status === 'creating') {
-      return 'Đang đăng...';
+      return this.translate.instant('T_REEL_POSTING');
     }
     if (this.isImageMode) {
-      return `Đang tải ảnh ${this.uploadingImageIndex}/${this.selectedImages.length} (${this.uploadPercent}%)`;
+      return this.translate.instant('T_REEL_UPLOADING_IMAGE_PROGRESS', {
+        current: this.uploadingImageIndex,
+        total: this.selectedImages.length,
+        percent: this.uploadPercent,
+      });
     }
     // Bytes gửi xong trước khi Cloudinary transcode xong, đứng ở 100% trông như treo
     return this.uploadPercent >= 99
-      ? 'Đang xử lý...'
-      : `Đang tải lên ${this.uploadPercent}%`;
+      ? this.translate.instant('T_REEL_PROCESSING')
+      : this.translate.instant('T_REEL_UPLOADING_PROGRESS', {
+          percent: this.uploadPercent,
+        });
   }
 
   ngOnDestroy(): void {
@@ -281,11 +308,24 @@ export class CreateReelComponent implements OnDestroy {
     this.uploadedResults = [];
 
     if (this.source === 'link') {
-      this.createReel((this.isImageMode ? this.selectedImages.map(image => image.previewUrl) : [this.previewUrl!])
-        .map((MediaUrl, SortOrder) => ({ MediaUrl, SortOrder, Width: null, Height: null, DurationSeconds: null })));
+      this.createReel(
+        (this.isImageMode
+          ? this.selectedImages.map(image => image.previewUrl)
+          : [this.previewUrl!]
+        ).map((MediaUrl, SortOrder) => ({
+          MediaUrl,
+          SortOrder,
+          Width: null,
+          Height: null,
+          DurationSeconds: null,
+        }))
+      );
       return;
     }
-    if (!this.canUpload) { this.status = 'selected'; return; }
+    if (!this.canUpload) {
+      this.status = 'selected';
+      return;
+    }
 
     if (this.isImageMode) {
       this.uploadImageAt(0);
@@ -297,30 +337,33 @@ export class CreateReelComponent implements OnDestroy {
   private uploadVideo(): void {
     const file = this.selectedFile!;
 
-    this.uploadSub = this.cloudinary.uploadReelVideoWithProgress(file).subscribe({
-      next: event => {
-        if (event.type === 'progress') {
-          this.uploadPercent = Math.min(event.percent, 99);
-          return;
-        }
-        this.uploadPercent = 100;
-        this.uploadedResults = [event.result];
-        this.createReel([
-          {
-            MediaUrl: event.result.secure_url,
-            SortOrder: 0,
-            // Cloudinary trả số thực, cột DurationSeconds phía server là int?
-            DurationSeconds:
-              event.result.duration != null
-                ? Math.round(event.result.duration)
-                : null,
-            Width: event.result.width ?? null,
-            Height: event.result.height ?? null,
-          },
-        ]);
-      },
-      error: () => this.failUpload('Tải video lên thất bại. Vui lòng thử lại.'),
-    });
+    this.uploadSub = this.cloudinary
+      .uploadReelVideoWithProgress(file)
+      .subscribe({
+        next: event => {
+          if (event.type === 'progress') {
+            this.uploadPercent = Math.min(event.percent, 99);
+            return;
+          }
+          this.uploadPercent = 100;
+          this.uploadedResults = [event.result];
+          this.createReel([
+            {
+              MediaUrl: event.result.secure_url,
+              SortOrder: 0,
+              // Cloudinary trả số thực, cột DurationSeconds phía server là int?
+              DurationSeconds:
+                event.result.duration != null
+                  ? Math.round(event.result.duration)
+                  : null,
+              Width: event.result.width ?? null,
+              Height: event.result.height ?? null,
+            },
+          ]);
+        },
+        error: () =>
+          this.failUpload(this.translate.instant('T_REEL_VIDEO_UPLOAD_ERROR')),
+      });
   }
 
   /**
@@ -358,7 +401,9 @@ export class CreateReelComponent implements OnDestroy {
         error: () => {
           this.rollbackUploads();
           this.failUpload(
-            `Tải ảnh thứ ${index + 1} thất bại. Vui lòng thử lại.`
+            this.translate.instant('T_REEL_IMAGE_UPLOAD_ERROR', {
+              index: index + 1,
+            })
           );
         },
       });
@@ -373,7 +418,9 @@ export class CreateReelComponent implements OnDestroy {
       CoverUrl: this.isImageMode
         ? media[0].MediaUrl // ảnh đầu làm bìa
         : this.uploadedResults.length
-          ? this.uploadedResults[0].secure_url.replace('/video/upload/', '/video/upload/so_0/').replace(/\.[a-z0-9]+$/i, '.jpg')
+          ? this.uploadedResults[0].secure_url
+              .replace('/video/upload/', '/video/upload/so_0/')
+              .replace(/\.[a-z0-9]+$/i, '.jpg')
           : '',
       Media: media,
     };
@@ -381,7 +428,10 @@ export class CreateReelComponent implements OnDestroy {
     this.apiService.ReelCreate(request).subscribe({
       next: res => {
         if (res?.Success) {
-          this.message.create('success', 'Đăng reel thành công');
+          this.message.create(
+            'success',
+            this.translate.instant('T_REEL_POST_SUCCESS')
+          );
           this.revokeAllPreviews();
           this.router.navigate(['/reels']);
           return;
@@ -392,8 +442,9 @@ export class CreateReelComponent implements OnDestroy {
         this.status = 'selected';
         this.showErrorService.setShowError({
           icon: 'warning',
-          title: 'Đăng reel',
-          message: res?.ErrorMessage || 'Đăng reel thất bại.',
+          title: this.translate.instant('T_REEL_POST_TITLE'),
+          message:
+            res?.ErrorMessage || this.translate.instant('T_REEL_POST_ERROR'),
         });
       },
       error: () => {
@@ -401,8 +452,8 @@ export class CreateReelComponent implements OnDestroy {
         this.status = 'selected';
         this.showErrorService.setShowError({
           icon: 'warning',
-          title: 'Đăng reel',
-          message: 'Đăng reel thất bại. Vui lòng thử lại.',
+          title: this.translate.instant('T_REEL_POST_TITLE'),
+          message: this.translate.instant('T_REEL_POST_RETRY_ERROR'),
         });
       },
     });
@@ -414,7 +465,7 @@ export class CreateReelComponent implements OnDestroy {
     this.uploadingImageIndex = 0;
     this.showErrorService.setShowError({
       icon: 'warning',
-      title: 'Tải lên',
+      title: this.translate.instant('T_UPLOAD'),
       message,
     });
   }
@@ -453,7 +504,7 @@ export class CreateReelComponent implements OnDestroy {
     if (error) {
       this.showErrorService.setShowError({
         icon: 'warning',
-        title: 'Chọn video',
+        title: this.translate.instant('T_REEL_CHOOSE_VIDEO'),
         message: error,
       });
       return;
@@ -471,8 +522,10 @@ export class CreateReelComponent implements OnDestroy {
     if (remaining <= 0) {
       this.showErrorService.setShowError({
         icon: 'warning',
-        title: 'Chọn ảnh',
-        message: `Chỉ đăng được tối đa ${this.maxImages} ảnh mỗi bài.`,
+        title: this.translate.instant('T_REEL_CHOOSE_IMAGES'),
+        message: this.translate.instant('T_REEL_MAX_IMAGES_ERROR', {
+          count: this.maxImages,
+        }),
       });
       return;
     }
@@ -500,11 +553,16 @@ export class CreateReelComponent implements OnDestroy {
     if (rejected.length > 0 || skipped > 0) {
       const lines = [...rejected];
       if (skipped > 0) {
-        lines.push(`Bỏ qua ${skipped} ảnh vượt quá giới hạn ${this.maxImages} ảnh.`);
+        lines.push(
+          this.translate.instant('T_REEL_IMAGES_SKIPPED', {
+            skipped,
+            limit: this.maxImages,
+          })
+        );
       }
       this.showErrorService.setShowError({
         icon: 'warning',
-        title: 'Một số ảnh không dùng được',
+        title: this.translate.instant('T_REEL_INVALID_IMAGES'),
         message: lines.join('\n'),
       });
     }
@@ -520,11 +578,11 @@ export class CreateReelComponent implements OnDestroy {
     const hasAllowedMime = this.allowedVideoMimeTypes.includes(file.type);
 
     if (!hasAllowedExtension && !hasAllowedMime) {
-      return 'Định dạng không hỗ trợ. Chỉ nhận mp4, mov, webm.';
+      return this.translate.instant('T_REEL_VIDEO_FORMAT_ERROR');
     }
 
     if (file.size > this.maxVideoBytes) {
-      return 'Video vượt quá 50MB. Vui lòng chọn video nhỏ hơn.';
+      return this.translate.instant('T_REEL_VIDEO_SIZE_ERROR');
     }
 
     return null;
@@ -538,11 +596,11 @@ export class CreateReelComponent implements OnDestroy {
     const hasAllowedMime = this.allowedImageMimeTypes.includes(file.type);
 
     if (!hasAllowedExtension && !hasAllowedMime) {
-      return 'chỉ nhận jpg, png, webp';
+      return this.translate.instant('T_REEL_IMAGE_FORMAT_ERROR');
     }
 
     if (file.size > this.maxImageBytes) {
-      return 'vượt quá 10MB';
+      return this.translate.instant('T_REEL_IMAGE_SIZE_ERROR');
     }
 
     return null;
@@ -551,9 +609,11 @@ export class CreateReelComponent implements OnDestroy {
   private revokeAllPreviews(): void {
     if (this.previewUrl) {
       if (this.previewUrl.startsWith('blob:'))
-      URL.revokeObjectURL(this.previewUrl);
+        URL.revokeObjectURL(this.previewUrl);
       this.previewUrl = null;
     }
-    this.selectedImages.forEach(image => { if (image.file) URL.revokeObjectURL(image.previewUrl); });
+    this.selectedImages.forEach(image => {
+      if (image.file) URL.revokeObjectURL(image.previewUrl);
+    });
   }
 }

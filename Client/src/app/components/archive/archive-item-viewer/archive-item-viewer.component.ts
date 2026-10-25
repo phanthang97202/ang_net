@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { TranslateModule } from '@ngx-translate/core';
 import { IArchiveItem } from '../../../interfaces';
 import { resolveLinkEmbed } from '../../../helpers/utils/embed-url';
 
@@ -17,7 +18,7 @@ import { resolveLinkEmbed } from '../../../helpers/utils/embed-url';
 @Component({
   selector: 'app-archive-item-viewer',
   standalone: true,
-  imports: [CommonModule, NzIconModule],
+  imports: [CommonModule, NzIconModule, TranslateModule],
   templateUrl: './archive-item-viewer.component.html',
   styleUrl: './archive-item-viewer.component.scss',
 })
@@ -45,7 +46,10 @@ export class ArchiveItemViewerComponent implements OnChanges {
     if (this.item?.Kind !== 'Link') return;
 
     try {
-      this.hostname = new URL(this.item.SourceUrl).hostname.replace(/^www\./, '');
+      this.hostname = new URL(this.item.SourceUrl).hostname.replace(
+        /^www\./,
+        ''
+      );
     } catch {
       this.hostname = this.item.SourceUrl;
     }
@@ -54,7 +58,9 @@ export class ArchiveItemViewerComponent implements OnChanges {
     // Chỉ những src do resolveLinkEmbed tự dựng (đúng domain nhúng của từng
     // mạng) mới được tin; link "Web" bất kỳ không bao giờ vào iframe.
     if (embed.embedSrc) {
-      this.embedSrc = this.sanitizer.bypassSecurityTrustResourceUrl(embed.embedSrc);
+      this.embedSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
+        embed.embedSrc
+      );
       this.aspectRatio = embed.aspectRatio;
     }
   }

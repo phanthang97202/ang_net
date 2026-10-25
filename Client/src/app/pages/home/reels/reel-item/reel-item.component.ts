@@ -11,12 +11,13 @@ import {
 } from '@angular/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ReelDeleteComponent } from '../reel-delete/reel-delete.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { IReelDto, IReelMediaDto } from '../../../../interfaces';
 
 @Component({
   selector: 'app-reel-item',
   standalone: true,
-  imports: [NzIconModule, ReelDeleteComponent],
+  imports: [NzIconModule, ReelDeleteComponent, TranslateModule],
   templateUrl: './reel-item.component.html',
   styleUrl: './reel-item.component.scss',
 })
@@ -179,7 +180,10 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
     const track = this.slideTrack?.nativeElement;
     const clamped = Math.min(Math.max(index, 0), this.images.length - 1);
     this.slideIndex = clamped;
-    track?.scrollTo({ left: clamped * track.clientWidth, behavior: 'smooth' });
+    track?.scrollTo({
+      left: clamped * track.clientWidth,
+      behavior: 'smooth',
+    });
   }
 
   prevSlide(event: Event): void {

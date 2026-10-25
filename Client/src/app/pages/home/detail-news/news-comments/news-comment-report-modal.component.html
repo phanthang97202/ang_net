@@ -3,18 +3,21 @@
 <nz-modal
   nzClassName="blog-modal"
   [nzVisible]="isOpen"
-  nzTitle="Báo cáo bình luận"
+  [nzTitle]="'T_COMMENT_REPORT_TITLE' | translate"
   [nzWidth]="560"
   (nzOnCancel)="cancel()">
   <div *nzModalContent class="report">
     <p class="report__hint">
-      Chọn lý do bạn cho rằng bình luận này vi phạm tiêu chuẩn cộng đồng.
+      {{ 'T_COMMENT_REPORT_HINT' | translate }}
     </p>
 
     <!-- Radio thật (ẩn đi) bọc trong label: giữ nguyên điều hướng bằng phím
          mũi tên và cách screen reader đọc của một nhóm radio, chỉ đổi phần
          nhìn thấy thành các ô chọn. -->
-    <div class="report__reasons" role="radiogroup" aria-label="Lý do báo cáo">
+    <div
+      class="report__reasons"
+      role="radiogroup"
+      [attr.aria-label]="'T_COMMENT_REPORT_REASON' | translate">
       @for (item of reasons; track item.value) {
         <label
           class="report__reason"
@@ -26,13 +29,16 @@
             [value]="item.value"
             [(ngModel)]="reason" />
           <span class="report__dot" aria-hidden="true"></span>
-          <span class="report__reason-text">{{ item.label }}</span>
+          <span class="report__reason-text">{{
+            item.labelKey | translate
+          }}</span>
         </label>
       }
     </div>
 
     <label class="report__label" for="report-description">
-      Mô tả thêm <span class="report__optional">(không bắt buộc)</span>
+      {{ 'T_COMMENT_REPORT_DESCRIPTION' | translate }}
+      <span class="report__optional">({{ 'T_OPTIONAL' | translate }})</span>
     </label>
     <textarea
       id="report-description"
@@ -45,8 +51,11 @@
   </div>
 
   <div *nzModalFooter class="report__footer">
-    <button type="button" class="report__btn report__btn--ghost" (click)="cancel()">
-      Hủy
+    <button
+      type="button"
+      class="report__btn report__btn--ghost"
+      (click)="cancel()">
+      {{ 'T_CANCEL' | translate }}
     </button>
     <button
       type="button"
@@ -55,9 +64,9 @@
       (click)="send()">
       @if (isSending) {
         <span class="report__spinner" aria-hidden="true"></span>
-        Đang gửi...
+        {{ 'T_SENDING' | translate }}
       } @else {
-        Gửi báo cáo
+        {{ 'T_COMMENT_SEND_REPORT' | translate }}
       }
     </button>
   </div>

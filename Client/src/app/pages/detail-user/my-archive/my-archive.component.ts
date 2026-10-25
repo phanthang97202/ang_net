@@ -3,6 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IArchiveCollection } from '../../../interfaces';
 import { ArchiveService } from '../../../services';
 import { ArchiveCollectionFormComponent } from '../../../components/archive/archive-collection-form/archive-collection-form.component';
@@ -19,6 +20,7 @@ import { archiveVisibilityOption } from '../../../components/archive/archive-vis
   imports: [
     CommonModule,
     NzIconModule,
+    TranslateModule,
     ArchiveCollectionFormComponent,
     ArchiveCollectionViewComponent,
   ],
@@ -30,6 +32,7 @@ export class MyArchiveComponent implements OnInit {
   private message = inject(NzMessageService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   collections: IArchiveCollection[] = [];
   openCollectionId: string | null = null;
@@ -54,14 +57,17 @@ export class MyArchiveComponent implements OnInit {
       next: response => {
         this.isLoading = false;
         if (!response?.Success) {
-          this.message.error(response?.ErrorMessage || 'Không tải được thư viện');
+          this.message.error(
+            response?.ErrorMessage ||
+              this.translate.instant('T_ARCHIVE_LOAD_ERROR')
+          );
           return;
         }
         this.collections = response.DataList ?? [];
       },
       error: () => {
         this.isLoading = false;
-        this.message.error('Không tải được thư viện');
+        this.message.error(this.translate.instant('T_ARCHIVE_LOAD_ERROR'));
       },
     });
   }
@@ -85,24 +91,33 @@ export class MyArchiveComponent implements OnInit {
     this.load();
   }
 
-  move(collection: IArchiveCollection, direction: 'up' | 'down', event: Event): void {
+  move(
+    collection: IArchiveCollection,
+    direction: 'up' | 'down',
+    event: Event
+  ): void {
     event.stopPropagation();
     if (this.movingId) return;
 
     this.movingId = collection.CollectionId;
-    this.archiveService.reorderCollection(collection.CollectionId, direction).subscribe({
-      next: response => {
-        this.movingId = null;
-        if (!response?.Success) {
-          this.message.warning(response?.ErrorMessage || 'Không đổi được thứ tự');
-          return;
-        }
-        this.load();
-      },
-      error: () => {
-        this.movingId = null;
-        this.message.error('Không đổi được thứ tự');
-      },
-    });
+    this.archiveService
+      .reorderCollection(collection.CollectionId, direction)
+      .subscribe({
+        next: response => {
+          this.movingId = null;
+          if (!response?.Success) {
+            this.message.warning(
+              response?.ErrorMessage ||
+                this.translate.instant('T_ARCHIVE_REORDER_ERROR')
+            );
+            return;
+          }
+          this.load();
+        },
+        error: () => {
+          this.movingId = null;
+          this.message.error(this.translate.instant('T_ARCHIVE_REORDER_ERROR'));
+        },
+      });
   }
 }

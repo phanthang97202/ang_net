@@ -14,7 +14,10 @@
     [formGroup]="form"
     (ngSubmit)="submit()">
     @if (!isEdit) {
-      <div class="item-form__modes" role="tablist" aria-label="Cách thêm">
+      <div
+        class="item-form__modes"
+        role="tablist"
+        [attr.aria-label]="'T_ARCHIVE_ADD_METHOD' | translate">
         @if (canUpload) {
           <button
             type="button"
@@ -25,7 +28,7 @@
             [disabled]="isSaving"
             (click)="setMode('upload')">
             <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
-            Tải ảnh / video
+            {{ 'T_ARCHIVE_UPLOAD_MEDIA' | translate }}
           </button>
         }
         <button
@@ -37,7 +40,7 @@
           [disabled]="isSaving"
           (click)="setMode('link')">
           <span nz-icon nzType="link" nzTheme="outline"></span>
-          Dán link
+          {{ 'T_ARCHIVE_PASTE_LINK' | translate }}
         </button>
       </div>
     }
@@ -59,10 +62,8 @@
         <span class="item-form__drop-icon">
           <span nz-icon nzType="cloud-upload" nzTheme="outline"></span>
         </span>
-        <strong>Chọn hoặc kéo thả ảnh, video vào đây</strong>
-        <small
-          >Ảnh tối đa 10 MB, video tối đa 100 MB · mỗi file thành một mục</small
-        >
+        <strong>{{ 'T_ARCHIVE_DROP_MEDIA' | translate }}</strong>
+        <small>{{ 'T_ARCHIVE_UPLOAD_LIMITS' | translate }}</small>
       </label>
 
       @if (files.length > 0) {
@@ -96,14 +97,14 @@
                 <span
                   class="item-form__file-state is-error"
                   [title]="pending.error"
-                  >Lỗi</span
+                  >{{ 'T_ERROR' | translate }}</span
                 >
               }
               @if (!isSaving) {
                 <button
                   type="button"
                   class="item-form__remove"
-                  aria-label="Bỏ file"
+                  [attr.aria-label]="'T_ARCHIVE_REMOVE_FILE' | translate"
                   (click)="removeFile(pending)">
                   <span nz-icon nzType="close" nzTheme="outline"></span>
                 </button>
@@ -118,49 +119,61 @@
       <p class="item-form__paste-hint" aria-live="polite">
         {{
           isReadingImage
-            ? 'Đang đọc ảnh...'
-            : 'Dán link hoặc nhấn Ctrl+V / ⌘V để thêm ảnh chụp màn hình (dưới 2 MB).'
+            ? ('T_ARCHIVE_READING_IMAGE' | translate)
+            : ('T_ARCHIVE_PASTE_HINT' | translate)
         }}
       </p>
       @if (hasPastedImage) {
         <div class="item-form__pasted-image">
-          <img [src]="form.controls.SourceUrl.value" alt="Ảnh vừa dán" />
+          <img
+            [src]="form.controls.SourceUrl.value"
+            [alt]="'T_ARCHIVE_PASTED_IMAGE' | translate" />
           <div>
-            <span>Ảnh đã sẵn sàng để lưu</span>
+            <span>{{ 'T_ARCHIVE_IMAGE_READY' | translate }}</span>
             <button
               type="button"
               class="blog-btn"
               [disabled]="isSaving"
               (click)="removePastedImage()">
-              <span nz-icon nzType="close" nzTheme="outline"></span> Bỏ ảnh
+              <span nz-icon nzType="close" nzTheme="outline"></span>
+              {{ 'T_ARCHIVE_REMOVE_IMAGE' | translate }}
             </button>
           </div>
         </div>
       } @else {
         <div>
-          <label class="blog-label" for="item-link-kind">Loại nội dung</label>
+          <label class="blog-label" for="item-link-kind">{{
+            'T_ARCHIVE_CONTENT_TYPE' | translate
+          }}</label>
           <select
             id="item-link-kind"
             class="blog-input"
             formControlName="LinkKind"
             (change)="onLinkChange()">
-            <option value="Link">Link trang web / mạng xã hội</option>
-            <option value="Image">Link ảnh trực tiếp</option>
-            <option value="Video">Link video trực tiếp</option>
+            <option value="Link">
+              {{ 'T_ARCHIVE_LINK_WEBSITE' | translate }}
+            </option>
+            <option value="Image">
+              {{ 'T_ARCHIVE_LINK_IMAGE' | translate }}
+            </option>
+            <option value="Video">
+              {{ 'T_ARCHIVE_LINK_VIDEO' | translate }}
+            </option>
           </select>
         </div>
         <div>
-          <label class="blog-label" for="item-source-url">Link</label>
+          <label class="blog-label" for="item-source-url">{{
+            'T_LINK' | translate
+          }}</label>
           <input
             id="item-source-url"
             class="blog-input"
             formControlName="SourceUrl"
             placeholder="https://..."
             (input)="onLinkChange()" />
-          <small class="blog-label__optional"
-            >Link ảnh/video cần trỏ trực tiếp đến file. Nội dung được lưu nguyên
-            link, không tải lên Cloudinary.</small
-          >
+          <small class="blog-label__optional">{{
+            'T_ARCHIVE_DIRECT_LINK_HINT' | translate
+          }}</small>
         </div>
       }
     }
@@ -173,7 +186,9 @@
       form.controls.SourceUrl.value
     ) {
       <div class="item-form__preview">
-        <img [src]="form.controls.SourceUrl.value" alt="Xem trước ảnh" />
+        <img
+          [src]="form.controls.SourceUrl.value"
+          [alt]="'T_ARCHIVE_IMAGE_PREVIEW' | translate" />
       </div>
     }
 
@@ -190,13 +205,15 @@
         }
         <span class="item-form__preview-text">
           <strong>{{
-            linkPreview.provider === 'Web' ? 'Trang web' : linkPreview.provider
+            linkPreview.provider === 'Web'
+              ? ('T_WEBSITE' | translate)
+              : linkPreview.provider
           }}</strong>
           <small>
             {{
               linkPreview.embedSrc
-                ? 'Xem trực tiếp được ngay trong thư viện'
-                : 'Không xem trực tiếp được, sẽ lưu dạng link'
+                ? ('T_ARCHIVE_EMBED_AVAILABLE' | translate)
+                : ('T_ARCHIVE_EMBED_UNAVAILABLE' | translate)
             }}
           </small>
         </span>
@@ -205,7 +222,9 @@
 
     @if (isEdit && collections.length > 1) {
       <div>
-        <label class="blog-label" for="item-collection">Bộ sưu tập</label>
+        <label class="blog-label" for="item-collection">{{
+          'T_ARCHIVE_COLLECTION' | translate
+        }}</label>
         <select
           id="item-collection"
           class="blog-input"
@@ -222,7 +241,10 @@
     @if (isEdit || mode === 'link' || files.length <= 1) {
       <div>
         <label class="blog-label" for="item-title">
-          Tiêu đề <span class="blog-label__optional">(không bắt buộc)</span>
+          {{ 'T_TITLE' | translate }}
+          <span class="blog-label__optional"
+            >({{ 'T_OPTIONAL' | translate }})</span
+          >
         </label>
         <input
           id="item-title"
@@ -234,7 +256,10 @@
 
     <div>
       <label class="blog-label" for="item-note">
-        Ghi chú <span class="blog-label__optional">(không bắt buộc)</span>
+        {{ 'T_NOTE' | translate }}
+        <span class="blog-label__optional"
+          >({{ 'T_OPTIONAL' | translate }})</span
+        >
       </label>
       <textarea
         id="item-note"
@@ -242,14 +267,16 @@
         formControlName="Note"
         rows="4"
         maxlength="10000"
-        placeholder="Kỷ niệm gì, hay bạn học được điều gì từ nội dung này?"></textarea>
+        [placeholder]="'T_ARCHIVE_NOTE_PLACEHOLDER' | translate"></textarea>
     </div>
 
     <div class="item-form__row">
       <div>
         <label class="blog-label" for="item-taken-at">
-          Ngày diễn ra
-          <span class="blog-label__optional">(không bắt buộc)</span>
+          {{ 'T_ARCHIVE_EVENT_DATE' | translate }}
+          <span class="blog-label__optional"
+            >({{ 'T_OPTIONAL' | translate }})</span
+          >
         </label>
         <input
           id="item-taken-at"
@@ -261,8 +288,10 @@
       @if (mode === 'link' && !hasPastedImage) {
         <div>
           <label class="blog-label" for="item-thumbnail">
-            Link ảnh đại diện
-            <span class="blog-label__optional">(không bắt buộc)</span>
+            {{ 'T_ARCHIVE_THUMBNAIL_LINK' | translate }}
+            <span class="blog-label__optional"
+              >({{ 'T_OPTIONAL' | translate }})</span
+            >
           </label>
           <input
             id="item-thumbnail"
@@ -282,7 +311,7 @@
       class="blog-btn"
       [disabled]="isSaving"
       (click)="close()">
-      Huỷ
+      {{ 'T_CANCEL' | translate }}
     </button>
     <button
       type="button"
@@ -291,12 +320,15 @@
       (click)="submit()">
       @if (isReadingImage) {
         <span class="blog-spinner" aria-hidden="true"></span>
-        Đang đọc ảnh...
+        {{ 'T_ARCHIVE_READING_IMAGE' | translate }}
       } @else if (isSaving) {
         <span class="blog-spinner" aria-hidden="true"></span>
-        {{ mode === 'upload' && !isEdit ? 'Đang tải lên...' : 'Đang lưu...' }}
+        {{
+          (mode === 'upload' && !isEdit ? 'T_UPLOADING' : 'T_SAVING')
+            | translate
+        }}
       } @else {
-        Lưu
+        {{ 'T_SAVE' | translate }}
       }
     </button>
   </div>

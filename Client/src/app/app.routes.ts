@@ -73,14 +73,14 @@ const appRoutes: Routes = [
       import('./pages/note/note.component').then(p => p.NoteComponent),
   },
   {
-    title: 'Phim',
+    title: 'T_PAGE_MOVIE',
     path: 'phim',
     loadComponent: () =>
       import('./pages/movie/movie.component').then(p => p.MovieComponent),
     canActivate: [canActivePermission('movie.view')],
   },
   {
-    title: 'Phim',
+    title: 'T_PAGE_MOVIE',
     path: 'phim/:slug',
     loadComponent: () =>
       import('./pages/movie/movie.component').then(p => p.MovieComponent),

@@ -205,16 +205,16 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.selectedImage && !this.canSendImage) {
-      this.sendError = 'Bạn không có quyền gửi ảnh.';
+      this.sendError = this.translate.instant('T_CHAT_IMAGE_PERMISSION');
       return;
     }
 
     this.sending = true;
     this.sendError = '';
-    let failureMessage = 'Không gửi được tin nhắn. Vui lòng thử lại.';
+    let failureMessage = this.translate.instant('T_CHAT_SEND_ERROR');
     try {
       if (this.selectedImage) {
-        failureMessage = 'Không gửi được ảnh. Vui lòng thử lại.';
+        failureMessage = this.translate.instant('T_CHAT_SEND_IMAGE_ERROR');
         this.isUploading = true;
         const response = await firstValueFrom(
           this.chatService
@@ -254,7 +254,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         // NgModel applies the disabled state in a microtask.
         queueMicrotask(() => {
           if (!this.destroyed && this.canSend && !this.previewVisible)
-            this.messageInput?.nativeElement.focus({ preventScroll: true });
+            this.messageInput?.nativeElement.focus({
+              preventScroll: true,
+            });
         });
       }
     }
@@ -263,7 +265,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   handleUploadFile = (file: File): boolean => {
     if (!this.canSendImage || this.sending || this.isUploading) return false;
     if (!file.size || file.size >= 2 * 1024 * 1024) {
-      this.sendError = 'Ảnh phải có dung lượng nhỏ hơn 2 MB.';
+      this.sendError = this.translate.instant('T_CHAT_IMAGE_SIZE_ERROR');
       return false;
     }
     if (
@@ -271,7 +273,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         file.type
       )
     ) {
-      this.sendError = 'Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.';
+      this.sendError = this.translate.instant('T_CHAT_IMAGE_FORMAT_ERROR');
       return false;
     }
     this.sendError = '';
@@ -296,7 +298,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     if (!file) return;
     event.preventDefault();
     if (!this.canSendImage) {
-      this.sendError = 'Bạn không có quyền gửi ảnh.';
+      this.sendError = this.translate.instant('T_CHAT_IMAGE_PERMISSION');
       return;
     }
     this.handleUploadFile(file);
@@ -317,7 +319,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       // Existing Cloudinary messages remain viewable, and load only on click.
       if (/^https:\/\//i.test(message.Message))
         this.previewImage = message.Message;
-      else this.previewError = 'Địa chỉ ảnh không hợp lệ.';
+      else this.previewError = this.translate.instant('T_CHAT_IMAGE_URL_ERROR');
       return;
     }
     const request = this.previewRequest;
@@ -335,8 +337,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       this.previewImage = URL.createObjectURL(blob);
     } catch {
       if (!this.destroyed && request === this.previewRequest)
-        this.previewError =
-          'Không thể tải ảnh. Ảnh có thể đã bị xóa hoặc bạn không còn quyền xem.';
+        this.previewError = this.translate.instant('T_CHAT_IMAGE_LOAD_ERROR');
     } finally {
       if (request === this.previewRequest) this.previewLoading = false;
     }
@@ -361,7 +362,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       await this.chatService.deleteMessage(message.MessageId);
     } catch {
       if (!this.destroyed)
-        this.sendError = 'Không thể xóa tin nhắn. Vui lòng thử lại.';
+        this.sendError = this.translate.instant('T_CHAT_DELETE_ERROR');
     } finally {
       this.deletingIds.delete(message.MessageId);
     }

@@ -9,7 +9,7 @@ import {
 
 interface ReportReasonOption {
   value: ENewsCommentReportReason;
-  label: string;
+  labelKey: string;
 }
 
 @Component({
@@ -30,13 +30,13 @@ export class NewsCommentReportModalComponent {
 
   // Khớp với enum ENewsCommentReportReason phía server
   readonly reasons: ReportReasonOption[] = [
-    { value: 'Spam', label: 'Spam / quảng cáo' },
-    { value: 'HateSpeech', label: 'Lời lẽ thù ghét, phân biệt đối xử' },
-    { value: 'Harassment', label: 'Quấy rối, xúc phạm cá nhân' },
-    { value: 'Violence', label: 'Bạo lực' },
-    { value: 'Nudity', label: 'Nội dung khiêu dâm' },
-    { value: 'FakeNews', label: 'Thông tin sai sự thật' },
-    { value: 'Other', label: 'Lý do khác' },
+    { value: 'Spam', labelKey: 'T_COMMENT_REPORT_SPAM' },
+    { value: 'HateSpeech', labelKey: 'T_COMMENT_REPORT_HATE_SPEECH' },
+    { value: 'Harassment', labelKey: 'T_COMMENT_REPORT_HARASSMENT' },
+    { value: 'Violence', labelKey: 'T_COMMENT_REPORT_VIOLENCE' },
+    { value: 'Nudity', labelKey: 'T_COMMENT_REPORT_NUDITY' },
+    { value: 'FakeNews', labelKey: 'T_COMMENT_REPORT_FAKE_NEWS' },
+    { value: 'Other', labelKey: 'T_COMMENT_REPORT_OTHER' },
   ];
 
   reason: ENewsCommentReportReason = 'Spam';

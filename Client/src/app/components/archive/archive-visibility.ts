@@ -2,28 +2,28 @@ import { TArchiveVisibility } from '../../interfaces';
 
 export interface ArchiveVisibilityOption {
   value: TArchiveVisibility;
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
   icon: string;
 }
 
 export const ARCHIVE_VISIBILITY_OPTIONS: ArchiveVisibilityOption[] = [
   {
     value: 'Private',
-    label: 'Riêng tư',
-    description: 'Chỉ mình bạn xem được.',
+    labelKey: 'T_ARCHIVE_VISIBILITY_PRIVATE',
+    descriptionKey: 'T_ARCHIVE_VISIBILITY_PRIVATE_DESC',
     icon: 'lock',
   },
   {
     value: 'Unlisted',
-    label: 'Có link',
-    description: 'Ai có link thì xem được, không hiện công khai.',
+    labelKey: 'T_ARCHIVE_VISIBILITY_UNLISTED',
+    descriptionKey: 'T_ARCHIVE_VISIBILITY_UNLISTED_DESC',
     icon: 'link',
   },
   {
     value: 'Public',
-    label: 'Công khai',
-    description: 'Mọi người đều xem được.',
+    labelKey: 'T_ARCHIVE_VISIBILITY_PUBLIC',
+    descriptionKey: 'T_ARCHIVE_VISIBILITY_PUBLIC_DESC',
     icon: 'global',
   },
 ];

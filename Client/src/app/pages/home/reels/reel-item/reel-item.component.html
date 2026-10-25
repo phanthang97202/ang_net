@@ -41,7 +41,9 @@
           type="button"
           class="reel-item__mute"
           (click)="onMute($event)"
-          [attr.aria-label]="isMuted ? 'Bật tiếng' : 'Tắt tiếng'">
+          [attr.aria-label]="
+            (isMuted ? 'T_MEDIA_UNMUTE' : 'T_MEDIA_MUTE') | translate
+          ">
           @if (isMuted) {
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
@@ -71,7 +73,7 @@
             class="reel-item__slide-nav reel-item__slide-nav--prev"
             [disabled]="slideIndex === 0"
             (click)="prevSlide($event)"
-            aria-label="Ảnh trước">
+            [attr.aria-label]="'T_PREVIOUSIMAGE' | translate">
             <span nz-icon nzType="left" nzTheme="outline"></span>
           </button>
           <button
@@ -79,7 +81,7 @@
             class="reel-item__slide-nav reel-item__slide-nav--next"
             [disabled]="slideIndex >= images.length - 1"
             (click)="nextSlide($event)"
-            aria-label="Ảnh tiếp theo">
+            [attr.aria-label]="'T_NEXTIMAGE' | translate">
             <span nz-icon nzType="right" nzTheme="outline"></span>
           </button>
 
@@ -90,7 +92,9 @@
                 class="reel-item__dot"
                 [class.is-active]="i === slideIndex"
                 (click)="goToSlide(i, $event)"
-                [attr.aria-label]="'Ảnh ' + (i + 1)"></button>
+                [attr.aria-label]="
+                  'T_REELS_IMAGE_NUMBER' | translate: { number: i + 1 }
+                "></button>
             }
           </div>
         }
@@ -127,7 +131,7 @@
       class="reel-item__action"
       [class.is-liked]="reel.IsLikedByMe"
       (click)="onLike()"
-      aria-label="Thích">
+      [attr.aria-label]="'T_COMMENT_LIKE' | translate">
       <span
         class="reel-item__action-icon"
         nz-icon
@@ -142,7 +146,7 @@
       type="button"
       class="reel-item__action"
       (click)="onOpenComments()"
-      aria-label="Bình luận">
+      [attr.aria-label]="'T_COMMENTS' | translate">
       <span
         class="reel-item__action-icon"
         nz-icon
@@ -153,7 +157,9 @@
       }}</span>
     </button>
 
-    <div class="reel-item__action" aria-label="Lượt xem">
+    <div
+      class="reel-item__action"
+      [attr.aria-label]="'T_REELS_VIEWS' | translate">
       <span
         class="reel-item__action-icon"
         nz-icon

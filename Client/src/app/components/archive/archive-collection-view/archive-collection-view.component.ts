@@ -14,6 +14,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EMPTY, Observable, catchError, finalize, tap } from 'rxjs';
 import { IArchiveCollection, IArchiveItem } from '../../../interfaces';
 import { ArchiveService } from '../../../services';
@@ -38,6 +39,7 @@ const PAGE_SIZE = 24;
     NzDropDownModule,
     NzIconModule,
     NzModalModule,
+    TranslateModule,
     ArchiveCollectionFormComponent,
     ArchiveItemFormComponent,
     ArchiveItemViewerComponent,
@@ -57,12 +59,17 @@ export class ArchiveCollectionViewComponent implements OnChanges {
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
   private changeDetector = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   @ViewChild(ArchiveItemViewerComponent)
   private itemViewer?: ArchiveItemViewerComponent;
 
   /** Hộp xác nhận xoá đang mở; run trả Observable để biết khi nào đóng hộp */
-  pendingConfirm: { title: string; message: string; run: () => Observable<unknown> } | null = null;
+  pendingConfirm: {
+    title: string;
+    message: string;
+    run: () => Observable<unknown>;
+  } | null = null;
   isConfirming = false;
 
   collection: IArchiveCollection | null = null;
@@ -87,7 +94,9 @@ export class ArchiveCollectionViewComponent implements OnChanges {
   }
 
   get viewingItem(): IArchiveItem | null {
-    return this.viewingIndex === null ? null : this.items[this.viewingIndex] ?? null;
+    return this.viewingIndex === null
+      ? null
+      : (this.items[this.viewingIndex] ?? null);
   }
 
   get hasMore(): boolean {
@@ -175,19 +184,23 @@ export class ArchiveCollectionViewComponent implements OnChanges {
 
   confirmDeleteItem(item: IArchiveItem): void {
     this.pendingConfirm = {
-      title: 'Xoá mục này?',
+      title: this.translate.instant('T_ARCHIVE_DELETE_ITEM_TITLE'),
       message:
         item.Kind === 'Link'
-          ? 'Mục chỉ bị xoá khỏi thư viện, nội dung gốc không bị ảnh hưởng.'
-          : 'File ảnh/video sẽ bị xoá vĩnh viễn, không thể khôi phục.',
+          ? this.translate.instant('T_ARCHIVE_DELETE_LINK_MESSAGE')
+          : this.translate.instant('T_ARCHIVE_DELETE_FILE_MESSAGE'),
       run: () => this.deleteItem(item),
     };
   }
 
   confirmDeleteCollection(): void {
     this.pendingConfirm = {
-      title: `Xoá "${this.collection?.Name ?? ''}"?`,
-      message: `Toàn bộ ${this.itemCount} mục bên trong cùng các file ảnh/video sẽ bị xoá vĩnh viễn, không thể khôi phục.`,
+      title: this.translate.instant('T_ARCHIVE_DELETE_COLLECTION_TITLE', {
+        name: this.collection?.Name ?? '',
+      }),
+      message: this.translate.instant('T_ARCHIVE_DELETE_COLLECTION_MESSAGE', {
+        count: this.itemCount,
+      }),
       run: () => this.deleteCollection(),
     };
   }
@@ -212,19 +225,30 @@ export class ArchiveCollectionViewComponent implements OnChanges {
   }
 
   private deleteItem(item: IArchiveItem): Observable<unknown> {
-    return this.archiveService.deleteItem(item.ItemId).pipe(tap({
-      next: response => {
-        if (!response?.Success) {
-          this.message.error(response?.ErrorMessage || 'Không xoá được mục');
-          return;
-        }
-        this.message.success('Đã xoá');
-        this.viewingIndex = null;
-        this.loadItems(0, true);
-        this.changed.emit();
-      },
-      error: () => this.message.error('Không xoá được mục'),
-    }), catchError(() => EMPTY));
+    return this.archiveService.deleteItem(item.ItemId).pipe(
+      tap({
+        next: response => {
+          if (!response?.Success) {
+            this.message.error(
+              response?.ErrorMessage ||
+                this.translate.instant('T_ARCHIVE_DELETE_ITEM_ERROR')
+            );
+            return;
+          }
+          this.message.success(
+            this.translate.instant('T_ARCHIVE_ITEM_DELETED')
+          );
+          this.viewingIndex = null;
+          this.loadItems(0, true);
+          this.changed.emit();
+        },
+        error: () =>
+          this.message.error(
+            this.translate.instant('T_ARCHIVE_DELETE_ITEM_ERROR')
+          ),
+      }),
+      catchError(() => EMPTY)
+    );
   }
 
   setAsCover(item: IArchiveItem): void {
@@ -241,14 +265,22 @@ export class ArchiveCollectionViewComponent implements OnChanges {
       .subscribe({
         next: response => {
           if (!response?.Success) {
-            this.message.error(response?.ErrorMessage || 'Không đặt được ảnh bìa');
+            this.message.error(
+              response?.ErrorMessage ||
+                this.translate.instant('T_ARCHIVE_SET_COVER_ERROR')
+            );
             return;
           }
           this.collection = response.Data;
-          this.message.success('Đã đặt làm ảnh bìa');
+          this.message.success(
+            this.translate.instant('T_ARCHIVE_COVER_UPDATED')
+          );
           this.changed.emit();
         },
-        error: () => this.message.error('Không đặt được ảnh bìa'),
+        error: () =>
+          this.message.error(
+            this.translate.instant('T_ARCHIVE_SET_COVER_ERROR')
+          ),
       });
   }
 
@@ -259,23 +291,38 @@ export class ArchiveCollectionViewComponent implements OnChanges {
   }
 
   private deleteCollection(): Observable<unknown> {
-    return this.archiveService.deleteCollection(this.collectionId).pipe(tap({
-      next: response => {
-        if (!response?.Success) {
-          this.message.error(response?.ErrorMessage || 'Không xoá được bộ sưu tập');
-          return;
-        }
-        this.message.success('Đã xoá bộ sưu tập');
-        this.deleted.emit();
-      },
-      error: () => this.message.error('Không xoá được bộ sưu tập'),
-    }), catchError(() => EMPTY));
+    return this.archiveService.deleteCollection(this.collectionId).pipe(
+      tap({
+        next: response => {
+          if (!response?.Success) {
+            this.message.error(
+              response?.ErrorMessage ||
+                this.translate.instant('T_ARCHIVE_DELETE_COLLECTION_ERROR')
+            );
+            return;
+          }
+          this.message.success(
+            this.translate.instant('T_ARCHIVE_COLLECTION_DELETED')
+          );
+          this.deleted.emit();
+        },
+        error: () =>
+          this.message.error(
+            this.translate.instant('T_ARCHIVE_DELETE_COLLECTION_ERROR')
+          ),
+      }),
+      catchError(() => EMPTY)
+    );
   }
 
   copyShareLink(): void {
     navigator.clipboard
       .writeText(this.shareUrl)
-      .then(() => this.message.success('Đã sao chép link chia sẻ'))
+      .then(() =>
+        this.message.success(
+          this.translate.instant('T_ARCHIVE_SHARE_LINK_COPIED')
+        )
+      )
       .catch(() => this.message.info(this.shareUrl));
   }
 
@@ -295,26 +342,33 @@ export class ArchiveCollectionViewComponent implements OnChanges {
     if (pageIndex === 0 && !refresh) this.isLoading = true;
     if (pageIndex > 0) this.isLoadingMore = true;
 
-    this.archiveService.items(this.collectionId, pageIndex, PAGE_SIZE).subscribe({
-      next: response => {
-        this.isLoading = false;
-        this.isLoadingMore = false;
-        if (!response?.Success) {
-          this.message.error(response?.ErrorMessage || 'Không tải được danh sách');
-          return;
-        }
-        const page = response.objResult;
-        const list = page?.DataList ?? [];
-        this.items = pageIndex === 0 ? list : [...this.items, ...list];
-        this.itemCount = page?.ItemCount ?? this.items.length;
-        this.pageIndex = pageIndex;
-        if (this.collection) this.collection.ItemCount = this.itemCount;
-      },
-      error: () => {
-        this.isLoading = false;
-        this.isLoadingMore = false;
-        this.message.error('Không tải được danh sách');
-      },
-    });
+    this.archiveService
+      .items(this.collectionId, pageIndex, PAGE_SIZE)
+      .subscribe({
+        next: response => {
+          this.isLoading = false;
+          this.isLoadingMore = false;
+          if (!response?.Success) {
+            this.message.error(
+              response?.ErrorMessage ||
+                this.translate.instant('T_ARCHIVE_ITEMS_LOAD_ERROR')
+            );
+            return;
+          }
+          const page = response.objResult;
+          const list = page?.DataList ?? [];
+          this.items = pageIndex === 0 ? list : [...this.items, ...list];
+          this.itemCount = page?.ItemCount ?? this.items.length;
+          this.pageIndex = pageIndex;
+          if (this.collection) this.collection.ItemCount = this.itemCount;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.isLoadingMore = false;
+          this.message.error(
+            this.translate.instant('T_ARCHIVE_ITEMS_LOAD_ERROR')
+          );
+        },
+      });
   }
 }

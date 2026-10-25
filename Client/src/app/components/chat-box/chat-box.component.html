@@ -10,14 +10,16 @@
         <h2 id="chat-panel-title" class="chat-header-title">
           {{ 'T_CHAT' | translate }}
         </h2>
-        <p class="chat-header-subtitle">{{ 'T_CHAT_ROOM_HINT' | translate }}</p>
+        <p class="chat-header-subtitle">
+          {{ 'T_CHAT_ROOM_HINT' | translate }}
+        </p>
       </div>
     </div>
     <button
       type="button"
       class="chat-close-btn"
       (click)="closeChat.emit()"
-      aria-label="Đóng tin nhắn">
+      [attr.aria-label]="'T_CHAT_CLOSE' | translate">
       <span nz-icon nzType="close" nzTheme="outline"></span>
     </button>
   </header>
@@ -46,11 +48,13 @@
           [nzSize]="32"
           [nzSrc]="msg.SenderAvatar || undefined"
           [nzText]="
-            (msg.SenderName || 'Người dùng').slice(0, 1).toUpperCase()
+            (msg.SenderName || ('T_CHAT_USER' | translate))
+              .slice(0, 1)
+              .toUpperCase()
           "></nz-avatar>
         <div class="message-content">
           <span *ngIf="msg.UserId !== userId" class="message-author">{{
-            msg.SenderName || 'Người dùng'
+            msg.SenderName || ('T_CHAT_USER' | translate)
           }}</span>
           <div
             class="message-bubble"
@@ -60,9 +64,9 @@
               type="button"
               class="message-image-button"
               (click)="openImage(msg)"
-              aria-label="Xem ảnh">
+              [attr.aria-label]="'T_CHAT_VIEW_IMAGE' | translate">
               <span nz-icon nzType="picture" nzTheme="outline"></span>
-              <span>[Hình ảnh]</span>
+              <span>{{ 'T_CHAT_IMAGE_MESSAGE' | translate }}</span>
             </button>
             <p *ngIf="msg.Type === 'string'" class="message-text">
               <ng-container *ngFor="let part of msg.Message | chatLinks"
@@ -95,13 +99,13 @@
               type="button"
               class="message-delete"
               nz-popconfirm
-              nzPopconfirmTitle="Xóa tin nhắn này?"
-              nzOkText="Xóa"
-              nzCancelText="Hủy"
+              [nzPopconfirmTitle]="'T_CHAT_DELETE_CONFIRM' | translate"
+              [nzOkText]="'T_CHAT_DELETE' | translate"
+              [nzCancelText]="'T_CANCEL' | translate"
               (nzOnConfirm)="deleteMessage(msg)"
               [disabled]="deletingIds.has(msg.MessageId)"
-              aria-label="Xóa tin nhắn"
-              title="Xóa tin nhắn">
+              [attr.aria-label]="'T_CHAT_DELETE_MESSAGE' | translate"
+              [title]="'T_CHAT_DELETE_MESSAGE' | translate">
               <span
                 nz-icon
                 [nzType]="deletingIds.has(msg.MessageId) ? 'loading' : 'delete'"
@@ -119,17 +123,19 @@
     {{ sendError }}
   </p>
   <p *ngIf="!canSend" class="chat-notice">
-    Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.
+    {{ 'T_CHAT_READ_ONLY' | translate }}
   </p>
   <div *ngIf="canSend" class="chat-compose-area" (paste)="onPaste($event)">
     <div *ngIf="selectedImage" class="chat-attachment">
-      <img [src]="selectedImagePreview" alt="Ảnh đã chọn" />
+      <img
+        [src]="selectedImagePreview"
+        [alt]="'T_CHAT_SELECTED_IMAGE' | translate" />
       <span>{{ 'T_CHAT_IMAGE_READY' | translate }}</span>
       <button
         type="button"
         (click)="clearImage()"
         [disabled]="sending || isUploading"
-        aria-label="Bỏ ảnh đã chọn">
+        [attr.aria-label]="'T_CHAT_REMOVE_IMAGE' | translate">
         <span nz-icon nzType="close" nzTheme="outline"></span>
       </button>
     </div>
@@ -146,8 +152,8 @@
           class="upload-btn"
           (click)="imagePicker.click()"
           [disabled]="isUploading || sending || !chatService.connected()"
-          title="JPG, PNG, GIF, WebP · dưới 2 MB"
-          aria-label="Chọn ảnh dưới 2 MB">
+          [title]="'T_CHAT_IMAGE_REQUIREMENTS' | translate"
+          [attr.aria-label]="'T_CHAT_CHOOSE_IMAGE' | translate">
           <span
             nz-icon
             [nzType]="isUploading ? 'loading' : 'picture'"
@@ -160,11 +166,11 @@
           #messageInput
           [(ngModel)]="newMessage"
           type="text"
-          placeholder="Nhập tin nhắn…"
+          [placeholder]="'T_CHAT_MESSAGE_PLACEHOLDER' | translate"
           (keyup.enter)="sendMessage()"
           [disabled]="isUploading || sending"
           maxlength="4000"
-          aria-label="Nội dung tin nhắn"
+          [attr.aria-label]="'T_CHAT_MESSAGE_CONTENT' | translate"
           class="message-input" />
         <span *ngIf="selectedImage" class="chat-image-label">{{
           'T_CHAT_IMAGE_READY' | translate
@@ -179,7 +185,7 @@
             sending ||
             !chatService.connected()
           "
-          aria-label="Gửi tin nhắn"
+          [attr.aria-label]="'T_CHAT_SEND_MESSAGE' | translate"
           class="send-btn">
           <span
             nz-icon
@@ -198,7 +204,7 @@
   [nzContent]="modalContent"
   [nzFooter]="null"
   (nzOnCancel)="closePreview()"
-  [nzTitle]="'Hình ảnh'"
+  [nzTitle]="'T_CHAT_IMAGE_TITLE' | translate"
   [nzBodyStyle]="{
     background: 'var(--color-bg-card)',
     color: 'var(--color-text)',
@@ -207,7 +213,7 @@
   <ng-template #modalContent>
     <div *ngIf="previewLoading" class="loading-indicator" role="status">
       <app-spinner size="small"></app-spinner>
-      <span>Đang tải ảnh…</span>
+      <span>{{ 'T_CHAT_LOADING_IMAGE' | translate }}</span>
     </div>
     <p *ngIf="previewError" class="chat-notice chat-notice--error" role="alert">
       {{ previewError }}
@@ -216,7 +222,7 @@
       *ngIf="previewImage"
       [src]="previewImage"
       class="preview-image"
-      alt="Ảnh trong tin nhắn"
+      [alt]="'T_CHAT_MESSAGE_IMAGE_ALT' | translate"
       referrerpolicy="no-referrer" />
   </ng-template>
 </nz-modal>

@@ -2,6 +2,6 @@
   class="spinner"
   [ngClass]="'spinner--' + size"
   role="status"
-  aria-label="Đang tải">
+  [attr.aria-label]="'T_LOADING' | translate">
   <i *ngFor="let bar of bars"></i>
 </span>

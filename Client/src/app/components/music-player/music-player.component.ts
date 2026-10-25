@@ -12,6 +12,7 @@ import { combineLatest } from 'rxjs';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import { IHomeSong } from '../../interfaces';
 import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Dùng khi tham số HOME_MUSIC chưa được cấu hình ở admin.
 const DEFAULT_PLAYLIST: IHomeSong[] = [
@@ -27,7 +28,7 @@ const DEFAULT_PLAYLIST: IHomeSong[] = [
 @Component({
   selector: 'app-music-player',
   standalone: true,
-  imports: [CommonModule, ConfigSkeletonComponent],
+  imports: [CommonModule, ConfigSkeletonComponent, TranslateModule],
   templateUrl: './music-player.component.html',
   styleUrls: ['./music-player.component.scss'],
 })

@@ -14,11 +14,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatService } from '../../services/ws-chat.service';
 import { BrowserTitleService } from '../../services/browser-title.service';
 import { ChatBoxComponent } from './chat-box.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, NzIconModule, ChatBoxComponent],
+  imports: [CommonModule, NzIconModule, ChatBoxComponent, TranslateModule],
   template: `
     <button
       *ngIf="chat.canView"
@@ -28,10 +29,10 @@ import { ChatBoxComponent } from './chat-box.component';
       type="button"
       [attr.aria-label]="
         open
-          ? 'Đóng tin nhắn'
+          ? ('T_CHAT_CLOSE' | translate)
           : chat.unreadCount()
-            ? 'Tin nhắn: ' + chat.unreadCount() + ' tin chưa đọc'
-            : 'Mở tin nhắn'
+            ? ('T_CHAT_UNREAD' | translate: { count: chat.unreadCount() })
+            : ('T_CHAT_OPEN' | translate)
       "
       [attr.aria-expanded]="open"
       aria-controls="blog-chat-panel"
@@ -49,10 +50,10 @@ import { ChatBoxComponent } from './chat-box.component';
         "
         class="chat-preview"
         role="status">
-        <strong>{{ latest.SenderName || 'Người dùng' }}</strong>
+        <strong>{{ latest.SenderName || ('T_CHAT_USER' | translate) }}</strong>
         <span>{{
           latest.Type === 'jpg' || latest.Type === 'image'
-            ? '[Hình ảnh]'
+            ? ('T_CHAT_IMAGE_MESSAGE' | translate)
             : latest.Message
         }}</span>
       </span>

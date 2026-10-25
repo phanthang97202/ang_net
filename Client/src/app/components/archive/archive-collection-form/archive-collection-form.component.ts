@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IArchiveCollection, TArchiveVisibility } from '../../../interfaces';
 import { ArchiveService } from '../../../services';
 import { ARCHIVE_VISIBILITY_OPTIONS } from '../archive-visibility';
@@ -24,6 +25,7 @@ import { ARCHIVE_VISIBILITY_OPTIONS } from '../archive-visibility';
     ReactiveFormsModule,
     NzModalModule,
     NzIconModule,
+    TranslateModule,
   ],
   templateUrl: './archive-collection-form.component.html',
   styleUrl: './archive-collection-form.component.scss',
@@ -37,6 +39,7 @@ export class ArchiveCollectionFormComponent implements OnChanges {
   private fb = inject(FormBuilder);
   private archiveService = inject(ArchiveService);
   private message = inject(NzMessageService);
+  private translate = inject(TranslateService);
 
   readonly visibilityOptions = ARCHIVE_VISIBILITY_OPTIONS;
   isSaving = false;
@@ -85,15 +88,26 @@ export class ArchiveCollectionFormComponent implements OnChanges {
       next: response => {
         this.isSaving = false;
         if (!response?.Success) {
-          this.message.error(response?.ErrorMessage || 'Không lưu được bộ sưu tập');
+          this.message.error(
+            response?.ErrorMessage ||
+              this.translate.instant('T_ARCHIVE_COLLECTION_SAVE_ERROR')
+          );
           return;
         }
-        this.message.success(this.isEdit ? 'Đã cập nhật bộ sưu tập' : 'Đã tạo bộ sưu tập');
+        this.message.success(
+          this.translate.instant(
+            this.isEdit
+              ? 'T_ARCHIVE_COLLECTION_UPDATED'
+              : 'T_ARCHIVE_COLLECTION_CREATED'
+          )
+        );
         this.saved.emit(response.Data);
       },
       error: () => {
         this.isSaving = false;
-        this.message.error('Không lưu được bộ sưu tập');
+        this.message.error(
+          this.translate.instant('T_ARCHIVE_COLLECTION_SAVE_ERROR')
+        );
       },
     });
   }

@@ -161,7 +161,10 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
             this.expandedReplies.add(root.CommentId);
           this.cd.detectChanges();
           const target = document.getElementById(`news-comment-${targetId}`);
-          target?.scrollIntoView({ block: 'center', behavior: 'instant' });
+          target?.scrollIntoView({
+            block: 'center',
+            behavior: 'instant',
+          });
           target?.focus({ preventScroll: true });
         },
         error: () => {
@@ -210,7 +213,7 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
   // ── Trả lời ───────────────────────────────────────────────────────────
   startReply(comment: INewsCommentDto): void {
     if (!this.isLoggedIn) {
-      this.message.info('Bạn cần đăng nhập để bình luận.');
+      this.message.info(this.translate.instant('T_COMMENT_LOGIN_REQUIRED'));
       return;
     }
 
@@ -239,7 +242,7 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
 
   submitComment(content: string): void {
     if (!this.isLoggedIn) {
-      this.message.info('Bạn cần đăng nhập để bình luận.');
+      this.message.info(this.translate.instant('T_COMMENT_LOGIN_REQUIRED'));
       return;
     }
 
@@ -260,13 +263,15 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
           if (!res?.Success) {
             this.showErrorService.setShowError({
               icon: 'warning',
-              title: 'Bình luận',
-              message: res?.ErrorMessage || 'Gửi bình luận thất bại.',
+              title: this.translate.instant('T_COMMENTS'),
+              message:
+                res?.ErrorMessage ||
+                this.translate.instant('T_COMMENT_SEND_ERROR'),
             });
             return;
           }
 
-          this.message.success('Đã gửi bình luận');
+          this.message.success(this.translate.instant('T_COMMENT_SENT'));
           this.cancelReply();
 
           if (parent) {
@@ -284,8 +289,8 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
           this.isSending = false;
           this.showErrorService.setShowError({
             icon: 'warning',
-            title: 'Bình luận',
-            message: 'Gửi bình luận thất bại. Vui lòng thử lại.',
+            title: this.translate.instant('T_COMMENTS'),
+            message: this.translate.instant('T_COMMENT_SEND_RETRY'),
           });
         },
       });
@@ -308,7 +313,9 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
   // ── Thả tim ───────────────────────────────────────────────────────────
   toggleLike(comment: INewsCommentDto): void {
     if (!this.isLoggedIn) {
-      this.message.info('Bạn cần đăng nhập để thích bình luận.');
+      this.message.info(
+        this.translate.instant('T_COMMENT_LIKE_LOGIN_REQUIRED')
+      );
       return;
     }
 
@@ -337,7 +344,9 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
   // ── Báo cáo ───────────────────────────────────────────────────────────
   openReport(comment: INewsCommentDto): void {
     if (!this.isLoggedIn) {
-      this.message.info('Bạn cần đăng nhập để báo cáo bình luận.');
+      this.message.info(
+        this.translate.instant('T_COMMENT_REPORT_LOGIN_REQUIRED')
+      );
       return;
     }
     this.reportTargetId = comment.CommentId;
@@ -359,8 +368,10 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
         if (!res?.Success) {
           this.showErrorService.setShowError({
             icon: 'warning',
-            title: 'Báo cáo bình luận',
-            message: res?.ErrorMessage || 'Gửi báo cáo thất bại.',
+            title: this.translate.instant('T_COMMENT_REPORT_TITLE'),
+            message:
+              res?.ErrorMessage ||
+              this.translate.instant('T_COMMENT_REPORT_ERROR'),
           });
           return;
         }
@@ -368,23 +379,23 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
         this.closeReport();
 
         if (res.objResult?.AutoHidden) {
-          this.message.success('Bình luận đã bị ẩn do có nhiều báo cáo.');
+          this.message.success(this.translate.instant('T_COMMENT_AUTO_HIDDEN'));
           this.reload();
           return;
         }
 
         this.message.success(
           res.objResult?.Created
-            ? 'Đã ghi nhận báo cáo của bạn.'
-            : 'Bạn đã báo cáo bình luận này rồi.'
+            ? this.translate.instant('T_COMMENT_REPORT_RECORDED')
+            : this.translate.instant('T_COMMENT_REPORT_DUPLICATE')
         );
       },
       error: () => {
         this.isReporting = false;
         this.showErrorService.setShowError({
           icon: 'warning',
-          title: 'Báo cáo bình luận',
-          message: 'Gửi báo cáo thất bại. Vui lòng thử lại.',
+          title: this.translate.instant('T_COMMENT_REPORT_TITLE'),
+          message: this.translate.instant('T_COMMENT_REPORT_RETRY'),
         });
       },
     });
@@ -394,21 +405,23 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
     this.api.NewsCommentDelete(comment.CommentId).subscribe({
       next: res => {
         if (res?.Success) {
-          this.message.success('Đã xóa bình luận');
+          this.message.success(this.translate.instant('T_COMMENT_DELETED'));
           this.reload();
         } else {
           this.showErrorService.setShowError({
             icon: 'warning',
-            title: 'Xóa bình luận',
-            message: res?.ErrorMessage || 'Xóa bình luận thất bại.',
+            title: this.translate.instant('T_COMMENT_DELETE_TITLE'),
+            message:
+              res?.ErrorMessage ||
+              this.translate.instant('T_COMMENT_DELETE_ERROR'),
           });
         }
       },
       error: () => {
         this.showErrorService.setShowError({
           icon: 'warning',
-          title: 'Xóa bình luận',
-          message: 'Xóa bình luận thất bại. Vui lòng thử lại.',
+          title: this.translate.instant('T_COMMENT_DELETE_TITLE'),
+          message: this.translate.instant('T_COMMENT_DELETE_RETRY'),
         });
       },
     });
@@ -419,23 +432,24 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
     this.authService.signInWithGoogle(idToken).subscribe({
       next: res => {
         if (res?.Success) {
-          this.message.success('Đăng nhập thành công');
+          this.message.success(this.translate.instant('T_LOGIN_SUCCESS'));
           this.readAccount();
           // Tải lại để lấy đúng trạng thái đã thích / quyền xóa của tài khoản vừa đăng nhập
           this.reload();
         } else {
           this.showErrorService.setShowError({
             icon: 'warning',
-            title: 'Đăng nhập',
-            message: res?.ErrorMessage || 'Đăng nhập thất bại.',
+            title: this.translate.instant('T_LOGIN'),
+            message:
+              res?.ErrorMessage || this.translate.instant('T_LOGIN_ERROR'),
           });
         }
       },
       error: () => {
         this.showErrorService.setShowError({
           icon: 'warning',
-          title: 'Đăng nhập',
-          message: 'Đăng nhập thất bại. Vui lòng thử lại.',
+          title: this.translate.instant('T_LOGIN'),
+          message: this.translate.instant('T_LOGIN_RETRY'),
         });
       },
     });

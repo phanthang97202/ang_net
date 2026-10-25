@@ -10,24 +10,28 @@
 
       <p class="portfolio__location">
         <span class="portfolio__flag">{{ profile.flag }}</span>
-        {{ profile.location }}
+        {{ profile.locationKey | translate }}
       </p>
 
       <p class="portfolio__meta">
         <span class="portfolio__handle">{{ profile.handle }}</span>
         <span class="portfolio__dot"></span>
-        <span class="portfolio__headline">{{ profile.headline }}</span>
+        <span class="portfolio__headline">{{
+          profile.headlineKey | translate
+        }}</span>
         <span class="portfolio__dot"></span>
-        <span class="portfolio__employment">{{ profile.employmentType }}</span>
+        <span class="portfolio__employment">{{
+          profile.employmentTypeKey | translate
+        }}</span>
       </p>
 
-      <p class="portfolio__bio">{{ profile.bio }}</p>
+      <p class="portfolio__bio">{{ profile.bioKey | translate }}</p>
 
       <div class="portfolio__actions">
         <app-social-links [items]="socialLinks" />
         <button type="button" class="portfolio__share" (click)="shareProfile()">
           <span nz-icon nzType="share-alt" nzTheme="outline"></span>
-          Chia sẻ trang
+          {{ 'T_ABOUT_SHARE_PAGE' | translate }}
         </button>
       </div>
     </div>
@@ -43,7 +47,9 @@
   </section>
 
   <section class="portfolio__card" appScrollReveal>
-    <h2 class="portfolio__section-title">{{ 'T_WORKEXPERIENCE' | translate }}</h2>
+    <h2 class="portfolio__section-title">
+      {{ 'T_WORKEXPERIENCE' | translate }}
+    </h2>
 
     @for (item of experiences; track item.company) {
       <article class="portfolio__job">
@@ -57,9 +63,12 @@
         <div class="portfolio__job-body">
           <h3 class="portfolio__job-title">{{ item.title }}</h3>
           <p class="portfolio__job-company">
-            {{ item.company }} · {{ item.employmentType }}
+            {{ item.company }} ·
+            {{ item.employmentTypeKey | translate }}
           </p>
-          <p class="portfolio__job-period">{{ item.period }}</p>
+          <p class="portfolio__job-period">
+            {{ item.periodKey | translate }}
+          </p>
           <p class="portfolio__job-desc">{{ item.description }}</p>
         </div>
       </article>

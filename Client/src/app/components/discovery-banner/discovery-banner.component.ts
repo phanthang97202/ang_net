@@ -13,15 +13,15 @@ import { MusicPlayerComponent } from '../music-player/music-player.component';
 import { SysParameterConfigService, SYS_PARAM_CODE } from '../../services';
 import { IHomeBanner } from '../../interfaces';
 import { ConfigSkeletonComponent } from '../config-skeleton/config-skeleton.component';
+import { TranslateService } from '@ngx-translate/core';
 
 // Giá trị mặc định khi tham số HOME_BANNERS chưa được cấu hình ở admin.
-const DEFAULT_BANNERS: IHomeBanner[] = [
+const defaultBanners = (translate: TranslateService): IHomeBanner[] => [
   {
-    title: 'Nhật Ký <span class="accent">Sở Thích</span> Và Đời Thường',
-    description:
-      'Đây là góc nhỏ của Phan Thang — nơi lưu lại những sở thích, suy nghĩ và trải nghiệm cá nhân trong cuộc sống hằng ngày.',
+    title: translate.instant('T_HOME_BANNER_DEFAULT_TITLE'),
+    description: translate.instant('T_HOME_BANNER_DEFAULT_DESCRIPTION'),
     image: '/assets/images/bg_banner.avif',
-    buttonText: 'Khám phá bài viết',
+    buttonText: translate.instant('T_HOME_BANNER_DEFAULT_BUTTON'),
     buttonLink: '/news',
   },
 ];
@@ -44,6 +44,7 @@ const SLIDE_INTERVAL_MS = 6000;
 export class DiscoveryBannerComponent implements OnInit, OnDestroy {
   private config = inject(SysParameterConfigService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   banners: IHomeBanner[] = [];
   configLoading = true;
@@ -56,7 +57,9 @@ export class DiscoveryBannerComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         this.banners =
-          Array.isArray(data) && data.length > 0 ? data : DEFAULT_BANNERS;
+          Array.isArray(data) && data.length > 0
+            ? data
+            : defaultBanners(this.translate);
         this.activeIndex = 0;
         this.configLoading = false;
         this.startAutoplay();

@@ -15,7 +15,7 @@
       <!-- Giữ lại dòng để nhánh trả lời bên dưới không bị mồ côi -->
       <p class="cmt__tombstone">
         <span nz-icon nzType="eye-invisible" nzTheme="outline"></span>
-        Bình luận này đã bị ẩn do vi phạm tiêu chuẩn cộng đồng.
+        {{ 'T_COMMENT_HIDDEN' | translate }}
       </p>
     } @else {
       <div class="cmt__head">
@@ -35,10 +35,16 @@
           type="button"
           class="cmt__action"
           [class.is-active]="comment.IsLikedByMe"
-          [attr.aria-label]="comment.IsLikedByMe ? 'Bỏ thích' : 'Thích'"
+          [attr.aria-label]="
+            (comment.IsLikedByMe ? 'T_COMMENT_UNLIKE' : 'T_COMMENT_LIKE')
+              | translate
+          "
           [attr.aria-pressed]="comment.IsLikedByMe"
           nz-tooltip
-          [nzTooltipTitle]="comment.IsLikedByMe ? 'Bỏ thích' : 'Thích'"
+          [nzTooltipTitle]="
+            (comment.IsLikedByMe ? 'T_COMMENT_UNLIKE' : 'T_COMMENT_LIKE')
+              | translate
+          "
           (click)="liked.emit(comment)">
           <span
             nz-icon
@@ -52,9 +58,9 @@
         <button
           type="button"
           class="cmt__action"
-          aria-label="Trả lời"
+          [attr.aria-label]="'T_COMMENT_REPLY' | translate"
           nz-tooltip
-          nzTooltipTitle="Trả lời"
+          [nzTooltipTitle]="'T_COMMENT_REPLY' | translate"
           (click)="replied.emit(comment)">
           <span nz-icon nzType="message" nzTheme="outline"></span>
         </button>
@@ -63,9 +69,9 @@
           <button
             type="button"
             class="cmt__action cmt__action--danger"
-            aria-label="Xóa"
+            [attr.aria-label]="'T_COMMENT_DELETE' | translate"
             nz-tooltip
-            nzTooltipTitle="Xóa"
+            [nzTooltipTitle]="'T_COMMENT_DELETE' | translate"
             (click)="deleted.emit(comment)">
             <span nz-icon nzType="delete" nzTheme="outline"></span>
           </button>
@@ -73,9 +79,9 @@
           <button
             type="button"
             class="cmt__action"
-            aria-label="Báo cáo"
+            [attr.aria-label]="'T_COMMENT_REPORT' | translate"
             nz-tooltip
-            nzTooltipTitle="Báo cáo"
+            [nzTooltipTitle]="'T_COMMENT_REPORT' | translate"
             (click)="reported.emit(comment)">
             <span nz-icon nzType="flag" nzTheme="outline"></span>
           </button>
@@ -93,9 +99,13 @@
           [nzType]="isExpanded ? 'up' : 'down'"
           nzTheme="outline"></span>
         @if (isExpanded) {
-          Ẩn {{ comment.ReplyCount }} phản hồi
+          {{
+            'T_COMMENT_HIDE_REPLIES' | translate: { count: comment.ReplyCount }
+          }}
         } @else {
-          Xem {{ comment.ReplyCount }} phản hồi
+          {{
+            'T_COMMENT_VIEW_REPLIES' | translate: { count: comment.ReplyCount }
+          }}
         }
       </button>
     }

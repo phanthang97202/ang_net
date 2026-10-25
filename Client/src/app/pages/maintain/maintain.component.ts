@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-maintain',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <main class="maintenance-page">
       <section class="maintenance-card" aria-labelledby="maintenance-title">
         <span class="maintenance-icon" aria-hidden="true">⚙</span>
         <h1 id="maintenance-title">
-          Hệ thống đang bảo trì, vui lòng thử lại sau!
+          {{ 'T_MAINTENANCE_MESSAGE' | translate }}
         </h1>
-        <a routerLink="/">Thử lại</a>
+        <a routerLink="/">{{ 'T_RETRY' | translate }}</a>
       </section>
     </main>
   `,

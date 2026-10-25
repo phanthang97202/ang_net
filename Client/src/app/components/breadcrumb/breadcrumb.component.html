@@ -21,5 +21,8 @@
 </nz-page-header>
 
 <ng-template #backIcon>
-  <span nz-icon nzType="arrow-left" aria-label="Quay lại"></span>
+  <span
+    nz-icon
+    nzType="arrow-left"
+    [attr.aria-label]="'T_BACK' | translate"></span>
 </ng-template>

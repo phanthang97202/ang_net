@@ -53,7 +53,9 @@
                 <span
                   *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
                   class="note-unread-badge"
-                  [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                  [attr.aria-label]="
+                    'T_UNREAD_NOTES' | translate: { count: unreadCount }
+                  ">
                   {{ formatUnreadCount(unreadCount) }}
                 </span>
               </ng-container>
@@ -110,7 +112,9 @@
                     <span
                       *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
                       class="note-unread-badge"
-                      [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                      [attr.aria-label]="
+                        'T_UNREAD_NOTES' | translate: { count: unreadCount }
+                      ">
                       {{ formatUnreadCount(unreadCount) }}
                     </span>
                   </ng-container>
@@ -266,7 +270,7 @@
         type="button"
         class="mobile-menu-search-submit"
         (click)="handleSearch()"
-        aria-label="Search">
+        [attr.aria-label]="'T_SEARCH' | translate">
         <span nz-icon nzType="arrow-right"></span>
       </button>
     </div>
@@ -308,7 +312,9 @@
                 <span
                   *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
                   class="note-unread-badge"
-                  [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                  [attr.aria-label]="
+                    'T_UNREAD_NOTES' | translate: { count: unreadCount }
+                  ">
                   {{ formatUnreadCount(unreadCount) }}
                 </span>
               </ng-container>
@@ -363,7 +369,9 @@
                     <span
                       *ngIf="noteRealtime.unreadCount$ | async as unreadCount"
                       class="note-unread-badge"
-                      [attr.aria-label]="unreadCount + ' ghi chú chưa đọc'">
+                      [attr.aria-label]="
+                        'T_UNREAD_NOTES' | translate: { count: unreadCount }
+                      ">
                       {{ formatUnreadCount(unreadCount) }}
                     </span>
                   </ng-container>
@@ -405,7 +413,7 @@
       type="button"
       class="navbar-icon-btn"
       (click)="closeSearch()"
-      aria-label="Đóng tìm kiếm">
+      [attr.aria-label]="'T_SEARCH_CLOSE' | translate">
       <span nz-icon nzType="close" nzTheme="outline"></span>
     </button>
   </div>

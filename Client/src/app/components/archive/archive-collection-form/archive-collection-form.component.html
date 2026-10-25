@@ -4,28 +4,42 @@
   [nzAutofocus]="null"
   [nzCentered]="true"
   [nzVisible]="visible"
-  [nzTitle]="isEdit ? 'Sửa bộ sưu tập' : 'Bộ sưu tập mới'"
+  [nzTitle]="
+    (isEdit ? 'T_ARCHIVE_EDIT_COLLECTION' : 'T_ARCHIVE_NEW_COLLECTION')
+      | translate
+  "
   [nzMaskClosable]="!isSaving"
   [nzClosable]="!isSaving"
   [nzWidth]="560"
   (nzOnCancel)="close()">
-  <form *nzModalContent class="collection-form" [formGroup]="form" (ngSubmit)="submit()">
+  <form
+    *nzModalContent
+    class="collection-form"
+    [formGroup]="form"
+    (ngSubmit)="submit()">
     <div>
-      <label class="blog-label" for="collection-name">Tên bộ sưu tập</label>
+      <label class="blog-label" for="collection-name">{{
+        'T_ARCHIVE_COLLECTION_NAME' | translate
+      }}</label>
       <input
         id="collection-name"
         class="blog-input"
         formControlName="Name"
         maxlength="150"
-        placeholder="VD: Kỷ niệm Đà Lạt 2026, Kiến thức Angular..." />
+        [placeholder]="'T_ARCHIVE_COLLECTION_NAME_PLACEHOLDER' | translate" />
       @if (form.controls.Name.touched && form.controls.Name.invalid) {
-        <p class="collection-form__error">Vui lòng nhập tên (tối đa 150 ký tự)</p>
+        <p class="collection-form__error">
+          {{ 'T_ARCHIVE_COLLECTION_NAME_REQUIRED' | translate }}
+        </p>
       }
     </div>
 
     <div>
       <label class="blog-label" for="collection-description">
-        Mô tả <span class="blog-label__optional">(không bắt buộc)</span>
+        {{ 'T_DESCRIPTION' | translate }}
+        <span class="blog-label__optional"
+          >({{ 'T_OPTIONAL' | translate }})</span
+        >
       </label>
       <textarea
         id="collection-description"
@@ -33,13 +47,20 @@
         formControlName="Description"
         rows="3"
         maxlength="2000"
-        placeholder="Bộ sưu tập này lưu gì?"></textarea>
+        [placeholder]="
+          'T_ARCHIVE_COLLECTION_DESCRIPTION_PLACEHOLDER' | translate
+        "></textarea>
     </div>
 
     <div>
-      <span class="blog-label" id="collection-visibility">Ai được xem?</span>
+      <span class="blog-label" id="collection-visibility">{{
+        'T_ARCHIVE_WHO_CAN_VIEW' | translate
+      }}</span>
       <!-- Radio thật (ẩn) bọc trong label: giữ điều hướng phím mũi tên của nhóm radio -->
-      <div class="collection-form__options" role="radiogroup" aria-labelledby="collection-visibility">
+      <div
+        class="collection-form__options"
+        role="radiogroup"
+        aria-labelledby="collection-visibility">
         @for (option of visibilityOptions; track option.value) {
           <label
             class="collection-form__option"
@@ -52,8 +73,8 @@
             <span class="collection-form__option-icon">
               <span nz-icon [nzType]="option.icon" nzTheme="outline"></span>
             </span>
-            <strong>{{ option.label }}</strong>
-            <small>{{ option.description }}</small>
+            <strong>{{ option.labelKey | translate }}</strong>
+            <small>{{ option.descriptionKey | translate }}</small>
           </label>
         }
       </div>
@@ -64,13 +85,26 @@
   </form>
 
   <div *nzModalFooter class="collection-form__footer">
-    <button type="button" class="blog-btn" [disabled]="isSaving" (click)="close()">Huỷ</button>
-    <button type="button" class="blog-btn blog-btn--primary" [disabled]="isSaving" (click)="submit()">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="isSaving"
+      (click)="close()">
+      {{ 'T_CANCEL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--primary"
+      [disabled]="isSaving"
+      (click)="submit()">
       @if (isSaving) {
         <span class="blog-spinner" aria-hidden="true"></span>
-        Đang lưu...
+        {{ 'T_SAVING' | translate }}
       } @else {
-        {{ isEdit ? 'Lưu thay đổi' : 'Tạo bộ sưu tập' }}
+        {{
+          (isEdit ? 'T_SAVE_CHANGES' : 'T_ARCHIVE_CREATE_COLLECTION')
+            | translate
+        }}
       }
     </button>
   </div>

@@ -21,7 +21,12 @@ import { ApiService, NoteRealtimeService } from '../../services';
 @Component({
   selector: 'app-note',
   standalone: true,
-  imports: [AntdModule, NzToolTipModule, TextEditorComponent, ...REUSE_PIPE_MODULE],
+  imports: [
+    AntdModule,
+    NzToolTipModule,
+    TextEditorComponent,
+    ...REUSE_PIPE_MODULE,
+  ],
   templateUrl: './note.component.html',
   styleUrl: './note.component.scss',
 })
@@ -94,9 +99,9 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
       this.form.controls.ContentBody.value
     ).length;
     if (plainLength === 0) {
-      this.contentError = 'Vui lòng nhập nội dung ghi chú.';
+      this.contentError = this.translate.instant('T_NOTE_CONTENT_REQUIRED');
     } else if (plainLength > 20_000) {
-      this.contentError = 'Nội dung không được vượt quá 20.000 ký tự.';
+      this.contentError = this.translate.instant('T_NOTE_CONTENT_TOO_LONG');
     }
 
     this.form.markAllAsTouched();
@@ -112,7 +117,8 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
         next: response => {
           if (!response?.Success) {
             this.message.error(
-              response?.ErrorMessage || 'Không thể lưu ghi chú.'
+              response?.ErrorMessage ||
+                this.translate.instant('T_NOTE_SAVE_ERROR')
             );
             return;
           }
@@ -121,14 +127,16 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
           this.form.reset({ Alias: '', ContentBody: '' });
           this.editorResetKey += 1;
           this.contentError = '';
-          this.message.success('Ghi chú của bạn đã được đăng.');
+          this.message.success(
+            this.translate.instant('T_NOTE_PUBLISH_SUCCESS')
+          );
         },
         error: error => {
           this.isSubmitting = false;
           this.message.error(
             error?.status === 429
-              ? 'Bạn gửi ghi chú quá nhanh. Vui lòng thử lại sau.'
-              : 'Không thể lưu ghi chú lúc này.'
+              ? this.translate.instant('T_NOTE_RATE_LIMIT')
+              : this.translate.instant('T_NOTE_SAVE_UNAVAILABLE')
           );
         },
         complete: () => (this.isSubmitting = false),
@@ -162,7 +170,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
         error: () => {
           this.isLoading = false;
           this.hasMore = false;
-          this.message.error('Không thể tải danh sách ghi chú.');
+          this.message.error(this.translate.instant('T_NOTE_FEED_LOAD_ERROR'));
         },
         complete: () => (this.isLoading = false),
       });

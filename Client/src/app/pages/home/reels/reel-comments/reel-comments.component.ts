@@ -11,12 +11,16 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription } from 'rxjs';
-import { ApiService, AuthService, ShowErrorService } from '../../../../services';
+import {
+  ApiService,
+  AuthService,
+  ShowErrorService,
+} from '../../../../services';
 import { IReelCommentDto, IReelDto } from '../../../../interfaces';
 import { TimeAgo } from '../../../../pipes';
 
@@ -27,7 +31,9 @@ import { TimeAgo } from '../../../../pipes';
   templateUrl: './reel-comments.component.html',
   styleUrl: './reel-comments.component.scss',
 })
-export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestroy {
+export class ReelCommentsComponent
+  implements OnChanges, AfterViewInit, OnDestroy
+{
   @Input({ required: true }) reel!: IReelDto;
   @Input() currentUserAvatar: string | null = null;
   @Input() currentUserInitial = '';
@@ -40,6 +46,7 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
   private authService = inject(AuthService);
   private showErrorService = inject(ShowErrorService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   comments: IReelCommentDto[] = [];
   isLoading = false;
@@ -104,7 +111,8 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
     }
     // Backend chỉ cho reply 1 cấp: trả lời một reply thì vẫn gắn vào comment gốc của nó
     this.replyTo = comment.ParentCommentId
-      ? (this.comments.find(c => c.CommentId === comment.ParentCommentId) ?? comment)
+      ? (this.comments.find(c => c.CommentId === comment.ParentCommentId) ??
+        comment)
       : comment;
 
     this.focusInput();
@@ -189,8 +197,10 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
             if (!res?.Success || !res.Data) {
               this.showErrorService.setShowError({
                 icon: 'warning',
-                title: 'Bình luận',
-                message: res?.ErrorMessage || 'Gửi bình luận thất bại.',
+                title: this.translate.instant('T_COMMENTS'),
+                message:
+                  res?.ErrorMessage ||
+                  this.translate.instant('T_COMMENT_SEND_ERROR'),
               });
               return;
             }
@@ -219,8 +229,8 @@ export class ReelCommentsComponent implements OnChanges, AfterViewInit, OnDestro
             this.isSending = false;
             this.showErrorService.setShowError({
               icon: 'warning',
-              title: 'Bình luận',
-              message: 'Gửi bình luận thất bại. Vui lòng thử lại.',
+              title: this.translate.instant('T_COMMENTS'),
+              message: this.translate.instant('T_COMMENT_SEND_RETRY'),
             });
           },
         })

@@ -2,7 +2,7 @@ import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Thời gian giữ trạng thái "đã chép" trước khi nút trở lại bình thường - cùng
 // con số với nút chép link trên app-article-rail.
@@ -19,6 +19,7 @@ export class ShareButtonsComponent {
   @Input() title = '';
 
   private message = inject(NzMessageService);
+  private translate = inject(TranslateService);
 
   isCopied = false;
   private copiedTimer?: ReturnType<typeof setTimeout>;
@@ -54,7 +55,7 @@ export class ShareButtonsComponent {
   // tra trước thay vì bọc try/catch. Cùng cách app-article-rail đang làm.
   copyLink(): void {
     if (!navigator.clipboard) {
-      this.message.info('Trình duyệt không cho chép tự động, bạn copy tay nhé.');
+      this.message.info(this.translate.instant('T_COPY_LINK_MANUALLY'));
       return;
     }
 

@@ -1,10 +1,12 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 /** CSS toolbar/dialog chỉ cần khi mở editor; CSS nội dung vẫn tải toàn blog. */
 @Injectable({ providedIn: 'root' })
 export class EditorStylesService {
   private document = inject(DOCUMENT);
+  private translate = inject(TranslateService);
   private loaded?: Promise<void>;
 
   load(): Promise<void> {
@@ -19,7 +21,7 @@ export class EditorStylesService {
       link.onerror = () => {
         link.remove();
         this.loaded = undefined;
-        reject(new Error('Không tải được giao diện trình soạn thảo.'));
+        reject(new Error(this.translate.instant('T_EDITOR_STYLES_LOAD_ERROR')));
       };
       this.document.head.appendChild(link);
     }));
