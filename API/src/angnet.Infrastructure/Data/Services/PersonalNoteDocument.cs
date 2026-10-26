@@ -104,7 +104,8 @@ internal static class PersonalNoteDocument
                     || (attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int dimension) && dimension is > 0 and <= 16000),
                 ("heading", "level") => attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int level) && level is >= 1 and <= 3,
                 ("orderedList", "start") => attr.Value.ValueKind == JsonValueKind.Number && attr.Value.TryGetInt32(out int start) && start is >= 1 and <= 1_000_000,
-                ("orderedList", "type") => attr.Value.ValueKind == JsonValueKind.Null,
+                ("orderedList", "type") => attr.Value.ValueKind == JsonValueKind.Null
+                    || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString() is "1" or "a" or "A" or "i" or "I"),
                 ("taskItem", "checked") => attr.Value.ValueKind is JsonValueKind.True or JsonValueKind.False,
                 ("codeBlock", "language") => attr.Value.ValueKind == JsonValueKind.Null
                     || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString()!.Length <= 50),

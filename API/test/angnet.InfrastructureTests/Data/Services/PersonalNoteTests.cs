@@ -108,6 +108,41 @@ public class PersonalNoteTests
             title = (string?)null, width = (int?)null, height = (int?)null } } }
     });
 
+    [DataTestMethod]
+    [DataRow("1")]
+    [DataRow("a")]
+    [DataRow("A")]
+    [DataRow("i")]
+    [DataRow("I")]
+    public async Task PastedOrderedLists_KeepStandardNumberingAndSaveSuccessfully(string numbering)
+    {
+        string json = JsonSerializer.Serialize(new {
+            type = "doc", content = new[] { new {
+                type = "orderedList", attrs = new { start = 1, type = numbering },
+                content = new[] { new { type = "listItem", content = new[] { new {
+                    type = "paragraph", content = new[] { new { type = "text", text = "Add the domain to Cloudflare" } }
+                } } } }
+            } }
+        });
+        string id = Guid.NewGuid().ToString();
+        var saved = await service.Save(User(), id, Data("Cloudflare setup", json: json));
+        Assert.AreEqual(json, saved!.ContentJson);
+        Assert.AreEqual(json, (await service.Get(User(), id))!.ContentJson);
+    }
+
+    [DataTestMethod]
+    [DataRow("\"disc\"")]
+    [DataRow("\"javascript:alert(1)\"")]
+    [DataRow("\"\"")]
+    [DataRow("1")]
+    [DataRow("true")]
+    public async Task PastedOrderedLists_RejectUnsupportedNumbering(string value)
+    {
+        string json = """{"type":"doc","content":[{"type":"orderedList","attrs":{"start":1,"type":VALUE},"content":[{"type":"listItem","content":[{"type":"paragraph"}]}]}]}""".Replace("VALUE", value);
+        await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Save(User(), Guid.NewGuid().ToString(), Data(json: json)));
+        Assert.AreEqual(0, await db.PersonalNote.CountAsync());
+    }
+
     [TestMethod]
     public async Task PastedImages_PersistAsBase64WithoutLeakingImageBytesIntoListPreviews()
     {

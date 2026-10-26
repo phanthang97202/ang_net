@@ -87,6 +87,26 @@ describe('Personal note Tiptap editor', () => {
     flush();
   }));
 
+  it('keeps standard numbering from pasted ordered lists in the save request', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.title = 'Cloudflare setup';
+    component.editor!.commands.setContent(
+      '<h2>Add the domain</h2><ol type="1"><li><p>Log in to Cloudflare</p></li></ol>'
+    );
+    component.save();
+    const document = JSON.parse(
+      api.save.calls.mostRecent().args[1].ContentJson
+    );
+    expect(document.content[1].type).toBe('orderedList');
+    expect(document.content[1].attrs).toEqual({ start: 1, type: '1' });
+    expect(document.content[1].content[0].content[0].content[0].text).toBe(
+      'Log in to Cloudflare'
+    );
+    fixture.destroy();
+    flush();
+  }));
+
   it('creates a separate edit link only when editing is selected and revokes it while keeping view access', fakeAsync(() => {
     const fixture = create();
     const component = fixture.componentInstance;
