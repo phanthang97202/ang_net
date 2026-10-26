@@ -15,6 +15,33 @@
     </a>
   </header>
 
+  <form class="music-search" role="search" (submit)="submitSearch($event)">
+    <span nz-icon nzType="search" nzTheme="outline"></span>
+    <input
+      type="search"
+      [value]="searchKeyword"
+      [disabled]="loading"
+      [placeholder]="'T_MUSIC_SEARCH_PLACEHOLDER' | translate"
+      [attr.aria-label]="'T_MUSIC_SEARCH_LABEL' | translate"
+      autocomplete="off"
+      (input)="onSearchInput($event)" />
+    <button
+      *ngIf="searchKeyword"
+      type="button"
+      class="music-search__clear"
+      (click)="clearSearch()"
+      [attr.aria-label]="'T_MUSIC_CLEAR_SEARCH' | translate">
+      <span nz-icon nzType="close" nzTheme="outline"></span>
+    </button>
+    <button type="submit" class="music-search__submit" [disabled]="loading">
+      <span
+        nz-icon
+        [nzType]="searching ? 'loading' : 'search'"
+        nzTheme="outline"></span>
+      {{ 'T_MUSIC_SEARCH' | translate }}
+    </button>
+  </form>
+
   <section *ngIf="loading" class="music-layout" aria-busy="true">
     <div class="player-skeleton skeleton-panel">
       <span class="skeleton-art"></span>
@@ -141,7 +168,10 @@
       <div class="music-list__heading">
         <div>
           <span>{{ 'T_MUSIC_PLAYLIST' | translate }}</span>
-          <h2>{{ 'T_MUSIC_TRENDING' | translate }}</h2>
+          <h2 *ngIf="!activeQuery">{{ 'T_MUSIC_TRENDING' | translate }}</h2>
+          <h2 *ngIf="activeQuery">
+            {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
+          </h2>
         </div>
         <strong>{{
           'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
@@ -149,15 +179,36 @@
       </div>
 
       <div class="music-list__tracks">
+        <div *ngIf="searching" class="music-list__state" aria-live="polite">
+          <span nz-icon nzType="loading" nzTheme="outline"></span>
+          {{ 'T_MUSIC_SEARCHING' | translate }}
+        </div>
+        <div
+          *ngIf="!searching && listError"
+          class="music-list__state"
+          role="alert">
+          <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+          {{ listError | translate }}
+        </div>
+        <div
+          *ngIf="!searching && !listError && tracks.length === 0"
+          class="music-list__state">
+          <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+          {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
+        </div>
         <button
-          *ngFor="let track of tracks; let index = index; trackBy: trackById"
+          *ngFor="
+            let track of searching || listError ? [] : tracks;
+            let index = index;
+            trackBy: trackById
+          "
           type="button"
           class="track-row"
           [class.is-active]="index === currentIndex"
           [attr.aria-current]="index === currentIndex ? 'true' : null"
           [attr.aria-label]="
             (index === currentIndex && isPlaying
-              ? 'T_MUSIC_PAUSE_TRACK'
+              ? 'T_MUSIC_PLAYING_TRACK'
               : 'T_MUSIC_PLAY_TRACK'
             ) | translate: { title: track.title }
           "

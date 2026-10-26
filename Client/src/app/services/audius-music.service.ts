@@ -39,19 +39,34 @@ export class AudiusMusicService {
 
     if (!this.trendingRequest) {
       const params = new HttpParams().set('limit', limit);
-      this.trendingRequest = this.http
-        .get<AudiusResponse>(`${this.apiUrl}/tracks/trending`, { params })
-        .pipe(
-          map(response =>
-            (response.data ?? [])
-              .filter(track => Boolean(track.id && track.title))
-              .map(track => this.toMusicTrack(track))
-          ),
-          shareReplay({ bufferSize: 1, refCount: false })
-        );
+      this.trendingRequest = this.getTracks('/tracks/trending', params).pipe(
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
     }
 
     return this.trendingRequest;
+  }
+
+  searchTracks(query: string, limit = 20): Observable<IMusicTrack[]> {
+    const params = new HttpParams()
+      .set('query', query.trim())
+      .set('limit', limit);
+    return this.getTracks('/tracks/search', params);
+  }
+
+  private getTracks(
+    path: string,
+    params: HttpParams
+  ): Observable<IMusicTrack[]> {
+    return this.http
+      .get<AudiusResponse>(`${this.apiUrl}${path}`, { params })
+      .pipe(
+        map(response =>
+          (response.data ?? [])
+            .filter(track => Boolean(track.id && track.title))
+            .map(track => this.toMusicTrack(track))
+        )
+      );
   }
 
   private toMusicTrack(track: AudiusTrack): IMusicTrack {

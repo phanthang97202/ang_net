@@ -9,7 +9,16 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  finalize,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { IMusicTrack } from '../../interfaces';
 import { AudiusMusicService } from '../../services';
 
@@ -18,30 +27,76 @@ import { AudiusMusicService } from '../../services';
   standalone: true,
   imports: [CommonModule, NzIconModule, TranslateModule],
   templateUrl: './music.component.html',
-  styleUrls: ['./music.component.scss', './music-list.component.scss'],
+  styleUrls: [
+    './music.component.scss',
+    './music-list.component.scss',
+    './music-search.component.scss',
+  ],
 })
 export class MusicComponent {
   private readonly musicService = inject(AudiusMusicService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly searchTerms = new Subject<string>();
 
   @ViewChild('audioRef') private audioRef?: ElementRef<HTMLAudioElement>;
 
   tracks: IMusicTrack[] = [];
-  currentIndex = 0;
+  currentTrack: IMusicTrack | null = null;
   loading = true;
+  searching = false;
   error = '';
+  listError = '';
   playbackError = '';
+  searchKeyword = '';
+  activeQuery = '';
   isPlaying = false;
   isMuted = false;
   currentTime = 0;
   duration = 0;
 
   constructor() {
+    this.searchTerms
+      .pipe(
+        map(query => query.trim()),
+        debounceTime(350),
+        tap(() => {
+          this.searching = true;
+          this.listError = '';
+        }),
+        switchMap(query => {
+          const request = query
+            ? this.musicService.searchTracks(query, 20)
+            : this.musicService.getTrending(20);
+
+          return request.pipe(
+            map(tracks => ({ query, tracks, error: '' })),
+            catchError(() =>
+              of({
+                query,
+                tracks: [] as IMusicTrack[],
+                error: 'T_MUSIC_SEARCH_ERROR',
+              })
+            )
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(result => {
+        // Bo qua response cu neu nguoi dung da go sang tu khoa khac trong luc
+        // request truoc dang tra ve.
+        if (result.query !== this.searchKeyword.trim()) return;
+        this.searching = false;
+        this.activeQuery = result.query;
+        this.tracks = result.tracks;
+        this.listError = result.error;
+      });
+
     this.loadTracks();
   }
 
-  get currentTrack(): IMusicTrack | null {
-    return this.tracks[this.currentIndex] ?? null;
+  get currentIndex(): number {
+    if (!this.currentTrack) return -1;
+    return this.tracks.findIndex(track => track.id === this.currentTrack?.id);
   }
 
   get canSwitchTrack(): boolean {
@@ -69,7 +124,8 @@ export class MusicComponent {
       .subscribe({
         next: tracks => {
           this.tracks = tracks;
-          this.currentIndex = 0;
+          this.currentTrack = tracks[0] ?? null;
+          this.activeQuery = '';
           this.resetPlayback();
           if (tracks.length === 0) this.error = 'T_MUSIC_EMPTY';
         },
@@ -78,9 +134,11 @@ export class MusicComponent {
   }
 
   selectTrack(index: number): void {
-    if (!this.tracks[index]) return;
-    if (index === this.currentIndex) {
-      this.togglePlay();
+    const track = this.tracks[index];
+    if (!track) return;
+
+    if (track.id === this.currentTrack?.id) {
+      this.playCurrentTrack();
       return;
     }
 
@@ -97,10 +155,23 @@ export class MusicComponent {
       return;
     }
 
-    audio.play().catch(() => {
-      this.isPlaying = false;
-      this.playbackError = 'T_MUSIC_PLAY_ERROR';
-    });
+    this.playCurrentTrack();
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchKeyword = (event.target as HTMLInputElement).value;
+    this.searchTerms.next(this.searchKeyword);
+  }
+
+  submitSearch(event: Event): void {
+    event.preventDefault();
+    this.searchTerms.next(this.searchKeyword);
+  }
+
+  clearSearch(): void {
+    if (!this.searchKeyword && !this.activeQuery) return;
+    this.searchKeyword = '';
+    this.searchTerms.next('');
   }
 
   previousTrack(): void {
@@ -173,8 +244,10 @@ export class MusicComponent {
 
   private openRelativeTrack(offset: number): void {
     if (!this.canSwitchTrack) return;
+    const currentIndex = this.currentIndex;
+    const baseIndex = currentIndex >= 0 ? currentIndex : offset > 0 ? -1 : 0;
     const index =
-      (this.currentIndex + offset + this.tracks.length) % this.tracks.length;
+      (baseIndex + offset + this.tracks.length) % this.tracks.length;
     this.openTrack(index, true);
   }
 
@@ -183,16 +256,24 @@ export class MusicComponent {
     const audio = this.audioRef?.nativeElement;
     if (!track || !audio) return;
 
-    this.currentIndex = index;
+    this.currentTrack = track;
     this.resetPlayback();
     audio.src = track.streamUrl;
     audio.load();
     if (autoPlay) {
-      audio.play().catch(() => {
-        this.isPlaying = false;
-        this.playbackError = 'T_MUSIC_PLAY_ERROR';
-      });
+      this.playCurrentTrack();
     }
+  }
+
+  private playCurrentTrack(): void {
+    const audio = this.audioRef?.nativeElement;
+    if (!audio || !this.currentTrack || this.isPlaying) return;
+
+    this.playbackError = '';
+    audio.play().catch(() => {
+      this.isPlaying = false;
+      this.playbackError = 'T_MUSIC_PLAY_ERROR';
+    });
   }
 
   private resetPlayback(): void {
