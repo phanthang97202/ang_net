@@ -1,4 +1,6 @@
 export const environment = {
+  // Public Cloudflare Site key only; the Secret key belongs in the API environment.
+  turnstileSiteKey: '',
   production: false,
   tokenKey: 'tokenKey',
   langKey: 'langKey',

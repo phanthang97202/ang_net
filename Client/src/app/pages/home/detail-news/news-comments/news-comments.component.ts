@@ -9,6 +9,7 @@ import {
   OnInit,
   Output,
   inject,
+  ViewChild,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -27,7 +28,10 @@ import { GoogleSigninButtonComponent } from '../../../../components/google-signi
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { NewsCommentComposerComponent } from './news-comment-composer.component';
+import {
+  NewsCommentComposerComponent,
+  NewsCommentSubmission,
+} from './news-comment-composer.component';
 import { NewsCommentItemComponent } from './news-comment-item.component';
 import { NewsCommentReportModalComponent } from './news-comment-report-modal.component';
 
@@ -55,6 +59,8 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
   private replyToCommentId: string | null = null;
   highlightedCommentId: string | null = null;
   @Input({ required: true }) newsId!: string;
+  @ViewChild(NewsCommentComposerComponent)
+  composer?: NewsCommentComposerComponent;
 
   // Thanh công cụ bên trái bài viết hiện số bình luận. Dùng cặp getter/setter
   // thay vì phát sự kiện ở từng chỗ gán: totalCount được gán ở nhiều nhánh
@@ -212,6 +218,7 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
 
   // ── Trả lời ───────────────────────────────────────────────────────────
   startReply(comment: INewsCommentDto): void {
+    if (this.isSending) return;
     if (!this.isLoggedIn) {
       this.message.info(this.translate.instant('T_COMMENT_LOGIN_REQUIRED'));
       return;
@@ -240,7 +247,13 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
     this.replyPrefill = '';
   }
 
-  submitComment(content: string): void {
+  submitComment(submission: NewsCommentSubmission): void {
+    if (
+      this.isSending ||
+      !submission.turnstileToken ||
+      !submission.content.trim()
+    )
+      return;
     if (!this.isLoggedIn) {
       this.message.info(this.translate.instant('T_COMMENT_LOGIN_REQUIRED'));
       return;
@@ -254,18 +267,21 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
         NewsId: this.newsId,
         ParentCommentId: parent?.CommentId ?? null,
         ReplyToCommentId: this.replyToCommentId,
-        Content: content,
+        Content: submission.content,
+        TurnstileToken: submission.turnstileToken,
       })
       .subscribe({
         next: res => {
           this.isSending = false;
+          this.composer?.completeSubmission(!!res?.Success);
 
           if (!res?.Success) {
             this.showErrorService.setShowError({
               icon: 'warning',
               title: this.translate.instant('T_COMMENTS'),
               message:
-                res?.ErrorMessage ||
+                (res?.ErrorMessage &&
+                  this.translate.instant(res.ErrorMessage)) ||
                 this.translate.instant('T_COMMENT_SEND_ERROR'),
             });
             return;
@@ -287,6 +303,7 @@ export class NewsCommentsComponent implements OnInit, OnChanges, OnDestroy {
         },
         error: () => {
           this.isSending = false;
+          this.composer?.completeSubmission(false);
           this.showErrorService.setShowError({
             icon: 'warning',
             title: this.translate.instant('T_COMMENTS'),

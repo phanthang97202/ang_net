@@ -188,12 +188,16 @@ describe('Notification comment destination', () => {
     api.NewsAddComment.and.returnValue(
       new Subject<INewsCommentCreateResponse>()
     );
-    fixture.componentInstance.submitComment('Hello reader');
+    fixture.componentInstance.submitComment({
+      content: 'Hello reader',
+      turnstileToken: 'verified-token',
+    });
     expect(api.NewsAddComment).toHaveBeenCalledWith({
       NewsId: 'post',
       ParentCommentId: 'root',
       ReplyToCommentId: 'reply',
       Content: 'Hello reader',
+      TurnstileToken: 'verified-token',
     });
     fixture.destroy();
   });

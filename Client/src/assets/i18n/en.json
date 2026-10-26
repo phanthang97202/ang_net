@@ -1,4 +1,10 @@
 {
+    "T_COMMENT_CAPTCHA_LOADING": "Verifying you are human…",
+    "T_COMMENT_CAPTCHA_UNAVAILABLE": "Verification is temporarily unavailable. Please try again later.",
+    "T_COMMENT_CAPTCHA_INVALID": "Verification failed or expired. Please verify again before sending.",
+    "T_COMMENT_CAPTCHA_EXPIRED": "Verification expired. Please wait for a new verification.",
+    "T_COMMENT_CAPTCHA_LOAD_ERROR": "Unable to load verification. Check your connection and try again.",
+    "T_COMMENT_CAPTCHA_RETRY": "Retry verification",
     "T_ACCOUNT_GREETING": "Hello, {{name}}",
     "T_API_ERROR_TITLE": "Error",
     "T_API_ERROR_CLOSE": "Got it",

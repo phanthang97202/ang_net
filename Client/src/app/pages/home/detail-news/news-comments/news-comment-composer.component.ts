@@ -12,11 +12,17 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { TurnstileComponent } from '../../../../components/turnstile/turnstile.component';
+
+export interface NewsCommentSubmission {
+  content: string;
+  turnstileToken: string;
+}
 
 @Component({
   selector: 'app-news-comment-composer',
   standalone: true,
-  imports: [FormsModule, NzIconModule, TranslateModule],
+  imports: [FormsModule, NzIconModule, TranslateModule, TurnstileComponent],
   templateUrl: './news-comment-composer.component.html',
   styleUrl: './news-comment-composer.component.scss',
 })
@@ -29,17 +35,21 @@ export class NewsCommentComposerComponent implements OnChanges, OnDestroy {
   @Input() prefill = '';
   @Input() prefillToken = 0;
 
-  @Output() submitted = new EventEmitter<string>();
+  @Output() submitted = new EventEmitter<NewsCommentSubmission>();
   @Output() cancelled = new EventEmitter<void>();
 
   @ViewChild('input') input?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild(TurnstileComponent) captcha?: TurnstileComponent;
 
   draft = '';
+  turnstileToken = '';
 
   private focusTimer?: ReturnType<typeof setTimeout>;
 
   get canSend(): boolean {
-    return this.draft.trim().length > 0 && !this.isSending;
+    return (
+      this.draft.trim().length > 0 && !!this.turnstileToken && !this.isSending
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,11 +69,22 @@ export class NewsCommentComposerComponent implements OnChanges, OnDestroy {
     if (!this.canSend) {
       return;
     }
-    this.submitted.emit(this.draft.trim());
-    this.draft = '';
+    const submission = {
+      content: this.draft.trim(),
+      turnstileToken: this.turnstileToken,
+    };
+    this.turnstileToken = '';
+    this.submitted.emit(submission);
+  }
+
+  completeSubmission(success: boolean): void {
+    if (success) this.draft = '';
+    this.turnstileToken = '';
+    this.captcha?.reset();
   }
 
   cancel(): void {
+    if (this.isSending) return;
     this.draft = '';
     this.cancelled.emit();
   }

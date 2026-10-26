@@ -17,9 +17,15 @@
       [placeholder]="placeholder || ('T_COMMENT_PLACEHOLDER' | translate)"
       (keydown)="onKeydown($event)"></textarea>
 
+    <app-turnstile (tokenChange)="turnstileToken = $event" />
+
     <div class="composer__actions">
       @if (prefillToken > 0) {
-        <button type="button" class="composer__cancel" (click)="cancel()">
+        <button
+          type="button"
+          class="composer__cancel"
+          [disabled]="isSending"
+          (click)="cancel()">
           {{ 'T_CANCEL' | translate }}
         </button>
       }

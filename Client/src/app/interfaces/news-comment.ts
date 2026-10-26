@@ -30,6 +30,7 @@ export interface INewsCommentDto {
 }
 
 export interface INewsCommentCreateRequest {
+  TurnstileToken: string;
   ReplyToCommentId?: string | null;
   NewsId: string;
   ParentCommentId: string | null;

@@ -1,4 +1,6 @@
 export const environment = {
+  // Public Cloudflare Site key. See docs/turnstile-comments.md for setup/testing.
+  turnstileSiteKey: '',
   production: false,
   tokenKey: 'tokenKey',
   langKey: 'langKey',

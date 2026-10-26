@@ -62,6 +62,11 @@ var AspIdentity = builder.Configuration.GetSection("AspIdentity");
 // register infrastructure 
 builder.Services.AddInfrastructure();
 builder.Services.AddHttpClient();
+builder.Services.Configure<angnet.WebApi.Security.TurnstileOptions>(builder.Configuration.GetSection("Turnstile"));
+builder.Services.AddHttpClient<angnet.WebApi.Security.ITurnstileVerifier, angnet.WebApi.Security.TurnstileVerifier>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 builder.Services.AddHttpClient<IEzCloudImportService, EzCloudImportService>(client =>
 {
     client.BaseAddress = new Uri("https://pms.ezcloudhotel.com/");

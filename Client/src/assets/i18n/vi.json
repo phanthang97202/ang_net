@@ -1,4 +1,10 @@
 {
+    "T_COMMENT_CAPTCHA_LOADING": "Đang xác minh bạn là người…",
+    "T_COMMENT_CAPTCHA_UNAVAILABLE": "Tạm thời chưa thể xác minh. Vui lòng thử lại sau.",
+    "T_COMMENT_CAPTCHA_INVALID": "Xác minh không hợp lệ hoặc đã hết hạn. Vui lòng xác minh lại trước khi gửi.",
+    "T_COMMENT_CAPTCHA_EXPIRED": "Xác minh đã hết hạn. Vui lòng chờ xác minh mới.",
+    "T_COMMENT_CAPTCHA_LOAD_ERROR": "Không tải được phần xác minh. Kiểm tra kết nối và thử lại.",
+    "T_COMMENT_CAPTCHA_RETRY": "Thử xác minh lại",
     "T_ACCOUNT_GREETING": "Xin chào, {{name}}",
     "T_API_ERROR_TITLE": "Lỗi",
     "T_API_ERROR_CLOSE": "Đã hiểu",

@@ -7,6 +7,7 @@ using angnet.Infrastructure.Data;
 using angnet.WebApi.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using angnet.WebApi.Security;
 
 namespace angnet.WebApi.Controllers
 {
@@ -16,10 +17,12 @@ namespace angnet.WebApi.Controllers
     public class NewsCommentController : ControllerBase
     {
         private readonly INewsCommentService _newsCommentService;
+        private readonly ITurnstileVerifier _turnstile;
 
-        public NewsCommentController(INewsCommentService newsCommentService)
+        public NewsCommentController(INewsCommentService newsCommentService, ITurnstileVerifier turnstile)
         {
             _newsCommentService = newsCommentService;
+            _turnstile = turnstile;
         }
 
         [AllowAnonymous]
@@ -52,6 +55,14 @@ namespace angnet.WebApi.Controllers
             [FromServices] AppDbContext db, [FromServices] IHubContext<BlogNotificationHub> hub,
             [FromServices] ILogger<NewsCommentController> logger)
         {
+            if (reqData is null) return BadRequest(new ApiResponse<NewsCommentDto>("T_COMMENT_CAPTCHA_INVALID"));
+            var verification = await _turnstile.VerifyAsync(reqData.TurnstileToken, HttpContext.RequestAborted);
+            if (verification != TurnstileResult.Valid)
+                return Ok(new ApiResponse<NewsCommentDto>(verification == TurnstileResult.Unavailable
+                    ? "T_COMMENT_CAPTCHA_UNAVAILABLE" : "T_COMMENT_CAPTCHA_INVALID"));
+
+            // The service includes request fields in validation errors; never echo a CAPTCHA token.
+            reqData.TurnstileToken = string.Empty;
             ApiResponse<NewsCommentDto> response = await _newsCommentService.AddComment(User, reqData);
             if (response.Success && response.Data != null)
             {

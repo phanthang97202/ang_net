@@ -95,3 +95,9 @@
     cursor: default;
   }
 }
+
+@media (max-width: 480px) {
+  .composer__avatar {
+    display: none;
+  }
+}
