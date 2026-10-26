@@ -116,6 +116,8 @@ internal static class PersonalNoteDocument
                     || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString() is "_blank" or "_self"),
                 ("link", "rel" or "class") => attr.Value.ValueKind == JsonValueKind.Null
                     || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString()!.Length <= 100),
+                ("link", "title") => attr.Value.ValueKind == JsonValueKind.Null
+                    || (attr.Value.ValueKind == JsonValueKind.String && attr.Value.GetString()!.Length <= 500),
                 _ => false,
             };
             if (!valid) throw new ArgumentException("Unsupported attributes");

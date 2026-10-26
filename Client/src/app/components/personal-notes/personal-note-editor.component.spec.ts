@@ -74,6 +74,34 @@ describe('Personal note Tiptap editor', () => {
     return fixture;
   }
 
+  it('serializes the default null link title sent with pasted URLs', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.title = 'Cloudflare setup';
+    component.editor!.commands.setContent(
+      '<p>Visit <a href="https://dash.cloudflare.com">Cloudflare</a>.</p>'
+    );
+    component.save();
+    const document = JSON.parse(
+      api.save.calls.mostRecent().args[1].ContentJson
+    );
+    const link = document.content[0].content.find(
+      (node: { marks?: unknown[] }) => node.marks
+    ).marks[0];
+    expect(link).toEqual({
+      type: 'link',
+      attrs: {
+        href: 'https://dash.cloudflare.com',
+        target: '_blank',
+        rel: 'noopener noreferrer nofollow',
+        class: null,
+        title: null,
+      },
+    });
+    fixture.destroy();
+    flush();
+  }));
+
   it('does not save when module permission has been removed', fakeAsync(() => {
     const fixture = create();
     fixture.componentInstance.title = 'Private';

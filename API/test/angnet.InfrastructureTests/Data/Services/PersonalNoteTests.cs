@@ -108,6 +108,38 @@ public class PersonalNoteTests
             title = (string?)null, width = (int?)null, height = (int?)null } } }
     });
 
+    private static string LinkedDocument(object? title) => JsonSerializer.Serialize(new {
+        type = "doc", content = new[] { new { type = "paragraph", content = new[] { new {
+            type = "text", text = "https://dash.cloudflare.com", marks = new[] { new {
+                type = "link", attrs = new { href = "https://dash.cloudflare.com", target = "_blank",
+                    rel = "noopener noreferrer nofollow", @class = (string?)null, title }
+            } }
+        } } } }
+    });
+
+    [DataTestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("Cloudflare dashboard")]
+    public async Task TiptapLinks_WithDefaultOrTextTitle_CanBeSavedUpdatedAndPublished(string? title)
+    {
+        string id = Guid.NewGuid().ToString(), json = LinkedDocument(title);
+        var created = await service.Save(User(), id, Data("Cloudflare setup", json: json));
+        Assert.AreEqual(json, created!.ContentJson);
+        var updated = await service.Save(User(), id, Data("Updated setup", created.Version, json));
+        Assert.AreEqual(json, updated!.ContentJson);
+        var published = await service.Publish(User(), id, Data("Updated setup", updated.Version, json));
+        Assert.AreEqual(json, (await service.Public(published!.PublicToken!))!.ContentJson);
+    }
+
+    [TestMethod]
+    public async Task TiptapLinks_RejectNonTextOrOversizedTitles()
+    {
+        foreach (var title in new object[] { true, 42, new string('x', 501) })
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => service.Save(User(), Guid.NewGuid().ToString(), Data(json: LinkedDocument(title))));
+        Assert.AreEqual(0, await db.PersonalNote.CountAsync());
+    }
+
     [DataTestMethod]
     [DataRow("1")]
     [DataRow("a")]
