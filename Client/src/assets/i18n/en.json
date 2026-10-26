@@ -502,6 +502,7 @@
     "T_MUSIC_YOUTUBE_NOT_CONFIGURED": "The YouTube Data API key has not been configured for this website.",
     "T_MUSIC_YOUTUBE_SEARCH_ERROR": "YouTube search is unavailable right now. Please try again.",
     "T_MUSIC_YOUTUBE_PLAYER_EMPTY": "Choose a track from the results to start playing.",
+    "T_MUSIC_YOUTUBE_PLAYER_ERROR": "Unable to control the YouTube player. Try reloading the page.",
     "T_MUSIC_OPEN_YOUTUBE": "Open on YouTube",
     "T_MUSIC_NOW_PLAYING": "Now playing",
     "T_MUSIC_PLAYLIST": "PLAYLIST",

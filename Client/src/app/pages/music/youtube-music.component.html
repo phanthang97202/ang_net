@@ -32,9 +32,11 @@
     <ng-container *ngIf="currentTrack && embedUrl; else playerPlaceholder">
       <div class="youtube-player__frame">
         <iframe
+          #youtubeFrame
           [src]="embedUrl"
           [title]="currentTrack.title"
           allow="autoplay; encrypted-media; picture-in-picture"
+          referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen></iframe>
       </div>
       <div class="music-player__info">
@@ -50,6 +52,9 @@
         {{ 'T_MUSIC_OPEN_YOUTUBE' | translate }}
         <span nz-icon nzType="export" nzTheme="outline"></span>
       </a>
+      <p *ngIf="playerError" class="music-player__error" role="alert">
+        {{ playerError | translate }}
+      </p>
     </ng-container>
     <ng-template #playerPlaceholder>
       <div class="youtube-player__placeholder">

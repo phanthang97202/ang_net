@@ -42,9 +42,9 @@ export class MusicComponent {
   @ViewChild('audioRef') private audioRef?: ElementRef<HTMLAudioElement>;
 
   tracks: IMusicTrack[] = [];
-  musicSource: 'audius' | 'youtube' = 'audius';
+  musicSource: 'audius' | 'youtube' = 'youtube';
   currentTrack: IMusicTrack | null = null;
-  loading = true;
+  loading = false;
   searching = false;
   error = '';
   listError = '';
@@ -55,6 +55,7 @@ export class MusicComponent {
   isMuted = false;
   currentTime = 0;
   duration = 0;
+  private audiusInitialized = false;
 
   constructor() {
     this.searchTerms
@@ -92,8 +93,6 @@ export class MusicComponent {
         this.tracks = result.tracks;
         this.listError = result.error;
       });
-
-    this.loadTracks();
   }
 
   get currentIndex(): number {
@@ -114,6 +113,7 @@ export class MusicComponent {
   }
 
   loadTracks(refresh = false): void {
+    this.audiusInitialized = true;
     this.loading = true;
     this.error = '';
 
@@ -181,6 +181,7 @@ export class MusicComponent {
     this.audioRef?.nativeElement.pause();
     this.isPlaying = false;
     this.musicSource = source;
+    if (source === 'audius' && !this.audiusInitialized) this.loadTracks();
   }
 
   previousTrack(): void {

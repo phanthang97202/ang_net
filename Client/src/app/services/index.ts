@@ -19,3 +19,4 @@ export * from './note-realtime.service';
 export * from './movie.service';
 export * from './audius-music.service';
 export * from './youtube-music.service';
+export * from './youtube-player-api.service';

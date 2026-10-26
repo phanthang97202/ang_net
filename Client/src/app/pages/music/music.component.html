@@ -4,19 +4,19 @@
     [attr.aria-label]="'T_MUSIC_SOURCE_SELECT' | translate">
     <button
       type="button"
-      [class.is-active]="musicSource === 'audius'"
-      [attr.aria-pressed]="musicSource === 'audius'"
-      (click)="selectMusicSource('audius')">
-      <span nz-icon nzType="customer-service" nzTheme="outline"></span>
-      Audius
-    </button>
-    <button
-      type="button"
       [class.is-active]="musicSource === 'youtube'"
       [attr.aria-pressed]="musicSource === 'youtube'"
       (click)="selectMusicSource('youtube')">
       <span nz-icon nzType="youtube" nzTheme="outline"></span>
       YouTube
+    </button>
+    <button
+      type="button"
+      [class.is-active]="musicSource === 'audius'"
+      [attr.aria-pressed]="musicSource === 'audius'"
+      (click)="selectMusicSource('audius')">
+      <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+      Audius
     </button>
   </nav>
 
