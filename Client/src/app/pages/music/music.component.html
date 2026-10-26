@@ -18,6 +18,14 @@
       <span nz-icon nzType="customer-service" nzTheme="outline"></span>
       Audius
     </button>
+    <button
+      type="button"
+      [class.is-active]="musicSource === 'library'"
+      [attr.aria-pressed]="musicSource === 'library'"
+      (click)="selectMusicSource('library')">
+      <span nz-icon nzType="heart" nzTheme="outline"></span>
+      {{ 'T_MUSIC_LIBRARY' | translate }}
+    </button>
   </nav>
 
   <ng-container *ngIf="musicSource === 'audius'">
@@ -202,60 +210,71 @@
             <span nz-icon nzType="customer-service" nzTheme="outline"></span>
             {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
           </div>
-          <button
+          <div
             *ngFor="
               let track of searching || listError ? [] : tracks;
               let index = index;
               trackBy: trackById
             "
-            type="button"
-            class="track-row"
-            [class.is-active]="index === currentIndex"
-            [attr.aria-current]="index === currentIndex ? 'true' : null"
-            [attr.aria-label]="
-              (index === currentIndex && isPlaying
-                ? 'T_MUSIC_PLAYING_TRACK'
-                : 'T_MUSIC_PLAY_TRACK'
-              ) | translate: { title: track.title }
-            "
-            (click)="selectTrack(index)">
-            <span class="track-row__number">
-              <span
-                *ngIf="index === currentIndex"
-                nz-icon
-                [nzType]="isPlaying ? 'pause' : 'caret-right'"
-                nzTheme="outline"></span>
-              <ng-container *ngIf="index !== currentIndex">
-                {{ (index + 1).toString().padStart(2, '0') }}
-              </ng-container>
-            </span>
-            <span class="track-row__art">
-              <img
-                *ngIf="track.artworkUrl; else rowArtworkFallback"
-                [src]="track.artworkUrl"
-                [alt]="track.title"
-                loading="lazy"
-                (error)="hideBrokenArtwork(track)" />
-              <ng-template #rowArtworkFallback>
+            class="track-item"
+            [class.is-active]="index === currentIndex">
+            <button
+              type="button"
+              class="track-row"
+              [attr.aria-current]="index === currentIndex ? 'true' : null"
+              [attr.aria-label]="
+                (index === currentIndex && isPlaying
+                  ? 'T_MUSIC_PLAYING_TRACK'
+                  : 'T_MUSIC_PLAY_TRACK'
+                ) | translate: { title: track.title }
+              "
+              (click)="selectTrack(index)">
+              <span class="track-row__number">
                 <span
+                  *ngIf="index === currentIndex"
                   nz-icon
-                  nzType="customer-service"
+                  [nzType]="isPlaying ? 'pause' : 'caret-right'"
                   nzTheme="outline"></span>
-              </ng-template>
-            </span>
-            <span class="track-row__text">
-              <strong>{{ track.title }}</strong>
-              <small>{{ track.artist }}</small>
-            </span>
-            <span class="track-row__genre">{{ track.genre }}</span>
-            <span class="track-row__duration">
-              {{ formatTime(track.durationSeconds) }}
-            </span>
-          </button>
+                <ng-container *ngIf="index !== currentIndex">
+                  {{ (index + 1).toString().padStart(2, '0') }}
+                </ng-container>
+              </span>
+              <span class="track-row__art">
+                <img
+                  *ngIf="track.artworkUrl; else rowArtworkFallback"
+                  [src]="track.artworkUrl"
+                  [alt]="track.title"
+                  loading="lazy"
+                  (error)="hideBrokenArtwork(track)" />
+                <ng-template #rowArtworkFallback>
+                  <span
+                    nz-icon
+                    nzType="customer-service"
+                    nzTheme="outline"></span>
+                </ng-template>
+              </span>
+              <span class="track-row__text">
+                <strong>{{ track.title }}</strong>
+                <small>{{ track.artist }}</small>
+              </span>
+              <span class="track-row__genre">{{ track.genre }}</span>
+              <span class="track-row__duration">
+                {{ formatTime(track.durationSeconds) }}
+              </span>
+            </button>
+            <div class="track-item__actions">
+              <app-music-save-button [track]="savePreview(track)" />
+            </div>
+          </div>
         </div>
       </article>
     </section>
   </ng-container>
 
   <app-youtube-music *ngIf="musicSource === 'youtube'"></app-youtube-music>
+  <app-music-library *ngIf="musicSource === 'library'"></app-music-library>
+
+  <!-- Dùng chung cho nút ♥ ở mọi tab -->
+  <app-music-save-toast />
+  <app-music-collection-picker />
 </main>

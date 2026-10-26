@@ -1,0 +1,26 @@
+// Khung .music-player, tiến trình, nút điều khiển dùng chung music.component.scss;
+// khung iframe dùng youtube-music.component.scss.
+.queue-player .music-controls {
+  margin-top: 1rem;
+}
+
+.queue-player__placeholder {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  align-content: center;
+  gap: 0.8rem;
+  color: rgba(255, 255, 255, 0.68);
+  text-align: center;
+
+  .anticon {
+    color: #ff4d6d;
+    font-size: 3rem;
+  }
+
+  strong {
+    max-width: 230px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+}

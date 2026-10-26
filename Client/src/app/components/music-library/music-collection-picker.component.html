@@ -1,0 +1,106 @@
+<nz-modal
+  nzClassName="blog-modal"
+  [nzAutofocus]="null"
+  [nzCentered]="true"
+  [nzVisible]="!!library.pickerTrack() && !isFormOpen"
+  [nzTitle]="'T_MUSIC_ADD_TO_COLLECTION' | translate"
+  [nzWidth]="480"
+  [nzMaskClosable]="!busyCollectionId"
+  [nzClosable]="!busyCollectionId"
+  (nzOnCancel)="close()">
+  <div *nzModalContent class="picker">
+    @if (track; as track) {
+      <div class="picker__track">
+        <span class="picker__art">
+          @if (track.ThumbnailUrl) {
+            <img [src]="track.ThumbnailUrl" alt="" />
+          } @else {
+            <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+          }
+        </span>
+        <span class="picker__track-text">
+          <strong>{{ track.Title }}</strong>
+          <small>{{ track.Artist }}</small>
+        </span>
+      </div>
+    }
+
+    <div class="picker__list" [attr.aria-busy]="loading">
+      @if (loading) {
+        <p class="picker__state">
+          <span nz-icon nzType="loading" nzTheme="outline"></span>
+        </p>
+      } @else if (loadError) {
+        <p class="picker__state" role="alert">
+          {{ 'T_MUSIC_LIBRARY_LOAD_ERROR' | translate }}
+        </p>
+      } @else if (collections.length === 0) {
+        <p class="picker__state">
+          {{ 'T_MUSIC_COLLECTIONS_EMPTY' | translate }}
+        </p>
+      } @else {
+        @for (collection of collections; track collection.CollectionId) {
+          <button
+            type="button"
+            class="picker__row"
+            [class.is-selected]="collection.ContainsTrack"
+            [attr.aria-pressed]="collection.ContainsTrack"
+            [disabled]="!!busyCollectionId"
+            (click)="toggle(collection)">
+            <span class="picker__cover">
+              @if (collection.CoverUrl) {
+                <img [src]="collection.CoverUrl" alt="" loading="lazy" />
+              } @else {
+                <span nz-icon nzType="folder" nzTheme="outline"></span>
+              }
+            </span>
+            <span class="picker__row-text">
+              <strong>{{ collection.Name }}</strong>
+              <small>
+                <span
+                  nz-icon
+                  [nzType]="visibilityOption(collection.Visibility).icon"
+                  nzTheme="outline"></span>
+                {{
+                  'T_MUSIC_TRACK_COUNT'
+                    | translate: { count: collection.ItemCount }
+                }}
+              </small>
+            </span>
+            <span class="picker__check" aria-hidden="true">
+              @if (busyCollectionId === collection.CollectionId) {
+                <span nz-icon nzType="loading" nzTheme="outline"></span>
+              } @else if (collection.ContainsTrack) {
+                <span nz-icon nzType="check" nzTheme="outline"></span>
+              }
+            </span>
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <div *nzModalFooter class="picker__footer">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="!!busyCollectionId"
+      (click)="isFormOpen = true">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      {{ 'T_MUSIC_NEW_COLLECTION' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--primary"
+      [disabled]="!!busyCollectionId"
+      (click)="close()">
+      {{ 'T_MUSIC_DONE' | translate }}
+    </button>
+  </div>
+</nz-modal>
+
+<app-music-collection-form
+  [visible]="isFormOpen"
+  [collection]="null"
+  (saved)="onCollectionCreated($event)"
+  (closed)="isFormOpen = false" />

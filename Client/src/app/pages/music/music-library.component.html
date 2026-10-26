@@ -1,0 +1,295 @@
+@if (!isShared) {
+  <!-- Thanh chọn danh sách: Yêu thích + các bộ của tôi, cuộn ngang trên điện thoại -->
+  <nav class="library-chips" [attr.aria-label]="'T_MUSIC_LIBRARY' | translate">
+    <button
+      type="button"
+      class="library-chip"
+      [class.is-active]="selectedKey === favorites"
+      [attr.aria-pressed]="selectedKey === favorites"
+      (click)="select(favorites)">
+      <span nz-icon nzType="heart" nzTheme="fill"></span>
+      {{ 'T_MUSIC_FAVORITES' | translate }}
+    </button>
+    @for (collection of collections; track collection.CollectionId) {
+      <button
+        type="button"
+        class="library-chip"
+        [class.is-active]="selectedKey === collection.CollectionId"
+        [attr.aria-pressed]="selectedKey === collection.CollectionId"
+        (click)="select(collection.CollectionId)">
+        <span
+          nz-icon
+          [nzType]="visibilityOption(collection.Visibility).icon"
+          nzTheme="outline"></span>
+        {{ collection.Name }}
+        <small>{{ collection.ItemCount }}</small>
+      </button>
+    }
+    <button
+      type="button"
+      class="library-chip library-chip--new"
+      (click)="openCreate()">
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      {{ 'T_MUSIC_NEW_COLLECTION' | translate }}
+    </button>
+  </nav>
+}
+
+@if (isShared && loadError && !sharedCollection) {
+  <section class="music-state" role="alert">
+    <span nz-icon nzType="lock" nzTheme="outline"></span>
+    <h2>{{ loadError | translate }}</h2>
+  </section>
+} @else {
+  <section class="music-layout">
+    <app-music-queue-player [tracks]="queue" [(index)]="queueIndex" />
+
+    <article class="music-list">
+      <div class="music-list__heading">
+        <div class="library-heading">
+          @if (selectedCollection; as collection) {
+            <span>
+              <span
+                nz-icon
+                [nzType]="visibilityOption(collection.Visibility).icon"
+                nzTheme="outline"></span>
+              {{ visibilityOption(collection.Visibility).labelKey | translate }}
+              @if (isShared) {
+                ·
+                {{
+                  'T_MUSIC_COLLECTION_BY'
+                    | translate: { name: collection.OwnerFullName }
+                }}
+              }
+            </span>
+            <h2>{{ collection.Name }}</h2>
+            @if (collection.Description) {
+              <p>{{ collection.Description }}</p>
+            }
+          } @else {
+            <span>{{ 'T_MUSIC_LIBRARY' | translate | uppercase }}</span>
+            <h2>{{ 'T_MUSIC_FAVORITES' | translate }}</h2>
+          }
+        </div>
+        <div class="library-heading__side">
+          <strong>{{
+            'T_MUSIC_TRACK_COUNT' | translate: { count: itemCount }
+          }}</strong>
+          @if (selectedCollection; as collection) {
+            <div class="library-heading__actions">
+              @if (collection.Visibility !== 'Private') {
+                <button
+                  type="button"
+                  class="library-icon-btn"
+                  [attr.aria-label]="'T_MUSIC_SHARE_COLLECTION' | translate"
+                  [title]="'T_MUSIC_SHARE_COLLECTION' | translate"
+                  (click)="copyShareLink()">
+                  <span nz-icon nzType="link" nzTheme="outline"></span>
+                </button>
+              }
+              @if (collection.IsOwner) {
+                <button
+                  type="button"
+                  class="library-icon-btn"
+                  [attr.aria-label]="'T_MUSIC_EDIT_COLLECTION' | translate"
+                  [title]="'T_MUSIC_EDIT_COLLECTION' | translate"
+                  (click)="openEdit()">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button
+                  type="button"
+                  class="library-icon-btn library-icon-btn--danger"
+                  [attr.aria-label]="'T_MUSIC_DELETE_COLLECTION' | translate"
+                  [title]="'T_MUSIC_DELETE_COLLECTION' | translate"
+                  (click)="confirmDeleteCollection()">
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="music-list__tracks">
+        @if (loading) {
+          <div class="music-list__state" aria-live="polite">
+            <span nz-icon nzType="loading" nzTheme="outline"></span>
+          </div>
+        } @else if (loadError) {
+          <div class="music-list__state" role="alert">
+            <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+            {{ loadError | translate }}
+          </div>
+        } @else if (tracks.length === 0) {
+          <div class="music-list__state">
+            <span nz-icon nzType="heart" nzTheme="outline"></span>
+            {{
+              (selectedCollection
+                ? 'T_MUSIC_COLLECTION_TRACKS_EMPTY'
+                : 'T_MUSIC_FAVORITES_EMPTY'
+              ) | translate
+            }}
+          </div>
+        } @else {
+          @for (track of tracks; track track.TrackId; let index = $index) {
+            <div
+              class="track-item"
+              [class.is-active]="isActive(track)"
+              [class.is-unavailable]="track.Availability === 'Unavailable'">
+              <button
+                type="button"
+                class="track-row"
+                [attr.aria-current]="isActive(track) ? 'true' : null"
+                [attr.aria-label]="
+                  'T_MUSIC_PLAY_TRACK' | translate: { title: track.Title }
+                "
+                (click)="play(index)">
+                <span class="track-row__number">
+                  @if (isActive(track)) {
+                    <span nz-icon nzType="caret-right" nzTheme="outline"></span>
+                  } @else {
+                    {{ (index + 1).toString().padStart(2, '0') }}
+                  }
+                </span>
+                <span class="track-row__art">
+                  @if (track.ThumbnailUrl) {
+                    <img
+                      [src]="track.ThumbnailUrl"
+                      [alt]="track.Title"
+                      loading="lazy"
+                      (error)="hideBrokenArtwork(track)" />
+                  } @else {
+                    <span
+                      nz-icon
+                      nzType="customer-service"
+                      nzTheme="outline"></span>
+                  }
+                </span>
+                <span class="track-row__text">
+                  <strong>{{ track.Title }}</strong>
+                  <small>
+                    {{ track.Artist }}
+                    @if (track.Availability === 'Unavailable') {
+                      · {{ 'T_MUSIC_TRACK_UNAVAILABLE' | translate }}
+                    }
+                  </small>
+                </span>
+                <span
+                  class="track-row__genre library-provider"
+                  [class.library-provider--youtube]="
+                    track.Provider === 'YouTube'
+                  ">
+                  {{ track.Provider }}
+                </span>
+                <span class="track-row__duration">
+                  {{ formatTime(track.DurationSeconds) }}
+                </span>
+              </button>
+
+              <div class="track-item__actions">
+                @if (selectedCollection?.IsOwner) {
+                  <button
+                    type="button"
+                    class="library-icon-btn"
+                    [disabled]="!!busyTrackId || index === 0"
+                    [attr.aria-label]="'T_MUSIC_MOVE_UP' | translate"
+                    [title]="'T_MUSIC_MOVE_UP' | translate"
+                    (click)="moveTrack(track, 'up')">
+                    <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    type="button"
+                    class="library-icon-btn"
+                    [disabled]="!!busyTrackId || index === tracks.length - 1"
+                    [attr.aria-label]="'T_MUSIC_MOVE_DOWN' | translate"
+                    [title]="'T_MUSIC_MOVE_DOWN' | translate"
+                    (click)="moveTrack(track, 'down')">
+                    <span nz-icon nzType="arrow-down" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    type="button"
+                    class="library-icon-btn"
+                    [disabled]="!!busyTrackId"
+                    [attr.aria-label]="
+                      'T_MUSIC_REMOVE_FROM_COLLECTION' | translate
+                    "
+                    [title]="'T_MUSIC_REMOVE_FROM_COLLECTION' | translate"
+                    (click)="removeFromCollection(track)">
+                    <span
+                      nz-icon
+                      nzType="minus-circle"
+                      nzTheme="outline"></span>
+                  </button>
+                }
+                @if (canSave) {
+                  <button
+                    type="button"
+                    class="library-icon-btn"
+                    [attr.aria-label]="'T_MUSIC_ADD_TO_COLLECTION' | translate"
+                    [title]="'T_MUSIC_ADD_TO_COLLECTION' | translate"
+                    (click)="openPicker(track, $event)">
+                    <span nz-icon nzType="folder-add" nzTheme="outline"></span>
+                  </button>
+                  <app-music-save-button [track]="preview(track)" />
+                }
+              </div>
+            </div>
+          }
+          @if (hasMore) {
+            <button
+              type="button"
+              class="blog-btn library-more"
+              [disabled]="loadingMore"
+              (click)="loadMore()">
+              @if (loadingMore) {
+                <span class="blog-spinner" aria-hidden="true"></span>
+              }
+              {{ 'T_MUSIC_LOAD_MORE' | translate }}
+            </button>
+          }
+        }
+      </div>
+    </article>
+  </section>
+}
+
+<app-music-collection-form
+  [visible]="isFormOpen"
+  [collection]="editingCollection"
+  (saved)="onCollectionSaved($event)"
+  (closed)="isFormOpen = false" />
+
+<!-- Xác nhận xoá: modal kiểu blog thay cho confirm mặc định của ng-zorro -->
+<nz-modal
+  nzClassName="blog-modal"
+  [nzAutofocus]="null"
+  [nzCentered]="true"
+  [nzVisible]="pendingConfirm !== null"
+  [nzTitle]="pendingConfirm?.title ?? ''"
+  [nzWidth]="440"
+  [nzClosable]="!isConfirming"
+  [nzMaskClosable]="!isConfirming"
+  (nzOnCancel)="cancelConfirm()">
+  <p *nzModalContent class="library-confirm__text">
+    {{ pendingConfirm?.message }}
+  </p>
+  <div *nzModalFooter class="library-confirm__footer">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="isConfirming"
+      (click)="cancelConfirm()">
+      {{ 'T_CANCEL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--danger"
+      [disabled]="isConfirming"
+      (click)="runConfirm()">
+      @if (isConfirming) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+      }
+      {{ 'T_DELETE' | translate }}
+    </button>
+  </div>
+</nz-modal>

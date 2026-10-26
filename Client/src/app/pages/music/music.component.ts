@@ -19,14 +19,29 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { IMusicTrack } from '../../interfaces';
-import { AudiusMusicService } from '../../services';
+import { MusicCollectionPickerComponent } from '../../components/music-library/music-collection-picker.component';
+import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
+import { MusicSaveToastComponent } from '../../components/music-library/music-save-toast.component';
+import { IMusicTrack, IMusicTrackPreview } from '../../interfaces';
+import { AudiusMusicService, MusicLibraryService } from '../../services';
+import { MusicLibraryComponent } from './music-library.component';
 import { YouTubeMusicComponent } from './youtube-music.component';
+
+export type TMusicTab = 'audius' | 'youtube' | 'library';
 
 @Component({
   selector: 'app-music',
   standalone: true,
-  imports: [CommonModule, NzIconModule, TranslateModule, YouTubeMusicComponent],
+  imports: [
+    CommonModule,
+    NzIconModule,
+    TranslateModule,
+    YouTubeMusicComponent,
+    MusicLibraryComponent,
+    MusicSaveButtonComponent,
+    MusicSaveToastComponent,
+    MusicCollectionPickerComponent,
+  ],
   templateUrl: './music.component.html',
   styleUrls: [
     './music.component.scss',
@@ -36,13 +51,15 @@ import { YouTubeMusicComponent } from './youtube-music.component';
 })
 export class MusicComponent {
   private readonly musicService = inject(AudiusMusicService);
+  private readonly library = inject(MusicLibraryService);
+  private readonly previews = new WeakMap<IMusicTrack, IMusicTrackPreview>();
   private readonly destroyRef = inject(DestroyRef);
   private readonly searchTerms = new Subject<string>();
 
   @ViewChild('audioRef') private audioRef?: ElementRef<HTMLAudioElement>;
 
   tracks: IMusicTrack[] = [];
-  musicSource: 'audius' | 'youtube' = 'youtube';
+  musicSource: TMusicTab = 'youtube';
   currentTrack: IMusicTrack | null = null;
   loading = false;
   searching = false;
@@ -92,6 +109,7 @@ export class MusicComponent {
         this.activeQuery = result.query;
         this.tracks = result.tracks;
         this.listError = result.error;
+        this.refreshSaveState(result.tracks);
       });
   }
 
@@ -129,6 +147,7 @@ export class MusicComponent {
           this.currentTrack = tracks[0] ?? null;
           this.activeQuery = '';
           this.resetPlayback();
+          this.refreshSaveState(tracks);
           if (tracks.length === 0) this.error = 'T_MUSIC_EMPTY';
         },
         error: () => (this.error = 'T_MUSIC_LOAD_ERROR'),
@@ -176,7 +195,7 @@ export class MusicComponent {
     this.searchTerms.next('');
   }
 
-  selectMusicSource(source: 'audius' | 'youtube'): void {
+  selectMusicSource(source: TMusicTab): void {
     if (source === this.musicSource) return;
     this.audioRef?.nativeElement.pause();
     this.isPlaying = false;
@@ -237,6 +256,22 @@ export class MusicComponent {
     this.playbackError = 'T_MUSIC_PLAY_ERROR';
   }
 
+  /** Cùng một object cho mỗi bài để nút ♥ không nhận input mới ở mỗi lượt change detection. */
+  savePreview(track: IMusicTrack): IMusicTrackPreview {
+    let preview = this.previews.get(track);
+    if (!preview) {
+      preview = {
+        Provider: 'Audius',
+        ExternalId: track.id,
+        Title: track.title,
+        Artist: track.artist,
+        ThumbnailUrl: track.artworkUrl,
+      };
+      this.previews.set(track, preview);
+    }
+    return preview;
+  }
+
   hideBrokenArtwork(track: IMusicTrack): void {
     track.artworkUrl = '';
   }
@@ -250,6 +285,12 @@ export class MusicComponent {
 
   trackById(_index: number, track: IMusicTrack): string {
     return track.id;
+  }
+
+  private refreshSaveState(tracks: IMusicTrack[]): void {
+    this.library.refreshSaveState(
+      tracks.map(track => ({ Provider: 'Audius', ExternalId: track.id }))
+    );
   }
 
   private openRelativeTrack(offset: number): void {

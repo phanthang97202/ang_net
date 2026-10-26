@@ -13,7 +13,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { IYouTubeMusicTrack } from '../../interfaces';
+import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
+import { IMusicTrackPreview, IYouTubeMusicTrack } from '../../interfaces';
+import { MusicLibraryService } from '../../services/music-library.service';
 import {
   YOUTUBE_KEY_MISSING,
   YouTubeMusicService,
@@ -27,7 +29,12 @@ import {
 @Component({
   selector: 'app-youtube-music',
   standalone: true,
-  imports: [CommonModule, NzIconModule, TranslateModule],
+  imports: [
+    CommonModule,
+    NzIconModule,
+    TranslateModule,
+    MusicSaveButtonComponent,
+  ],
   templateUrl: './youtube-music.component.html',
   styleUrls: [
     './music.component.scss',
@@ -43,6 +50,11 @@ export class YouTubeMusicComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
+  private readonly library = inject(MusicLibraryService);
+  private readonly previews = new WeakMap<
+    IYouTubeMusicTrack,
+    IMusicTrackPreview
+  >();
 
   @ViewChild('youtubeFrame')
   private youtubeFrame?: ElementRef<HTMLIFrameElement>;
@@ -89,6 +101,9 @@ export class YouTubeMusicComponent implements OnDestroy {
           this.activeQuery = query;
           this.searched = true;
           this.searching = false;
+          this.library.refreshSaveState(
+            tracks.map(track => ({ Provider: 'YouTube', ExternalId: track.id }))
+          );
         },
         error: (error: unknown) => {
           this.tracks = [];
@@ -137,6 +152,22 @@ export class YouTubeMusicComponent implements OnDestroy {
     this.destroyed = true;
     this.player?.destroy();
     this.player = null;
+  }
+
+  /** Cùng một object cho mỗi bài để nút ♥ không nhận input mới ở mỗi lượt change detection. */
+  savePreview(track: IYouTubeMusicTrack): IMusicTrackPreview {
+    let preview = this.previews.get(track);
+    if (!preview) {
+      preview = {
+        Provider: 'YouTube',
+        ExternalId: track.id,
+        Title: track.title,
+        Artist: track.artist,
+        ThumbnailUrl: track.thumbnailUrl,
+      };
+      this.previews.set(track, preview);
+    }
+    return preview;
   }
 
   hideBrokenThumbnail(track: IYouTubeMusicTrack): void {

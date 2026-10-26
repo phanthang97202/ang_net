@@ -1,0 +1,106 @@
+<!-- nzClassName="blog-modal": khung modal ở styles.scss, cùng kiểu form bộ sưu tập của Thư viện lưu trữ -->
+<nz-modal
+  nzClassName="blog-modal"
+  [nzAutofocus]="null"
+  [nzCentered]="true"
+  [nzVisible]="visible"
+  [nzTitle]="
+    (isEdit ? 'T_MUSIC_EDIT_COLLECTION' : 'T_MUSIC_NEW_COLLECTION') | translate
+  "
+  [nzMaskClosable]="!isSaving"
+  [nzClosable]="!isSaving"
+  [nzWidth]="560"
+  (nzOnCancel)="close()">
+  <form
+    *nzModalContent
+    class="collection-form"
+    [formGroup]="form"
+    (ngSubmit)="submit()">
+    <div>
+      <label class="blog-label" for="music-collection-name">{{
+        'T_ARCHIVE_COLLECTION_NAME' | translate
+      }}</label>
+      <input
+        id="music-collection-name"
+        class="blog-input"
+        formControlName="Name"
+        maxlength="150"
+        [placeholder]="'T_MUSIC_COLLECTION_NAME_PLACEHOLDER' | translate" />
+      @if (form.controls.Name.touched && form.controls.Name.invalid) {
+        <p class="collection-form__error">
+          {{ 'T_ARCHIVE_COLLECTION_NAME_REQUIRED' | translate }}
+        </p>
+      }
+    </div>
+
+    <div>
+      <label class="blog-label" for="music-collection-description">
+        {{ 'T_DESCRIPTION' | translate }}
+        <span class="blog-label__optional"
+          >({{ 'T_OPTIONAL' | translate }})</span
+        >
+      </label>
+      <textarea
+        id="music-collection-description"
+        class="blog-input"
+        formControlName="Description"
+        rows="3"
+        maxlength="2000"></textarea>
+    </div>
+
+    <div>
+      <span class="blog-label" id="music-collection-visibility">{{
+        'T_ARCHIVE_WHO_CAN_VIEW' | translate
+      }}</span>
+      <!-- Radio thật (ẩn) bọc trong label: giữ điều hướng phím mũi tên của nhóm radio -->
+      <div
+        class="collection-form__options"
+        role="radiogroup"
+        aria-labelledby="music-collection-visibility">
+        @for (option of visibilityOptions; track option.value) {
+          <label
+            class="collection-form__option"
+            [class.is-active]="form.controls.Visibility.value === option.value">
+            <input
+              class="collection-form__radio"
+              type="radio"
+              formControlName="Visibility"
+              [value]="option.value" />
+            <span class="collection-form__option-icon">
+              <span nz-icon [nzType]="option.icon" nzTheme="outline"></span>
+            </span>
+            <strong>{{ option.labelKey | translate }}</strong>
+            <small>{{ option.descriptionKey | translate }}</small>
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- Enter trong ô tên vẫn submit được -->
+    <button type="submit" hidden></button>
+  </form>
+
+  <div *nzModalFooter class="collection-form__footer">
+    <button
+      type="button"
+      class="blog-btn"
+      [disabled]="isSaving"
+      (click)="close()">
+      {{ 'T_CANCEL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="blog-btn blog-btn--primary"
+      [disabled]="isSaving"
+      (click)="submit()">
+      @if (isSaving) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+        {{ 'T_SAVING' | translate }}
+      } @else {
+        {{
+          (isEdit ? 'T_SAVE_CHANGES' : 'T_MUSIC_CREATE_COLLECTION') | translate
+        }}
+      }
+    </button>
+  </div>
+</nz-modal>

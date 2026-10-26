@@ -20,3 +20,4 @@ export * from './movie.service';
 export * from './audius-music.service';
 export * from './youtube-music.service';
 export * from './youtube-player-api.service';
+export * from './music-library.service';

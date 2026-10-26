@@ -27,6 +27,7 @@ export interface YouTubeIframeApi {
   ) => YouTubePlayerInstance;
   PlayerState: {
     ENDED: number;
+    PLAYING: number;
   };
 }
 

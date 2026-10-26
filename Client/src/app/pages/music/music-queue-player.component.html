@@ -1,0 +1,116 @@
+<article class="music-player queue-player">
+  <!-- Luôn có trong DOM để chuyển qua lại YouTube/Audius không phải dựng lại -->
+  <audio
+    #audioRef
+    preload="none"
+    (loadedmetadata)="onLoadedMetadata()"
+    (timeupdate)="onTimeUpdate()"
+    (playing)="onAudioPlaying()"
+    (pause)="isPlaying = false"
+    (ended)="next()"
+    (error)="onAudioError()"></audio>
+
+  @if (current; as track) {
+    @if (track.Provider === 'YouTube') {
+      @if (embedUrl) {
+        <div class="youtube-player__frame">
+          <iframe
+            #youtubeFrame
+            [src]="embedUrl"
+            [title]="track.Title"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
+        </div>
+      }
+    } @else {
+      <div class="music-player__art">
+        @if (track.ThumbnailUrl) {
+          <img
+            [src]="track.ThumbnailUrl"
+            [alt]="track.Title"
+            (error)="hideBrokenArtwork(track)" />
+        } @else {
+          <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+        }
+        <div class="music-player__wave" [class.is-playing]="isPlaying">
+          <i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    }
+
+    <div class="music-player__info">
+      <span
+        >{{ 'T_MUSIC_NOW_PLAYING' | translate }} · {{ track.Provider }}</span
+      >
+      <h2>{{ track.Title }}</h2>
+      <p>{{ track.Artist }}</p>
+    </div>
+
+    @if (track.Provider !== 'YouTube') {
+      <div class="music-progress">
+        <span>{{ formatTime(currentTime) }}</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="0.1"
+          [value]="progressPercent"
+          [style.--progress.%]="progressPercent"
+          (input)="seek($event)"
+          [attr.aria-label]="'T_MUSIC_PROGRESS' | translate" />
+        <span>{{ formatTime(duration) }}</span>
+      </div>
+    }
+
+    <div class="music-controls">
+      <button
+        type="button"
+        (click)="previous()"
+        [disabled]="!canSwitchTrack"
+        [attr.aria-label]="'T_MUSIC_PREVIOUS' | translate">
+        <span nz-icon nzType="step-backward" nzTheme="outline"></span>
+      </button>
+      @if (track.Provider !== 'YouTube') {
+        <button
+          type="button"
+          class="music-controls__play"
+          (click)="togglePlay()"
+          [attr.aria-label]="
+            (isPlaying ? 'T_MUSIC_PAUSE' : 'T_MUSIC_PLAY') | translate
+          ">
+          <span
+            nz-icon
+            [nzType]="isPlaying ? 'pause' : 'caret-right'"
+            nzTheme="outline"></span>
+        </button>
+      }
+      <button
+        type="button"
+        (click)="next()"
+        [disabled]="!canSwitchTrack"
+        [attr.aria-label]="'T_MUSIC_NEXT' | translate">
+        <span nz-icon nzType="step-forward" nzTheme="outline"></span>
+      </button>
+    </div>
+
+    @if (error) {
+      <p class="music-player__error" role="alert">{{ error | translate }}</p>
+    }
+    @if (track.ExternalUrl) {
+      <a
+        class="music-player__audius"
+        [href]="track.ExternalUrl"
+        target="_blank"
+        rel="noopener noreferrer">
+        {{ 'T_MUSIC_OPEN_SOURCE' | translate: { provider: track.Provider } }}
+        <span nz-icon nzType="export" nzTheme="outline"></span>
+      </a>
+    }
+  } @else {
+    <div class="queue-player__placeholder">
+      <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+      <strong>{{ 'T_MUSIC_PLAYER_EMPTY' | translate }}</strong>
+    </div>
+  }
+</article>

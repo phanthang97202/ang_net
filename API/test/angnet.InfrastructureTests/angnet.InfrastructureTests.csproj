@@ -44,6 +44,7 @@
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ReelController.cs" Link="Support\ReelController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ReelUploadsController.cs" Link="Support\ReelUploadsController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ArchiveController.cs" Link="Support\ArchiveController.cs" />
+    <Compile Include="..\..\src\angnet.WebApi\Controllers\MusicLibraryController.cs" Link="Support\MusicLibraryController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\ChatController.cs" Link="Support\ChatController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\PersonalNotesController.cs" Link="Support\PersonalNotesController.cs" />
     <Compile Include="..\..\src\angnet.WebApi\Controllers\PublicPersonalNotesController.cs" Link="Support\PublicPersonalNotesController.cs" />

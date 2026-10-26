@@ -90,6 +90,12 @@ namespace angnet.Infrastructure.Data
         public DbSet<ArchiveCollectionModel> ArchiveCollection { get; set; }
         public DbSet<ArchiveItemModel> ArchiveItem { get; set; }
 
+        // Thư viện nhạc: danh mục bài dùng chung + Đã lưu + bộ sưu tập nhạc
+        public DbSet<MusicTrackModel> MusicTrack { get; set; }
+        public DbSet<MusicSaveModel> MusicSave { get; set; }
+        public DbSet<MusicCollectionModel> MusicCollection { get; set; }
+        public DbSet<MusicCollectionItemModel> MusicCollectionItem { get; set; }
+
         // Anime: metadata tách khỏi tập và nguồn phát để có thể mở rộng provider sau này.
         public DbSet<AnimeModel> Anime { get; set; }
         public DbSet<AnimeEpisodeModel> AnimeEpisode { get; set; }
@@ -544,6 +550,54 @@ namespace angnet.Infrastructure.Data
 
             modelBuilder.Entity<ArchiveItemModel>()
                         .HasIndex(x => x.OwnerId);
+
+            // Thư viện nhạc - xem chú thích ở script 0067_ThuVienNhac.sql
+            modelBuilder.Entity<MusicTrackModel>()
+                        .Property(x => x.Provider)
+                        .HasConversion<string>();
+            modelBuilder.Entity<MusicTrackModel>()
+                        .Property(x => x.Availability)
+                        .HasConversion<string>();
+            modelBuilder.Entity<MusicTrackModel>()
+                        .HasIndex(x => new { x.Provider, x.ExternalId })
+                        .IsUnique();
+
+            modelBuilder.Entity<MusicSaveModel>()
+                        .HasKey(x => new { x.UserId, x.TrackId });
+            modelBuilder.Entity<MusicSaveModel>()
+                        .HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MusicSaveModel>()
+                        .HasOne<MusicTrackModel>().WithMany().HasForeignKey(x => x.TrackId)
+                        .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MusicSaveModel>()
+                        .HasIndex(x => new { x.UserId, x.CreatedDTime })
+                        .IsDescending(false, true);
+
+            modelBuilder.Entity<MusicCollectionModel>()
+                        .HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MusicCollectionModel>()
+                        .Property(x => x.Visibility)
+                        .HasConversion<string>();
+            modelBuilder.Entity<MusicCollectionModel>()
+                        .HasIndex(x => new { x.OwnerId, x.SortOrder });
+
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasKey(x => new { x.CollectionId, x.TrackId });
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasOne<MusicCollectionModel>().WithMany().HasForeignKey(x => x.CollectionId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasOne<MusicTrackModel>().WithMany().HasForeignKey(x => x.TrackId)
+                        .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasIndex(x => new { x.CollectionId, x.SortOrder });
+            modelBuilder.Entity<MusicCollectionItemModel>()
+                        .HasIndex(x => new { x.OwnerId, x.TrackId });
 
             // Subscriber: chặn trùng email ngay ở DB thay vì chỉ kiểm tra trong code -
             // hai request đăng ký cùng lúc cùng một email đều thấy "chưa tồn tại" rồi

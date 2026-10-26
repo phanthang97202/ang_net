@@ -92,6 +92,11 @@ namespace angnet.Infrastructure
             services.AddScoped<ISubscriberService, SubscriberService>();
 
             services.AddScoped<IArchiveService, ArchiveService>();
+
+            // Thư viện nhạc: mỗi nguồn phát là một IMusicTrackSource, thêm nguồn = thêm một dòng ở đây
+            services.AddScoped<IMusicTrackSource, YouTubeMusicTrackSource>();
+            services.AddScoped<IMusicTrackSource, AudiusMusicTrackSource>();
+            services.AddScoped<IMusicLibraryService, MusicLibraryService>();
             services.AddScoped<MyBlogService>();
             services.AddScoped<BlogNotificationService>();
             services.AddScoped<PersonalNoteService>();

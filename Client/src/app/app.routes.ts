@@ -80,6 +80,16 @@ const appRoutes: Routes = [
     canActivate: [canActivePermission('music.use', '/')],
   },
   {
+    // Link chia sẻ bộ sưu tập nhạc (Public / Unlisted). Không gác quyền: ai xem
+    // được do server quyết định theo Visibility, giống archive/:collectionId.
+    title: 'T_PAGE_MUSIC_COLLECTION',
+    path: 'music/collection/:collectionId',
+    loadComponent: () =>
+      import('./pages/music/music-collection-public.component').then(
+        p => p.MusicCollectionPublicComponent
+      ),
+  },
+  {
     title: 'T_PAGE_MOVIE',
     path: 'phim',
     loadComponent: () =>

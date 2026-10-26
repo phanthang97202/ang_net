@@ -60,6 +60,40 @@
   }
 }
 
+// Dòng bài kèm nút ♥ / thao tác: nút không được lồng trong <button> phát bài,
+// nên bọc cả hai trong .track-item và chuyển viền + nền hover ra ngoài
+.track-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.18s ease;
+
+  &:hover,
+  &.is-active {
+    background: var(--color-accent-bg);
+  }
+
+  &.is-active .track-row__number,
+  &.is-active .track-row__text strong {
+    color: var(--color-accent);
+  }
+
+  > .track-row {
+    min-width: 0;
+    flex: 1;
+    border-bottom: 0;
+    background: transparent;
+  }
+}
+
+.track-item__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.1rem;
+  padding-right: 0.85rem;
+}
+
 .track-row__number,
 .track-row__duration {
   color: var(--color-text-muted);
@@ -226,6 +260,9 @@ input:focus-visible {
   }
   .track-row__genre {
     display: none;
+  }
+  .track-item__actions {
+    padding-right: 0.5rem;
   }
 }
 
