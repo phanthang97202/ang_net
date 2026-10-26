@@ -1,20 +1,4 @@
 <main class="music-page">
-  <header class="music-header">
-    <div>
-      <span class="music-eyebrow">AUDIUS</span>
-      <h1>{{ 'T_MUSIC_TITLE' | translate }}</h1>
-      <p>{{ 'T_MUSIC_SUBTITLE' | translate }}</p>
-    </div>
-    <a
-      class="music-source"
-      href="https://audius.co"
-      target="_blank"
-      rel="noopener noreferrer">
-      {{ 'T_MUSIC_SOURCE' | translate }}
-      <span nz-icon nzType="export" nzTheme="outline"></span>
-    </a>
-  </header>
-
   <form class="music-search" role="search" (submit)="submitSearch($event)">
     <span nz-icon nzType="search" nzTheme="outline"></span>
     <input
