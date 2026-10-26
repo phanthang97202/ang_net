@@ -22,6 +22,27 @@ export function configureTurnstileHtml(html, env) {
   );
 }
 
+// Google API key la khoa cong khai bat buoc phai gui tu trinh duyet khi tim kiem.
+// Khong ghi cung trong bundle; Vercel chen no vao HTML luc build va khoa phai duoc
+// gioi han HTTP referrer + YouTube Data API trong Google Cloud Console.
+export function configureYouTubeHtml(html, env) {
+  const apiKey = (env.YOUTUBE_API_KEY || '').trim();
+  if (!apiKey) return html;
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(apiKey)) {
+    throw new Error('YOUTUBE_API_KEY has an invalid format.');
+  }
+  if (!/<\/head\s*>/i.test(html))
+    throw new Error('Built index.html has no head element.');
+  const cleaned = html.replace(
+    /<meta\b[^>]*name=["']youtube-api-key["'][^>]*>\s*/gi,
+    ''
+  );
+  return cleaned.replace(
+    /<\/head\s*>/i,
+    `<meta name="youtube-api-key" content="${apiKey}">\n</head>`
+  );
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
@@ -30,11 +51,14 @@ if (
     new URL('../dist/client/browser/index.html', import.meta.url)
   );
   const html = await readFile(indexPath, 'utf8');
-  const configured = configureTurnstileHtml(html, process.env);
+  const configured = configureYouTubeHtml(
+    configureTurnstileHtml(html, process.env),
+    process.env
+  );
   await writeFile(indexPath, configured, 'utf8');
   console.log(
     configured === html
-      ? 'Turnstile: no build Site key override; using Angular configuration.'
-      : 'Turnstile: public Site key added to built index.html.'
+      ? 'Public config: no build-time key override.'
+      : 'Public config: build-time keys added to built index.html.'
   );
 }

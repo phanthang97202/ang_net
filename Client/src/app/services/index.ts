@@ -18,3 +18,4 @@ export * from './archive.service';
 export * from './note-realtime.service';
 export * from './movie.service';
 export * from './audius-music.service';
+export * from './youtube-music.service';

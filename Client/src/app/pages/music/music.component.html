@@ -1,233 +1,261 @@
 <main class="music-page">
-  <form class="music-search" role="search" (submit)="submitSearch($event)">
-    <span nz-icon nzType="search" nzTheme="outline"></span>
-    <input
-      type="search"
-      [value]="searchKeyword"
-      [disabled]="loading"
-      [placeholder]="'T_MUSIC_SEARCH_PLACEHOLDER' | translate"
-      [attr.aria-label]="'T_MUSIC_SEARCH_LABEL' | translate"
-      autocomplete="off"
-      (input)="onSearchInput($event)" />
+  <nav
+    class="music-sources"
+    [attr.aria-label]="'T_MUSIC_SOURCE_SELECT' | translate">
     <button
-      *ngIf="searchKeyword"
       type="button"
-      class="music-search__clear"
-      (click)="clearSearch()"
-      [attr.aria-label]="'T_MUSIC_CLEAR_SEARCH' | translate">
-      <span nz-icon nzType="close" nzTheme="outline"></span>
+      [class.is-active]="musicSource === 'audius'"
+      [attr.aria-pressed]="musicSource === 'audius'"
+      (click)="selectMusicSource('audius')">
+      <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+      Audius
     </button>
-    <button type="submit" class="music-search__submit" [disabled]="loading">
-      <span
-        nz-icon
-        [nzType]="searching ? 'loading' : 'search'"
-        nzTheme="outline"></span>
-      {{ 'T_MUSIC_SEARCH' | translate }}
+    <button
+      type="button"
+      [class.is-active]="musicSource === 'youtube'"
+      [attr.aria-pressed]="musicSource === 'youtube'"
+      (click)="selectMusicSource('youtube')">
+      <span nz-icon nzType="youtube" nzTheme="outline"></span>
+      YouTube
     </button>
-  </form>
+  </nav>
 
-  <section *ngIf="loading" class="music-layout" aria-busy="true">
-    <div class="player-skeleton skeleton-panel">
-      <span class="skeleton-art"></span>
-      <span class="skeleton-line skeleton-line--wide"></span>
-      <span class="skeleton-line"></span>
-      <span class="skeleton-controls"></span>
-    </div>
-    <div class="list-skeleton skeleton-panel">
-      <span class="skeleton-title"></span>
-      <span *ngFor="let item of [1, 2, 3, 4, 5]" class="skeleton-row"></span>
-    </div>
-  </section>
+  <ng-container *ngIf="musicSource === 'audius'">
+    <form class="music-search" role="search" (submit)="submitSearch($event)">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      <input
+        type="search"
+        [value]="searchKeyword"
+        [disabled]="loading"
+        [placeholder]="'T_MUSIC_SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'T_MUSIC_SEARCH_LABEL' | translate"
+        autocomplete="off"
+        (input)="onSearchInput($event)" />
+      <button
+        *ngIf="searchKeyword"
+        type="button"
+        class="music-search__clear"
+        (click)="clearSearch()"
+        [attr.aria-label]="'T_MUSIC_CLEAR_SEARCH' | translate">
+        <span nz-icon nzType="close" nzTheme="outline"></span>
+      </button>
+      <button type="submit" class="music-search__submit" [disabled]="loading">
+        <span
+          nz-icon
+          [nzType]="searching ? 'loading' : 'search'"
+          nzTheme="outline"></span>
+        {{ 'T_MUSIC_SEARCH' | translate }}
+      </button>
+    </form>
 
-  <section *ngIf="!loading && error" class="music-state" role="alert">
-    <span nz-icon nzType="customer-service" nzTheme="outline"></span>
-    <h2>{{ error | translate }}</h2>
-    <button type="button" (click)="loadTracks(true)">
-      <span nz-icon nzType="reload" nzTheme="outline"></span>
-      {{ 'T_MUSIC_RETRY' | translate }}
-    </button>
-  </section>
-
-  <section *ngIf="!loading && !error && currentTrack" class="music-layout">
-    <article class="music-player">
-      <audio
-        #audioRef
-        [src]="currentTrack.streamUrl"
-        preload="metadata"
-        (loadedmetadata)="onLoadedMetadata()"
-        (timeupdate)="onTimeUpdate()"
-        (play)="onPlay()"
-        (pause)="onPause()"
-        (ended)="onEnded()"
-        (error)="onPlaybackError()"></audio>
-
-      <div class="music-player__art">
-        <img
-          *ngIf="currentTrack.artworkUrl; else playerArtworkFallback"
-          [src]="currentTrack.artworkUrl"
-          [alt]="currentTrack.title"
-          (error)="hideBrokenArtwork(currentTrack)" />
-        <ng-template #playerArtworkFallback>
-          <span nz-icon nzType="customer-service" nzTheme="outline"></span>
-        </ng-template>
-        <div class="music-player__wave" [class.is-playing]="isPlaying">
-          <i></i><i></i><i></i><i></i>
-        </div>
+    <section *ngIf="loading" class="music-layout" aria-busy="true">
+      <div class="player-skeleton skeleton-panel">
+        <span class="skeleton-art"></span>
+        <span class="skeleton-line skeleton-line--wide"></span>
+        <span class="skeleton-line"></span>
+        <span class="skeleton-controls"></span>
       </div>
-
-      <div class="music-player__info">
-        <span>{{ 'T_MUSIC_NOW_PLAYING' | translate }}</span>
-        <h2>{{ currentTrack.title }}</h2>
-        <p>{{ currentTrack.artist }}</p>
+      <div class="list-skeleton skeleton-panel">
+        <span class="skeleton-title"></span>
+        <span *ngFor="let item of [1, 2, 3, 4, 5]" class="skeleton-row"></span>
       </div>
+    </section>
 
-      <div class="music-progress">
-        <span>{{ formatTime(currentTime) }}</span>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="0.1"
-          [value]="progressPercent"
-          [style.--progress.%]="progressPercent"
-          (input)="seek($event)"
-          [attr.aria-label]="'T_MUSIC_PROGRESS' | translate" />
-        <span>{{ remainingTimeLabel }}</span>
-      </div>
+    <section *ngIf="!loading && error" class="music-state" role="alert">
+      <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+      <h2>{{ error | translate }}</h2>
+      <button type="button" (click)="loadTracks(true)">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        {{ 'T_MUSIC_RETRY' | translate }}
+      </button>
+    </section>
 
-      <div class="music-controls">
-        <button
-          type="button"
-          (click)="previousTrack()"
-          [disabled]="!canSwitchTrack"
-          [attr.aria-label]="'T_MUSIC_PREVIOUS' | translate">
-          <span nz-icon nzType="step-backward" nzTheme="outline"></span>
-        </button>
-        <button
-          type="button"
-          class="music-controls__play"
-          (click)="togglePlay()"
-          [attr.aria-label]="
-            (isPlaying ? 'T_MUSIC_PAUSE' : 'T_MUSIC_PLAY') | translate
-          ">
-          <span
-            nz-icon
-            [nzType]="isPlaying ? 'pause' : 'caret-right'"
-            nzTheme="outline"></span>
-        </button>
-        <button
-          type="button"
-          (click)="nextTrack()"
-          [disabled]="!canSwitchTrack"
-          [attr.aria-label]="'T_MUSIC_NEXT' | translate">
-          <span nz-icon nzType="step-forward" nzTheme="outline"></span>
-        </button>
-        <button
-          type="button"
-          (click)="toggleMute()"
-          [attr.aria-label]="
-            (isMuted ? 'T_MEDIA_UNMUTE' : 'T_MEDIA_MUTE') | translate
-          ">
-          <span
-            nz-icon
-            [nzType]="isMuted ? 'audio-muted' : 'sound'"
-            nzTheme="outline"></span>
-        </button>
-      </div>
+    <section *ngIf="!loading && !error && currentTrack" class="music-layout">
+      <article class="music-player">
+        <audio
+          #audioRef
+          [src]="currentTrack.streamUrl"
+          preload="metadata"
+          (loadedmetadata)="onLoadedMetadata()"
+          (timeupdate)="onTimeUpdate()"
+          (play)="onPlay()"
+          (pause)="onPause()"
+          (ended)="onEnded()"
+          (error)="onPlaybackError()"></audio>
 
-      <p *ngIf="playbackError" class="music-player__error" role="alert">
-        {{ playbackError | translate }}
-      </p>
-      <a
-        class="music-player__audius"
-        [href]="currentTrack.permalinkUrl"
-        target="_blank"
-        rel="noopener noreferrer">
-        {{ 'T_MUSIC_OPEN_AUDIUS' | translate }}
-        <span nz-icon nzType="export" nzTheme="outline"></span>
-      </a>
-    </article>
-
-    <article class="music-list">
-      <div class="music-list__heading">
-        <div>
-          <span>{{ 'T_MUSIC_PLAYLIST' | translate }}</span>
-          <h2 *ngIf="!activeQuery">{{ 'T_MUSIC_TRENDING' | translate }}</h2>
-          <h2 *ngIf="activeQuery">
-            {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
-          </h2>
+        <div class="music-player__art">
+          <img
+            *ngIf="currentTrack.artworkUrl; else playerArtworkFallback"
+            [src]="currentTrack.artworkUrl"
+            [alt]="currentTrack.title"
+            (error)="hideBrokenArtwork(currentTrack)" />
+          <ng-template #playerArtworkFallback>
+            <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+          </ng-template>
+          <div class="music-player__wave" [class.is-playing]="isPlaying">
+            <i></i><i></i><i></i><i></i>
+          </div>
         </div>
-        <strong>{{
-          'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
-        }}</strong>
-      </div>
 
-      <div class="music-list__tracks">
-        <div *ngIf="searching" class="music-list__state" aria-live="polite">
-          <span nz-icon nzType="loading" nzTheme="outline"></span>
-          {{ 'T_MUSIC_SEARCHING' | translate }}
+        <div class="music-player__info">
+          <span>{{ 'T_MUSIC_NOW_PLAYING' | translate }}</span>
+          <h2>{{ currentTrack.title }}</h2>
+          <p>{{ currentTrack.artist }}</p>
         </div>
-        <div
-          *ngIf="!searching && listError"
-          class="music-list__state"
-          role="alert">
-          <span nz-icon nzType="info-circle" nzTheme="outline"></span>
-          {{ listError | translate }}
+
+        <div class="music-progress">
+          <span>{{ formatTime(currentTime) }}</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="0.1"
+            [value]="progressPercent"
+            [style.--progress.%]="progressPercent"
+            (input)="seek($event)"
+            [attr.aria-label]="'T_MUSIC_PROGRESS' | translate" />
+          <span>{{ remainingTimeLabel }}</span>
         </div>
-        <div
-          *ngIf="!searching && !listError && tracks.length === 0"
-          class="music-list__state">
-          <span nz-icon nzType="customer-service" nzTheme="outline"></span>
-          {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
-        </div>
-        <button
-          *ngFor="
-            let track of searching || listError ? [] : tracks;
-            let index = index;
-            trackBy: trackById
-          "
-          type="button"
-          class="track-row"
-          [class.is-active]="index === currentIndex"
-          [attr.aria-current]="index === currentIndex ? 'true' : null"
-          [attr.aria-label]="
-            (index === currentIndex && isPlaying
-              ? 'T_MUSIC_PLAYING_TRACK'
-              : 'T_MUSIC_PLAY_TRACK'
-            ) | translate: { title: track.title }
-          "
-          (click)="selectTrack(index)">
-          <span class="track-row__number">
+
+        <div class="music-controls">
+          <button
+            type="button"
+            (click)="previousTrack()"
+            [disabled]="!canSwitchTrack"
+            [attr.aria-label]="'T_MUSIC_PREVIOUS' | translate">
+            <span nz-icon nzType="step-backward" nzTheme="outline"></span>
+          </button>
+          <button
+            type="button"
+            class="music-controls__play"
+            (click)="togglePlay()"
+            [attr.aria-label]="
+              (isPlaying ? 'T_MUSIC_PAUSE' : 'T_MUSIC_PLAY') | translate
+            ">
             <span
-              *ngIf="index === currentIndex"
               nz-icon
               [nzType]="isPlaying ? 'pause' : 'caret-right'"
               nzTheme="outline"></span>
-            <ng-container *ngIf="index !== currentIndex">
-              {{ (index + 1).toString().padStart(2, '0') }}
-            </ng-container>
-          </span>
-          <span class="track-row__art">
-            <img
-              *ngIf="track.artworkUrl; else rowArtworkFallback"
-              [src]="track.artworkUrl"
-              [alt]="track.title"
-              loading="lazy"
-              (error)="hideBrokenArtwork(track)" />
-            <ng-template #rowArtworkFallback>
-              <span nz-icon nzType="customer-service" nzTheme="outline"></span>
-            </ng-template>
-          </span>
-          <span class="track-row__text">
-            <strong>{{ track.title }}</strong>
-            <small>{{ track.artist }}</small>
-          </span>
-          <span class="track-row__genre">{{ track.genre }}</span>
-          <span class="track-row__duration">
-            {{ formatTime(track.durationSeconds) }}
-          </span>
-        </button>
-      </div>
-    </article>
-  </section>
+          </button>
+          <button
+            type="button"
+            (click)="nextTrack()"
+            [disabled]="!canSwitchTrack"
+            [attr.aria-label]="'T_MUSIC_NEXT' | translate">
+            <span nz-icon nzType="step-forward" nzTheme="outline"></span>
+          </button>
+          <button
+            type="button"
+            (click)="toggleMute()"
+            [attr.aria-label]="
+              (isMuted ? 'T_MEDIA_UNMUTE' : 'T_MEDIA_MUTE') | translate
+            ">
+            <span
+              nz-icon
+              [nzType]="isMuted ? 'audio-muted' : 'sound'"
+              nzTheme="outline"></span>
+          </button>
+        </div>
+
+        <p *ngIf="playbackError" class="music-player__error" role="alert">
+          {{ playbackError | translate }}
+        </p>
+        <a
+          class="music-player__audius"
+          [href]="currentTrack.permalinkUrl"
+          target="_blank"
+          rel="noopener noreferrer">
+          {{ 'T_MUSIC_OPEN_AUDIUS' | translate }}
+          <span nz-icon nzType="export" nzTheme="outline"></span>
+        </a>
+      </article>
+
+      <article class="music-list">
+        <div class="music-list__heading">
+          <div>
+            <span>{{ 'T_MUSIC_PLAYLIST' | translate }}</span>
+            <h2 *ngIf="!activeQuery">{{ 'T_MUSIC_TRENDING' | translate }}</h2>
+            <h2 *ngIf="activeQuery">
+              {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
+            </h2>
+          </div>
+          <strong>{{
+            'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
+          }}</strong>
+        </div>
+
+        <div class="music-list__tracks">
+          <div *ngIf="searching" class="music-list__state" aria-live="polite">
+            <span nz-icon nzType="loading" nzTheme="outline"></span>
+            {{ 'T_MUSIC_SEARCHING' | translate }}
+          </div>
+          <div
+            *ngIf="!searching && listError"
+            class="music-list__state"
+            role="alert">
+            <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+            {{ listError | translate }}
+          </div>
+          <div
+            *ngIf="!searching && !listError && tracks.length === 0"
+            class="music-list__state">
+            <span nz-icon nzType="customer-service" nzTheme="outline"></span>
+            {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
+          </div>
+          <button
+            *ngFor="
+              let track of searching || listError ? [] : tracks;
+              let index = index;
+              trackBy: trackById
+            "
+            type="button"
+            class="track-row"
+            [class.is-active]="index === currentIndex"
+            [attr.aria-current]="index === currentIndex ? 'true' : null"
+            [attr.aria-label]="
+              (index === currentIndex && isPlaying
+                ? 'T_MUSIC_PLAYING_TRACK'
+                : 'T_MUSIC_PLAY_TRACK'
+              ) | translate: { title: track.title }
+            "
+            (click)="selectTrack(index)">
+            <span class="track-row__number">
+              <span
+                *ngIf="index === currentIndex"
+                nz-icon
+                [nzType]="isPlaying ? 'pause' : 'caret-right'"
+                nzTheme="outline"></span>
+              <ng-container *ngIf="index !== currentIndex">
+                {{ (index + 1).toString().padStart(2, '0') }}
+              </ng-container>
+            </span>
+            <span class="track-row__art">
+              <img
+                *ngIf="track.artworkUrl; else rowArtworkFallback"
+                [src]="track.artworkUrl"
+                [alt]="track.title"
+                loading="lazy"
+                (error)="hideBrokenArtwork(track)" />
+              <ng-template #rowArtworkFallback>
+                <span
+                  nz-icon
+                  nzType="customer-service"
+                  nzTheme="outline"></span>
+              </ng-template>
+            </span>
+            <span class="track-row__text">
+              <strong>{{ track.title }}</strong>
+              <small>{{ track.artist }}</small>
+            </span>
+            <span class="track-row__genre">{{ track.genre }}</span>
+            <span class="track-row__duration">
+              {{ formatTime(track.durationSeconds) }}
+            </span>
+          </button>
+        </div>
+      </article>
+    </section>
+  </ng-container>
+
+  <app-youtube-music *ngIf="musicSource === 'youtube'"></app-youtube-music>
 </main>

@@ -1,0 +1,144 @@
+<form class="music-search" role="search" (submit)="submit($event)">
+  <span nz-icon nzType="youtube" nzTheme="outline"></span>
+  <input
+    type="search"
+    [value]="query"
+    [placeholder]="'T_MUSIC_YOUTUBE_SEARCH_PLACEHOLDER' | translate"
+    [attr.aria-label]="'T_MUSIC_YOUTUBE_SEARCH_LABEL' | translate"
+    autocomplete="off"
+    (input)="onInput($event)" />
+  <button
+    *ngIf="query"
+    type="button"
+    class="music-search__clear"
+    (click)="clearSearch()"
+    [attr.aria-label]="'T_MUSIC_CLEAR_SEARCH' | translate">
+    <span nz-icon nzType="close" nzTheme="outline"></span>
+  </button>
+  <button
+    type="submit"
+    class="music-search__submit"
+    [disabled]="searching || !query.trim()">
+    <span
+      nz-icon
+      [nzType]="searching ? 'loading' : 'search'"
+      nzTheme="outline"></span>
+    {{ 'T_MUSIC_SEARCH' | translate }}
+  </button>
+</form>
+
+<section class="music-layout youtube-layout">
+  <article class="music-player youtube-player">
+    <ng-container *ngIf="currentTrack && embedUrl; else playerPlaceholder">
+      <div class="youtube-player__frame">
+        <iframe
+          [src]="embedUrl"
+          [title]="currentTrack.title"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <div class="music-player__info">
+        <span>{{ 'T_MUSIC_NOW_PLAYING' | translate }}</span>
+        <h2>{{ currentTrack.title }}</h2>
+        <p>{{ currentTrack.artist }}</p>
+      </div>
+      <a
+        class="music-player__audius"
+        [href]="currentTrack.watchUrl"
+        target="_blank"
+        rel="noopener noreferrer">
+        {{ 'T_MUSIC_OPEN_YOUTUBE' | translate }}
+        <span nz-icon nzType="export" nzTheme="outline"></span>
+      </a>
+    </ng-container>
+    <ng-template #playerPlaceholder>
+      <div class="youtube-player__placeholder">
+        <span nz-icon nzType="youtube" nzTheme="outline"></span>
+        <strong>{{ 'T_MUSIC_YOUTUBE_PLAYER_EMPTY' | translate }}</strong>
+      </div>
+    </ng-template>
+  </article>
+
+  <article class="music-list">
+    <div class="music-list__heading">
+      <div>
+        <span>YOUTUBE</span>
+        <h2 *ngIf="!activeQuery">
+          {{ 'T_MUSIC_YOUTUBE_RESULTS' | translate }}
+        </h2>
+        <h2 *ngIf="activeQuery">
+          {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
+        </h2>
+      </div>
+      <strong>{{
+        'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
+      }}</strong>
+    </div>
+
+    <div class="music-list__tracks">
+      <div *ngIf="!searched && !searching" class="music-list__state">
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+        {{ 'T_MUSIC_YOUTUBE_PROMPT' | translate }}
+      </div>
+      <div *ngIf="searching" class="music-list__state" aria-live="polite">
+        <span nz-icon nzType="loading" nzTheme="outline"></span>
+        {{ 'T_MUSIC_YOUTUBE_SEARCHING' | translate }}
+      </div>
+      <div *ngIf="!searching && error" class="music-list__state" role="alert">
+        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+        {{ error | translate }}
+      </div>
+      <div
+        *ngIf="searched && !searching && !error && tracks.length === 0"
+        class="music-list__state">
+        <span nz-icon nzType="youtube" nzTheme="outline"></span>
+        {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
+      </div>
+
+      <button
+        *ngFor="
+          let track of searching || error ? [] : tracks;
+          let index = index;
+          trackBy: trackById
+        "
+        type="button"
+        class="track-row"
+        [class.is-active]="index === currentIndex"
+        [attr.aria-current]="index === currentIndex ? 'true' : null"
+        [attr.aria-label]="
+          'T_MUSIC_PLAY_TRACK' | translate: { title: track.title }
+        "
+        (click)="play(track)">
+        <span class="track-row__number">
+          <span
+            *ngIf="index === currentIndex; else youtubeTrackNumber"
+            nz-icon
+            nzType="caret-right"
+            nzTheme="outline"></span>
+          <ng-template #youtubeTrackNumber>
+            {{ (index + 1).toString().padStart(2, '0') }}
+          </ng-template>
+        </span>
+        <span class="track-row__art youtube-track__art">
+          <img
+            *ngIf="track.thumbnailUrl; else youtubeArtworkFallback"
+            [src]="track.thumbnailUrl"
+            [alt]="track.title"
+            loading="lazy"
+            (error)="hideBrokenThumbnail(track)" />
+          <ng-template #youtubeArtworkFallback>
+            <span nz-icon nzType="youtube" nzTheme="outline"></span>
+          </ng-template>
+        </span>
+        <span class="track-row__text">
+          <strong>{{ track.title }}</strong>
+          <small>{{ track.artist }}</small>
+        </span>
+        <span class="track-row__genre">YouTube</span>
+        <span class="track-row__duration youtube-track__source">
+          <span nz-icon nzType="youtube" nzTheme="outline"></span>
+        </span>
+      </button>
+    </div>
+  </article>
+</section>

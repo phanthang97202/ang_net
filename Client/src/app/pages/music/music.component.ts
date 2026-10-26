@@ -21,11 +21,12 @@ import {
 } from 'rxjs';
 import { IMusicTrack } from '../../interfaces';
 import { AudiusMusicService } from '../../services';
+import { YouTubeMusicComponent } from './youtube-music.component';
 
 @Component({
   selector: 'app-music',
   standalone: true,
-  imports: [CommonModule, NzIconModule, TranslateModule],
+  imports: [CommonModule, NzIconModule, TranslateModule, YouTubeMusicComponent],
   templateUrl: './music.component.html',
   styleUrls: [
     './music.component.scss',
@@ -41,6 +42,7 @@ export class MusicComponent {
   @ViewChild('audioRef') private audioRef?: ElementRef<HTMLAudioElement>;
 
   tracks: IMusicTrack[] = [];
+  musicSource: 'audius' | 'youtube' = 'audius';
   currentTrack: IMusicTrack | null = null;
   loading = true;
   searching = false;
@@ -172,6 +174,13 @@ export class MusicComponent {
     if (!this.searchKeyword && !this.activeQuery) return;
     this.searchKeyword = '';
     this.searchTerms.next('');
+  }
+
+  selectMusicSource(source: 'audius' | 'youtube'): void {
+    if (source === this.musicSource) return;
+    this.audioRef?.nativeElement.pause();
+    this.isPlaying = false;
+    this.musicSource = source;
   }
 
   previousTrack(): void {

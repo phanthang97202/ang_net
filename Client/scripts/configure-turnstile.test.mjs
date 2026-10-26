@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { configureTurnstileHtml } from './configure-turnstile.mjs';
+import {
+  configureTurnstileHtml,
+  configureYouTubeHtml,
+} from './configure-turnstile.mjs';
 
 const html = '<html><head><title>Blog</title></head><body>App</body></html>';
 const siteKey = '1x00000000000000000000AA';
@@ -59,6 +62,33 @@ test('rejects invalid configuration without echoing its value', () => {
   assert.throws(() =>
     configureTurnstileHtml('<body>missing head</body>', {
       TURNSTILE_SITE_KEY: siteKey,
+    })
+  );
+});
+
+test('embeds only the public YouTube API key and replaces previous values', () => {
+  const youtubeKey = 'AIzaSyExamplePublicKey1234567890';
+  const configured = configureYouTubeHtml(html, {
+    YOUTUBE_API_KEY: youtubeKey,
+    PRIVATE_SECRET: 'never-publish-me',
+  });
+  assert.ok(
+    configured.includes(`<meta name="youtube-api-key" content="${youtubeKey}">`)
+  );
+  assert.ok(!configured.includes('never-publish-me'));
+
+  const replaced = configureYouTubeHtml(configured, {
+    YOUTUBE_API_KEY: 'AIzaSyReplacementPublicKey123456',
+  });
+  assert.ok(!replaced.includes(youtubeKey));
+  assert.equal((replaced.match(/name="youtube-api-key"/g) || []).length, 1);
+});
+
+test('preserves HTML without YouTube configuration and rejects invalid keys', () => {
+  assert.equal(configureYouTubeHtml(html, {}), html);
+  assert.throws(() =>
+    configureYouTubeHtml(html, {
+      YOUTUBE_API_KEY: '\"><script>alert(1)</script>',
     })
   );
 });

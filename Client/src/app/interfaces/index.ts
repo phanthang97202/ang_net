@@ -23,3 +23,4 @@ export * from './archive';
 export * from './note';
 export * from './movie';
 export * from './music';
+export * from './youtube-music';

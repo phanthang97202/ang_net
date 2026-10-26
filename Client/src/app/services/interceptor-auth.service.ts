@@ -76,6 +76,8 @@ export class AuthInterceptor implements HttpInterceptor {
       // Audius la nguon nhac public doc lap. Khong gui token cua blog sang ben thu ba
       // va cung khong thu refresh phien blog neu Audius tra loi loi xac thuc.
       'api.audius.co',
+      // YouTube Data API dung public API key rieng; tuyet doi khong gui JWT cua blog.
+      'googleapis.com/youtube/',
     ];
 
     // Các endpoint public / tự xử lý auth riêng: đi thẳng, không gắn token
