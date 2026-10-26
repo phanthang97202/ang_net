@@ -26,7 +26,23 @@ describe('Turnstile widget lifecycle', () => {
   });
   afterEach(() => {
     environment.turnstileSiteKey = originalKey;
+    document.querySelector('meta[name="turnstile-site-key"]')?.remove();
   });
+
+  it('uses the key injected by the hosting build when Angular configuration is empty', fakeAsync(() => {
+    environment.turnstileSiteKey = '';
+    const meta = document.createElement('meta');
+    meta.name = 'turnstile-site-key';
+    meta.content = 'vercel-public-site-key';
+    document.head.appendChild(meta);
+    const fixture = TestBed.createComponent(TurnstileComponent);
+    fixture.detectChanges();
+    flushMicrotasks();
+    expect(api.render.calls.mostRecent().args[1].sitekey).toBe(
+      'vercel-public-site-key'
+    );
+    fixture.destroy();
+  }));
 
   it('emits tokens, invalidates expired/error tokens, resets and removes the widget', fakeAsync(() => {
     const fixture = TestBed.createComponent(TurnstileComponent);

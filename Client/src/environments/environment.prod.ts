@@ -1,5 +1,5 @@
 export const environment = {
-  // Public Cloudflare Site key only; the Secret key belongs in the API environment.
+  // Fallback public Site key. Vercel builds inject TURNSTILE_SITE_KEY (or turnstileSiteKey).
   turnstileSiteKey: '',
   production: false,
   tokenKey: 'tokenKey',

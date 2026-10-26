@@ -10,6 +10,7 @@ import {
   inject,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { DOCUMENT } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import {
   TurnstileApi,
@@ -58,6 +59,7 @@ export class TurnstileComponent implements AfterViewInit, OnDestroy {
   @ViewChild('container', { static: true }) container!: ElementRef<HTMLElement>;
   @Output() tokenChange = new EventEmitter<string>();
   private loader = inject(TurnstileService);
+  private document = inject(DOCUMENT);
   private zone = inject(NgZone);
   private api?: TurnstileApi;
   private widget?: string;
@@ -86,7 +88,12 @@ export class TurnstileComponent implements AfterViewInit, OnDestroy {
   }
 
   private async mount(): Promise<void> {
-    if (!environment.turnstileSiteKey) {
+    const siteKey = (
+      this.document.querySelector<HTMLMetaElement>(
+        'meta[name="turnstile-site-key"]'
+      )?.content || environment.turnstileSiteKey
+    ).trim();
+    if (!siteKey) {
       this.update('', 'T_COMMENT_CAPTCHA_UNAVAILABLE');
       return;
     }
@@ -96,7 +103,7 @@ export class TurnstileComponent implements AfterViewInit, OnDestroy {
       if (this.destroyed) return;
       this.api = api;
       this.widget = api.render(this.container.nativeElement, {
-        sitekey: environment.turnstileSiteKey,
+        sitekey: siteKey,
         action: 'news_comment',
         theme: 'auto',
         size: 'flexible',
