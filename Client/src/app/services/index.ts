@@ -17,3 +17,4 @@ export * from './toc-panel.service';
 export * from './archive.service';
 export * from './note-realtime.service';
 export * from './movie.service';
+export * from './audius-music.service';

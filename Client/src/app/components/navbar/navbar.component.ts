@@ -139,6 +139,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       ],
     },
     { path: '/reels', title: 'Reels', icon: 'play-circle' },
+    { path: '/music', title: 'Music', icon: 'customer-service' },
     {
       title: 'Game',
       icon: 'trophy',
@@ -283,9 +284,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
             ? 'rentalstatistics.view'
             : path === '/tools/revenue-report'
               ? 'revenuereport.view'
-              : path === '/phim' || path === '/anime'
-                ? 'movie.view'
-                : null;
+              : path === '/music'
+                ? 'music.use'
+                : path === '/phim' || path === '/anime'
+                  ? 'movie.view'
+                  : null;
       if (
         permission &&
         (!this.authService.isLoggedIn() ||

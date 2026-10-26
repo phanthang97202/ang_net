@@ -22,3 +22,4 @@ export * from './media';
 export * from './archive';
 export * from './note';
 export * from './movie';
+export * from './music';

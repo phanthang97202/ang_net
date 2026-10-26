@@ -73,6 +73,13 @@ const appRoutes: Routes = [
       import('./pages/note/note.component').then(p => p.NoteComponent),
   },
   {
+    title: 'T_PAGE_MUSIC',
+    path: 'music',
+    loadComponent: () =>
+      import('./pages/music/music.component').then(p => p.MusicComponent),
+    canActivate: [canActivePermission('music.use', '/')],
+  },
+  {
     title: 'T_PAGE_MOVIE',
     path: 'phim',
     loadComponent: () =>
