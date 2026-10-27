@@ -82,6 +82,12 @@ const appRoutes: Routes = [
     canActivate: [canActivePermission('calendar.use', '/')],
   },
   {
+    title: 'T_EXPENSES',
+    path: 'expenses',
+    loadComponent: () => import('./pages/personal-expenses/personal-expenses.component').then(p => p.PersonalExpensesComponent),
+    canActivate: [canActivePermission('expenses.use', '/')],
+  },
+  {
     title: 'T_PAGE_MUSIC',
     path: 'music',
     loadComponent: () =>

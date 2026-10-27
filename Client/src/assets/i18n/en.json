@@ -159,6 +159,7 @@
     "T_PAGE_MUSIC": "Music",
     "T_MUSIC": "Music",
     "T_CALENDAR": "Personal calendar",
+    "T_EXPENSES": "Personal finances",
     "T_CALENDAR_TODAY_EVENTS": "Today's events",
     "T_CALENDAR_TODAY_COUNT": "{{count}} events today",
     "T_CALENDAR_ALL_DAY": "All day",

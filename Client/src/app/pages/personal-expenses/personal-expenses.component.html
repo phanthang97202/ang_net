@@ -1,0 +1,54 @@
+<main class="expenses-page">
+  <header class="page-heading">
+    <h1>Thu chi cá nhân<span>.</span></h1>
+    <button class="button primary" type="button" (click)="openCreate()"><span nz-icon nzType="plus"></span> Thêm giao dịch</button>
+  </header>
+
+  <div class="month-bar">
+    <div class="month-title"><span nz-icon nzType="calendar"></span><strong>{{ monthLabel }}</strong></div>
+    <div class="month-controls"><button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button><button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button><button type="button" aria-label="Tải lại" (click)="load()" [disabled]="loading"><span nz-icon nzType="reload"></span></button></div>
+  </div>
+  <p *ngIf="loadError" class="error" role="alert">{{ loadError }} <button type="button" (click)="load()">Thử lại</button></p>
+  <p *ngIf="loading" class="status" role="status">Đang tải thu chi…</p>
+  <ng-container *ngIf="!loading && !loadError">
+    <section class="summary" aria-label="Tổng quan tháng">
+      <div class="summary-card income"><span class="summary-icon" nz-icon nzType="arrow-down"></span><span>Tổng thu</span><strong>{{ money(income) }}</strong></div>
+      <div class="summary-card expense"><span class="summary-icon" nz-icon nzType="arrow-up"></span><span>Tổng chi</span><strong>{{ money(expense) }}</strong></div>
+      <div class="summary-card balance"><span class="summary-icon" nz-icon nzType="wallet"></span><span>Chênh lệch</span><strong>{{ money(income - expense) }}</strong></div>
+    </section>
+    <div class="content-grid">
+      <section class="panel transactions">
+        <div class="panel-heading"><div><h2>Giao dịch</h2><span>{{ filtered.length }} giao dịch</span></div><label class="filter"><span class="sr-only">Lọc theo danh mục</span><select [(ngModel)]="filter"><option value="">Tất cả danh mục</option><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select></label></div>
+        <div class="empty" *ngIf="!filtered.length">Chưa có giao dịch{{ filter ? ' trong danh mục này' : ' trong tháng này' }}.</div>
+        <div class="transaction-list">
+          <button class="transaction" type="button" *ngFor="let item of filtered" (click)="openEdit(item)">
+            <span class="transaction-icon" [class.is-income]="item.Type === 'income'"><span nz-icon [nzType]="item.Type === 'income' ? 'arrow-down' : 'arrow-up'"></span></span>
+            <span class="transaction-info"><strong>{{ item.Category }}</strong><small>{{ item.Date | date:'dd/MM/yyyy' }}<span *ngIf="item.Note"> · {{ item.Note }}</span></small></span>
+            <strong class="amount" [class.is-income]="item.Type === 'income'">{{ item.Type === 'income' ? '+' : '−' }}{{ money(item.Amount) }}</strong>
+          </button>
+        </div>
+      </section>
+      <section class="panel breakdown"><div class="panel-heading"><div><h2>Chi theo danh mục</h2></div></div>
+        <div *ngIf="!breakdown.length" class="empty">Chưa có khoản chi trong tháng.</div>
+        <div class="breakdown-list"><div class="breakdown-item" *ngFor="let item of breakdown"><div><strong>{{ item.name }}</strong><span>{{ money(item.amount) }} · {{ item.percent | number:'1.0-0' }}%</span></div><div class="bar"><span [style.width.%]="item.percent"></span></div></div></div>
+      </section>
+    </div>
+  </ng-container>
+
+  <dialog #editor class="expense-dialog" aria-labelledby="expense-dialog-title" (cancel)="(saving || addingCategory) && $event.preventDefault()">
+    <form #form="ngForm" (ngSubmit)="save(form)">
+      <div class="dialog-heading"><h2 id="expense-dialog-title">{{ editing ? 'Chỉnh sửa giao dịch' : 'Thêm giao dịch' }}</h2><button type="button" class="close" (click)="close()" [disabled]="saving || addingCategory" aria-label="Đóng"><span nz-icon nzType="close"></span></button></div>
+      <div class="dialog-scroll"><fieldset [disabled]="saving || addingCategory">
+        <div class="type-switch"><label><input type="radio" name="type" value="expense" [(ngModel)]="draft.Type" /> Khoản chi</label><label><input type="radio" name="type" value="income" [(ngModel)]="draft.Type" /> Khoản thu</label></div>
+        <label class="field">Số tiền (đ)<input type="number" name="amount" [(ngModel)]="draft.Amount" required min="1" max="1000000000000" step="1" inputmode="numeric" /></label>
+        <label class="field">Ngày giao dịch<input type="date" name="date" [(ngModel)]="draft.Date" required /></label>
+        <label class="field">Danh mục<select name="category" [(ngModel)]="draft.Category" required><option value="" disabled>Chọn danh mục</option><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select></label>
+        <p *ngIf="categoryError" class="error" role="alert">{{ categoryError }} <button type="button" (click)="loadCategories()">Thử lại</button></p>
+        <div class="new-category"><label class="field">Thêm danh mục riêng<input name="newCategory" [(ngModel)]="newCategory" maxlength="80" placeholder="Tên danh mục" /></label><button type="button" class="button secondary" (click)="addCategory()" [disabled]="!newCategory.trim()">Thêm</button></div>
+        <label class="field">Ghi chú <span class="optional">Không bắt buộc</span><textarea name="note" [(ngModel)]="draft.Note" maxlength="500" rows="3" placeholder="Thêm ghi chú…"></textarea></label>
+        <p *ngIf="formError" class="error" role="alert">{{ formError }}</p>
+      </fieldset></div>
+      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete" [disabled]="saving || addingCategory" (click)="remove()">Xóa</button><span class="spacer"></span><button type="button" class="button secondary" (click)="close()" [disabled]="saving || addingCategory">Hủy</button><button type="submit" class="button primary" [disabled]="saving || addingCategory">{{ saving ? 'Đang lưu…' : 'Lưu giao dịch' }}</button></div>
+    </form>
+  </dialog>
+</main>

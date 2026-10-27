@@ -141,6 +141,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { path: '/reels', title: 'Reels', icon: 'play-circle' },
     { path: '/music', title: 'Music', icon: 'customer-service' },
     { path: '/calendar', title: 'Calendar', icon: 'calendar' },
+    { path: '/expenses', title: 'Expenses', icon: 'wallet' },
     {
       title: 'Game',
       icon: 'trophy',
@@ -289,6 +290,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
                 ? 'music.use'
                 : path === '/calendar'
                   ? 'calendar.use'
+                : path === '/expenses'
+                  ? 'expenses.use'
                 : path === '/phim' || path === '/anime'
                   ? 'movie.view'
                   : null;

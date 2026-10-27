@@ -80,6 +80,8 @@ namespace angnet.Infrastructure.Data
         public DbSet<NoteModel> Note { get; set; }
         public DbSet<PersonalNoteModel> PersonalNote { get; set; }
         public DbSet<PersonalCalendarEventModel> PersonalCalendarEvent { get; set; }
+        public DbSet<PersonalExpenseModel> PersonalExpense { get; set; }
+        public DbSet<PersonalExpenseCategoryModel> PersonalExpenseCategory { get; set; }
 
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
@@ -139,6 +141,11 @@ namespace angnet.Infrastructure.Data
                 .HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PersonalCalendarEventModel>().HasIndex(x => new { x.OwnerId, x.StartDate, x.EndDate });
             modelBuilder.Entity<PersonalCalendarEventModel>().Property(x => x.Version).IsConcurrencyToken();
+            modelBuilder.Entity<PersonalExpenseModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalExpenseModel>().HasIndex(x => new { x.OwnerId, x.Date });
+            modelBuilder.Entity<PersonalExpenseModel>().Property(x => x.Version).IsConcurrencyToken();
+            modelBuilder.Entity<PersonalExpenseCategoryModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalExpenseCategoryModel>().HasIndex(x => new { x.OwnerId, x.NormalizedName }).IsUnique();
             modelBuilder.Entity<PersonalNoteModel>()
                 .HasIndex(n => new { n.OwnerId, n.UpdatedAt, n.NoteId });
             modelBuilder.Entity<PersonalNoteModel>().Property(n => n.Version).IsConcurrencyToken();
