@@ -18,10 +18,10 @@
   <button
     type="submit"
     class="music-search__submit"
-    [disabled]="searching || !query.trim()">
+    [disabled]="!query.trim() || (searching && listMode === 'search' && query.trim() === activeQuery)">
     <span
       nz-icon
-      [nzType]="searching ? 'loading' : 'search'"
+      [nzType]="searching && listMode === 'search' ? 'loading' : 'search'"
       nzTheme="outline"></span>
     {{ 'T_MUSIC_SEARCH' | translate }}
   </button>
@@ -95,14 +95,24 @@
     <div class="music-list__heading">
       <div>
         <span>YOUTUBE</span>
-        <h2 *ngIf="!activeQuery">
-          {{ 'T_MUSIC_YOUTUBE_RESULTS' | translate }}
+        <h2 *ngIf="listMode === 'discover'">
+          {{ 'T_MUSIC_YOUTUBE_DISCOVER' | translate }}
         </h2>
         <h2 *ngIf="activeQuery">
           {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
         </h2>
       </div>
       <div class="music-list__heading-actions">
+        <button
+          *ngIf="listMode === 'discover'"
+          type="button"
+          class="music-list__shuffle"
+          [disabled]="searching"
+          [attr.aria-label]="'T_MUSIC_YOUTUBE_DISCOVER_REFRESH' | translate"
+          [title]="'T_MUSIC_YOUTUBE_DISCOVER_REFRESH' | translate"
+          (click)="discover()">
+          <span nz-icon nzType="reload" nzTheme="outline"></span>
+        </button>
         <button
           type="button"
           class="music-list__shuffle"
@@ -129,23 +139,36 @@
     </div>
 
     <div class="music-list__tracks">
-      <div *ngIf="!searched && !searching" class="music-list__state">
-        <span nz-icon nzType="search" nzTheme="outline"></span>
-        {{ 'T_MUSIC_YOUTUBE_PROMPT' | translate }}
-      </div>
       <div *ngIf="searching" class="music-list__state" aria-live="polite">
         <span nz-icon nzType="loading" nzTheme="outline"></span>
-        {{ 'T_MUSIC_YOUTUBE_SEARCHING' | translate }}
+        {{
+          (listMode === 'discover'
+            ? 'T_MUSIC_YOUTUBE_DISCOVER_LOADING'
+            : 'T_MUSIC_YOUTUBE_SEARCHING'
+          ) | translate
+        }}
       </div>
       <div *ngIf="!searching && error" class="music-list__state" role="alert">
         <span nz-icon nzType="info-circle" nzTheme="outline"></span>
         {{ error | translate }}
+        <button
+          *ngIf="listMode === 'discover'"
+          type="button"
+          class="music-list__retry"
+          (click)="discover()">
+          {{ 'T_MUSIC_YOUTUBE_DISCOVER_RETRY' | translate }}
+        </button>
       </div>
       <div
         *ngIf="searched && !searching && !error && tracks.length === 0"
         class="music-list__state">
         <span nz-icon nzType="youtube" nzTheme="outline"></span>
-        {{ 'T_MUSIC_SEARCH_EMPTY' | translate: { query: activeQuery } }}
+        {{
+          (listMode === 'discover'
+            ? 'T_MUSIC_YOUTUBE_DISCOVER_EMPTY'
+            : 'T_MUSIC_SEARCH_EMPTY'
+          ) | translate: { query: activeQuery }
+        }}
       </div>
 
       <div

@@ -53,21 +53,25 @@
       <div class="music-list__heading">
         <div class="library-heading">
           @if (selectedCollection; as collection) {
-            <span>
+            <h2>
+              <span class="library-heading__name">{{ collection.Name }}</span>
               <span
+                class="library-heading__visibility"
                 nz-icon
                 [nzType]="visibilityOption(collection.Visibility).icon"
+                role="img"
+                [attr.aria-label]="visibilityOption(collection.Visibility).labelKey | translate"
+                [title]="visibilityOption(collection.Visibility).labelKey | translate"
                 nzTheme="outline"></span>
-              {{ visibilityOption(collection.Visibility).labelKey | translate }}
-              @if (isShared) {
-                ·
+            </h2>
+            @if (isShared) {
+              <span>
                 {{
                   'T_MUSIC_COLLECTION_BY'
                     | translate: { name: collection.OwnerFullName }
                 }}
-              }
-            </span>
-            <h2>{{ collection.Name }}</h2>
+              </span>
+            }
             @if (collection.Description) {
               <p>{{ collection.Description }}</p>
             }

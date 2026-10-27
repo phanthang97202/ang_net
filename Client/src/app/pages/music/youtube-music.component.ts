@@ -6,6 +6,7 @@ import {
   ElementRef,
   NgZone,
   OnDestroy,
+  OnInit,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -13,6 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
 import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
 import { IMusicTrackPreview, IYouTubeMusicTrack } from '../../interfaces';
 import { MusicLibraryService } from '../../services/music-library.service';
@@ -44,7 +46,7 @@ import {
     './youtube-music.component.scss',
   ],
 })
-export class YouTubeMusicComponent implements OnDestroy {
+export class YouTubeMusicComponent implements OnInit, OnDestroy {
   private readonly api = inject(YouTubeMusicService);
   private readonly playerApi = inject(YouTubePlayerApiService);
   private readonly sanitizer = inject(DomSanitizer);
@@ -66,6 +68,7 @@ export class YouTubeMusicComponent implements OnDestroy {
   private initialVideoId = '';
   private pendingVideoId = '';
   private destroyed = false;
+  private readonly cancelListRequest = new Subject<void>();
   private readonly shuffleOrder = new MusicShuffle();
   shuffle = false;
 
@@ -78,6 +81,11 @@ export class YouTubeMusicComponent implements OnDestroy {
   searched = false;
   error = '';
   playerError = '';
+  listMode: 'discover' | 'search' = 'discover';
+
+  ngOnInit(): void {
+    this.discover();
+  }
 
   get currentIndex(): number {
     if (!this.currentTrack) return -1;
@@ -91,13 +99,19 @@ export class YouTubeMusicComponent implements OnDestroy {
   submit(event: Event): void {
     event.preventDefault();
     const query = this.query.trim();
-    if (!query || this.searching) return;
+    if (!query || (this.searching && this.listMode === 'search' && this.activeQuery === query)) return;
 
+    this.cancelListRequest.next();
+    this.listMode = 'search';
+    this.activeQuery = query;
     this.searching = true;
     this.error = '';
     this.api
       .search(query, 20)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntil(this.cancelListRequest),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: tracks => {
           this.tracks = tracks;
@@ -123,10 +137,41 @@ export class YouTubeMusicComponent implements OnDestroy {
 
   clearSearch(): void {
     this.query = '';
+    this.discover();
+  }
+
+  discover(): void {
+    this.cancelListRequest.next();
+    this.listMode = 'discover';
     this.activeQuery = '';
-    this.tracks = [];
+    this.searching = true;
     this.searched = false;
     this.error = '';
+    this.api
+      .discover(20)
+      .pipe(
+        takeUntil(this.cancelListRequest),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: tracks => {
+          this.tracks = tracks;
+          this.searched = true;
+          this.searching = false;
+          this.library.refreshSaveState(
+            tracks.map(track => ({ Provider: 'YouTube', ExternalId: track.id }))
+          );
+        },
+        error: (error: unknown) => {
+          this.tracks = [];
+          this.searched = true;
+          this.searching = false;
+          this.error =
+            error instanceof Error && error.message === YOUTUBE_KEY_MISSING
+              ? 'T_MUSIC_YOUTUBE_NOT_CONFIGURED'
+              : 'T_MUSIC_YOUTUBE_DISCOVER_ERROR';
+        },
+      });
   }
 
   play(track: IYouTubeMusicTrack): void {
@@ -153,6 +198,8 @@ export class YouTubeMusicComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    this.cancelListRequest.next();
+    this.cancelListRequest.complete();
     this.player?.destroy();
     this.player = null;
   }

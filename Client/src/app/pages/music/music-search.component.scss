@@ -115,11 +115,22 @@
   font-size: 0.82rem;
   font-weight: 600;
   text-align: center;
+  flex-wrap: wrap;
 
   .anticon {
     color: var(--color-accent);
     font-size: 1.1rem;
   }
+}
+
+.music-list__retry {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {

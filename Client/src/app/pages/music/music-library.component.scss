@@ -91,9 +91,9 @@
   }
 
   h2 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
   }
 
   p {
@@ -102,6 +102,19 @@
     font-size: 0.78rem;
     line-height: 1.5;
   }
+}
+
+.library-heading__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-heading__visibility {
+  flex: none;
+  color: var(--color-accent);
+  font-size: 0.8rem;
 }
 
 .library-heading__side {
