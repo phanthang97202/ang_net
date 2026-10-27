@@ -69,6 +69,31 @@ describe('Personal calendar', () => {
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
   });
 
+  it('lets an existing long series be corrected without changing its repeat end date', () => {
+    calendar.openEdit({ id: 'series', version: 1, title: 'Trực khách sạn', date: '2026-10-24', endDate: '2026-11-19', seriesStartDate: '2026-10-01', seriesEndDate: '2026-10-27', start: '19:00', end: '07:00', allDay: false, category: 'work', location: '', notes: '', repeatDays: 80, repeatUntil: '2026-10-27' });
+    expect(calendar.repeatDurationDays).toBe(26);
+    expect(calendar.draft.endDate).toBe('2026-10-27');
+    calendar.setRepeatDuration(1);
+    expect(calendar.draft.endDate).toBe('2026-10-02');
+    calendar.save({ invalid: false } as NgForm);
+    const request = http.expectOne(req => req.method === 'PUT');
+    expect(request.request.body.EndDate).toBe('2026-10-02');
+    expect(request.request.body.RepeatUntil).toBe('2026-10-27');
+    expect(request.request.body.RepeatDays).toBe(80);
+    request.flush({ EventId: 'series', StartDate: '2026-10-01' });
+    http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
+  });
+
+  it('keeps the duration when the first date changes and selects the next day for overnight hours', () => {
+    calendar.openCreate();
+    calendar.draft.date = '2026-10-01'; calendar.draft.endDate = '2026-10-01';
+    calendar.changeRepeat(true);
+    calendar.changeTime('start', '19:00'); calendar.changeTime('end', '07:00');
+    expect(calendar.draft.endDate).toBe('2026-10-02');
+    calendar.changeStartDate('2026-11-05');
+    expect(calendar.draft.endDate).toBe('2026-11-06');
+  });
+
   it('puts the Vietnamese lunar date on every day and flags months with a leap month', () => {
     const day = (key: string) => calendar.days.find(item => calendar.key(item.date) === key)!;
     calendar.month = new Date(2025, 6, 1);
@@ -83,6 +108,32 @@ describe('Personal calendar', () => {
 });
 
 describe('Personal calendar lunar dates', () => {
+  it('keeps the dialog actions below the scrollable form on a short screen', () => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, PersonalCalendarComponent],
+      providers: [provideRouter([]), { provide: NZ_ICONS, useValue: Object.values(icons) }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(PersonalCalendarComponent);
+    fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    fixture.componentInstance.repeatWeekly = true;
+    fixture.detectChanges();
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    const form: HTMLElement = dialog.querySelector('form')!;
+    form.style.maxHeight = '350px';
+    dialog.showModal();
+    const scroll: HTMLElement = dialog.querySelector('.dialog-scroll')!;
+    const actions: HTMLElement = dialog.querySelector('.dialog-actions')!;
+    expect(scroll.scrollHeight).toBeGreaterThan(scroll.clientHeight);
+    expect(scroll.getBoundingClientRect().bottom).toBeLessThanOrEqual(actions.getBoundingClientRect().top + 1);
+    scroll.scrollTop = scroll.scrollHeight;
+    expect(scroll.scrollTop).toBeGreaterThan(0);
+    expect(scroll.getBoundingClientRect().bottom).toBeLessThanOrEqual(actions.getBoundingClientRect().top + 1);
+    dialog.close();
+    http.verify();
+  });
+
   it('renders the lunar day under each solar day with N for a leap month', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, PersonalCalendarComponent],

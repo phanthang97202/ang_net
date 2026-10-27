@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { addMonths, eachDayOfInterval, endOfMonth, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { addDays, addMonths, differenceInCalendarDays, eachDayOfInterval, endOfMonth, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, endOfWeek } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Subscription } from 'rxjs';
 import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, PersonalCalendarService } from '../../services/personal-calendar.service';
@@ -35,6 +35,7 @@ export class PersonalCalendarComponent implements OnInit {
   ];
   readonly weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   readonly repeatWeekdays = [{ label: 'T2', bit: 2 }, { label: 'T3', bit: 4 }, { label: 'T4', bit: 8 }, { label: 'T5', bit: 16 }, { label: 'T6', bit: 32 }, { label: 'T7', bit: 64 }, { label: 'CN', bit: 1 }];
+  readonly repeatLongDurations = Array.from({ length: 30 }, (_, index) => index + 2);
   readonly today = this.day(new Date());
   selected = this.today;
   month = startOfMonth(this.today);
@@ -91,6 +92,27 @@ export class PersonalCalendarComponent implements OnInit {
   goToday(): void { this.select(this.today); }
   openCreate(): void { this.editing = false; this.repeatWeekly = false; this.error = ''; this.draft = this.emptyEvent(this.selected); this.editor?.nativeElement.showModal(); }
   openEdit(event: CalendarEvent): void { this.editing = true; this.repeatWeekly = !!event.repeatDays; this.error = ''; this.draft = { ...event, date: event.seriesStartDate || event.date, endDate: event.seriesEndDate || event.endDate }; this.editor?.nativeElement.showModal(); }
+  get repeatDurationDays(): number {
+    if (!this.draft.date || !this.draft.endDate) return 0;
+    return differenceInCalendarDays(this.parseDay(this.draft.endDate), this.parseDay(this.draft.date));
+  }
+  setRepeatDuration(days: number): void {
+    if (!this.draft.date || !Number.isInteger(days) || days < 0 || days > 31) return;
+    this.draft.endDate = this.key(addDays(this.parseDay(this.draft.date), days));
+  }
+  changeStartDate(date: string): void {
+    const duration = this.repeatDurationDays;
+    this.draft.date = date;
+    if (this.repeatWeekly && date && duration >= 0 && duration <= 31) this.setRepeatDuration(duration);
+  }
+  changeRepeat(enabled: boolean): void {
+    this.repeatWeekly = enabled;
+    if (enabled && this.repeatDurationDays === 0 && !this.draft.allDay && this.draft.end <= this.draft.start) this.setRepeatDuration(1);
+  }
+  changeTime(field: 'start' | 'end', value: string): void {
+    this.draft[field] = value;
+    if (this.repeatWeekly && this.repeatDurationDays === 0 && this.draft.start && this.draft.end && this.draft.end < this.draft.start) this.setRepeatDuration(1);
+  }
   toggleRepeatDay(bit: number): void { this.draft.repeatDays = (this.draft.repeatDays || 0) ^ bit; }
   isRepeatDay(bit: number): boolean { return !!((this.draft.repeatDays || 0) & bit); }
   close(): void { if (!this.saving) this.editor?.nativeElement.close(); }

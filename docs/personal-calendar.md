@@ -6,7 +6,7 @@ Frontend và API kiểm tra quyền `calendar.use`. API lấy mã chủ sở h�
 
 Ngày kết thúc được tính bao gồm cả ngày đó. Ngày và giờ được lưu theo giá trị người dùng nhập, không chuyển múi giờ; hiện chưa có chức năng thay đổi múi giờ hoặc đồng bộ lịch bên ngoài. Khi tải lịch, API lấy các sự kiện giao với khoảng ngày đang hiển thị, kể cả sự kiện bắt đầu từ tháng trước. Nếu không tải hoặc lưu được, giao diện báo lỗi và giữ nội dung đang sửa.
 
-Migration `0070_PersonalCalendarRecurrence.sql` bổ sung quy tắc lặp hàng tuần. Chọn các thứ trong tuần, ngày bắt đầu và ngày kết thúc của lần đầu; với ca qua đêm, ngày kết thúc là ngày hôm sau. Ngày kết thúc lặp là ngày bắt đầu cuối cùng được phép của chuỗi; để trống để lặp không giới hạn. Mỗi lần lặp dài tối đa 31 ngày. Sửa hoặc xóa một lần xuất hiện áp dụng cho toàn bộ chuỗi, chưa hỗ trợ ngoại lệ riêng lẻ. Các lần xuất hiện giao với hôm nay cũng hiện trong chuông thông báo.
+Migration `0070_PersonalCalendarRecurrence.sql` bổ sung quy tắc lặp hàng tuần. Chọn các thứ trong tuần, ngày bắt đầu lặp và thời điểm kết thúc của mỗi lần; với ca qua đêm, chọn kết thúc vào ngày hôm sau. Ngày ngừng lặp là ngày bắt đầu cuối cùng được phép của chuỗi; để trống để lặp không giới hạn. Mỗi lần lặp dài tối đa 31 ngày. Khi sửa chuỗi đã lưu với thời lượng nhiều ngày, giao diện hiển thị cảnh báo để người dùng kiểm tra và tự điều chỉnh. Sửa hoặc xóa một lần xuất hiện áp dụng cho toàn bộ chuỗi, chưa hỗ trợ ngoại lệ riêng lẻ. Các lần xuất hiện giao với hôm nay cũng hiện trong chuông thông báo.
 
 Đây là tính năng riêng tư: không đăng sự kiện lên trang công khai. Người dùng nên triển khai API và migration trước frontend; sau đó đăng nhập và kiểm tra tạo, tải lại trang, sửa, xóa sự kiện bằng tài khoản có quyền.
 
