@@ -12,6 +12,7 @@ import {
 import { NavbarComponent } from './navbar.component';
 import { BlogNotificationService } from '../../services/blog-notification.service';
 import { signal } from '@angular/core';
+import { CalendarNotificationService } from '../../services/calendar-notification.service';
 
 function provideNotifications(): void {
   TestBed.configureTestingModule({
@@ -27,12 +28,18 @@ function provideNotifications(): void {
           activeMenu: signal(null),
         },
       },
+      {
+        provide: CalendarNotificationService,
+        useValue: { attach: () => undefined, detach: () => undefined, syncAccount: () => undefined, refresh: () => undefined, events: signal([]), error: signal(false) },
+      },
     ],
   });
 }
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import {
   HomeOutline,
+  CustomerServiceOutline,
+  CalendarOutline,
   LineChartOutline,
   ToolOutline,
   CalculatorOutline,
@@ -60,6 +67,8 @@ describe('NavbarComponent search keyboard flow', () => {
           provide: NZ_ICONS,
           useValue: [
             HomeOutline,
+            CustomerServiceOutline,
+            CalendarOutline,
             ToolOutline,
             CalculatorOutline,
             FileTextOutline,
@@ -124,6 +133,8 @@ describe('Navbar account greeting', () => {
           provide: NZ_ICONS,
           useValue: [
             HomeOutline,
+            CustomerServiceOutline,
+            CalendarOutline,
             ToolOutline,
             CalculatorOutline,
             FileTextOutline,
@@ -191,6 +202,8 @@ describe('Navbar menu loading', () => {
           provide: NZ_ICONS,
           useValue: [
             HomeOutline,
+            CustomerServiceOutline,
+            CalendarOutline,
             ToolOutline,
             CalculatorOutline,
             PlayCircleOutline,
@@ -302,6 +315,8 @@ describe('Navbar report permissions', () => {
             provide: NZ_ICONS,
             useValue: [
               HomeOutline,
+              CustomerServiceOutline,
+              CalendarOutline,
               LineChartOutline,
               ToolOutline,
               CalculatorOutline,

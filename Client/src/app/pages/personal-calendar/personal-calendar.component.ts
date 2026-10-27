@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -23,6 +24,7 @@ interface CalendarDay { date: Date; key: string; inMonth: boolean; events: Calen
 export class PersonalCalendarComponent implements OnInit {
   @ViewChild('editor') editor?: ElementRef<HTMLDialogElement>;
   private readonly api = inject(PersonalCalendarService);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroy = inject(DestroyRef);
   private listRequest?: Subscription;
   private requestGeneration = 0;
@@ -43,7 +45,16 @@ export class PersonalCalendarComponent implements OnInit {
   loading = false;
   saving = false;
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(params => {
+      const value = params.get('date');
+      if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+      const date = this.parseDay(value);
+      if (Number.isNaN(date.getTime()) || this.key(date) !== value) return;
+      this.select(date);
+    });
+  }
 
   get title(): string { return `Tháng ${format(this.month, 'M, yyyy')}`; }
   get selectedLabel(): string { return format(this.selected, "EEEE, 'ngày' d 'tháng' M", { locale: vi }); }
@@ -56,6 +67,7 @@ export class PersonalCalendarComponent implements OnInit {
   get selectedEvents(): CalendarEvent[] { return this.eventsFor(this.selected); }
   get hasLeapMonth(): boolean { return this.days.some(day => day.inMonth && day.lunar?.leapMonth); }
   get isTodaySelected(): boolean { return isSameDay(this.today, this.selected); }
+  trackDay(_index: number, day: CalendarDay): string { return day.key; }
   key(date: Date): string { return format(date, 'yyyy-MM-dd'); }
   isSelected(date: Date): boolean { return isSameDay(this.selected, date); }
   isToday(date: Date): boolean { return isSameDay(this.today, date); }

@@ -4,7 +4,8 @@
   class="navbar-icon-btn notification-bell"
   [attr.aria-label]="
     ('T_NOTIFICATIONS' | translate) +
-    (state.unread() ? ': ' + state.unread() : '')
+    (state.unread() ? ': ' + state.unread() : '') +
+    (calendar.events().length ? ', ' + ('T_CALENDAR_TODAY_COUNT' | translate: { count: calendar.events().length }) : '')
   "
   [attr.aria-expanded]="state.activeMenu() === id"
   [attr.aria-controls]="id"
@@ -31,6 +32,9 @@
     <span class="notification-badge" aria-hidden="true">{{
       state.unread() > 99 ? '99+' : state.unread()
     }}</span>
+  }
+  @if (calendar.events().length) {
+    <span class="calendar-indicator" aria-hidden="true"></span>
   }
 </button>
 
@@ -71,6 +75,20 @@
       </button>
     </div>
     <div class="notification-list" [attr.aria-busy]="state.loading()">
+      @if (calendar.events().length || calendar.error()) {
+        <div class="calendar-reminders">
+          <div class="calendar-reminders__heading"><span nz-icon nzType="calendar" nzTheme="outline"></span> {{ 'T_CALENDAR_TODAY_EVENTS' | translate }}</div>
+          @for (event of calendar.events(); track event.EventId) {
+            <a class="calendar-reminder" [attr.href]="'/calendar?date=' + calendar.today" (click)="openCalendar($event)">
+              <span class="calendar-reminder__time">{{ calendar.time(event) | translate }}</span>
+              <span class="calendar-reminder__title">{{ event.Title }}</span>
+            </a>
+          }
+          @if (calendar.error()) {
+            <div class="calendar-reminders__error" role="alert">{{ 'T_CALENDAR_TODAY_ERROR' | translate }} <button type="button" (click)="calendar.refresh()">{{ 'T_NOTIFICATION_RETRY' | translate }}</button></div>
+          }
+        </div>
+      }
       @for (item of state.items(); track item.NotificationId) {
         <a
           class="notification"

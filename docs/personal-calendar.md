@@ -7,3 +7,5 @@ Frontend và API kiểm tra quyền `calendar.use`. API lấy mã chủ sở h�
 Ngày kết thúc được tính bao gồm cả ngày đó. Ngày và giờ được lưu theo giá trị người dùng nhập, không chuyển múi giờ; hiện chưa có chức năng thay đổi múi giờ, lặp lại, nhắc nhở hoặc đồng bộ lịch bên ngoài. Khi tải lịch, API lấy các sự kiện giao với khoảng ngày đang hiển thị, kể cả sự kiện bắt đầu từ tháng trước. Nếu không tải hoặc lưu được, giao diện báo lỗi và giữ nội dung đang sửa.
 
 Đây là tính năng riêng tư: không đăng sự kiện lên trang công khai. Người dùng nên triển khai API và migration trước frontend; sau đó đăng nhập và kiểm tra tạo, tải lại trang, sửa, xóa sự kiện bằng tài khoản có quyền.
+
+Chuông thông báo có mục riêng cho các sự kiện giao với ngày hiện tại theo ngày trên thiết bị. Khi có sự kiện, chuông hiện chấm màu; số trên chuông vẫn chỉ tính thông báo tương tác chưa đọc. Danh sách lịch được làm mới khi mở chuông, quay lại tab, định kỳ khi trang đang hiển thị và sau khi tạo/sửa/xóa trong trang hiện tại. Đây là nhắc lịch trong website, không gửi push khi website đóng và không có trạng thái đã đọc riêng cho từng sự kiện.

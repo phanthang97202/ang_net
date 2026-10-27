@@ -1,6 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { NgForm } from '@angular/forms';
+import { provideRouter } from '@angular/router';
 import { addDays, addMonths, startOfMonth } from 'date-fns';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import * as icons from '@ant-design/icons-angular/icons';
@@ -10,7 +11,7 @@ describe('Personal calendar', () => {
   let http: HttpTestingController;
   let calendar: PersonalCalendarComponent;
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, PersonalCalendarComponent] });
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, PersonalCalendarComponent], providers: [provideRouter([])] });
     TestBed.overrideComponent(PersonalCalendarComponent, { set: { template: '' } });
     http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
@@ -69,7 +70,7 @@ describe('Personal calendar lunar dates', () => {
   it('renders the lunar day under each solar day with N for a leap month', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, PersonalCalendarComponent],
-      providers: [{ provide: NZ_ICONS, useValue: Object.values(icons) }],
+      providers: [provideRouter([]), { provide: NZ_ICONS, useValue: Object.values(icons) }],
     });
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
@@ -86,6 +87,14 @@ describe('Personal calendar lunar dates', () => {
     expect(leapStart.getAttribute('aria-label')).toContain('âm lịch ngày 1 tháng 6 nhuận năm 2025');
     expect(cell('ngày 24 tháng 7 năm 2025').querySelector('.lunar-day')!.textContent!.trim()).toBe('30/6');
     expect(fixture.nativeElement.querySelector('.calendar-footer').textContent).toContain('N: tháng nhuận');
+
+    // A change detection pass between pointer down and click must not replace the target.
+    leapStart.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.calendar-day')[cells.indexOf(leapStart)]).toBe(leapStart);
+    leapStart.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.key(fixture.componentInstance.selected)).toBe('2025-07-25');
     http.verify();
   });
 });

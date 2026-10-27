@@ -11,6 +11,8 @@ import { NotificationMenuComponent } from './notification-menu.component';
 import { BlogNotificationService } from '../../services/blog-notification.service';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
+import { NZ_ICONS } from 'ng-zorro-antd/icon';
+import { CalendarOutline } from '@ant-design/icons-angular/icons';
 
 describe('Notification menu', () => {
   const url = `${environment.apiUrl}Notifications`;
@@ -27,11 +29,13 @@ describe('Notification menu', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
+        { provide: NZ_ICONS, useValue: [CalendarOutline] },
         {
           provide: AuthService,
           useValue: {
             isLoggedIn: () => true,
             getAccountInfo: () => ({ nameid: 'me' }),
+            hasPermission: () => false,
           },
         },
       ],
@@ -56,6 +60,32 @@ describe('Notification menu', () => {
     expect(requests.length).toBeGreaterThan(0);
     requests.forEach(request => request.flush({ UnreadCount: count }));
   }
+
+  it('shows today’s calendar events separately from unread interactions and opens today', fakeAsync(() => {
+    spyOn(TestBed.inject(AuthService), 'hasPermission').and.returnValue(true);
+    const fixture = TestBed.createComponent(NotificationMenuComponent);
+    fixture.detectChanges();
+    http.expectOne(`${url}/Unread`).flush({ UnreadCount: 0 });
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([{
+      EventId: 'event-1', Title: 'Đi chơi', StartDate: '2026-10-27', EndDate: '2026-10-27',
+      StartTime: '09:00', EndTime: '10:00', AllDay: false, Category: 'leisure', Location: '', Notes: '', Version: 1,
+    }]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.calendar-indicator')).not.toBeNull();
+    fixture.componentInstance.openChange(true);
+    http.expectOne(req => req.url === url).flush({ Success: true, objResult: { DataList: [], HasMore: false, NextCursor: null, UnreadCount: 0, SnapshotAt: new Date().toISOString() } });
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([{
+      EventId: 'event-1', Title: 'Đi chơi', StartDate: '2026-10-27', EndDate: '2026-10-27',
+      StartTime: '09:00', EndTime: '10:00', AllDay: false, Category: 'leisure', Location: '', Notes: '', Version: 1,
+    }]);
+    fixture.detectChanges(); tick(500); fixture.detectChanges();
+    const link = document.querySelector('.calendar-reminder') as HTMLAnchorElement;
+    expect(link?.textContent).toContain('Đi chơi');
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    link.click();
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { date: fixture.componentInstance.calendar.today } });
+    fixture.destroy(); tick();
+  }));
 
   it('opens the bell list, shows unread state and routes to the exact comment', fakeAsync(() => {
     const fixture = TestBed.createComponent(NotificationMenuComponent);

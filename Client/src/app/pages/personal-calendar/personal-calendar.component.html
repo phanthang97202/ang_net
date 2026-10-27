@@ -21,7 +21,7 @@
       </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
         <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday }}</div>
-        <button *ngFor="let day of days" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + lunarLabel(day.lunar) + ', ' + day.events.length + ' sự kiện'" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
+        <button *ngFor="let day of days; trackBy: trackDay" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + lunarLabel(day.lunar) + ', ' + day.events.length + ' sự kiện'" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
           <span class="day-number">{{ day.date.getDate() }}</span>
           <span class="lunar-day" [class.lunar-day--new-month]="day.lunar?.day === 1" [title]="lunarLabel(day.lunar)" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? 'N' : '') : '—' }}</span>
           <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">+{{ day.events.length - 2 }} sự kiện</span></span>

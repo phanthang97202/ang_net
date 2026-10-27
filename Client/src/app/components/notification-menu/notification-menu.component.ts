@@ -16,6 +16,8 @@ import { BlogNotificationService } from '../../services/blog-notification.servic
 import { BlogNotification } from '../../interfaces/blog-notification';
 import { InfiniteScrollDirective } from '../../directives/infinite-scroll.directive';
 import { TimeAgo } from '../../pipes/timeAgo.pipe';
+import { CalendarNotificationService } from '../../services/calendar-notification.service';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 let nextMenuId = 0;
 
@@ -28,6 +30,7 @@ let nextMenuId = 0;
     TranslateModule,
     InfiniteScrollDirective,
     TimeAgo,
+    NzIconModule,
   ],
   templateUrl: './notification-menu.component.html',
   styleUrl: './notification-menu.component.scss',
@@ -35,6 +38,7 @@ let nextMenuId = 0;
 export class NotificationMenuComponent implements OnInit, OnDestroy, DoCheck {
   @ViewChild('bell') private bell?: ElementRef<HTMLButtonElement>;
   readonly state = inject(BlogNotificationService);
+  readonly calendar = inject(CalendarNotificationService);
   readonly translate = inject(TranslateService);
   private router = inject(Router);
   readonly id = `notifications-${++nextMenuId}`;
@@ -46,13 +50,16 @@ export class NotificationMenuComponent implements OnInit, OnDestroy, DoCheck {
   };
   ngOnInit(): void {
     this.state.attach();
+    this.calendar.attach();
   }
   ngDoCheck(): void {
     this.state.syncAccount();
+    this.calendar.syncAccount();
   }
   ngOnDestroy(): void {
     this.state.show(this.id, false);
     this.state.detach();
+    this.calendar.detach();
   }
   @HostListener('document:keydown.escape')
   @HostListener('window:resize')
@@ -63,6 +70,13 @@ export class NotificationMenuComponent implements OnInit, OnDestroy, DoCheck {
   }
   openChange(open: boolean): void {
     this.state.show(this.id, open);
+    if (open) this.calendar.refresh();
+  }
+  openCalendar(event: MouseEvent): void {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    this.close();
+    void this.router.navigate(['/calendar'], { queryParams: { date: this.calendar.today } });
   }
   link(item: BlogNotification): string {
     return this.router.serializeUrl(
