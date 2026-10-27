@@ -5,11 +5,14 @@
 // Nền chờ trong lúc lấy tham số hệ thống và tải ảnh: gradient tím nhạt theo màu
 // chủ đạo, có lớp sáng lướt qua chậm để biết là đang tải.
 // Khung .admin__layout--content chỉ có min-height (height:100% sẽ thành 0), nên
-// đặt cùng chiều cao tối thiểu để nền phủ kín vùng nội dung ngay từ đầu.
+// tự đặt chiều cao để nền phủ kín ngay từ đầu. Layout admin không vẽ topbar
+// (sidebar cao 100vh) nên vùng nội dung cao đúng bằng màn hình; dvh để trên điện
+// thoại thanh địa chỉ co giãn không làm hụt.
 .dashboard-background {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - var(--admin-topbar-height, 56px));
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: linear-gradient(135deg, #e9e6fd 0%, #f5f6fb 48%, #e2ecfb 100%);
 
