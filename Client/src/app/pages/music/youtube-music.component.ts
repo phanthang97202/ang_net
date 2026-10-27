@@ -15,6 +15,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
+import { MusicAnalyticsService } from '../../services/music-analytics.service';
 import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
 import { IMusicTrackPreview, IYouTubeMusicTrack } from '../../interfaces';
 import { MusicLibraryService } from '../../services/music-library.service';
@@ -47,6 +48,8 @@ import {
   ],
 })
 export class YouTubeMusicComponent implements OnInit, OnDestroy {
+  private readonly metrics = inject(MusicAnalyticsService);
+  private playbackRecorded = false;
   private readonly api = inject(YouTubeMusicService);
   private readonly playerApi = inject(YouTubePlayerApiService);
   private readonly sanitizer = inject(DomSanitizer);
@@ -104,6 +107,7 @@ export class YouTubeMusicComponent implements OnInit, OnDestroy {
     this.cancelListRequest.next();
     this.listMode = 'search';
     this.activeQuery = query;
+    this.metrics.record('search', 'YouTube', '', '', query);
     this.searching = true;
     this.error = '';
     this.api
@@ -123,6 +127,7 @@ export class YouTubeMusicComponent implements OnInit, OnDestroy {
           );
         },
         error: (error: unknown) => {
+          this.metrics.record('search_error', 'YouTube', '', '', query);
           this.tracks = [];
           this.activeQuery = query;
           this.searched = true;
@@ -175,6 +180,7 @@ export class YouTubeMusicComponent implements OnInit, OnDestroy {
   }
 
   play(track: IYouTubeMusicTrack): void {
+    this.playbackRecorded = false;
     this.currentTrack = track;
     this.pendingVideoId = track.id;
     this.playerError = '';
@@ -246,6 +252,7 @@ export class YouTubeMusicComponent implements OnInit, OnDestroy {
         },
       });
     } catch {
+      if (this.currentTrack) this.metrics.record('play_error', 'YouTube', this.currentTrack.id, this.currentTrack.title);
       this.zone.run(() => (this.playerError = 'T_MUSIC_YOUTUBE_PLAYER_ERROR'));
     } finally {
       this.playerInitializing = false;
@@ -272,12 +279,21 @@ export class YouTubeMusicComponent implements OnInit, OnDestroy {
     iframeApi: YouTubeIframeApi,
     state: number
   ): void {
-    if (state !== iframeApi.PlayerState.ENDED) return;
-    this.zone.run(() => this.playNextTrack());
+    if (state === iframeApi.PlayerState.PLAYING && this.currentTrack && !this.playbackRecorded) {
+      this.playbackRecorded = true;
+      this.metrics.record('play', 'YouTube', this.currentTrack.id, this.currentTrack.title);
+    }
+    if (state === iframeApi.PlayerState.ENDED) this.zone.run(() => this.playNextTrack());
   }
 
   private onPlayerError(): void {
+    if (this.currentTrack) this.metrics.record('play_error', 'YouTube', this.currentTrack.id, this.currentTrack.title);
     this.zone.run(() => (this.playerError = 'T_MUSIC_YOUTUBE_PLAYER_ERROR'));
+  }
+
+  selectTrack(track: IYouTubeMusicTrack): void {
+    this.metrics.record('click', 'YouTube', track.id, track.title);
+    this.play(track);
   }
 
   toggleShuffle(): void {

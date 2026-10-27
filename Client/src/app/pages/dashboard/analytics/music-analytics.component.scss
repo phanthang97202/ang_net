@@ -1,0 +1,30 @@
+@use './analytics-theme' as theme;
+@include theme.frame;
+.intro, .hint { color: var(--admin-text-secondary); font-size: 13px; }
+.panel { @include theme.surface; }
+.filters { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; padding: 20px; margin-bottom: 20px; }
+.filters label { display: grid; gap: 8px; font-weight: 600; }
+.filters select { height: 40px; min-width: 140px; padding: 0 12px; border: 1px solid var(--admin-border-strong); border-radius: var(--admin-radius-sm); background: var(--admin-surface); }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.metric { display: grid; gap: 6px; padding: 18px 20px; }
+.metric span, .metric small { color: var(--admin-text-secondary); }
+.metric strong { font-size: 26px; }
+.section { padding: 20px; margin-bottom: 20px; }
+.section h2 { margin: 0; font-size: 16px; font-weight: 650; }
+.rankings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+ol { margin: 12px 0 0; padding-left: 24px; }
+li { padding: 8px 0; border-bottom: 1px solid var(--admin-border); }
+li span { display: inline-block; max-width: 85%; overflow-wrap: anywhere; }
+li small { display: block; color: var(--admin-text-secondary); }
+li strong { float: right; }
+.chart { display: flex; gap: 8px; height: 160px; overflow-x: auto; padding-top: 8px; }
+.chart-day { display: flex; flex: 1 0 32px; flex-direction: column; align-items: center; gap: 5px; color: var(--admin-text-secondary); }
+.bars { display: flex; align-items: end; gap: 2px; height: 120px; width: 18px; border-bottom: 1px solid var(--admin-border); }
+.bar { width: 8px; background: var(--admin-primary); }
+.play-bar { background: var(--admin-success); }
+.search-legend { color: var(--admin-primary); }
+.play-legend { color: var(--admin-success); }
+.table-wrap { overflow-x: auto; }
+table { @include theme.table; min-width: 700px; }
+.notice { color: var(--admin-danger); }
+@media (max-width: 767px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rankings { grid-template-columns: 1fr; gap: 0; } .filters label, .filters select, .filters button { width: 100%; } }

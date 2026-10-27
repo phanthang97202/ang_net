@@ -27,6 +27,7 @@ import { AudiusMusicService, MusicLibraryService } from '../../services';
 import { MusicLibraryComponent } from './music-library.component';
 import { YouTubeMusicComponent } from './youtube-music.component';
 import { MusicShuffle } from './music-shuffle';
+import { MusicAnalyticsService } from '../../services/music-analytics.service';
 
 export type TMusicTab = 'audius' | 'youtube' | 'library';
 
@@ -51,6 +52,8 @@ export type TMusicTab = 'audius' | 'youtube' | 'library';
   ],
 })
 export class MusicComponent {
+  private readonly metrics = inject(MusicAnalyticsService);
+  private playbackRecorded = false;
   private readonly musicService = inject(AudiusMusicService);
   private readonly library = inject(MusicLibraryService);
   private readonly previews = new WeakMap<IMusicTrack, IMusicTrackPreview>();
@@ -87,19 +90,21 @@ export class MusicComponent {
           this.listError = '';
         }),
         switchMap(query => {
+          if (query) this.metrics.record('search', 'Audius', '', '', query);
           const request = query
             ? this.musicService.searchTracks(query, 20)
             : this.musicService.getTrending(20);
 
           return request.pipe(
             map(tracks => ({ query, tracks, error: '' })),
-            catchError(() =>
-              of({
+            catchError(() => {
+              if (query) this.metrics.record('search_error', 'Audius', '', '', query);
+              return of({
                 query,
                 tracks: [] as IMusicTrack[],
                 error: 'T_MUSIC_SEARCH_ERROR',
-              })
-            )
+              });
+            })
           );
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -160,6 +165,7 @@ export class MusicComponent {
   selectTrack(index: number): void {
     const track = this.tracks[index];
     if (!track) return;
+    this.metrics.record('click', 'Audius', track.id, track.title);
 
     if (track.id === this.currentTrack?.id) {
       this.playCurrentTrack();
@@ -247,6 +253,10 @@ export class MusicComponent {
   }
 
   onPlay(): void {
+    if (this.currentTrack && !this.playbackRecorded) {
+      this.playbackRecorded = true;
+      this.metrics.record('play', 'Audius', this.currentTrack.id, this.currentTrack.title);
+    }
     this.isPlaying = true;
     this.playbackError = '';
   }
@@ -260,6 +270,7 @@ export class MusicComponent {
   }
 
   onPlaybackError(): void {
+    if (this.currentTrack) this.metrics.record('play_error', 'Audius', this.currentTrack.id, this.currentTrack.title);
     this.isPlaying = false;
     this.playbackError = 'T_MUSIC_PLAY_ERROR';
   }
@@ -321,6 +332,7 @@ export class MusicComponent {
   }
 
   private openTrack(index: number, autoPlay: boolean): void {
+    this.playbackRecorded = false;
     const track = this.tracks[index];
     const audio = this.audioRef?.nativeElement;
     if (!track || !audio) return;
@@ -346,6 +358,7 @@ export class MusicComponent {
   }
 
   private resetPlayback(): void {
+    this.playbackRecorded = false;
     this.isPlaying = false;
     this.currentTime = 0;
     this.duration = this.currentTrack?.durationSeconds ?? 0;

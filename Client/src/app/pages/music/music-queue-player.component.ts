@@ -23,6 +23,7 @@ import {
   YouTubePlayerInstance,
 } from '../../services/youtube-player-api.service';
 import { MusicShuffle } from './music-shuffle';
+import { MusicAnalyticsService } from '../../services/music-analytics.service';
 
 const AUDIUS_STREAM_URL = 'https://api.audius.co/v1/tracks';
 
@@ -48,7 +49,10 @@ const AUDIUS_STREAM_URL = 'https://api.audius.co/v1/tracks';
 export class MusicQueuePlayerComponent
   implements OnChanges, AfterViewInit, OnDestroy
 {
+  private readonly metrics = inject(MusicAnalyticsService);
+  private playbackRecorded = false;
   @Input() tracks: IMusicLibraryTrack[] = [];
+  @Input() collectionId = '';
   @Input() index = -1;
   @Input() shuffle = false;
   @Input() shuffleLoading = false;
@@ -171,6 +175,7 @@ export class MusicQueuePlayerComponent
   }
 
   onAudioPlaying(): void {
+    this.recordPlaying();
     this.isPlaying = true;
     this.consecutiveFailures = 0;
     this.error = '';
@@ -205,6 +210,7 @@ export class MusicQueuePlayerComponent
     if (track.TrackId === this.loadedTrackId) return;
 
     this.loadedTrackId = track.TrackId;
+    this.playbackRecorded = false;
     this.error = '';
     this.currentTime = 0;
     this.duration = track.DurationSeconds ?? 0;
@@ -286,6 +292,8 @@ export class MusicQueuePlayerComponent
         },
       });
     } catch {
+      const track = this.current;
+      if (track?.Provider === 'YouTube') this.metrics.record('play_error', track.Provider, track.ExternalId, track.Title, '', this.collectionId);
       this.zone.run(() => (this.error = 'T_MUSIC_YOUTUBE_PLAYER_ERROR'));
     } finally {
       this.playerInitializing = false;
@@ -312,6 +320,7 @@ export class MusicQueuePlayerComponent
   ): void {
     this.zone.run(() => {
       if (state === iframeApi.PlayerState.PLAYING) {
+        this.recordPlaying();
         this.consecutiveFailures = 0;
         this.error = '';
       } else if (state === iframeApi.PlayerState.ENDED) {
@@ -321,6 +330,8 @@ export class MusicQueuePlayerComponent
   }
 
   private skipBrokenTrack(): void {
+    const track = this.current;
+    if (track) this.metrics.record('play_error', track.Provider, track.ExternalId, track.Title, '', this.collectionId);
     this.consecutiveFailures++;
     if (this.consecutiveFailures >= this.tracks.length) {
       this.error = 'T_MUSIC_PLAY_ERROR';
@@ -328,5 +339,12 @@ export class MusicQueuePlayerComponent
     }
     this.error = 'T_MUSIC_SKIPPED_UNAVAILABLE';
     this.next();
+  }
+
+  private recordPlaying(): void {
+    const track = this.current;
+    if (!track || this.playbackRecorded) return;
+    this.playbackRecorded = true;
+    this.metrics.record('play', track.Provider, track.ExternalId, track.Title, '', this.collectionId);
   }
 }

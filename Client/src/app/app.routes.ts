@@ -273,6 +273,12 @@ const appRoutes: Routes = [
         canActivate: [canActivePermission('movieviewlog.view')],
       },
       {
+        path: 'music-analytics',
+        title: 'Thống kê âm nhạc',
+        loadComponent: () => import('./pages/dashboard/analytics/music-analytics.component').then(p => p.MusicAnalyticsComponent),
+        canActivate: [canActivePermission('music.analytics.view')],
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./pages/dashboard/user-list/user-list.component').then(

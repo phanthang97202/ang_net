@@ -32,6 +32,7 @@ import {
 } from '../../interfaces';
 import { AuthService, MusicLibraryService } from '../../services';
 import { MusicQueuePlayerComponent } from './music-queue-player.component';
+import { MusicAnalyticsService } from '../../services/music-analytics.service';
 
 const FAVORITES = 'favorites';
 const PAGE_SIZE = 100;
@@ -66,6 +67,7 @@ interface PendingConfirm {
   ],
 })
 export class MusicLibraryComponent implements OnInit, OnChanges {
+  private readonly metrics = inject(MusicAnalyticsService);
   @Input() sharedCollectionId = '';
 
   private library = inject(MusicLibraryService);
@@ -92,6 +94,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   queue: IMusicLibraryTrack[] = [];
   queueIndex = -1;
   queueKey = '';
+  queueCollectionId = '';
   shuffle = false;
   shuffleLoading = false;
   private shuffleRequest = 0;
@@ -159,12 +162,14 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   play(index: number): void {
     const track = this.tracks[index];
     if (!track) return;
+    this.metrics.record('click', track.Provider, track.ExternalId, track.Title, '', this.selectedCollection?.Visibility === 'Public' ? this.selectedCollection.CollectionId : '');
     if (this.isActive(track)) return;
     this.cancelShufflePreparation();
     if (this.queueKey !== this.currentListKey) this.shuffle = false;
     this.queue = [...this.tracks];
     this.queueIndex = index;
     this.queueKey = this.currentListKey;
+    this.queueCollectionId = this.selectedCollection?.Visibility === 'Public' ? this.selectedCollection.CollectionId : '';
     this.queuePageIndex = this.pageIndex;
     this.queueItemCount = this.itemCount;
   }
@@ -233,6 +238,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
       const currentId = this.queue[this.queueIndex]?.TrackId;
       this.queue = all;
       this.queueKey = key;
+      if (fromCurrentList) this.queueCollectionId = this.selectedCollection?.Visibility === 'Public' ? this.selectedCollection.CollectionId : '';
       this.queuePageIndex = page;
       this.queueItemCount = total;
       this.shuffle = true;

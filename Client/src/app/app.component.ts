@@ -107,6 +107,11 @@ export class AppComponent implements OnInit {
           title: 'Nhật ký mở phim',
           permission: 'movieviewlog.view',
         },
+        {
+          path: '/dashboard/music-analytics',
+          title: 'Thống kê âm nhạc',
+          permission: 'music.analytics.view',
+        },
       ],
     },
     {

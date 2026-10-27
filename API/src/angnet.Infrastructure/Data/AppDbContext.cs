@@ -95,6 +95,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<MusicSaveModel> MusicSave { get; set; }
         public DbSet<MusicCollectionModel> MusicCollection { get; set; }
         public DbSet<MusicCollectionItemModel> MusicCollectionItem { get; set; }
+        public DbSet<MusicAnalyticsEventModel> MusicAnalyticsEvent { get; set; }
 
         // Anime: metadata tách khỏi tập và nguồn phát để có thể mở rộng provider sau này.
         public DbSet<AnimeModel> Anime { get; set; }

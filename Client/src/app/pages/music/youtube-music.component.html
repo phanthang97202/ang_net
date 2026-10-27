@@ -186,7 +186,7 @@
           [attr.aria-label]="
             'T_MUSIC_PLAY_TRACK' | translate: { title: track.title }
           "
-          (click)="play(track)">
+          (click)="selectTrack(track)">
           <span class="track-row__number">
             <span
               *ngIf="index === currentIndex; else youtubeTrackNumber"
