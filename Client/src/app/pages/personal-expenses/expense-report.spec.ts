@@ -4,6 +4,9 @@ import { buildExpenseReportHtml, summarizeExpenseReport } from './expense-report
 const tx = (Id: string, Type: 'income' | 'expense', Amount: number, Date: string, Category: string, Note = ''): ExpenseTransaction =>
   ({ Id, Type, Amount, Date, Category, Note, Version: 1 });
 
+// Hàm dịch giả: trả về khóa kèm tham số, để test kiểm tra đúng khóa + dữ liệu truyền vào
+const t = (key: string, params?: Record<string, unknown>): string => (params ? `${key}${JSON.stringify(params)}` : key);
+
 describe('Expense report', () => {
   // API trả giao dịch mới nhất trước
   const items = [
@@ -22,17 +25,20 @@ describe('Expense report', () => {
     expect(data.rows.map(r => r.Id)).toEqual(['1', '2', '3']);
   });
 
-  it('renders the A4 report with period, verdict and totals', () => {
-    const html = buildExpenseReportHtml('2026-10', items, new Date(2026, 9, 27));
-    expect(html).toContain('Báo cáo tháng 10/2026');
-    expect(html).toContain('Kỳ báo cáo: 01/10/2026 - 31/10/2026');
-    expect(html).toContain('Ngày xuất: 27/10/2026');
-    expect(html).toContain('Tổng chi cao hơn tổng thu 1.850.000 đ trong kỳ.');
-    expect(html).toContain('3 giao dịch');
+  it('renders period, verdict, totals and category labels through the translator', () => {
+    const html = buildExpenseReportHtml('2026-10', items, t, name => (name === 'Nhà ở' ? 'Housing' : name), new Date(2026, 9, 27));
+    expect(html).toContain('T_EXPENSES_REPORT_TITLE{&quot;month&quot;:&quot;10/2026&quot;}');
+    expect(html).toContain('T_EXPENSES_REPORT_PERIOD{&quot;from&quot;:&quot;01/10/2026&quot;,&quot;to&quot;:&quot;31/10/2026&quot;}');
+    expect(html).toContain('T_EXPENSES_REPORT_EXPORTED{&quot;date&quot;:&quot;27/10/2026&quot;}');
+    expect(html).toContain('T_EXPENSES_REPORT_MORE_EXPENSE{&quot;amount&quot;:&quot;1.850.000 đ&quot;}');
+    expect(html).toContain('T_EXPENSES_TRANSACTION_COUNT{&quot;count&quot;:3}');
+    expect(html).toContain('<td>Housing</td>');
+    // Chân trang đặt trong chuỗi CSS: dấu " phải được escape
+    expect(html).toContain('content: "T_EXPENSES_REPORT_FOOTER{\\"month\\":\\"10/2026\\"}"');
   });
 
   it('escapes user-entered category and note', () => {
-    const html = buildExpenseReportHtml('2026-10', [tx('1', 'expense', 1000, '2026-10-02', '<b>x</b>', '<img src=x onerror=alert(1)>')]);
+    const html = buildExpenseReportHtml('2026-10', [tx('1', 'expense', 1000, '2026-10-02', '<b>x</b>', '<img src=x onerror=alert(1)>')], t);
     expect(html).not.toContain('<img src=x');
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');

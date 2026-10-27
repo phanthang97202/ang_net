@@ -6,7 +6,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { addDays, addMonths, differenceInCalendarDays, eachDayOfInterval, endOfMonth, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, endOfWeek } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { enUS, vi } from 'date-fns/locale';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, PersonalCalendarService } from '../../services/personal-calendar.service';
 import { vietnameseLunarDate, VietnameseLunarDate } from './vietnamese-lunar-date';
@@ -17,7 +18,7 @@ interface CalendarDay { date: Date; key: string; inMonth: boolean; events: Calen
 
 @Component({
   selector: 'app-personal-calendar', standalone: true,
-  imports: [CommonModule, FormsModule, NzIconModule],
+  imports: [CommonModule, FormsModule, NzIconModule, TranslateModule],
   templateUrl: './personal-calendar.component.html',
   styleUrls: ['./personal-calendar-agenda.component.scss', './personal-calendar.component.scss', './personal-calendar-dialog.component.scss'],
 })
@@ -26,15 +27,17 @@ export class PersonalCalendarComponent implements OnInit {
   private readonly api = inject(PersonalCalendarService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   private listRequest?: Subscription;
   private requestGeneration = 0;
   private readonly lunarCache = new Map<string, VietnameseLunarDate | null>();
+  // label là khóa dịch trong vi.json / en.json
   readonly categories: { id: Category; label: string }[] = [
-    { id: 'personal', label: 'Cá nhân' }, { id: 'leisure', label: 'Đi chơi' },
-    { id: 'routine', label: 'Sinh hoạt' }, { id: 'work', label: 'Công việc' },
+    { id: 'personal', label: 'T_CALENDAR_CATEGORY_PERSONAL' }, { id: 'leisure', label: 'T_CALENDAR_CATEGORY_LEISURE' },
+    { id: 'routine', label: 'T_CALENDAR_CATEGORY_ROUTINE' }, { id: 'work', label: 'T_CALENDAR_CATEGORY_WORK' },
   ];
-  readonly weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  readonly repeatWeekdays = [{ label: 'T2', bit: 2 }, { label: 'T3', bit: 4 }, { label: 'T4', bit: 8 }, { label: 'T5', bit: 16 }, { label: 'T6', bit: 32 }, { label: 'T7', bit: 64 }, { label: 'CN', bit: 1 }];
+  readonly weekdays = ['T_CALENDAR_WEEKDAY_MON', 'T_CALENDAR_WEEKDAY_TUE', 'T_CALENDAR_WEEKDAY_WED', 'T_CALENDAR_WEEKDAY_THU', 'T_CALENDAR_WEEKDAY_FRI', 'T_CALENDAR_WEEKDAY_SAT', 'T_CALENDAR_WEEKDAY_SUN'];
+  readonly repeatWeekdays = [{ label: 'T_CALENDAR_WEEKDAY_MON', bit: 2 }, { label: 'T_CALENDAR_WEEKDAY_TUE', bit: 4 }, { label: 'T_CALENDAR_WEEKDAY_WED', bit: 8 }, { label: 'T_CALENDAR_WEEKDAY_THU', bit: 16 }, { label: 'T_CALENDAR_WEEKDAY_FRI', bit: 32 }, { label: 'T_CALENDAR_WEEKDAY_SAT', bit: 64 }, { label: 'T_CALENDAR_WEEKDAY_SUN', bit: 1 }];
   readonly repeatLongDurations = Array.from({ length: 30 }, (_, index) => index + 2);
   readonly today = this.day(new Date());
   selected = this.today;
@@ -59,8 +62,10 @@ export class PersonalCalendarComponent implements OnInit {
     });
   }
 
-  get title(): string { return `Tháng ${format(this.month, 'M, yyyy')}`; }
-  get selectedLabel(): string { return format(this.selected, "EEEE, 'ngày' d 'tháng' M", { locale: vi }); }
+  private get english(): boolean { return this.translate.currentLang === 'en'; }
+  get title(): string { return this.translate.instant('T_CALENDAR_MONTH_TITLE', { month: this.month.getMonth() + 1, monthName: format(this.month, 'LLLL', { locale: enUS }), year: this.month.getFullYear() }); }
+  get selectedLabel(): string { return this.english ? format(this.selected, 'EEEE, MMMM d', { locale: enUS }) : format(this.selected, "EEEE, 'ngày' d 'tháng' M", { locale: vi }); }
+  get tileMonth(): string { return this.english ? format(this.selected, 'MMM', { locale: enUS }).toUpperCase() : `TH ${this.selected.getMonth() + 1}`; }
   get monthEvents(): number { return this.events.filter(event => event.date <= format(endOfMonth(this.month), 'yyyy-MM-dd') && event.endDate >= format(this.month, 'yyyy-MM-dd')).length; }
   get days(): CalendarDay[] {
     const start = startOfWeek(startOfMonth(this.month), { weekStartsOn: 1 });
@@ -75,16 +80,18 @@ export class PersonalCalendarComponent implements OnInit {
   isSelected(date: Date): boolean { return isSameDay(this.selected, date); }
   isToday(date: Date): boolean { return isSameDay(this.today, date); }
   label(category: Category): string { return this.categories.find(item => item.id === category)?.label ?? ''; }
-  dateLabel(date: Date): string { return format(date, "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi }); }
+  dateLabel(date: Date): string { return this.english ? format(date, 'EEEE, MMMM d, yyyy', { locale: enUS }) : format(date, "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi }); }
   lunarLabel(lunar: VietnameseLunarDate | null): string {
-    return lunar ? `âm lịch ngày ${lunar.day} tháng ${lunar.month}${lunar.leapMonth ? ' nhuận' : ''} năm ${lunar.year}` : 'không có dữ liệu âm lịch';
+    if (!lunar) return this.translate.instant('T_CALENDAR_LUNAR_NONE');
+    const leap = lunar.leapMonth ? this.translate.instant('T_CALENDAR_LUNAR_LEAP') : '';
+    return this.translate.instant('T_CALENDAR_LUNAR_LABEL', { day: lunar.day, month: lunar.month, leap, year: lunar.year });
   }
   eventTime(event: CalendarEvent): string {
-    if (event.allDay) return 'Cả ngày';
+    if (event.allDay) return this.translate.instant('T_CALENDAR_ALL_DAY');
     const selected = this.key(this.selected);
-    if (event.date < selected && event.endDate > selected) return 'Đang diễn ra';
-    if (event.date < selected) return `Đến ${event.end}`;
-    if (event.endDate > selected) return `Từ ${event.start}`;
+    if (event.date < selected && event.endDate > selected) return this.translate.instant('T_CALENDAR_ONGOING');
+    if (event.date < selected) return this.translate.instant('T_CALENDAR_UNTIL', { time: event.end });
+    if (event.endDate > selected) return this.translate.instant('T_CALENDAR_FROM', { time: event.start });
     return `${event.start} – ${event.end}`;
   }
   select(date: Date): void { const changed = !isSameMonth(date, this.month); this.selected = this.day(date); this.month = startOfMonth(date); if (changed) this.load(); }
@@ -124,20 +131,20 @@ export class PersonalCalendarComponent implements OnInit {
     this.loading = true; this.loadError = ''; this.events = [];
     this.listRequest = this.api.list(this.key(from), this.key(to)).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: events => { if (generation !== this.requestGeneration) return; this.events = events.map(event => this.fromApi(event)); this.loading = false; },
-      error: () => { if (generation !== this.requestGeneration) return; this.loading = false; this.loadError = 'Không thể tải lịch. Vui lòng thử lại.'; },
+      error: () => { if (generation !== this.requestGeneration) return; this.loading = false; this.loadError = 'T_CALENDAR_LOAD_ERROR'; },
     });
   }
   save(form: NgForm): void {
     if (this.saving) return;
-    if (form.invalid || !this.draft.title.trim()) { this.error = 'Vui lòng nhập tên sự kiện và ngày hợp lệ.'; return; }
+    if (form.invalid || !this.draft.title.trim()) { this.error = 'T_CALENDAR_VALIDATION_REQUIRED'; return; }
     if (this.draft.endDate < this.draft.date || (!this.draft.allDay && this.draft.endDate === this.draft.date && this.draft.end <= this.draft.start)) {
-      this.error = 'Thời gian kết thúc phải sau thời gian bắt đầu.'; return;
+      this.error = 'T_CALENDAR_VALIDATION_END_AFTER_START'; return;
     }
     if (this.repeatWeekly && (!this.draft.repeatDays || (this.draft.repeatUntil && this.draft.repeatUntil < this.draft.date))) {
-      this.error = 'Chọn ít nhất một thứ và ngày kết thúc lặp không trước ngày bắt đầu.'; return;
+      this.error = 'T_CALENDAR_VALIDATION_REPEAT_DAYS'; return;
     }
     if (this.repeatWeekly && (this.parseDay(this.draft.endDate).getTime() - this.parseDay(this.draft.date).getTime()) / 86400000 > 31) {
-      this.error = 'Mỗi lần lặp không được dài quá 31 ngày.'; return;
+      this.error = 'T_CALENDAR_VALIDATION_REPEAT_LENGTH'; return;
     }
     const draft = { ...this.draft };
     const data: CalendarEventRequest = { Title: draft.title.trim(), StartDate: draft.date, EndDate: draft.endDate, StartTime: draft.allDay ? '' : draft.start, EndTime: draft.allDay ? '' : draft.end, AllDay: draft.allDay, Category: draft.category, Location: draft.location, Notes: draft.notes, Version: draft.version, RepeatDays: this.repeatWeekly ? draft.repeatDays : 0, RepeatUntil: this.repeatWeekly ? draft.repeatUntil || null : null };
@@ -145,15 +152,15 @@ export class PersonalCalendarComponent implements OnInit {
     const request = this.editing ? this.api.update(draft.id, data) : this.api.create(data);
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: event => { this.saving = false; this.editor?.nativeElement.close(); if (!this.editing) { this.selected = this.parseDay(event.StartDate); this.month = startOfMonth(this.selected); } this.load(); },
-      error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'Sự kiện đã thay đổi ở nơi khác. Hãy đóng và tải lại lịch trước khi sửa.' : 'Không thể lưu sự kiện. Nội dung vẫn được giữ để thử lại.'; },
+      error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'T_CALENDAR_SAVE_CONFLICT' : 'T_CALENDAR_SAVE_ERROR'; },
     });
   }
   remove(): void {
-    if (this.saving || !this.editing || !window.confirm(this.draft.repeatDays ? 'Xóa toàn bộ chuỗi sự kiện lặp lại?' : 'Xóa sự kiện này?')) return;
+    if (this.saving || !this.editing || !window.confirm(this.translate.instant(this.draft.repeatDays ? 'T_CALENDAR_DELETE_SERIES_CONFIRM' : 'T_CALENDAR_DELETE_CONFIRM'))) return;
     this.saving = true; this.error = '';
     this.api.delete(this.draft.id, this.draft.version).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.saving = false; this.editor?.nativeElement.close(); this.load(); },
-      error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'Sự kiện đã thay đổi ở nơi khác. Hãy đóng và tải lại lịch trước khi xóa.' : 'Không thể xóa sự kiện. Vui lòng thử lại.'; },
+      error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'T_CALENDAR_DELETE_CONFLICT' : 'T_CALENDAR_DELETE_ERROR'; },
     });
   }
   private eventsFor(date: Date): CalendarEvent[] {

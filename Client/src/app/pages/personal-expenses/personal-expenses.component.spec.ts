@@ -3,12 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { NgForm } from '@angular/forms';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import * as icons from '@ant-design/icons-angular/icons';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PersonalExpensesComponent } from './personal-expenses.component';
 
 describe('Personal expenses', () => {
   let http: HttpTestingController;
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, PersonalExpensesComponent], providers: [{ provide: NZ_ICONS, useValue: Object.values(icons) }] });
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, TranslateModule.forRoot(), PersonalExpensesComponent], providers: [{ provide: NZ_ICONS, useValue: Object.values(icons) }] });
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
@@ -44,7 +45,18 @@ describe('Personal expenses', () => {
     component.save({ invalid: false } as NgForm);
     http.expectOne(req => req.method === 'POST' && req.url.endsWith('/PersonalExpenses')).flush({}, { status: 500, statusText: 'Error' });
     expect(component.draft.Amount).toBe(50000);
-    expect(component.formError).toContain('Không thể lưu');
+    expect(component.formError).toBe('T_EXPENSES_SAVE_ERROR');
+  });
+
+  it('translates built-in categories but keeps custom names and stored values', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { T_EXPENSES_CAT_FOOD: 'Food & drinks', T_EXPENSES_MONTH_TITLE: '{{monthName}} {{year}}' });
+    translate.use('en');
+    const component = TestBed.createComponent(PersonalExpensesComponent).componentInstance;
+    component.month = '2026-10';
+    expect(component.categoryLabel('Ăn uống')).toBe('Food & drinks');
+    expect(component.categoryLabel('Cà phê')).toBe('Cà phê');
+    expect(component.monthLabel).toBe('October 2026');
   });
 
   it('loads the transaction month after saving and clears the filter', () => {

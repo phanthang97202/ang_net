@@ -5,15 +5,28 @@ import { provideRouter } from '@angular/router';
 import { addDays, addMonths, startOfMonth } from 'date-fns';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import * as icons from '@ant-design/icons-angular/icons';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PersonalCalendarComponent } from './personal-calendar.component';
+
+// Chỉ các khóa mà test kiểm tra nội dung; khóa khác hiện nguyên tên khóa
+const TRANSLATIONS = {
+  vi: { T_CALENDAR_LUNAR_LABEL: 'âm lịch ngày {{day}} tháng {{month}}{{leap}} năm {{year}}', T_CALENDAR_LUNAR_LEAP: ' nhuận', T_CALENDAR_LUNAR_NONE: 'không có dữ liệu âm lịch', T_CALENDAR_LEAP_SHORT: 'N', T_CALENDAR_LEAP_LEGEND: 'N: tháng nhuận', T_CALENDAR_MONTH_TITLE: 'Tháng {{month}}, {{year}}' },
+  en: { T_CALENDAR_LUNAR_LABEL: 'lunar day {{day}} of month {{month}}{{leap}}, year {{year}}', T_CALENDAR_LUNAR_LEAP: ' (leap)', T_CALENDAR_MONTH_TITLE: '{{monthName}} {{year}}' },
+};
+function useLanguage(lang: 'vi' | 'en'): void {
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation(lang, TRANSLATIONS[lang]);
+  translate.use(lang);
+}
 
 describe('Personal calendar', () => {
   let http: HttpTestingController;
   let calendar: PersonalCalendarComponent;
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, PersonalCalendarComponent], providers: [provideRouter([])] });
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule, TranslateModule.forRoot(), PersonalCalendarComponent], providers: [provideRouter([])] });
     TestBed.overrideComponent(PersonalCalendarComponent, { set: { template: '' } });
     http = TestBed.inject(HttpTestingController);
+    useLanguage('vi');
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
     calendar = fixture.componentInstance;
     fixture.detectChanges();
@@ -44,7 +57,7 @@ describe('Personal calendar', () => {
     calendar.draft.end = '13:00'; calendar.save(form);
     http.expectOne(req => req.method === 'POST' && req.url.endsWith('/PersonalCalendar')).flush({}, { status: 500, statusText: 'Error' });
     expect(calendar.draft.title).toBe('Hẹn bạn');
-    expect(calendar.error).toContain('Không thể lưu');
+    expect(calendar.error).toBe('T_CALENDAR_SAVE_ERROR');
     calendar.save(form);
     const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/PersonalCalendar'));
     expect(request.request.body.Title).toBe('Hẹn bạn');
@@ -105,15 +118,28 @@ describe('Personal calendar', () => {
     expect(calendar.hasLeapMonth).toBeFalse();
     expect(calendar.lunarLabel(null)).toBe('không có dữ liệu âm lịch');
   });
+
+  it('switches month title, dates and lunar labels to English', () => {
+    calendar.month = new Date(2025, 6, 1);
+    calendar.selected = new Date(2025, 6, 25);
+    expect(calendar.title).toBe('Tháng 7, 2025');
+    useLanguage('en');
+    expect(calendar.title).toBe('July 2025');
+    expect(calendar.selectedLabel).toBe('Friday, July 25');
+    expect(calendar.dateLabel(calendar.selected)).toBe('Friday, July 25, 2025');
+    expect(calendar.tileMonth).toBe('JUL');
+    expect(calendar.lunarLabel({ day: 1, month: 6, year: 2025, leapMonth: true })).toBe('lunar day 1 of month 6 (leap), year 2025');
+  });
 });
 
 describe('Personal calendar lunar dates', () => {
   it('keeps the dialog actions below the scrollable form on a short screen', () => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, PersonalCalendarComponent],
+      imports: [HttpClientTestingModule, TranslateModule.forRoot(), PersonalCalendarComponent],
       providers: [provideRouter([]), { provide: NZ_ICONS, useValue: Object.values(icons) }],
     });
     const http = TestBed.inject(HttpTestingController);
+    useLanguage('vi');
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
@@ -136,10 +162,11 @@ describe('Personal calendar lunar dates', () => {
 
   it('renders the lunar day under each solar day with N for a leap month', () => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, PersonalCalendarComponent],
+      imports: [HttpClientTestingModule, TranslateModule.forRoot(), PersonalCalendarComponent],
       providers: [provideRouter([]), { provide: NZ_ICONS, useValue: Object.values(icons) }],
     });
     const http = TestBed.inject(HttpTestingController);
+    useLanguage('vi');
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
     fixture.componentInstance.month = new Date(2025, 6, 1);
     fixture.detectChanges();

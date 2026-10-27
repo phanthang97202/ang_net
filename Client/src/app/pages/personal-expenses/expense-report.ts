@@ -7,12 +7,19 @@ import { ExpenseTransaction } from '../../services/personal-expenses.service';
 
   Cửa sổ in cùng origin với trang, nên MỌI chuỗi người dùng nhập (danh mục, ghi
   chú) phải đi qua escape() để không chèn được HTML/script.
+
+  Chữ trên báo cáo lấy qua hàm dịch t (TranslateService.instant) nên báo cáo theo
+  ngôn ngữ đang chọn. Số tiền giữ định dạng VND (1.650.000 đ) ở cả hai ngôn ngữ.
 */
+
+export type ReportTranslate = (key: string, params?: Record<string, unknown>) => string;
 
 const money = (value: number | bigint): string => `${new Intl.NumberFormat('vi-VN').format(value)} đ`;
 const percent = (value: number): string => `${new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)}%`;
 const day = (iso: string): string => iso.slice(0, 10).split('-').reverse().join('/');
 const pad = (value: number): string => String(value).padStart(2, '0');
+// Chuỗi đặt trong content: "..." của CSS (chân trang @page)
+const cssString = (value: string): string => `"${value.replace(/[\\"]/g, c => '\\' + c).replace(/\n/g, ' ')}"`;
 
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -55,52 +62,60 @@ export function summarizeExpenseReport(transactions: ExpenseTransaction[]): Expe
   };
 }
 
-export function buildExpenseReportHtml(month: string, transactions: ExpenseTransaction[], exportedAt = new Date()): string {
+export function buildExpenseReportHtml(
+  month: string,
+  transactions: ExpenseTransaction[],
+  t: ReportTranslate,
+  categoryLabel: (name: string) => string = name => name,
+  exportedAt = new Date()
+): string {
   const [year, monthNumber] = month.split('-').map(Number);
   const monthLabel = `${pad(monthNumber)}/${year}`;
   const lastDay = new Date(year, monthNumber, 0).getDate();
   const data = summarizeExpenseReport(transactions);
   const balance = data.income - data.expense;
   const gap = balance < 0n ? -balance : balance;
-  const verdict =
-    balance < 0n ? `Tổng chi cao hơn tổng thu ${money(gap)} trong kỳ.`
-    : balance > 0n ? `Tổng thu cao hơn tổng chi ${money(gap)} trong kỳ.`
-    : 'Tổng thu và tổng chi cân bằng trong kỳ.';
+  const verdict = t(
+    balance < 0n ? 'T_EXPENSES_REPORT_MORE_EXPENSE' : balance > 0n ? 'T_EXPENSES_REPORT_MORE_INCOME' : 'T_EXPENSES_REPORT_EVEN',
+    { amount: money(gap) }
+  );
 
   const categoryRows = data.categories.length
     ? data.categories.map(c => `
         <div class="category">
-          <strong>${escapeHtml(c.name)}</strong>
+          <strong>${escapeHtml(categoryLabel(c.name))}</strong>
           <span class="bar"><span style="width:${c.bar.toFixed(2)}%"></span></span>
           <span class="num">${money(c.amount)}</span>
           <span class="share">${percent(c.share)}</span>
         </div>`).join('')
-    : '<p class="empty">Chưa có khoản chi trong tháng.</p>';
+    : `<p class="empty">${escapeHtml(t('T_EXPENSES_NO_SPENDING'))}</p>`;
 
   const transactionRows = data.rows.length
-    ? data.rows.map(t => `
+    ? data.rows.map(row => `
         <tr>
-          <td>${day(t.Date)}</td>
-          <td>${escapeHtml(t.Category)}</td>
-          <td class="note">${escapeHtml(t.Note) || '<span class="muted">—</span>'}</td>
-          <td class="num income">${t.Type === 'income' ? money(t.Amount) : '<span class="muted">-</span>'}</td>
-          <td class="num expense">${t.Type === 'expense' ? money(t.Amount) : '<span class="muted">-</span>'}</td>
+          <td>${day(row.Date)}</td>
+          <td>${escapeHtml(categoryLabel(row.Category))}</td>
+          <td class="note">${escapeHtml(row.Note) || '<span class="muted">—</span>'}</td>
+          <td class="num income">${row.Type === 'income' ? money(row.Amount) : '<span class="muted">-</span>'}</td>
+          <td class="num expense">${row.Type === 'expense' ? money(row.Amount) : '<span class="muted">-</span>'}</td>
         </tr>`).join('')
-    : '<tr><td colspan="5" class="empty">Chưa có giao dịch trong tháng.</td></tr>';
+    : `<tr><td colspan="5" class="empty">${escapeHtml(t('T_EXPENSES_EMPTY_MONTH'))}</td></tr>`;
 
   const exportedLabel = `${pad(exportedAt.getDate())}/${pad(exportedAt.getMonth() + 1)}/${exportedAt.getFullYear()}`;
+  // Chữ cố định của báo cáo: escape dù là bản dịch của mình, cho chắc
+  const text = (key: string, params?: Record<string, unknown>): string => escapeHtml(t(key, params));
 
   return `<!doctype html>
-<html lang="vi">
+<html lang="${escapeHtml(t('T_EXPENSES_REPORT_LANG'))}">
 <head>
 <meta charset="utf-8" />
-<title>Bao-cao-thu-chi-thang-${pad(monthNumber)}-${year}</title>
+<title>${text('T_EXPENSES_REPORT_FILENAME', { month: pad(monthNumber), year })}</title>
 <style>
   @page {
     size: A4;
     margin: 16mm 15mm 18mm;
-    @bottom-left { content: "BÁO CÁO THU CHI  ·  THÁNG ${monthLabel}"; font: 700 7.5pt 'Segoe UI', Roboto, Arial, sans-serif; color: #7b7f99; letter-spacing: .04em; }
-    @bottom-right { content: "Trang " counter(page) " / " counter(pages); font: 7.5pt 'Segoe UI', Roboto, Arial, sans-serif; color: #7b7f99; }
+    @bottom-left { content: ${cssString(t('T_EXPENSES_REPORT_FOOTER', { month: monthLabel }))}; font: 700 7.5pt 'Segoe UI', Roboto, Arial, sans-serif; color: #7b7f99; letter-spacing: .04em; }
+    @bottom-right { content: ${cssString(t('T_EXPENSES_REPORT_PAGE') + ' ')} counter(page) " / " counter(pages); font: 7.5pt 'Segoe UI', Roboto, Arial, sans-serif; color: #7b7f99; }
   }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html { background: #fff; }
@@ -159,42 +174,42 @@ export function buildExpenseReportHtml(month: string, transactions: ExpenseTrans
     <div class="brand">
       <span class="logo">₫</span>
       <div>
-        <p class="eyebrow">THU CHI CÁ NHÂN</p>
-        <h1>Báo cáo tháng ${monthLabel}</h1>
+        <p class="eyebrow">${text('T_EXPENSES_REPORT_EYEBROW')}</p>
+        <h1>${text('T_EXPENSES_REPORT_TITLE', { month: monthLabel })}</h1>
       </div>
     </div>
-    <div class="unit">Đơn vị: VNĐ</div>
+    <div class="unit">${text('T_EXPENSES_REPORT_UNIT')}</div>
   </header>
   <div class="period">
-    <span>Kỳ báo cáo: 01/${monthLabel} - ${pad(lastDay)}/${monthLabel}</span>
-    <span>Ngày xuất: ${exportedLabel}</span>
+    <span>${text('T_EXPENSES_REPORT_PERIOD', { from: `01/${monthLabel}`, to: `${pad(lastDay)}/${monthLabel}` })}</span>
+    <span>${text('T_EXPENSES_REPORT_EXPORTED', { date: exportedLabel })}</span>
   </div>
 
   <section>
-    <div class="section-head"><h2>Tổng quan trong tháng</h2></div>
+    <div class="section-head"><h2>${text('T_EXPENSES_REPORT_OVERVIEW')}</h2></div>
     <div class="cards">
-      <div class="card in"><span>Tổng thu</span><strong>${money(data.income)}</strong></div>
-      <div class="card out"><span>Tổng chi</span><strong>${money(data.expense)}</strong></div>
-      <div class="card diff"><span>Chênh lệch</span><strong>${money(balance)}</strong></div>
+      <div class="card in"><span>${text('T_EXPENSES_TOTAL_INCOME')}</span><strong>${money(data.income)}</strong></div>
+      <div class="card out"><span>${text('T_EXPENSES_TOTAL_EXPENSE')}</span><strong>${money(data.expense)}</strong></div>
+      <div class="card diff"><span>${text('T_EXPENSES_BALANCE')}</span><strong>${money(balance)}</strong></div>
     </div>
-    <p class="verdict">${verdict}</p>
+    <p class="verdict">${escapeHtml(verdict)}</p>
   </section>
 
   <section>
-    <div class="section-head"><h2>Chi tiêu theo danh mục</h2><span class="hint">Tỷ trọng trên tổng chi</span></div>
+    <div class="section-head"><h2>${text('T_EXPENSES_BY_CATEGORY')}</h2><span class="hint">${text('T_EXPENSES_REPORT_SHARE_HINT')}</span></div>
     ${categoryRows}
   </section>
 
   <section>
-    <div class="section-head"><h2>Chi tiết giao dịch</h2><span class="hint">${data.rows.length} giao dịch</span></div>
+    <div class="section-head"><h2>${text('T_EXPENSES_REPORT_DETAILS')}</h2><span class="hint">${text('T_EXPENSES_TRANSACTION_COUNT', { count: data.rows.length })}</span></div>
     <table>
-      <thead><tr><th style="width:17mm">Ngày</th><th style="width:30mm">Danh mục</th><th>Nội dung</th><th class="num" style="width:26mm">Thu</th><th class="num" style="width:26mm">Chi</th></tr></thead>
+      <thead><tr><th style="width:17mm">${text('T_EXPENSES_REPORT_COL_DATE')}</th><th style="width:30mm">${text('T_EXPENSES_REPORT_COL_CATEGORY')}</th><th>${text('T_EXPENSES_REPORT_COL_NOTE')}</th><th class="num" style="width:26mm">${text('T_EXPENSES_REPORT_COL_INCOME')}</th><th class="num" style="width:26mm">${text('T_EXPENSES_REPORT_COL_EXPENSE')}</th></tr></thead>
       <tbody>${transactionRows}</tbody>
-      ${data.rows.length ? `<tfoot><tr><td colspan="3">Tổng cộng</td><td class="num income">${money(data.income)}</td><td class="num expense">${money(data.expense)}</td></tr></tfoot>` : ''}
+      ${data.rows.length ? `<tfoot><tr><td colspan="3">${text('T_EXPENSES_REPORT_TOTAL')}</td><td class="num income">${money(data.income)}</td><td class="num expense">${money(data.expense)}</td></tr></tfoot>` : ''}
     </table>
   </section>
 
-  <p class="footnote">Chênh lệch = Tổng thu - Tổng chi; không thể hiện số dư đầu kỳ.</p>
+  <p class="footnote">${text('T_EXPENSES_REPORT_FOOTNOTE')}</p>
 </main>
 </body>
 </html>`;

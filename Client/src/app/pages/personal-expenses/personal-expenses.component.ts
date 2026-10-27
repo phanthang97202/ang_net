@@ -5,15 +5,26 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { addMonths, format, parseISO } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ExpenseRequest, ExpenseTransaction, PersonalExpensesService } from '../../services/personal-expenses.service';
 import { buildExpenseReportHtml } from './expense-report';
 
-@Component({ selector: 'app-personal-expenses', standalone: true, imports: [CommonModule, FormsModule, NzIconModule], templateUrl: './personal-expenses.component.html', styleUrl: './personal-expenses.component.scss' })
+// Danh mục mặc định được lưu trong DB bằng tên tiếng Việt (PersonalExpensesController.Defaults):
+// giữ nguyên giá trị lưu, chỉ dịch lúc hiển thị. Danh mục tự tạo hiện đúng tên người dùng đặt.
+const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
+  'Lương': 'T_EXPENSES_CAT_SALARY', 'Thu nhập khác': 'T_EXPENSES_CAT_OTHER_INCOME', 'Ăn uống': 'T_EXPENSES_CAT_FOOD',
+  'Đi lại': 'T_EXPENSES_CAT_TRANSPORT', 'Mua sắm': 'T_EXPENSES_CAT_SHOPPING', 'Hóa đơn': 'T_EXPENSES_CAT_BILLS',
+  'Nhà ở': 'T_EXPENSES_CAT_HOUSING', 'Giải trí': 'T_EXPENSES_CAT_ENTERTAINMENT', 'Sức khỏe': 'T_EXPENSES_CAT_HEALTH', 'Khác': 'T_EXPENSES_CAT_OTHER',
+};
+
+@Component({ selector: 'app-personal-expenses', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, TranslateModule], templateUrl: './personal-expenses.component.html', styleUrl: './personal-expenses.component.scss' })
 export class PersonalExpensesComponent implements OnInit {
   @ViewChild('editor') editor?: ElementRef<HTMLDialogElement>;
   private readonly api = inject(PersonalExpensesService);
   private readonly destroy = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   private request?: Subscription;
   month = format(new Date(), 'yyyy-MM');
   transactions: ExpenseTransaction[] = [];
@@ -40,29 +51,33 @@ export class PersonalExpensesComponent implements OnInit {
     const total = this.expense;
     return [...groups].map(([name, amount]) => ({ name, amount, percent: total ? Number(amount) * 100 / Number(total) : 0 })).sort((a, b) => a.amount === b.amount ? 0 : a.amount > b.amount ? -1 : 1);
   }
-  get monthLabel(): string { const [year, month] = this.month.split('-'); return `Tháng ${Number(month)}, ${year}`; }
+  get monthLabel(): string {
+    const [year, month] = this.month.split('-');
+    return this.translate.instant('T_EXPENSES_MONTH_TITLE', { month: Number(month), monthName: format(parseISO(`${this.month}-01`), 'LLLL', { locale: enUS }), year });
+  }
+  categoryLabel(name: string): string { const key = DEFAULT_CATEGORY_KEYS[name]; return key ? this.translate.instant(key) : name; }
   money(value: number | bigint): string { return `${new Intl.NumberFormat('vi-VN').format(value)} đ`; }
   changeMonth(delta: number): void { this.month = format(addMonths(parseISO(`${this.month}-01`), delta), 'yyyy-MM'); this.filter = ''; this.load(); }
   load(): void {
     this.request?.unsubscribe(); this.loading = true; this.loadError = ''; this.transactions = [];
     this.request = this.api.list(this.month).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: items => { this.transactions = items; this.loading = false; },
-      error: () => { this.loading = false; this.loadError = 'Không thể tải thu chi. Vui lòng thử lại.'; },
+      error: () => { this.loading = false; this.loadError = 'T_EXPENSES_LOAD_ERROR'; },
     });
   }
   loadCategories(): void {
     this.api.categories().pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: categories => { this.categories = categories; this.categoryError = ''; },
-      error: () => { this.categoryError = 'Không thể tải danh mục. Vui lòng thử lại.'; },
+      error: () => { this.categoryError = 'T_EXPENSES_CATEGORIES_ERROR'; },
     });
   }
   /** Mở báo cáo A4 của cả tháng (không theo bộ lọc) trong cửa sổ in; người dùng chọn "Lưu dưới dạng PDF". */
   exportPdf(): void {
     if (this.loading || this.loadError) return;
     const report = window.open('', '_blank', 'width=900,height=1000');
-    if (!report) { this.exportError = 'Trình duyệt đã chặn cửa sổ báo cáo. Hãy cho phép popup rồi thử lại.'; return; }
+    if (!report) { this.exportError = 'T_EXPENSES_POPUP_BLOCKED'; return; }
     this.exportError = '';
-    report.document.write(buildExpenseReportHtml(this.month, this.transactions));
+    report.document.write(buildExpenseReportHtml(this.month, this.transactions, (key, params) => this.translate.instant(key, params), name => this.categoryLabel(name)));
     report.document.close();
     report.focus();
     // Đợi font tải xong để bản PDF không bị nhảy chữ
@@ -77,26 +92,26 @@ export class PersonalExpensesComponent implements OnInit {
     this.addingCategory = true; this.formError = '';
     this.api.addCategory(name).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: result => { this.categories = [...this.categories, result.Name]; this.draft.Category = result.Name; this.newCategory = ''; this.addingCategory = false; },
-      error: (e: HttpErrorResponse) => { this.addingCategory = false; this.formError = e.status === 409 ? 'Danh mục này đã tồn tại.' : 'Không thể thêm danh mục. Vui lòng thử lại.'; },
+      error: (e: HttpErrorResponse) => { this.addingCategory = false; this.formError = e.status === 409 ? 'T_EXPENSES_CATEGORY_EXISTS' : 'T_EXPENSES_CATEGORY_ADD_ERROR'; },
     });
   }
   save(form: NgForm): void {
     if (this.saving || this.addingCategory) return;
-    if (form.invalid || !this.draft.Category || !Number.isSafeInteger(this.draft.Amount) || this.draft.Amount < 1 || this.draft.Amount > 1_000_000_000_000) { this.formError = 'Vui lòng nhập số tiền nguyên hợp lệ, ngày và danh mục.'; return; }
+    if (form.invalid || !this.draft.Category || !Number.isSafeInteger(this.draft.Amount) || this.draft.Amount < 1 || this.draft.Amount > 1_000_000_000_000) { this.formError = 'T_EXPENSES_FORM_INVALID'; return; }
     const { Id, ...data } = this.draft;
     this.saving = true; this.formError = '';
     const request = this.editing ? this.api.update(Id, data as ExpenseRequest) : this.api.create(data as ExpenseRequest);
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: saved => { this.saving = false; this.editor?.nativeElement.close(); this.month = saved.Date.slice(0, 7); this.filter = ''; this.load(); },
-      error: (e: HttpErrorResponse) => { this.saving = false; this.formError = e.status === 409 ? 'Giao dịch đã thay đổi. Đóng và tải lại trước khi sửa.' : 'Không thể lưu. Nội dung vẫn được giữ để thử lại.'; },
+      error: (e: HttpErrorResponse) => { this.saving = false; this.formError = e.status === 409 ? 'T_EXPENSES_SAVE_CONFLICT' : 'T_EXPENSES_SAVE_ERROR'; },
     });
   }
   remove(): void {
-    if (this.saving || !this.editing || !window.confirm('Xóa giao dịch này?')) return;
+    if (this.saving || !this.editing || !window.confirm(this.translate.instant('T_EXPENSES_DELETE_CONFIRM'))) return;
     this.saving = true; this.formError = '';
     this.api.delete(this.draft.Id, this.draft.Version).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.saving = false; this.editor?.nativeElement.close(); this.load(); },
-      error: (e: HttpErrorResponse) => { this.saving = false; this.formError = e.status === 409 ? 'Giao dịch đã thay đổi. Đóng và tải lại trước khi xóa.' : 'Không thể xóa giao dịch. Vui lòng thử lại.'; },
+      error: (e: HttpErrorResponse) => { this.saving = false; this.formError = e.status === 409 ? 'T_EXPENSES_DELETE_CONFLICT' : 'T_EXPENSES_DELETE_ERROR'; },
     });
   }
   private empty(): ExpenseTransaction {

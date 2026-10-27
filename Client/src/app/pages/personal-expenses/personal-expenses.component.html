@@ -1,55 +1,55 @@
 <main class="expenses-page">
   <header class="page-heading">
-    <h1>Thu chi cá nhân<span>.</span></h1>
-    <button class="button primary" type="button" (click)="openCreate()"><span nz-icon nzType="plus"></span> Thêm giao dịch</button>
+    <h1>{{ 'T_EXPENSES' | translate }}<span>.</span></h1>
+    <button class="button primary" type="button" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_EXPENSES_ADD' | translate }}</button>
   </header>
 
   <div class="month-bar">
     <div class="month-title"><span nz-icon nzType="calendar"></span><strong>{{ monthLabel }}</strong></div>
-    <div class="month-controls"><button type="button" class="export" (click)="exportPdf()" [disabled]="loading || !!loadError"><span nz-icon nzType="file-pdf"></span> Xuất PDF</button><button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button><button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button><button type="button" aria-label="Tải lại" (click)="load()" [disabled]="loading"><span nz-icon nzType="reload"></span></button></div>
+    <div class="month-controls"><button type="button" class="export" (click)="exportPdf()" [disabled]="loading || !!loadError"><span nz-icon nzType="file-pdf"></span> {{ 'T_EXPENSES_EXPORT_PDF' | translate }}</button><button type="button" [attr.aria-label]="'T_EXPENSES_PREV_MONTH' | translate" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button><button type="button" [attr.aria-label]="'T_EXPENSES_NEXT_MONTH' | translate" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button><button type="button" [attr.aria-label]="'T_EXPENSES_RELOAD' | translate" (click)="load()" [disabled]="loading"><span nz-icon nzType="reload"></span></button></div>
   </div>
-  <p *ngIf="exportError" class="error" role="alert">{{ exportError }}</p>
-  <p *ngIf="loadError" class="error" role="alert">{{ loadError }} <button type="button" (click)="load()">Thử lại</button></p>
-  <p *ngIf="loading" class="status" role="status">Đang tải thu chi…</p>
+  <p *ngIf="exportError" class="error" role="alert">{{ exportError | translate }}</p>
+  <p *ngIf="loadError" class="error" role="alert">{{ loadError | translate }} <button type="button" (click)="load()">{{ 'T_EXPENSES_RETRY' | translate }}</button></p>
+  <p *ngIf="loading" class="status" role="status">{{ 'T_EXPENSES_LOADING' | translate }}</p>
   <ng-container *ngIf="!loading && !loadError">
-    <section class="summary" aria-label="Tổng quan tháng">
-      <div class="summary-card income"><span class="summary-icon" nz-icon nzType="arrow-down"></span><div class="summary-text"><span>Tổng thu</span><strong>{{ money(income) }}</strong></div></div>
-      <div class="summary-card expense"><span class="summary-icon" nz-icon nzType="arrow-up"></span><div class="summary-text"><span>Tổng chi</span><strong>{{ money(expense) }}</strong></div></div>
-      <div class="summary-card balance"><span class="summary-icon" nz-icon nzType="wallet"></span><div class="summary-text"><span>Chênh lệch</span><strong>{{ money(income - expense) }}</strong></div></div>
+    <section class="summary" [attr.aria-label]="'T_EXPENSES_OVERVIEW' | translate">
+      <div class="summary-card income"><span class="summary-icon" nz-icon nzType="arrow-down"></span><div class="summary-text"><span>{{ 'T_EXPENSES_TOTAL_INCOME' | translate }}</span><strong>{{ money(income) }}</strong></div></div>
+      <div class="summary-card expense"><span class="summary-icon" nz-icon nzType="arrow-up"></span><div class="summary-text"><span>{{ 'T_EXPENSES_TOTAL_EXPENSE' | translate }}</span><strong>{{ money(expense) }}</strong></div></div>
+      <div class="summary-card balance"><span class="summary-icon" nz-icon nzType="wallet"></span><div class="summary-text"><span>{{ 'T_EXPENSES_BALANCE' | translate }}</span><strong>{{ money(income - expense) }}</strong></div></div>
     </section>
     <div class="content-grid">
       <section class="panel transactions">
-        <div class="panel-heading"><div><h2>Giao dịch</h2><span>{{ filtered.length }} giao dịch</span></div><label class="filter"><span class="sr-only">Lọc theo danh mục</span><select [(ngModel)]="filter"><option value="">Tất cả danh mục</option><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select></label></div>
-        <div class="empty" *ngIf="!filtered.length">Chưa có giao dịch{{ filter ? ' trong danh mục này' : ' trong tháng này' }}.</div>
+        <div class="panel-heading"><div><h2>{{ 'T_EXPENSES_TRANSACTIONS' | translate }}</h2><span>{{ 'T_EXPENSES_TRANSACTION_COUNT' | translate: { count: filtered.length } }}</span></div><label class="filter"><span class="sr-only">{{ 'T_EXPENSES_FILTER_LABEL' | translate }}</span><select [(ngModel)]="filter"><option value="">{{ 'T_EXPENSES_ALL_CATEGORIES' | translate }}</option><option *ngFor="let category of categories" [value]="category">{{ categoryLabel(category) }}</option></select></label></div>
+        <div class="empty" *ngIf="!filtered.length">{{ (filter ? 'T_EXPENSES_EMPTY_CATEGORY' : 'T_EXPENSES_EMPTY_MONTH') | translate }}</div>
         <div class="transaction-list">
           <button class="transaction" type="button" *ngFor="let item of filtered" (click)="openEdit(item)">
             <span class="transaction-icon" [class.is-income]="item.Type === 'income'"><span nz-icon [nzType]="item.Type === 'income' ? 'arrow-down' : 'arrow-up'"></span></span>
-            <span class="transaction-info"><strong>{{ item.Category }}</strong><small>{{ item.Date | date:'dd/MM/yyyy' }}<span *ngIf="item.Note"> · {{ item.Note }}</span></small></span>
+            <span class="transaction-info"><strong>{{ categoryLabel(item.Category) }}</strong><small>{{ item.Date | date:'dd/MM/yyyy' }}<span *ngIf="item.Note"> · {{ item.Note }}</span></small></span>
             <strong class="amount" [class.is-income]="item.Type === 'income'">{{ item.Type === 'income' ? '+' : '−' }}{{ money(item.Amount) }}</strong>
           </button>
         </div>
       </section>
-      <section class="panel breakdown"><div class="panel-heading"><div><h2>Chi theo danh mục</h2></div></div>
-        <div *ngIf="!breakdown.length" class="empty">Chưa có khoản chi trong tháng.</div>
-        <div class="breakdown-list"><div class="breakdown-item" *ngFor="let item of breakdown"><div><strong>{{ item.name }}</strong><span>{{ money(item.amount) }} · {{ item.percent | number:'1.0-0' }}%</span></div><div class="bar"><span [style.width.%]="item.percent"></span></div></div></div>
+      <section class="panel breakdown"><div class="panel-heading"><div><h2>{{ 'T_EXPENSES_BY_CATEGORY' | translate }}</h2></div></div>
+        <div *ngIf="!breakdown.length" class="empty">{{ 'T_EXPENSES_NO_SPENDING' | translate }}</div>
+        <div class="breakdown-list"><div class="breakdown-item" *ngFor="let item of breakdown"><div><strong>{{ categoryLabel(item.name) }}</strong><span>{{ money(item.amount) }} · {{ item.percent | number:'1.0-0' }}%</span></div><div class="bar"><span [style.width.%]="item.percent"></span></div></div></div>
       </section>
     </div>
   </ng-container>
 
   <dialog #editor class="expense-dialog" aria-labelledby="expense-dialog-title" (cancel)="(saving || addingCategory) && $event.preventDefault()">
     <form #form="ngForm" (ngSubmit)="save(form)">
-      <div class="dialog-heading"><h2 id="expense-dialog-title">{{ editing ? 'Chỉnh sửa giao dịch' : 'Thêm giao dịch' }}</h2><button type="button" class="close" (click)="close()" [disabled]="saving || addingCategory" aria-label="Đóng"><span nz-icon nzType="close"></span></button></div>
+      <div class="dialog-heading"><h2 id="expense-dialog-title">{{ (editing ? 'T_EXPENSES_EDIT' : 'T_EXPENSES_ADD') | translate }}</h2><button type="button" class="close" (click)="close()" [disabled]="saving || addingCategory" [attr.aria-label]="'T_EXPENSES_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
       <div class="dialog-scroll"><fieldset [disabled]="saving || addingCategory">
-        <div class="type-switch"><label><input type="radio" name="type" value="expense" [(ngModel)]="draft.Type" /> Khoản chi</label><label><input type="radio" name="type" value="income" [(ngModel)]="draft.Type" /> Khoản thu</label></div>
-        <label class="field">Số tiền (đ)<input type="number" name="amount" [(ngModel)]="draft.Amount" required min="1" max="1000000000000" step="1" inputmode="numeric" /></label>
-        <label class="field">Ngày giao dịch<input type="date" name="date" [(ngModel)]="draft.Date" required /></label>
-        <label class="field">Danh mục<select name="category" [(ngModel)]="draft.Category" required><option value="" disabled>Chọn danh mục</option><option *ngFor="let category of categories" [value]="category">{{ category }}</option></select></label>
-        <p *ngIf="categoryError" class="error" role="alert">{{ categoryError }} <button type="button" (click)="loadCategories()">Thử lại</button></p>
-        <div class="new-category"><label class="field">Thêm danh mục riêng<input name="newCategory" [(ngModel)]="newCategory" maxlength="80" placeholder="Tên danh mục" /></label><button type="button" class="button secondary" (click)="addCategory()" [disabled]="!newCategory.trim()">Thêm</button></div>
-        <label class="field">Ghi chú <span class="optional">Không bắt buộc</span><textarea name="note" [(ngModel)]="draft.Note" maxlength="500" rows="3" placeholder="Thêm ghi chú…"></textarea></label>
-        <p *ngIf="formError" class="error" role="alert">{{ formError }}</p>
+        <div class="type-switch"><label><input type="radio" name="type" value="expense" [(ngModel)]="draft.Type" /> {{ 'T_EXPENSES_TYPE_EXPENSE' | translate }}</label><label><input type="radio" name="type" value="income" [(ngModel)]="draft.Type" /> {{ 'T_EXPENSES_TYPE_INCOME' | translate }}</label></div>
+        <label class="field">{{ 'T_EXPENSES_AMOUNT' | translate }}<input type="number" name="amount" [(ngModel)]="draft.Amount" required min="1" max="1000000000000" step="1" inputmode="numeric" /></label>
+        <label class="field">{{ 'T_EXPENSES_DATE' | translate }}<input type="date" name="date" [(ngModel)]="draft.Date" required /></label>
+        <label class="field">{{ 'T_EXPENSES_CATEGORY' | translate }}<select name="category" [(ngModel)]="draft.Category" required><option value="" disabled>{{ 'T_EXPENSES_CHOOSE_CATEGORY' | translate }}</option><option *ngFor="let category of categories" [value]="category">{{ categoryLabel(category) }}</option></select></label>
+        <p *ngIf="categoryError" class="error" role="alert">{{ categoryError | translate }} <button type="button" (click)="loadCategories()">{{ 'T_EXPENSES_RETRY' | translate }}</button></p>
+        <div class="new-category"><label class="field">{{ 'T_EXPENSES_NEW_CATEGORY' | translate }}<input name="newCategory" [(ngModel)]="newCategory" maxlength="80" [placeholder]="'T_EXPENSES_CATEGORY_NAME' | translate" /></label><button type="button" class="button secondary" (click)="addCategory()" [disabled]="!newCategory.trim()">{{ 'T_EXPENSES_ADD_CATEGORY' | translate }}</button></div>
+        <label class="field">{{ 'T_EXPENSES_NOTE' | translate }} <span class="optional">{{ 'T_EXPENSES_OPTIONAL' | translate }}</span><textarea name="note" [(ngModel)]="draft.Note" maxlength="500" rows="3" [placeholder]="'T_EXPENSES_NOTE_PLACEHOLDER' | translate"></textarea></label>
+        <p *ngIf="formError" class="error" role="alert">{{ formError | translate }}</p>
       </fieldset></div>
-      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete" [disabled]="saving || addingCategory" (click)="remove()">Xóa</button><span class="spacer"></span><button type="button" class="button secondary" (click)="close()" [disabled]="saving || addingCategory">Hủy</button><button type="submit" class="button primary" [disabled]="saving || addingCategory">{{ saving ? 'Đang lưu…' : 'Lưu giao dịch' }}</button></div>
+      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete" [disabled]="saving || addingCategory" (click)="remove()">{{ 'T_EXPENSES_DELETE' | translate }}</button><span class="spacer"></span><button type="button" class="button secondary" (click)="close()" [disabled]="saving || addingCategory">{{ 'T_CANCEL' | translate }}</button><button type="submit" class="button primary" [disabled]="saving || addingCategory">{{ (saving ? 'T_SAVING' : 'T_EXPENSES_SAVE') | translate }}</button></div>
     </form>
   </dialog>
 </main>

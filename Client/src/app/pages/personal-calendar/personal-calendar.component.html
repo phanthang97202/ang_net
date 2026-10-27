@@ -1,83 +1,83 @@
 <main class="calendar-page">
   <header class="page-heading">
     <div class="heading-copy">
-      <h1>Lịch cá nhân<span class="heading-period">.</span></h1>
+      <h1>{{ 'T_CALENDAR' | translate }}<span class="heading-period">.</span></h1>
     </div>
-    <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> Tạo sự kiện</button>
+    <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_CALENDAR_CREATE_EVENT' | translate }}</button>
   </header>
 
   <div class="calendar-layout">
-    <section class="calendar-card" aria-label="Lịch tháng">
+    <section class="calendar-card" [attr.aria-label]="'T_CALENDAR_MONTH_VIEW' | translate">
       <div class="calendar-toolbar">
         <div><h2>{{ title }}</h2></div>
         <div class="calendar-controls">
-          <button type="button" class="icon-button" aria-label="Tải lại lịch" title="Tải lại lịch" [disabled]="loading" (click)="load()"><span nz-icon nzType="reload"></span></button>
-          <button type="button" class="today-button" (click)="goToday()">Hôm nay</button>
+          <button type="button" class="icon-button" [attr.aria-label]="'T_CALENDAR_RELOAD' | translate" [title]="'T_CALENDAR_RELOAD' | translate" [disabled]="loading" (click)="load()"><span nz-icon nzType="reload"></span></button>
+          <button type="button" class="today-button" (click)="goToday()">{{ 'T_CALENDAR_TODAY' | translate }}</button>
           <div class="month-switch">
-            <button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button>
-            <button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button>
+            <button type="button" [attr.aria-label]="'T_CALENDAR_PREV_MONTH' | translate" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button>
+            <button type="button" [attr.aria-label]="'T_CALENDAR_NEXT_MONTH' | translate" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button>
           </div>
         </div>
       </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
-        <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday }}</div>
-        <button *ngFor="let day of days; trackBy: trackDay" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + lunarLabel(day.lunar) + ', ' + day.events.length + ' sự kiện'" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
+        <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday | translate }}</div>
+        <button *ngFor="let day of days; trackBy: trackDay" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + lunarLabel(day.lunar) + ', ' + ('T_CALENDAR_DAY_EVENTS' | translate: { count: day.events.length })" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
           <span class="day-number">{{ day.date.getDate() }}</span>
-          <span class="lunar-day" [class.lunar-day--new-month]="day.lunar?.day === 1" [title]="lunarLabel(day.lunar)" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? 'N' : '') : '—' }}</span>
-          <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">+{{ day.events.length - 2 }} sự kiện</span></span>
+          <span class="lunar-day" [class.lunar-day--new-month]="day.lunar?.day === 1" [title]="lunarLabel(day.lunar)" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? ('T_CALENDAR_LEAP_SHORT' | translate) : '') : '—' }}</span>
+          <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">{{ 'T_CALENDAR_MORE_EVENTS' | translate: { count: day.events.length - 2 } }}</span></span>
           <span class="day-dots" aria-hidden="true"><i *ngFor="let event of day.events.slice(0, 3)" [attr.data-category]="event.category"></i></span>
         </button>
       </div>
-      <div class="calendar-footer"><span><i></i> Hôm nay</span><span *ngIf="hasLeapMonth">N: tháng nhuận</span><span *ngIf="!loading && !loadError">{{ monthEvents }} sự kiện trong tháng</span></div>
+      <div class="calendar-footer"><span><i></i> {{ 'T_CALENDAR_TODAY' | translate }}</span><span *ngIf="hasLeapMonth">{{ 'T_CALENDAR_LEAP_LEGEND' | translate }}</span><span *ngIf="!loading && !loadError">{{ 'T_CALENDAR_MONTH_EVENTS' | translate: { count: monthEvents } }}</span></div>
     </section>
 
-    <aside class="agenda-card" aria-label="Sự kiện trong ngày">
-      <div class="agenda-top"><div><h2>{{ isTodaySelected ? 'Hôm nay' : 'Lịch trong ngày' }}</h2><p>{{ selectedLabel }}</p></div><div class="date-tile"><strong>{{ selected.getDate() }}</strong><span>TH {{ selected.getMonth() + 1 }}</span></div></div>
-      <div *ngIf="loading" class="empty-day" role="status">Đang tải lịch…</div>
-      <div *ngIf="loadError" class="empty-day" role="alert"><strong>{{ loadError }}</strong><button type="button" (click)="load()">Thử lại</button></div>
+    <aside class="agenda-card" [attr.aria-label]="'T_CALENDAR_DAY_AGENDA_LABEL' | translate">
+      <div class="agenda-top"><div><h2>{{ (isTodaySelected ? 'T_CALENDAR_TODAY' : 'T_CALENDAR_DAY_SCHEDULE') | translate }}</h2><p>{{ selectedLabel }}</p></div><div class="date-tile"><strong>{{ selected.getDate() }}</strong><span>{{ tileMonth }}</span></div></div>
+      <div *ngIf="loading" class="empty-day" role="status">{{ 'T_CALENDAR_LOADING' | translate }}</div>
+      <div *ngIf="loadError" class="empty-day" role="alert"><strong>{{ loadError | translate }}</strong><button type="button" (click)="load()">{{ 'T_CALENDAR_RETRY' | translate }}</button></div>
       <ng-container *ngIf="!loading && !loadError">
-      <div class="agenda-label"><span>SỰ KIỆN</span><span class="event-count">{{ selectedEvents.length }}</span></div>
+      <div class="agenda-label"><span>{{ 'T_CALENDAR_EVENTS_HEADING' | translate }}</span><span class="event-count">{{ selectedEvents.length }}</span></div>
       <div class="agenda-list" *ngIf="selectedEvents.length; else emptyDay">
         <button type="button" class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" (click)="openEdit(event)">
-          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · Lặp hàng tuần</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
+          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · {{ 'T_CALENDAR_WEEKLY' | translate }}</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) | translate }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
         </button>
       </div>
-      <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>Ngày này còn trống</strong><p>Một khoảng trống cho những dự định mới.</p><button type="button" (click)="openCreate()">+ Thêm sự kiện</button></div></ng-template>
+      <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</strong><p>{{ 'T_CALENDAR_EMPTY_TEXT' | translate }}</p><button type="button" (click)="openCreate()">{{ 'T_CALENDAR_ADD_EVENT' | translate }}</button></div></ng-template>
       </ng-container>
     </aside>
   </div>
 
   <dialog #editor class="event-dialog" aria-labelledby="event-dialog-title" (cancel)="saving && $event.preventDefault()">
     <form #eventForm="ngForm" (ngSubmit)="save(eventForm)">
-      <div class="dialog-heading"><div><span class="section-kicker">LỊCH CÁ NHÂN</span><h2 id="event-dialog-title">{{ editing ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện' }}</h2></div><button type="button" class="icon-button" (click)="close()" [disabled]="saving" aria-label="Đóng"><span nz-icon nzType="close"></span></button></div>
+      <div class="dialog-heading"><div><span class="section-kicker">{{ 'T_CALENDAR_KICKER' | translate }}</span><h2 id="event-dialog-title">{{ (editing ? 'T_CALENDAR_EDIT_EVENT' : 'T_CALENDAR_CREATE_EVENT') | translate }}</h2></div><button type="button" class="icon-button" (click)="close()" [disabled]="saving" [attr.aria-label]="'T_CALENDAR_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
       <div class="dialog-scroll"><fieldset class="dialog-content" [disabled]="saving">
-        <label class="field">Tên sự kiện <input name="title" [(ngModel)]="draft.title" required maxlength="120" placeholder="Ví dụ: Cà phê cùng bạn" autocomplete="off" /></label>
-        <div class="field-grid"><label class="field">{{ repeatWeekly ? 'Bắt đầu lặp từ ngày' : 'Ngày bắt đầu' }} <input type="date" name="date" [ngModel]="draft.date" (ngModelChange)="changeStartDate($event)" required /></label><label *ngIf="!repeatWeekly" class="field">Ngày kết thúc <input type="date" name="endDate" [(ngModel)]="draft.endDate" required /></label></div>
-        <label class="all-day"><input type="checkbox" name="allDay" [(ngModel)]="draft.allDay" /> Cả ngày</label>
-        <div class="field-grid" *ngIf="!draft.allDay"><label class="field">Bắt đầu <input type="time" name="start" [ngModel]="draft.start" (ngModelChange)="changeTime('start', $event)" required /></label><label class="field">Kết thúc <input type="time" name="end" [ngModel]="draft.end" (ngModelChange)="changeTime('end', $event)" required /></label></div>
-        <label class="all-day"><input type="checkbox" name="repeatWeekly" [ngModel]="repeatWeekly" (ngModelChange)="changeRepeat($event)" /> Lặp hàng tuần</label>
+        <label class="field">{{ 'T_CALENDAR_FIELD_TITLE' | translate }} <input name="title" [(ngModel)]="draft.title" required maxlength="120" [placeholder]="'T_CALENDAR_TITLE_PLACEHOLDER' | translate" autocomplete="off" /></label>
+        <div class="field-grid"><label class="field">{{ (repeatWeekly ? 'T_CALENDAR_REPEAT_START' : 'T_CALENDAR_START_DATE') | translate }} <input type="date" name="date" [ngModel]="draft.date" (ngModelChange)="changeStartDate($event)" required /></label><label *ngIf="!repeatWeekly" class="field">{{ 'T_CALENDAR_END_DATE' | translate }} <input type="date" name="endDate" [(ngModel)]="draft.endDate" required /></label></div>
+        <label class="all-day"><input type="checkbox" name="allDay" [(ngModel)]="draft.allDay" /> {{ 'T_CALENDAR_ALL_DAY' | translate }}</label>
+        <div class="field-grid" *ngIf="!draft.allDay"><label class="field">{{ 'T_CALENDAR_START' | translate }} <input type="time" name="start" [ngModel]="draft.start" (ngModelChange)="changeTime('start', $event)" required /></label><label class="field">{{ 'T_CALENDAR_END' | translate }} <input type="time" name="end" [ngModel]="draft.end" (ngModelChange)="changeTime('end', $event)" required /></label></div>
+        <label class="all-day"><input type="checkbox" name="repeatWeekly" [ngModel]="repeatWeekly" (ngModelChange)="changeRepeat($event)" /> {{ 'T_CALENDAR_WEEKLY' | translate }}</label>
         <div *ngIf="repeatWeekly" class="repeat-options">
-          <label class="field">Mỗi lần kết thúc
+          <label class="field">{{ 'T_CALENDAR_REPEAT_ENDS' | translate }}
             <select name="repeatDuration" [ngModel]="repeatDurationDays" (ngModelChange)="setRepeatDuration($event)">
-              <option [ngValue]="0">Trong cùng ngày</option>
-              <option [ngValue]="1">Vào ngày hôm sau</option>
-              <option *ngFor="let days of repeatLongDurations" [ngValue]="days">Sau {{ days }} ngày</option>
+              <option [ngValue]="0">{{ 'T_CALENDAR_SAME_DAY' | translate }}</option>
+              <option [ngValue]="1">{{ 'T_CALENDAR_NEXT_DAY' | translate }}</option>
+              <option *ngFor="let days of repeatLongDurations" [ngValue]="days">{{ 'T_CALENDAR_AFTER_DAYS' | translate: { days: days } }}</option>
             </select>
           </label>
-          <p *ngIf="repeatDurationDays > 1" class="repeat-warning" role="alert">Mỗi lần lặp hiện kéo dài {{ repeatDurationDays }} ngày, nên các lần có thể chồng lên nhau. Với ca qua đêm, chọn “Vào ngày hôm sau” và lưu thay đổi.</p>
-          <span class="field">Lặp vào các ngày</span>
-          <div class="repeat-days" aria-label="Các ngày lặp trong tuần">
-            <button *ngFor="let day of repeatWeekdays" type="button" [class.is-active]="isRepeatDay(day.bit)" [attr.aria-pressed]="isRepeatDay(day.bit)" (click)="toggleRepeatDay(day.bit)">{{ day.label }}</button>
+          <p *ngIf="repeatDurationDays > 1" class="repeat-warning" role="alert">{{ 'T_CALENDAR_REPEAT_OVERLAP' | translate: { days: repeatDurationDays } }}</p>
+          <span class="field">{{ 'T_CALENDAR_REPEAT_ON' | translate }}</span>
+          <div class="repeat-days" [attr.aria-label]="'T_CALENDAR_REPEAT_DAYS_LABEL' | translate">
+            <button *ngFor="let day of repeatWeekdays" type="button" [class.is-active]="isRepeatDay(day.bit)" [attr.aria-pressed]="isRepeatDay(day.bit)" (click)="toggleRepeatDay(day.bit)">{{ day.label | translate }}</button>
           </div>
-          <label class="field">Ngừng lặp sau ngày <span class="optional">Để trống nếu không có ngày kết thúc</span><input type="date" name="repeatUntil" [(ngModel)]="draft.repeatUntil" [min]="draft.date" /></label>
+          <label class="field">{{ 'T_CALENDAR_REPEAT_UNTIL' | translate }} <span class="optional">{{ 'T_CALENDAR_REPEAT_UNTIL_HINT' | translate }}</span><input type="date" name="repeatUntil" [(ngModel)]="draft.repeatUntil" [min]="draft.date" /></label>
         </div>
-        <p *ngIf="editing && draft.repeatDays" class="repeat-hint">Thay đổi hoặc xóa sẽ áp dụng cho toàn bộ chuỗi.</p>
-        <label class="field">Loại hoạt động <select name="category" [(ngModel)]="draft.category"><option *ngFor="let category of categories" [value]="category.id">{{ category.label }}</option></select></label>
-        <label class="field">Địa điểm <span class="optional">Không bắt buộc</span><input name="location" [(ngModel)]="draft.location" maxlength="200" placeholder="Thêm địa điểm" /></label>
-        <label class="field">Ghi chú <span class="optional">Không bắt buộc</span><textarea name="notes" [(ngModel)]="draft.notes" maxlength="1000" rows="3" placeholder="Viết thêm một chút về sự kiện…"></textarea></label>
-        <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
+        <p *ngIf="editing && draft.repeatDays" class="repeat-hint">{{ 'T_CALENDAR_SERIES_HINT' | translate }}</p>
+        <label class="field">{{ 'T_CALENDAR_CATEGORY' | translate }} <select name="category" [(ngModel)]="draft.category"><option *ngFor="let category of categories" [value]="category.id">{{ category.label | translate }}</option></select></label>
+        <label class="field">{{ 'T_CALENDAR_LOCATION' | translate }} <span class="optional">{{ 'T_CALENDAR_OPTIONAL' | translate }}</span><input name="location" [(ngModel)]="draft.location" maxlength="200" [placeholder]="'T_CALENDAR_LOCATION_PLACEHOLDER' | translate" /></label>
+        <label class="field">{{ 'T_CALENDAR_NOTES' | translate }} <span class="optional">{{ 'T_CALENDAR_OPTIONAL' | translate }}</span><textarea name="notes" [(ngModel)]="draft.notes" maxlength="1000" rows="3" [placeholder]="'T_CALENDAR_NOTES_PLACEHOLDER' | translate"></textarea></label>
+        <p *ngIf="error" class="form-error" role="alert">{{ error | translate }}</p>
       </fieldset></div>
-      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete-button" [disabled]="saving" (click)="remove()">Xóa sự kiện</button><span class="actions-spacer"></span><button type="button" class="button button--ghost" [disabled]="saving" (click)="close()">Hủy</button><button type="submit" class="button button--primary" [disabled]="saving">{{ saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Tạo sự kiện' }}</button></div>
+      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete-button" [disabled]="saving" (click)="remove()">{{ 'T_CALENDAR_DELETE_EVENT' | translate }}</button><span class="actions-spacer"></span><button type="button" class="button button--ghost" [disabled]="saving" (click)="close()">{{ 'T_CANCEL' | translate }}</button><button type="submit" class="button button--primary" [disabled]="saving">{{ (saving ? 'T_SAVING' : editing ? 'T_SAVE_CHANGES' : 'T_CALENDAR_CREATE_EVENT') | translate }}</button></div>
     </form>
   </dialog>
 </main>
