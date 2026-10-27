@@ -7,8 +7,9 @@ export type CalendarCategory = 'personal' | 'leisure' | 'routine' | 'work';
 export interface CalendarEvent {
   EventId: string; Title: string; StartDate: string; EndDate: string; StartTime: string; EndTime: string;
   AllDay: boolean; Category: CalendarCategory; Location: string; Notes: string; Version: number;
+  RepeatDays?: number; RepeatUntil?: string | null; SeriesStartDate?: string; SeriesEndDate?: string;
 }
-export type CalendarEventRequest = Omit<CalendarEvent, 'EventId'>;
+export type CalendarEventRequest = Omit<CalendarEvent, 'EventId' | 'SeriesStartDate' | 'SeriesEndDate'>;
 
 @Injectable({ providedIn: 'root' })
 export class PersonalCalendarService {

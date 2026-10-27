@@ -25,6 +25,35 @@ using angnet.WebApi.Authorization_Policy;
 public class PersonalCalendarTests
 {
     [TestMethod]
+    public async Task WeeklySeriesExpandsOvernightAndIsPrivate()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
+        await db.SaveChangesAsync();
+        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
+        User("alice");
+        var request = new PersonalCalendarEventRequest { Title = "Trực", StartDate = "2026-10-29", EndDate = "2026-10-30", StartTime = "19:00", EndTime = "07:00", Category = "work", RepeatDays = 16 | 64, RepeatUntil = "2026-11-05" };
+        Assert.IsInstanceOfType(await controller.Create(request, default), typeof(OkObjectResult));
+        var list = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10-30", "2026-11-08", default)).Value);
+        Assert.AreEqual(3, list.GetArrayLength());
+        Assert.AreEqual("2026-10-29", list[0].GetProperty("StartDate").GetString());
+        Assert.AreEqual("2026-10-30", list[0].GetProperty("EndDate").GetString());
+        Assert.AreEqual("2026-11-05", list[2].GetProperty("StartDate").GetString());
+        Assert.AreEqual("2026-10-29", list[2].GetProperty("SeriesStartDate").GetString());
+        User("bob");
+        Assert.AreEqual(0, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10-30", "2026-11-08", default)).Value).GetArrayLength());
+        User("alice");
+        request.RepeatDays = 128;
+        Assert.IsInstanceOfType(await controller.Create(request, default), typeof(BadRequestObjectResult));
+        request.RepeatDays = 16; request.RepeatUntil = "2026-10-28";
+        Assert.IsInstanceOfType(await controller.Create(request, default), typeof(BadRequestObjectResult));
+    }
+
+    [TestMethod]
     public async Task OwnerIsolationOverlapValidationAndVersionConflicts()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");

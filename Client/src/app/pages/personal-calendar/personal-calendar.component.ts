@@ -12,7 +12,7 @@ import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, Pers
 import { vietnameseLunarDate, VietnameseLunarDate } from './vietnamese-lunar-date';
 
 type Category = CalendarCategory;
-interface CalendarEvent { id: string; version: number; title: string; date: string; endDate: string; start: string; end: string; allDay: boolean; category: Category; location: string; notes: string; }
+interface CalendarEvent { id: string; version: number; title: string; date: string; endDate: string; start: string; end: string; allDay: boolean; category: Category; location: string; notes: string; repeatDays?: number; repeatUntil?: string; seriesStartDate?: string; seriesEndDate?: string; }
 interface CalendarDay { date: Date; key: string; inMonth: boolean; events: CalendarEvent[]; lunar: VietnameseLunarDate | null; }
 
 @Component({
@@ -34,6 +34,7 @@ export class PersonalCalendarComponent implements OnInit {
     { id: 'routine', label: 'Sinh hoạt' }, { id: 'work', label: 'Công việc' },
   ];
   readonly weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  readonly repeatWeekdays = [{ label: 'T2', bit: 2 }, { label: 'T3', bit: 4 }, { label: 'T4', bit: 8 }, { label: 'T5', bit: 16 }, { label: 'T6', bit: 32 }, { label: 'T7', bit: 64 }, { label: 'CN', bit: 1 }];
   readonly today = this.day(new Date());
   selected = this.today;
   month = startOfMonth(this.today);
@@ -44,6 +45,7 @@ export class PersonalCalendarComponent implements OnInit {
   loadError = '';
   loading = false;
   saving = false;
+  repeatWeekly = false;
 
   ngOnInit(): void {
     this.load();
@@ -78,13 +80,19 @@ export class PersonalCalendarComponent implements OnInit {
   }
   eventTime(event: CalendarEvent): string {
     if (event.allDay) return 'Cả ngày';
+    const selected = this.key(this.selected);
+    if (event.date < selected && event.endDate > selected) return 'Đang diễn ra';
+    if (event.date < selected) return `Đến ${event.end}`;
+    if (event.endDate > selected) return `Từ ${event.start}`;
     return `${event.start} – ${event.end}`;
   }
   select(date: Date): void { const changed = !isSameMonth(date, this.month); this.selected = this.day(date); this.month = startOfMonth(date); if (changed) this.load(); }
   changeMonth(delta: number): void { this.month = addMonths(this.month, delta); this.selected = startOfMonth(this.month); this.load(); }
   goToday(): void { this.select(this.today); }
-  openCreate(): void { this.editing = false; this.error = ''; this.draft = this.emptyEvent(this.selected); this.editor?.nativeElement.showModal(); }
-  openEdit(event: CalendarEvent): void { this.editing = true; this.error = ''; this.draft = { ...event }; this.editor?.nativeElement.showModal(); }
+  openCreate(): void { this.editing = false; this.repeatWeekly = false; this.error = ''; this.draft = this.emptyEvent(this.selected); this.editor?.nativeElement.showModal(); }
+  openEdit(event: CalendarEvent): void { this.editing = true; this.repeatWeekly = !!event.repeatDays; this.error = ''; this.draft = { ...event, date: event.seriesStartDate || event.date, endDate: event.seriesEndDate || event.endDate }; this.editor?.nativeElement.showModal(); }
+  toggleRepeatDay(bit: number): void { this.draft.repeatDays = (this.draft.repeatDays || 0) ^ bit; }
+  isRepeatDay(bit: number): boolean { return !!((this.draft.repeatDays || 0) & bit); }
   close(): void { if (!this.saving) this.editor?.nativeElement.close(); }
   load(): void {
     this.listRequest?.unsubscribe();
@@ -103,17 +111,23 @@ export class PersonalCalendarComponent implements OnInit {
     if (this.draft.endDate < this.draft.date || (!this.draft.allDay && this.draft.endDate === this.draft.date && this.draft.end <= this.draft.start)) {
       this.error = 'Thời gian kết thúc phải sau thời gian bắt đầu.'; return;
     }
+    if (this.repeatWeekly && (!this.draft.repeatDays || (this.draft.repeatUntil && this.draft.repeatUntil < this.draft.date))) {
+      this.error = 'Chọn ít nhất một thứ và ngày kết thúc lặp không trước ngày bắt đầu.'; return;
+    }
+    if (this.repeatWeekly && (this.parseDay(this.draft.endDate).getTime() - this.parseDay(this.draft.date).getTime()) / 86400000 > 31) {
+      this.error = 'Mỗi lần lặp không được dài quá 31 ngày.'; return;
+    }
     const draft = { ...this.draft };
-    const data: CalendarEventRequest = { Title: draft.title.trim(), StartDate: draft.date, EndDate: draft.endDate, StartTime: draft.allDay ? '' : draft.start, EndTime: draft.allDay ? '' : draft.end, AllDay: draft.allDay, Category: draft.category, Location: draft.location, Notes: draft.notes, Version: draft.version };
+    const data: CalendarEventRequest = { Title: draft.title.trim(), StartDate: draft.date, EndDate: draft.endDate, StartTime: draft.allDay ? '' : draft.start, EndTime: draft.allDay ? '' : draft.end, AllDay: draft.allDay, Category: draft.category, Location: draft.location, Notes: draft.notes, Version: draft.version, RepeatDays: this.repeatWeekly ? draft.repeatDays : 0, RepeatUntil: this.repeatWeekly ? draft.repeatUntil || null : null };
     this.saving = true; this.error = '';
     const request = this.editing ? this.api.update(draft.id, data) : this.api.create(data);
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: event => { this.saving = false; this.editor?.nativeElement.close(); this.selected = this.parseDay(event.StartDate); this.month = startOfMonth(this.selected); this.load(); },
+      next: event => { this.saving = false; this.editor?.nativeElement.close(); if (!this.editing) { this.selected = this.parseDay(event.StartDate); this.month = startOfMonth(this.selected); } this.load(); },
       error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'Sự kiện đã thay đổi ở nơi khác. Hãy đóng và tải lại lịch trước khi sửa.' : 'Không thể lưu sự kiện. Nội dung vẫn được giữ để thử lại.'; },
     });
   }
   remove(): void {
-    if (this.saving || !this.editing || !window.confirm('Xóa sự kiện này?')) return;
+    if (this.saving || !this.editing || !window.confirm(this.draft.repeatDays ? 'Xóa toàn bộ chuỗi sự kiện lặp lại?' : 'Xóa sự kiện này?')) return;
     this.saving = true; this.error = '';
     this.api.delete(this.draft.id, this.draft.version).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.saving = false; this.editor?.nativeElement.close(); this.load(); },
@@ -136,5 +150,5 @@ export class PersonalCalendarComponent implements OnInit {
   }
   private parseDay(value: string): Date { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day); }
   private emptyEvent(date: Date): CalendarEvent { const key = this.key(date); return { id: '', version: 0, title: '', date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: 'personal', location: '', notes: '' }; }
-  private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes }; }
+  private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes, repeatDays: event.RepeatDays, repeatUntil: event.RepeatUntil || '', seriesStartDate: event.SeriesStartDate, seriesEndDate: event.SeriesEndDate }; }
 }

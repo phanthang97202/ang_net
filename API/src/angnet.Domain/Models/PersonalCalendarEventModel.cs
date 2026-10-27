@@ -9,6 +9,8 @@ public class PersonalCalendarEventModel
     [Required, MaxLength(120)] public string Title { get; set; } = "";
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
+    public int RepeatDays { get; set; }
+    public DateOnly? RepeatUntil { get; set; }
     [MaxLength(5)] public string StartTime { get; set; } = "";
     [MaxLength(5)] public string EndTime { get; set; } = "";
     public bool AllDay { get; set; }

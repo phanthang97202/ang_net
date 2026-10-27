@@ -53,6 +53,22 @@ describe('Personal calendar', () => {
     expect(calendar.saving).toBeFalse();
   });
 
+  it('saves selected weekdays and the next-day end for an overnight shift', () => {
+    calendar.openCreate();
+    calendar.draft.title = 'Trực khách sạn';
+    calendar.draft.date = '2026-10-29'; calendar.draft.endDate = '2026-10-30';
+    calendar.draft.start = '19:00'; calendar.draft.end = '07:00';
+    calendar.repeatWeekly = true;
+    calendar.toggleRepeatDay(16); calendar.toggleRepeatDay(64);
+    calendar.save({ invalid: false } as NgForm);
+    const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/PersonalCalendar'));
+    expect(request.request.body.RepeatDays).toBe(80);
+    expect(request.request.body.RepeatUntil).toBeNull();
+    expect(request.request.body.EndDate).toBe('2026-10-30');
+    request.flush({ EventId: 'id', StartDate: '2026-10-29' });
+    http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
+  });
+
   it('puts the Vietnamese lunar date on every day and flags months with a leap month', () => {
     const day = (key: string) => calendar.days.find(item => calendar.key(item.date) === key)!;
     calendar.month = new Date(2025, 6, 1);

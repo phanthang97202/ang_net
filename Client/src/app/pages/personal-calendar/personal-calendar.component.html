@@ -39,7 +39,7 @@
       <div class="agenda-label"><span>SỰ KIỆN</span><span class="event-count">{{ selectedEvents.length }}</span></div>
       <div class="agenda-list" *ngIf="selectedEvents.length; else emptyDay">
         <button type="button" class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" (click)="openEdit(event)">
-          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}</span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
+          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · Lặp hàng tuần</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
         </button>
       </div>
       <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>Ngày này còn trống</strong><p>Một khoảng trống cho những dự định mới.</p><button type="button" (click)="openCreate()">+ Thêm sự kiện</button></div></ng-template>
@@ -55,6 +55,16 @@
         <div class="field-grid"><label class="field">Ngày bắt đầu <input type="date" name="date" [(ngModel)]="draft.date" required /></label><label class="field">Ngày kết thúc <input type="date" name="endDate" [(ngModel)]="draft.endDate" required /></label></div>
         <label class="all-day"><input type="checkbox" name="allDay" [(ngModel)]="draft.allDay" /> Cả ngày</label>
         <div class="field-grid" *ngIf="!draft.allDay"><label class="field">Bắt đầu <input type="time" name="start" [(ngModel)]="draft.start" required /></label><label class="field">Kết thúc <input type="time" name="end" [(ngModel)]="draft.end" required /></label></div>
+        <label class="all-day"><input type="checkbox" name="repeatWeekly" [(ngModel)]="repeatWeekly" /> Lặp hàng tuần</label>
+        <div *ngIf="repeatWeekly" class="repeat-options">
+          <span class="field">Lặp vào các ngày</span>
+          <div class="repeat-days" aria-label="Các ngày lặp trong tuần">
+            <button *ngFor="let day of repeatWeekdays" type="button" [class.is-active]="isRepeatDay(day.bit)" [attr.aria-pressed]="isRepeatDay(day.bit)" (click)="toggleRepeatDay(day.bit)">{{ day.label }}</button>
+          </div>
+          <label class="field">Lặp đến ngày <span class="optional">Để trống nếu không có ngày kết thúc</span><input type="date" name="repeatUntil" [(ngModel)]="draft.repeatUntil" [min]="draft.date" /></label>
+          <p class="repeat-hint">Ngày kết thúc ở trên là ngày kết thúc của mỗi lần lặp. Chọn ngày hôm sau cho ca qua đêm.</p>
+        </div>
+        <p *ngIf="editing && draft.repeatDays" class="repeat-hint">Thay đổi hoặc xóa sẽ áp dụng cho toàn bộ chuỗi.</p>
         <label class="field">Loại hoạt động <select name="category" [(ngModel)]="draft.category"><option *ngFor="let category of categories" [value]="category.id">{{ category.label }}</option></select></label>
         <label class="field">Địa điểm <span class="optional">Không bắt buộc</span><input name="location" [(ngModel)]="draft.location" maxlength="200" placeholder="Thêm địa điểm" /></label>
         <label class="field">Ghi chú <span class="optional">Không bắt buộc</span><textarea name="notes" [(ngModel)]="draft.notes" maxlength="1000" rows="3" placeholder="Viết thêm một chút về sự kiện…"></textarea></label>

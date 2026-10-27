@@ -78,7 +78,7 @@
       @if (calendar.events().length || calendar.error()) {
         <div class="calendar-reminders">
           <div class="calendar-reminders__heading"><span nz-icon nzType="calendar" nzTheme="outline"></span> {{ 'T_CALENDAR_TODAY_EVENTS' | translate }}</div>
-          @for (event of calendar.events(); track event.EventId) {
+          @for (event of calendar.events(); track event.EventId + ':' + event.StartDate) {
             <a class="calendar-reminder" [attr.href]="'/calendar?date=' + calendar.today" (click)="openCalendar($event)">
               <span class="calendar-reminder__time">{{ calendar.time(event) | translate }}</span>
               <span class="calendar-reminder__title">{{ event.Title }}</span>

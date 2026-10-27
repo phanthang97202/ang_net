@@ -22,6 +22,8 @@ public class PersonalCalendarEventRequest
     [MaxLength(200)] public string Location { get; set; } = "";
     [MaxLength(1000)] public string Notes { get; set; } = "";
     public int Version { get; set; }
+    public int RepeatDays { get; set; }
+    public string? RepeatUntil { get; set; }
 }
 
 [ApiController, Route("api/PersonalCalendar"), Authorize(Policy = "calendar.use"), EnableRateLimiting("API")]
@@ -36,9 +38,11 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     {
         if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
         if (!Date(from, out var start) || !Date(to, out var end) || start > end || end.DayNumber - start.DayNumber > 62) return BadRequest(new { Code = "InvalidRange" });
-        var items = await db.PersonalCalendarEvent.AsNoTracking().Where(x => x.OwnerId == owner && x.StartDate <= end && x.EndDate >= start)
+        var earliestRepeat = DateOnly.FromDayNumber(Math.Max(0, start.DayNumber - 31));
+        var items = await db.PersonalCalendarEvent.AsNoTracking().Where(x => x.OwnerId == owner && x.StartDate <= end &&
+                (x.RepeatDays == 0 ? x.EndDate >= start : x.RepeatUntil == null || x.RepeatUntil >= earliestRepeat))
             .OrderBy(x => x.StartDate).ThenBy(x => x.StartTime).ThenBy(x => x.EventId).ToListAsync(ct);
-        return Ok(items.Select(ToResponse));
+        return Ok(items.SelectMany(item => Occurrences(item, start, end)).OrderBy(x => x.StartDate).ThenBy(x => x.StartTime).ThenBy(x => x.EventId));
     }
 
     [HttpPost, RequestSizeLimit(8192)]
@@ -51,7 +55,7 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
         Apply(item, request, start, end);
         db.PersonalCalendarEvent.Add(item);
         await db.SaveChangesAsync(ct);
-        return Ok(ToResponse(item));
+        return Ok(ToResponse(item, item.StartDate));
     }
 
     [HttpPut("{id}"), RequestSizeLimit(8192)]
@@ -67,7 +71,7 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
         item.UpdatedAt = clock.GetUtcNow().UtcDateTime;
         try { await db.SaveChangesAsync(ct); }
         catch (DbUpdateConcurrencyException) { return Conflict(new { Code = "EventChanged" }); }
-        return Ok(ToResponse(item));
+        return Ok(ToResponse(item, item.StartDate));
     }
 
     [HttpDelete("{id}")]
@@ -89,6 +93,8 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
         start = default; end = default;
         return !string.IsNullOrWhiteSpace(r.Title) && r.Title.Trim().Length <= 120 &&
             Date(r.StartDate, out start) && Date(r.EndDate, out end) && start <= end &&
+            r.RepeatDays is >= 0 and <= 127 && (r.RepeatDays == 0 || end.DayNumber - start.DayNumber <= 31) &&
+            (string.IsNullOrEmpty(r.RepeatUntil) || r.RepeatDays != 0 && Date(r.RepeatUntil, out var until) && until >= start) &&
             r.Category is "personal" or "leisure" or "routine" or "work" &&
             (r.Location?.Length ?? 0) <= 200 && (r.Notes?.Length ?? 0) <= 1000 &&
             (r.AllDay || Time(r.StartTime) && Time(r.EndTime) && (start < end || string.CompareOrdinal(r.StartTime, r.EndTime) < 0));
@@ -96,11 +102,30 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     private static void Apply(PersonalCalendarEventModel item, PersonalCalendarEventRequest r, DateOnly start, DateOnly end)
     {
         item.Title = r.Title.Trim(); item.StartDate = start; item.EndDate = end;
+        item.RepeatDays = r.RepeatDays; item.RepeatUntil = string.IsNullOrEmpty(r.RepeatUntil) ? null : DateOnly.ParseExact(r.RepeatUntil, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         item.StartTime = r.AllDay ? "" : r.StartTime; item.EndTime = r.AllDay ? "" : r.EndTime;
         item.AllDay = r.AllDay; item.Category = r.Category; item.Location = (r.Location ?? "").Trim(); item.Notes = (r.Notes ?? "").Trim();
     }
-    private static object ToResponse(PersonalCalendarEventModel item) => new {
-        item.EventId, item.Title, item.StartDate, item.EndDate, item.StartTime, item.EndTime,
-        item.AllDay, item.Category, item.Location, item.Notes, item.Version, item.CreatedAt, item.UpdatedAt
-    };
+    private sealed record CalendarResponse(string EventId, string Title, DateOnly StartDate, DateOnly EndDate, string StartTime, string EndTime,
+        bool AllDay, string Category, string Location, string Notes, int Version, DateTime CreatedAt, DateTime UpdatedAt,
+        int RepeatDays, DateOnly? RepeatUntil, DateOnly SeriesStartDate, DateOnly SeriesEndDate);
+
+    private static CalendarResponse ToResponse(PersonalCalendarEventModel item, DateOnly start) => new(
+        item.EventId, item.Title, start, start.AddDays(item.EndDate.DayNumber - item.StartDate.DayNumber), item.StartTime, item.EndTime,
+        item.AllDay, item.Category, item.Location, item.Notes, item.Version, item.CreatedAt, item.UpdatedAt,
+        item.RepeatDays, item.RepeatUntil, item.StartDate, item.EndDate);
+
+    private static IEnumerable<CalendarResponse> Occurrences(PersonalCalendarEventModel item, DateOnly from, DateOnly to)
+    {
+        if (item.RepeatDays == 0) { yield return ToResponse(item, item.StartDate); yield break; }
+        var duration = item.EndDate.DayNumber - item.StartDate.DayNumber;
+        var first = Math.Max(item.StartDate.DayNumber, from.DayNumber - duration);
+        var last = Math.Min(to.DayNumber, item.RepeatUntil?.DayNumber ?? DateOnly.MaxValue.DayNumber - duration);
+        last = Math.Min(last, DateOnly.MaxValue.DayNumber - duration);
+        for (var n = first; n <= last; n++)
+        {
+            var date = DateOnly.FromDayNumber(n);
+            if ((item.RepeatDays & (1 << (int)date.DayOfWeek)) != 0) yield return ToResponse(item, date);
+        }
+    }
 }
