@@ -9,7 +9,11 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
-import { BlogMaintenanceService, isBlogPath } from './blog-maintenance.service';
+import {
+  BlogMaintenanceService,
+  isBlogPath,
+  shiftReportOnlyRedirect,
+} from './blog-maintenance.service';
 
 describe('Blog maintenance configuration', () => {
   let service: BlogMaintenanceService;
@@ -41,16 +45,14 @@ describe('Blog maintenance configuration', () => {
     ] as const) {
       let result: boolean | undefined;
       service.check().subscribe(v => (result = v));
-      http
-        .expectOne(matches)
-        .flush({
-          Success: true,
-          Data: {
-            FlagActive: true,
-            ParameterValueVi: value,
-            ParameterValueEn: value,
-          },
-        });
+      http.expectOne(matches).flush({
+        Success: true,
+        Data: {
+          FlagActive: true,
+          ParameterValueVi: value,
+          ParameterValueEn: value,
+        },
+      });
       expect(result).toBe(enabled);
     }
   });
@@ -70,12 +72,10 @@ describe('Blog maintenance configuration', () => {
   it('redirects an already open blog and skips dashboard and maintenance polling', fakeAsync(() => {
     service.startMonitoring();
     tick(30000);
-    http
-      .expectOne(matches)
-      .flush({
-        Success: true,
-        Data: { FlagActive: true, ParameterValueVi: 'true' },
-      });
+    http.expectOne(matches).flush({
+      Success: true,
+      Data: { FlagActive: true, ParameterValueVi: 'true' },
+    });
     tick();
     expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/maintain', {
       replaceUrl: true,
@@ -87,6 +87,46 @@ describe('Blog maintenance configuration', () => {
     }
     discardPeriodicTasks();
   }));
+  it('reads ONLY_SHIFT_REPORT from its own parameter', () => {
+    let result: boolean | undefined;
+    service.checkShiftReportOnly().subscribe(v => (result = v));
+    http
+      .expectOne(
+        request =>
+          request.url.endsWith('SysParameter/Detail') &&
+          request.params.get('key') === 'ONLY_SHIFT_REPORT'
+      )
+      .flush({
+        Success: true,
+        Data: { FlagActive: true, ParameterValueVi: 'true' },
+      });
+    expect(result).toBeTrue();
+  });
+  it('decides where shift-report-only mode sends each visitor', () => {
+    // Khách: mọi trang về báo cáo ca, trừ đăng nhập và chính báo cáo ca
+    expect(shiftReportOnlyRedirect('/news/a/b', false, false)).toBe(
+      '/tools/shift-report'
+    );
+    expect(
+      shiftReportOnlyRedirect('/tools/shift-report?date=1', false, false)
+    ).toBeNull();
+    expect(shiftReportOnlyRedirect('/login?x=1', false, false)).toBeNull();
+    expect(
+      shiftReportOnlyRedirect('/forgot-password', false, false)
+    ).toBeNull();
+    // Có quyền: dùng báo cáo ca bình thường
+    expect(shiftReportOnlyRedirect('/', true, true)).toBe(
+      '/tools/shift-report'
+    );
+    expect(
+      shiftReportOnlyRedirect('/tools/shift-report', true, true)
+    ).toBeNull();
+    // Đã đăng nhập nhưng thiếu quyền: về trang bảo trì thay vì lặp chuyển hướng
+    expect(shiftReportOnlyRedirect('/tools/shift-report', true, false)).toBe(
+      '/maintain'
+    );
+    expect(shiftReportOnlyRedirect('/login', true, false)).toBeNull();
+  });
   it('exempts only dashboard paths and maintain, including query parameters', () => {
     for (const url of [
       '/dashboard',

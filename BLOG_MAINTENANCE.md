@@ -9,3 +9,9 @@ Every blog navigation checks fresh public configuration before activating the pa
 `/dashboard` and its existing children bypass maintenance checks and retain their authentication and permission guards. `/dashboard/login` reuses the existing login page, allowing management access during maintenance when `/login` is unavailable. Anonymous dashboard access goes to that login route. Dashboard and maintenance pages do not poll the maintenance parameter.
 
 This is blog UI maintenance; API endpoints and dashboard operations remain available. No real configuration value or database migration was changed locally.
+
+## Shift report only
+
+Migration `0072_SeedChiBaoCaoCa.sql` seeds `ONLY_SHIFT_REPORT` (category Blog, type bool, default `false`), configured the same way through `/dashboard/sysparameter`. When `true`, every blog URL redirects to `/tools/shift-report`; only that page and its sub-paths, `/login` and `/forgot-password` stay reachable. Signing in through `/login` lands on the shift report, while `/dashboard/login` still opens the dashboard. `/dashboard/*` is unaffected.
+
+Signed-in users without the `shiftreport.view` permission are sent to `/maintain` instead, because the shift report's own guard would otherwise bounce them to `/` and back in a loop. `BLOG_MAINTENANCE` takes precedence when both are enabled. Open blog tabs pick up the change within 30 seconds through the same monitoring loop. Like maintenance mode, this only restricts the blog UI; API endpoints keep their usual authorization.

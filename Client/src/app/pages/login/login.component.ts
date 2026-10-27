@@ -34,6 +34,10 @@ import {
   LoginAppearanceService,
 } from './login-appearance.service';
 import { ConfigSkeletonComponent } from '../../components/config-skeleton/config-skeleton.component';
+import {
+  BlogMaintenanceService,
+  SHIFT_REPORT_PATH,
+} from '../../services/blog-maintenance.service';
 interface GoogleCredentialResponse {
   credential: string;
 }
@@ -87,6 +91,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   heroImageLoaded = false;
   private readonly loginAppearance = inject(LoginAppearanceService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly blogMode = inject(BlogMaintenanceService);
 
   @ViewChild('googleButton', { static: true })
   private googleButton!: ElementRef<HTMLElement>;
@@ -228,7 +233,18 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (response?.Success) {
           this.message.create('success', 'Login successfully');
-          this.router.navigate([canAccessDashboard ? '/dashboard' : '/']);
+          const home = canAccessDashboard ? '/dashboard' : '/';
+          // Đăng nhập từ /login (cửa blog) khi bật ONLY_SHIFT_REPORT thì vào thẳng
+          // báo cáo ca; /dashboard/login vẫn vào khu quản trị như cũ
+          if (this.router.url.startsWith('/dashboard')) {
+            this.router.navigate([home]);
+          } else {
+            this.blogMode
+              .checkShiftReportOnly()
+              .subscribe(only =>
+                this.router.navigate([only ? SHIFT_REPORT_PATH : home])
+              );
+          }
         } else {
           this.showErrorService.setShowError({
             icon: 'warning',
