@@ -1,7 +1,6 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   BlogMaintenanceService,
   TROLL_PATH,
@@ -38,7 +37,6 @@ const isImageSource = (value: string): boolean =>
 @Component({
   selector: 'app-haha',
   standalone: true,
-  imports: [TranslateModule],
   templateUrl: './haha.component.html',
   styleUrl: './haha.component.scss',
 })
@@ -75,7 +73,7 @@ export class HahaComponent implements OnInit {
       });
   }
 
-  play(): void {
+  private play(): void {
     const config = this.config;
     if (!config) return;
     this.clearTimers();

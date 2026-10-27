@@ -1,6 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import {
   BlogMaintenanceService,
@@ -21,7 +20,7 @@ describe('Haha prank page', () => {
   beforeEach(() => {
     router = { navigateByUrl: jasmine.createSpy().and.resolveTo(true) };
     TestBed.configureTestingModule({
-      imports: [HahaComponent, TranslateModule.forRoot()],
+      imports: [HahaComponent],
       providers: [
         { provide: Router, useValue: router },
         {
@@ -55,9 +54,8 @@ describe('Haha prank page', () => {
       fixture.nativeElement.querySelector('.haha__message').textContent
     ).toContain('Haha, mày là 1 tên hề!');
     expect(router.navigateByUrl).not.toHaveBeenCalled();
-
-    page.play();
-    expect(page.phase()).toBe('countdown');
+    // Không cho xem lại: màn cuối chỉ có câu chọc ghẹo
+    expect(fixture.nativeElement.querySelector('button')).toBeNull();
     fixture.destroy();
   }));
 
