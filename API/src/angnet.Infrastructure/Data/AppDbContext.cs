@@ -79,6 +79,7 @@ namespace angnet.Infrastructure.Data
         // Ghi chú công khai
         public DbSet<NoteModel> Note { get; set; }
         public DbSet<PersonalNoteModel> PersonalNote { get; set; }
+        public DbSet<PersonalCalendarEventModel> PersonalCalendarEvent { get; set; }
 
         // Reels
         public DbSet<ReelModel> Reel { get; set; }
@@ -134,6 +135,10 @@ namespace angnet.Infrastructure.Data
                 .IsUnique().HasFilter("\"LegacyAuditTrailId\" IS NOT NULL");
             modelBuilder.Entity<PersonalNoteModel>().HasOne<AppUser>().WithMany()
                 .HasForeignKey(n => n.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalCalendarEventModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalCalendarEventModel>().HasIndex(x => new { x.OwnerId, x.StartDate, x.EndDate });
+            modelBuilder.Entity<PersonalCalendarEventModel>().Property(x => x.Version).IsConcurrencyToken();
             modelBuilder.Entity<PersonalNoteModel>()
                 .HasIndex(n => new { n.OwnerId, n.UpdatedAt, n.NoteId });
             modelBuilder.Entity<PersonalNoteModel>().Property(n => n.Version).IsConcurrencyToken();

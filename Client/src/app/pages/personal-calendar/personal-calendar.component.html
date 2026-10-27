@@ -1,0 +1,65 @@
+<main class="calendar-page">
+  <header class="page-heading">
+    <div class="heading-copy">
+      <h1>Lịch cá nhân<span class="heading-period">.</span></h1>
+    </div>
+    <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> Tạo sự kiện</button>
+  </header>
+
+  <div class="calendar-layout">
+    <section class="calendar-card" aria-label="Lịch tháng">
+      <div class="calendar-toolbar">
+        <div><h2>{{ title }}</h2></div>
+        <div class="calendar-controls">
+          <button type="button" class="icon-button" aria-label="Tải lại lịch" title="Tải lại lịch" [disabled]="loading" (click)="load()"><span nz-icon nzType="reload"></span></button>
+          <button type="button" class="today-button" (click)="goToday()">Hôm nay</button>
+          <div class="month-switch">
+            <button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button>
+            <button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button>
+          </div>
+        </div>
+      </div>
+      <div class="calendar-grid" role="grid" [attr.aria-label]="title">
+        <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday }}</div>
+        <button *ngFor="let day of days" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + day.events.length + ' sự kiện'" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
+          <span class="day-number">{{ day.date.getDate() }}</span>
+          <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">+{{ day.events.length - 2 }} sự kiện</span></span>
+          <span class="day-dots" aria-hidden="true"><i *ngFor="let event of day.events.slice(0, 3)" [attr.data-category]="event.category"></i></span>
+        </button>
+      </div>
+      <div class="calendar-footer"><span><i></i> Hôm nay</span><span *ngIf="!loading && !loadError">{{ monthEvents }} sự kiện trong tháng</span></div>
+    </section>
+
+    <aside class="agenda-card" aria-label="Sự kiện trong ngày">
+      <div class="agenda-top"><div><h2>{{ isTodaySelected ? 'Hôm nay' : 'Lịch trong ngày' }}</h2><p>{{ selectedLabel }}</p></div><div class="date-tile"><strong>{{ selected.getDate() }}</strong><span>TH {{ selected.getMonth() + 1 }}</span></div></div>
+      <div *ngIf="loading" class="empty-day" role="status">Đang tải lịch…</div>
+      <div *ngIf="loadError" class="empty-day" role="alert"><strong>{{ loadError }}</strong><button type="button" (click)="load()">Thử lại</button></div>
+      <ng-container *ngIf="!loading && !loadError">
+      <div class="agenda-label"><span>SỰ KIỆN</span><span class="event-count">{{ selectedEvents.length }}</span></div>
+      <div class="agenda-list" *ngIf="selectedEvents.length; else emptyDay">
+        <button type="button" class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" (click)="openEdit(event)">
+          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}</span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
+        </button>
+      </div>
+      <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>Ngày này còn trống</strong><p>Một khoảng trống cho những dự định mới.</p><button type="button" (click)="openCreate()">+ Thêm sự kiện</button></div></ng-template>
+      </ng-container>
+    </aside>
+  </div>
+
+  <dialog #editor class="event-dialog" aria-labelledby="event-dialog-title" (cancel)="saving && $event.preventDefault()">
+    <form #eventForm="ngForm" (ngSubmit)="save(eventForm)">
+      <div class="dialog-heading"><div><span class="section-kicker">LỊCH CÁ NHÂN</span><h2 id="event-dialog-title">{{ editing ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện' }}</h2></div><button type="button" class="icon-button" (click)="close()" [disabled]="saving" aria-label="Đóng"><span nz-icon nzType="close"></span></button></div>
+      <fieldset class="dialog-content" [disabled]="saving">
+        <label class="field">Tên sự kiện <input name="title" [(ngModel)]="draft.title" required maxlength="120" placeholder="Ví dụ: Cà phê cùng bạn" autocomplete="off" /></label>
+        <div class="field-grid"><label class="field">Ngày bắt đầu <input type="date" name="date" [(ngModel)]="draft.date" required /></label><label class="field">Ngày kết thúc <input type="date" name="endDate" [(ngModel)]="draft.endDate" required /></label></div>
+        <label class="all-day"><input type="checkbox" name="allDay" [(ngModel)]="draft.allDay" /> Cả ngày</label>
+        <div class="field-grid" *ngIf="!draft.allDay"><label class="field">Bắt đầu <input type="time" name="start" [(ngModel)]="draft.start" required /></label><label class="field">Kết thúc <input type="time" name="end" [(ngModel)]="draft.end" required /></label></div>
+        <label class="field">Loại hoạt động <select name="category" [(ngModel)]="draft.category"><option *ngFor="let category of categories" [value]="category.id">{{ category.label }}</option></select></label>
+        <label class="field">Địa điểm <span class="optional">Không bắt buộc</span><input name="location" [(ngModel)]="draft.location" maxlength="200" placeholder="Thêm địa điểm" /></label>
+        <label class="field">Ghi chú <span class="optional">Không bắt buộc</span><textarea name="notes" [(ngModel)]="draft.notes" maxlength="1000" rows="3" placeholder="Viết thêm một chút về sự kiện…"></textarea></label>
+        <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
+      </fieldset>
+      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete-button" [disabled]="saving" (click)="remove()">Xóa sự kiện</button><span class="actions-spacer"></span><button type="button" class="button button--ghost" [disabled]="saving" (click)="close()">Hủy</button><button type="submit" class="button button--primary" [disabled]="saving">{{ saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Tạo sự kiện' }}</button></div>
+    </form>
+  </dialog>
+</main>

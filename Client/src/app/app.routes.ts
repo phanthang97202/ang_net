@@ -73,6 +73,15 @@ const appRoutes: Routes = [
       import('./pages/note/note.component').then(p => p.NoteComponent),
   },
   {
+    title: 'T_CALENDAR',
+    path: 'calendar',
+    loadComponent: () =>
+      import('./pages/personal-calendar/personal-calendar.component').then(
+        p => p.PersonalCalendarComponent
+      ),
+    canActivate: [canActivePermission('calendar.use', '/')],
+  },
+  {
     title: 'T_PAGE_MUSIC',
     path: 'music',
     loadComponent: () =>
