@@ -6,7 +6,6 @@
   </app-breadcrumb>
   <main class="detail-page" [attr.aria-busy]="loading">
     <h1 class="sr-only">Thống kê âm nhạc</h1>
-    <p class="intro">Dữ liệu ghi nhận từ khi tính năng được triển khai. Lượt chọn bài và lượt phát thành công được tính riêng. Bộ lọc bộ sưu tập chỉ hiển thị các bộ công khai.</p>
     <form class="filters panel" (ngSubmit)="search()">
       <label>Khoảng ngày <nz-range-picker name="range" [(ngModel)]="range" nzFormat="dd/MM/yyyy" [nzAllowClear]="false"></nz-range-picker></label>
       <label>Nguồn nhạc <select name="provider" [(ngModel)]="provider"><option value="">Tất cả</option><option value="YouTube">YouTube</option><option value="Audius">Audius</option></select></label>
@@ -23,21 +22,21 @@
         <div class="panel metric"><span>Tài khoản sử dụng</span><strong>{{ data.Users | number }}</strong><small>Không bao gồm khách chưa đăng nhập</small></div>
       </section>
       <section class="panel section" aria-label="Hoạt động theo ngày">
-        <h2>Hoạt động theo ngày</h2><p class="hint">Tìm kiếm và phát thành công · giờ Việt Nam</p>
+        <h2>Hoạt động theo ngày</h2>
         <div class="chart" *ngIf="points.length" role="img" aria-label="Biểu đồ tìm kiếm và phát thành công theo ngày">
           <div class="chart-day" *ngFor="let point of points" [title]="point.day + ': ' + point.searches + ' tìm kiếm, ' + point.plays + ' lượt phát'">
             <div class="bars"><span class="bar search-bar" [style.height.%]="point.searches / maxPoint * 100"></span><span class="bar play-bar" [style.height.%]="point.plays / maxPoint * 100"></span></div>
             <small>{{ point.day.slice(5) }}</small>
           </div>
         </div>
-        <p class="hint"><span class="search-legend">●</span> Tìm kiếm &nbsp;&nbsp; <span class="play-legend">●</span> Phát thành công. Di chuột vào cột để xem số liệu.</p>
+        <p class="hint"><span class="search-legend">●</span> Tìm kiếm &nbsp;&nbsp; <span class="play-legend">●</span> Phát thành công</p>
         <details><summary>Xem số liệu theo ngày</summary><div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Tìm kiếm</th><th>Phát thành công</th></tr></thead><tbody><tr *ngFor="let point of points"><td>{{ point.day }}</td><td>{{ point.searches }}</td><td>{{ point.plays }}</td></tr></tbody></table></div></details>
       </section>
       <div class="rankings">
         <section class="panel section"><h2>Bài hát được chọn nhiều</h2><p *ngIf="!data.Songs.length" class="hint">Chưa có lượt chọn bài.</p><ol><li *ngFor="let song of data.Songs"><span>{{ song.Title || song.TrackId }} <small>{{ song.Provider }}</small></span><strong>{{ song.Count | number }}</strong></li></ol></section>
         <section class="panel section"><h2>Từ khóa tìm kiếm</h2><p *ngIf="!data.Keywords.length" class="hint">Chưa có lượt tìm kiếm.</p><ol><li *ngFor="let item of data.Keywords"><span>{{ item.Keyword }} <small>{{ item.Provider }}</small></span><strong>{{ item.Count | number }}</strong></li></ol></section>
       </div>
-      <section class="panel section"><h2>Hoạt động gần đây</h2><p class="hint">Tối đa 100 sự kiện gần nhất trong khoảng đã chọn.</p>
+      <section class="panel section"><h2>Hoạt động gần đây</h2>
         <div class="table-wrap"><table><thead><tr><th>Thời điểm</th><th>Hoạt động</th><th>Nguồn</th><th>Bài hát / từ khóa</th><th>Tài khoản</th></tr></thead>
           <tbody><tr *ngFor="let event of data.Recent"><td>{{ time(event.OccurredAt) }}</td><td>{{ label(event.Kind) }}</td><td>{{ event.Provider }}</td><td>{{ event.Title || event.Keyword || '—' }}</td><td>{{ event.UserName || 'Khách' }}</td></tr></tbody></table></div>
         <p *ngIf="!data.Recent.length" class="hint">Chưa có hoạt động trong khoảng thời gian này.</p>
