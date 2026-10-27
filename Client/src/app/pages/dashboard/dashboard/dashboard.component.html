@@ -1,7 +1,11 @@
-<div class="w-full h-full">
-  <img
-    class="w-full h-full object-cover"
-    [src]="backgroundImageUrl$ | async"
-    alt="Ảnh nền trang quản trị"
-    (error)="useFallbackImage($event)" />
+<!-- Nền gradient hiện ngay, ảnh nền phủ lên khi đã tải xong -->
+<div class="dashboard-background" [class.is-loaded]="imageLoaded">
+  @if (backgroundImageUrl$ | async; as url) {
+    <img
+      class="dashboard-background__image"
+      [src]="url"
+      alt="Ảnh nền trang quản trị"
+      (load)="imageLoaded = true"
+      (error)="useFallbackImage($event)" />
+  }
 </div>
