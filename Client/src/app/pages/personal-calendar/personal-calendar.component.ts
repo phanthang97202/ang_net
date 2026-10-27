@@ -8,10 +8,11 @@ import { addMonths, eachDayOfInterval, endOfMonth, format, isSameDay, isSameMont
 import { vi } from 'date-fns/locale';
 import { Subscription } from 'rxjs';
 import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, PersonalCalendarService } from '../../services/personal-calendar.service';
+import { vietnameseLunarDate, VietnameseLunarDate } from './vietnamese-lunar-date';
 
 type Category = CalendarCategory;
 interface CalendarEvent { id: string; version: number; title: string; date: string; endDate: string; start: string; end: string; allDay: boolean; category: Category; location: string; notes: string; }
-interface CalendarDay { date: Date; key: string; inMonth: boolean; events: CalendarEvent[]; }
+interface CalendarDay { date: Date; key: string; inMonth: boolean; events: CalendarEvent[]; lunar: VietnameseLunarDate | null; }
 
 @Component({
   selector: 'app-personal-calendar', standalone: true,
@@ -25,6 +26,7 @@ export class PersonalCalendarComponent implements OnInit {
   private readonly destroy = inject(DestroyRef);
   private listRequest?: Subscription;
   private requestGeneration = 0;
+  private readonly lunarCache = new Map<string, VietnameseLunarDate | null>();
   readonly categories: { id: Category; label: string }[] = [
     { id: 'personal', label: 'Cá nhân' }, { id: 'leisure', label: 'Đi chơi' },
     { id: 'routine', label: 'Sinh hoạt' }, { id: 'work', label: 'Công việc' },
@@ -49,15 +51,19 @@ export class PersonalCalendarComponent implements OnInit {
   get days(): CalendarDay[] {
     const start = startOfWeek(startOfMonth(this.month), { weekStartsOn: 1 });
     const end = endOfWeek(endOfMonth(this.month), { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end }).map(date => ({ date, key: this.key(date), inMonth: isSameMonth(date, this.month), events: this.eventsFor(date) }));
+    return eachDayOfInterval({ start, end }).map(date => ({ date, key: this.key(date), inMonth: isSameMonth(date, this.month), events: this.eventsFor(date), lunar: this.lunarFor(date) }));
   }
   get selectedEvents(): CalendarEvent[] { return this.eventsFor(this.selected); }
+  get hasLeapMonth(): boolean { return this.days.some(day => day.inMonth && day.lunar?.leapMonth); }
   get isTodaySelected(): boolean { return isSameDay(this.today, this.selected); }
   key(date: Date): string { return format(date, 'yyyy-MM-dd'); }
   isSelected(date: Date): boolean { return isSameDay(this.selected, date); }
   isToday(date: Date): boolean { return isSameDay(this.today, date); }
   label(category: Category): string { return this.categories.find(item => item.id === category)?.label ?? ''; }
   dateLabel(date: Date): string { return format(date, "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi }); }
+  lunarLabel(lunar: VietnameseLunarDate | null): string {
+    return lunar ? `âm lịch ngày ${lunar.day} tháng ${lunar.month}${lunar.leapMonth ? ' nhuận' : ''} năm ${lunar.year}` : 'không có dữ liệu âm lịch';
+  }
   eventTime(event: CalendarEvent): string {
     if (event.allDay) return 'Cả ngày';
     return `${event.start} – ${event.end}`;
@@ -108,6 +114,14 @@ export class PersonalCalendarComponent implements OnInit {
       .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
   }
   private day(date: Date): Date { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
+  private lunarFor(date: Date): VietnameseLunarDate | null {
+    const key = this.key(date);
+    if (!this.lunarCache.has(key)) {
+      if (this.lunarCache.size >= 500) this.lunarCache.clear();
+      this.lunarCache.set(key, vietnameseLunarDate(date));
+    }
+    return this.lunarCache.get(key) ?? null;
+  }
   private parseDay(value: string): Date { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day); }
   private emptyEvent(date: Date): CalendarEvent { const key = this.key(date); return { id: '', version: 0, title: '', date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: 'personal', location: '', notes: '' }; }
   private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes }; }

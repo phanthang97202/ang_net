@@ -2,6 +2,8 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { NgForm } from '@angular/forms';
 import { addDays, addMonths, startOfMonth } from 'date-fns';
+import { NZ_ICONS } from 'ng-zorro-antd/icon';
+import * as icons from '@ant-design/icons-angular/icons';
 import { PersonalCalendarComponent } from './personal-calendar.component';
 
 describe('Personal calendar', () => {
@@ -48,5 +50,42 @@ describe('Personal calendar', () => {
     request.flush({ EventId: 'id', StartDate: calendar.draft.date });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
     expect(calendar.saving).toBeFalse();
+  });
+
+  it('puts the Vietnamese lunar date on every day and flags months with a leap month', () => {
+    const day = (key: string) => calendar.days.find(item => calendar.key(item.date) === key)!;
+    calendar.month = new Date(2025, 6, 1);
+    expect(day('2025-07-25').lunar).toEqual({ day: 1, month: 6, year: 2025, leapMonth: true });
+    expect(calendar.lunarLabel(day('2025-07-25').lunar)).toBe('âm lịch ngày 1 tháng 6 nhuận năm 2025');
+    expect(calendar.hasLeapMonth).toBeTrue();
+    calendar.month = new Date(2026, 1, 1);
+    expect(day('2026-02-17').lunar).toEqual({ day: 1, month: 1, year: 2026, leapMonth: false });
+    expect(calendar.hasLeapMonth).toBeFalse();
+    expect(calendar.lunarLabel(null)).toBe('không có dữ liệu âm lịch');
+  });
+});
+
+describe('Personal calendar lunar dates', () => {
+  it('renders the lunar day under each solar day with N for a leap month', () => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, PersonalCalendarComponent],
+      providers: [{ provide: NZ_ICONS, useValue: Object.values(icons) }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(PersonalCalendarComponent);
+    fixture.componentInstance.month = new Date(2025, 6, 1);
+    fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    fixture.detectChanges();
+
+    const cells: HTMLElement[] = [...fixture.nativeElement.querySelectorAll('.calendar-day')];
+    const cell = (label: string) => cells.find(item => item.getAttribute('aria-label')!.includes(label))!;
+    const leapStart = cell('ngày 25 tháng 7 năm 2025');
+    expect(leapStart.querySelector('.lunar-day')!.textContent!.trim()).toBe('1/6N');
+    expect(leapStart.querySelector('.lunar-day')!.classList).toContain('lunar-day--new-month');
+    expect(leapStart.getAttribute('aria-label')).toContain('âm lịch ngày 1 tháng 6 nhuận năm 2025');
+    expect(cell('ngày 24 tháng 7 năm 2025').querySelector('.lunar-day')!.textContent!.trim()).toBe('30/6');
+    expect(fixture.nativeElement.querySelector('.calendar-footer').textContent).toContain('N: tháng nhuận');
+    http.verify();
   });
 });

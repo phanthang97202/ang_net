@@ -47,7 +47,8 @@
             "allowedCommonJsDependencies": [
               "quill-delta",
               "quill",
-              "quill-blot-formatter"
+              "quill-blot-formatter",
+              "lunar-date-vn"
             ]
           },
           "configurations": {
