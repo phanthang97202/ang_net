@@ -271,7 +271,7 @@ input:focus-visible {
     padding: 1.25rem 1rem 3rem;
   }
   .music-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .music-player {
     position: static;

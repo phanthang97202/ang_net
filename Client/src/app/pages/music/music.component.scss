@@ -35,6 +35,10 @@
   gap: 1.5rem;
 }
 
+.music-layout > * {
+  min-width: 0;
+}
+
 .music-player,
 .music-list,
 .skeleton-panel,
