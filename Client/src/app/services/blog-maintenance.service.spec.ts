@@ -12,8 +12,11 @@ import { Router } from '@angular/router';
 import {
   BlogMaintenanceService,
   isBlogPath,
+  isTrollExcluded,
+  parseTrollConfig,
   shiftReportOnlyRedirect,
 } from './blog-maintenance.service';
+import { AuthService } from './auth.service';
 
 describe('Blog maintenance configuration', () => {
   let service: BlogMaintenanceService;
@@ -69,13 +72,21 @@ describe('Blog maintenance configuration', () => {
       .expectOne(matches)
       .flush('Unavailable', { status: 503, statusText: 'Unavailable' });
   });
+  const parameter = (key: string) => (request: any) =>
+    request.url.endsWith('SysParameter/Detail') &&
+    request.params.get('key') === key;
+  const flush = (key: string, value: string | null) =>
+    http.expectOne(parameter(key)).flush({
+      Success: true,
+      Data: { FlagActive: true, ParameterValueVi: value },
+    });
   it('redirects an already open blog and skips dashboard and maintenance polling', fakeAsync(() => {
     service.startMonitoring();
     tick(30000);
-    http.expectOne(matches).flush({
-      Success: true,
-      Data: { FlagActive: true, ParameterValueVi: 'true' },
-    });
+    // 3 chế độ được hỏi song song; bảo trì thắng
+    flush('BLOG_MAINTENANCE', 'true');
+    flush('TROLL_VIETNAM', '{"enabled":true}');
+    flush('ONLY_SHIFT_REPORT', 'false');
     tick();
     expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/maintain', {
       replaceUrl: true,
@@ -101,6 +112,52 @@ describe('Blog maintenance configuration', () => {
         Data: { FlagActive: true, ParameterValueVi: 'true' },
       });
     expect(result).toBeTrue();
+  });
+  it('parses TROLL_VIETNAM safely, with defaults and limits', () => {
+    expect(parseTrollConfig(null)).toBeNull();
+    expect(parseTrollConfig('not json')).toBeNull();
+    expect(parseTrollConfig('{"enabled":false,"message":"x"}')).toBeNull();
+    expect(parseTrollConfig('{"enabled":"true"}')).toBeNull();
+    expect(parseTrollConfig('{"enabled":true}')).toEqual({
+      message: 'Haha, mày là 1 tên hề!',
+      countdown: 3,
+      images: ['😂', '🖕', '🤡'],
+      excludedUserIds: [],
+    });
+    const config = parseTrollConfig(
+      JSON.stringify({
+        enabled: true,
+        message: '  Hề quá  ',
+        countdown: 99,
+        images: ['https://x/clown.png', '', 5, '🤡'],
+        excludedUserIds: ['ABC-1', ' '],
+      })
+    )!;
+    expect(config.message).toBe('Hề quá');
+    expect(config.countdown).toBe(3);
+    expect(config.images).toEqual(['https://x/clown.png', '🤡']);
+    expect(isTrollExcluded(config, 'abc-1')).toBeTrue();
+    expect(isTrollExcluded(config, 'other')).toBeFalse();
+    expect(isTrollExcluded(config, null)).toBeFalse();
+  });
+  it('resolves maintenance > troll > shift report only, and spares excluded users', () => {
+    const auth = TestBed.inject(AuthService);
+    spyOn(auth, 'getAccountInfo').and.returnValue({ nameid: 'owner' } as any);
+    const run = (troll: string, shiftOnly: string) => {
+      let target: string | null | undefined;
+      service
+        .resolve('/news/a/b')
+        .subscribe(result => (target = result.target));
+      flush('BLOG_MAINTENANCE', 'false');
+      flush('TROLL_VIETNAM', troll);
+      flush('ONLY_SHIFT_REPORT', shiftOnly);
+      return target;
+    };
+    expect(run('{"enabled":true}', 'true')).toBe('/haha');
+    expect(run('{"enabled":true,"excludedUserIds":["OWNER"]}', 'true')).toBe(
+      '/tools/shift-report'
+    );
+    expect(run('{"enabled":false}', 'false')).toBeNull();
   });
   it('decides where shift-report-only mode sends each visitor', () => {
     // Khách: mọi trang về báo cáo ca, trừ đăng nhập và chính báo cáo ca
@@ -133,6 +190,7 @@ describe('Blog maintenance configuration', () => {
       '/dashboard/users?tab=1',
       '/dashboard/login',
       '/maintain?x=1',
+      '/haha',
     ])
       expect(isBlogPath(url)).toBeFalse();
     for (const url of [

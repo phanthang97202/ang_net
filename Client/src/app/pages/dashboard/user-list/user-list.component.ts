@@ -13,6 +13,7 @@ import { IUser } from '../../../interfaces';
 import { AccountCredentialsPopupComponent } from './account-credentials-popup.component';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import {
   AccountSecurityAction,
   AccountSecurityPopupComponent,
@@ -39,6 +40,7 @@ export class UserListComponent implements OnInit {
   authService = inject(AuthService);
   showErrorService = inject(ShowErrorService);
   loadingService = inject(LoadingService);
+  private message = inject(NzMessageService);
   me = '';
   lstUsers: IUser[] = [];
   keyword = '';
@@ -68,6 +70,13 @@ export class UserListComponent implements OnInit {
     this.securityUser = user;
     this.securityAction = action;
     this.securityVisible = true;
+  }
+
+  copyUserId(id: string): void {
+    navigator.clipboard
+      .writeText(id)
+      .then(() => this.message.success('Đã sao chép ID người dùng'))
+      .catch(() => this.message.info(id));
   }
 
   ngOnInit() {

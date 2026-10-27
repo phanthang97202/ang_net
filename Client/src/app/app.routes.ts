@@ -32,6 +32,14 @@ const appRoutes: Routes = [
       ),
   },
   {
+    // Trò chơi khăm TROLL_VIETNAM. Không đi qua guard blog (đích của chính guard
+    // đó); trang tự kiểm tra cấu hình và về trang chủ nếu chế độ đang tắt.
+    path: 'haha',
+    title: 'T_PAGE_HAHA',
+    loadComponent: () =>
+      import('./pages/haha/haha.component').then(p => p.HahaComponent),
+  },
+  {
     path: 'dashboard/login',
     title: 'T_PAGE_LOGIN',
     loadComponent: () =>
@@ -435,7 +443,9 @@ const appRoutes: Routes = [
 ];
 
 export const routes: Routes = appRoutes.map(route => {
-  if (['dashboard', 'dashboard/login', 'maintain'].includes(route.path!))
+  if (
+    ['dashboard', 'dashboard/login', 'maintain', 'haha'].includes(route.path!)
+  )
     return route;
   return { ...route, canMatch: [canMatchBlog] };
 });

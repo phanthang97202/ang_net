@@ -1,0 +1,66 @@
+<main
+  class="haha"
+  [class.is-shaking]="phase() === 'boom'"
+  [attr.aria-busy]="phase() === 'loading'">
+  <div class="haha__glow" aria-hidden="true"></div>
+  <div class="haha__scanlines" aria-hidden="true"></div>
+
+  @if (phase() === 'countdown') {
+    <!-- Bọc trong @for theo số để mỗi số là phần tử mới -> chạy lại hiệu ứng -->
+    @for (number of [count()]; track number) {
+      <div class="haha__count" aria-live="assertive">
+        <span class="haha__count-ring" aria-hidden="true"></span>
+        <span class="haha__count-number">{{ number }}</span>
+      </div>
+    }
+  }
+
+  @if (phase() === 'boom') {
+    <div class="haha__flash" aria-hidden="true"></div>
+    <div class="haha__shockwave" aria-hidden="true"></div>
+    <div class="haha__boom" aria-hidden="true">BOOM!</div>
+  }
+
+  @if (phase() === 'boom' || phase() === 'done') {
+    <div class="haha__particles" aria-hidden="true">
+      @for (particle of particles(); track particle.id) {
+        <span
+          class="haha__particle"
+          [style.--x]="particle.x"
+          [style.--y]="particle.y"
+          [style.--rot]="particle.rot"
+          [style.--tilt]="particle.tilt"
+          [style.--size]="particle.size"
+          [style.--delay]="particle.delay">
+          <span
+            class="haha__float"
+            [style.--float-duration]="particle.floatDuration"
+            [style.--float-delay]="particle.floatDelay">
+            @if (particle.isImage && !particle.failed) {
+              <img
+                [src]="particle.src"
+                alt=""
+                draggable="false"
+                (error)="imageFailed(particle)" />
+            } @else {
+              <span class="haha__emoji">{{
+                particle.isImage ? '🤡' : particle.src
+              }}</span>
+            }
+          </span>
+        </span>
+      }
+    </div>
+  }
+
+  @if (phase() === 'done') {
+    <section class="haha__stage" role="status">
+      <h1 class="haha__message" [attr.data-text]="message()">
+        {{ message() }}
+      </h1>
+      <button type="button" class="haha__replay" (click)="play()">
+        <span aria-hidden="true">↻</span> {{ 'T_HAHA_REPLAY' | translate }}
+      </button>
+    </section>
+  }
+</main>

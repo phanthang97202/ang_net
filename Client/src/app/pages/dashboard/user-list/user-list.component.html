@@ -78,6 +78,16 @@
                 <small class="user-page__login-type">{{
                   data.HasPassword ? 'Có mật khẩu' : 'Chưa có mật khẩu'
                 }}</small>
+                <!-- ID dùng cho các cấu hình theo người dùng, vd. excludedUserIds của TROLL_VIETNAM -->
+                <button
+                  type="button"
+                  class="user-page__copy-id"
+                  nz-tooltip
+                  [nzTooltipTitle]="data.Id"
+                  (click)="copyUserId(data.Id)">
+                  <span nz-icon nzType="copy" nzTheme="outline"></span>
+                  Sao chép ID
+                </button>
               </td>
               <td>
                 <div class="user-page__roles">

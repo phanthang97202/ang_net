@@ -15,3 +15,21 @@ This is blog UI maintenance; API endpoints and dashboard operations remain avail
 Migration `0072_SeedChiBaoCaoCa.sql` seeds `ONLY_SHIFT_REPORT` (category Blog, type bool, default `false`), configured the same way through `/dashboard/sysparameter`. When `true`, every blog URL redirects to `/tools/shift-report`; only that page and its sub-paths, `/login` and `/forgot-password` stay reachable. Signing in through `/login` lands on the shift report, while `/dashboard/login` still opens the dashboard. `/dashboard/*` is unaffected.
 
 Signed-in users without the `shiftreport.view` permission are sent to `/maintain` instead, because the shift report's own guard would otherwise bounce them to `/` and back in a loop. `BLOG_MAINTENANCE` takes precedence when both are enabled. Open blog tabs pick up the change within 30 seconds through the same monitoring loop. Like maintenance mode, this only restricts the blog UI; API endpoints keep their usual authorization.
+
+## Prank mode (TROLL_VIETNAM)
+
+Migration `0073_SeedTrollVietnam.sql` seeds `TROLL_VIETNAM` (category Blog, type json) with `enabled: false`. The Vietnamese value is canonical and holds the whole configuration:
+
+```json
+{
+  "enabled": true,
+  "message": "Haha, mày là 1 tên hề!",
+  "countdown": 3,
+  "images": ["https://res.cloudinary.com/.../clown.png", "🤡", "🖕"],
+  "excludedUserIds": ["<user id>"]
+}
+```
+
+When enabled, every blog URL (including `/login`) redirects to `/haha`: a countdown, a BOOM flash, the images bursting across the screen, then the message with a replay button. `images` accepts up to 12 entries, each a transparent PNG URL or an emoji; an empty list falls back to 😂 🖕 🤡. `countdown` is 1-10 seconds (default 3) and `message` is capped at 200 characters. Signed-in users whose id is in `excludedUserIds` (copy it from `/dashboard/users` → "Sao chép ID") browse normally; the id is read from the stored token, so it still works while the session is waiting to refresh. Invalid JSON counts as disabled.
+
+`/dashboard/*` and `/dashboard/login` are never redirected, so the owner can always switch it off. Priority when several modes are on: `BLOG_MAINTENANCE` > `TROLL_VIETNAM` > `ONLY_SHIFT_REPORT`. The three parameters are fetched in parallel on each blog navigation and every 30 seconds in open tabs. While enabled, search engine crawlers also see `/haha`, so keep it short.

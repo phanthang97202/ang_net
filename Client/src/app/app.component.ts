@@ -215,7 +215,12 @@ export class AppComponent implements OnInit {
   // /reels chiếm trọn màn hình kiểu TikTok: không navbar/footer, và cũng không qua
   // nz-content (nz-content có margin: 64.8px 0 cho các trang 'none' khác, gây khoảng
   // trắng phía trên) - nên có layout riêng thay vì dùng chung 'none'.
-  lstRouteLayoutImmersive = ['/reels', '/maintain', '/dashboard/login'];
+  lstRouteLayoutImmersive = [
+    '/reels',
+    '/maintain',
+    '/haha',
+    '/dashboard/login',
+  ];
 
   constructor(
     public router: Router,

@@ -42,6 +42,23 @@
   font-size: 11px;
 }
 
+.user-page__copy-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--admin-primary, #4f46e5);
+  }
+}
+
 .user-page__identity {
   display: flex;
   min-width: 0;

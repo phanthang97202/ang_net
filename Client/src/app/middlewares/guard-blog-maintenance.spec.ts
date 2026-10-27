@@ -14,11 +14,13 @@ class Page {}
 
 describe('Maintenance route redirects', () => {
   let enabled: boolean;
+  let trolled: boolean;
   let shiftOnly: boolean;
   let loggedIn: boolean;
   let canUseShiftReport: boolean;
   beforeEach(() => {
     enabled = true;
+    trolled = false;
     shiftOnly = false;
     loggedIn = false;
     canUseShiftReport = false;
@@ -40,11 +42,23 @@ describe('Maintenance route redirects', () => {
         provideRouter(testRoutes),
         {
           provide: BlogMaintenanceService,
+          // Thứ tự ưu tiên thật được test ở blog-maintenance.service.spec.ts
           useValue: {
-            check: () => of(enabled),
-            checkShiftReportOnly: () => of(shiftOnly),
-            shiftReportOnlyRedirect: (url: string) =>
-              shiftReportOnlyRedirect(url, loggedIn, canUseShiftReport),
+            resolve: (url: string) =>
+              of({
+                troll: null,
+                target: enabled
+                  ? '/maintain'
+                  : trolled
+                    ? '/haha'
+                    : shiftOnly
+                      ? shiftReportOnlyRedirect(
+                          url,
+                          loggedIn,
+                          canUseShiftReport
+                        )
+                      : null,
+              }),
           },
         },
       ],
@@ -88,6 +102,22 @@ describe('Maintenance route redirects', () => {
     enabled = false;
     await expectUrls(harness, ['/', '/news/a/b']);
   });
+  it('sends every blog URL to the prank page when TROLL_VIETNAM is on, except the dashboard', async () => {
+    enabled = false;
+    trolled = true;
+    const harness = await RouterTestingHarness.create();
+    await expectUrls(
+      harness,
+      ['/', '/news/a/b', '/login', '/tools/shift-report', '/unknown'],
+      '/haha'
+    );
+    await expectUrls(harness, [
+      '/haha',
+      '/dashboard',
+      '/dashboard/users',
+      '/dashboard/login',
+    ]);
+  });
   it('sends every blog URL to the shift report when ONLY_SHIFT_REPORT is on, except login and dashboard', async () => {
     enabled = false;
     shiftOnly = true;
@@ -124,10 +154,5 @@ describe('Maintenance route redirects', () => {
     const harness = await RouterTestingHarness.create();
     await expectUrls(harness, ['/', '/tools/shift-report'], '/maintain');
     await expectUrls(harness, ['/login', '/dashboard']);
-  });
-  it('lets maintenance win over shift-report-only mode', async () => {
-    shiftOnly = true;
-    const harness = await RouterTestingHarness.create();
-    await expectUrls(harness, ['/', '/tools/shift-report'], '/maintain');
   });
 });
