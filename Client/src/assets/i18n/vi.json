@@ -522,6 +522,8 @@
     "T_MUSIC_PLAY": "Phát nhạc",
     "T_MUSIC_PAUSE": "Tạm dừng",
     "T_MUSIC_NEXT": "Bài sau",
+    "T_MUSIC_SHUFFLE": "Phát ngẫu nhiên",
+    "T_MUSIC_SHUFFLE_LOADING": "Đang chuẩn bị danh sách phát ngẫu nhiên…",
     "T_PAGE_MUSIC_COLLECTION": "Bộ sưu tập nhạc",
     "T_MUSIC_LIBRARY": "Thư viện",
     "T_MUSIC_FAVORITES": "Yêu thích",

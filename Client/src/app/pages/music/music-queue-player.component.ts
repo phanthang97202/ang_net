@@ -9,6 +9,7 @@ import {
   OnChanges,
   OnDestroy,
   Output,
+  SimpleChanges,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -21,6 +22,7 @@ import {
   YouTubePlayerApiService,
   YouTubePlayerInstance,
 } from '../../services/youtube-player-api.service';
+import { MusicShuffle } from './music-shuffle';
 
 const AUDIUS_STREAM_URL = 'https://api.audius.co/v1/tracks';
 
@@ -48,7 +50,10 @@ export class MusicQueuePlayerComponent
 {
   @Input() tracks: IMusicLibraryTrack[] = [];
   @Input() index = -1;
+  @Input() shuffle = false;
+  @Input() shuffleLoading = false;
   @Output() indexChange = new EventEmitter<number>();
+  @Output() shuffleChange = new EventEmitter<boolean>();
 
   @ViewChild('audioRef') private audioRef?: ElementRef<HTMLAudioElement>;
   @ViewChild('youtubeFrame')
@@ -68,6 +73,7 @@ export class MusicQueuePlayerComponent
   private consecutiveFailures = 0;
   private viewReady = false;
   private destroyed = false;
+  private readonly shuffleOrder = new MusicShuffle();
 
   embedUrl: SafeResourceUrl | null = null;
   isPlaying = false;
@@ -87,7 +93,9 @@ export class MusicQueuePlayerComponent
     return this.duration > 0 ? (this.currentTime / this.duration) * 100 : 0;
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['shuffle'] && !changes['shuffle'].firstChange)
+      this.shuffleOrder.reset();
     if (this.viewReady) this.loadCurrent();
   }
 
@@ -105,6 +113,15 @@ export class MusicQueuePlayerComponent
 
   previous(): void {
     if (!this.canSwitchTrack) return;
+    if (this.shuffle) {
+      const ids = this.tracks
+        .filter(track => track.Availability !== 'Unavailable')
+        .map(track => track.TrackId);
+      const previous = this.shuffleOrder.previous(ids, this.current?.TrackId);
+      const index = this.tracks.findIndex(track => track.TrackId === previous);
+      if (index >= 0) this.indexChange.emit(index);
+      return;
+    }
     this.indexChange.emit(
       (this.index - 1 + this.tracks.length) % this.tracks.length
     );
@@ -112,6 +129,15 @@ export class MusicQueuePlayerComponent
 
   next(): void {
     if (this.tracks.length === 0) return;
+    if (this.shuffle) {
+      const ids = this.tracks
+        .filter(track => track.Availability !== 'Unavailable')
+        .map(track => track.TrackId);
+      const next = this.shuffleOrder.next(ids, this.current?.TrackId);
+      const index = this.tracks.findIndex(track => track.TrackId === next);
+      if (index >= 0) this.indexChange.emit(index);
+      return;
+    }
     this.indexChange.emit((this.index + 1) % this.tracks.length);
   }
 

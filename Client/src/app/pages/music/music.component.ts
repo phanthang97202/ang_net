@@ -26,6 +26,7 @@ import { IMusicTrack, IMusicTrackPreview } from '../../interfaces';
 import { AudiusMusicService, MusicLibraryService } from '../../services';
 import { MusicLibraryComponent } from './music-library.component';
 import { YouTubeMusicComponent } from './youtube-music.component';
+import { MusicShuffle } from './music-shuffle';
 
 export type TMusicTab = 'audius' | 'youtube' | 'library';
 
@@ -73,6 +74,8 @@ export class MusicComponent {
   currentTime = 0;
   duration = 0;
   private audiusInitialized = false;
+  private readonly shuffleOrder = new MusicShuffle();
+  shuffle = false;
 
   constructor() {
     this.searchTerms
@@ -207,6 +210,11 @@ export class MusicComponent {
     this.openRelativeTrack(-1);
   }
 
+  toggleShuffle(): void {
+    this.shuffle = !this.shuffle;
+    this.shuffleOrder.reset();
+  }
+
   nextTrack(): void {
     this.openRelativeTrack(1);
   }
@@ -295,6 +303,16 @@ export class MusicComponent {
 
   private openRelativeTrack(offset: number): void {
     if (!this.canSwitchTrack) return;
+    if (this.shuffle) {
+      const ids = this.tracks.map(track => track.id);
+      const id =
+        offset < 0
+          ? this.shuffleOrder.previous(ids, this.currentTrack?.id)
+          : this.shuffleOrder.next(ids, this.currentTrack?.id);
+      const index = this.tracks.findIndex(track => track.id === id);
+      if (index >= 0) this.openTrack(index, true);
+      return;
+    }
     const currentIndex = this.currentIndex;
     const baseIndex = currentIndex >= 0 ? currentIndex : offset > 0 ? -1 : 0;
     const index =

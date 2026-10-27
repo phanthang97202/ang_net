@@ -117,6 +117,12 @@
   gap: 0.25rem;
 }
 
+.library-heading__top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .library-icon-btn {
   display: grid;
   width: 34px;
@@ -145,6 +151,11 @@
 
 .library-icon-btn--danger:hover:not(:disabled) {
   color: #e0524a;
+}
+
+.library-shuffle.is-active {
+  background: var(--color-accent);
+  color: #fff;
 }
 
 .library-provider {

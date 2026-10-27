@@ -522,6 +522,8 @@
     "T_MUSIC_PLAY": "Play music",
     "T_MUSIC_PAUSE": "Pause",
     "T_MUSIC_NEXT": "Next track",
+    "T_MUSIC_SHUFFLE": "Shuffle",
+    "T_MUSIC_SHUFFLE_LOADING": "Preparing the shuffled playlist…",
     "T_PAGE_MUSIC_COLLECTION": "Music collection",
     "T_MUSIC_LIBRARY": "Library",
     "T_MUSIC_FAVORITES": "Favorites",

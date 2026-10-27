@@ -44,14 +44,41 @@
         <h2>{{ currentTrack.title }}</h2>
         <p>{{ currentTrack.artist }}</p>
       </div>
-      <a
-        class="music-player__audius"
-        [href]="currentTrack.watchUrl"
-        target="_blank"
-        rel="noopener noreferrer">
-        {{ 'T_MUSIC_OPEN_YOUTUBE' | translate }}
-        <span nz-icon nzType="export" nzTheme="outline"></span>
-      </a>
+      <div class="music-controls">
+        <button
+          type="button"
+          class="music-controls__shuffle"
+          [class.is-active]="shuffle"
+          [disabled]="tracks.length < 2"
+          [attr.aria-pressed]="shuffle"
+          [attr.aria-label]="'T_MUSIC_SHUFFLE' | translate"
+          [title]="'T_MUSIC_SHUFFLE' | translate"
+          (click)="toggleShuffle()">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M3 7h3c3.5 0 4.5 10 8 10h5m-3-3 3 3-3 3M3 17h3c3.5 0 4.5-10 8-10h5m-3-3 3 3-3 3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          (click)="previousTrack()"
+          [disabled]="tracks.length < 2"
+          [attr.aria-label]="'T_MUSIC_PREVIOUS' | translate">
+          <span nz-icon nzType="step-backward" nzTheme="outline"></span>
+        </button>
+        <button
+          type="button"
+          (click)="playNextTrack()"
+          [disabled]="tracks.length < 2"
+          [attr.aria-label]="'T_MUSIC_NEXT' | translate">
+          <span nz-icon nzType="step-forward" nzTheme="outline"></span>
+        </button>
+      </div>
       <p *ngIf="playerError" class="music-player__error" role="alert">
         {{ playerError | translate }}
       </p>
@@ -75,9 +102,30 @@
           {{ 'T_MUSIC_SEARCH_RESULTS' | translate: { query: activeQuery } }}
         </h2>
       </div>
-      <strong>{{
-        'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
-      }}</strong>
+      <div class="music-list__heading-actions">
+        <button
+          type="button"
+          class="music-list__shuffle"
+          [class.is-active]="shuffle"
+          [disabled]="searching || !tracks.length"
+          [attr.aria-pressed]="shuffle"
+          [attr.aria-label]="'T_MUSIC_SHUFFLE' | translate"
+          [title]="'T_MUSIC_SHUFFLE' | translate"
+          (click)="shuffleResults()">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M3 7h3c3.5 0 4.5 10 8 10h5m-3-3 3 3-3 3M3 17h3c3.5 0 4.5-10 8-10h5m-3-3 3 3-3 3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        <strong>{{
+          'T_MUSIC_TRACK_COUNT' | translate: { count: tracks.length }
+        }}</strong>
+      </div>
     </div>
 
     <div class="music-list__tracks">

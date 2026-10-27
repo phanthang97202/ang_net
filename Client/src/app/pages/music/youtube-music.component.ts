@@ -16,6 +16,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
 import { IMusicTrackPreview, IYouTubeMusicTrack } from '../../interfaces';
 import { MusicLibraryService } from '../../services/music-library.service';
+import { MusicShuffle } from './music-shuffle';
 import {
   YOUTUBE_KEY_MISSING,
   YouTubeMusicService,
@@ -65,6 +66,8 @@ export class YouTubeMusicComponent implements OnDestroy {
   private initialVideoId = '';
   private pendingVideoId = '';
   private destroyed = false;
+  private readonly shuffleOrder = new MusicShuffle();
+  shuffle = false;
 
   query = '';
   activeQuery = '';
@@ -230,8 +233,51 @@ export class YouTubeMusicComponent implements OnDestroy {
     this.zone.run(() => (this.playerError = 'T_MUSIC_YOUTUBE_PLAYER_ERROR'));
   }
 
-  private playNextTrack(): void {
+  toggleShuffle(): void {
+    this.shuffle = !this.shuffle;
+    this.shuffleOrder.reset();
+  }
+
+  shuffleResults(): void {
+    if (this.shuffle) {
+      this.toggleShuffle();
+      return;
+    }
+    if (!this.tracks.length) return;
+    this.toggleShuffle();
+    const id = this.shuffleOrder.next(
+      this.tracks.map(track => track.id),
+      this.currentTrack?.id
+    );
+    const track = this.tracks.find(item => item.id === id);
+    if (track) this.play(track);
+  }
+
+  previousTrack(): void {
+    if (!this.tracks.length) return;
+    const id = this.shuffle
+      ? this.shuffleOrder.previous(
+          this.tracks.map(track => track.id),
+          this.currentTrack?.id
+        )
+      : this.tracks[
+          (this.currentIndex <= 0 ? this.tracks.length : this.currentIndex) - 1
+        ]?.id;
+    const track = this.tracks.find(item => item.id === id);
+    if (track) this.play(track);
+  }
+
+  playNextTrack(): void {
     if (this.tracks.length === 0) return;
+    if (this.shuffle) {
+      const id = this.shuffleOrder.next(
+        this.tracks.map(track => track.id),
+        this.currentTrack?.id
+      );
+      const track = this.tracks.find(item => item.id === id);
+      if (track) this.play(track);
+      return;
+    }
     const nextIndex =
       this.currentIndex < 0 ? 0 : (this.currentIndex + 1) % this.tracks.length;
     const nextTrack = this.tracks[nextIndex];

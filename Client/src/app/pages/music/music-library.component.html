@@ -42,7 +42,12 @@
   </section>
 } @else {
   <section class="music-layout">
-    <app-music-queue-player [tracks]="queue" [(index)]="queueIndex" />
+    <app-music-queue-player
+      [tracks]="queue"
+      [(index)]="queueIndex"
+      [shuffle]="shuffle"
+      [shuffleLoading]="shuffleLoading"
+      (shuffleChange)="setQueueShuffle($event)" />
 
     <article class="music-list">
       <div class="music-list__heading">
@@ -67,14 +72,50 @@
               <p>{{ collection.Description }}</p>
             }
           } @else {
-            <span>{{ 'T_MUSIC_LIBRARY' | translate | uppercase }}</span>
             <h2>{{ 'T_MUSIC_FAVORITES' | translate }}</h2>
           }
         </div>
         <div class="library-heading__side">
-          <strong>{{
-            'T_MUSIC_TRACK_COUNT' | translate: { count: itemCount }
-          }}</strong>
+          <div class="library-heading__top">
+            <button
+              type="button"
+              class="library-icon-btn library-shuffle"
+              [class.is-active]="shuffle && queueKey === currentListKey"
+              [disabled]="
+                loading || loadingMore || shuffleLoading || !tracks.length
+              "
+              [attr.aria-pressed]="shuffle && queueKey === currentListKey"
+              [attr.aria-label]="
+                (shuffleLoading ? 'T_MUSIC_SHUFFLE_LOADING' : 'T_MUSIC_SHUFFLE')
+                  | translate
+              "
+              [title]="
+                (shuffleLoading ? 'T_MUSIC_SHUFFLE_LOADING' : 'T_MUSIC_SHUFFLE')
+                  | translate
+              "
+              (click)="shuffleCurrentList()">
+              @if (shuffleLoading) {
+                <span nz-icon nzType="loading" nzTheme="outline"></span>
+              } @else {
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  aria-hidden="true">
+                  <path
+                    d="M3 7h3c3.5 0 4.5 10 8 10h5m-3-3 3 3-3 3M3 17h3c3.5 0 4.5-10 8-10h5m-3-3 3 3-3 3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              }
+            </button>
+            <strong>{{
+              'T_MUSIC_TRACK_COUNT' | translate: { count: itemCount }
+            }}</strong>
+          </div>
           @if (selectedCollection; as collection) {
             <div class="library-heading__actions">
               @if (collection.Visibility !== 'Private') {
@@ -239,7 +280,7 @@
             <button
               type="button"
               class="blog-btn library-more"
-              [disabled]="loadingMore"
+              [disabled]="loadingMore || shuffleLoading"
               (click)="loadMore()">
               @if (loadingMore) {
                 <span class="blog-spinner" aria-hidden="true"></span>

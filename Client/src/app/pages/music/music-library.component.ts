@@ -1,6 +1,6 @@
-import { UpperCasePipe } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   Input,
   OnChanges,
   OnInit,
@@ -12,7 +12,15 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { EMPTY, Observable, catchError, finalize, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  EMPTY,
+  Observable,
+  catchError,
+  finalize,
+  firstValueFrom,
+  tap,
+} from 'rxjs';
 import { archiveVisibilityOption } from '../../components/archive/archive-visibility';
 import { MusicCollectionFormComponent } from '../../components/music-library/music-collection-form.component';
 import { MusicSaveButtonComponent } from '../../components/music-library/music-save-button.component';
@@ -43,7 +51,6 @@ interface PendingConfirm {
   selector: 'app-music-library',
   standalone: true,
   imports: [
-    UpperCasePipe,
     NzIconModule,
     NzModalModule,
     TranslateModule,
@@ -65,6 +72,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   private auth = inject(AuthService);
   private message = inject(NzMessageService);
   private translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly favorites = FAVORITES;
   readonly visibilityOption = archiveVisibilityOption;
@@ -84,6 +92,11 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   queue: IMusicLibraryTrack[] = [];
   queueIndex = -1;
   queueKey = '';
+  shuffle = false;
+  shuffleLoading = false;
+  private shuffleRequest = 0;
+  private queuePageIndex = 0;
+  private queueItemCount = 0;
 
   isFormOpen = false;
   editingCollection: IMusicCollection | null = null;
@@ -94,6 +107,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   private initialized = false;
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.cancelShufflePreparation());
     // Lưu / bỏ lưu / sửa bộ ở bất kỳ đâu (tab YouTube, modal chọn bộ...) thì tải lại
     effect(() => {
       this.library.changes();
@@ -129,11 +143,15 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.initialized) this.reloadAll();
+    if (this.initialized) {
+      this.cancelShufflePreparation();
+      this.reloadAll();
+    }
   }
 
   select(key: string): void {
     if (key === this.selectedKey) return;
+    this.cancelShufflePreparation();
     this.selectedKey = key;
     this.loadTracks();
   }
@@ -142,9 +160,103 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
     const track = this.tracks[index];
     if (!track) return;
     if (this.isActive(track)) return;
+    this.cancelShufflePreparation();
+    if (this.queueKey !== this.currentListKey) this.shuffle = false;
     this.queue = [...this.tracks];
     this.queueIndex = index;
     this.queueKey = this.currentListKey;
+    this.queuePageIndex = this.pageIndex;
+    this.queueItemCount = this.itemCount;
+  }
+
+  setQueueShuffle(enabled: boolean): void {
+    if (!enabled) {
+      this.shuffle = false;
+      return;
+    }
+    void this.prepareShuffle(false);
+  }
+
+  shuffleCurrentList(): void {
+    if (this.shuffle && this.queueKey === this.currentListKey) {
+      this.shuffle = false;
+      return;
+    }
+    void this.prepareShuffle(true);
+  }
+
+  private cancelShufflePreparation(): void {
+    this.shuffleRequest++;
+    this.shuffleLoading = false;
+  }
+
+  /** Fetch every page before shuffling so later tracks have the same chance. */
+  private async prepareShuffle(fromCurrentList: boolean): Promise<void> {
+    if (this.shuffleLoading || this.loading || this.loadingMore) return;
+    const key = fromCurrentList ? this.currentListKey : this.queueKey;
+    const all = [...(fromCurrentList ? this.tracks : this.queue)];
+    let page = fromCurrentList ? this.pageIndex : this.queuePageIndex;
+    let total = fromCurrentList ? this.itemCount : this.queueItemCount;
+    if (!key || !all.length) return;
+    const request = ++this.shuffleRequest;
+    this.shuffleLoading = true;
+    try {
+      while (all.length < total) {
+        const response = await firstValueFrom(
+          (key === FAVORITES
+            ? this.library.saved(page + 1, PAGE_SIZE)
+            : this.library.collectionTracks(key, page + 1, PAGE_SIZE)
+          ).pipe(takeUntilDestroyed(this.destroyRef))
+        );
+        if (request !== this.shuffleRequest) return;
+        if (!response?.Success || !response.objResult)
+          throw new Error('Failed to load playlist');
+        const existing = new Set(all.map(track => track.TrackId));
+        const more = response.objResult.DataList.filter(
+          track => !existing.has(track.TrackId)
+        );
+        if (!more.length) throw new Error('Incomplete playlist');
+        all.push(...more);
+        page++;
+        total = response.objResult.ItemCount;
+      }
+      if (request !== this.shuffleRequest) return;
+      if (fromCurrentList && this.currentListKey !== key) return;
+      if (!fromCurrentList && this.queueKey !== key) return;
+      const playable = all.filter(
+        track => track.Availability !== 'Unavailable'
+      );
+      if (!playable.length) {
+        this.message.error(this.translate.instant('T_MUSIC_PLAY_ERROR'));
+        return;
+      }
+      const currentId = this.queue[this.queueIndex]?.TrackId;
+      this.queue = all;
+      this.queueKey = key;
+      this.queuePageIndex = page;
+      this.queueItemCount = total;
+      this.shuffle = true;
+      if (fromCurrentList) {
+        this.tracks = [...all];
+        this.pageIndex = page;
+        this.itemCount = total;
+        const chosen = playable[Math.floor(Math.random() * playable.length)];
+        this.queueIndex = all.findIndex(
+          track => track.TrackId === chosen.TrackId
+        );
+        for (let index = 0; index < all.length; index += PAGE_SIZE)
+          this.refreshSaveState(all.slice(index, index + PAGE_SIZE));
+      } else {
+        this.queueIndex = all.findIndex(track => track.TrackId === currentId);
+      }
+    } catch {
+      if (request === this.shuffleRequest)
+        this.message.error(
+          this.translate.instant('T_MUSIC_LIBRARY_LOAD_ERROR')
+        );
+    } finally {
+      if (request === this.shuffleRequest) this.shuffleLoading = false;
+    }
   }
 
   isActive(track: IMusicLibraryTrack): boolean {
@@ -300,7 +412,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
   }
 
   loadMore(): void {
-    if (this.loadingMore || !this.hasMore) return;
+    if (this.loadingMore || this.shuffleLoading || !this.hasMore) return;
     this.loadingMore = true;
     this.fetchPage(this.pageIndex + 1)
       .pipe(finalize(() => (this.loadingMore = false)))
@@ -309,6 +421,18 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
         this.pageIndex++;
         const more = response.objResult?.DataList ?? [];
         this.tracks = [...this.tracks, ...more];
+        if (
+          this.queueKey === this.currentListKey &&
+          this.queuePageIndex === this.pageIndex - 1
+        ) {
+          const known = new Set(this.queue.map(track => track.TrackId));
+          this.queue = [
+            ...this.queue,
+            ...more.filter(track => !known.has(track.TrackId)),
+          ];
+          this.queuePageIndex = this.pageIndex;
+          this.queueItemCount = this.itemCount;
+        }
         this.refreshSaveState(more);
       });
   }
@@ -325,7 +449,7 @@ export class MusicLibraryComponent implements OnInit, OnChanges {
       .padStart(2, '0')}`;
   }
 
-  private get currentListKey(): string {
+  get currentListKey(): string {
     return this.isShared ? this.sharedCollectionId : this.selectedKey;
   }
 

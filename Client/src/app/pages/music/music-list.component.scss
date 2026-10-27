@@ -11,11 +11,16 @@
   padding: 1.35rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
 
+  > div:first-child {
+    min-width: 0;
+  }
+
   h2 {
     margin: 0.25rem 0 0;
     color: var(--color-text);
     font-size: 1.2rem;
     font-weight: 800;
+    overflow-wrap: anywhere;
   }
 
   strong {
@@ -31,6 +36,40 @@
   max-height: 650px;
   overflow-y: auto;
   scrollbar-color: var(--color-border) transparent;
+}
+
+.music-list__heading-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.music-list__shuffle {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &.is-active {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
 }
 
 .track-row {
