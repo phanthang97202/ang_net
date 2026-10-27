@@ -6,15 +6,16 @@
 
   <div class="month-bar">
     <div class="month-title"><span nz-icon nzType="calendar"></span><strong>{{ monthLabel }}</strong></div>
-    <div class="month-controls"><button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button><button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button><button type="button" aria-label="Tải lại" (click)="load()" [disabled]="loading"><span nz-icon nzType="reload"></span></button></div>
+    <div class="month-controls"><button type="button" class="export" (click)="exportPdf()" [disabled]="loading || !!loadError"><span nz-icon nzType="file-pdf"></span> Xuất PDF</button><button type="button" aria-label="Tháng trước" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button><button type="button" aria-label="Tháng sau" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button><button type="button" aria-label="Tải lại" (click)="load()" [disabled]="loading"><span nz-icon nzType="reload"></span></button></div>
   </div>
+  <p *ngIf="exportError" class="error" role="alert">{{ exportError }}</p>
   <p *ngIf="loadError" class="error" role="alert">{{ loadError }} <button type="button" (click)="load()">Thử lại</button></p>
   <p *ngIf="loading" class="status" role="status">Đang tải thu chi…</p>
   <ng-container *ngIf="!loading && !loadError">
     <section class="summary" aria-label="Tổng quan tháng">
-      <div class="summary-card income"><span class="summary-icon" nz-icon nzType="arrow-down"></span><span>Tổng thu</span><strong>{{ money(income) }}</strong></div>
-      <div class="summary-card expense"><span class="summary-icon" nz-icon nzType="arrow-up"></span><span>Tổng chi</span><strong>{{ money(expense) }}</strong></div>
-      <div class="summary-card balance"><span class="summary-icon" nz-icon nzType="wallet"></span><span>Chênh lệch</span><strong>{{ money(income - expense) }}</strong></div>
+      <div class="summary-card income"><span class="summary-icon" nz-icon nzType="arrow-down"></span><div class="summary-text"><span>Tổng thu</span><strong>{{ money(income) }}</strong></div></div>
+      <div class="summary-card expense"><span class="summary-icon" nz-icon nzType="arrow-up"></span><div class="summary-text"><span>Tổng chi</span><strong>{{ money(expense) }}</strong></div></div>
+      <div class="summary-card balance"><span class="summary-icon" nz-icon nzType="wallet"></span><div class="summary-text"><span>Chênh lệch</span><strong>{{ money(income - expense) }}</strong></div></div>
     </section>
     <div class="content-grid">
       <section class="panel transactions">

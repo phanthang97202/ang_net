@@ -7,6 +7,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { addMonths, format, parseISO } from 'date-fns';
 import { Subscription } from 'rxjs';
 import { ExpenseRequest, ExpenseTransaction, PersonalExpensesService } from '../../services/personal-expenses.service';
+import { buildExpenseReportHtml } from './expense-report';
 
 @Component({ selector: 'app-personal-expenses', standalone: true, imports: [CommonModule, FormsModule, NzIconModule], templateUrl: './personal-expenses.component.html', styleUrl: './personal-expenses.component.scss' })
 export class PersonalExpensesComponent implements OnInit {
@@ -22,6 +23,7 @@ export class PersonalExpensesComponent implements OnInit {
   loadError = '';
   categoryError = '';
   formError = '';
+  exportError = '';
   saving = false;
   addingCategory = false;
   newCategory = '';
@@ -53,6 +55,18 @@ export class PersonalExpensesComponent implements OnInit {
       next: categories => { this.categories = categories; this.categoryError = ''; },
       error: () => { this.categoryError = 'Không thể tải danh mục. Vui lòng thử lại.'; },
     });
+  }
+  /** Mở báo cáo A4 của cả tháng (không theo bộ lọc) trong cửa sổ in; người dùng chọn "Lưu dưới dạng PDF". */
+  exportPdf(): void {
+    if (this.loading || this.loadError) return;
+    const report = window.open('', '_blank', 'width=900,height=1000');
+    if (!report) { this.exportError = 'Trình duyệt đã chặn cửa sổ báo cáo. Hãy cho phép popup rồi thử lại.'; return; }
+    this.exportError = '';
+    report.document.write(buildExpenseReportHtml(this.month, this.transactions));
+    report.document.close();
+    report.focus();
+    // Đợi font tải xong để bản PDF không bị nhảy chữ
+    report.document.fonts.ready.then(() => report.print());
   }
   openCreate(): void { this.editing = false; this.formError = ''; this.newCategory = ''; this.draft = this.empty(); this.editor?.nativeElement.showModal(); }
   openEdit(item: ExpenseTransaction): void { this.editing = true; this.formError = ''; this.newCategory = ''; this.draft = { ...item }; this.editor?.nativeElement.showModal(); }
