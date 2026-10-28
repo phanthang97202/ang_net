@@ -34,10 +34,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .lunar-day--new-month { color: var(--color-accent); font-weight: 700; }
 .is-today .day-number { color: white; background: var(--color-accent); }
 .day-events { display: grid; width: 100%; gap: .25rem; }
-.day-event { overflow: hidden; padding: .25rem .35rem; border-radius: 5px; color: var(--event-color); background: var(--event-bg); font-size: .62rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+/* Màu ô theo TRẠNG THÁI (khớp chấm ở bộ lọc); loại hoạt động là vạch mỏng mép trái */
+.day-event { overflow: hidden; padding: .25rem .35rem .25rem .45rem; border-radius: 5px; color: var(--status-color); background: var(--status-bg); box-shadow: inset 3px 0 0 var(--event-color); font-size: .62rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .more-events { padding-left: .3rem; color: var(--color-text-muted); font-size: .6rem; font-weight: 600; }
 .day-dots { display: none; gap: 3px; }
-.day-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--event-color); }
+.day-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--status-color); }
 [data-category='personal'] { --event-color: #7661d8; --event-bg: rgba(118, 97, 216, .12); }
 [data-category='leisure'] { --event-color: #d0764a; --event-bg: rgba(208, 118, 74, .12); }
 [data-category='routine'] { --event-color: #3b9d86; --event-bg: rgba(59, 157, 134, .12); }
@@ -52,8 +53,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .status-filter button i { width: 8px; height: 8px; border-radius: 50%; background: var(--status-color); }
 .status-filter button.is-active { border-color: var(--status-color, var(--color-accent)); background: var(--status-bg, var(--color-accent-bg)); color: var(--status-color, var(--color-accent)); }
 .status-count { min-width: 18px; padding: 0 .3rem; border-radius: 6px; background: var(--color-accent-bg); color: var(--color-text-muted); font-size: .6rem; text-align: center; }
-.day-event[data-status='urgent'] { box-shadow: inset 2px 0 0 var(--status-color); }
-.day-event[data-status='done'], .day-event[data-status='cancelled'] { opacity: .6; text-decoration: line-through; }
+/* Ký hiệu kèm màu để vẫn phân biệt được khi khó nhận màu; chỉ Hủy bỏ mới gạch ngang */
+.day-event[data-status='done']::before { content: '✓ '; }
+.day-event[data-status='urgent'] { font-weight: 800; }
+.day-event[data-status='urgent']::before { content: '! '; }
+.day-event[data-status='cancelled'] { opacity: .6; text-decoration: line-through; }
 .calendar-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding: 1rem 1.5rem; color: var(--color-text-muted); font-size: .7rem; }
 .calendar-footer span { display: flex; align-items: center; gap: .45rem; }
 .calendar-footer i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }

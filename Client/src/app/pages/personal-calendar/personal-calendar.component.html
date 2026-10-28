@@ -29,7 +29,7 @@
           <span class="day-number">{{ day.date.getDate() }}</span>
           <span class="lunar-day" [class.lunar-day--new-month]="day.lunar?.day === 1" [title]="lunarLabel(day.lunar)" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? ('T_CALENDAR_LEAP_SHORT' | translate) : '') : '—' }}</span>
           <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category" [attr.data-status]="event.status">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">{{ 'T_CALENDAR_MORE_EVENTS' | translate: { count: day.events.length - 2 } }}</span></span>
-          <span class="day-dots" aria-hidden="true"><i *ngFor="let event of day.events.slice(0, 3)" [attr.data-category]="event.category"></i></span>
+          <span class="day-dots" aria-hidden="true"><i *ngFor="let event of day.events.slice(0, 3)" [attr.data-status]="event.status"></i></span>
         </button>
       </div>
       <div class="calendar-footer"><span><i></i> {{ 'T_CALENDAR_TODAY' | translate }}</span><span *ngIf="hasLeapMonth">{{ 'T_CALENDAR_LEAP_LEGEND' | translate }}</span><span *ngIf="!loading && !loadError">{{ 'T_CALENDAR_MONTH_EVENTS' | translate: { count: monthEvents } }}</span></div>
