@@ -7,6 +7,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .page-heading { margin-bottom: 1.6rem; }
 h1 { margin: 0; font-size: clamp(1.8rem, 3vw, 3rem); letter-spacing: -.04em; font-weight: 800; } h1 span { color: var(--color-accent); }
 h2 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+h1, h2 { color: var(--color-text); }
 .button { min-height: 44px; padding: .7rem 1rem; border: 1px solid transparent; border-radius: 11px; font-weight: 700; font-size: .78rem; white-space: nowrap; }
 .primary { background: var(--color-accent); color: white; } .secondary { background: var(--color-bg-card); color: var(--color-text); border-color: var(--color-border); }
 .month-bar { flex-wrap: wrap; margin-bottom: 1rem; } .month-title { display: flex; align-items: center; gap: .65rem; font-size: .9rem; } .month-title > span { color: var(--color-accent); }
@@ -30,3 +31,18 @@ fieldset { display: grid; gap: 1rem; min-width: 0; padding: 1.25rem; margin: 0; 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 700px) { .expenses-page { padding: 1.6rem 1rem 4rem; } .page-heading { align-items: flex-start; } .content-grid { grid-template-columns: minmax(0, 1fr); } .summary { grid-template-columns: minmax(0, 1fr); gap: .5rem; } .summary-card { padding: .7rem .9rem; border-radius: 14px; } .summary-card strong { font-size: 1rem; } .summary-card .summary-icon { flex-basis: 32px; width: 32px; height: 32px; } }
 @media (max-width: 400px) { .page-heading { flex-direction: column; } .page-heading .button { width: 100%; } .transaction { gap: .5rem; padding: .9rem; } .amount { font-size: .7rem; } }
+
+:host-context(html[data-theme='dark']) .field input,
+:host-context(html[data-theme='dark']) .field select,
+:host-context(html[data-theme='dark']) .field textarea,
+:host-context(html[data-theme='dark']) .filter select { color-scheme: dark; }
+:host-context(html[data-theme='dark']) .primary { background: #5947cd; }
+:host-context(html[data-theme='dark']) .summary-icon,
+:host-context(html[data-theme='dark']) .transaction-icon,
+:host-context(html[data-theme='dark']) .amount { color: #ff9cae; }
+:host-context(html[data-theme='dark']) .income .summary-icon,
+:host-context(html[data-theme='dark']) .transaction-icon.is-income,
+:host-context(html[data-theme='dark']) .amount.is-income { color: #81d5bf; }
+:host-context(html[data-theme='dark']) .balance .summary-icon { color: var(--color-accent); }
+:host-context(html[data-theme='dark']) .error,
+:host-context(html[data-theme='dark']) .delete { color: #ff9ca5; }

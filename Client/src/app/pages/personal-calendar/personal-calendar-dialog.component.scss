@@ -16,3 +16,11 @@
 .dialog-scroll { min-height: 0; min-width: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .dialog-content { overflow: visible; }
 .dialog-actions { background: var(--color-bg-card); }
+
+:host-context(html[data-theme='dark']) .field input,
+:host-context(html[data-theme='dark']) .field select,
+:host-context(html[data-theme='dark']) .field textarea { color-scheme: dark; }
+:host-context(html[data-theme='dark']) .repeat-days button.is-active { background: #5947cd; border-color: #5947cd; }
+:host-context(html[data-theme='dark']) .repeat-warning { background: #49331c; color: #ffe1a8; }
+:host-context(html[data-theme='dark']) .form-error,
+:host-context(html[data-theme='dark']) .delete-button { color: #ff9ca5; }

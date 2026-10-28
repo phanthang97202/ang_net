@@ -3,6 +3,7 @@
 .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.65rem; }
 .section-kicker { display: inline-flex; align-items: center; gap: .5rem; color: var(--color-accent); font-size: .65rem; font-weight: 800; letter-spacing: .13em; }
 h1 { margin: .7rem 0 .45rem; font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1.1; font-weight: 800; letter-spacing: -.045em; }
+h1, h2 { color: var(--color-text); }
 .heading-period { color: var(--color-accent); }
 .heading-copy p { margin: 0; color: var(--color-text-muted); font-size: .88rem; line-height: 1.6; }
 button, input, select, textarea { font: inherit; }
@@ -48,3 +49,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (max-width: 600px) { .calendar-page { padding: 1.6rem 1rem 4rem; }.page-heading { align-items: start; }.heading-copy p { max-width: 250px; font-size: .76rem; }.create-button { padding: .7rem .8rem; font-size: .72rem; }.calendar-toolbar { padding: 1.15rem; }.calendar-day { align-items: center; min-height: 54px; padding: .3rem 0; gap: .2rem; }.day-events { display: none; }.day-dots { display: flex; }.day-number { width: 26px; height: 26px; }.calendar-footer { padding: .85rem 1.15rem; }.calendar-card, .agenda-card { border-radius: 18px; } }
 @media (max-width: 360px) { .page-heading { flex-direction: column; }.create-button { width: 100%; }.calendar-controls { gap: .25rem; }.today-button { padding: 0 .5rem; } }
 @media (max-width: 600px) { .calendar-day { min-height: 70px; }.lunar-day { margin-left: 0; } }
+
+:host-context(html[data-theme='dark']) [data-category='personal'] { --event-color: #c1b4ff; --event-bg: rgba(166, 143, 255, .18); }
+:host-context(html[data-theme='dark']) [data-category='leisure'] { --event-color: #ffb994; --event-bg: rgba(255, 164, 112, .16); }
+:host-context(html[data-theme='dark']) [data-category='routine'] { --event-color: #81d5bf; --event-bg: rgba(86, 197, 163, .16); }
+:host-context(html[data-theme='dark']) [data-category='work'] { --event-color: #a2c7ff; --event-bg: rgba(111, 168, 255, .16); }
+:host-context(html[data-theme='dark']) .calendar-day.is-outside { opacity: 1; }
+:host-context(html[data-theme='dark']) .button--primary,
+:host-context(html[data-theme='dark']) .is-today .day-number { background: #5947cd; }
