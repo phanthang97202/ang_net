@@ -3,8 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Subject, tap } from 'rxjs';
 
-export type CalendarCategory = 'personal' | 'leisure' | 'routine' | 'work';
-export type CalendarStatus = 'todo' | 'in_progress' | 'urgent' | 'done' | 'cancelled';
+// Mã mục trong LookupList của người dùng (CALENDAR_CATEGORY / CALENDAR_STATUS). Mặc định:
+// personal, leisure, routine, work và todo, in_progress, urgent, done, cancelled.
+export type CalendarCategory = string;
+export type CalendarStatus = string;
 export interface CalendarEvent {
   EventId: string; Title: string; StartDate: string; EndDate: string; StartTime: string; EndTime: string;
   AllDay: boolean; Category: CalendarCategory; Location: string; Notes: string; Version: number;
@@ -15,7 +17,7 @@ export interface CalendarEvent {
 // Status chỉ gửi khi tạo; trạng thái từng buổi đổi qua setStatus.
 export type CalendarEventRequest = Omit<CalendarEvent, 'EventId' | 'SeriesStartDate' | 'SeriesEndDate'>;
 // Việc theo trạng thái trên mọi ngày; Counts luôn tính trên toàn bộ việc.
-export interface CalendarTasks { Counts: Record<CalendarStatus, number>; Total: number; Items: CalendarEvent[]; }
+export interface CalendarTasks { Counts: Record<string, number>; Total: number; Items: CalendarEvent[]; }
 
 @Injectable({ providedIn: 'root' })
 export class PersonalCalendarService {

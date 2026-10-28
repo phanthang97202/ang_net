@@ -14,6 +14,7 @@ import { MyArchiveComponent } from './my-archive/my-archive.component';
 import { MySecurityComponent } from './my-security/my-security.component';
 import { MyReelsComponent } from './my-reels/my-reels.component';
 import { MyActivityComponent } from './my-activity/my-activity.component';
+import { MyLookupsComponent } from './my-lookups/my-lookups.component';
 
 /**
  * Một mục trong sidebar. Thêm tab mới = thêm 1 phần tử vào profileNav rồi
@@ -46,6 +47,7 @@ export interface ProfileNavSection {
     MySecurityComponent,
     MyReelsComponent,
     MyActivityComponent,
+    MyLookupsComponent,
   ],
   templateUrl: './detail-user.component.html',
   styleUrl: './detail-user.component.scss',
@@ -84,6 +86,18 @@ export class DetailUserComponent implements OnInit {
           icon: 'safety',
           available: true,
         },
+        // Danh sách chọn riêng của Lịch / Thu chi: chỉ hiện khi dùng được ít nhất một module
+        ...(this.authService.hasPermission('calendar.use') ||
+        this.authService.hasPermission('expenses.use')
+          ? [
+              {
+                id: 'lookups',
+                labelKey: 'T_MYLOOKUPS',
+                icon: 'unordered-list',
+                available: true,
+              },
+            ]
+          : []),
       ],
     },
     {

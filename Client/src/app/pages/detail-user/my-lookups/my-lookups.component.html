@@ -1,0 +1,179 @@
+<section class="lookups" aria-labelledby="lookups-title">
+  <header class="lookups__header">
+    <div>
+      <h2 id="lookups-title">{{ 'T_LOOKUP_TITLE' | translate }}</h2>
+      <p>{{ 'T_LOOKUP_DESC' | translate }}</p>
+    </div>
+    @if (activeList) {
+      <button type="button" class="blog-btn blog-btn--primary" (click)="openCreate()">
+        <span nz-icon nzType="plus" nzTheme="outline"></span>
+        {{ 'T_LOOKUP_ADD' | translate }}
+      </button>
+    }
+  </header>
+
+  <nav class="lookups__tabs" [attr.aria-label]="'T_LOOKUP_TITLE' | translate">
+    @for (list of lists; track list.code) {
+      <button
+        type="button"
+        class="lookups__tab"
+        [class.is-active]="activeList === list.code"
+        [attr.aria-pressed]="activeList === list.code"
+        (click)="selectList(list.code)">
+        <span nz-icon [nzType]="list.icon" nzTheme="outline"></span>
+        {{ list.labelKey | translate }}
+      </button>
+    }
+  </nav>
+
+  @if (loading) {
+    <div class="lookups__state" role="status">
+      <span nz-icon nzType="loading" nzTheme="outline"></span>
+    </div>
+  } @else if (loadError) {
+    <div class="lookups__state" role="alert">
+      {{ loadError | translate }}
+      <button type="button" class="blog-btn" (click)="load()">{{ 'T_CALENDAR_RETRY' | translate }}</button>
+    </div>
+  } @else if (items.length === 0) {
+    <div class="lookups__state">{{ 'T_LOOKUP_EMPTY' | translate }}</div>
+  } @else {
+    <ul class="lookups__list">
+      @for (item of items; track item.Id; let first = $first; let last = $last) {
+        <li class="lookups__item" [class.is-hidden]="!item.FlagActive">
+          <span class="lookups__swatch" [style.background]="item.Color" aria-hidden="true"></span>
+          <span class="lookups__text">
+            <strong>{{ name(item) }}</strong>
+            @if (otherName(item)) {
+              <small>{{ otherName(item) }}</small>
+            }
+          </span>
+          <span class="lookups__badges">
+            @if (isExpenseList && item.Kind) {
+              <span class="lookups__badge" [attr.data-kind]="item.Kind">{{ kindLabel(item.Kind) | translate }}</span>
+            }
+            @if (!item.FlagActive) {
+              <span class="lookups__badge lookups__badge--muted">{{ 'T_LOOKUP_HIDDEN' | translate }}</span>
+            } @else if (item.InUse) {
+              <span class="lookups__badge lookups__badge--muted">{{ 'T_LOOKUP_IN_USE' | translate }}</span>
+            }
+          </span>
+          <span class="lookups__actions">
+            <button type="button" class="lookups__icon" [disabled]="!!busyId || first" [attr.aria-label]="'T_LOOKUP_MOVE_UP' | translate" [title]="'T_LOOKUP_MOVE_UP' | translate" (click)="move(item, 'up')">
+              <span nz-icon nzType="arrow-up" nzTheme="outline"></span>
+            </button>
+            <button type="button" class="lookups__icon" [disabled]="!!busyId || last" [attr.aria-label]="'T_LOOKUP_MOVE_DOWN' | translate" [title]="'T_LOOKUP_MOVE_DOWN' | translate" (click)="move(item, 'down')">
+              <span nz-icon nzType="arrow-down" nzTheme="outline"></span>
+            </button>
+            <button type="button" class="lookups__icon" [disabled]="!!busyId" [attr.aria-label]="(item.FlagActive ? 'T_LOOKUP_HIDE' : 'T_LOOKUP_SHOW') | translate" [title]="(item.FlagActive ? 'T_LOOKUP_HIDE' : 'T_LOOKUP_SHOW') | translate" (click)="toggleActive(item)">
+              <span nz-icon [nzType]="item.FlagActive ? 'eye-invisible' : 'eye'" nzTheme="outline"></span>
+            </button>
+            <button type="button" class="lookups__icon" [attr.aria-label]="'T_EDIT' | translate" [title]="'T_EDIT' | translate" (click)="openEdit(item)">
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </button>
+            <button type="button" class="lookups__icon lookups__icon--danger" [attr.aria-label]="'T_DELETE' | translate" [title]="'T_DELETE' | translate" (click)="confirmDelete(item)">
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
+            </button>
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- Thêm / sửa mục: khung modal kiểu blog (styles.scss) -->
+<nz-modal
+  nzClassName="blog-modal"
+  [nzAutofocus]="null"
+  [nzCentered]="true"
+  [nzVisible]="formOpen"
+  [nzTitle]="(editingItem ? 'T_LOOKUP_EDIT' : 'T_LOOKUP_ADD') | translate"
+  [nzWidth]="480"
+  [nzClosable]="!saving"
+  [nzMaskClosable]="!saving"
+  (nzOnCancel)="closeForm()">
+  <form *nzModalContent class="lookup-form" (ngSubmit)="save()">
+    <div>
+      <label class="blog-label" for="lookup-name-vi">{{ 'T_LOOKUP_NAME_VI' | translate }}</label>
+      <input id="lookup-name-vi" class="blog-input" name="nameVi" [(ngModel)]="draft.NameVi" maxlength="80" />
+    </div>
+    <div>
+      <label class="blog-label" for="lookup-name-en">{{ 'T_LOOKUP_NAME_EN' | translate }}</label>
+      <input id="lookup-name-en" class="blog-input" name="nameEn" [(ngModel)]="draft.NameEn" maxlength="80" />
+    </div>
+    <div>
+      <span class="blog-label" id="lookup-color">{{ 'T_LOOKUP_COLOR' | translate }}</span>
+      <div class="lookup-form__colors" role="radiogroup" aria-labelledby="lookup-color">
+        @for (color of swatches; track color) {
+          <button
+            type="button"
+            class="lookup-form__swatch"
+            role="radio"
+            [class.is-active]="draft.Color === color"
+            [attr.aria-checked]="draft.Color === color"
+            [attr.aria-label]="color"
+            [style.background]="color"
+            (click)="draft.Color = color"></button>
+        }
+        <label class="lookup-form__custom" [title]="'T_LOOKUP_CUSTOM_COLOR' | translate">
+          <input type="color" name="color" [(ngModel)]="draft.Color" [attr.aria-label]="'T_LOOKUP_CUSTOM_COLOR' | translate" />
+        </label>
+      </div>
+    </div>
+    @if (isExpenseList) {
+      <div>
+        <span class="blog-label" id="lookup-kind">{{ 'T_LOOKUP_KIND' | translate }}</span>
+        <div class="lookup-form__kinds" role="radiogroup" aria-labelledby="lookup-kind">
+          @for (kind of kinds; track kind.value) {
+            <label class="lookup-form__kind" [class.is-active]="draft.Kind === kind.value">
+              <input type="radio" name="kind" [value]="kind.value" [(ngModel)]="draft.Kind" />
+              {{ kind.labelKey | translate }}
+            </label>
+          }
+        </div>
+      </div>
+    }
+    <!-- Xem trước đúng kiểu sẽ hiện trong Lịch / Thu chi -->
+    <div class="lookup-form__preview" [style.--chip]="draft.Color">
+      {{ draft.NameVi || draft.NameEn || ('T_LOOKUP_PREVIEW' | translate) }}
+    </div>
+    @if (formError) {
+      <p class="lookup-form__error" role="alert">{{ formError | translate }}</p>
+    }
+    <button type="submit" hidden></button>
+  </form>
+  <div *nzModalFooter class="lookup-form__footer">
+    <button type="button" class="blog-btn" [disabled]="saving" (click)="closeForm()">{{ 'T_CANCEL' | translate }}</button>
+    <button type="button" class="blog-btn blog-btn--primary" [disabled]="saving" (click)="save()">
+      @if (saving) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+      }
+      {{ (saving ? 'T_SAVING' : 'T_SAVE_CHANGES') | translate }}
+    </button>
+  </div>
+</nz-modal>
+
+<!-- Xác nhận xóa: mục đang dùng sẽ chỉ được ẩn -->
+<nz-modal
+  nzClassName="blog-modal"
+  [nzAutofocus]="null"
+  [nzCentered]="true"
+  [nzVisible]="pendingDelete !== null"
+  [nzTitle]="'T_LOOKUP_DELETE_TITLE' | translate: { name: pendingDelete ? name(pendingDelete) : '' }"
+  [nzWidth]="440"
+  [nzClosable]="!deleting"
+  [nzMaskClosable]="!deleting"
+  (nzOnCancel)="cancelDelete()">
+  <p *nzModalContent class="lookup-form__confirm">
+    {{ (pendingDelete?.InUse ? 'T_LOOKUP_DELETE_IN_USE_MESSAGE' : 'T_LOOKUP_DELETE_MESSAGE') | translate }}
+  </p>
+  <div *nzModalFooter class="lookup-form__footer">
+    <button type="button" class="blog-btn" [disabled]="deleting" (click)="cancelDelete()">{{ 'T_CANCEL' | translate }}</button>
+    <button type="button" class="blog-btn blog-btn--danger" [disabled]="deleting" (click)="runDelete()">
+      @if (deleting) {
+        <span class="blog-spinner" aria-hidden="true"></span>
+      }
+      {{ (pendingDelete?.InUse ? 'T_LOOKUP_HIDE' : 'T_DELETE') | translate }}
+    </button>
+  </div>
+</nz-modal>

@@ -7,28 +7,27 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { addMonths, format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ExpenseRequest, ExpenseTransaction, PersonalExpensesService } from '../../services/personal-expenses.service';
+import { LookupItem, LookupListService } from '../../services/lookup-list.service';
 import { buildExpenseReportHtml } from './expense-report';
 
-// Danh mục mặc định được lưu trong DB bằng tên tiếng Việt (PersonalExpensesController.Defaults):
-// giữ nguyên giá trị lưu, chỉ dịch lúc hiển thị. Danh mục tự tạo hiện đúng tên người dùng đặt.
-const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
-  'Lương': 'T_EXPENSES_CAT_SALARY', 'Thu nhập khác': 'T_EXPENSES_CAT_OTHER_INCOME', 'Ăn uống': 'T_EXPENSES_CAT_FOOD',
-  'Đi lại': 'T_EXPENSES_CAT_TRANSPORT', 'Mua sắm': 'T_EXPENSES_CAT_SHOPPING', 'Hóa đơn': 'T_EXPENSES_CAT_BILLS',
-  'Nhà ở': 'T_EXPENSES_CAT_HOUSING', 'Giải trí': 'T_EXPENSES_CAT_ENTERTAINMENT', 'Sức khỏe': 'T_EXPENSES_CAT_HEALTH', 'Khác': 'T_EXPENSES_CAT_OTHER',
-};
-
-@Component({ selector: 'app-personal-expenses', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, TranslateModule], templateUrl: './personal-expenses.component.html', styleUrl: './personal-expenses.component.scss' })
+// Danh mục là danh sách riêng của từng người (LookupList, quản lý ở trang cá nhân -
+// tab Danh mục). Giao dịch lưu CategoryCode; cột Category chỉ là bản chụp tên lúc lưu.
+@Component({ selector: 'app-personal-expenses', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, TranslateModule, RouterLink], templateUrl: './personal-expenses.component.html', styleUrl: './personal-expenses.component.scss' })
 export class PersonalExpensesComponent implements OnInit {
   @ViewChild('editor') editor?: ElementRef<HTMLDialogElement>;
   private readonly api = inject(PersonalExpensesService);
   private readonly destroy = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
+  private readonly lookups = inject(LookupListService);
   private request?: Subscription;
+  readonly manageCategoriesLink = { tab: 'lookups', list: 'EXPENSE_CATEGORY' };
   month = format(new Date(), 'yyyy-MM');
   transactions: ExpenseTransaction[] = [];
-  categories: string[] = [];
+  /** Cả mục đã ẩn, để giao dịch cũ vẫn hiện đúng tên, màu */
+  categoryItems: LookupItem[] = [];
   filter = '';
   loading = false;
   loadError = '';
@@ -36,26 +35,51 @@ export class PersonalExpensesComponent implements OnInit {
   formError = '';
   exportError = '';
   saving = false;
-  addingCategory = false;
-  newCategory = '';
   editing = false;
   draft: ExpenseTransaction = this.empty();
 
   ngOnInit(): void { this.load(); this.loadCategories(); }
   get income(): bigint { return this.transactions.filter(x => x.Type === 'income').reduce((sum, x) => sum + BigInt(x.Amount), 0n); }
   get expense(): bigint { return this.transactions.filter(x => x.Type === 'expense').reduce((sum, x) => sum + BigInt(x.Amount), 0n); }
-  get filtered(): ExpenseTransaction[] { return this.filter ? this.transactions.filter(x => x.Category === this.filter) : this.transactions; }
-  get breakdown(): { name: string; amount: bigint; percent: number }[] {
-    const groups = new Map<string, bigint>();
-    for (const item of this.transactions) if (item.Type === 'expense') groups.set(item.Category, (groups.get(item.Category) || 0n) + BigInt(item.Amount));
+  get filtered(): ExpenseTransaction[] { return this.filter ? this.transactions.filter(x => this.codeOf(x) === this.filter) : this.transactions; }
+  /** Bộ lọc: danh mục đang bật, cộng danh mục đã ẩn nhưng có giao dịch trong tháng. */
+  get filterOptions(): LookupItem[] {
+    const used = new Set(this.transactions.map(x => this.codeOf(x)));
+    return this.categoryItems.filter(item => item.FlagActive || used.has(item.Code));
+  }
+  /** Dropdown trong form: đúng loại Thu/Chi đang chọn, kèm danh mục hiện tại nếu đã bị ẩn. */
+  get categoryOptions(): LookupItem[] {
+    return this.categoryItems.filter(item =>
+      (item.FlagActive || item.Code === this.draft.CategoryCode) && (item.Kind === 'both' || item.Kind === this.draft.Type));
+  }
+  get breakdown(): { code: string; name: string; color: string; amount: bigint; percent: number }[] {
+    const groups = new Map<string, { name: string; amount: bigint }>();
+    for (const item of this.transactions) {
+      if (item.Type !== 'expense') continue;
+      const code = this.codeOf(item);
+      const group = groups.get(code) ?? { name: this.categoryLabel(item), amount: 0n };
+      group.amount += BigInt(item.Amount);
+      groups.set(code, group);
+    }
     const total = this.expense;
-    return [...groups].map(([name, amount]) => ({ name, amount, percent: total ? Number(amount) * 100 / Number(total) : 0 })).sort((a, b) => a.amount === b.amount ? 0 : a.amount > b.amount ? -1 : 1);
+    return [...groups].map(([code, group]) => ({ code, name: group.name, color: this.categoryColor(code), amount: group.amount, percent: total ? Number(group.amount) * 100 / Number(total) : 0 }))
+      .sort((a, b) => a.amount === b.amount ? 0 : a.amount > b.amount ? -1 : 1);
   }
   get monthLabel(): string {
     const [year, month] = this.month.split('-');
     return this.translate.instant('T_EXPENSES_MONTH_TITLE', { month: Number(month), monthName: format(parseISO(`${this.month}-01`), 'LLLL', { locale: enUS }), year });
   }
-  categoryLabel(name: string): string { const key = DEFAULT_CATEGORY_KEYS[name]; return key ? this.translate.instant(key) : name; }
+  /** Tên danh mục theo ngôn ngữ đang chọn; không tìm thấy mã thì dùng tên đã chụp lúc lưu. */
+  categoryLabel(item: Pick<ExpenseTransaction, 'CategoryCode' | 'Category'>): string {
+    return this.lookups.name(this.categoryItems.find(x => x.Code === item.CategoryCode)) || item.Category || item.CategoryCode;
+  }
+  itemLabel(item: LookupItem): string { return this.lookups.name(item); }
+  categoryColor(code: string): string { return this.categoryItems.find(x => x.Code === code)?.Color ?? ''; }
+  /** Đổi Thu/Chi thì bỏ danh mục không còn hợp loại. */
+  changeType(type: 'income' | 'expense'): void {
+    this.draft.Type = type;
+    if (!this.categoryOptions.some(item => item.Code === this.draft.CategoryCode)) this.draft.CategoryCode = '';
+  }
   money(value: number | bigint): string { return `${new Intl.NumberFormat('vi-VN').format(value)} đ`; }
   changeMonth(delta: number): void { this.month = format(addMonths(parseISO(`${this.month}-01`), delta), 'yyyy-MM'); this.filter = ''; this.load(); }
   load(): void {
@@ -66,8 +90,8 @@ export class PersonalExpensesComponent implements OnInit {
     });
   }
   loadCategories(): void {
-    this.api.categories().pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: categories => { this.categories = categories; this.categoryError = ''; },
+    this.lookups.list('EXPENSE_CATEGORY', true).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: items => { this.categoryItems = items; this.categoryError = ''; },
       error: () => { this.categoryError = 'T_EXPENSES_CATEGORIES_ERROR'; },
     });
   }
@@ -77,27 +101,20 @@ export class PersonalExpensesComponent implements OnInit {
     const report = window.open('', '_blank', 'width=900,height=1000');
     if (!report) { this.exportError = 'T_EXPENSES_POPUP_BLOCKED'; return; }
     this.exportError = '';
-    report.document.write(buildExpenseReportHtml(this.month, this.transactions, (key, params) => this.translate.instant(key, params), name => this.categoryLabel(name)));
+    // Báo cáo nhận sẵn tên danh mục theo ngôn ngữ đang chọn
+    const rows = this.transactions.map(item => ({ ...item, Category: this.categoryLabel(item) }));
+    report.document.write(buildExpenseReportHtml(this.month, rows, (key, params) => this.translate.instant(key, params)));
     report.document.close();
     report.focus();
     // Đợi font tải xong để bản PDF không bị nhảy chữ
     report.document.fonts.ready.then(() => report.print());
   }
-  openCreate(): void { this.editing = false; this.formError = ''; this.newCategory = ''; this.draft = this.empty(); this.editor?.nativeElement.showModal(); }
-  openEdit(item: ExpenseTransaction): void { this.editing = true; this.formError = ''; this.newCategory = ''; this.draft = { ...item }; this.editor?.nativeElement.showModal(); }
-  close(): void { if (!this.saving && !this.addingCategory) this.editor?.nativeElement.close(); }
-  addCategory(): void {
-    const name = this.newCategory.trim();
-    if (!name || this.addingCategory) return;
-    this.addingCategory = true; this.formError = '';
-    this.api.addCategory(name).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: result => { this.categories = [...this.categories, result.Name]; this.draft.Category = result.Name; this.newCategory = ''; this.addingCategory = false; },
-      error: (e: HttpErrorResponse) => { this.addingCategory = false; this.formError = e.status === 409 ? 'T_EXPENSES_CATEGORY_EXISTS' : 'T_EXPENSES_CATEGORY_ADD_ERROR'; },
-    });
-  }
+  openCreate(): void { this.editing = false; this.formError = ''; this.draft = this.empty(); this.editor?.nativeElement.showModal(); }
+  openEdit(item: ExpenseTransaction): void { this.editing = true; this.formError = ''; this.draft = { ...item }; this.editor?.nativeElement.showModal(); }
+  close(): void { if (!this.saving) this.editor?.nativeElement.close(); }
   save(form: NgForm): void {
-    if (this.saving || this.addingCategory) return;
-    if (form.invalid || !this.draft.Category || !Number.isSafeInteger(this.draft.Amount) || this.draft.Amount < 1 || this.draft.Amount > 1_000_000_000_000) { this.formError = 'T_EXPENSES_FORM_INVALID'; return; }
+    if (this.saving) return;
+    if (form.invalid || !this.draft.CategoryCode || !Number.isSafeInteger(this.draft.Amount) || this.draft.Amount < 1 || this.draft.Amount > 1_000_000_000_000) { this.formError = 'T_EXPENSES_FORM_INVALID'; return; }
     const { Id, ...data } = this.draft;
     this.saving = true; this.formError = '';
     const request = this.editing ? this.api.update(Id, data as ExpenseRequest) : this.api.create(data as ExpenseRequest);
@@ -116,6 +133,8 @@ export class PersonalExpensesComponent implements OnInit {
   }
   private empty(): ExpenseTransaction {
     const today = format(new Date(), 'yyyy-MM-dd');
-    return { Id: '', Type: 'expense', Amount: 0, Date: today.startsWith(this.month) ? today : `${this.month}-01`, Category: '', Note: '', Version: 0 };
+    return { Id: '', Type: 'expense', Amount: 0, Date: today.startsWith(this.month) ? today : `${this.month}-01`, Category: '', CategoryCode: '', Note: '', Version: 0 };
   }
+  // Giao dịch rất cũ chưa có mã thì nhóm theo tên đã lưu
+  private codeOf(item: ExpenseTransaction): string { return item.CategoryCode || item.Category; }
 }

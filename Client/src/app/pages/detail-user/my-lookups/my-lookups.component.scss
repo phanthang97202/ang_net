@@ -1,0 +1,341 @@
+// Cùng kiểu đầu mục, font với tab "Thư viện lưu trữ" (DM Sans thiếu bộ chữ tiếng Việt)
+:host {
+  display: block;
+}
+
+.lookups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.lookups__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .blog-btn {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
+}
+
+.lookups__tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+}
+
+.lookups__tab {
+  display: inline-flex;
+  min-height: 38px;
+  flex: none;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+
+  &.is-active {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fff;
+  }
+}
+
+.lookups__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 16px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.lookups__list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-bg-card);
+  list-style: none;
+}
+
+.lookups__item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &.is-hidden .lookups__text,
+  &.is-hidden .lookups__swatch {
+    opacity: 0.5;
+  }
+}
+
+.lookups__swatch {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.lookups__text {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 0.15rem;
+
+  strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 0.86rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+  }
+}
+
+.lookups__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.lookups__badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &[data-kind='income'] {
+    background: rgba(35, 133, 92, 0.12);
+    color: #23855c;
+  }
+
+  &[data-kind='expense'] {
+    background: rgba(211, 58, 66, 0.1);
+    color: #c9414a;
+  }
+}
+
+.lookups__badge--muted {
+  background: var(--color-control-bg, rgba(127, 127, 140, 0.12));
+  color: var(--color-text-muted);
+}
+
+.lookups__actions {
+  display: flex;
+  flex: none;
+  gap: 0.1rem;
+}
+
+.lookups__icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.lookups__icon--danger:hover:not(:disabled) {
+  color: #e0524a;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+// Màn hẹp: huy hiệu xuống dòng dưới tên, nút thao tác gọn lại
+@media (max-width: 560px) {
+  .lookups__item {
+    flex-wrap: wrap;
+  }
+
+  .lookups__text {
+    flex-basis: calc(100% - 40px);
+  }
+
+  .lookups__badges {
+    justify-content: flex-start;
+    margin-left: calc(14px + 0.85rem);
+  }
+
+  .lookups__actions {
+    margin-left: auto;
+  }
+}
+
+// ---------- Form trong modal (khung ở .blog-modal) ----------
+.lookup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.lookup-form__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lookup-form__swatch {
+  width: 28px;
+  height: 28px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &.is-active {
+    box-shadow:
+      0 0 0 2px var(--color-bg-card),
+      0 0 0 4px var(--color-text);
+  }
+}
+
+.lookup-form__custom {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px dashed var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+
+  input {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+}
+
+.lookup-form__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lookup-form__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  input {
+    accent-color: var(--color-accent);
+  }
+
+  &.is-active {
+    border-color: var(--color-accent);
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+  }
+}
+
+// Xem trước giống ô sự kiện trong lịch: chữ màu, nền pha nhạt, vạch trái
+.lookup-form__preview {
+  align-self: flex-start;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--chip) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--chip);
+  color: var(--chip);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lookup-form__error {
+  margin: 0;
+  color: #e0524a;
+  font-size: 0.78rem;
+}
+
+.lookup-form__confirm {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.lookup-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}

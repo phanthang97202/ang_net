@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Security.Claims;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
+using angnet.Infrastructure.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -36,9 +37,10 @@ public class PersonalCalendarStatusRequest
 }
 
 [ApiController, Route("api/PersonalCalendar"), Authorize(Policy = "calendar.use"), EnableRateLimiting("API")]
-public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : ControllerBase
+// Loại hoạt động và trạng thái là danh sách riêng của từng người (LookupList), không
+// còn cố định trong code: mọi mã gửi lên phải thuộc danh sách của chính chủ sự kiện.
+public class PersonalCalendarController(AppDbContext db, TimeProvider clock, LookupListService lookups) : ControllerBase
 {
-    private static readonly string[] Statuses = ["todo", "in_progress", "urgent", "done", "cancelled"];
     private const int TaskLimit = 300;
     private string? OwnerId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private static bool Date(string? value, out DateOnly date) => DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
@@ -70,7 +72,10 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     {
         if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
         var day = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
-        if (status != null && !Statuses.Contains(status) || today != null && !Date(today, out day)) return BadRequest(new { Code = "InvalidStatus" });
+        if (today != null && !Date(today, out day)) return BadRequest(new { Code = "InvalidStatus" });
+        // Đếm theo mọi trạng thái của người này, kể cả trạng thái đã ẩn (việc cũ vẫn dùng)
+        var statuses = (await lookups.ListAsync(owner, LookupListCodes.CalendarStatus, true, ct)).Select(x => x.Code).ToList();
+        if (status != null && !statuses.Contains(status)) return BadRequest(new { Code = "InvalidStatus" });
         var items = await db.PersonalCalendarEvent.AsNoTracking().Where(x => x.OwnerId == owner).ToListAsync(ct);
         var series = items.Where(x => x.RepeatDays != 0).ToDictionary(x => x.EventId);
         var seriesIds = series.Keys.ToList();
@@ -81,7 +86,7 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
             .Concat(series.Values.Select(x => (Item: x, Next: NextOccurrence(x, day, overrides))).Where(x => x.Next != null)
                 .Select(x => ToResponse(x.Item, x.Next!.Value, x.Item.Status)))
             .ToList();
-        var counts = Statuses.ToDictionary(x => x, x => tasks.Count(t => t.Status == x));
+        var counts = statuses.Union(tasks.Select(t => t.Status)).ToDictionary(x => x, x => tasks.Count(t => t.Status == x));
         var selected = tasks.Where(x => x.Status == status);
         // Việc đang chờ xếp ngày gần trước; việc đã xong/đã hủy xếp mới nhất trước.
         var ordered = status is "done" or "cancelled"
@@ -99,11 +104,17 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     public async Task<IActionResult> Create(PersonalCalendarEventRequest request, CancellationToken ct)
     {
         if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
-        if (!Valid(request, out var start, out var end)) return BadRequest(new { Code = "InvalidEvent" });
+        if (!Valid(request, out var start, out var end) || !await UsableCategory(owner, request.Category, null, ct)) return BadRequest(new { Code = "InvalidEvent" });
+        // Không gửi trạng thái thì lấy trạng thái đầu tiên trong danh sách của người này
+        var status = string.IsNullOrEmpty(request.Status)
+            ? (await lookups.ListAsync(owner, LookupListCodes.CalendarStatus, false, ct)).FirstOrDefault()?.Code ?? "todo"
+            : request.Status;
+        if (await lookups.FindUsableAsync(owner, LookupListCodes.CalendarStatus, status, null, ct) == null && !string.IsNullOrEmpty(request.Status))
+            return BadRequest(new { Code = "InvalidEvent" });
         var now = clock.GetUtcNow().UtcDateTime;
         var item = new PersonalCalendarEventModel { EventId = Guid.NewGuid().ToString(), OwnerId = owner, CreatedAt = now, UpdatedAt = now };
         Apply(item, request, start, end);
-        if (!string.IsNullOrEmpty(request.Status)) item.Status = request.Status;
+        item.Status = status;
         db.PersonalCalendarEvent.Add(item);
         await db.SaveChangesAsync(ct);
         return Ok(ToResponse(item, item.StartDate, item.Status));
@@ -117,6 +128,8 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
         var item = await db.PersonalCalendarEvent.SingleOrDefaultAsync(x => x.EventId == id && x.OwnerId == owner, ct);
         if (item == null) return NotFound();
         if (item.Version != request.Version) return Conflict(new { Code = "EventChanged" });
+        // Giữ nguyên loại đã bị ẩn thì vẫn sửa được nội dung khác
+        if (!await UsableCategory(owner, request.Category, item.Category, ct)) return BadRequest(new { Code = "InvalidEvent" });
         Apply(item, request, start, end);
         item.Version++;
         item.UpdatedAt = clock.GetUtcNow().UtcDateTime;
@@ -131,7 +144,8 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     public async Task<IActionResult> SetStatus(string id, PersonalCalendarStatusRequest request, CancellationToken ct)
     {
         if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
-        if (!Guid.TryParse(id, out _) || !Date(request.Date, out var date) || !Statuses.Contains(request.Status)) return BadRequest(new { Code = "InvalidStatus" });
+        if (!Guid.TryParse(id, out _) || !Date(request.Date, out var date) ||
+            await lookups.FindUsableAsync(owner, LookupListCodes.CalendarStatus, request.Status, null, ct) == null) return BadRequest(new { Code = "InvalidStatus" });
         var item = await db.PersonalCalendarEvent.SingleOrDefaultAsync(x => x.EventId == id && x.OwnerId == owner, ct);
         if (item == null) return NotFound();
         var now = clock.GetUtcNow().UtcDateTime;
@@ -174,11 +188,12 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
             Date(r.StartDate, out start) && Date(r.EndDate, out end) && start <= end &&
             r.RepeatDays is >= 0 and <= 127 && (r.RepeatDays == 0 || end.DayNumber - start.DayNumber <= 31) &&
             (string.IsNullOrEmpty(r.RepeatUntil) || r.RepeatDays != 0 && Date(r.RepeatUntil, out var until) && until >= start) &&
-            r.Category is "personal" or "leisure" or "routine" or "work" &&
-            (string.IsNullOrEmpty(r.Status) || Statuses.Contains(r.Status)) &&
+            !string.IsNullOrEmpty(r.Category) &&
             (r.Location?.Length ?? 0) <= 200 && (r.Notes?.Length ?? 0) <= 1000 &&
             (r.AllDay || Time(r.StartTime) && Time(r.EndTime) && (start < end || string.CompareOrdinal(r.StartTime, r.EndTime) < 0));
     }
+    private async Task<bool> UsableCategory(string owner, string code, string? current, CancellationToken ct) =>
+        await lookups.FindUsableAsync(owner, LookupListCodes.CalendarCategory, code, current, ct) != null;
     private static void Apply(PersonalCalendarEventModel item, PersonalCalendarEventRequest r, DateOnly start, DateOnly end)
     {
         item.Title = r.Title.Trim(); item.StartDate = start; item.EndDate = end;

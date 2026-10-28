@@ -92,6 +92,8 @@ namespace angnet.Infrastructure
             services.AddScoped<ISubscriberService, SubscriberService>();
 
             services.AddScoped<IArchiveService, ArchiveService>();
+            // Danh sách chọn (dropdown) riêng của từng người dùng - bảng LookupList dùng chung
+            services.AddScoped<LookupListService>();
 
             // Thư viện nhạc: mỗi nguồn phát là một IMusicTrackSource, thêm nguồn = thêm một dòng ở đây
             services.AddScoped<IMusicTrackSource, YouTubeMusicTrackSource>();

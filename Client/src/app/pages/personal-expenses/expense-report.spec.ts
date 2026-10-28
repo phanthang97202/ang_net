@@ -2,7 +2,7 @@ import { ExpenseTransaction } from '../../services/personal-expenses.service';
 import { buildExpenseReportHtml, summarizeExpenseReport } from './expense-report';
 
 const tx = (Id: string, Type: 'income' | 'expense', Amount: number, Date: string, Category: string, Note = ''): ExpenseTransaction =>
-  ({ Id, Type, Amount, Date, Category, Note, Version: 1 });
+  ({ Id, Type, Amount, Date, Category, CategoryCode: '', Note, Version: 1 });
 
 // Hàm dịch giả: trả về khóa kèm tham số, để test kiểm tra đúng khóa + dữ liệu truyền vào
 const t = (key: string, params?: Record<string, unknown>): string => (params ? `${key}${JSON.stringify(params)}` : key);

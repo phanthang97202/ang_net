@@ -21,6 +21,14 @@ function useLanguage(lang: 'vi' | 'en'): void {
 }
 const NO_COUNTS: Record<CalendarStatus, number> = { todo: 0, in_progress: 0, urgent: 0, done: 0, cancelled: 0 };
 // Trang tải thêm danh sách việc theo trạng thái (kèm số đếm) khi mở và sau mỗi thay đổi.
+// Danh sách Loại hoạt động / Trạng thái riêng của người dùng (LookupList)
+const lookup = (ListCode: string, Code: string, NameVi: string, NameEn: string, Color: string, FlagActive = true) => ({ Id: Code, ListCode, Code, NameVi, NameEn, Color, Kind: '', SortOrder: 0, FlagActive, InUse: false });
+const CATEGORIES = [lookup('CALENDAR_CATEGORY', 'personal', 'Cá nhân', 'Personal', '#7661d8'), lookup('CALENDAR_CATEGORY', 'leisure', 'Đi chơi', 'Going out', '#d0764a'), lookup('CALENDAR_CATEGORY', 'routine', 'Sinh hoạt', 'Daily routine', '#3b9d86'), lookup('CALENDAR_CATEGORY', 'work', 'Công việc', 'Work', '#4d87c2')];
+const STATUSES = [lookup('CALENDAR_STATUS', 'todo', 'Cần làm', 'To do', '#6b6b7b'), lookup('CALENDAR_STATUS', 'in_progress', 'Đang làm', 'In progress', '#2f6fd6'), lookup('CALENDAR_STATUS', 'urgent', 'Khẩn cấp', 'Urgent', '#d33a42'), lookup('CALENDAR_STATUS', 'done', 'Đã hoàn thành', 'Done', '#23855c'), lookup('CALENDAR_STATUS', 'cancelled', 'Hủy bỏ', 'Cancelled', '#8a8a99')];
+function flushLookups(http: HttpTestingController, categories: unknown[] = CATEGORIES, statuses: unknown[] = STATUSES): void {
+  http.expectOne(req => req.url.endsWith('/LookupList') && req.params.get('listCode') === 'CALENDAR_CATEGORY').flush(categories);
+  http.expectOne(req => req.url.endsWith('/LookupList') && req.params.get('listCode') === 'CALENDAR_STATUS').flush(statuses);
+}
 function flushTasks(http: HttpTestingController, result: { Counts?: Partial<Record<CalendarStatus, number>>; Total?: number; Items?: unknown[] } = {}, status?: CalendarStatus): void {
   http.expectOne(req => req.url.endsWith('/PersonalCalendar/tasks') && req.params.get('status') === (status ?? null))
     .flush({ Counts: { ...NO_COUNTS, ...result.Counts }, Total: result.Total ?? 0, Items: result.Items ?? [] });
@@ -39,6 +47,7 @@ describe('Personal calendar', () => {
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
     flushTasks(http);
+    flushLookups(http);
   });
   afterEach(() => http.verify());
 
@@ -180,12 +189,31 @@ describe('Personal calendar', () => {
     expect(calendar.isStatusPending(occurrence)).toBeFalse();
     // Số đếm và danh sách việc được tải lại sau khi đổi.
     flushTasks(http, { Counts: { done: 1 }, Total: 1 });
-    expect(calendar.statusCounts.done).toBe(1);
+    expect(calendar.statusCounts['done']).toBe(1);
 
     calendar.changeStatus(occurrence, 'cancelled');
     http.expectOne(req => req.url.endsWith('/status')).flush({}, { status: 500, statusText: 'Error' });
     expect(occurrence.status).toBe('done');
     expect(calendar.statusError).toBe('T_CALENDAR_STATUS_ERROR');
+  });
+
+  it('uses the user lists: hidden items stay readable for old events, new ones get the first active item', () => {
+    calendar.loadLookups();
+    flushLookups(http,
+      [lookup('CALENDAR_CATEGORY', 'cgym', 'Tập gym', 'Gym', '#22aa66'), lookup('CALENDAR_CATEGORY', 'work', 'Công việc', 'Work', '#4d87c2', false)],
+      [lookup('CALENDAR_STATUS', 'cwait', 'Chờ phản hồi', 'Waiting', '#b7791f'), lookup('CALENDAR_STATUS', 'done', 'Đã hoàn thành', 'Done', '#23855c', false)]);
+    expect(calendar.categories.map(item => item.id)).toEqual(['cgym']);
+    expect(calendar.statuses.map(item => item.id)).toEqual(['cwait']);
+    // Mục đã ẩn vẫn hiện tên, màu và vẫn chọn lại được cho chính sự kiện đang dùng nó
+    expect(calendar.label('work')).toBe('Công việc');
+    expect(calendar.categoryColor('work')).toBe('#4d87c2');
+    expect(calendar.statusOptions('done').map(item => item.id)).toEqual(['cwait', 'done']);
+    expect(calendar.statusLabel('cwait')).toBe('Chờ phản hồi');
+    useLanguage('en');
+    expect(calendar.statusLabel('cwait')).toBe('Waiting');
+    calendar.openCreate();
+    expect(calendar.draft.category).toBe('cgym');
+    expect(calendar.draft.status).toBe('cwait');
   });
 
   it('sends the initial status when creating but never when editing', () => {
@@ -220,6 +248,7 @@ describe('Personal calendar lunar dates', () => {
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
     flushTasks(http);
+    flushLookups(http);
     fixture.componentInstance.repeatWeekly = true;
     fixture.detectChanges();
     const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
@@ -249,6 +278,7 @@ describe('Personal calendar lunar dates', () => {
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
     flushTasks(http);
+    flushLookups(http);
     fixture.detectChanges();
 
     const cells: HTMLElement[] = [...fixture.nativeElement.querySelectorAll('.calendar-day')];
@@ -283,6 +313,7 @@ describe('Personal calendar lunar dates', () => {
     const event = (id: string, title: string, status: CalendarStatus) => ({ EventId: id, Version: 1, Title: title, StartDate: today, EndDate: today, StartTime: '09:00', EndTime: '10:00', AllDay: false, Category: 'work', Location: '', Notes: '', Status: status });
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([event('a', 'Gửi hồ sơ', 'urgent'), event('b', 'Họp nhóm', 'done')]);
     flushTasks(http, { Counts: { urgent: 4, done: 9 }, Total: 13 });
+    flushLookups(http);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -294,7 +325,7 @@ describe('Personal calendar lunar dates', () => {
     expect(page.querySelector('.day-event[data-status="done"]')).not.toBeNull();
     const urgent = page.querySelector('.agenda-event[data-status="urgent"]')!;
     const select: HTMLSelectElement = urgent.querySelector('select.event-status')!;
-    expect(select.selectedOptions[0].textContent!.trim()).toBe('T_CALENDAR_STATUS_URGENT');
+    expect(select.selectedOptions[0].textContent!.trim()).toBe('Khẩn cấp');
 
     select.selectedIndex = fixture.componentInstance.statuses.findIndex(status => status.id === 'in_progress');
     select.dispatchEvent(new Event('change'));
@@ -306,7 +337,7 @@ describe('Personal calendar lunar dates', () => {
     (page.querySelector('.status-filter [data-status="done"]') as HTMLButtonElement).click();
     flushTasks(http, { Counts: { urgent: 3, in_progress: 1, done: 9 }, Total: 9, Items: [event('b', 'Họp nhóm', 'done'), { ...event('c', 'Dọn nhà', 'done'), StartDate: '2025-12-01', EndDate: '2025-12-01' }] }, 'done');
     fixture.detectChanges();
-    expect(page.querySelector('.agenda-card h2')!.textContent!.trim()).toBe('T_CALENDAR_STATUS_DONE');
+    expect(page.querySelector('.agenda-card h2')!.textContent!.trim()).toBe('Đã hoàn thành');
     expect(page.querySelectorAll('.task-date').length).toBe(2);
     expect(Array.from(page.querySelectorAll('.agenda-event strong'), item => item.textContent)).toEqual(['Họp nhóm', 'Dọn nhà']);
     expect(page.querySelectorAll('.day-event[data-status="urgent"]').length).toBe(0);

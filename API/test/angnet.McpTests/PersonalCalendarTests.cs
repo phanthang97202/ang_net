@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
+using angnet.Infrastructure.Data.Services;
 using angnet.WebApi.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +34,7 @@ public class PersonalCalendarTests
         await db.Database.EnsureCreatedAsync();
         db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
         await db.SaveChangesAsync();
-        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var controller = new PersonalCalendarController(db, TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
         User("alice");
         var request = new PersonalCalendarEventRequest { Title = "Trực", StartDate = "2026-10-29", EndDate = "2026-10-30", StartTime = "19:00", EndTime = "07:00", Category = "work", RepeatDays = 16 | 64, RepeatUntil = "2026-11-05" };
@@ -62,7 +63,7 @@ public class PersonalCalendarTests
         await db.Database.EnsureCreatedAsync();
         db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
         await db.SaveChangesAsync();
-        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var controller = new PersonalCalendarController(db, TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
         User("alice");
         var input = new PersonalCalendarEventRequest { Title = "Đi chơi", StartDate = "2026-10-30", EndDate = "2026-11-02", StartTime = "09:00", EndTime = "10:00", Category = "leisure" };
@@ -97,7 +98,7 @@ public class PersonalCalendarTests
         await db.Database.EnsureCreatedAsync();
         db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
         await db.SaveChangesAsync();
-        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var controller = new PersonalCalendarController(db, TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
         async Task<string[]> Statuses() => JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10-26", "2026-11-15", default)).Value)
             .EnumerateArray().Select(x => x.GetProperty("Status").GetString()!).ToArray();
@@ -135,7 +136,7 @@ public class PersonalCalendarTests
         await db.Database.EnsureCreatedAsync();
         db.Users.Add(new AppUser { Id = "alice", UserName = "alice" });
         await db.SaveChangesAsync();
-        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var controller = new PersonalCalendarController(db, TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "alice")], "test"));
         var input = new PersonalCalendarEventRequest { Title = "Nộp báo cáo", StartDate = "2026-10-30", EndDate = "2026-11-01", AllDay = true, Category = "work" };
         var created = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Create(input, default)).Value);
@@ -162,7 +163,7 @@ public class PersonalCalendarTests
         await db.Database.EnsureCreatedAsync();
         db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
         await db.SaveChangesAsync();
-        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var controller = new PersonalCalendarController(db, TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
         async Task<string> Create(string title, string date, string? status = null, int repeatDays = 0, string? until = null) =>
             JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Create(new PersonalCalendarEventRequest { Title = title, StartDate = date, EndDate = date, AllDay = true, Category = "work", Status = status, RepeatDays = repeatDays, RepeatUntil = until }, default)).Value)
@@ -219,6 +220,7 @@ public class PersonalCalendarTests
         builder.WebHost.UseTestServer();
         builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connection));
         builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddScoped<LookupListService>();
         builder.Services.AddAuthentication("test").AddScheme<AuthenticationSchemeOptions, TestAuthentication>("test", _ => { });
         builder.Services.AddAuthorization();
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();

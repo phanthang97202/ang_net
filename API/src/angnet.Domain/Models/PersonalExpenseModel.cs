@@ -9,7 +9,10 @@ public class PersonalExpenseModel
     [Required, MaxLength(8)] public string Type { get; set; } = "";
     public long Amount { get; set; }
     public DateOnly Date { get; set; }
+    // Tên danh mục lúc lưu (bản chụp, để lùi phiên bản / đọc dữ liệu cũ); danh mục thật là CategoryCode
     [Required, MaxLength(80)] public string Category { get; set; } = "";
+    // Code của mục LookupList (ListCode EXPENSE_CATEGORY) của chính chủ giao dịch
+    [MaxLength(16)] public string CategoryCode { get; set; } = "";
     [MaxLength(500)] public string Note { get; set; } = "";
     public int Version { get; set; } = 1;
     public DateTime CreatedAt { get; set; }

@@ -19,37 +19,36 @@
     </section>
     <div class="content-grid">
       <section class="panel transactions">
-        <div class="panel-heading"><div><h2>{{ 'T_EXPENSES_TRANSACTIONS' | translate }}</h2><span>{{ 'T_EXPENSES_TRANSACTION_COUNT' | translate: { count: filtered.length } }}</span></div><label class="filter"><span class="sr-only">{{ 'T_EXPENSES_FILTER_LABEL' | translate }}</span><select [(ngModel)]="filter"><option value="">{{ 'T_EXPENSES_ALL_CATEGORIES' | translate }}</option><option *ngFor="let category of categories" [value]="category">{{ categoryLabel(category) }}</option></select></label></div>
+        <div class="panel-heading"><div><h2>{{ 'T_EXPENSES_TRANSACTIONS' | translate }}</h2><span>{{ 'T_EXPENSES_TRANSACTION_COUNT' | translate: { count: filtered.length } }}</span></div><label class="filter"><span class="sr-only">{{ 'T_EXPENSES_FILTER_LABEL' | translate }}</span><select [(ngModel)]="filter"><option value="">{{ 'T_EXPENSES_ALL_CATEGORIES' | translate }}</option><option *ngFor="let category of filterOptions" [value]="category.Code">{{ itemLabel(category) }}</option></select></label></div>
         <div class="empty" *ngIf="!filtered.length">{{ (filter ? 'T_EXPENSES_EMPTY_CATEGORY' : 'T_EXPENSES_EMPTY_MONTH') | translate }}</div>
         <div class="transaction-list">
           <button class="transaction" type="button" *ngFor="let item of filtered" (click)="openEdit(item)">
             <span class="transaction-icon" [class.is-income]="item.Type === 'income'"><span nz-icon [nzType]="item.Type === 'income' ? 'arrow-down' : 'arrow-up'"></span></span>
-            <span class="transaction-info"><strong>{{ categoryLabel(item.Category) }}</strong><small>{{ item.Date | date:'dd/MM/yyyy' }}<span *ngIf="item.Note"> · {{ item.Note }}</span></small></span>
+            <span class="transaction-info"><strong>{{ categoryLabel(item) }}</strong><small>{{ item.Date | date:'dd/MM/yyyy' }}<span *ngIf="item.Note"> · {{ item.Note }}</span></small></span>
             <strong class="amount" [class.is-income]="item.Type === 'income'">{{ item.Type === 'income' ? '+' : '−' }}{{ money(item.Amount) }}</strong>
           </button>
         </div>
       </section>
       <section class="panel breakdown"><div class="panel-heading"><div><h2>{{ 'T_EXPENSES_BY_CATEGORY' | translate }}</h2></div></div>
         <div *ngIf="!breakdown.length" class="empty">{{ 'T_EXPENSES_NO_SPENDING' | translate }}</div>
-        <div class="breakdown-list"><div class="breakdown-item" *ngFor="let item of breakdown"><div><strong>{{ categoryLabel(item.name) }}</strong><span>{{ money(item.amount) }} · {{ item.percent | number:'1.0-0' }}%</span></div><div class="bar"><span [style.width.%]="item.percent"></span></div></div></div>
+        <div class="breakdown-list"><div class="breakdown-item" *ngFor="let item of breakdown"><div><strong>{{ item.name }}</strong><span>{{ money(item.amount) }} · {{ item.percent | number:'1.0-0' }}%</span></div><div class="bar"><span [style.width.%]="item.percent" [style.background]="item.color || null"></span></div></div></div>
       </section>
     </div>
   </ng-container>
 
-  <dialog #editor class="expense-dialog" aria-labelledby="expense-dialog-title" (cancel)="(saving || addingCategory) && $event.preventDefault()">
+  <dialog #editor class="expense-dialog" aria-labelledby="expense-dialog-title" (cancel)="saving && $event.preventDefault()">
     <form #form="ngForm" (ngSubmit)="save(form)">
-      <div class="dialog-heading"><h2 id="expense-dialog-title">{{ (editing ? 'T_EXPENSES_EDIT' : 'T_EXPENSES_ADD') | translate }}</h2><button type="button" class="close" (click)="close()" [disabled]="saving || addingCategory" [attr.aria-label]="'T_EXPENSES_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
-      <div class="dialog-scroll"><fieldset [disabled]="saving || addingCategory">
-        <div class="type-switch"><label><input type="radio" name="type" value="expense" [(ngModel)]="draft.Type" /> {{ 'T_EXPENSES_TYPE_EXPENSE' | translate }}</label><label><input type="radio" name="type" value="income" [(ngModel)]="draft.Type" /> {{ 'T_EXPENSES_TYPE_INCOME' | translate }}</label></div>
+      <div class="dialog-heading"><h2 id="expense-dialog-title">{{ (editing ? 'T_EXPENSES_EDIT' : 'T_EXPENSES_ADD') | translate }}</h2><button type="button" class="close" (click)="close()" [disabled]="saving" [attr.aria-label]="'T_EXPENSES_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
+      <div class="dialog-scroll"><fieldset [disabled]="saving">
+        <div class="type-switch"><label><input type="radio" name="type" value="expense" [ngModel]="draft.Type" (ngModelChange)="changeType($event)" /> {{ 'T_EXPENSES_TYPE_EXPENSE' | translate }}</label><label><input type="radio" name="type" value="income" [ngModel]="draft.Type" (ngModelChange)="changeType($event)" /> {{ 'T_EXPENSES_TYPE_INCOME' | translate }}</label></div>
         <label class="field">{{ 'T_EXPENSES_AMOUNT' | translate }}<input type="number" name="amount" [(ngModel)]="draft.Amount" required min="1" max="1000000000000" step="1" inputmode="numeric" /></label>
         <label class="field">{{ 'T_EXPENSES_DATE' | translate }}<input type="date" name="date" [(ngModel)]="draft.Date" required /></label>
-        <label class="field">{{ 'T_EXPENSES_CATEGORY' | translate }}<select name="category" [(ngModel)]="draft.Category" required><option value="" disabled>{{ 'T_EXPENSES_CHOOSE_CATEGORY' | translate }}</option><option *ngFor="let category of categories" [value]="category">{{ categoryLabel(category) }}</option></select></label>
+        <label class="field"><span class="field-head">{{ 'T_EXPENSES_CATEGORY' | translate }} <a class="manage-link" routerLink="/userinfor" [queryParams]="manageCategoriesLink">{{ 'T_LOOKUP_MANAGE' | translate }}</a></span><select name="category" [(ngModel)]="draft.CategoryCode" required><option value="" disabled>{{ 'T_EXPENSES_CHOOSE_CATEGORY' | translate }}</option><option *ngFor="let category of categoryOptions" [value]="category.Code">{{ itemLabel(category) }}</option></select></label>
         <p *ngIf="categoryError" class="error" role="alert">{{ categoryError | translate }} <button type="button" (click)="loadCategories()">{{ 'T_EXPENSES_RETRY' | translate }}</button></p>
-        <div class="new-category"><label class="field">{{ 'T_EXPENSES_NEW_CATEGORY' | translate }}<input name="newCategory" [(ngModel)]="newCategory" maxlength="80" [placeholder]="'T_EXPENSES_CATEGORY_NAME' | translate" /></label><button type="button" class="button secondary" (click)="addCategory()" [disabled]="!newCategory.trim()">{{ 'T_EXPENSES_ADD_CATEGORY' | translate }}</button></div>
         <label class="field">{{ 'T_EXPENSES_NOTE' | translate }} <span class="optional">{{ 'T_EXPENSES_OPTIONAL' | translate }}</span><textarea name="note" [(ngModel)]="draft.Note" maxlength="500" rows="3" [placeholder]="'T_EXPENSES_NOTE_PLACEHOLDER' | translate"></textarea></label>
         <p *ngIf="formError" class="error" role="alert">{{ formError | translate }}</p>
       </fieldset></div>
-      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete" [disabled]="saving || addingCategory" (click)="remove()">{{ 'T_EXPENSES_DELETE' | translate }}</button><span class="spacer"></span><button type="button" class="button secondary" (click)="close()" [disabled]="saving || addingCategory">{{ 'T_CANCEL' | translate }}</button><button type="submit" class="button primary" [disabled]="saving || addingCategory">{{ (saving ? 'T_SAVING' : 'T_EXPENSES_SAVE') | translate }}</button></div>
+      <div class="dialog-actions"><button *ngIf="editing" type="button" class="delete" [disabled]="saving" (click)="remove()">{{ 'T_EXPENSES_DELETE' | translate }}</button><span class="spacer"></span><button type="button" class="button secondary" (click)="close()" [disabled]="saving">{{ 'T_CANCEL' | translate }}</button><button type="submit" class="button primary" [disabled]="saving">{{ (saving ? 'T_SAVING' : 'T_EXPENSES_SAVE') | translate }}</button></div>
     </form>
   </dialog>
 </main>
