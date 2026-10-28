@@ -19,12 +19,16 @@
           </div>
         </div>
       </div>
+      <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">
+        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="statusFilter = 'all'">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts.all }}</span></button>
+        <button *ngFor="let status of statuses" type="button" [attr.data-status]="status.id" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="statusFilter = status.id"><i aria-hidden="true"></i>{{ status.label | translate }} <span class="status-count">{{ statusCounts[status.id] }}</span></button>
+      </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
         <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday | translate }}</div>
         <button *ngFor="let day of days; trackBy: trackDay" type="button" role="gridcell" class="calendar-day" [class.is-outside]="!day.inMonth" [class.is-selected]="isSelected(day.date)" [class.is-today]="isToday(day.date)" [attr.aria-label]="dateLabel(day.date) + ', ' + lunarLabel(day.lunar) + ', ' + ('T_CALENDAR_DAY_EVENTS' | translate: { count: day.events.length })" [attr.aria-selected]="isSelected(day.date)" (click)="select(day.date)">
           <span class="day-number">{{ day.date.getDate() }}</span>
           <span class="lunar-day" [class.lunar-day--new-month]="day.lunar?.day === 1" [title]="lunarLabel(day.lunar)" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? ('T_CALENDAR_LEAP_SHORT' | translate) : '') : '—' }}</span>
-          <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">{{ 'T_CALENDAR_MORE_EVENTS' | translate: { count: day.events.length - 2 } }}</span></span>
+          <span class="day-events"><span *ngFor="let event of day.events.slice(0, 2)" class="day-event" [attr.data-category]="event.category" [attr.data-status]="event.status">{{ event.title }}</span><span *ngIf="day.events.length > 2" class="more-events">{{ 'T_CALENDAR_MORE_EVENTS' | translate: { count: day.events.length - 2 } }}</span></span>
           <span class="day-dots" aria-hidden="true"><i *ngFor="let event of day.events.slice(0, 3)" [attr.data-category]="event.category"></i></span>
         </button>
       </div>
@@ -37,12 +41,22 @@
       <div *ngIf="loadError" class="empty-day" role="alert"><strong>{{ loadError | translate }}</strong><button type="button" (click)="load()">{{ 'T_CALENDAR_RETRY' | translate }}</button></div>
       <ng-container *ngIf="!loading && !loadError">
       <div class="agenda-label"><span>{{ 'T_CALENDAR_EVENTS_HEADING' | translate }}</span><span class="event-count">{{ selectedEvents.length }}</span></div>
+      <p *ngIf="statusError" class="status-error" role="alert">{{ statusError | translate }}</p>
       <div class="agenda-list" *ngIf="selectedEvents.length; else emptyDay">
-        <button type="button" class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" (click)="openEdit(event)">
-          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · {{ 'T_CALENDAR_WEEKLY' | translate }}</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) | translate }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
-        </button>
+        <!-- Ô trạng thái nằm ngoài nút mở form: không được lồng control trong <button>. -->
+        <div class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" [attr.data-status]="event.status">
+          <button type="button" class="agenda-event-open" (click)="openEdit(event)">
+            <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · {{ 'T_CALENDAR_WEEKLY' | translate }}</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) | translate }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
+          </button>
+          <select class="event-status" [attr.aria-label]="'T_CALENDAR_STATUS_OF' | translate: { title: event.title }" [ngModel]="event.status" (ngModelChange)="changeStatus(event, $event)" [disabled]="isStatusPending(event)">
+            <option *ngFor="let status of statuses" [ngValue]="status.id">{{ status.label | translate }}</option>
+          </select>
+        </div>
       </div>
-      <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</strong><p>{{ 'T_CALENDAR_EMPTY_TEXT' | translate }}</p><button type="button" (click)="openCreate()">{{ 'T_CALENDAR_ADD_EVENT' | translate }}</button></div></ng-template>
+      <ng-template #emptyDay>
+        <div *ngIf="selectedHiddenByFilter; else noEvents" class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_STATUS_EMPTY' | translate }}</strong><button type="button" (click)="statusFilter = 'all'">{{ 'T_CALENDAR_STATUS_CLEAR' | translate }}</button></div>
+        <ng-template #noEvents><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</strong><p>{{ 'T_CALENDAR_EMPTY_TEXT' | translate }}</p><button type="button" (click)="openCreate()">{{ 'T_CALENDAR_ADD_EVENT' | translate }}</button></div></ng-template>
+      </ng-template>
       </ng-container>
     </aside>
   </div>
@@ -73,6 +87,8 @@
         </div>
         <p *ngIf="editing && draft.repeatDays" class="repeat-hint">{{ 'T_CALENDAR_SERIES_HINT' | translate }}</p>
         <label class="field">{{ 'T_CALENDAR_CATEGORY' | translate }} <select name="category" [(ngModel)]="draft.category"><option *ngFor="let category of categories" [value]="category.id">{{ category.label | translate }}</option></select></label>
+        <label *ngIf="!editing" class="field">{{ 'T_CALENDAR_STATUS' | translate }} <select name="status" [(ngModel)]="draft.status"><option *ngFor="let status of statuses" [ngValue]="status.id">{{ status.label | translate }}</option></select></label>
+        <p *ngIf="editing" class="repeat-hint">{{ 'T_CALENDAR_STATUS_EDIT_HINT' | translate }}</p>
         <label class="field">{{ 'T_CALENDAR_LOCATION' | translate }} <span class="optional">{{ 'T_CALENDAR_OPTIONAL' | translate }}</span><input name="location" [(ngModel)]="draft.location" maxlength="200" [placeholder]="'T_CALENDAR_LOCATION_PLACEHOLDER' | translate" /></label>
         <label class="field">{{ 'T_CALENDAR_NOTES' | translate }} <span class="optional">{{ 'T_CALENDAR_OPTIONAL' | translate }}</span><textarea name="notes" [(ngModel)]="draft.notes" maxlength="1000" rows="3" [placeholder]="'T_CALENDAR_NOTES_PLACEHOLDER' | translate"></textarea></label>
         <p *ngIf="error" class="form-error" role="alert">{{ error | translate }}</p>

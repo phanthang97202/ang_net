@@ -9,11 +9,12 @@ import { addDays, addMonths, differenceInCalendarDays, eachDayOfInterval, endOfM
 import { enUS, vi } from 'date-fns/locale';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, PersonalCalendarService } from '../../services/personal-calendar.service';
+import { CalendarCategory, CalendarEvent as ApiEvent, CalendarEventRequest, CalendarStatus, PersonalCalendarService } from '../../services/personal-calendar.service';
 import { vietnameseLunarDate, VietnameseLunarDate } from './vietnamese-lunar-date';
 
 type Category = CalendarCategory;
-interface CalendarEvent { id: string; version: number; title: string; date: string; endDate: string; start: string; end: string; allDay: boolean; category: Category; location: string; notes: string; repeatDays?: number; repeatUntil?: string; seriesStartDate?: string; seriesEndDate?: string; }
+type StatusFilter = CalendarStatus | 'all';
+interface CalendarEvent { id: string; version: number; title: string; date: string; endDate: string; start: string; end: string; allDay: boolean; category: Category; location: string; notes: string; status: CalendarStatus; repeatDays?: number; repeatUntil?: string; seriesStartDate?: string; seriesEndDate?: string; }
 interface CalendarDay { date: Date; key: string; inMonth: boolean; events: CalendarEvent[]; lunar: VietnameseLunarDate | null; }
 
 @Component({
@@ -36,6 +37,11 @@ export class PersonalCalendarComponent implements OnInit {
     { id: 'personal', label: 'T_CALENDAR_CATEGORY_PERSONAL' }, { id: 'leisure', label: 'T_CALENDAR_CATEGORY_LEISURE' },
     { id: 'routine', label: 'T_CALENDAR_CATEGORY_ROUTINE' }, { id: 'work', label: 'T_CALENDAR_CATEGORY_WORK' },
   ];
+  readonly statuses: { id: CalendarStatus; label: string }[] = [
+    { id: 'todo', label: 'T_CALENDAR_STATUS_TODO' }, { id: 'in_progress', label: 'T_CALENDAR_STATUS_IN_PROGRESS' },
+    { id: 'urgent', label: 'T_CALENDAR_STATUS_URGENT' }, { id: 'done', label: 'T_CALENDAR_STATUS_DONE' },
+    { id: 'cancelled', label: 'T_CALENDAR_STATUS_CANCELLED' },
+  ];
   readonly weekdays = ['T_CALENDAR_WEEKDAY_MON', 'T_CALENDAR_WEEKDAY_TUE', 'T_CALENDAR_WEEKDAY_WED', 'T_CALENDAR_WEEKDAY_THU', 'T_CALENDAR_WEEKDAY_FRI', 'T_CALENDAR_WEEKDAY_SAT', 'T_CALENDAR_WEEKDAY_SUN'];
   readonly repeatWeekdays = [{ label: 'T_CALENDAR_WEEKDAY_MON', bit: 2 }, { label: 'T_CALENDAR_WEEKDAY_TUE', bit: 4 }, { label: 'T_CALENDAR_WEEKDAY_WED', bit: 8 }, { label: 'T_CALENDAR_WEEKDAY_THU', bit: 16 }, { label: 'T_CALENDAR_WEEKDAY_FRI', bit: 32 }, { label: 'T_CALENDAR_WEEKDAY_SAT', bit: 64 }, { label: 'T_CALENDAR_WEEKDAY_SUN', bit: 1 }];
   readonly repeatLongDurations = Array.from({ length: 30 }, (_, index) => index + 2);
@@ -50,6 +56,10 @@ export class PersonalCalendarComponent implements OnInit {
   loading = false;
   saving = false;
   repeatWeekly = false;
+  // Lọc cả lưới tháng lẫn danh sách trong ngày theo trạng thái.
+  statusFilter: StatusFilter = 'all';
+  statusError = '';
+  private readonly statusPending = new Set<string>();
 
   ngOnInit(): void {
     this.load();
@@ -73,6 +83,27 @@ export class PersonalCalendarComponent implements OnInit {
     return eachDayOfInterval({ start, end }).map(date => ({ date, key: this.key(date), inMonth: isSameMonth(date, this.month), events: this.eventsFor(date), lunar: this.lunarFor(date) }));
   }
   get selectedEvents(): CalendarEvent[] { return this.eventsFor(this.selected); }
+  // Đếm trên mọi sự kiện giao với tháng đang xem, không phụ thuộc bộ lọc đang chọn.
+  get statusCounts(): Record<StatusFilter, number> {
+    const start = format(this.month, 'yyyy-MM-dd'), end = format(endOfMonth(this.month), 'yyyy-MM-dd');
+    const counts: Record<StatusFilter, number> = { all: 0, todo: 0, in_progress: 0, urgent: 0, done: 0, cancelled: 0 };
+    for (const event of this.events) if (event.date <= end && event.endDate >= start) { counts.all++; counts[event.status]++; }
+    return counts;
+  }
+  // Ngày đang chọn có sự kiện nhưng bị bộ lọc ẩn hết.
+  get selectedHiddenByFilter(): boolean { return this.statusFilter !== 'all' && this.eventsFor(this.selected, 'all').length > 0; }
+  isStatusPending(event: CalendarEvent): boolean { return this.statusPending.has(`${event.id}|${event.date}`); }
+  // Đổi ngay trên giao diện rồi mới gọi API; lỗi thì trả lại trạng thái cũ.
+  changeStatus(event: CalendarEvent, status: CalendarStatus): void {
+    const key = `${event.id}|${event.date}`;
+    if (status === event.status || this.statusPending.has(key)) return;
+    const previous = event.status;
+    event.status = status; this.statusPending.add(key); this.statusError = '';
+    this.api.setStatus(event.id, event.date, status).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: () => this.statusPending.delete(key),
+      error: () => { this.statusPending.delete(key); event.status = previous; this.statusError = 'T_CALENDAR_STATUS_ERROR'; },
+    });
+  }
   get hasLeapMonth(): boolean { return this.days.some(day => day.inMonth && day.lunar?.leapMonth); }
   get isTodaySelected(): boolean { return isSameDay(this.today, this.selected); }
   trackDay(_index: number, day: CalendarDay): string { return day.key; }
@@ -147,7 +178,7 @@ export class PersonalCalendarComponent implements OnInit {
       this.error = 'T_CALENDAR_VALIDATION_REPEAT_LENGTH'; return;
     }
     const draft = { ...this.draft };
-    const data: CalendarEventRequest = { Title: draft.title.trim(), StartDate: draft.date, EndDate: draft.endDate, StartTime: draft.allDay ? '' : draft.start, EndTime: draft.allDay ? '' : draft.end, AllDay: draft.allDay, Category: draft.category, Location: draft.location, Notes: draft.notes, Version: draft.version, RepeatDays: this.repeatWeekly ? draft.repeatDays : 0, RepeatUntil: this.repeatWeekly ? draft.repeatUntil || null : null };
+    const data: CalendarEventRequest = { Title: draft.title.trim(), StartDate: draft.date, EndDate: draft.endDate, StartTime: draft.allDay ? '' : draft.start, EndTime: draft.allDay ? '' : draft.end, AllDay: draft.allDay, Category: draft.category, Location: draft.location, Notes: draft.notes, Version: draft.version, RepeatDays: this.repeatWeekly ? draft.repeatDays : 0, RepeatUntil: this.repeatWeekly ? draft.repeatUntil || null : null, Status: this.editing ? undefined : draft.status };
     this.saving = true; this.error = '';
     const request = this.editing ? this.api.update(draft.id, data) : this.api.create(data);
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
@@ -163,9 +194,9 @@ export class PersonalCalendarComponent implements OnInit {
       error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'T_CALENDAR_DELETE_CONFLICT' : 'T_CALENDAR_DELETE_ERROR'; },
     });
   }
-  private eventsFor(date: Date): CalendarEvent[] {
+  private eventsFor(date: Date, filter: StatusFilter = this.statusFilter): CalendarEvent[] {
     const key = this.key(date);
-    return this.events.filter(event => event.date <= key && event.endDate >= key)
+    return this.events.filter(event => event.date <= key && event.endDate >= key && (filter === 'all' || event.status === filter))
       .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
   }
   private day(date: Date): Date { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
@@ -178,6 +209,6 @@ export class PersonalCalendarComponent implements OnInit {
     return this.lunarCache.get(key) ?? null;
   }
   private parseDay(value: string): Date { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day); }
-  private emptyEvent(date: Date): CalendarEvent { const key = this.key(date); return { id: '', version: 0, title: '', date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: 'personal', location: '', notes: '' }; }
-  private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes, repeatDays: event.RepeatDays, repeatUntil: event.RepeatUntil || '', seriesStartDate: event.SeriesStartDate, seriesEndDate: event.SeriesEndDate }; }
+  private emptyEvent(date: Date): CalendarEvent { const key = this.key(date); return { id: '', version: 0, title: '', date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: 'personal', location: '', notes: '', status: 'todo' }; }
+  private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes, status: event.Status || 'todo', repeatDays: event.RepeatDays, repeatUntil: event.RepeatUntil || '', seriesStartDate: event.SeriesStartDate, seriesEndDate: event.SeriesEndDate }; }
 }

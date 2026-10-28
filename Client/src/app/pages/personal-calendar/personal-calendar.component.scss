@@ -42,18 +42,35 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 [data-category='leisure'] { --event-color: #d0764a; --event-bg: rgba(208, 118, 74, .12); }
 [data-category='routine'] { --event-color: #3b9d86; --event-bg: rgba(59, 157, 134, .12); }
 [data-category='work'] { --event-color: #4d87c2; --event-bg: rgba(77, 135, 194, .12); }
+[data-status='todo'] { --status-color: #6b6b7b; --status-bg: rgba(107, 107, 123, .1); }
+[data-status='in_progress'] { --status-color: #2f6fd6; --status-bg: rgba(47, 111, 214, .1); }
+[data-status='urgent'] { --status-color: #d33a42; --status-bg: rgba(211, 58, 66, .1); }
+[data-status='done'] { --status-color: #23855c; --status-bg: rgba(35, 133, 92, .1); }
+[data-status='cancelled'] { --status-color: #8a8a99; --status-bg: rgba(138, 138, 153, .12); }
+.status-filter { display: flex; flex-wrap: wrap; gap: .45rem; padding: 0 1.5rem 1rem; }
+.status-filter button { display: inline-flex; align-items: center; gap: .4rem; min-height: 32px; padding: 0 .7rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-bg-card); color: var(--color-text); font-size: .68rem; font-weight: 700; }
+.status-filter button i { width: 8px; height: 8px; border-radius: 50%; background: var(--status-color); }
+.status-filter button.is-active { border-color: var(--status-color, var(--color-accent)); background: var(--status-bg, var(--color-accent-bg)); color: var(--status-color, var(--color-accent)); }
+.status-count { min-width: 18px; padding: 0 .3rem; border-radius: 6px; background: var(--color-accent-bg); color: var(--color-text-muted); font-size: .6rem; text-align: center; }
+.day-event[data-status='urgent'] { box-shadow: inset 2px 0 0 var(--status-color); }
+.day-event[data-status='done'], .day-event[data-status='cancelled'] { opacity: .6; text-decoration: line-through; }
 .calendar-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding: 1rem 1.5rem; color: var(--color-text-muted); font-size: .7rem; }
 .calendar-footer span { display: flex; align-items: center; gap: .45rem; }
 .calendar-footer i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
 @media (max-width: 900px) { .calendar-layout { grid-template-columns: minmax(0, 1fr); }.agenda-card { padding: 1.25rem; }.agenda-bottom { margin-top: 1rem; } }
 @media (max-width: 600px) { .calendar-page { padding: 1.6rem 1rem 4rem; }.page-heading { align-items: start; }.heading-copy p { max-width: 250px; font-size: .76rem; }.create-button { padding: .7rem .8rem; font-size: .72rem; }.calendar-toolbar { padding: 1.15rem; }.calendar-day { align-items: center; min-height: 54px; padding: .3rem 0; gap: .2rem; }.day-events { display: none; }.day-dots { display: flex; }.day-number { width: 26px; height: 26px; }.calendar-footer { padding: .85rem 1.15rem; }.calendar-card, .agenda-card { border-radius: 18px; } }
 @media (max-width: 360px) { .page-heading { flex-direction: column; }.create-button { width: 100%; }.calendar-controls { gap: .25rem; }.today-button { padding: 0 .5rem; } }
-@media (max-width: 600px) { .calendar-day { min-height: 70px; }.lunar-day { margin-left: 0; } }
+@media (max-width: 600px) { .calendar-day { min-height: 70px; }.lunar-day { margin-left: 0; }.status-filter { padding: 0 1.15rem .9rem; } }
 
 :host-context(html[data-theme='dark']) [data-category='personal'] { --event-color: #c1b4ff; --event-bg: rgba(166, 143, 255, .18); }
 :host-context(html[data-theme='dark']) [data-category='leisure'] { --event-color: #ffb994; --event-bg: rgba(255, 164, 112, .16); }
 :host-context(html[data-theme='dark']) [data-category='routine'] { --event-color: #81d5bf; --event-bg: rgba(86, 197, 163, .16); }
 :host-context(html[data-theme='dark']) [data-category='work'] { --event-color: #a2c7ff; --event-bg: rgba(111, 168, 255, .16); }
+:host-context(html[data-theme='dark']) [data-status='todo'] { --status-color: #b9b8c9; --status-bg: rgba(185, 184, 201, .14); }
+:host-context(html[data-theme='dark']) [data-status='in_progress'] { --status-color: #8db8ff; --status-bg: rgba(111, 168, 255, .16); }
+:host-context(html[data-theme='dark']) [data-status='urgent'] { --status-color: #ff9ca5; --status-bg: rgba(255, 120, 130, .16); }
+:host-context(html[data-theme='dark']) [data-status='done'] { --status-color: #7fd9ae; --status-bg: rgba(86, 197, 150, .16); }
+:host-context(html[data-theme='dark']) [data-status='cancelled'] { --status-color: #9a98ad; --status-bg: rgba(154, 152, 173, .14); }
 :host-context(html[data-theme='dark']) .calendar-day.is-outside { opacity: 1; }
 :host-context(html[data-theme='dark']) .button--primary,
 :host-context(html[data-theme='dark']) .is-today .day-number { background: #5947cd; }

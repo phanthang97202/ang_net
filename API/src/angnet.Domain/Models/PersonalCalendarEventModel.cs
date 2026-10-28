@@ -15,6 +15,9 @@ public class PersonalCalendarEventModel
     [MaxLength(5)] public string EndTime { get; set; } = "";
     public bool AllDay { get; set; }
     [Required, MaxLength(16)] public string Category { get; set; } = "personal";
+    // Sự kiện đơn: trạng thái của chính nó. Chuỗi lặp: trạng thái mặc định của các
+    // buổi chưa được đổi riêng (xem PersonalCalendarOccurrenceStatusModel).
+    [Required, MaxLength(16)] public string Status { get; set; } = "todo";
     [MaxLength(200)] public string Location { get; set; } = "";
     [MaxLength(1000)] public string Notes { get; set; } = "";
     public int Version { get; set; } = 1;

@@ -89,6 +89,71 @@ public class PersonalCalendarTests
     }
 
     [TestMethod]
+    public async Task SeriesStatusIsPerOccurrenceAndSurvivesContentEdits()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
+        await db.SaveChangesAsync();
+        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
+        async Task<string[]> Statuses() => JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10-26", "2026-11-15", default)).Value)
+            .EnumerateArray().Select(x => x.GetProperty("Status").GetString()!).ToArray();
+        User("alice");
+        // Thứ Năm hằng tuần: 29/10, 5/11, 12/11.
+        var series = new PersonalCalendarEventRequest { Title = "Tập gym", StartDate = "2026-10-29", EndDate = "2026-10-29", StartTime = "18:00", EndTime = "19:00", Category = "routine", RepeatDays = 16, Status = "urgent" };
+        var id = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Create(series, default)).Value).GetProperty("EventId").GetString()!;
+        CollectionAssert.AreEqual(new[] { "urgent", "urgent", "urgent" }, await Statuses());
+
+        var done = (OkObjectResult)await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-11-05", Status = "done" }, default);
+        Assert.AreEqual("done", JsonSerializer.SerializeToElement(done.Value).GetProperty("Status").GetString());
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-11-12", Status = "in_progress" }, default), typeof(OkObjectResult));
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-11-12", Status = "cancelled" }, default), typeof(OkObjectResult));
+        CollectionAssert.AreEqual(new[] { "urgent", "done", "cancelled" }, await Statuses());
+
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-11-06", Status = "done" }, default), typeof(BadRequestObjectResult), "Not an occurrence");
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-10-29", Status = "paused" }, default), typeof(BadRequestObjectResult), "Unknown status");
+        User("bob");
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-10-29", Status = "done" }, default), typeof(NotFoundResult));
+
+        User("alice");
+        series.Title = "Tập gym buổi tối"; series.Version = 1; series.Status = null;
+        Assert.IsInstanceOfType(await controller.Update(id, series, default), typeof(OkObjectResult));
+        CollectionAssert.AreEqual(new[] { "urgent", "done", "cancelled" }, await Statuses());
+        Assert.IsInstanceOfType(await controller.Delete(id, 2, default), typeof(NoContentResult));
+        Assert.AreEqual(0, await db.PersonalCalendarOccurrenceStatus.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task SingleEventStatusDefaultsToTodoAndChangesOnItsOwnDate()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.Add(new AppUser { Id = "alice", UserName = "alice" });
+        await db.SaveChangesAsync();
+        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "alice")], "test"));
+        var input = new PersonalCalendarEventRequest { Title = "Nộp báo cáo", StartDate = "2026-10-30", EndDate = "2026-11-01", AllDay = true, Category = "work" };
+        var created = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Create(input, default)).Value);
+        var id = created.GetProperty("EventId").GetString()!;
+        Assert.AreEqual("todo", created.GetProperty("Status").GetString());
+
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-10-31", Status = "done" }, default), typeof(BadRequestObjectResult), "Only the start date names the occurrence");
+        Assert.IsInstanceOfType(await controller.SetStatus(id, new PersonalCalendarStatusRequest { Date = "2026-10-30", Status = "in_progress" }, default), typeof(OkObjectResult));
+        input.Notes = "Gửi trước 17h"; input.Version = 1;
+        Assert.IsInstanceOfType(await controller.Update(id, input, default), typeof(OkObjectResult));
+        var listed = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10-01", "2026-11-30", default)).Value);
+        Assert.AreEqual("in_progress", listed[0].GetProperty("Status").GetString());
+
+        input.Status = "paused";
+        Assert.IsInstanceOfType(await controller.Create(input, default), typeof(BadRequestObjectResult));
+    }
+
+    [TestMethod]
     public void ControllerRequiresCalendarPermission()
     {
         var attribute = typeof(PersonalCalendarController).GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>().Single();
