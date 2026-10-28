@@ -40,8 +40,12 @@ export class PersonalCalendarComponent implements OnInit {
   // Giữ cả mục đã ẩn để sự kiện cũ vẫn hiện đúng tên, màu; dropdown chỉ hiện mục đang bật.
   private categoryItems: LookupItem[] = [];
   private statusItems: LookupItem[] = [];
-  get categories(): LookupOption[] { return this.categoryItems.filter(item => item.FlagActive).map(item => this.option(item)); }
-  get statuses(): LookupOption[] { return this.statusItems.filter(item => item.FlagActive).map(item => this.option(item)); }
+  // Mảng option được tính sẵn và giữ nguyên object giữa các lượt render: nếu tạo mới mỗi
+  // lượt, *ngFor vẽ lại nút lọc / <option> liên tục -> click không tới nút, select mất giá trị.
+  categories: LookupOption[] = [];
+  statuses: LookupOption[] = [];
+  private categoryAll: LookupOption[] = [];
+  private statusAll: LookupOption[] = [];
   readonly manageCategoriesLink = { tab: 'lookups', list: 'CALENDAR_CATEGORY' };
   readonly manageStatusesLink = { tab: 'lookups', list: 'CALENDAR_STATUS' };
   readonly weekdays = ['T_CALENDAR_WEEKDAY_MON', 'T_CALENDAR_WEEKDAY_TUE', 'T_CALENDAR_WEEKDAY_WED', 'T_CALENDAR_WEEKDAY_THU', 'T_CALENDAR_WEEKDAY_FRI', 'T_CALENDAR_WEEKDAY_SAT', 'T_CALENDAR_WEEKDAY_SUN'];
@@ -73,6 +77,7 @@ export class PersonalCalendarComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLookups();
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroy)).subscribe(() => this.buildOptions());
     this.load();
     this.loadTasks();
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(params => {
@@ -119,13 +124,14 @@ export class PersonalCalendarComponent implements OnInit {
   statusColor(status: StatusFilter): string { return this.statusItems.find(item => item.Code === status)?.Color ?? ''; }
   categoryColor(category: Category): string { return this.categoryItems.find(item => item.Code === category)?.Color ?? ''; }
   /** Mục đang bật, kèm giá trị hiện tại nếu nó đã bị ẩn (để sửa sự kiện cũ không mất giá trị). */
-  categoryOptions(current: Category): LookupOption[] { return this.withCurrent(this.categoryItems, current); }
-  statusOptions(current: CalendarStatus): LookupOption[] { return this.withCurrent(this.statusItems, current); }
+  categoryOptions(current: Category): LookupOption[] { return this.withCurrent(this.categories, this.categoryAll, current); }
+  statusOptions(current: CalendarStatus): LookupOption[] { return this.withCurrent(this.statuses, this.statusAll, current); }
+  trackOption(_index: number, option: LookupOption): string { return option.id; }
   loadLookups(): void {
     forkJoin([this.lookups.list('CALENDAR_CATEGORY', true), this.lookups.list('CALENDAR_STATUS', true)])
       .pipe(takeUntilDestroyed(this.destroy))
       .subscribe({
-        next: ([categories, statuses]) => { this.categoryItems = categories; this.statusItems = statuses; },
+        next: ([categories, statuses]) => { this.categoryItems = categories; this.statusItems = statuses; this.buildOptions(); },
         // Không tải được danh mục: lịch vẫn hiện, chỉ thiếu tên/màu và dropdown rỗng
         error: () => { this.statusError = 'T_CALENDAR_LOOKUP_ERROR'; },
       });
@@ -278,8 +284,26 @@ export class PersonalCalendarComponent implements OnInit {
     return { id: '', version: 0, title: '', date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: this.categories[0]?.id ?? 'personal', location: '', notes: '', status: this.statuses[0]?.id ?? 'todo' };
   }
   private option(item: LookupItem): LookupOption { return { id: item.Code, label: this.lookups.name(item), color: item.Color, active: item.FlagActive }; }
-  private withCurrent(items: LookupItem[], current: string): LookupOption[] {
-    return items.filter(item => item.FlagActive || item.Code === current).map(item => this.option(item));
+  /** Mục đang bật; nếu giá trị hiện tại đã bị ẩn thì thêm nó vào (mảng nhớ lại theo mã để không tạo mới mỗi lượt). */
+  private readonly hiddenOptionCache = new Map<string, LookupOption[]>();
+  private withCurrent(active: LookupOption[], all: LookupOption[], current: string): LookupOption[] {
+    const hidden = all.find(item => item.id === current && !item.active);
+    if (!hidden) return active;
+    const key = (all === this.statusAll ? 's|' : 'c|') + current;
+    let options = this.hiddenOptionCache.get(key);
+    if (!options) {
+      options = all.filter(item => item.active || item.id === current);
+      this.hiddenOptionCache.set(key, options);
+    }
+    return options;
+  }
+  /** Dựng lại option khi tải danh sách hoặc đổi ngôn ngữ (tên theo ngôn ngữ). */
+  private buildOptions(): void {
+    this.categoryAll = this.categoryItems.map(item => this.option(item));
+    this.statusAll = this.statusItems.map(item => this.option(item));
+    this.categories = this.categoryAll.filter(item => item.active);
+    this.statuses = this.statusAll.filter(item => item.active);
+    this.hiddenOptionCache.clear();
   }
   private fromApi(event: ApiEvent): CalendarEvent { return { id: event.EventId, version: event.Version, title: event.Title, date: event.StartDate, endDate: event.EndDate, start: event.StartTime, end: event.EndTime, allDay: event.AllDay, category: event.Category, location: event.Location, notes: event.Notes, status: event.Status || 'todo', repeatDays: event.RepeatDays, repeatUntil: event.RepeatUntil || '', seriesStartDate: event.SeriesStartDate, seriesEndDate: event.SeriesEndDate }; }
 }

@@ -334,6 +334,10 @@ describe('Personal calendar lunar dates', () => {
     fixture.detectChanges();
     expect(page.querySelector('.agenda-event[data-status="in_progress"]')).not.toBeNull();
 
+    // Một lượt render giữa lúc nhấn và nhả chuột không được thay nút (nếu thay, click không tới)
+    const doneButton = page.querySelector('.status-filter [data-status="done"]');
+    fixture.detectChanges();
+    expect(page.querySelector('.status-filter [data-status="done"]')).toBe(doneButton);
     (page.querySelector('.status-filter [data-status="done"]') as HTMLButtonElement).click();
     flushTasks(http, { Counts: { urgent: 3, in_progress: 1, done: 9 }, Total: 9, Items: [event('b', 'Họp nhóm', 'done'), { ...event('c', 'Dọn nhà', 'done'), StartDate: '2025-12-01', EndDate: '2025-12-01' }] }, 'done');
     fixture.detectChanges();
