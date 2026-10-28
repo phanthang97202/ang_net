@@ -20,8 +20,8 @@
         </div>
       </div>
       <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">
-        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts.all }}</span></button>
-        <button *ngFor="let status of statuses" type="button" [attr.data-status]="status.id" [style.--status-raw]="status.color" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="setStatusFilter(status.id)"><i aria-hidden="true"></i>{{ status.label }} <span class="status-count">{{ statusCounts[status.id] ?? 0 }}</span></button>
+        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts['all'] }}</span></button>
+        <button *ngFor="let status of statuses" type="button" [attr.data-status]="status.id" [style.--status-raw]="status.color" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="setStatusFilter(status.id)"><i aria-hidden="true"></i>{{ status.label }} <span class="status-count">{{ statusCounts[status.id] || 0 }}</span></button>
         <a class="status-manage" routerLink="/userinfor" [queryParams]="manageStatusesLink" [attr.aria-label]="'T_CALENDAR_MANAGE_STATUSES' | translate" [title]="'T_CALENDAR_MANAGE_STATUSES' | translate"><span nz-icon nzType="setting"></span></a>
       </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
