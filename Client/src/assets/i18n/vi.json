@@ -168,7 +168,6 @@
     "T_CALENDAR_TODAY_ERROR": "Không thể tải lịch hôm nay.",
     "T_MYLOOKUPS": "Danh mục",
     "T_LOOKUP_TITLE": "Danh mục của tôi",
-    "T_LOOKUP_DESC": "Tự đặt các lựa chọn trong Lịch và Thu chi: tên Anh–Việt, màu, thứ tự. Chỉ tài khoản của bạn thấy.",
     "T_LOOKUP_LIST_CALENDAR_CATEGORY": "Loại hoạt động",
     "T_LOOKUP_LIST_CALENDAR_STATUS": "Trạng thái việc",
     "T_LOOKUP_LIST_EXPENSE_CATEGORY": "Danh mục thu chi",

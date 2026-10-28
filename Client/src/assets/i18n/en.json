@@ -168,7 +168,6 @@
     "T_CALENDAR_TODAY_ERROR": "Unable to load today's events.",
     "T_MYLOOKUPS": "Lists",
     "T_LOOKUP_TITLE": "My lists",
-    "T_LOOKUP_DESC": "Customize the choices used in Calendar and Expenses: English–Vietnamese names, colors and order. Only your account sees them.",
     "T_LOOKUP_LIST_CALENDAR_CATEGORY": "Activity types",
     "T_LOOKUP_LIST_CALENDAR_STATUS": "Task statuses",
     "T_LOOKUP_LIST_EXPENSE_CATEGORY": "Expense categories",
