@@ -56,13 +56,22 @@ export class PersonalCalendarComponent implements OnInit {
   loading = false;
   saving = false;
   repeatWeekly = false;
-  // Lọc cả lưới tháng lẫn danh sách trong ngày theo trạng thái.
+  // Chọn một trạng thái: lưới tháng chỉ hiện việc ở trạng thái đó, khung bên phải
+  // chuyển sang danh sách việc ở trạng thái đó trên mọi ngày (API /tasks).
   statusFilter: StatusFilter = 'all';
   statusError = '';
+  taskCounts: Record<CalendarStatus, number> | null = null;
+  tasks: CalendarEvent[] = [];
+  tasksTotal = 0;
+  tasksLoading = false;
+  tasksError = '';
   private readonly statusPending = new Set<string>();
+  private tasksRequest?: Subscription;
+  private tasksGeneration = 0;
 
   ngOnInit(): void {
     this.load();
+    this.loadTasks();
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(params => {
       const value = params.get('date');
       if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
@@ -83,15 +92,44 @@ export class PersonalCalendarComponent implements OnInit {
     return eachDayOfInterval({ start, end }).map(date => ({ date, key: this.key(date), inMonth: isSameMonth(date, this.month), events: this.eventsFor(date), lunar: this.lunarFor(date) }));
   }
   get selectedEvents(): CalendarEvent[] { return this.eventsFor(this.selected); }
-  // Đếm trên mọi sự kiện giao với tháng đang xem, không phụ thuộc bộ lọc đang chọn.
+  // Đếm trên toàn bộ việc của hệ thống (không chỉ tháng đang xem), theo API /tasks.
   get statusCounts(): Record<StatusFilter, number> {
-    const start = format(this.month, 'yyyy-MM-dd'), end = format(endOfMonth(this.month), 'yyyy-MM-dd');
-    const counts: Record<StatusFilter, number> = { all: 0, todo: 0, in_progress: 0, urgent: 0, done: 0, cancelled: 0 };
-    for (const event of this.events) if (event.date <= end && event.endDate >= start) { counts.all++; counts[event.status]++; }
-    return counts;
+    const counts = this.taskCounts ?? { todo: 0, in_progress: 0, urgent: 0, done: 0, cancelled: 0 };
+    return { ...counts, all: this.statuses.reduce((sum, status) => sum + (counts[status.id] ?? 0), 0) };
   }
-  // Ngày đang chọn có sự kiện nhưng bị bộ lọc ẩn hết.
-  get selectedHiddenByFilter(): boolean { return this.statusFilter !== 'all' && this.eventsFor(this.selected, 'all').length > 0; }
+  // Danh sách việc theo trạng thái, nhóm theo ngày (API đã sắp thứ tự).
+  get taskGroups(): { date: string; label: string; events: CalendarEvent[] }[] {
+    const groups: { date: string; label: string; events: CalendarEvent[] }[] = [];
+    for (const event of this.tasks) {
+      if (groups[groups.length - 1]?.date !== event.date) groups.push({ date: event.date, label: this.dateLabel(this.parseDay(event.date)), events: [] });
+      groups[groups.length - 1].events.push(event);
+    }
+    return groups;
+  }
+  get hasSeriesTasks(): boolean { return this.tasks.some(event => !!event.repeatDays); }
+  trackGroup(_index: number, group: { date: string }): string { return group.date; }
+  trackEvent(_index: number, event: CalendarEvent): string { return `${event.id}|${event.date}`; }
+  statusLabel(status: StatusFilter): string { return this.statuses.find(item => item.id === status)?.label ?? 'T_CALENDAR_STATUS_ALL'; }
+  // Giờ của việc trong danh sách mọi ngày: không phụ thuộc ngày đang chọn như eventTime.
+  taskTime(event: CalendarEvent): string {
+    const time = event.allDay ? this.translate.instant('T_CALENDAR_ALL_DAY') : `${event.start} – ${event.end}`;
+    return event.endDate > event.date ? `${time} → ${this.english ? format(this.parseDay(event.endDate), 'MMM d', { locale: enUS }) : format(this.parseDay(event.endDate), 'dd/MM')}` : time;
+  }
+  setStatusFilter(filter: StatusFilter): void { this.statusFilter = filter; this.loadTasks(); }
+  goToDate(date: string): void { this.select(this.parseDay(date)); }
+  loadTasks(): void {
+    this.tasksRequest?.unsubscribe();
+    const generation = ++this.tasksGeneration, filter = this.statusFilter;
+    this.tasksLoading = filter !== 'all'; this.tasksError = '';
+    if (filter !== 'all') this.tasks = [];
+    this.tasksRequest = this.api.tasks(this.key(this.today), filter === 'all' ? undefined : filter).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: result => {
+        if (generation !== this.tasksGeneration) return;
+        this.taskCounts = result.Counts; this.tasks = result.Items.map(item => this.fromApi(item)); this.tasksTotal = result.Total; this.tasksLoading = false;
+      },
+      error: () => { if (generation !== this.tasksGeneration) return; this.tasksLoading = false; this.tasksError = 'T_CALENDAR_TASKS_LOAD_ERROR'; },
+    });
+  }
   isStatusPending(event: CalendarEvent): boolean { return this.statusPending.has(`${event.id}|${event.date}`); }
   // Đổi ngay trên giao diện rồi mới gọi API; lỗi thì trả lại trạng thái cũ.
   changeStatus(event: CalendarEvent, status: CalendarStatus): void {
@@ -100,7 +138,12 @@ export class PersonalCalendarComponent implements OnInit {
     const previous = event.status;
     event.status = status; this.statusPending.add(key); this.statusError = '';
     this.api.setStatus(event.id, event.date, status).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: () => this.statusPending.delete(key),
+      next: () => {
+        this.statusPending.delete(key);
+        // Cùng một buổi có thể nằm ở cả lịch tháng lẫn danh sách việc: đồng bộ bản kia.
+        for (const item of this.events) if (item.id === event.id && item.date === event.date) item.status = status;
+        this.loadTasks();
+      },
       error: () => { this.statusPending.delete(key); event.status = previous; this.statusError = 'T_CALENDAR_STATUS_ERROR'; },
     });
   }
@@ -182,7 +225,7 @@ export class PersonalCalendarComponent implements OnInit {
     this.saving = true; this.error = '';
     const request = this.editing ? this.api.update(draft.id, data) : this.api.create(data);
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: event => { this.saving = false; this.editor?.nativeElement.close(); if (!this.editing) { this.selected = this.parseDay(event.StartDate); this.month = startOfMonth(this.selected); } this.load(); },
+      next: event => { this.saving = false; this.editor?.nativeElement.close(); if (!this.editing) { this.selected = this.parseDay(event.StartDate); this.month = startOfMonth(this.selected); } this.load(); this.loadTasks(); },
       error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'T_CALENDAR_SAVE_CONFLICT' : 'T_CALENDAR_SAVE_ERROR'; },
     });
   }
@@ -190,13 +233,13 @@ export class PersonalCalendarComponent implements OnInit {
     if (this.saving || !this.editing || !window.confirm(this.translate.instant(this.draft.repeatDays ? 'T_CALENDAR_DELETE_SERIES_CONFIRM' : 'T_CALENDAR_DELETE_CONFIRM'))) return;
     this.saving = true; this.error = '';
     this.api.delete(this.draft.id, this.draft.version).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: () => { this.saving = false; this.editor?.nativeElement.close(); this.load(); },
+      next: () => { this.saving = false; this.editor?.nativeElement.close(); this.load(); this.loadTasks(); },
       error: (error: HttpErrorResponse) => { this.saving = false; this.error = error.status === 409 ? 'T_CALENDAR_DELETE_CONFLICT' : 'T_CALENDAR_DELETE_ERROR'; },
     });
   }
-  private eventsFor(date: Date, filter: StatusFilter = this.statusFilter): CalendarEvent[] {
+  private eventsFor(date: Date): CalendarEvent[] {
     const key = this.key(date);
-    return this.events.filter(event => event.date <= key && event.endDate >= key && (filter === 'all' || event.status === filter))
+    return this.events.filter(event => event.date <= key && event.endDate >= key && (this.statusFilter === 'all' || event.status === this.statusFilter))
       .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
   }
   private day(date: Date): Date { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }

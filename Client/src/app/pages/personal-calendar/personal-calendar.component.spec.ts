@@ -19,6 +19,12 @@ function useLanguage(lang: 'vi' | 'en'): void {
   translate.setTranslation(lang, TRANSLATIONS[lang]);
   translate.use(lang);
 }
+const NO_COUNTS: Record<CalendarStatus, number> = { todo: 0, in_progress: 0, urgent: 0, done: 0, cancelled: 0 };
+// Trang tải thêm danh sách việc theo trạng thái (kèm số đếm) khi mở và sau mỗi thay đổi.
+function flushTasks(http: HttpTestingController, result: { Counts?: Partial<Record<CalendarStatus, number>>; Total?: number; Items?: unknown[] } = {}, status?: CalendarStatus): void {
+  http.expectOne(req => req.url.endsWith('/PersonalCalendar/tasks') && req.params.get('status') === (status ?? null))
+    .flush({ Counts: { ...NO_COUNTS, ...result.Counts }, Total: result.Total ?? 0, Items: result.Items ?? [] });
+}
 
 describe('Personal calendar', () => {
   let http: HttpTestingController;
@@ -32,6 +38,7 @@ describe('Personal calendar', () => {
     calendar = fixture.componentInstance;
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
   });
   afterEach(() => http.verify());
 
@@ -64,6 +71,7 @@ describe('Personal calendar', () => {
     expect(request.request.body.Title).toBe('Hẹn bạn');
     request.flush({ EventId: 'id', StartDate: calendar.draft.date });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
     expect(calendar.saving).toBeFalse();
   });
 
@@ -81,6 +89,7 @@ describe('Personal calendar', () => {
     expect(request.request.body.EndDate).toBe('2026-10-30');
     request.flush({ EventId: 'id', StartDate: '2026-10-29' });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
   });
 
   it('lets an existing long series be corrected without changing its repeat end date', () => {
@@ -96,6 +105,7 @@ describe('Personal calendar', () => {
     expect(request.request.body.RepeatDays).toBe(80);
     request.flush({ EventId: 'series', StartDate: '2026-10-01' });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
   });
 
   it('keeps the duration when the first date changes and selects the next day for overnight hours', () => {
@@ -132,19 +142,30 @@ describe('Personal calendar', () => {
     expect(calendar.lunarLabel({ day: 1, month: 6, year: 2025, leapMonth: true })).toBe('lunar day 1 of month 6 (leap), year 2025');
   });
 
-  it('filters the grid and the day list by status and counts every status in the month', () => {
+  it('lists every task with the chosen status across all dates and filters the month grid', () => {
     const date = addDays(startOfMonth(calendar.today), 3), key = calendar.key(date);
     const event = (id: string, status: CalendarStatus) => ({ id, version: 1, title: id, date: key, endDate: key, start: '09:00', end: '10:00', allDay: false, category: 'work' as const, location: '', notes: '', status });
     calendar.events = [event('a', 'urgent'), event('b', 'done'), event('c', 'urgent')];
-    calendar.select(date);
-    expect(calendar.statusCounts).toEqual({ all: 3, todo: 0, in_progress: 0, urgent: 2, done: 1, cancelled: 0 });
-    calendar.statusFilter = 'urgent';
-    expect(calendar.selectedEvents.map(item => item.id)).toEqual(['a', 'c']);
-    expect(calendar.days.find(day => day.key === key)!.events.length).toBe(2);
-    calendar.statusFilter = 'cancelled';
-    expect(calendar.selectedEvents.length).toBe(0);
-    expect(calendar.selectedHiddenByFilter).toBeTrue();
-    expect(calendar.statusCounts.all).toBe(3);
+    const task = (id: string, date: string, start: string) => ({ EventId: id, Version: 1, Title: id, StartDate: date, EndDate: date, StartTime: start, EndTime: '23:00', AllDay: false, Category: 'work', Location: '', Notes: '', Status: 'urgent' });
+
+    calendar.setStatusFilter('urgent');
+    expect(calendar.tasksLoading).toBeTrue();
+    const request = http.expectOne(req => req.url.endsWith('/PersonalCalendar/tasks'));
+    expect(request.request.params.get('status')).toBe('urgent');
+    expect(request.request.params.get('today')).toBe(calendar.key(calendar.today));
+    request.flush({ Counts: { ...NO_COUNTS, urgent: 3, done: 7 }, Total: 3, Items: [task('old', '2025-12-01', '08:00'), task('x', '2026-03-05', '08:00'), task('y', '2026-03-05', '10:00')] });
+    expect(calendar.statusCounts).toEqual({ all: 10, todo: 0, in_progress: 0, urgent: 3, done: 7, cancelled: 0 });
+    expect(calendar.taskGroups.map(group => [group.date, group.events.map(item => item.id)])).toEqual([['2025-12-01', ['old']], ['2026-03-05', ['x', 'y']]]);
+    expect(calendar.taskTime(calendar.tasks[0])).toBe('08:00 – 23:00');
+    // Lưới tháng cũng chỉ còn việc ở trạng thái đang lọc.
+    expect(calendar.days.find(day => day.key === key)!.events.map(item => item.id)).toEqual(['a', 'c']);
+
+    calendar.goToDate('2025-12-01');
+    expect(calendar.key(calendar.selected)).toBe('2025-12-01');
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    calendar.setStatusFilter('all');
+    flushTasks(http);
+    expect(calendar.tasks).toEqual([]);
   });
 
   it('changes the status of one occurrence and restores it when the API fails', () => {
@@ -157,6 +178,9 @@ describe('Personal calendar', () => {
     expect(request.request.body).toEqual({ Date: '2026-10-29', Status: 'done' });
     request.flush({});
     expect(calendar.isStatusPending(occurrence)).toBeFalse();
+    // Số đếm và danh sách việc được tải lại sau khi đổi.
+    flushTasks(http, { Counts: { done: 1 }, Total: 1 });
+    expect(calendar.statusCounts.done).toBe(1);
 
     calendar.changeStatus(occurrence, 'cancelled');
     http.expectOne(req => req.url.endsWith('/status')).flush({}, { status: 500, statusText: 'Error' });
@@ -171,14 +195,16 @@ describe('Personal calendar', () => {
     const create = http.expectOne(req => req.method === 'POST');
     expect(create.request.body.Status).toBe('urgent');
     create.flush({ EventId: 'id', StartDate: calendar.draft.date });
-    http.expectOne(req => req.method === 'GET').flush([]);
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
 
     calendar.openEdit({ ...calendar.draft, id: 'id', version: 1, status: 'done' });
     calendar.save({ invalid: false } as NgForm);
     const update = http.expectOne(req => req.method === 'PUT');
     expect(update.request.body.Status).toBeUndefined();
     update.flush({ EventId: 'id', StartDate: calendar.draft.date });
-    http.expectOne(req => req.method === 'GET').flush([]);
+    http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
   });
 });
 
@@ -193,6 +219,7 @@ describe('Personal calendar lunar dates', () => {
     const fixture = TestBed.createComponent(PersonalCalendarComponent);
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
     fixture.componentInstance.repeatWeekly = true;
     fixture.detectChanges();
     const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
@@ -221,6 +248,7 @@ describe('Personal calendar lunar dates', () => {
     fixture.componentInstance.month = new Date(2025, 6, 1);
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([]);
+    flushTasks(http);
     fixture.detectChanges();
 
     const cells: HTMLElement[] = [...fixture.nativeElement.querySelectorAll('.calendar-day')];
@@ -242,7 +270,7 @@ describe('Personal calendar lunar dates', () => {
     http.verify();
   });
 
-  it('renders status filters, marks events and changes a status from the day list', async () => {
+  it('renders status filters, changes a status and lists the filtered status across all dates', async () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, TranslateModule.forRoot(), PersonalCalendarComponent],
       providers: [provideRouter([]), { provide: NZ_ICONS, useValue: Object.values(icons) }],
@@ -254,13 +282,15 @@ describe('Personal calendar lunar dates', () => {
     const today = fixture.componentInstance.key(fixture.componentInstance.today);
     const event = (id: string, title: string, status: CalendarStatus) => ({ EventId: id, Version: 1, Title: title, StartDate: today, EndDate: today, StartTime: '09:00', EndTime: '10:00', AllDay: false, Category: 'work', Location: '', Notes: '', Status: status });
     http.expectOne(req => req.url.endsWith('/PersonalCalendar')).flush([event('a', 'Gửi hồ sơ', 'urgent'), event('b', 'Họp nhóm', 'done')]);
+    flushTasks(http, { Counts: { urgent: 4, done: 9 }, Total: 13 });
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const page: HTMLElement = fixture.nativeElement;
     expect(page.querySelectorAll('.status-filter button').length).toBe(6);
-    expect(page.querySelector('.status-filter [data-status="urgent"] .status-count')!.textContent!.trim()).toBe('1');
+    // Số trên nút lọc là toàn hệ thống, không phải tháng đang xem.
+    expect(page.querySelector('.status-filter [data-status="urgent"] .status-count')!.textContent!.trim()).toBe('4');
     expect(page.querySelector('.day-event[data-status="done"]')).not.toBeNull();
     const urgent = page.querySelector('.agenda-event[data-status="urgent"]')!;
     const select: HTMLSelectElement = urgent.querySelector('select.event-status')!;
@@ -269,12 +299,17 @@ describe('Personal calendar lunar dates', () => {
     select.selectedIndex = fixture.componentInstance.statuses.findIndex(status => status.id === 'in_progress');
     select.dispatchEvent(new Event('change'));
     http.expectOne(req => req.method === 'PUT' && req.url.endsWith('/PersonalCalendar/a/status')).flush({});
+    flushTasks(http, { Counts: { urgent: 3, in_progress: 1, done: 9 }, Total: 13 });
     fixture.detectChanges();
     expect(page.querySelector('.agenda-event[data-status="in_progress"]')).not.toBeNull();
 
     (page.querySelector('.status-filter [data-status="done"]') as HTMLButtonElement).click();
+    flushTasks(http, { Counts: { urgent: 3, in_progress: 1, done: 9 }, Total: 9, Items: [event('b', 'Họp nhóm', 'done'), { ...event('c', 'Dọn nhà', 'done'), StartDate: '2025-12-01', EndDate: '2025-12-01' }] }, 'done');
     fixture.detectChanges();
-    expect(Array.from(page.querySelectorAll('.agenda-event strong'), item => item.textContent)).toEqual(['Họp nhóm']);
+    expect(page.querySelector('.agenda-card h2')!.textContent!.trim()).toBe('T_CALENDAR_STATUS_DONE');
+    expect(page.querySelectorAll('.task-date').length).toBe(2);
+    expect(Array.from(page.querySelectorAll('.agenda-event strong'), item => item.textContent)).toEqual(['Họp nhóm', 'Dọn nhà']);
+    expect(page.querySelectorAll('.day-event[data-status="urgent"]').length).toBe(0);
     http.verify();
   });
 });

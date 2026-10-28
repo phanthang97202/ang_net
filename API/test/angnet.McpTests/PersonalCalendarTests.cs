@@ -154,6 +154,56 @@ public class PersonalCalendarTests
     }
 
     [TestMethod]
+    public async Task TasksListEveryDateByStatusWithOnlyTheNextSeriesOccurrence()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
+        await db.SaveChangesAsync();
+        var controller = new PersonalCalendarController(db, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
+        async Task<string> Create(string title, string date, string? status = null, int repeatDays = 0, string? until = null) =>
+            JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Create(new PersonalCalendarEventRequest { Title = title, StartDate = date, EndDate = date, AllDay = true, Category = "work", Status = status, RepeatDays = repeatDays, RepeatUntil = until }, default)).Value)
+                .GetProperty("EventId").GetString()!;
+        async Task<JsonElement> Tasks(string? status) => JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Tasks(status, "2026-10-28", default)).Value);
+        static string[] Rows(JsonElement tasks) => tasks.GetProperty("Items").EnumerateArray()
+            .Select(x => $"{x.GetProperty("StartDate").GetString()} {x.GetProperty("Title").GetString()}").ToArray();
+
+        User("bob");
+        await Create("Việc của Bob", "2026-10-28", "urgent");
+        User("alice");
+        await Create("Gửi hồ sơ", "2026-09-10", "urgent");
+        await Create("Nộp báo cáo", "2026-12-20", "urgent");
+        await Create("Đi chợ", "2026-10-28", "done");
+        // Thứ Năm hằng tuần từ 1/10, không ngày kết thúc; hôm nay là thứ Tư 28/10.
+        var gym = await Create("Tập gym", "2026-10-01", repeatDays: 16);
+        await Create("Chuỗi đã kết thúc", "2026-09-07", "urgent", repeatDays: 2, until: "2026-09-28");
+        await controller.SetStatus(gym, new PersonalCalendarStatusRequest { Date = "2026-10-29", Status = "done" }, default);
+        await controller.SetStatus(gym, new PersonalCalendarStatusRequest { Date = "2026-10-08", Status = "urgent" }, default);
+
+        var urgent = await Tasks("urgent");
+        CollectionAssert.AreEqual(new[] { "2026-09-10 Gửi hồ sơ", "2026-10-08 Tập gym", "2026-12-20 Nộp báo cáo" }, Rows(urgent));
+        Assert.AreEqual(3, urgent.GetProperty("Total").GetInt32());
+        var counts = urgent.GetProperty("Counts");
+        Assert.AreEqual(3, counts.GetProperty("urgent").GetInt32());
+        Assert.AreEqual(2, counts.GetProperty("done").GetInt32());
+        Assert.AreEqual(1, counts.GetProperty("todo").GetInt32());
+        // Buổi 29/10 đã đổi riêng nên buổi kế tiếp chưa đổi là 5/11.
+        var todo = await Tasks("todo");
+        CollectionAssert.AreEqual(new[] { "2026-11-05 Tập gym" }, Rows(todo));
+        Assert.AreEqual("2026-10-01", todo.GetProperty("Items")[0].GetProperty("SeriesStartDate").GetString());
+        CollectionAssert.AreEqual(new[] { "2026-10-29 Tập gym", "2026-10-28 Đi chợ" }, Rows(await Tasks("done")));
+        var all = await Tasks(null);
+        Assert.AreEqual(0, all.GetProperty("Items").GetArrayLength());
+        Assert.AreEqual(6, all.GetProperty("Total").GetInt32());
+
+        Assert.IsInstanceOfType(await controller.Tasks("paused", "2026-10-28", default), typeof(BadRequestObjectResult));
+        Assert.IsInstanceOfType(await controller.Tasks("urgent", "28/10/2026", default), typeof(BadRequestObjectResult));
+    }
+
+    [TestMethod]
     public void ControllerRequiresCalendarPermission()
     {
         var attribute = typeof(PersonalCalendarController).GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>().Single();

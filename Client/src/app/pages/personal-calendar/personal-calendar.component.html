@@ -20,8 +20,8 @@
         </div>
       </div>
       <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">
-        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="statusFilter = 'all'">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts.all }}</span></button>
-        <button *ngFor="let status of statuses" type="button" [attr.data-status]="status.id" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="statusFilter = status.id"><i aria-hidden="true"></i>{{ status.label | translate }} <span class="status-count">{{ statusCounts[status.id] }}</span></button>
+        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts.all }}</span></button>
+        <button *ngFor="let status of statuses" type="button" [attr.data-status]="status.id" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="setStatusFilter(status.id)"><i aria-hidden="true"></i>{{ status.label | translate }} <span class="status-count">{{ statusCounts[status.id] }}</span></button>
       </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
         <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday | translate }}</div>
@@ -35,7 +35,20 @@
       <div class="calendar-footer"><span><i></i> {{ 'T_CALENDAR_TODAY' | translate }}</span><span *ngIf="hasLeapMonth">{{ 'T_CALENDAR_LEAP_LEGEND' | translate }}</span><span *ngIf="!loading && !loadError">{{ 'T_CALENDAR_MONTH_EVENTS' | translate: { count: monthEvents } }}</span></div>
     </section>
 
-    <aside class="agenda-card" [attr.aria-label]="'T_CALENDAR_DAY_AGENDA_LABEL' | translate">
+    <!-- Một hàng sự kiện, dùng chung cho danh sách trong ngày và danh sách theo trạng thái.
+         Ô trạng thái nằm ngoài nút mở form: không được lồng control trong <button>. -->
+    <ng-template #eventRow let-event let-time="time">
+      <div class="agenda-event" [attr.data-category]="event.category" [attr.data-status]="event.status">
+        <button type="button" class="agenda-event-open" (click)="openEdit(event)">
+          <span class="event-line"></span><span class="event-body"><span class="event-time">{{ time }}<span *ngIf="event.repeatDays"> · {{ 'T_CALENDAR_WEEKLY' | translate }}</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) | translate }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
+        </button>
+        <select class="event-status" [attr.aria-label]="'T_CALENDAR_STATUS_OF' | translate: { title: event.title }" [ngModel]="event.status" (ngModelChange)="changeStatus(event, $event)" [disabled]="isStatusPending(event)">
+          <option *ngFor="let status of statuses" [ngValue]="status.id">{{ status.label | translate }}</option>
+        </select>
+      </div>
+    </ng-template>
+
+    <aside *ngIf="statusFilter === 'all'; else statusTasks" class="agenda-card" [attr.aria-label]="'T_CALENDAR_DAY_AGENDA_LABEL' | translate">
       <div class="agenda-top"><div><h2>{{ (isTodaySelected ? 'T_CALENDAR_TODAY' : 'T_CALENDAR_DAY_SCHEDULE') | translate }}</h2><p>{{ selectedLabel }}</p></div><div class="date-tile"><strong>{{ selected.getDate() }}</strong><span>{{ tileMonth }}</span></div></div>
       <div *ngIf="loading" class="empty-day" role="status">{{ 'T_CALENDAR_LOADING' | translate }}</div>
       <div *ngIf="loadError" class="empty-day" role="alert"><strong>{{ loadError | translate }}</strong><button type="button" (click)="load()">{{ 'T_CALENDAR_RETRY' | translate }}</button></div>
@@ -43,22 +56,34 @@
       <div class="agenda-label"><span>{{ 'T_CALENDAR_EVENTS_HEADING' | translate }}</span><span class="event-count">{{ selectedEvents.length }}</span></div>
       <p *ngIf="statusError" class="status-error" role="alert">{{ statusError | translate }}</p>
       <div class="agenda-list" *ngIf="selectedEvents.length; else emptyDay">
-        <!-- Ô trạng thái nằm ngoài nút mở form: không được lồng control trong <button>. -->
-        <div class="agenda-event" *ngFor="let event of selectedEvents" [attr.data-category]="event.category" [attr.data-status]="event.status">
-          <button type="button" class="agenda-event-open" (click)="openEdit(event)">
-            <span class="event-line"></span><span class="event-body"><span class="event-time">{{ eventTime(event) }}<span *ngIf="event.repeatDays"> · {{ 'T_CALENDAR_WEEKLY' | translate }}</span></span><strong>{{ event.title }}</strong><small *ngIf="event.location"><span nz-icon nzType="environment"></span> {{ event.location }}</small><span class="event-tag">{{ label(event.category) | translate }}</span></span><span class="event-arrow" nz-icon nzType="right"></span>
-          </button>
-          <select class="event-status" [attr.aria-label]="'T_CALENDAR_STATUS_OF' | translate: { title: event.title }" [ngModel]="event.status" (ngModelChange)="changeStatus(event, $event)" [disabled]="isStatusPending(event)">
-            <option *ngFor="let status of statuses" [ngValue]="status.id">{{ status.label | translate }}</option>
-          </select>
-        </div>
+        <ng-container *ngFor="let event of selectedEvents; trackBy: trackEvent"><ng-container *ngTemplateOutlet="eventRow; context: { $implicit: event, time: eventTime(event) }"></ng-container></ng-container>
       </div>
-      <ng-template #emptyDay>
-        <div *ngIf="selectedHiddenByFilter; else noEvents" class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_STATUS_EMPTY' | translate }}</strong><button type="button" (click)="statusFilter = 'all'">{{ 'T_CALENDAR_STATUS_CLEAR' | translate }}</button></div>
-        <ng-template #noEvents><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</strong><p>{{ 'T_CALENDAR_EMPTY_TEXT' | translate }}</p><button type="button" (click)="openCreate()">{{ 'T_CALENDAR_ADD_EVENT' | translate }}</button></div></ng-template>
-      </ng-template>
+      <ng-template #emptyDay><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</strong><p>{{ 'T_CALENDAR_EMPTY_TEXT' | translate }}</p><button type="button" (click)="openCreate()">{{ 'T_CALENDAR_ADD_EVENT' | translate }}</button></div></ng-template>
       </ng-container>
     </aside>
+
+    <!-- Lọc theo trạng thái: mọi việc ở trạng thái đó trên mọi ngày, không chỉ ngày đang chọn. -->
+    <ng-template #statusTasks>
+      <aside class="agenda-card" [attr.aria-label]="'T_CALENDAR_TASKS_LABEL' | translate: { status: (statusLabel(statusFilter) | translate) }">
+        <div class="agenda-top"><div><h2>{{ statusLabel(statusFilter) | translate }}</h2><p class="tasks-scope">{{ 'T_CALENDAR_TASKS_ALL_DATES' | translate }}</p></div><span class="event-count" [attr.data-status]="statusFilter">{{ tasksTotal }}</span></div>
+        <p *ngIf="statusError" class="status-error tasks-message" role="alert">{{ statusError | translate }}</p>
+        <div *ngIf="tasksLoading" class="empty-day" role="status">{{ 'T_CALENDAR_LOADING' | translate }}</div>
+        <div *ngIf="tasksError" class="empty-day" role="alert"><strong>{{ tasksError | translate }}</strong><button type="button" (click)="loadTasks()">{{ 'T_CALENDAR_RETRY' | translate }}</button></div>
+        <ng-container *ngIf="!tasksLoading && !tasksError">
+          <div *ngIf="tasks.length; else noTasks" class="task-groups">
+            <section *ngFor="let group of taskGroups; trackBy: trackGroup" class="task-group">
+              <button type="button" class="task-date" [title]="'T_CALENDAR_TASKS_GO_TO_DATE' | translate" (click)="goToDate(group.date)">{{ group.label }}</button>
+              <div class="agenda-list">
+                <ng-container *ngFor="let event of group.events; trackBy: trackEvent"><ng-container *ngTemplateOutlet="eventRow; context: { $implicit: event, time: taskTime(event) }"></ng-container></ng-container>
+              </div>
+            </section>
+            <p *ngIf="tasksTotal > tasks.length" class="tasks-note">{{ 'T_CALENDAR_TASKS_TRUNCATED' | translate: { shown: tasks.length, total: tasksTotal } }}</p>
+            <p *ngIf="hasSeriesTasks" class="tasks-note">{{ 'T_CALENDAR_TASKS_SERIES_NOTE' | translate }}</p>
+          </div>
+          <ng-template #noTasks><div class="empty-day"><span class="empty-icon" nz-icon nzType="calendar"></span><strong>{{ 'T_CALENDAR_STATUS_EMPTY' | translate }}</strong><button type="button" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_CLEAR' | translate }}</button></div></ng-template>
+        </ng-container>
+      </aside>
+    </ng-template>
   </div>
 
   <dialog #editor class="event-dialog" aria-labelledby="event-dialog-title" (cancel)="saving && $event.preventDefault()">

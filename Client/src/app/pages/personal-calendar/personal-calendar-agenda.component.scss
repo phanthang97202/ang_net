@@ -14,6 +14,13 @@
 .agenda-event[data-status='done'] strong, .agenda-event[data-status='cancelled'] strong { text-decoration: line-through; }
 .agenda-event[data-status='cancelled'] .agenda-event-open { opacity: .65; }
 .status-error { margin: 0 0 .7rem; color: #d95151; font-size: .72rem; }
+.agenda-top .event-count[data-status] { min-width: 30px; height: 30px; background: var(--status-bg); color: var(--status-color); font-size: .75rem; font-weight: 800; }
+.tasks-message { margin-top: 1rem; }
+.agenda-top p.tasks-scope { text-transform: none; }
+.task-groups { display: grid; gap: 1.15rem; margin-top: 1.15rem; }
+.task-date { margin-bottom: .55rem; padding: 0; border: 0; background: transparent; color: var(--color-text-muted); font-size: .66rem; font-weight: 800; text-align: left; text-transform: capitalize; }
+.task-date:hover { color: var(--color-accent); }
+.tasks-note { margin: 0; color: var(--color-text-muted); font-size: .66rem; line-height: 1.5; }
 :host-context(html[data-theme='dark']) .event-status { color-scheme: dark; }
 :host-context(html[data-theme='dark']) .status-error { color: #ff9ca5; }
 .event-line { width: 3px; flex: none; border-radius: 3px; background: var(--event-color); }.event-body { display: grid; min-width: 0; flex: 1; gap: .35rem; }.event-time { color: var(--event-color); font-size: .67rem; font-weight: 800; }.event-body strong { overflow-wrap: anywhere; font-size: .8rem; }.event-body small { color: var(--color-text-muted); font-size: .68rem; }.event-tag { width: fit-content; margin-top: .15rem; padding: .22rem .45rem; border-radius: 5px; background: var(--event-bg); color: var(--event-color); font-size: .6rem; font-weight: 700; }.event-arrow { align-self: center; color: var(--color-text-muted); font-size: .7rem; }

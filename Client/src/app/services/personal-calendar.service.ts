@@ -14,6 +14,8 @@ export interface CalendarEvent {
 }
 // Status chỉ gửi khi tạo; trạng thái từng buổi đổi qua setStatus.
 export type CalendarEventRequest = Omit<CalendarEvent, 'EventId' | 'SeriesStartDate' | 'SeriesEndDate'>;
+// Việc theo trạng thái trên mọi ngày; Counts luôn tính trên toàn bộ việc.
+export interface CalendarTasks { Counts: Record<CalendarStatus, number>; Total: number; Items: CalendarEvent[]; }
 
 @Injectable({ providedIn: 'root' })
 export class PersonalCalendarService {
@@ -23,6 +25,10 @@ export class PersonalCalendarService {
   readonly changed$ = this.changedSubject.asObservable();
   list(from: string, to: string) {
     return this.http.get<CalendarEvent[]>(this.url, { params: new HttpParams().set('from', from).set('to', to) });
+  }
+  tasks(today: string, status?: CalendarStatus) {
+    const params = new HttpParams().set('today', today);
+    return this.http.get<CalendarTasks>(`${this.url}/tasks`, { params: status ? params.set('status', status) : params });
   }
   create(data: CalendarEventRequest) { return this.http.post<CalendarEvent>(this.url, data).pipe(tap(() => this.changedSubject.next())); }
   update(id: string, data: CalendarEventRequest) { return this.http.put<CalendarEvent>(`${this.url}/${encodeURIComponent(id)}`, data).pipe(tap(() => this.changedSubject.next())); }

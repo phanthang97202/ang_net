@@ -39,6 +39,7 @@ public class PersonalCalendarStatusRequest
 public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : ControllerBase
 {
     private static readonly string[] Statuses = ["todo", "in_progress", "urgent", "done", "cancelled"];
+    private const int TaskLimit = 300;
     private string? OwnerId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private static bool Date(string? value, out DateOnly date) => DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
     private static bool Time(string? value) => value != null && TimeOnly.TryParseExact(value, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
@@ -58,6 +59,40 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
             .ToDictionaryAsync(x => (x.EventId, x.OccurrenceDate), x => x.Status, ct);
         return Ok(items.SelectMany(item => Occurrences(item, start, end, date => occurrenceStatus.GetValueOrDefault((item.EventId, date), item.Status)))
             .OrderBy(x => x.StartDate).ThenBy(x => x.StartTime).ThenBy(x => x.EventId));
+    }
+
+    // Việc theo trạng thái trên mọi ngày, không chỉ tháng đang xem: sự kiện đơn, các buổi
+    // lặp đã đổi trạng thái riêng, và buổi kế tiếp (từ hôm nay) của mỗi chuỗi còn hiệu
+    // lực - chuỗi không có ngày kết thúc thì không liệt kê vô hạn các buổi tương lai.
+    // "today" là ngày trên thiết bị người dùng. Counts luôn tính trên toàn bộ việc.
+    [HttpGet("tasks"), ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Tasks(string? status, string? today, CancellationToken ct)
+    {
+        if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
+        var day = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        if (status != null && !Statuses.Contains(status) || today != null && !Date(today, out day)) return BadRequest(new { Code = "InvalidStatus" });
+        var items = await db.PersonalCalendarEvent.AsNoTracking().Where(x => x.OwnerId == owner).ToListAsync(ct);
+        var series = items.Where(x => x.RepeatDays != 0).ToDictionary(x => x.EventId);
+        var seriesIds = series.Keys.ToList();
+        var overrides = seriesIds.Count == 0 ? new List<PersonalCalendarOccurrenceStatusModel>() : await db.PersonalCalendarOccurrenceStatus.AsNoTracking()
+            .Where(x => seriesIds.Contains(x.EventId)).ToListAsync(ct);
+        var tasks = items.Where(x => x.RepeatDays == 0).Select(x => ToResponse(x, x.StartDate, x.Status))
+            .Concat(overrides.Where(x => IsOccurrence(series[x.EventId], x.OccurrenceDate)).Select(x => ToResponse(series[x.EventId], x.OccurrenceDate, x.Status)))
+            .Concat(series.Values.Select(x => (Item: x, Next: NextOccurrence(x, day, overrides))).Where(x => x.Next != null)
+                .Select(x => ToResponse(x.Item, x.Next!.Value, x.Item.Status)))
+            .ToList();
+        var counts = Statuses.ToDictionary(x => x, x => tasks.Count(t => t.Status == x));
+        var selected = tasks.Where(x => x.Status == status);
+        // Việc đang chờ xếp ngày gần trước; việc đã xong/đã hủy xếp mới nhất trước.
+        var ordered = status is "done" or "cancelled"
+            ? selected.OrderByDescending(x => x.StartDate).ThenByDescending(x => x.StartTime)
+            : selected.OrderBy(x => x.StartDate).ThenBy(x => x.StartTime);
+        return Ok(new
+        {
+            Counts = counts,
+            Total = status == null ? tasks.Count : counts[status],
+            Items = status == null ? new List<CalendarResponse>() : ordered.ThenBy(x => x.EventId).Take(TaskLimit).ToList()
+        });
     }
 
     [HttpPost, RequestSizeLimit(8192)]
@@ -163,6 +198,19 @@ public class PersonalCalendarController(AppDbContext db, TimeProvider clock) : C
     private static bool IsOccurrence(PersonalCalendarEventModel item, DateOnly date) =>
         date >= item.StartDate && (item.RepeatUntil == null || date <= item.RepeatUntil) &&
         (item.RepeatDays & (1 << (int)date.DayOfWeek)) != 0;
+
+    // Buổi đầu tiên từ "from" chưa được đổi trạng thái riêng (buổi đã đổi riêng đã có trong
+    // danh sách việc). Chuỗi đã kết thúc trước "from" thì không có buổi kế tiếp.
+    private static DateOnly? NextOccurrence(PersonalCalendarEventModel item, DateOnly from, List<PersonalCalendarOccurrenceStatusModel> overrides)
+    {
+        var date = item.StartDate > from ? item.StartDate : from;
+        for (var i = 0; i < 400 && date < DateOnly.MaxValue; i++, date = date.AddDays(1))
+        {
+            if (item.RepeatUntil is { } until && date > until) return null;
+            if (IsOccurrence(item, date) && !overrides.Any(x => x.EventId == item.EventId && x.OccurrenceDate == date)) return date;
+        }
+        return null;
+    }
 
     private static IEnumerable<CalendarResponse> Occurrences(PersonalCalendarEventModel item, DateOnly from, DateOnly to, Func<DateOnly, string> statusFor)
     {
