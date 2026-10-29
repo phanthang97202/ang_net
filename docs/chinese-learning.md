@@ -6,7 +6,7 @@ Module `/chinese` cần quyền `chinese.use`. Migration `0076_ChineseLearning.s
 
 Mỗi lần tạo yêu cầu tối đa 4 bài; API giới hạn 2 lần/phút/tài khoản trong mỗi tiến trình. Bài và từ đã lưu chỉ thuộc tài khoản tạo; mỗi lần tải tối đa 100 bài gần nhất theo loại/chủ đề và 1000 từ. Bài đã lưu có thể dùng khi Groq không khả dụng. Giới hạn tạo trong bộ nhớ không đồng bộ giữa nhiều instance; nếu mở rộng triển khai cần bộ giới hạn dùng chung.
 
-Người học có thể tự tạo bài theo loại và chủ đề đang chọn bằng cách nhập chữ Trung, pinyin và bản dịch. Bài thủ công được lưu riêng cho tài khoản, không gọi Groq và không tự phân tách từ; sau khi xem đáp án có thể chọn chữ trong bài để lưu vào bộ sưu tập từ vựng. Bài nghe dùng giọng đọc của thiết bị, chưa hỗ trợ tải lên tệp âm thanh.
+Người học có thể tự tạo bài theo loại và chủ đề đang chọn bằng cách nhập chữ Trung, pinyin và bản dịch. Bài thủ công được lưu riêng cho tài khoản, không gọi Groq; khi xem đáp án, trình duyệt gợi ý tách từ và pinyin từ từ điển, người học tự nhập nghĩa và kiểm tra trước khi lưu. Có thể chọn chữ trong bài để lưu cụm từ khác. Bài nghe dùng giọng đọc của thiết bị, chưa hỗ trợ tải lên tệp âm thanh.
 
 Trong biểu mẫu tạo bài, nút “Gõ bằng pinyin” mở bộ chọn chữ: nhập pinyin rồi chọn gợi ý để chèn vào vị trí con trỏ. Từ điển được tải từ website và tra cứu ngay trên trình duyệt, không gửi nội dung tới dịch vụ bên ngoài. Từ điển và thư viện [pinyinjs](https://github.com/KensioSoftware/pinyinjs) dùng giấy phép Apache-2.0 và CC BY-SA 4.0, có thành phần dữ liệu CC-CEDICT; xem LICENSE và NOTICE trong gói npm.
 

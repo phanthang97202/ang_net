@@ -79,4 +79,20 @@ describe('Chinese learning', () => {
   it('looks up real pinyin in the bundled dictionary', async () => {
     expect(await TestBed.inject(ChinesePinyinInputService).candidates('nihao')).toContain('你好');
   });
+  it('suggests words for a manually saved exercise and lets the user save one', async () => {
+    const fixture = TestBed.createComponent(ChineseLearningComponent); fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/LookupList')).flush([{ Code: 'daily', NameVi: 'Hằng ngày', NameEn: 'Daily', FlagActive: true }]);
+    http.expectOne(req => req.url.endsWith('/exercises')).flush([{ Id: 'manual', Kind: 'sentence', Topic: 'daily', Text: '我在酒店工作。', Pinyin: 'wǒ zài jiǔdiàn gōngzuò', Translation: 'Tôi làm việc ở khách sạn', Words: [] }]);
+    http.expectOne(req => req.url.endsWith('/vocabulary')).flush([]); fixture.detectChanges();
+    await fixture.componentInstance.revealAnswer(); fixture.detectChanges();
+    const hotel = fixture.componentInstance.suggestedWords.find(word => word.Word === '酒店');
+    expect(hotel?.Pinyin).toBe('jiǔdiàn');
+    expect(fixture.nativeElement.querySelector('.word-chips').textContent).toContain('酒店');
+    fixture.componentInstance.openWord(hotel); expect(fixture.componentInstance.draft.Meaning).toBe('');
+    fixture.componentInstance.draft.Meaning = 'khách sạn';
+    fixture.componentInstance.saveWord({ invalid: false } as never);
+    const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/vocabulary'));
+    expect(request.request.body.Word).toBe('酒店'); request.flush({ Id: '1' });
+    http.expectOne(req => req.method === 'GET' && req.url.endsWith('/vocabulary')).flush([]);
+  });
 });

@@ -31,6 +31,8 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
   savingExercise = false; exerciseError = '';
+  suggestedWords: ChineseWord[] = []; wordsLoading = false; wordsError = '';
+  private wordsRequest = 0;
   pinyinEnabled = false; pinyinQuery = ''; pinyinCandidates: readonly string[] = []; pinyinLoading = false; pinyinError = '';
   private pinyinRequest = 0; private insertionStart = 0; private insertionEnd = 0;
   exerciseDraft: ChineseExerciseRequest = { Kind: 'sentence', Topic: '', Text: '', Pinyin: '', Translation: '' };
@@ -121,7 +123,19 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
     const choices = this.items.length > 1 ? this.items.filter(x => x.Id !== this.current?.Id) : this.items;
     this.current = choices[Math.floor(Math.random() * choices.length)]; this.resetAnswer();
   }
-  private resetAnswer(): void { this.answer = ''; this.revealed = false; this.selectedWord = ''; this.audioError = ''; if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+  private resetAnswer(): void { this.answer = ''; this.revealed = false; this.selectedWord = ''; this.audioError = ''; this.wordsRequest++; this.suggestedWords = []; this.wordsLoading = false; this.wordsError = ''; if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+  async revealAnswer(): Promise<void> {
+    this.revealed = true;
+    const current = this.current;
+    if (!current || current.Words.length) return;
+    const request = ++this.wordsRequest; this.wordsLoading = true; this.wordsError = '';
+    try {
+      const words = await this.pinyinInput.words(current.Text);
+      if (request === this.wordsRequest) this.suggestedWords = words;
+    } catch {
+      if (request === this.wordsRequest) this.wordsError = 'Không thể tách từ. Bạn vẫn có thể bôi đen từ trong bài để lưu.';
+    } finally { if (request === this.wordsRequest) this.wordsLoading = false; }
+  }
   speak(text: string): void {
     if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) { this.audioError = 'Trình duyệt không hỗ trợ phát âm.'; return; }
     const voices = window.speechSynthesis.getVoices();
