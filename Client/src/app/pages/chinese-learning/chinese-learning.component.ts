@@ -21,16 +21,18 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
   private readonly pinyinInput = inject(ChinesePinyinInputService);
   private readonly destroy = inject(DestroyRef);
   private listRequest?: Subscription;
+  private exerciseListRequest?: Subscription;
   readonly kinds: { id: ChineseKind; label: string; icon: string }[] = [
     { id: 'sentence', label: 'Dịch câu', icon: 'edit' }, { id: 'paragraph', label: 'Dịch đoạn', icon: 'read' }, { id: 'audio', label: 'Nghe và viết', icon: 'sound' },
   ];
   readonly manageTopicsLink = { tab: 'lookups', list: 'CHINESE_TOPIC' };
   topics: LookupItem[] = [];
-  tab: 'practice' | 'vocabulary' = 'practice';
+  tab: 'practice' | 'exerciseList' | 'vocabulary' = 'practice';
   kind: ChineseKind = 'sentence'; topic = 'daily'; items: ChineseExercise[] = []; current?: ChineseExercise;
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
   collectionChoice = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
+  exerciseList: ChineseExercise[] = []; exerciseListPage = 1; exerciseListTotal = 0; exerciseListLoading = false; exerciseListError = '';
   savingExercise = false; exerciseError = '';
   suggestedWords: ChineseWord[] = []; wordsLoading = false; wordsError = '';
   private wordsRequest = 0;
@@ -54,8 +56,17 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
       error: () => { this.loading = false; this.topics = []; this.topic = ''; this.error = 'Không thể tải chủ đề. Vui lòng thử lại.'; },
     });
   }
-  chooseKind(kind: ChineseKind): void { if (this.kind !== kind && !this.generating) { this.kind = kind; if (this.topic) this.loadExercises(); } }
-  changeTopic(): void { if (!this.generating) this.loadExercises(); }
+  chooseKind(kind: ChineseKind): void { if (this.kind !== kind && !this.generating) { this.kind = kind; if (this.topic) { this.loadExercises(); if (this.tab === 'exerciseList') this.loadExerciseList(1); } } }
+  changeTopic(): void { if (!this.generating) { this.loadExercises(); if (this.tab === 'exerciseList') this.loadExerciseList(1); } }
+  showExerciseList(): void { this.tab = 'exerciseList'; if (this.topic) this.loadExerciseList(1); }
+  loadExerciseList(page: number): void {
+    this.exerciseListRequest?.unsubscribe(); this.exerciseListPage = page; this.exerciseListLoading = true; this.exerciseListError = ''; this.exerciseList = [];
+    this.api.exerciseList(this.kind, this.topic, page).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: result => { this.exerciseListLoading = false; this.exerciseList = result.Items; this.exerciseListTotal = result.Total; this.exerciseListPage = page; },
+      error: () => { this.exerciseListLoading = false; this.exerciseListError = 'Không thể tải danh sách bài luyện. Vui lòng thử lại.'; },
+    });
+  }
+  selectExercise(item: ChineseExercise): void { this.listRequest?.unsubscribe(); this.loading = false; this.current = item; this.resetAnswer(); this.tab = 'practice'; }
   loadExercises(preferredId?: string): void {
     this.listRequest?.unsubscribe(); this.loading = true; this.error = ''; this.current = undefined; this.items = []; this.resetAnswer();
     this.listRequest = this.api.exercises(this.kind, this.topic).pipe(takeUntilDestroyed(this.destroy)).subscribe({

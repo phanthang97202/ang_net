@@ -6,6 +6,8 @@ Module `/chinese` cần quyền `chinese.use`. Migration `0076_ChineseLearning.s
 
 Mỗi lần tạo yêu cầu tối đa 4 bài; API giới hạn 2 lần/phút/tài khoản trong mỗi tiến trình. Bài và từ đã lưu chỉ thuộc tài khoản tạo; mỗi lần tải tối đa 100 bài gần nhất theo loại/chủ đề và 1000 từ. Bài đã lưu có thể dùng khi Groq không khả dụng. Giới hạn tạo trong bộ nhớ không đồng bộ giữa nhiều instance; nếu mở rộng triển khai cần bộ giới hạn dùng chung.
 
+Tab Danh sách bài cho phép duyệt toàn bộ bài theo loại và chủ đề, phân trang 20 bài và chọn trực tiếp. Bài nghe được hiển thị bằng số thứ tự để không lộ nội dung trước khi luyện; nút bài ngẫu nhiên vẫn dùng tối đa 100 bài gần nhất.
+
 Người học có thể tự tạo bài theo loại và chủ đề đang chọn bằng cách nhập chữ Trung, pinyin và bản dịch. Bài thủ công được lưu riêng cho tài khoản, không gọi Groq; khi xem đáp án, trình duyệt gợi ý tách từ và pinyin từ từ điển, người học tự nhập nghĩa và kiểm tra trước khi lưu. Có thể chọn chữ trong bài để lưu cụm từ khác. Bài nghe dùng giọng đọc của thiết bị, chưa hỗ trợ tải lên tệp âm thanh.
 
 Khi lưu từ, người học chọn bộ sưu tập đã có hoặc chọn tạo mới và nhập tên. Bộ sưu tập được xác định từ tên gắn với các từ đã lưu, nên tạo thành công khi lưu từ đầu tiên và không còn hiện trong danh sách sau khi xóa từ cuối cùng.

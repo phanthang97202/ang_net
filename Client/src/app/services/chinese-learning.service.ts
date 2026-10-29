@@ -14,6 +14,7 @@ export class ChineseLearningService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}ChineseLearning`;
   exercises(kind: ChineseKind, topic: string) { return this.http.get<ChineseExercise[]>(`${this.url}/exercises`, { params: new HttpParams().set('kind', kind).set('topic', topic) }); }
+  exerciseList(kind: ChineseKind, topic: string, page: number) { return this.http.get<{ Total: number; Items: ChineseExercise[] }>(`${this.url}/exercise-list`, { params: new HttpParams().set('kind', kind).set('topic', topic).set('page', page) }); }
   createExercise(exercise: ChineseExerciseRequest) { return this.http.post<{ Id: string }>(`${this.url}/exercises`, exercise); }
   generate(kind: ChineseKind, topic: string) { return this.http.post<{ Count: number }>(`${this.url}/generate`, { Kind: kind, Topic: topic }); }
   words() { return this.http.get<ChineseVocabulary[]>(`${this.url}/vocabulary`); }

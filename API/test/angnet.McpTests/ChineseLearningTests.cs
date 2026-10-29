@@ -76,6 +76,27 @@ public class ChineseLearningTests
         Assert.AreEqual(0, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Exercises("audio", "daily", default)).Value).GetArrayLength());
     }
     [TestMethod]
+    public async Task ExerciseListPagesAllMatchingItemsAndIsPrivate()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:"); await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        db.Users.AddRange(new AppUser { Id = "alice", UserName = "alice" }, new AppUser { Id = "bob", UserName = "bob" });
+        db.ChineseExercise.AddRange(Enumerable.Range(0, 105).Select(i => new ChineseExerciseModel { Id = Guid.NewGuid().ToString(), OwnerId = "alice", Kind = "sentence", Topic = "daily", Text = $"句{i}", Pinyin = "jù", Translation = "Câu", CreatedAt = DateTime.UtcNow.AddSeconds(i) }));
+        await db.SaveChangesAsync();
+        var controller = new ChineseLearningController(db, new FakeFactory(), new ConfigurationBuilder().Build(), TimeProvider.System, new LookupListService(db, TimeProvider.System)) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
+        User("alice");
+        var first = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.ExerciseList("sentence", "daily", 1)).Value);
+        var last = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.ExerciseList("sentence", "daily", 6)).Value);
+        Assert.AreEqual(105, first.GetProperty("Total").GetInt32()); Assert.AreEqual(20, first.GetProperty("Items").GetArrayLength());
+        Assert.AreEqual(5, last.GetProperty("Items").GetArrayLength());
+        Assert.AreEqual("句0", last.GetProperty("Items")[4].GetProperty("Text").GetString());
+        Assert.IsInstanceOfType(await controller.ExerciseList("sentence", "daily", 0), typeof(BadRequestResult));
+        User("bob");
+        Assert.AreEqual(0, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.ExerciseList("sentence", "daily", 1)).Value).GetProperty("Total").GetInt32());
+    }
+    [TestMethod]
     public void ControllerRequiresChinesePermission() => Assert.AreEqual("chinese.use", typeof(ChineseLearningController).GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>().Single().Policy);
 
     [TestMethod]
@@ -120,9 +141,11 @@ public class ChineseLearningTests
         using (var scope = app.Services.CreateScope()) { var db = scope.ServiceProvider.GetRequiredService<AppDbContext>(); await db.Database.EnsureCreatedAsync(); db.Users.Add(new AppUser { Id = "alice", UserName = "alice" }); await db.SaveChangesAsync(); }
         await app.StartAsync(); var client = app.GetTestClient();
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/ChineseLearning/vocabulary")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/ChineseLearning/exercise-list?kind=sentence&topic=daily")).StatusCode);
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/ChineseLearning/exercises", new ChineseCreateExerciseRequest())).StatusCode);
         client.DefaultRequestHeaders.Add("X-Test-User", "other");
         Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/ChineseLearning/vocabulary")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/ChineseLearning/exercise-list?kind=sentence&topic=daily")).StatusCode);
         Assert.AreEqual(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync("/api/ChineseLearning/exercises", new ChineseCreateExerciseRequest())).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User"); client.DefaultRequestHeaders.Add("X-Test-User", "alice");
         Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/api/ChineseLearning/vocabulary")).StatusCode);

@@ -113,4 +113,20 @@ describe('Chinese learning', () => {
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/vocabulary')).flush([{ Id: '3', Word: '你好', Pinyin: 'nǐ hǎo', Meaning: 'Xin chào', Collection: 'Chào hỏi', Example: '', ExamplePinyin: '', ExampleTranslation: '' }]);
     expect(fixture.componentInstance.collections).toContain('Chào hỏi');
   });
+  it('pages saved exercises and opens the selected one', () => {
+    const fixture = TestBed.createComponent(ChineseLearningComponent); fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/LookupList')).flush([{ Code: 'daily', NameVi: 'Hằng ngày', NameEn: 'Daily', FlagActive: true }]);
+    http.expectOne(req => req.url.endsWith('/exercises')).flush([{ Id: '1', Kind: 'sentence', Topic: 'daily', Text: '你好', Pinyin: 'nǐ hǎo', Translation: 'Xin chào', Words: [] }]);
+    http.expectOne(req => req.url.endsWith('/vocabulary')).flush([]);
+    fixture.componentInstance.showExerciseList();
+    const first = http.expectOne(req => req.url.endsWith('/exercise-list'));
+    expect(first.request.params.get('page')).toBe('1'); first.flush({ Total: 21, Items: [{ Id: '1', Kind: 'sentence', Topic: 'daily', Text: '你好', Pinyin: 'nǐ hǎo', Translation: 'Xin chào', Words: [] }] });
+    fixture.componentInstance.loadExerciseList(2);
+    const second = http.expectOne(req => req.url.endsWith('/exercise-list'));
+    expect(second.request.params.get('page')).toBe('2'); second.flush({ Total: 21, Items: [{ Id: '2', Kind: 'sentence', Topic: 'daily', Text: '谢谢', Pinyin: 'xièxie', Translation: 'Cảm ơn', Words: [] }] });
+    fixture.componentInstance.answer = 'đáp án cũ'; fixture.detectChanges();
+    fixture.nativeElement.querySelector('.saved-item').click(); fixture.detectChanges();
+    expect(fixture.componentInstance.tab).toBe('practice'); expect(fixture.componentInstance.current?.Text).toBe('谢谢');
+    expect(fixture.componentInstance.answer).toBe('');
+  });
 });

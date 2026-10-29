@@ -53,6 +53,18 @@ public class ChineseLearningController(AppDbContext db, IHttpClientFactory clien
         return Ok(items.Select(x => new { x.Id, x.Kind, x.Topic, x.Text, x.Pinyin, x.Translation, Words = JsonSerializer.Deserialize<List<ChineseWord>>(x.WordsJson, JsonOptions) ?? [] }));
     }
 
+    [HttpGet("exercise-list")]
+    public async Task<IActionResult> ExerciseList(string kind, string topic, int page = 1, CancellationToken ct = default)
+    {
+        if (Owner is not { Length: > 0 } owner) return Unauthorized();
+        if (!Kinds.Contains(kind) || page < 1 || page > 1000000 || await lookups.FindUsableAsync(owner, LookupListCodes.ChineseTopic, topic, topic, ct) is null) return BadRequest();
+        const int pageSize = 20;
+        var query = db.ChineseExercise.AsNoTracking().Where(x => x.OwnerId == owner && x.Kind == kind && x.Topic == topic);
+        var total = await query.CountAsync(ct);
+        var items = await query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return Ok(new { Total = total, Items = items.Select(x => new { x.Id, x.Kind, x.Topic, x.Text, x.Pinyin, x.Translation, Words = JsonSerializer.Deserialize<List<ChineseWord>>(x.WordsJson, JsonOptions) ?? [] }) });
+    }
+
     [HttpPost("exercises"), RequestSizeLimit(8192)]
     public async Task<IActionResult> CreateExercise(ChineseCreateExerciseRequest request, CancellationToken ct)
     {
