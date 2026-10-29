@@ -99,4 +99,35 @@ describe('Personal expenses', () => {
     expect(component.filter).toBe('');
     http.expectOne(req => req.method === 'GET' && req.params.get('month') === '2026-11').flush([]);
   });
+
+  it('formats the amount while editing and sends an integer to the API', async () => {
+    const fixture = TestBed.createComponent(PersonalExpensesComponent);
+    fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/PersonalExpenses')).flush([]);
+    flushCategories();
+    const component = fixture.componentInstance;
+    component.openCreate(); fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[name="amount"]');
+    input.value = '500000'; input.setSelectionRange(6, 6); input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(input.value).toBe('500.000');
+    expect(component.draft.Amount).toBe(500000);
+    input.value = '5010.000'; input.setSelectionRange(3, 3); input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(input.value).toBe('5.010.000');
+    expect(input.selectionStart).toBe(4);
+    input.value = '500.000 đ'; input.dispatchEvent(new Event('input', { bubbles: true })); fixture.detectChanges();
+    expect(input.value).toBe('500.000');
+    component.draft.CategoryCode = 'food'; component.save({ invalid: false } as NgForm);
+    const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/PersonalExpenses'));
+    expect(request.request.body.Amount).toBe(500000);
+    request.flush({}, { status: 500, statusText: 'Error' });
+    expect(input.value).toBe('500.000');
+    input.value = '-500'; input.dispatchEvent(new Event('input', { bubbles: true }));
+    component.save({ invalid: false } as NgForm);
+    http.expectNone(req => req.method === 'POST');
+    component.openEdit(tx('1', 'expense', 1234567, '2026-10-01', 'food'));
+    fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+    expect(input.value).toBe('1.234.567');
+  });
 });

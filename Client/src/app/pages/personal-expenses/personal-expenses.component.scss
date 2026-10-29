@@ -29,6 +29,10 @@ h1, h2 { color: var(--color-text); }
 fieldset { display: grid; gap: 1rem; min-width: 0; padding: 1.25rem; margin: 0; border: 0; } .field { display: grid; gap: .4rem; font-size: .74rem; font-weight: 700; } .optional { color: var(--color-text-muted); font-weight: 400; } textarea { resize: vertical; }
 .type-switch { display: flex; gap: 1.5rem; font-size: .8rem; font-weight: 700; } .type-switch input { accent-color: var(--color-accent); } .field-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; } .manage-link { color: var(--color-accent); font-size: .68rem; font-weight: 700; } .delete { border: 0; background: transparent; color: #cb4454; font-size: .75rem; font-weight: 700; } .spacer { flex: 1; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.required-mark { color: #c83f50; }
+.amount-input { position: relative; display: block; }
+.amount-input input { padding-right: 2.5rem; }
+.amount-input > span { position: absolute; top: 50%; right: .85rem; transform: translateY(-50%); color: var(--color-text-muted); font-weight: 700; pointer-events: none; }
 @media (max-width: 700px) { .expenses-page { padding: 1.6rem 1rem 4rem; } .page-heading { align-items: flex-start; } .content-grid { grid-template-columns: minmax(0, 1fr); } .summary { grid-template-columns: minmax(0, 1fr); gap: .5rem; } .summary-card { padding: .7rem .9rem; border-radius: 14px; } .summary-card strong { font-size: 1rem; } .summary-card .summary-icon { flex-basis: 32px; width: 32px; height: 32px; } }
 @media (max-width: 400px) { .page-heading { flex-direction: column; } .page-heading .button { width: 100%; } .transaction { gap: .5rem; padding: .9rem; } .amount { font-size: .7rem; } }
 
@@ -46,3 +50,4 @@ fieldset { display: grid; gap: 1rem; min-width: 0; padding: 1.25rem; margin: 0; 
 :host-context(html[data-theme='dark']) .balance .summary-icon { color: var(--color-accent); }
 :host-context(html[data-theme='dark']) .error,
 :host-context(html[data-theme='dark']) .delete { color: #ff9ca5; }
+:host-context(html[data-theme='dark']) .required-mark { color: #ff9ca5; }

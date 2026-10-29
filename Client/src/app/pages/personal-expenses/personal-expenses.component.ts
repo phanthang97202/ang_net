@@ -37,6 +37,7 @@ export class PersonalExpensesComponent implements OnInit {
   saving = false;
   editing = false;
   draft: ExpenseTransaction = this.empty();
+  amountText = '';
 
   ngOnInit(): void { this.load(); this.loadCategories(); }
   get income(): bigint { return this.transactions.filter(x => x.Type === 'income').reduce((sum, x) => sum + BigInt(x.Amount), 0n); }
@@ -109,8 +110,29 @@ export class PersonalExpensesComponent implements OnInit {
     // Đợi font tải xong để bản PDF không bị nhảy chữ
     report.document.fonts.ready.then(() => report.print());
   }
-  openCreate(): void { this.editing = false; this.formError = ''; this.draft = this.empty(); this.editor?.nativeElement.showModal(); }
-  openEdit(item: ExpenseTransaction): void { this.editing = true; this.formError = ''; this.draft = { ...item }; this.editor?.nativeElement.showModal(); }
+  openCreate(): void { this.editing = false; this.formError = ''; this.draft = this.empty(); this.amountText = ''; this.editor?.nativeElement.showModal(); }
+  openEdit(item: ExpenseTransaction): void { this.editing = true; this.formError = ''; this.draft = { ...item }; this.amountText = this.formatAmount(String(item.Amount)); this.editor?.nativeElement.showModal(); }
+  onAmountInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value;
+    if (!/^[\d.\s]*(?:đ)?\s*$/i.test(raw)) {
+      this.amountText = raw; this.draft.Amount = NaN; return;
+    }
+    const caret = input.selectionStart ?? raw.length;
+    const digitsBeforeCaret = (raw.slice(0, caret).match(/\d/g) || []).length;
+    const digits = raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+    const formatted = this.formatAmount(digits);
+    this.amountText = formatted;
+    this.draft.Amount = digits ? Number(digits) : 0;
+    input.value = formatted;
+    let index = 0, count = 0;
+    while (index < formatted.length && count < digitsBeforeCaret) {
+      if (/\d/.test(formatted[index])) count++;
+      index++;
+    }
+    input.setSelectionRange(index, index);
+  }
+  private formatAmount(digits: string): string { return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   close(): void { if (!this.saving) this.editor?.nativeElement.close(); }
   save(form: NgForm): void {
     if (this.saving) return;
