@@ -9,13 +9,15 @@ public static class LookupListCodes
     public const string CalendarCategory = "CALENDAR_CATEGORY";
     public const string CalendarStatus = "CALENDAR_STATUS";
     public const string ExpenseCategory = "EXPENSE_CATEGORY";
-    public static readonly string[] All = [CalendarCategory, CalendarStatus, ExpenseCategory];
+    public const string ChineseTopic = "CHINESE_TOPIC";
+    public static readonly string[] All = [CalendarCategory, CalendarStatus, ExpenseCategory, ChineseTopic];
 
     /// <summary>Quyền cần có để xem / sửa từng danh sách (quyền của module dùng danh sách đó).</summary>
     public static string? Permission(string listCode) => listCode switch
     {
         CalendarCategory or CalendarStatus => "calendar.use",
         ExpenseCategory => "expenses.use",
+        ChineseTopic => "chinese.use",
         _ => null,
     };
 }
@@ -60,6 +62,13 @@ public static class LookupDefaults
             new("entertainment", "Giải trí", "Entertainment", "#2f9fb3", "expense"),
             new("health", "Sức khỏe", "Health", "#d33a42", "expense"),
             new("other", "Khác", "Other", "#6b6b7b", "both"),
+        ],
+        [LookupListCodes.ChineseTopic] =
+        [
+            new("daily", "Hằng ngày", "Everyday life", "#7661d8"),
+            new("greetings", "Chào hỏi", "Greetings", "#3b9d86"),
+            new("hotel", "Khách sạn", "Hotel", "#4d87c2"),
+            new("food", "Ăn uống", "Food and drink", "#d0764a"),
         ],
     };
 }
@@ -130,6 +139,8 @@ public class LookupListService(AppDbContext db, TimeProvider clock)
                 .Distinct().ToListAsync(ct),
             LookupListCodes.ExpenseCategory => await db.PersonalExpense.Where(x => x.OwnerId == owner)
                 .Select(x => x.CategoryCode).Distinct().ToListAsync(ct),
+            LookupListCodes.ChineseTopic => await db.ChineseExercise.Where(x => x.OwnerId == owner)
+                .Select(x => x.Topic).Distinct().ToListAsync(ct),
             _ => [],
         };
         return codes.ToHashSet(StringComparer.Ordinal);

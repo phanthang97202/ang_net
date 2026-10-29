@@ -171,7 +171,7 @@ public class LookupListTests
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
         builder.Services.AddRateLimiter(o => o.AddConcurrencyLimiter("API", x => { x.PermitLimit = 10; x.QueueLimit = 0; }));
-        builder.Services.AddControllers().AddApplicationPart(typeof(LookupListController).Assembly);
+        builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null).AddApplicationPart(typeof(LookupListController).Assembly);
         await using var app = builder.Build();
         app.UseRouting(); app.UseRateLimiter(); app.UseAuthentication(); app.UseAuthorization(); app.MapControllers();
         using (var scope = app.Services.CreateScope())
@@ -189,6 +189,7 @@ public class LookupListTests
         client.DefaultRequestHeaders.Add("X-Test-User", "alice");
         Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/api/LookupList?listCode=CALENDAR_STATUS")).StatusCode);
         Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/LookupList?listCode=EXPENSE_CATEGORY")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/LookupList?listCode=CHINESE_TOPIC")).StatusCode);
         Assert.AreEqual(HttpStatusCode.BadRequest, (await client.GetAsync("/api/LookupList?listCode=UNKNOWN")).StatusCode);
         var created = await client.PostAsJsonAsync("/api/LookupList?listCode=CALENDAR_CATEGORY", new LookupItemRequest { NameVi = "Tập gym", NameEn = "Gym", Color = "#22aa66" });
         Assert.AreEqual(HttpStatusCode.OK, created.StatusCode);

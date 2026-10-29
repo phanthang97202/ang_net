@@ -3,31 +3,47 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription } from 'rxjs';
 import { ChineseExercise, ChineseKind, ChineseLearningService, ChineseVocabulary, ChineseVocabularyRequest, ChineseWord } from '../../services/chinese-learning.service';
+import { LookupItem, LookupListService } from '../../services/lookup-list.service';
 
-@Component({ selector: 'app-chinese-learning', standalone: true, imports: [CommonModule, FormsModule, NzIconModule], templateUrl: './chinese-learning.component.html', styleUrl: './chinese-learning.component.scss' })
+@Component({ selector: 'app-chinese-learning', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, RouterLink], templateUrl: './chinese-learning.component.html', styleUrl: './chinese-learning.component.scss' })
 export class ChineseLearningComponent implements OnInit, OnDestroy {
   @ViewChild('wordDialog') wordDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('exerciseText') exerciseText?: ElementRef<HTMLElement>;
   private readonly api = inject(ChineseLearningService);
+  private readonly lookups = inject(LookupListService);
   private readonly destroy = inject(DestroyRef);
   private listRequest?: Subscription;
   readonly kinds: { id: ChineseKind; label: string; icon: string }[] = [
     { id: 'sentence', label: 'Dịch câu', icon: 'edit' }, { id: 'paragraph', label: 'Dịch đoạn', icon: 'read' }, { id: 'audio', label: 'Nghe và viết', icon: 'sound' },
   ];
-  readonly topics = [{ id: 'daily', label: 'Hằng ngày' }, { id: 'greetings', label: 'Chào hỏi' }, { id: 'hotel', label: 'Khách sạn' }, { id: 'food', label: 'Ăn uống' }];
+  readonly manageTopicsLink = { tab: 'lookups', list: 'CHINESE_TOPIC' };
+  topics: LookupItem[] = [];
   tab: 'practice' | 'vocabulary' = 'practice';
   kind: ChineseKind = 'sentence'; topic = 'daily'; items: ChineseExercise[] = []; current?: ChineseExercise;
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
   draft: ChineseVocabularyRequest = { Word: '', Pinyin: '', Meaning: '', Collection: '', Example: '', ExamplePinyin: '', ExampleTranslation: '' };
-  ngOnInit(): void { this.loadExercises(); this.loadWords(); }
+  ngOnInit(): void { this.loadTopics(); this.loadWords(); }
   ngOnDestroy(): void { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
   get collections(): string[] { return [...new Set(this.vocabulary.map(x => x.Collection))].sort((a, b) => a.localeCompare(b, 'vi')); }
   get filteredWords(): ChineseVocabulary[] { return this.collectionFilter ? this.vocabulary.filter(x => x.Collection === this.collectionFilter) : this.vocabulary; }
-  chooseKind(kind: ChineseKind): void { if (this.kind !== kind && !this.generating) { this.kind = kind; this.loadExercises(); } }
+  topicName(item: LookupItem): string { return this.lookups.name(item); }
+  loadTopics(): void {
+    this.loading = true; this.error = '';
+    this.lookups.list('CHINESE_TOPIC').pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: topics => {
+        this.topics = topics;
+        if (!topics.some(x => x.Code === this.topic)) this.topic = topics[0]?.Code || '';
+        if (this.topic) this.loadExercises(); else { this.loading = false; this.items = []; this.current = undefined; }
+      },
+      error: () => { this.loading = false; this.topics = []; this.topic = ''; this.error = 'Không thể tải chủ đề. Vui lòng thử lại.'; },
+    });
+  }
+  chooseKind(kind: ChineseKind): void { if (this.kind !== kind && !this.generating) { this.kind = kind; if (this.topic) this.loadExercises(); } }
   changeTopic(): void { if (!this.generating) this.loadExercises(); }
   loadExercises(preferredId?: string): void {
     this.listRequest?.unsubscribe(); this.loading = true; this.error = ''; this.current = undefined; this.items = []; this.resetAnswer();
@@ -37,7 +53,7 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
     });
   }
   generate(): void {
-    if (this.generating) return; this.generating = true; this.error = '';
+    if (this.generating || !this.topic) return; this.generating = true; this.error = '';
     this.api.generate(this.kind, this.topic).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.generating = false; this.loadExercises(); },
       error: (e: HttpErrorResponse) => { this.generating = false; this.error = e.status === 429 ? 'Đang vượt giới hạn tạo bài. Bạn hãy thử lại sau hoặc dùng các bài đã lưu.' : e.error?.Code === 'GroqNotConfigured' ? 'Chức năng tạo bài chưa được cấu hình.' : 'Không thể tạo bài lúc này. Hãy thử lại hoặc dùng các bài đã lưu.'; },

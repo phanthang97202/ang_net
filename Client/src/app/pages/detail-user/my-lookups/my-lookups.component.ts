@@ -28,6 +28,7 @@ const LISTS: LookupListTab[] = [
   { code: 'CALENDAR_CATEGORY', labelKey: 'T_LOOKUP_LIST_CALENDAR_CATEGORY', icon: 'tags' },
   { code: 'CALENDAR_STATUS', labelKey: 'T_LOOKUP_LIST_CALENDAR_STATUS', icon: 'check-circle' },
   { code: 'EXPENSE_CATEGORY', labelKey: 'T_LOOKUP_LIST_EXPENSE_CATEGORY', icon: 'wallet' },
+  { code: 'CHINESE_TOPIC', labelKey: 'T_LOOKUP_LIST_CHINESE_TOPIC', icon: 'read' },
 ];
 
 const SWATCHES = ['#7661d8', '#4d87c2', '#2f6fd6', '#2f9fb3', '#3b9d86', '#23855c', '#b7791f', '#d0764a', '#d33a42', '#c2417a', '#6b6b7b', '#8a8a99'];

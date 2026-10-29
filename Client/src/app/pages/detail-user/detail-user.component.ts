@@ -88,7 +88,8 @@ export class DetailUserComponent implements OnInit {
         },
         // Danh sách chọn riêng của Lịch / Thu chi: chỉ hiện khi dùng được ít nhất một module
         ...(this.authService.hasPermission('calendar.use') ||
-        this.authService.hasPermission('expenses.use')
+        this.authService.hasPermission('expenses.use') ||
+        this.authService.hasPermission('chinese.use')
           ? [
               {
                 id: 'lookups',

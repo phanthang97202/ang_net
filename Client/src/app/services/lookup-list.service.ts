@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments/environment';
 
 /** Các danh sách chọn của người dùng, lưu chung bảng LookupList ở server. */
-export type LookupListCode = 'CALENDAR_CATEGORY' | 'CALENDAR_STATUS' | 'EXPENSE_CATEGORY';
+export type LookupListCode = 'CALENDAR_CATEGORY' | 'CALENDAR_STATUS' | 'EXPENSE_CATEGORY' | 'CHINESE_TOPIC';
 /** Chỉ danh mục thu chi: dùng cho khoản thu, khoản chi hay cả hai. */
 export type LookupKind = '' | 'income' | 'expense' | 'both';
 
@@ -36,6 +36,7 @@ export const LOOKUP_LIST_PERMISSIONS: Record<LookupListCode, string> = {
   CALENDAR_CATEGORY: 'calendar.use',
   CALENDAR_STATUS: 'calendar.use',
   EXPENSE_CATEGORY: 'expenses.use',
+  CHINESE_TOPIC: 'chinese.use',
 };
 
 @Injectable({ providedIn: 'root' })

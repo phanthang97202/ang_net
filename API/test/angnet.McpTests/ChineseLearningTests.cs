@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
+using angnet.Infrastructure.Data.Services;
 using angnet.WebApi.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -34,7 +35,8 @@ public class ChineseLearningTests
         var alice = Guid.NewGuid().ToString(); var bob = Guid.NewGuid().ToString();
         db.Users.AddRange(new AppUser { Id = alice, UserName = alice }, new AppUser { Id = bob, UserName = bob }); await db.SaveChangesAsync();
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> { ["Groq:ApiKey"] = "test-only" }).Build();
-        var controller = new ChineseLearningController(db, new FakeFactory(), config, TimeProvider.System) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        var lookups = new LookupListService(db, TimeProvider.System);
+        var controller = new ChineseLearningController(db, new FakeFactory(), config, TimeProvider.System, lookups) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
         void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
         User(alice);
         Assert.IsInstanceOfType(await controller.Generate(new() { Kind = "sentence", Topic = "hotel" }, default), typeof(OkObjectResult));
@@ -57,12 +59,39 @@ public class ChineseLearningTests
     public void ControllerRequiresChinesePermission() => Assert.AreEqual("chinese.use", typeof(ChineseLearningController).GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>().Single().Policy);
 
     [TestMethod]
+    public async Task CustomTopicsAreOwnerScopedAndKeepExercisesWhenRenamedOrHidden()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:"); await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        var alice = Guid.NewGuid().ToString(); var bob = Guid.NewGuid().ToString();
+        db.Users.AddRange(new AppUser { Id = alice, UserName = alice }, new AppUser { Id = bob, UserName = bob }); await db.SaveChangesAsync();
+        var lookups = new LookupListService(db, TimeProvider.System);
+        var (_, topic) = await lookups.CreateAsync(alice, LookupListCodes.ChineseTopic, new LookupItemRequest { NameVi = "Tiếp khách" }, default);
+        Assert.IsNotNull(topic);
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> { ["Groq:ApiKey"] = "test-only" }).Build();
+        var controller = new ChineseLearningController(db, new FakeFactory(), config, TimeProvider.System, lookups) { ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() } };
+        void User(string id) => controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, id)], "test"));
+        User(alice);
+        Assert.IsInstanceOfType(await controller.Generate(new() { Kind = "sentence", Topic = topic.Code }, default), typeof(OkObjectResult));
+        var (updated, _) = await lookups.UpdateAsync(alice, topic.Id, new LookupItemRequest { NameVi = "Lễ tân" }, default);
+        Assert.AreEqual(LookupResult.Ok, updated);
+        Assert.AreEqual(1, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Exercises("sentence", topic.Code, default)).Value).GetArrayLength());
+        Assert.AreEqual(LookupResult.Hidden, await lookups.DeleteAsync(alice, topic.Id, default));
+        Assert.IsInstanceOfType(await controller.Generate(new() { Kind = "sentence", Topic = topic.Code }, default), typeof(BadRequestResult));
+        Assert.AreEqual(1, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.Exercises("sentence", topic.Code, default)).Value).GetArrayLength());
+        User(bob);
+        Assert.IsInstanceOfType(await controller.Exercises("sentence", topic.Code, default), typeof(BadRequestResult));
+        Assert.IsInstanceOfType(await controller.Generate(new() { Kind = "sentence", Topic = topic.Code }, default), typeof(BadRequestResult));
+    }
+
+    [TestMethod]
     public async Task HttpRequiresLoginAndPermission()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:"); await connection.OpenAsync();
         var builder = WebApplication.CreateBuilder(); builder.WebHost.UseTestServer();
         builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connection));
-        builder.Services.AddSingleton(TimeProvider.System); builder.Services.AddHttpClient();
+        builder.Services.AddSingleton(TimeProvider.System); builder.Services.AddHttpClient(); builder.Services.AddScoped<LookupListService>();
         builder.Services.AddAuthentication("test").AddScheme<AuthenticationSchemeOptions, TestAuthentication>("test", _ => { });
         builder.Services.AddAuthorization(); builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>(); builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
         builder.Services.AddRateLimiter(o => o.AddConcurrencyLimiter("API", x => { x.PermitLimit = 10; x.QueueLimit = 0; }));
