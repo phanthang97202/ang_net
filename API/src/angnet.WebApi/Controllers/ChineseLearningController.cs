@@ -18,6 +18,11 @@ public record ChineseWord(string Word, string Pinyin, string Meaning);
 public record ChineseGenerated(string Text, string Pinyin, string Translation, List<ChineseWord> Words);
 public record ChineseBatch(List<ChineseGenerated> Exercises);
 public class ChineseGenerateRequest { public string Kind { get; set; } = "sentence"; public string Topic { get; set; } = "daily"; }
+public class ChineseCreateExerciseRequest : ChineseGenerateRequest {
+    [Required, MaxLength(500)] public string Text { get; set; } = "";
+    [Required, MaxLength(800)] public string Pinyin { get; set; } = "";
+    [Required, MaxLength(1000)] public string Translation { get; set; } = "";
+}
 public class ChineseSaveWordRequest {
     [Required, MaxLength(60)] public string Word { get; set; } = "";
     [Required, MaxLength(120)] public string Pinyin { get; set; } = "";
@@ -46,6 +51,17 @@ public class ChineseLearningController(AppDbContext db, IHttpClientFactory clien
         var items = await db.ChineseExercise.AsNoTracking().Where(x => x.OwnerId == owner && x.Kind == kind && x.Topic == topic)
             .OrderByDescending(x => x.CreatedAt).Take(100).ToListAsync(ct);
         return Ok(items.Select(x => new { x.Id, x.Kind, x.Topic, x.Text, x.Pinyin, x.Translation, Words = JsonSerializer.Deserialize<List<ChineseWord>>(x.WordsJson, JsonOptions) ?? [] }));
+    }
+
+    [HttpPost("exercises"), RequestSizeLimit(8192)]
+    public async Task<IActionResult> CreateExercise(ChineseCreateExerciseRequest request, CancellationToken ct)
+    {
+        if (Owner is not { Length: > 0 } owner) return Unauthorized();
+        if (!Kinds.Contains(request.Kind) || string.IsNullOrWhiteSpace(request.Text) || string.IsNullOrWhiteSpace(request.Pinyin) || string.IsNullOrWhiteSpace(request.Translation) || request.Text.Length > 500 || request.Pinyin.Length > 800 || request.Translation.Length > 1000 || await lookups.FindUsableAsync(owner, LookupListCodes.ChineseTopic, request.Topic, null, ct) is null) return BadRequest();
+        var item = new ChineseExerciseModel { Id = Guid.NewGuid().ToString(), OwnerId = owner, Kind = request.Kind, Topic = request.Topic, Text = request.Text.Trim(), Pinyin = request.Pinyin.Trim(), Translation = request.Translation.Trim(), WordsJson = "[]", CreatedAt = clock.GetUtcNow().UtcDateTime };
+        db.ChineseExercise.Add(item);
+        await db.SaveChangesAsync(ct);
+        return Ok(new { item.Id });
     }
 
     [HttpPost("generate"), RequestSizeLimit(2048)]

@@ -46,4 +46,17 @@ describe('Chinese learning', () => {
     http.expectOne(req => req.url.endsWith('/vocabulary')).flush([]); fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('select').textContent).toContain('Tiếp khách');
   });
+  it('saves a manually created exercise and displays it', () => {
+    const fixture = TestBed.createComponent(ChineseLearningComponent); fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/LookupList')).flush([{ Code: 'daily', NameVi: 'Hằng ngày', NameEn: 'Daily', FlagActive: true }]);
+    http.expectOne(req => req.url.endsWith('/exercises')).flush([]);
+    http.expectOne(req => req.url.endsWith('/vocabulary')).flush([]); fixture.detectChanges();
+    fixture.componentInstance.openExercise();
+    fixture.componentInstance.exerciseDraft.Text = '你好'; fixture.componentInstance.exerciseDraft.Pinyin = 'nǐ hǎo'; fixture.componentInstance.exerciseDraft.Translation = 'Xin chào';
+    fixture.componentInstance.saveExercise({ invalid: false } as never);
+    const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/exercises'));
+    expect(request.request.body.Topic).toBe('daily'); request.flush({ Id: 'new' });
+    http.expectOne(req => req.method === 'GET' && req.url.endsWith('/exercises')).flush([{ Id: 'new', Kind: 'sentence', Topic: 'daily', Text: '你好', Pinyin: 'nǐ hǎo', Translation: 'Xin chào', Words: [] }]);
+    expect(fixture.componentInstance.current?.Id).toBe('new');
+  });
 });

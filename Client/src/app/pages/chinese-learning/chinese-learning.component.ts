@@ -6,12 +6,13 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription } from 'rxjs';
-import { ChineseExercise, ChineseKind, ChineseLearningService, ChineseVocabulary, ChineseVocabularyRequest, ChineseWord } from '../../services/chinese-learning.service';
+import { ChineseExercise, ChineseExerciseRequest, ChineseKind, ChineseLearningService, ChineseVocabulary, ChineseVocabularyRequest, ChineseWord } from '../../services/chinese-learning.service';
 import { LookupItem, LookupListService } from '../../services/lookup-list.service';
 
 @Component({ selector: 'app-chinese-learning', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, RouterLink], templateUrl: './chinese-learning.component.html', styleUrl: './chinese-learning.component.scss' })
 export class ChineseLearningComponent implements OnInit, OnDestroy {
   @ViewChild('wordDialog') wordDialog?: ElementRef<HTMLDialogElement>;
+  @ViewChild('exerciseDialog') exerciseDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('exerciseText') exerciseText?: ElementRef<HTMLElement>;
   private readonly api = inject(ChineseLearningService);
   private readonly lookups = inject(LookupListService);
@@ -26,6 +27,8 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
   kind: ChineseKind = 'sentence'; topic = 'daily'; items: ChineseExercise[] = []; current?: ChineseExercise;
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
+  savingExercise = false; exerciseError = '';
+  exerciseDraft: ChineseExerciseRequest = { Kind: 'sentence', Topic: '', Text: '', Pinyin: '', Translation: '' };
   draft: ChineseVocabularyRequest = { Word: '', Pinyin: '', Meaning: '', Collection: '', Example: '', ExamplePinyin: '', ExampleTranslation: '' };
   ngOnInit(): void { this.loadTopics(); this.loadWords(); }
   ngOnDestroy(): void { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
@@ -57,6 +60,23 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
     this.api.generate(this.kind, this.topic).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.generating = false; this.loadExercises(); },
       error: (e: HttpErrorResponse) => { this.generating = false; this.error = e.status === 429 ? 'Đang vượt giới hạn tạo bài. Bạn hãy thử lại sau hoặc dùng các bài đã lưu.' : e.error?.Code === 'GroqNotConfigured' ? 'Chức năng tạo bài chưa được cấu hình.' : 'Không thể tạo bài lúc này. Hãy thử lại hoặc dùng các bài đã lưu.'; },
+    });
+  }
+  openExercise(): void {
+    if (!this.topic || this.generating) return;
+    this.exerciseError = '';
+    this.exerciseDraft = { Kind: this.kind, Topic: this.topic, Text: '', Pinyin: '', Translation: '' };
+    this.exerciseDialog?.nativeElement.showModal();
+  }
+  saveExercise(form: NgForm): void {
+    if (this.savingExercise) return;
+    if (form.invalid || !this.exerciseDraft.Text.trim() || !this.exerciseDraft.Pinyin.trim() || !this.exerciseDraft.Translation.trim()) {
+      this.exerciseError = 'Vui lòng nhập nội dung tiếng Trung, pinyin và bản dịch.'; return;
+    }
+    this.savingExercise = true; this.exerciseError = '';
+    this.api.createExercise(this.exerciseDraft).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: result => { this.savingExercise = false; this.exerciseDialog?.nativeElement.close(); this.loadExercises(result.Id); },
+      error: () => { this.savingExercise = false; this.exerciseError = 'Không thể lưu bài luyện. Vui lòng thử lại.'; },
     });
   }
   next(): void {
