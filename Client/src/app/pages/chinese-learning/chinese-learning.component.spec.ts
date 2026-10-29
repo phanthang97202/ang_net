@@ -25,6 +25,7 @@ describe('Chinese learning', () => {
     fixture.componentInstance.openWord(fixture.componentInstance.current!.Words[0]);
     expect(fixture.componentInstance.draft.Word).toBe('酒店');
     fixture.componentInstance.draft.Meaning = 'khách sạn đã kiểm tra';
+    fixture.componentInstance.draft.Collection = 'Khách sạn';
     fixture.componentInstance.saveWord({ invalid: false } as never);
     const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/vocabulary'));
     expect(request.request.body.Meaning).toBe('khách sạn đã kiểm tra'); request.flush({ Id: '1' });
@@ -90,9 +91,26 @@ describe('Chinese learning', () => {
     expect(fixture.nativeElement.querySelector('.word-chips').textContent).toContain('酒店');
     fixture.componentInstance.openWord(hotel); expect(fixture.componentInstance.draft.Meaning).toBe('');
     fixture.componentInstance.draft.Meaning = 'khách sạn';
+    fixture.componentInstance.draft.Collection = 'Khách sạn';
     fixture.componentInstance.saveWord({ invalid: false } as never);
     const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/vocabulary'));
     expect(request.request.body.Word).toBe('酒店'); request.flush({ Id: '1' });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/vocabulary')).flush([]);
+  });
+  it('creates a collection while saving a word and reuses existing collections', () => {
+    const fixture = TestBed.createComponent(ChineseLearningComponent); fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/LookupList')).flush([{ Code: 'daily', NameVi: 'Hằng ngày', NameEn: 'Daily', FlagActive: true }]);
+    http.expectOne(req => req.url.endsWith('/exercises')).flush([{ Id: '1', Kind: 'sentence', Topic: 'daily', Text: '你好', Pinyin: 'nǐ hǎo', Translation: 'Xin chào', Words: [{ Word: '你好', Pinyin: 'nǐ hǎo', Meaning: 'Xin chào' }] }]);
+    http.expectOne(req => req.url.endsWith('/vocabulary')).flush([{ Id: '2', Word: '酒店', Pinyin: 'jiǔdiàn', Meaning: 'Khách sạn', Collection: 'Khách sạn', Example: '', ExamplePinyin: '', ExampleTranslation: '' }]);
+    fixture.componentInstance.openWord(fixture.componentInstance.current!.Words[0]); fixture.detectChanges();
+    expect(fixture.componentInstance.collectionChoice).toBe('Khách sạn');
+    fixture.componentInstance.chooseCollection(''); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('input[name="collection"]')).not.toBeNull();
+    fixture.componentInstance.draft.Collection = ' Chào hỏi ';
+    fixture.componentInstance.saveWord({ invalid: false } as never);
+    const request = http.expectOne(req => req.method === 'POST' && req.url.endsWith('/vocabulary'));
+    expect(request.request.body.Collection).toBe('Chào hỏi'); request.flush({ Id: '3' });
+    http.expectOne(req => req.method === 'GET' && req.url.endsWith('/vocabulary')).flush([{ Id: '3', Word: '你好', Pinyin: 'nǐ hǎo', Meaning: 'Xin chào', Collection: 'Chào hỏi', Example: '', ExamplePinyin: '', ExampleTranslation: '' }]);
+    expect(fixture.componentInstance.collections).toContain('Chào hỏi');
   });
 });

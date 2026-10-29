@@ -29,6 +29,7 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
   tab: 'practice' | 'vocabulary' = 'practice';
   kind: ChineseKind = 'sentence'; topic = 'daily'; items: ChineseExercise[] = []; current?: ChineseExercise;
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
+  collectionChoice = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
   savingExercise = false; exerciseError = '';
   suggestedWords: ChineseWord[] = []; wordsLoading = false; wordsError = '';
@@ -154,12 +155,18 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
     const text = word?.Word || this.selectedWord;
     if (!text || !this.current.Text.includes(text)) return;
     const match = word || this.current.Words.find(x => x.Word === text);
-    this.wordError = ''; this.draft = { Word: text, Pinyin: match?.Pinyin || '', Meaning: match?.Meaning || '', Collection: this.collections[0] || 'Từ của tôi', Example: this.current.Text, ExamplePinyin: this.current.Pinyin, ExampleTranslation: this.current.Translation };
+    this.collectionChoice = this.collections[0] || '';
+    this.wordError = ''; this.draft = { Word: text, Pinyin: match?.Pinyin || '', Meaning: match?.Meaning || '', Collection: this.collectionChoice, Example: this.current.Text, ExamplePinyin: this.current.Pinyin, ExampleTranslation: this.current.Translation };
     this.wordDialog?.nativeElement.showModal();
   }
+  chooseCollection(value: string): void { this.collectionChoice = value; this.draft.Collection = value; this.wordError = ''; }
   saveWord(form: NgForm): void {
     if (this.saving) return;
     if (form.invalid || !this.draft.Word.trim() || !this.draft.Pinyin.trim() || !this.draft.Meaning.trim() || !this.draft.Collection.trim()) { this.wordError = 'Vui lòng nhập đủ từ, pinyin, nghĩa và tên bộ sưu tập.'; return; }
+    const name = this.draft.Collection.trim();
+    const existing = this.collections.find(x => x.localeCompare(name, 'vi', { sensitivity: 'accent' }) === 0);
+    if (!this.collectionChoice && existing) { this.wordError = 'Bộ sưu tập này đã tồn tại. Hãy chọn bộ sưu tập trong danh sách.'; return; }
+    this.draft.Collection = this.collectionChoice || name;
     this.saving = true; this.wordError = '';
     this.api.saveWord(this.draft).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { this.saving = false; this.wordDialog?.nativeElement.close(); this.loadWords(); },
