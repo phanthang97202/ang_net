@@ -1001,15 +1001,6 @@ namespace angnet.Infrastructure.Data.Repositories
                 return apiResponse;
             }
 
-            // check domain email valid
-            bool checkIsDomainEmailValid = await DomainHasMxRecord(userEmail);
-
-            if (!checkIsDomainEmailValid)
-            {
-                apiResponse.CatchException(false, "GetRegisterCode.DomainEmailIsNotValid", requestClient);
-                return apiResponse;
-            }
-
             var user = await _userManager.FindByEmailAsync(userEmail);
 
             if (user == null)
@@ -1173,7 +1164,7 @@ namespace angnet.Infrastructure.Data.Repositories
             }
 
             // Lấy token đang còn hiệu lực
-            var generationAuthCode = await _dbContext.GenerationAuthCode
+            var generationAuthCode = await _dbContext.GenerationAuthCode.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UserId == userEmail && x.IsUsed == false && x.Type == type);
 
             if (generationAuthCode == null || generationAuthCode.ExpiredAt < TCommonUtils.DTimeNow())
@@ -1182,35 +1173,33 @@ namespace angnet.Infrastructure.Data.Repositories
                 {
                     Level = Domain.Enums.EAuditTrailLevel.ERROR,
                     RecordId = "",
-                    Description = $"{userEmail}: token is not valid or expired | ({token}, {userEmail}, {type})",
+                    Description = $"{userEmail}: token is not valid or expired | ({userEmail}, {type})",
                     ChangedColumns = "",
                     OldValues = ""
                 });
                 return null;
             }
 
-            if (generationAuthCode.AttemptCount >= 5)
-            {
-                generationAuthCode.IsUsed = true; // block luôn
-                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
-                await _dbContext.SaveChangesAsync();
-                return null;
-            }
+            // Reserve an attempt atomically, including a successful attempt.
+            // Concurrent requests cannot bypass the five-attempt limit.
+            var now = TCommonUtils.DTimeNow();
+            var reserved = await _dbContext.GenerationAuthCode
+                .Where(x => x.Id == generationAuthCode.Id && !x.IsUsed && x.ExpiredAt >= now && x.AttemptCount < 5)
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.AttemptCount, x => x.AttemptCount + 1)
+                    .SetProperty(x => x.UpdatedDTime, now));
+            if (reserved != 1) return null;
 
             string hash = ComputeSha256(token + generationAuthCode.Salt);
 
             if (!CryptographicEquals(hash, generationAuthCode.Token))
             {
-                generationAuthCode.AttemptCount += 1;
-                generationAuthCode.UpdatedDTime = TCommonUtils.DTimeNow();
-                await _dbContext.SaveChangesAsync();
                 return null;
             }
 
             // chống được race condition (khi >= 2 request cùng gửi dữ liệu cùng lúc)
             // 🔑 Atomic update: chỉ request này mới đánh dấu được IsUsed = true
             int rows = await _dbContext.GenerationAuthCode
-                .Where(x => x.Id == generationAuthCode.Id && x.IsUsed == false)
+                .Where(x => x.Id == generationAuthCode.Id && !x.IsUsed && x.ExpiredAt >= now)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(p => p.IsUsed, true)
                     .SetProperty(p => p.UpdatedDTime, TCommonUtils.DTimeNow())

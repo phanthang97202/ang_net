@@ -47,7 +47,7 @@ export class PersonalNoteService {
   }
   publicNote(token: string) {
     return this.http.get<PublicPersonalNote>(
-      `${environment.apiUrl}PublicPersonalNotes/${encodeURIComponent(token)}`
+      `${environment.apiUrl}PublicPersonalNotes`, { headers: { 'X-Note-Token': token } }
     );
   }
   revokeEditing(id: string, version: number) {
@@ -58,13 +58,13 @@ export class PersonalNoteService {
   }
   sharedNote(token: string) {
     return this.http.get<SharedPersonalNote>(
-      `${environment.apiUrl}SharedPersonalNotes/${encodeURIComponent(token)}`
+      `${environment.apiUrl}SharedPersonalNotes`, { headers: { 'X-Note-Token': token } }
     );
   }
   saveShared(token: string, body: PersonalNoteSave) {
     return this.http.put<SharedPersonalNote>(
-      `${environment.apiUrl}SharedPersonalNotes/${encodeURIComponent(token)}`,
-      body
+      `${environment.apiUrl}SharedPersonalNotes`,
+      body, { headers: { 'X-Note-Token': token } }
     );
   }
 }

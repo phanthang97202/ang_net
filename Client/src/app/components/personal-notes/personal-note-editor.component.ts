@@ -162,12 +162,12 @@ export class PersonalNoteEditorComponent implements OnInit, OnDestroy {
   }
   get publicUrl(): string {
     return this.publicToken
-      ? new URL(`/shared-note/${this.publicToken}`, this.document.baseURI).href
+      ? new URL(`/shared-note/view#${this.publicToken}`, this.document.baseURI).href
       : '';
   }
   get editUrl(): string {
     return this.editToken
-      ? new URL(`/shared-note/${this.editToken}/edit`, this.document.baseURI)
+      ? new URL(`/shared-note/edit#${this.editToken}`, this.document.baseURI)
           .href
       : '';
   }

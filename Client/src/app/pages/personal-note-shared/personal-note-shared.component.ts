@@ -4,7 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 import { PersonalNoteService } from '../../services/personal-note.service';
 import { PersonalNote } from '../../interfaces/personal-note';
 import { PersonalNoteEditorComponent } from '../../components/personal-notes/personal-note-editor.component';
@@ -68,9 +68,9 @@ export class PersonalNoteSharedComponent implements OnInit {
   failed = false;
 
   ngOnInit(): void {
-    this.route.paramMap
+    combineLatest([this.route.paramMap, this.route.fragment])
       .pipe(
-        map(params => params.get('token') ?? ''),
+        map(([params, fragment]) => params.get('token') ?? fragment ?? ''),
         tap(token => {
           this.token = token;
           this.note = null;

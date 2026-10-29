@@ -1,7 +1,7 @@
 import { TestBed, fakeAsync, flush } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, of } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { PersonalNotePublicComponent } from './personal-note-public.component';
 import { PersonalNoteService } from '../../services/personal-note.service';
@@ -69,7 +69,7 @@ describe('Published personal note page', () => {
       imports: [PersonalNotePublicComponent, TranslateModule.forRoot()],
       providers: [
         { provide: PersonalNoteService, useValue: api },
-        { provide: ActivatedRoute, useValue: { paramMap: params } },
+        { provide: ActivatedRoute, useValue: { paramMap: params, fragment: of(null) } },
       ],
     });
   });

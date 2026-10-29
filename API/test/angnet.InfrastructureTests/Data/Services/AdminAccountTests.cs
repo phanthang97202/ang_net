@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Microsoft.Data.Sqlite;
 
 namespace angnet.InfrastructureTests.Data.Services;
 
@@ -144,6 +145,65 @@ public class AdminAccountTests
         Assert.AreEqual(403, ((ObjectResult)controller.Register(new()).Result!).StatusCode);
         Assert.AreEqual(403, ((ObjectResult)controller.GetRegisterCode("a@example.com").Result!).StatusCode);
         repository.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public void DeleteAccount_RequiresAdminAndRecoveryEndpointsAreRateLimited()
+    {
+        var delete = typeof(AccountController).GetMethod(nameof(AccountController.DeleteUser))!;
+        Assert.AreEqual("Admin", delete.GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>().Single().Roles);
+        Assert.AreEqual(0, delete.GetCustomAttributes(typeof(AllowAnonymousAttribute), true).Length);
+        foreach (var name in new[] { nameof(AccountController.ForgotPassword), nameof(AccountController.ChangePassword) })
+            Assert.AreEqual("AccountRecoveryIp", typeof(AccountController).GetMethod(name)!
+                .GetCustomAttributes(typeof(Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute), true)
+                .Cast<Microsoft.AspNetCore.RateLimiting.EnableRateLimitingAttribute>().Single().PolicyName);
+    }
+
+    [TestMethod]
+    public async Task Recovery_GivesSameResponseAndThrottlesRepeatedAccount()
+    {
+        var repository = new Mock<IAccountRespository>();
+        repository.Setup(x => x.ForgotPassword(It.IsAny<string>())).ReturnsAsync(new ApiResponse<string>("UserNotFound"));
+        var controller = new AccountController(repository.Object, null!, null!, new ConfigurationBuilder().Build());
+        var email = Guid.NewGuid() + "@example.com";
+        var responses = new List<ApiResponse<string>>();
+        for (var i = 0; i < 3; i++)
+        {
+            var action = await controller.ForgotPassword(i == 1 ? email.ToUpperInvariant() : email);
+            responses.Add((ApiResponse<string>)((OkObjectResult)action.Result!).Value!);
+        }
+        Assert.IsTrue(responses.All(x => x.Success && x.Data == responses[0].Data));
+        repository.Verify(x => x.ForgotPassword(It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task ResetCode_ReservesAtMostFiveAttemptsAndNeverLogsTheCode()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(connection).Options);
+        await db.Database.EnsureCreatedAsync();
+        var config = new ConfigurationBuilder().Build();
+        var audit = new Mock<IAuditTrailService>();
+        var recorded = new List<AuditTrailDto>();
+        audit.Setup(x => x.Create(It.IsAny<AuditTrailDto>())).Callback<AuditTrailDto>(x => recorded.Add(x)).ReturnsAsync(new ApiResponse<AuditTrailDto>());
+        var accessor = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
+        var repo = new AccountRespository(Users().Object, new RabbitMqEmailProducer(config), Roles().Object, accessor, config, db,
+            new WriteLog(Mock.Of<ILogger<WriteLog>>(), accessor), audit.Object);
+        var code = repo.GenerateResetToken();
+        db.GenerationAuthCode.Add(new GenerationAuthCode { UserId = "a@example.com", Type = "test", Token = code.TokenHash, Salt = code.Salt, IsUsed = false, ExpiredAt = DateTime.UtcNow.AddMinutes(5) });
+        await db.SaveChangesAsync();
+        for (var i = 0; i < 5; i++) Assert.IsNull(await repo.VerifyResetToken("000000", "a@example.com", "test"));
+        Assert.IsNull(await repo.VerifyResetToken(code.TokenRaw, "a@example.com", "test"));
+        Assert.AreEqual(5, (await db.GenerationAuthCode.AsNoTracking().SingleAsync()).AttemptCount);
+        Assert.IsFalse(recorded.Any(x => x.Description.Contains(code.TokenRaw)));
+
+        var second = repo.GenerateResetToken();
+        db.GenerationAuthCode.Add(new GenerationAuthCode { UserId = "b@example.com", Type = "test", Token = second.TokenHash, Salt = second.Salt, IsUsed = false, ExpiredAt = DateTime.UtcNow.AddMinutes(5) });
+        await db.SaveChangesAsync();
+        for (var i = 0; i < 4; i++) Assert.IsNull(await repo.VerifyResetToken("000000", "b@example.com", "test"));
+        Assert.IsNotNull(await repo.VerifyResetToken(second.TokenRaw, "b@example.com", "test"));
+        Assert.IsNull(await repo.VerifyResetToken(second.TokenRaw, "b@example.com", "test"));
     }
 
     [DataTestMethod]

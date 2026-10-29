@@ -69,8 +69,8 @@ export class AuthInterceptor implements HttpInterceptor {
       // gắn token là server trả UserNotFound nên không bao giờ lưu được.
       // ----
       'hashtagnews/gettophashtag',
-      'PublicPersonalNotes/',
-      'SharedPersonalNotes/',
+      'PublicPersonalNotes',
+      'SharedPersonalNotes',
       'cloudinary.com',
       'posthog.com',
       // Audius la nguon nhac public doc lap. Khong gui token cua blog sang ben thu ba

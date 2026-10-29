@@ -157,7 +157,7 @@ describe('Personal note Tiptap editor', () => {
     response.next(published);
     fixture.detectChanges();
     expect(component.editUrl).toContain(
-      '/shared-note/' + 'b'.repeat(64) + '/edit'
+      '/shared-note/edit#' + 'b'.repeat(64)
     );
     expect(component.editUrl).not.toBe(component.publicUrl);
     const clipboard = spyOn(TestBed.inject(Clipboard), 'copy').and.returnValue(
@@ -293,7 +293,7 @@ describe('Personal note Tiptap editor', () => {
     fixture.detectChanges();
     expect(component.dirty).toBeFalse();
     expect(component.shareOpen).toBeTrue();
-    expect(component.publicUrl).toContain('/shared-note/' + 'a'.repeat(64));
+    expect(component.publicUrl).toContain('/shared-note/view#' + 'a'.repeat(64));
     expect(
       fixture.nativeElement.querySelector('.publication-link input').value
     ).toBe(component.publicUrl);

@@ -10,9 +10,22 @@ using angnet.Application.Interfaces.Repositories;
 using Microsoft.AspNetCore.RateLimiting;
 using angnet.Infrastructure.Mail.Service;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Threading.RateLimiting;
 
 namespace angnet.WebApi.Controllers
 {
+    // Per-account limit complements the per-IP recovery policy.
+    internal static class RecoveryThrottle
+    {
+        internal static readonly PartitionedRateLimiter<string> Limiter = PartitionedRateLimiter.Create<string, string>(key =>
+            RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 2, Window = TimeSpan.FromMinutes(5), QueueLimit = 0, AutoReplenishment = true
+            }));
+    }
+
     // [EnableCors("angularapp")]
     [ApiController]
     [Route("api/[controller]")]
@@ -43,7 +56,7 @@ namespace angnet.WebApi.Controllers
             return StatusCode(403, new ApiResponse<string>("Đăng ký bằng mật khẩu đã tắt. Hãy đăng nhập Google hoặc liên hệ quản trị viên."));
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteuser")]
         [EnableRateLimitingAttribute("API")]
         public async Task<ActionResult<RegisterDto>> DeleteUser(string id)
@@ -205,21 +218,25 @@ namespace angnet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("forgotpassword")]
+        [EnableRateLimiting("AccountRecoveryIp")]
         public async Task<ActionResult<string>> ForgotPassword(string username)
         {
-            try
+            // The response is identical for existing and unknown accounts.
+            var normalized = (username ?? "").Trim().ToUpperInvariant();
+            if (normalized.Length is 0 or > 320)
+                return Ok(new ApiResponse<string> { Data = "If the account exists, a recovery code will be sent." });
+            using var lease = await RecoveryThrottle.Limiter.AcquireAsync(normalized);
+            if (lease.IsAcquired)
             {
-                ApiResponse<string> response = await _accountRespository.ForgotPassword(username);
-                return Ok(response);
+                try { await _accountRespository.ForgotPassword((username ?? "").Trim()); }
+                catch (Exception) { HttpContext.RequestServices.GetService<ILogger<AccountController>>()?.LogWarning("Password recovery delivery failed"); }
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            return Ok(new ApiResponse<string> { Data = "If the account exists, a recovery code will be sent." });
         }
 
         [AllowAnonymous]
         [HttpPost("changepassword")]
+        [EnableRateLimiting("AccountRecoveryIp")]
         public async Task<ActionResult<string>> ChangePassword(ChangePassDto model)
         {
             try

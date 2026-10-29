@@ -12,6 +12,12 @@ namespace angnet.WebApi.Controllers;
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class SharedPersonalNotesController(PersonalNoteService service) : ControllerBase
 {
+    [HttpGet]
+    public Task<IActionResult> GetWithHeader([FromHeader(Name = "X-Note-Token")] string? token) => Get(token ?? "");
+
+    [HttpPut, RequestSizeLimit(16 * 1024 * 1024)]
+    public Task<IActionResult> SaveWithHeader([FromHeader(Name = "X-Note-Token")] string? token, [FromBody] PersonalNoteSaveDto data) => Save(token ?? "", data);
+
     [HttpGet("{token}")]
     public async Task<IActionResult> Get(string token)
     {

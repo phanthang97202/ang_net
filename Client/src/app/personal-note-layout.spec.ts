@@ -15,6 +15,7 @@ import {
   VisitTrackingService,
 } from './services';
 import { BlogMaintenanceService } from './services/blog-maintenance.service';
+import { WebAnalyticsTrackingService } from './services/web-analytics.service';
 
 @Component({ standalone: true, template: '<p>Note content</p>' })
 class ContentPageComponent {}
@@ -43,6 +44,7 @@ describe('Published note application layout', () => {
         { provide: LoadingService, useValue: { getLoading: () => of(false) } },
         { provide: ShowErrorService, useValue: { getErrorInfo: () => NEVER } },
         { provide: VisitTrackingService, useValue: { init: () => undefined } },
+        { provide: WebAnalyticsTrackingService, useValue: { init: () => undefined } },
         {
           provide: ThemeService,
           useValue: { init: () => undefined, applyForLayout: () => undefined },

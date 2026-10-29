@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 import { Editor } from '@tiptap/core';
 import { PersonalNoteService } from '../../services/personal-note.service';
 import { PublicPersonalNote } from '../../interfaces/personal-note';
@@ -53,9 +53,9 @@ export class PersonalNotePublicComponent implements OnInit, OnDestroy {
   failed = false;
 
   ngOnInit(): void {
-    this.route.paramMap
+    combineLatest([this.route.paramMap, this.route.fragment])
       .pipe(
-        map(params => params.get('token') ?? ''),
+        map(([params, fragment]) => params.get('token') ?? fragment ?? ''),
         tap(() => {
           this.editor?.destroy();
           this.editor = undefined;

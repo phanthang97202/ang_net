@@ -10,7 +10,7 @@ import {
 } from '../../../services';
 import { IDetailNews } from '../../../interfaces';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DomSanitizer, Title } from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
@@ -136,7 +136,6 @@ export class DetailNewsComponent implements OnInit {
   activeSlide = 0;
 
   constructor(
-    private sanitizer: DomSanitizer,
     private titleService: Title
   ) {}
 
@@ -158,10 +157,6 @@ export class DetailNewsComponent implements OnInit {
         this.loadData(this.newsId);
       }
     });
-  }
-
-  byPassHTML(html: string) {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   getCategoryName(): string {

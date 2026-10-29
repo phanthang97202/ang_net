@@ -126,6 +126,13 @@ public class PersonalNotePermissionTests
     }
 
     [TestMethod]
+    public async Task DeleteAccount_RejectsAnonymousAndNonAdmin()
+    {
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("DELETE", "/api/Account/deleteuser?id=owner", null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Send("DELETE", "/api/Account/deleteuser?id=owner", Token()));
+    }
+
+    [TestMethod]
     public async Task ImageNote_LargerThanOldTextLimit_CanBeSavedAndReopenedThroughHttp()
     {
         var image = new byte[600_000];
@@ -162,6 +169,11 @@ public class PersonalNotePermissionTests
         using var response = await http.GetAsync(publicPath);
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.IsTrue(response.Headers.CacheControl!.NoStore);
+        using var headerRequest = new HttpRequestMessage(HttpMethod.Get, "/api/PublicPersonalNotes");
+        headerRequest.Headers.Add("X-Note-Token", token);
+        using var headerResponse = await http.SendAsync(headerRequest);
+        Assert.AreEqual(HttpStatusCode.OK, headerResponse.StatusCode);
+        Assert.IsTrue(headerResponse.Headers.CacheControl!.NoStore);
         using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         CollectionAssert.AreEquivalent(new[] { "title", "contentJson" }, body.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Send("GET", path, null));
@@ -187,11 +199,20 @@ public class PersonalNotePermissionTests
         var sharedPath = "/api/SharedPersonalNotes/" + edit;
         using var initial = await http.GetAsync(sharedPath);
         Assert.AreEqual(HttpStatusCode.OK, initial.StatusCode);
+        using var headerRequest = new HttpRequestMessage(HttpMethod.Get, "/api/SharedPersonalNotes");
+        headerRequest.Headers.Add("X-Note-Token", edit);
+        using var headerResponse = await http.SendAsync(headerRequest);
+        Assert.AreEqual(HttpStatusCode.OK, headerResponse.StatusCode);
         Assert.IsTrue(initial.Headers.CacheControl!.NoStore);
         using var shared = JsonDocument.Parse(await initial.Content.ReadAsStringAsync());
         CollectionAssert.AreEquivalent(new[] { "title", "contentJson", "version" }, shared.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
         int version = shared.RootElement.GetProperty("version").GetInt32();
-        Assert.AreEqual(HttpStatusCode.OK, await Send("PUT", sharedPath, null, version));
+        using var saveHeader = new HttpRequestMessage(HttpMethod.Put, "/api/SharedPersonalNotes") {
+            Content = JsonContent.Create(new { Title = "Private", ContentJson = "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\"}]}", Version = version })
+        };
+        saveHeader.Headers.Add("X-Note-Token", edit);
+        using var savedHeader = await http.SendAsync(saveHeader);
+        Assert.AreEqual(HttpStatusCode.OK, savedHeader.StatusCode);
         using var ownerRequest = new HttpRequestMessage(HttpMethod.Get, path);
         ownerRequest.Headers.Authorization = new("Bearer", Token());
         using var original = await http.SendAsync(ownerRequest);

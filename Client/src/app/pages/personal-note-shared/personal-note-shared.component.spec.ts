@@ -29,7 +29,7 @@ describe('Shared note editing page', () => {
       ],
       providers: [
         { provide: PersonalNoteService, useValue: api },
-        { provide: ActivatedRoute, useValue: { paramMap: new Subject() } },
+        { provide: ActivatedRoute, useValue: { paramMap: new Subject(), fragment: of(null) } },
         {
           provide: AuthService,
           useValue: { isLoggedIn: () => false, hasPermission: () => false },
@@ -38,6 +38,12 @@ describe('Shared note editing page', () => {
     });
   });
   afterEach(() => (document.title = previousTitle));
+  it('loads a token from the URL fragment without putting it in the path', () => {
+    TestBed.overrideProvider(ActivatedRoute, { useValue: { paramMap: of(convertToParamMap({})), fragment: of(token) } });
+    const fixture = TestBed.createComponent(PersonalNoteSharedComponent);
+    fixture.detectChanges();
+    expect(api.sharedNote).toHaveBeenCalledWith(token);
+  });
   it('loads an anonymous edit link into the full-page editor and stays open after saving', fakeAsync(() => {
     const params = TestBed.inject(ActivatedRoute).paramMap as Subject<
       ReturnType<typeof convertToParamMap>

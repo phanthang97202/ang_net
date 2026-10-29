@@ -203,6 +203,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Prevent DDoS attack (free) // [EnableRateLimitingAttribute("API")]
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("AccountRecoveryIp", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions { Window = TimeSpan.FromMinutes(10), PermitLimit = 30, QueueLimit = 0 }));
     options.AddPolicy("AnalyticsTrack", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -333,6 +337,8 @@ builder.Services.AddControllers(options =>
 // Config Logs  
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
+    // Default hosting diagnostics log the full URL, including legacy share tokens.
+    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting.Diagnostics", Serilog.Events.LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .Enrich.WithMachineName()
     .WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter())
@@ -443,7 +449,11 @@ app.Use(async (context, next) =>
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.UseMiddleware<UserEnricherMiddleware>();
-app.UseSerilogRequestLogging(); // tự động log thông tin HTTP request
+// Legacy shared-note routes contain bearer capabilities in the path.
+// Keep them out of application request logs even while old clients are active.
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api/SharedPersonalNotes") &&
+                       !context.Request.Path.StartsWithSegments("/api/PublicPersonalNotes"),
+    branch => branch.UseSerilogRequestLogging());
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
