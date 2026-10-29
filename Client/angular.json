@@ -29,6 +29,16 @@
               "src/robots.txt",
               "src/assets",
               {
+                "glob": "standard.*",
+                "input": "node_modules/@kensio/pinyinjs/data",
+                "output": "assets/pinyin"
+              },
+              {
+                "glob": "{LICENSE,NOTICE}",
+                "input": "node_modules/@kensio/pinyinjs",
+                "output": "assets/pinyin"
+              },
+              {
                 "glob": "ckeditor5-editor.css",
                 "input": "node_modules/ckeditor5/dist",
                 "output": "assets/styles"
@@ -125,7 +135,12 @@
             "assets": [
               "src/favicon.ico",
               "src/robots.txt",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "standard.*",
+                "input": "node_modules/@kensio/pinyinjs/data",
+                "output": "assets/pinyin"
+              }
             ],
             "styles": [
               "src/theme.less",

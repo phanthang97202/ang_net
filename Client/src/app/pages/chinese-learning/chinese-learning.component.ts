@@ -8,14 +8,17 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription } from 'rxjs';
 import { ChineseExercise, ChineseExerciseRequest, ChineseKind, ChineseLearningService, ChineseVocabulary, ChineseVocabularyRequest, ChineseWord } from '../../services/chinese-learning.service';
 import { LookupItem, LookupListService } from '../../services/lookup-list.service';
+import { ChinesePinyinInputService } from '../../services/chinese-pinyin-input.service';
 
 @Component({ selector: 'app-chinese-learning', standalone: true, imports: [CommonModule, FormsModule, NzIconModule, RouterLink], templateUrl: './chinese-learning.component.html', styleUrl: './chinese-learning.component.scss' })
 export class ChineseLearningComponent implements OnInit, OnDestroy {
   @ViewChild('wordDialog') wordDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('exerciseDialog') exerciseDialog?: ElementRef<HTMLDialogElement>;
   @ViewChild('exerciseText') exerciseText?: ElementRef<HTMLElement>;
+  @ViewChild('manualText') manualText?: ElementRef<HTMLTextAreaElement>;
   private readonly api = inject(ChineseLearningService);
   private readonly lookups = inject(LookupListService);
+  private readonly pinyinInput = inject(ChinesePinyinInputService);
   private readonly destroy = inject(DestroyRef);
   private listRequest?: Subscription;
   readonly kinds: { id: ChineseKind; label: string; icon: string }[] = [
@@ -28,6 +31,8 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
   vocabulary: ChineseVocabulary[] = []; collectionFilter = ''; answer = ''; revealed = false; selectedWord = '';
   loading = false; generating = false; saving = false; error = ''; wordError = ''; audioError = '';
   savingExercise = false; exerciseError = '';
+  pinyinEnabled = false; pinyinQuery = ''; pinyinCandidates: readonly string[] = []; pinyinLoading = false; pinyinError = '';
+  private pinyinRequest = 0; private insertionStart = 0; private insertionEnd = 0;
   exerciseDraft: ChineseExerciseRequest = { Kind: 'sentence', Topic: '', Text: '', Pinyin: '', Translation: '' };
   draft: ChineseVocabularyRequest = { Word: '', Pinyin: '', Meaning: '', Collection: '', Example: '', ExamplePinyin: '', ExampleTranslation: '' };
   ngOnInit(): void { this.loadTopics(); this.loadWords(); }
@@ -66,7 +71,39 @@ export class ChineseLearningComponent implements OnInit, OnDestroy {
     if (!this.topic || this.generating) return;
     this.exerciseError = '';
     this.exerciseDraft = { Kind: this.kind, Topic: this.topic, Text: '', Pinyin: '', Translation: '' };
+    this.pinyinEnabled = false; this.pinyinQuery = ''; this.pinyinCandidates = []; this.pinyinError = ''; this.pinyinRequest++; this.insertionStart = 0; this.insertionEnd = 0;
     this.exerciseDialog?.nativeElement.showModal();
+  }
+  rememberInsertion(): void {
+    const input = this.manualText?.nativeElement;
+    if (input) { this.insertionStart = input.selectionStart; this.insertionEnd = input.selectionEnd; }
+  }
+  async searchPinyin(): Promise<void> {
+    const request = ++this.pinyinRequest; const query = this.pinyinQuery.trim();
+    this.pinyinCandidates = []; this.pinyinError = '';
+    if (!query) { this.pinyinLoading = false; return; }
+    this.pinyinLoading = true;
+    try {
+      const matches = await this.pinyinInput.candidates(query);
+      if (request === this.pinyinRequest) this.pinyinCandidates = matches;
+    } catch {
+      if (request === this.pinyinRequest) this.pinyinError = 'Không thể tải từ điển. Hãy thử lại.';
+    } finally { if (request === this.pinyinRequest) this.pinyinLoading = false; }
+  }
+  insertCandidate(word: string): void {
+    const text = this.exerciseDraft.Text;
+    const start = Math.min(this.insertionStart, text.length); const end = Math.min(this.insertionEnd, text.length);
+    if (text.length - (end - start) + word.length > 500) { this.pinyinError = 'Nội dung tiếng Trung tối đa 500 ký tự.'; return; }
+    this.exerciseDraft.Text = text.slice(0, start) + word + text.slice(end);
+    this.insertionStart = this.insertionEnd = start + word.length;
+    this.pinyinQuery = ''; this.pinyinCandidates = []; this.pinyinError = ''; this.pinyinLoading = false; this.pinyinRequest++;
+    const input = this.manualText?.nativeElement;
+    if (input) { input.value = this.exerciseDraft.Text; input.setSelectionRange(this.insertionStart, this.insertionEnd); }
+  }
+  pinyinKeydown(event: KeyboardEvent): void {
+    if (event.isComposing) return;
+    if ((event.key === 'Enter' || event.key === ' ') && this.pinyinCandidates.length) { event.preventDefault(); this.insertCandidate(this.pinyinCandidates[0]); }
+    else if (event.key === 'Enter') event.preventDefault();
   }
   saveExercise(form: NgForm): void {
     if (this.savingExercise) return;

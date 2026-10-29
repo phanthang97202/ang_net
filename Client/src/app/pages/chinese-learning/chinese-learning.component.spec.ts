@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import * as icons from '@ant-design/icons-angular/icons';
 import { ChineseLearningComponent } from './chinese-learning.component';
+import { ChinesePinyinInputService } from '../../services/chinese-pinyin-input.service';
 
 describe('Chinese learning', () => {
   let http: HttpTestingController;
@@ -58,5 +59,24 @@ describe('Chinese learning', () => {
     expect(request.request.body.Topic).toBe('daily'); request.flush({ Id: 'new' });
     http.expectOne(req => req.method === 'GET' && req.url.endsWith('/exercises')).flush([{ Id: 'new', Kind: 'sentence', Topic: 'daily', Text: '你好', Pinyin: 'nǐ hǎo', Translation: 'Xin chào', Words: [] }]);
     expect(fixture.componentInstance.current?.Id).toBe('new');
+  });
+  it('offers pinyin candidates and inserts the selected word at the cursor', async () => {
+    const fixture = TestBed.createComponent(ChineseLearningComponent); fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/LookupList')).flush([{ Code: 'daily', NameVi: 'Hằng ngày', NameEn: 'Daily', FlagActive: true }]);
+    http.expectOne(req => req.url.endsWith('/exercises')).flush([]);
+    http.expectOne(req => req.url.endsWith('/vocabulary')).flush([]); fixture.detectChanges();
+    fixture.componentInstance.openExercise(); fixture.detectChanges();
+    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea[name="text"]');
+    fixture.componentInstance.exerciseDraft.Text = '我工作'; textarea.value = '我工作';
+    textarea.setSelectionRange(1, 1); fixture.componentInstance.rememberInsertion();
+    spyOn(TestBed.inject(ChinesePinyinInputService), 'candidates').and.resolveTo(['在']);
+    fixture.componentInstance.pinyinQuery = 'zai'; await fixture.componentInstance.searchPinyin();
+    expect(fixture.componentInstance.pinyinCandidates).toEqual(['在']);
+    fixture.componentInstance.insertCandidate('在');
+    expect(fixture.componentInstance.exerciseDraft.Text).toBe('我在工作');
+    expect(fixture.componentInstance.pinyinQuery).toBe('');
+  });
+  it('looks up real pinyin in the bundled dictionary', async () => {
+    expect(await TestBed.inject(ChinesePinyinInputService).candidates('nihao')).toContain('你好');
   });
 });
