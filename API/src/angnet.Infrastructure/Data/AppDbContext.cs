@@ -83,6 +83,8 @@ namespace angnet.Infrastructure.Data
         public DbSet<PersonalCalendarOccurrenceStatusModel> PersonalCalendarOccurrenceStatus { get; set; }
         public DbSet<PersonalExpenseModel> PersonalExpense { get; set; }
         public DbSet<PersonalExpenseCategoryModel> PersonalExpenseCategory { get; set; }
+        public DbSet<ChineseExerciseModel> ChineseExercise { get; set; }
+        public DbSet<ChineseVocabularyModel> ChineseVocabulary { get; set; }
         // Danh sách chọn (dropdown) của từng người dùng, dùng chung cho mọi module
         public DbSet<LookupListModel> LookupList { get; set; }
 
@@ -152,6 +154,10 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<PersonalExpenseModel>().Property(x => x.Version).IsConcurrencyToken();
             modelBuilder.Entity<PersonalExpenseCategoryModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PersonalExpenseCategoryModel>().HasIndex(x => new { x.OwnerId, x.NormalizedName }).IsUnique();
+            modelBuilder.Entity<ChineseExerciseModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ChineseExerciseModel>().HasIndex(x => new { x.OwnerId, x.Kind, x.Topic });
+            modelBuilder.Entity<ChineseVocabularyModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ChineseVocabularyModel>().HasIndex(x => new { x.OwnerId, x.Collection, x.Word }).IsUnique();
             modelBuilder.Entity<LookupListModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<LookupListModel>().HasIndex(x => new { x.OwnerId, x.ListCode, x.Code }).IsUnique();
             modelBuilder.Entity<LookupListModel>().HasIndex(x => new { x.OwnerId, x.ListCode, x.SortOrder });

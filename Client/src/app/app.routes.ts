@@ -106,6 +106,12 @@ const appRoutes: Routes = [
     canActivate: [canActivePermission('expenses.use', '/')],
   },
   {
+    title: 'T_CHINESE',
+    path: 'chinese',
+    loadComponent: () => import('./pages/chinese-learning/chinese-learning.component').then(p => p.ChineseLearningComponent),
+    canActivate: [canActivePermission('chinese.use', '/')],
+  },
+  {
     title: 'T_PAGE_MUSIC',
     path: 'music',
     loadComponent: () =>
