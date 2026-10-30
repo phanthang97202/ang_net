@@ -115,7 +115,7 @@ const appRoutes: Routes = [
     title: 'T_PAGE_MUSIC',
     path: 'music',
     loadComponent: () =>
-      import('./pages/music/music.component').then(p => p.MusicComponent),
+      import('./pages/music/music-route.component').then(p => p.MusicRouteComponent),
     canActivate: [canActivePermission('music.use', '/')],
   },
   {

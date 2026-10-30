@@ -3,6 +3,10 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -28,6 +32,7 @@ import { MusicLibraryComponent } from './music-library.component';
 import { YouTubeMusicComponent } from './youtube-music.component';
 import { MusicShuffle } from './music-shuffle';
 import { MusicAnalyticsService } from '../../services/music-analytics.service';
+import { RouterLink } from '@angular/router';
 
 export type TMusicTab = 'audius' | 'youtube' | 'library';
 
@@ -43,6 +48,7 @@ export type TMusicTab = 'audius' | 'youtube' | 'library';
     MusicSaveButtonComponent,
     MusicSaveToastComponent,
     MusicCollectionPickerComponent,
+    RouterLink,
   ],
   templateUrl: './music.component.html',
   styleUrls: [
@@ -52,6 +58,18 @@ export type TMusicTab = 'audius' | 'youtube' | 'library';
   ],
 })
 export class MusicComponent {
+  @Input() mini = false;
+  @Output() closeMini = new EventEmitter<void>();
+  @HostBinding('class.music-mini') get miniClass(): boolean { return this.mini; }
+  @HostBinding('class.music-mini-empty') get miniEmpty(): boolean { return this.mini && !this.hasPlayer; }
+  @ViewChild(YouTubeMusicComponent) private youtube?: YouTubeMusicComponent;
+  @ViewChild(MusicLibraryComponent) private musicLibrary?: MusicLibraryComponent;
+  private audiusStarted = false;
+  get hasPlayer(): boolean {
+    if (this.musicSource === 'youtube') return !!this.youtube?.currentTrack;
+    if (this.musicSource === 'library') return (this.musicLibrary?.queueIndex ?? -1) >= 0;
+    return this.audiusStarted && !!this.currentTrack;
+  }
   private readonly metrics = inject(MusicAnalyticsService);
   private playbackRecorded = false;
   private readonly musicService = inject(AudiusMusicService);
@@ -253,6 +271,7 @@ export class MusicComponent {
   }
 
   onPlay(): void {
+    this.audiusStarted = true;
     if (this.currentTrack && !this.playbackRecorded) {
       this.playbackRecorded = true;
       this.metrics.record('play', 'Audius', this.currentTrack.id, this.currentTrack.title);

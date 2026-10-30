@@ -1,4 +1,8 @@
 <main class="music-page">
+  <div *ngIf="mini && hasPlayer" class="mini-header">
+    <a routerLink="/music">{{ 'T_MUSIC_MINI_OPEN' | translate }}</a>
+    <button type="button" (click)="closeMini.emit()" [attr.aria-label]="'T_MUSIC_MINI_CLOSE' | translate">✕</button>
+  </div>
   <nav
     class="music-sources"
     [attr.aria-label]="'T_MUSIC_SOURCE_SELECT' | translate">

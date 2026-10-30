@@ -17,12 +17,15 @@
   *ngIf="layoutType === 'immersive'"
   (activate)="onPageActivated()"></router-outlet>
 
-<div *ngIf="layoutType === 'user'" class="layout layout--user">
-  <div class="ambient-glow ambient-glow--left"></div>
-  <div class="ambient-glow ambient-glow--right"></div>
-  <app-navbar />
-  <router-outlet (activate)="onPageActivated()"></router-outlet>
-  <app-footer />
+<div [class.layout]="layoutType === 'user'" [class.layout--user]="layoutType === 'user'">
+  <div *ngIf="layoutType === 'user'" class="ambient-glow ambient-glow--left"></div>
+  <div *ngIf="layoutType === 'user'" class="ambient-glow ambient-glow--right"></div>
+  <app-navbar *ngIf="layoutType === 'user'" />
+  @defer (when musicStarted) {
+    <app-music *ngIf="musicStarted && authService.hasPermission('music.use')" [mini]="!musicPageActive" (closeMini)="musicStarted = false" />
+  }
+  <router-outlet *ngIf="layoutType === 'user'" (activate)="onPageActivated()"></router-outlet>
+  <app-footer *ngIf="layoutType === 'user'" />
 </div>
 
 <nz-layout *ngIf="layoutType === 'admin'" class="layout admin-ui">

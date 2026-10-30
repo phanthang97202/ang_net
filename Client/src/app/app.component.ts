@@ -26,6 +26,7 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import { SwitchLangComponent } from './components/switch-lang/switch-lang.component';
 import { ChatWidgetComponent } from './components/chat-box/chat-widget.component';
 import { PersonalNotesWidgetComponent } from './components/personal-notes/personal-notes-widget.component';
+import { MusicComponent } from './pages/music/music.component';
 import { BlogMaintenanceService } from './services/blog-maintenance.service';
 import { WebAnalyticsTrackingService } from './services/web-analytics.service';
 import {
@@ -53,6 +54,7 @@ import {
     SwitchLangComponent,
     ChatWidgetComponent,
     PersonalNotesWidgetComponent,
+    MusicComponent,
   ],
   providers: [],
   templateUrl: './app.component.html',
@@ -70,6 +72,8 @@ export class AppComponent implements OnInit {
   };
   isShowErrorModal = false; // THÊM DÒNG NÀY
   layoutType: LayoutType = 'user';
+  musicStarted = false;
+  musicPageActive = false;
 
   loadingService = inject(LoadingService);
   langService = inject(LangService);
@@ -293,6 +297,9 @@ export class AppComponent implements OnInit {
       )
       .subscribe(event => {
         const url = event.urlAfterRedirects.split(/[?#]/)[0];
+        this.musicPageActive = url === '/music';
+        if (this.musicPageActive) this.musicStarted = true;
+        else if (url.startsWith('/music/collection/')) this.musicStarted = false;
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
         const isLayoutImmersive =
           this.lstRouteLayoutImmersive.includes(url) ||
