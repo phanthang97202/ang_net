@@ -49,7 +49,7 @@ describe('Chat notification widget', () => {
       markRead: jasmine.createSpy().and.resolveTo(),
       sendMessage: jasmine.createSpy().and.resolveTo(),
       sendImage: jasmine.createSpy(),
-      getImage: jasmine.createSpy(),
+      getImage: jasmine.createSpy().and.returnValue(of(new Blob(['image'], { type: 'image/png' }))),
     };
     TestBed.configureTestingModule({
       imports: [
@@ -72,6 +72,16 @@ describe('Chat notification widget', () => {
         },
       ],
     });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('vi', {
+      T_CHAT_USER: 'Người dùng', T_CHAT_IMAGE_MESSAGE: '[Hình ảnh]',
+      T_CHAT_READ_ONLY: 'Bạn có quyền xem tin nhắn. Cần quyền gửi để trả lời.',
+      T_CHAT_SEND_MESSAGE: 'Gửi tin nhắn', T_CHAT_IMAGE_PERMISSION: 'Bạn không có quyền gửi ảnh.',
+      T_CHAT_SEND_IMAGE_ERROR: 'Không gửi được ảnh. Vui lòng thử lại.',
+      T_CHAT_IMAGE_SIZE_ERROR: 'Ảnh phải có dung lượng nhỏ hơn 2 MB.',
+      T_CHAT_IMAGE_FORMAT_ERROR: 'Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.',
+    });
+    translate.use('vi');
   });
   it('keeps unread previews clear of the adjacent personal notes launcher', fakeAsync(() => {
     const f = TestBed.createComponent(ChatWidgetComponent);
@@ -695,7 +705,7 @@ describe('Chat notification widget', () => {
     f.destroy();
     tick(1000);
   }));
-  it('loads database images only after clicking and releases the blob on closing or deletion', fakeAsync(() => {
+  it('shows database images inline, opens the preview, and releases the blob on deletion', fakeAsync(() => {
     const image = new Subject<Blob>();
     chat.getImage.and.returnValue(image);
     const revoke = spyOn(URL, 'revokeObjectURL').and.callThrough();
@@ -716,20 +726,21 @@ describe('Chat notification widget', () => {
     } as IChat;
     box.messages = [message];
     f.detectChanges();
-    expect(
-      f.nativeElement.querySelector('.message-image-button').textContent
-    ).toContain('[Hình ảnh]');
-    expect(f.nativeElement.querySelector('.message-bubble img')).toBeNull();
-    expect(chat.getImage).not.toHaveBeenCalled();
-    f.nativeElement.querySelector('.message-image-button').click();
     expect(chat.getImage).toHaveBeenCalledOnceWith('blob-1');
-    expect(box.previewLoading).toBeTrue();
+    expect(f.nativeElement.querySelector('.message-bubble img')).toBeNull();
     image.next(new Blob(['image'], { type: 'image/png' }));
-    tick();
+    tick(); f.detectChanges();
+    const inline = f.nativeElement.querySelector('.message-bubble img') as HTMLImageElement;
+    expect(inline.src).toMatch(/^blob:/);
+    inline.click();
     expect(box.previewImage).toMatch(/^blob:/);
     const url = box.previewImage!;
+    box.closePreview();
+    expect(revoke).not.toHaveBeenCalledWith(url);
+    inline.click();
     chat.deleted$.next({ MessageId: 'blob-1', Sequence: 1 });
     expect(box.previewVisible).toBeFalse();
+    f.detectChanges();
     expect(revoke).toHaveBeenCalledWith(url);
     void box.openImage(message);
     expect(image.observers.length).toBe(1);
@@ -740,6 +751,22 @@ describe('Chat notification widget', () => {
     expect(box.previewError).toBe('');
     f.destroy();
     tick(1000);
+  }));
+  it('shows legacy image URLs and lets users retry failed image loads', fakeAsync(() => {
+    const f = TestBed.createComponent(ChatWidgetComponent);
+    f.detectChanges(); f.componentInstance.open = true; f.detectChanges(); tick(150);
+    const box = f.debugElement.query(By.directive(ChatBoxComponent)).componentInstance as ChatBoxComponent;
+    const base = { Sequence: 1, UserId: 'other', CreatedDTime: new Date() };
+    box.messages = [{ ...base, MessageId: 'old', Type: 'jpg', Message: 'https://example.com/image.jpg' } as IChat];
+    f.detectChanges();
+    expect((f.nativeElement.querySelector('.message-bubble img') as HTMLImageElement).src).toBe('https://example.com/image.jpg');
+    chat.getImage.and.returnValues(throwError(() => new Error('failed')), of(new Blob(['image'], { type: 'image/png' })));
+    box.messages = [{ ...base, MessageId: 'new', Type: 'image', Message: '[Hình ảnh]' } as IChat];
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('app-chat-inline-image [role="alert"]')).not.toBeNull();
+    f.nativeElement.querySelector('app-chat-inline-image .retry').click(); f.detectChanges();
+    expect(f.nativeElement.querySelector('.message-bubble img')).not.toBeNull();
+    f.destroy(); tick(1000);
   }));
   it('accepts pasted screenshots locally, and enforces image permission before sending', fakeAsync(() => {
     chat.canSend = true;

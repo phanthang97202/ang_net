@@ -25,6 +25,7 @@ import { SpinnerComponent } from '../spinner/spinner.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { ChatLinksPipe } from './chat-links.pipe';
+import { ChatInlineImageComponent } from './chat-inline-image.component';
 
 @Component({
   selector: 'app-chat-box',
@@ -39,6 +40,7 @@ import { ChatLinksPipe } from './chat-links.pipe';
     TranslateModule,
     NzPopconfirmModule,
     ChatLinksPipe,
+    ChatInlineImageComponent,
   ],
   templateUrl: './chat-box.component.html',
   styleUrl: './chat-box.component.scss',
@@ -91,6 +93,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
   previewLoading = false;
   previewError = '';
   private previewMessageId = '';
+  private previewOwnsImage = false;
   private previewRequest = 0;
   private previewClosed$ = new Subject<void>();
 
@@ -335,6 +338,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
       );
       if (this.destroyed || request !== this.previewRequest) return;
       this.previewImage = URL.createObjectURL(blob);
+      this.previewOwnsImage = true;
     } catch {
       if (!this.destroyed && request === this.previewRequest)
         this.previewError = this.translate.instant('T_CHAT_IMAGE_LOAD_ERROR');
@@ -343,11 +347,19 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
   }
 
+  openInlineImage(message: IChat, src: string): void {
+    this.closePreview();
+    this.previewMessageId = message.MessageId;
+    this.previewImage = src;
+    this.previewVisible = true;
+  }
+
   closePreview(): void {
     ++this.previewRequest;
     this.previewClosed$.next();
-    if (this.previewImage?.startsWith('blob:'))
+    if (this.previewOwnsImage && this.previewImage?.startsWith('blob:'))
       URL.revokeObjectURL(this.previewImage);
+    this.previewOwnsImage = false;
     this.previewImage = '';
     this.previewVisible = false;
     this.previewLoading = false;

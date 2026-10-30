@@ -58,16 +58,12 @@
           }}</span>
           <div
             class="message-bubble"
+            [class.bubble-image]="msg.Type === 'jpg' || msg.Type === 'image'"
             [class.bubble-own]="msg.UserId === userId">
-            <button
+            <app-chat-inline-image
               *ngIf="msg.Type === 'jpg' || msg.Type === 'image'"
-              type="button"
-              class="message-image-button"
-              (click)="openImage(msg)"
-              [attr.aria-label]="'T_CHAT_VIEW_IMAGE' | translate">
-              <span nz-icon nzType="picture" nzTheme="outline"></span>
-              <span>{{ 'T_CHAT_IMAGE_MESSAGE' | translate }}</span>
-            </button>
+              [message]="msg"
+              (open)="openInlineImage(msg, $event)"></app-chat-inline-image>
             <p *ngIf="msg.Type === 'string'" class="message-text">
               <ng-container *ngFor="let part of msg.Message | chatLinks"
                 ><a

@@ -678,6 +678,7 @@
     "T_CHAT_IMAGE_FORMAT_ERROR": "Chỉ hỗ trợ ảnh JPG, PNG, GIF hoặc WebP.",
     "T_CHAT_IMAGE_URL_ERROR": "Địa chỉ ảnh không hợp lệ.",
     "T_CHAT_IMAGE_LOAD_ERROR": "Không thể tải ảnh. Ảnh có thể đã bị xóa hoặc bạn không còn quyền xem.",
+    "T_CHAT_IMAGE_RETRY": "Thử tải lại",
     "T_CHAT_DELETE_ERROR": "Không thể xóa tin nhắn. Vui lòng thử lại.",
     "T_MUSIC_LOADING": "Đang tải nhạc",
     "T_MUSIC_SEARCH": "Tìm kiếm",

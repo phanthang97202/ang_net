@@ -678,6 +678,7 @@
     "T_CHAT_IMAGE_FORMAT_ERROR": "Only JPG, PNG, GIF, or WebP images are supported.",
     "T_CHAT_IMAGE_URL_ERROR": "The image URL is invalid.",
     "T_CHAT_IMAGE_LOAD_ERROR": "Unable to load the image. It may have been deleted or you may no longer have access.",
+    "T_CHAT_IMAGE_RETRY": "Retry",
     "T_CHAT_DELETE_ERROR": "Unable to delete the message. Please try again.",
     "T_MUSIC_LOADING": "Loading music",
     "T_MUSIC_SEARCH": "Search",
