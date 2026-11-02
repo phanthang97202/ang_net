@@ -122,7 +122,9 @@ namespace angnet.Infrastructure.Data.Services
                 NewValues = JsonSerializer.Serialize(requestClient),
                 ChangedBy = !string.IsNullOrWhiteSpace(actorName)
                     ? actorName
-                    : _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
+                    : !string.IsNullOrWhiteSpace(data.ChangedBy)
+                        ? data.ChangedBy.Trim()
+                        : _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
                 ChangedDTime = TCommonUtils.DTimeNow(),
                 IsRevoked = false
 

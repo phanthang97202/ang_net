@@ -1,5 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using angnet.Application.Interfaces.Services;
+using angnet.Domain.Dtos;
+using angnet.Domain.Enums;
 using angnet.Infrastructure.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +17,7 @@ namespace angnet.WebApi.Controllers;
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public sealed class CalendarReminderTriggerController(
     IPersonalCalendarReminderService reminderService,
+    IAuditTrailService auditTrailService,
     IConfiguration configuration,
     ILogger<CalendarReminderTriggerController> logger) : ControllerBase
 {
@@ -54,6 +58,7 @@ public sealed class CalendarReminderTriggerController(
         try
         {
             var result = await reminderService.RunAsync(cancellationToken);
+            await WriteAuditAsync(result);
             return result.Failed > 0
                 ? StatusCode(StatusCodes.Status502BadGateway, result)
                 : Ok(result);
@@ -63,6 +68,31 @@ public sealed class CalendarReminderTriggerController(
             logger.LogError(exception, "Calendar reminder configuration is invalid");
             return StatusCode(StatusCodes.Status503ServiceUnavailable,
                 new { Code = "CalendarReminderNotConfigured" });
+        }
+    }
+
+    private async Task WriteAuditAsync(CalendarReminderRunResult result)
+    {
+        if (result.Sent == 0 && result.Failed == 0) return;
+
+        try
+        {
+            var description = result.Failed > 0
+                ? $"Hệ thống nhắc lịch ngày {result.LocalDate:dd/MM/yyyy}: gửi thành công {result.Sent}/{result.EligibleAccounts} email, thất bại {result.Failed}."
+                : $"Hệ thống đã gửi {result.Sent} email nhắc lịch ngày {result.LocalDate:dd/MM/yyyy} thành công.";
+
+            await auditTrailService.Create(new AuditTrailDto
+            {
+                RecordId = $"calendar-reminder-{result.LocalDate:yyyyMMdd}",
+                Level = result.Failed > 0 ? EAuditTrailLevel.ERROR : EAuditTrailLevel.INFORMATION,
+                Description = description,
+                ChangedColumns = "CalendarReminder",
+                ChangedBy = "Hệ thống"
+            });
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Could not write the calendar reminder audit trail");
         }
     }
 

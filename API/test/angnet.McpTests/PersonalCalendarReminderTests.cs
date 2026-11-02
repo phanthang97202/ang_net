@@ -1,3 +1,6 @@
+using angnet.Application.Interfaces.Services;
+using angnet.Domain.Dtos;
+using angnet.Domain.Enums;
 using angnet.Domain.Models;
 using angnet.Infrastructure.Data;
 using angnet.Infrastructure.Data.Services;
@@ -120,7 +123,8 @@ public class PersonalCalendarReminderTests
                 ["CalendarReminder:TriggerSecret"] = "a-long-random-secret"
             }).Build();
         var controller = new CalendarReminderTriggerController(
-            service, configuration, NullLogger<CalendarReminderTriggerController>.Instance);
+            service, new RecordingAuditTrailService(), configuration,
+            NullLogger<CalendarReminderTriggerController>.Instance);
 
         Assert.IsInstanceOfType(await controller.Run(null, default), typeof(UnauthorizedObjectResult));
         Assert.IsInstanceOfType(await controller.Run("wrong", default), typeof(UnauthorizedObjectResult));
@@ -137,6 +141,38 @@ public class PersonalCalendarReminderTests
         Assert.IsNotNull(pingMethod);
         Assert.AreEqual(1, pingMethod.GetCustomAttributes(typeof(HttpHeadAttribute), true).Length);
         Assert.AreEqual(1, pingMethod.GetCustomAttributes(typeof(HttpGetAttribute), true).Length);
+    }
+
+    [TestMethod]
+    public async Task TriggerWritesSystemAuditForDeliveryAndFailure()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["CalendarReminder:TriggerSecret"] = "a-long-random-secret"
+            }).Build();
+        var audit = new RecordingAuditTrailService();
+        var successfulController = new CalendarReminderTriggerController(
+            new StubReminderService(new CalendarReminderRunResult(
+                "completed", new DateOnly(2026, 11, 2), "08:00", 1, 1, 0, 0, 0)),
+            audit, configuration, NullLogger<CalendarReminderTriggerController>.Instance);
+        var failedController = new CalendarReminderTriggerController(
+            new StubReminderService(new CalendarReminderRunResult(
+                "partially_failed", new DateOnly(2026, 11, 2), "08:00", 1, 0, 0, 0, 1)),
+            audit, configuration, NullLogger<CalendarReminderTriggerController>.Instance);
+
+        Assert.IsInstanceOfType(
+            await successfulController.Ping("a-long-random-secret", default),
+            typeof(OkObjectResult));
+        Assert.IsInstanceOfType(
+            await failedController.Ping("a-long-random-secret", default),
+            typeof(ObjectResult));
+
+        Assert.AreEqual(2, audit.Entries.Count);
+        Assert.AreEqual(EAuditTrailLevel.INFORMATION, audit.Entries[0].Level);
+        Assert.AreEqual(EAuditTrailLevel.ERROR, audit.Entries[1].Level);
+        Assert.IsTrue(audit.Entries.All(x => x.ChangedBy == "Hệ thống"));
+        Assert.IsTrue(audit.Entries.All(x => x.RecordId == "calendar-reminder-20261102"));
     }
 
     private static AppDbContext CreateDb(SqliteConnection connection) =>
@@ -221,15 +257,39 @@ public class PersonalCalendarReminderTests
         }
     }
 
-    private sealed class StubReminderService : IPersonalCalendarReminderService
+    private sealed class StubReminderService(
+        CalendarReminderRunResult? result = null) : IPersonalCalendarReminderService
     {
         public int Calls { get; private set; }
 
         public Task<CalendarReminderRunResult> RunAsync(CancellationToken cancellationToken)
         {
             Calls++;
-            return Task.FromResult(new CalendarReminderRunResult(
+            return Task.FromResult(result ?? new CalendarReminderRunResult(
                 "completed", new DateOnly(2026, 11, 2), "08:00", 0, 0, 0, 0, 0));
         }
+    }
+
+    private sealed class RecordingAuditTrailService : IAuditTrailService
+    {
+        public List<AuditTrailDto> Entries { get; } = [];
+
+        public Task<ApiResponse<AuditTrailDto>> Create(AuditTrailDto data)
+        {
+            Entries.Add(data);
+            return Task.FromResult(new ApiResponse<AuditTrailDto>(data));
+        }
+
+        public Task<ApiResponse<AuditTrailModel>> GetAllActive() =>
+            throw new NotSupportedException();
+
+        public ApiResponse<AuditTrailModel> Search(
+            int pageIndex,
+            int pageSize,
+            string keyword,
+            string level,
+            string trailType,
+            DateTimeOffset? changedFrom = null,
+            DateTimeOffset? changedBefore = null) => throw new NotSupportedException();
     }
 }
