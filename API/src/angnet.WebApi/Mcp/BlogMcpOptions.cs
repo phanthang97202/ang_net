@@ -4,7 +4,7 @@ public sealed class BlogMcpOptions
 {
     public bool Enabled { get; set; }
     public string Issuer { get; set; } = "https://ang-net.onrender.com/";
-    public string BlogUrl { get; set; } = "https://phanthang.site";
+    public string BlogUrl { get; set; } = "https://thangphan.vercel.app";
     public string SigningKey { get; set; } = "";
     public string EncryptionKey { get; set; } = "";
     public string[] RedirectUris { get; set; } = ["https://chatgpt.com/connector_platform_oauth_redirect"];

@@ -4,6 +4,7 @@ using angnet.Domain.Models;
 using angnet.Infrastructure.Mail.Producer;
 using angnet.Infrastructure.Mail.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TCommonUtils = angnet.Utility.CommonUtils.CommonUtils;
 
 namespace angnet.Infrastructure.Data.Services
@@ -23,14 +24,21 @@ namespace angnet.Infrastructure.Data.Services
     {
         private readonly AppDbContext _dbContext;
         private readonly RabbitMqEmailProducer _emailProducer;
+        private readonly string _blogUrl;
 
         // Địa chỉ gửi đi, dùng chung với mail đăng ký tài khoản.
         private const string MAIL_FROM = "phanthang97202@gmail.com";
 
-        public SubscriberService(AppDbContext dbContext, RabbitMqEmailProducer emailProducer)
+        public SubscriberService(AppDbContext dbContext, RabbitMqEmailProducer emailProducer, IConfiguration configuration)
         {
             _dbContext = dbContext;
             _emailProducer = emailProducer;
+            string configuredUrl = configuration["Blog:BaseUrl"] ?? "https://thangphan.vercel.app";
+            if (!Uri.TryCreate(configuredUrl, UriKind.Absolute, out var blogUri) ||
+                blogUri.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(blogUri.UserInfo) ||
+                blogUri.AbsolutePath != "/" || !string.IsNullOrEmpty(blogUri.Query) || !string.IsNullOrEmpty(blogUri.Fragment))
+                throw new InvalidOperationException("Blog:BaseUrl must be an HTTPS origin without a path, query or credentials.");
+            _blogUrl = blogUri.GetLeftPart(UriPartial.Authority);
         }
 
         public async Task<ApiResponse<SubscribeResultDto>> SubscribeAsync(string email)
@@ -347,8 +355,8 @@ namespace angnet.Infrastructure.Data.Services
         {
             try
             {
-                string postUrl = $"https://phanthang.site/news/{news.CategoryNewsId}/{news.NewsId}";
-                string unsubscribeUrl = $"https://phanthang.site/unsubscribe?token={subscriber.UnsubscribeToken}";
+                string postUrl = $"{_blogUrl}/news/{Uri.EscapeDataString(news.CategoryNewsId)}/{Uri.EscapeDataString(news.NewsId)}";
+                string unsubscribeUrl = $"{_blogUrl}/unsubscribe?token={Uri.EscapeDataString(subscriber.UnsubscribeToken)}";
 
                 string thumbnailHtml = TCommonUtils.IsNullOrEmpty(news.Thumbnail)
                     ? string.Empty
@@ -432,7 +440,7 @@ namespace angnet.Infrastructure.Data.Services
         {
             try
             {
-                string unsubscribeUrl = $"https://phanthang.site/unsubscribe?token={unsubscribeToken}";
+                string unsubscribeUrl = $"{_blogUrl}/unsubscribe?token={Uri.EscapeDataString(unsubscribeToken)}";
 
                 string body = $@"
                     <div style='font-family:Arial,sans-serif;font-size:15px;color:#1a1a2e;line-height:1.6'>
@@ -440,7 +448,7 @@ namespace angnet.Infrastructure.Data.Services
                         <p>Mỗi tuần một bài viết, một câu chuyện nhỏ, một góc nhìn khác.
                            Mình sẽ gửi thư cho bạn khi có bài mới.</p>
                         <p style='margin-top:24px'>
-                            <a href='https://phanthang.site' style='color:#5b4fe9'>Ghé thăm blog</a>
+                            <a href='{_blogUrl}' style='color:#5b4fe9'>Ghé thăm blog</a>
                         </p>
                         <hr style='border:none;border-top:1px solid #e5e5e5;margin:24px 0' />
                         <p style='font-size:12px;color:#888'>

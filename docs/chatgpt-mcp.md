@@ -12,7 +12,7 @@ Thêm các environment variables vào **API**, không phải Angular Client:
 | --- | --- |
 | `Mcp__Enabled` | `true` |
 | `Mcp__Issuer` | `https://ang-net.onrender.com/` |
-| `Mcp__BlogUrl` | `https://phanthang.site` |
+| `Mcp__BlogUrl` | `https://thangphan.vercel.app` |
 | `Mcp__SigningKey` | RSA private key PEM hoặc base64 DER PKCS#1/PKCS#8; tối thiểu 2048 bit |
 | `Mcp__EncryptionKey` | 32 byte ngẫu nhiên, base64 |
 | `Mcp__RedirectUris__0` | `https://chatgpt.com/connector_platform_oauth_redirect` |

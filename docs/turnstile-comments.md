@@ -10,7 +10,7 @@ Không cần migration database hay cài thêm package.
 1. Cloudflare → Turnstile → chọn widget → Settings. Đổi Secret key đã xuất hiện
    trong ảnh bằng **Rotate Secret Key**. Dùng cặp Site key/Secret key thuộc cùng widget.
 2. Chọn chế độ **Managed**. Trong Hostnames, thêm domain frontend thực tế, ví dụ
-   `phanthang.site`, và `www.phanthang.site` nếu website phục vụ cả địa chỉ đó.
+   `thangphan.vercel.app`.
    Nhập hostname, không nhập `https://`, port hay đường dẫn. Pre-clearance không cần
    bật cho luồng xác minh từng bình luận này.
 3. Trên **Vercel → project ang-net → Settings → Environment Variables**, thêm
@@ -40,7 +40,7 @@ Không cần migration database hay cài thêm package.
    | Key | Value |
    | --- | --- |
    | `Turnstile__SecretKey` | Secret key mới, chỉ nhập trực tiếp trên Render |
-   | `Turnstile__AllowedHostnames` | `phanthang.site,www.phanthang.site` (đổi theo domain đang dùng) |
+   | `Turnstile__AllowedHostnames` | `thangphan.vercel.app` (đổi theo domain đang dùng) |
 
    API so khớp hostname chính xác; mỗi frontend preview domain phải được thêm cả
    trong Cloudflare lẫn biến trên nếu muốn dùng để thử. Đây là hostname frontend,

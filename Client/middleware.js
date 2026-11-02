@@ -32,15 +32,9 @@
 const API_BASE = 'https://ang-net.onrender.com/api/';
 const SITE_NAME = 'Phan Thang Blog';
 
-// Hardcode origin production thay vì lấy url.origin: canonical có nhiệm vụ gộp
-// mọi biến thể host về 1 địa chỉ duy nhất. Vercel còn phục vụ site qua các
-// domain *.vercel.app (preview/deploy), nếu để chúng tự trỏ về chính mình thì
-// các domain đó thành bản sao cạnh tranh với domain chính trên Google.
-// Phải là host mà site thật sự phục vụ (apex): www.phanthang.site đang 307 về
-// đây. Trỏ canonical/sitemap sang www là đẩy Googlebot vào một vòng mâu thuẫn -
-// sitemap dẫn tới URL redirect, đi theo redirect thì trang lại khai canonical
-// ngược về www.
-const SITE_ORIGIN = 'https://phanthang.site';
+// Production origin is fixed so deployment/preview domains do not become
+// competing canonical URLs. Keep robots.txt and index.html in sync if it changes.
+const SITE_ORIGIN = 'https://thangphan.vercel.app';
 const DEFAULT_DESCRIPTION =
   'Blog cá nhân của Phan Thang - chia sẻ bài viết, tin tức và trải nghiệm.';
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/assets/images/logo.png`;
