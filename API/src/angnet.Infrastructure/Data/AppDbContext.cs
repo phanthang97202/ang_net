@@ -81,6 +81,7 @@ namespace angnet.Infrastructure.Data
         public DbSet<PersonalNoteModel> PersonalNote { get; set; }
         public DbSet<PersonalCalendarEventModel> PersonalCalendarEvent { get; set; }
         public DbSet<PersonalCalendarOccurrenceStatusModel> PersonalCalendarOccurrenceStatus { get; set; }
+        public DbSet<PersonalCalendarReminderDeliveryModel> PersonalCalendarReminderDelivery { get; set; }
         public DbSet<PersonalExpenseModel> PersonalExpense { get; set; }
         public DbSet<PersonalExpenseCategoryModel> PersonalExpenseCategory { get; set; }
         public DbSet<ChineseExerciseModel> ChineseExercise { get; set; }
@@ -149,6 +150,12 @@ namespace angnet.Infrastructure.Data
             modelBuilder.Entity<PersonalCalendarOccurrenceStatusModel>().HasKey(x => new { x.EventId, x.OccurrenceDate });
             modelBuilder.Entity<PersonalCalendarOccurrenceStatusModel>().HasOne<PersonalCalendarEventModel>().WithMany()
                 .HasForeignKey(x => x.EventId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalCalendarReminderDeliveryModel>()
+                .HasKey(x => new { x.OwnerId, x.ReminderDate });
+            modelBuilder.Entity<PersonalCalendarReminderDeliveryModel>().HasOne<AppUser>().WithMany()
+                .HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PersonalCalendarReminderDeliveryModel>()
+                .HasIndex(x => new { x.Status, x.UpdatedAt });
             modelBuilder.Entity<PersonalExpenseModel>().HasOne<AppUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<PersonalExpenseModel>().HasIndex(x => new { x.OwnerId, x.Date });
             modelBuilder.Entity<PersonalExpenseModel>().Property(x => x.Version).IsConcurrencyToken();

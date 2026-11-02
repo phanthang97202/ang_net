@@ -94,6 +94,13 @@ namespace angnet.Infrastructure
             services.AddScoped<IArchiveService, ArchiveService>();
             // Danh sách chọn (dropdown) riêng của từng người dùng - bảng LookupList dùng chung
             services.AddScoped<LookupListService>();
+            services.AddScoped<IPersonalCalendarReminderService, PersonalCalendarReminderService>();
+            services.AddScoped<ICalendarReminderEmailSender, ResendCalendarReminderEmailSender>();
+            services.AddHttpClient("Resend", client =>
+            {
+                client.BaseAddress = new Uri("https://api.resend.com/");
+                client.Timeout = TimeSpan.FromSeconds(20);
+            });
 
             // Thư viện nhạc: mỗi nguồn phát là một IMusicTrackSource, thêm nguồn = thêm một dòng ở đây
             services.AddScoped<IMusicTrackSource, YouTubeMusicTrackSource>();

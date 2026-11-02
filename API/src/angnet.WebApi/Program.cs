@@ -214,6 +214,13 @@ builder.Services.AddRateLimiter(options =>
             {
                 Window = TimeSpan.FromMinutes(1), PermitLimit = 120, QueueLimit = 0
             }));
+    options.AddPolicy("CalendarReminderTrigger", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(1), PermitLimit = 12, QueueLimit = 0
+            }));
     options.AddFixedWindowLimiter("API", limiter =>
     {
         //Ý nghĩa: Thời gian một "cửa sổ" giới hạn(10 giây).
