@@ -111,7 +111,7 @@ public class PersonalCalendarReminderTests
     }
 
     [TestMethod]
-    public async Task TriggerRequiresSecretAndAllowsAnonymousUptimeRobotCall()
+    public async Task TriggerRequiresSecretAndSupportsFreeUptimeRobotCall()
     {
         var service = new StubReminderService();
         var configuration = new ConfigurationBuilder()
@@ -125,9 +125,18 @@ public class PersonalCalendarReminderTests
         Assert.IsInstanceOfType(await controller.Run(null, default), typeof(UnauthorizedObjectResult));
         Assert.IsInstanceOfType(await controller.Run("wrong", default), typeof(UnauthorizedObjectResult));
         Assert.IsInstanceOfType(await controller.Run("a-long-random-secret", default), typeof(OkObjectResult));
-        Assert.AreEqual(1, service.Calls);
+        Assert.IsInstanceOfType(await controller.Ping(null, default), typeof(UnauthorizedObjectResult));
+        Assert.IsInstanceOfType(await controller.Ping("wrong", default), typeof(UnauthorizedObjectResult));
+        Assert.IsInstanceOfType(await controller.Ping("a-long-random-secret", default), typeof(OkObjectResult));
+        Assert.AreEqual(2, service.Calls);
         Assert.IsNotNull(typeof(CalendarReminderTriggerController)
             .GetCustomAttributes(typeof(AllowAnonymousAttribute), true).SingleOrDefault());
+
+        var pingMethod = typeof(CalendarReminderTriggerController)
+            .GetMethod(nameof(CalendarReminderTriggerController.Ping));
+        Assert.IsNotNull(pingMethod);
+        Assert.AreEqual(1, pingMethod.GetCustomAttributes(typeof(HttpHeadAttribute), true).Length);
+        Assert.AreEqual(1, pingMethod.GetCustomAttributes(typeof(HttpGetAttribute), true).Length);
     }
 
     private static AppDbContext CreateDb(SqliteConnection connection) =>

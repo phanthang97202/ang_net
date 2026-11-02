@@ -23,6 +23,20 @@ public sealed class CalendarReminderTriggerController(
     public async Task<IActionResult> Run(
         [FromHeader(Name = SecretHeader)] string? suppliedSecret,
         CancellationToken cancellationToken)
+        => await RunCore(suppliedSecret, cancellationToken);
+
+    // UptimeRobot Free only sends HEAD requests and cannot attach custom headers.
+    // GET is also accepted because UptimeRobot may retry a failed HEAD request as GET.
+    [HttpHead("ping")]
+    [HttpGet("ping")]
+    public async Task<IActionResult> Ping(
+        [FromQuery] string? token,
+        CancellationToken cancellationToken)
+        => await RunCore(token, cancellationToken);
+
+    private async Task<IActionResult> RunCore(
+        string? suppliedSecret,
+        CancellationToken cancellationToken)
     {
         var configuredSecret = configuration["CalendarReminder:TriggerSecret"];
         if (string.IsNullOrWhiteSpace(configuredSecret))
