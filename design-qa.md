@@ -56,5 +56,6 @@ final result: passed
 - Previous/next controls live inside the video and appear on hover or keyboard focus on pointer devices; mobile keeps vertical swiping and hides these controls.
 - Production build: passed (`npm run build`).
 - Targeted Reels tests: 9/9 passed in Edge Headless.
+- Surface polish verified at 1440 × 1024: the outer border was removed, the radius softened, and elevation now matches the blog card shadow (`0 2px 16px`).
 
 final result: passed

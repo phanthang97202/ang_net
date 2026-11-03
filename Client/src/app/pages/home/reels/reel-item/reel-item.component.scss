@@ -13,10 +13,10 @@
   max-height: 780px;
   padding: clamp(18px, 2vw, 28px);
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
+  border: 0;
+  border-radius: 28px;
   background: var(--color-bg-card);
-  box-shadow: 0 18px 54px var(--color-card-shadow);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
   color: var(--color-text);
 }
 
@@ -353,7 +353,7 @@ button.reel-item__action:focus-visible {
   .reel-item {
     grid-template-columns: minmax(270px, 0.95fr) minmax(310px, 1.05fr);
     gap: 20px;
-    border-radius: 20px;
+    border-radius: 24px;
   }
   .reel-item__comments {
     display: none;
@@ -374,7 +374,7 @@ button.reel-item__action:focus-visible {
     height: 100%;
     max-height: none;
     padding: 10px;
-    border-radius: 18px;
+    border-radius: 20px;
   }
 
   .reel-item__stage {
