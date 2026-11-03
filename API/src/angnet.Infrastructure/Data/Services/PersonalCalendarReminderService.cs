@@ -94,7 +94,7 @@ public sealed class PersonalCalendarReminderService(
         var eligibleAccounts = 0;
         var nowUtc = now.UtcDateTime;
         var calendarUrl = configuration["CalendarReminder:CalendarUrl"]?.Trim();
-        if (string.IsNullOrWhiteSpace(calendarUrl)) calendarUrl = "https://phanthang.site/calendar";
+        if (string.IsNullOrWhiteSpace(calendarUrl)) calendarUrl = "https://thangphan.vercel.app/calendar";
 
         foreach (var group in dueItems.GroupBy(x => x.OwnerId))
         {

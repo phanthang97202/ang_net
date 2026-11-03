@@ -186,7 +186,7 @@ public class PersonalCalendarReminderTests
         sender,
         new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["CalendarReminder:CalendarUrl"] = "https://phanthang.site/calendar"
+            ["CalendarReminder:CalendarUrl"] = "https://thangphan.vercel.app/calendar"
         }).Build(),
         new FixedTimeProvider(now),
         NullLogger<PersonalCalendarReminderService>.Instance);

@@ -5,7 +5,7 @@
 ## Căn cứ và môi trường
 
 - Repo: `F:/Java + Angular/ang_net`.
-- Website production: `https://phanthang.site`.
+- Website production: `https://thangphan.vercel.app`.
 - API production ở thời điểm tạo skill: `https://ang-net.onrender.com/api/`.
 - Trước khi dùng, xác nhận môi trường từ `Client/src/environments/environment.prod.ts` hoặc môi trường người dùng chọn; không tự chuyển giữa local và production.
 - Đối chiếu contract tại `API/src/angnet.Domain/Dtos/NewsDto.cs`, `UpdateNewsDto.cs`, `LoginDto.cs`; controller `NewsController.cs`, `NewsCategoryController.cs`, `AccountController.cs`; repository `API/src/angnet.Infrastructure/Data/Repositories/NewsRespository.cs`.
@@ -66,5 +66,5 @@ Search trả `objResult.DataList`; danh mục trả `DataList`; không giả đ�
 - Create có thể trả `Success=true` mà không kèm bản ghi/ID. Sau ghi, tìm lại đúng bài theo title và tài khoản; xác nhận ID, trạng thái, phạm vi, hai bản ngôn ngữ, thumbnail và link đã lưu. Nếu Search không có body, dùng endpoint đọc phù hợp với quyền để kiểm tra; không xem được thì báo rõ giới hạn.
 - Request ghi timeout/lỗi mạng có thể đã commit. Đọc lại trước khi cân nhắc retry; không POST Create lần hai ngay. Khi chưa xác định được kết quả sau đọc an toàn, dừng và báo trạng thái chưa chắc chắn.
 - Bài trùng đã tồn tại: không ghi đè nếu yêu cầu chỉ tạo mới. Update bài cụ thể chỉ trong phạm vi người dùng yêu cầu; bảo toàn dữ liệu không được yêu cầu sửa.
-- Link edit hiện tại: `https://phanthang.site/dashboard/blog/edit/{NewsId}`. Nêu tài khoản tạo bài khi cần để người dùng mở đúng quyền.
+- Link edit hiện tại: `https://thangphan.vercel.app/dashboard/blog/edit/{NewsId}`. Nêu tài khoản tạo bài khi cần để người dùng mở đúng quyền.
 - Cuối tác vụ báo ngắn: title, danh mục, draft/published, quyền xem, link edit; việc đã kiểm tra và thiếu sót (nguồn/ảnh/internal links/bản dịch) nếu còn. Không hứa đã index, đạt SEO score hoặc thứ hạng.
