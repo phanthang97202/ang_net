@@ -9,6 +9,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ReelDeleteComponent } from '../reel-delete/reel-delete.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +18,7 @@ import { IReelDto, IReelMediaDto } from '../../../../interfaces';
 @Component({
   selector: 'app-reel-item',
   standalone: true,
-  imports: [NzIconModule, ReelDeleteComponent, TranslateModule],
+  imports: [DatePipe, NzIconModule, ReelDeleteComponent, TranslateModule],
   templateUrl: './reel-item.component.html',
   styleUrl: './reel-item.component.scss',
 })
@@ -26,12 +27,17 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
   @Input() isActive = false;
   @Input() isMuted = true;
   @Input() isMounted = false;
+  @Input() hasPrevious = false;
+  @Input() hasNext = false;
 
   @Output() likeToggled = new EventEmitter<IReelDto>();
   @Output() muteToggled = new EventEmitter<void>();
   // Tách riêng khỏi likeToggled: double-tap của TikTok chỉ THÍCH, không bao giờ bỏ thích
   @Output() doubleTapLiked = new EventEmitter<IReelDto>();
   @Output() commentsOpened = new EventEmitter<IReelDto>();
+  @Output() shareRequested = new EventEmitter<IReelDto>();
+  @Output() previousRequested = new EventEmitter<void>();
+  @Output() nextRequested = new EventEmitter<void>();
   @Output() deleted = new EventEmitter<string>();
 
   @ViewChild('videoRef') videoRef?: ElementRef<HTMLVideoElement>;
@@ -217,6 +223,20 @@ export class ReelItemComponent implements OnChanges, OnDestroy {
 
   onOpenComments(): void {
     this.commentsOpened.emit(this.reel);
+  }
+
+  onShare(): void {
+    this.shareRequested.emit(this.reel);
+  }
+
+  requestPrevious(event: Event): void {
+    event.stopPropagation();
+    this.previousRequested.emit();
+  }
+
+  requestNext(event: Event): void {
+    event.stopPropagation();
+    this.nextRequested.emit();
   }
 
   // stopPropagation: nút nằm đè lên stage, không được kích hoạt play/pause của stage

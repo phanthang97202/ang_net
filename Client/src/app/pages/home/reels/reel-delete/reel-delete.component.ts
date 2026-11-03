@@ -1,7 +1,9 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   Output,
   inject,
@@ -26,14 +28,17 @@ import { ApiService, AuthService } from '../../../../services';
 export class ReelDeleteComponent {
   @Input({ required: true }) reel!: IReelDto;
   @Input() compact = false;
+  @Input() menuItem = false;
   @Output() deleted = new EventEmitter<string>();
   open = false;
+  menuOpen = false;
   deleting = false;
   private readonly api = inject(ApiService);
   private readonly auth = inject(AuthService);
   private readonly message = inject(NzMessageService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   get canDelete(): boolean {
     return (
@@ -44,7 +49,20 @@ export class ReelDeleteComponent {
   }
 
   confirm(): void {
+    this.menuOpen = false;
     if (this.canDelete && !this.deleting) this.open = true;
+  }
+
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
+    if (this.canDelete && !this.deleting) this.menuOpen = !this.menuOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeMenuOnOutsideClick(event: Event): void {
+    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+      this.menuOpen = false;
+    }
   }
 
   cancel(): void {

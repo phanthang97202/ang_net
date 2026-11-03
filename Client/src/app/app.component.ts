@@ -216,15 +216,7 @@ export class AppComponent implements OnInit {
   ];
 
   lstRouteLayoutNone = ['/login', '/forgot-password'];
-  // /reels chiếm trọn màn hình kiểu TikTok: không navbar/footer, và cũng không qua
-  // nz-content (nz-content có margin: 64.8px 0 cho các trang 'none' khác, gây khoảng
-  // trắng phía trên) - nên có layout riêng thay vì dùng chung 'none'.
-  lstRouteLayoutImmersive = [
-    '/reels',
-    '/maintain',
-    '/haha',
-    '/dashboard/login',
-  ];
+  lstRouteLayoutImmersive = ['/maintain', '/haha', '/dashboard/login'];
 
   constructor(
     public router: Router,
@@ -299,7 +291,8 @@ export class AppComponent implements OnInit {
         const url = event.urlAfterRedirects.split(/[?#]/)[0];
         this.musicPageActive = url === '/music';
         if (this.musicPageActive) this.musicStarted = true;
-        else if (url.startsWith('/music/collection/')) this.musicStarted = false;
+        else if (url.startsWith('/music/collection/'))
+          this.musicStarted = false;
         const isLayoutNone = this.lstRouteLayoutNone.includes(url);
         const isLayoutImmersive =
           this.lstRouteLayoutImmersive.includes(url) ||
@@ -325,8 +318,7 @@ export class AppComponent implements OnInit {
           this.layoutType === 'admin'
         );
 
-        // 'immersive' (Reels) là trang user-facing như 'user', chỉ khác ở chỗ
-        // không bọc qua nz-layout/nz-content - vẫn phải giữ theme người dùng chọn.
+        // Các trang immersive vẫn là bề mặt người dùng nên giữ theme blog.
         this.themeService.applyForLayout(
           this.layoutType === 'user' || this.layoutType === 'immersive'
         );

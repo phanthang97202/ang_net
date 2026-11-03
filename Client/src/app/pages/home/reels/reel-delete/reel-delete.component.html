@@ -1,22 +1,51 @@
 @if (canDelete) {
-  <button
-    type="button"
-    class="reel-delete"
-    [class.reel-delete--compact]="compact"
-    [disabled]="deleting"
-    [attr.aria-label]="'T_REEL_DELETE' | translate"
-    (click)="confirm()">
-    <span
-      class="reel-delete__icon"
-      nz-icon
-      nzType="delete"
-      nzTheme="outline"
-      aria-hidden="true"></span>
-    @if (!compact) {
-      <span class="reel-delete__label">{{ 'T_REEL_DELETE' | translate }}</span>
-    }
-  </button>
+  @if (menuItem) {
+    <div class="reel-delete-menu">
+      <button
+        type="button"
+        class="reel-delete-menu__trigger"
+        [class.is-open]="menuOpen"
+        [disabled]="deleting"
+        [attr.aria-expanded]="menuOpen"
+        aria-haspopup="menu"
+        (click)="toggleMenu($event)">
+        <span nz-icon nzType="more" nzTheme="outline"></span>
+      </button>
+      @if (menuOpen) {
+        <div
+          class="reel-delete-menu__popover"
+          role="menu"
+          (click)="$event.stopPropagation()">
+          <button type="button" role="menuitem" (click)="confirm()">
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+            <span>{{ 'T_REEL_DELETE' | translate }}</span>
+          </button>
+        </div>
+      }
+    </div>
+  } @else {
+    <button
+      type="button"
+      class="reel-delete"
+      [class.reel-delete--compact]="compact"
+      [disabled]="deleting"
+      [attr.aria-label]="'T_REEL_DELETE' | translate"
+      (click)="confirm()">
+      <span
+        class="reel-delete__icon"
+        nz-icon
+        nzType="delete"
+        nzTheme="outline"
+        aria-hidden="true"></span>
+      @if (!compact) {
+        <span class="reel-delete__label">{{
+          'T_REEL_DELETE' | translate
+        }}</span>
+      }
+    </button>
+  }
 }
+
 <nz-modal
   nzClassName="blog-modal"
   [nzVisible]="open"

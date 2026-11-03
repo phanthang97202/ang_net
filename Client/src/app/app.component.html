@@ -17,14 +17,25 @@
   *ngIf="layoutType === 'immersive'"
   (activate)="onPageActivated()"></router-outlet>
 
-<div [class.layout]="layoutType === 'user'" [class.layout--user]="layoutType === 'user'">
-  <div *ngIf="layoutType === 'user'" class="ambient-glow ambient-glow--left"></div>
-  <div *ngIf="layoutType === 'user'" class="ambient-glow ambient-glow--right"></div>
+<div
+  [class.layout]="layoutType === 'user'"
+  [class.layout--user]="layoutType === 'user'">
+  <div
+    *ngIf="layoutType === 'user'"
+    class="ambient-glow ambient-glow--left"></div>
+  <div
+    *ngIf="layoutType === 'user'"
+    class="ambient-glow ambient-glow--right"></div>
   <app-navbar *ngIf="layoutType === 'user'" />
   @defer (when musicStarted) {
-    <app-music *ngIf="musicStarted && authService.hasPermission('music.use')" [mini]="!musicPageActive" (closeMini)="musicStarted = false" />
+    <app-music
+      *ngIf="musicStarted && authService.hasPermission('music.use')"
+      [mini]="!musicPageActive"
+      (closeMini)="musicStarted = false" />
   }
-  <router-outlet *ngIf="layoutType === 'user'" (activate)="onPageActivated()"></router-outlet>
+  <router-outlet
+    *ngIf="layoutType === 'user'"
+    (activate)="onPageActivated()"></router-outlet>
   <app-footer *ngIf="layoutType === 'user'" />
 </div>
 
@@ -84,8 +95,7 @@
   </nz-content>
 </nz-layout>
 
-<!-- Ẩn ở layout 'immersive' (Reels): trang đó đã bỏ navbar/footer để chiếm trọn
-     màn hình, và mép phải là chỗ của nút lên/xuống + panel bình luận -->
+<!-- Các trang immersive không dùng widget nổi để giữ trọn vùng nội dung. -->
 <ng-container
   *ngIf="
     authService.getToken() &&

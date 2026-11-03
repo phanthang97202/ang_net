@@ -37,6 +37,8 @@ export class ReelCommentsComponent
   @Input({ required: true }) reel!: IReelDto;
   @Input() currentUserAvatar: string | null = null;
   @Input() currentUserInitial = '';
+  @Input() embedded = false;
+  @Input() autoFocus = true;
 
   @Output() closed = new EventEmitter<void>();
   /** Báo lên cha để cập nhật CommentCount hiển thị ở rail */
@@ -83,7 +85,7 @@ export class ReelCommentsComponent
   ngAfterViewInit(): void {
     this.setupObserver();
     // Mở panel là gõ được ngay, không phải bấm thêm vào ô nhập
-    this.focusInput();
+    if (this.autoFocus) this.focusInput();
   }
 
   ngOnDestroy(): void {

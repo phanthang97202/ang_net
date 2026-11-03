@@ -46,3 +46,15 @@ final result: passed
 - Primary behaviors preserved: server pagination, sorting, pin toggle, notification confirmation, permission-based edit/notification controls, cache clearing, and navigation to create/edit.
 
 final result: passed
+
+## Reels redesign
+
+- Source mockup: `C:\Users\phant\.codex\generated_images\01a10c0d-2d09-7d83-ab69-a0c7341fda80\exec-50e7d10c-0940-4ee0-8abc-2c4781247590.png`.
+- Implementation capture: `C:\Users\phant\AppData\Local\Temp\reels-qa.png` at 1440 × 1024.
+- Uses the normal blog navbar and visual tokens, with no `Reels` heading or upload button.
+- Video and details/comments form one balanced card.
+- Previous/next controls live inside the video and appear on hover or keyboard focus on pointer devices; mobile keeps vertical swiping and hides these controls.
+- Production build: passed (`npm run build`).
+- Targeted Reels tests: 9/9 passed in Edge Headless.
+
+final result: passed

@@ -1,4 +1,4 @@
-<div class="reel-comments">
+<div class="reel-comments" [class.reel-comments--embedded]="embedded">
   <header class="reel-comments__header">
     <span class="reel-comments__title">
       {{ 'T_COMMENTS' | translate }}
@@ -108,9 +108,10 @@
     }
 
     @if (!isLoading && comments.length === 0) {
-      <p class="reel-comments__empty">
-        {{ 'T_REELS_COMMENT_EMPTY' | translate }}
-      </p>
+      <div class="reel-comments__empty">
+        <span nz-icon nzType="message" nzTheme="outline"></span>
+        <p>{{ 'T_REELS_COMMENT_EMPTY' | translate }}</p>
+      </div>
     }
 
     @if (isLoading) {

@@ -13,6 +13,23 @@
   color: var(--color-text);
 }
 
+.reel-comments--embedded {
+  border-left: 0;
+  background: transparent;
+}
+
+.reel-comments--embedded .reel-comments__header {
+  padding: 0 0 13px;
+}
+
+.reel-comments--embedded .reel-comments__body {
+  padding: 10px 0;
+}
+
+.reel-comments--embedded .reel-comments__footer {
+  padding: 12px 0 0;
+}
+
 .reel-comments__header {
   display: flex;
   align-items: center;
@@ -156,6 +173,24 @@
   color: var(--color-text-muted);
 }
 
+.reel-comments__empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 150px;
+  gap: 12px;
+}
+
+.reel-comments__empty [nz-icon] {
+  color: var(--color-accent);
+  font-size: 38px;
+  opacity: 0.58;
+}
+
+.reel-comments__empty p {
+  margin: 0;
+}
+
 .reel-comments__sentinel {
   height: 1px;
 }
@@ -238,5 +273,11 @@
 
   &:hover {
     background: var(--color-control-bg);
+  }
+}
+
+@media (min-width: 901px) {
+  .reel-comments--embedded .reel-comments__close {
+    display: none;
   }
 }

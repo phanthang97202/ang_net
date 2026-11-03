@@ -11,8 +11,7 @@ import {
   inject,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NzIconModule } from 'ng-zorro-antd/icon';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Subscription } from 'rxjs';
 import { ApiService, AuthService, ShowErrorService } from '../../../services';
@@ -20,24 +19,10 @@ import { IReelDto } from '../../../interfaces';
 import { ReelItemComponent } from './reel-item/reel-item.component';
 import { ReelCommentsComponent } from './reel-comments/reel-comments.component';
 
-interface ReelMenuItem {
-  labelKey: string;
-  icon: string;
-  /** Có route thật thì điều hướng, không thì báo đang phát triển */
-  route?: string;
-  active?: boolean;
-}
-
 @Component({
   selector: 'app-reels-page',
   standalone: true,
-  imports: [
-    NzIconModule,
-    RouterLink,
-    ReelItemComponent,
-    ReelCommentsComponent,
-    TranslateModule,
-  ],
+  imports: [ReelItemComponent, ReelCommentsComponent, TranslateModule],
   templateUrl: './reels.component.html',
   styleUrl: './reels.component.scss',
 })
@@ -52,29 +37,13 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly deletedIds = new Set<string>();
 
-  menuItems: ReelMenuItem[] = [
-    {
-      labelKey: 'T_REELS_FOR_YOU',
-      icon: 'home',
-      route: '/reels',
-      active: true,
-    },
-    { labelKey: 'T_REELS_DISCOVER', icon: 'compass' },
-    { labelKey: 'T_REELS_FOLLOWING', icon: 'usergroup-add' },
-    { labelKey: 'T_REELS_FRIENDS', icon: 'team' },
-    { labelKey: 'T_REELS_LIVE', icon: 'video-camera' },
-    { labelKey: 'T_REELS_MESSAGES', icon: 'message' },
-    { labelKey: 'T_REELS_ACTIVITY', icon: 'bell' },
-    { labelKey: 'T_REELS_PROFILE', icon: 'user', route: '/userinfor' },
-  ];
-
   lstReels: IReelDto[] = [];
   activeIndex = 0;
   isMuted = true; // mặc định muted: bắt buộc để trình duyệt cho autoplay không cần tương tác
   isLoading = false;
   hasMore = true;
 
-  // Layout 'immersive' không có navbar nên trang tự hiện tài khoản đang đăng nhập
+  // Avatar hiện tại được truyền cho ô bình luận.
   accountName: string | null = null;
   accountInitial = '';
   accountAvatar: string | null = null;
@@ -149,29 +118,6 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleMute(): void {
     this.isMuted = !this.isMuted;
-  }
-
-  goCreate(): void {
-    this.router.navigate(['/reels/create']);
-  }
-
-  goLogin(): void {
-    this.router.navigate(['/login']);
-  }
-
-  onMenuClick(item: ReelMenuItem): void {
-    if (item.active) {
-      return; // đang ở chính trang này
-    }
-    if (item.route) {
-      this.router.navigate([item.route]);
-      return;
-    }
-    this.message.info(
-      this.translate.instant('T_REELS_IN_DEVELOPMENT_NAMED', {
-        name: this.translate.instant(item.labelKey),
-      })
-    );
   }
 
   private readAccount(): void {
@@ -259,9 +205,30 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.commentsReel = null;
   }
 
-  onCommentAdded(): void {
-    if (this.commentsReel) {
-      this.commentsReel.CommentCount += 1;
+  onCommentAdded(reel: IReelDto): void {
+    reel.CommentCount += 1;
+  }
+
+  async shareReel(reel: IReelDto): Promise<void> {
+    const url = new URL('/reels', window.location.origin);
+    url.searchParams.set('reelId', reel.ReelId);
+    const shareData = {
+      title: reel.UserFullName || 'Phan Thang Blog',
+      text: reel.Caption || undefined,
+      url: url.toString(),
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(shareData.url);
+      this.message.success(this.translate.instant('T_LINKCOPIED'));
+    } catch (error) {
+      if ((error as DOMException)?.name !== 'AbortError') {
+        this.message.info(this.translate.instant('T_COPY_LINK_MANUALLY'));
+      }
     }
   }
 
@@ -302,8 +269,9 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (bestIndex >= 0) {
+    if (bestIndex >= 0 && bestIndex !== this.activeIndex) {
       this.activeIndex = bestIndex;
+      this.commentsReel = null;
       this.scheduleView(bestIndex);
     }
 
