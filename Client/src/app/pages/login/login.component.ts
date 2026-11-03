@@ -99,8 +99,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private googleResizeObserver?: ResizeObserver;
   private googleScript?: HTMLScriptElement;
   private googleButtonWidth = 0;
-  /** Nút Google tự vẽ chỉ bấm được khi iframe thật của SDK đã phủ lên trên */
-  googleReady = false;
   private readonly initializeGoogle = () => {
     google.accounts.id.initialize({
       client_id: environment.gg_client_id,
@@ -189,8 +187,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       width,
       logo_alignment: 'left',
     });
-
-    if (!this.googleReady) this.zone.run(() => (this.googleReady = true));
   }
 
   handleCredentialResponse(res: GoogleCredentialResponse): void {
