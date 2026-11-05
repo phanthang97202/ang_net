@@ -1,7 +1,7 @@
 <!-- Ẩn cả khối khi chưa đủ 5 bài: lưới là 1 ô lớn + 4 ô nhỏ, thiếu bài sẽ để lại
      ô trống nhìn như vỡ layout. Dưới 5 bài thì "nổi bật" cũng chưa có ý nghĩa gì.
      Cùng cách xử lý với các khối bên aside-news. -->
-<section class="featured" *ngIf="isLoading || featuredPosts.length >= 5">
+<section class="featured" [class.featured--compact]="compact" *ngIf="isLoading || featuredPosts.length >= (compact ? 3 : 5)">
   <p class="featured-heading">
     <span>{{ 'T_FEATUREDPOSTS' | translate }}</span>
     <span class="featured-heading-line"></span>
@@ -11,7 +11,7 @@
   <div class="featured-grid" *ngIf="isLoading">
     <div
       class="featured-tile featured-tile--skeleton"
-      *ngFor="let i of [1, 2, 3, 4, 5]"
+      *ngFor="let i of compact ? [1, 2, 3] : [1, 2, 3, 4, 5]"
       [class.featured-tile--main]="i === 1"></div>
   </div>
 

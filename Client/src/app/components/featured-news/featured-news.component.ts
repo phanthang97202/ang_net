@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -31,6 +31,7 @@ const FEATURED_COUNT = 5;
   styleUrls: ['./featured-news.component.scss'],
 })
 export class FeaturedNewsComponent implements OnInit {
+  @Input() compact = false;
   private newsCacheService = inject(NewsCacheService);
   private showErrorService = inject(ShowErrorService);
   private langService = inject(LangService);
@@ -45,7 +46,7 @@ export class FeaturedNewsComponent implements OnInit {
 
   // 4 bài phụ (2×2 bên phải)
   get subPosts(): INewsWithPlaceholder[] {
-    return this.featuredPosts.slice(1, FEATURED_COUNT);
+    return this.featuredPosts.slice(1, this.compact ? 3 : FEATURED_COUNT);
   }
 
   ngOnInit(): void {

@@ -8,7 +8,10 @@
   <!-- Đặt sau dải chủ đề chứ không ngay dưới banner: banner cũng là ảnh lớn phủ
        overlay tối, hai khối nằm liền nhau sẽ nặng và lặp. Dải chủ đề nền sáng
        chen vào giữa làm nhịp nghỉ. -->
-  <app-featured-news></app-featured-news>
+  <div class="home-featured" [class.home-featured--with-calendar]="canViewCalendar">
+    <app-home-calendar *ngIf="canViewCalendar"></app-home-calendar>
+    <app-featured-news [compact]="canViewCalendar"></app-featured-news>
+  </div>
 
   <div class="home__container">
     <div class="home__content">

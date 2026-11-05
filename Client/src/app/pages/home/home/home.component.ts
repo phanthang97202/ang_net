@@ -7,6 +7,9 @@ import { NewNewsComponent } from '../../../components/new-news/new-news.componen
 import { HomeSidebarComponent } from '../../../components/home-sidebar/home-sidebar.component';
 import { HotTopicPostsComponent } from '../../../components/hot-topic-posts/hot-topic-posts.component';
 import { SubscribeNotifyComponent } from '../../../components/subscribe-notify/subscribe-notify.component';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services';
+import { HomeCalendarComponent } from '../../../components/home-calendar/home-calendar.component';
 
 @Component({
   selector: 'app-home',
@@ -19,10 +22,13 @@ import { SubscribeNotifyComponent } from '../../../components/subscribe-notify/s
     HomeSidebarComponent,
     HotTopicPostsComponent,
     SubscribeNotifyComponent,
+    CommonModule,
+    HomeCalendarComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
+  get canViewCalendar(): boolean { return this.auth.isLoggedIn() && this.auth.hasPermission('calendar.use'); }
 }

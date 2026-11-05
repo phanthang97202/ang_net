@@ -38,3 +38,15 @@
 - Supporting pass: verified the extracted shared news card on the public home route after the refactor.
 
 final result: blocked
+
+---
+
+## Home calendar and featured articles — 2026-11-05
+
+- Reference: generated home-page design showing a calendar alongside three featured articles and a day popover.
+- Implementation: calendar and featured-article layout use existing Angular components, themes, access control, and live services.
+- Automated checks: targeted calendar and permission tests passed; production build passed with existing warnings.
+- Visual comparison and interaction checks in a browser: blocked. The in-app browser is unavailable and the Chrome browser connector failed with `Cannot read properties of undefined (reading 'timeoutMs')` while opening or selecting a tab.
+- Remaining verification: capture desktop and mobile views in an authenticated session and compare the calendar, three-card layout, theme, and day popover against the reference.
+
+final result: blocked

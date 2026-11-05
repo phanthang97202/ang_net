@@ -1,0 +1,30 @@
+<section class="home-calendar" aria-labelledby="home-calendar-title">
+  <h2 class="section-heading" id="home-calendar-title"><span>{{ 'T_CALENDAR' | translate }}</span><span class="heading-line" aria-hidden="true"></span></h2>
+  <div #calendarCard class="calendar-card">
+    <div class="month-bar">
+      <button type="button" class="month-button" (click)="changeMonth(-1)" [attr.aria-label]="'T_CALENDAR_PREV_MONTH' | translate"><span nz-icon nzType="left"></span></button>
+      <strong>{{ monthTitle }}</strong>
+      <button type="button" class="month-button" (click)="changeMonth(1)" [attr.aria-label]="'T_CALENDAR_NEXT_MONTH' | translate"><span nz-icon nzType="right"></span></button>
+    </div>
+    <div class="weekdays"><span *ngFor="let weekday of weekdays">{{ weekday | translate }}</span></div>
+    <div class="days" [attr.aria-label]="monthTitle">
+      <button *ngFor="let day of days; trackBy: trackDay" type="button" class="day" [class.outside]="!day.inMonth" [class.today]="isToday(day)" [class.selected]="selected?.key === day.key" [attr.aria-label]="day.key + ', ' + ('T_CALENDAR_DAY_EVENTS' | translate: { count: day.events.length })" [attr.aria-expanded]="selected?.key === day.key" (click)="select(day)">
+        <span class="solar">{{ day.date.getDate() }}</span>
+        <span class="lunar" aria-hidden="true">{{ day.lunar ? day.lunar.day + '/' + day.lunar.month + (day.lunar.leapMonth ? ('T_CALENDAR_LEAP_SHORT' | translate) : '') : '—' }}</span>
+        <span *ngIf="day.events.length" class="event-dot" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div *ngIf="loading" class="calendar-status" role="status">{{ 'T_CALENDAR_LOADING' | translate }}</div>
+    <div *ngIf="loadError" class="calendar-status" role="alert">{{ 'T_CALENDAR_LOAD_ERROR' | translate }} <button type="button" (click)="load()">{{ 'T_CALENDAR_RETRY' | translate }}</button></div>
+    <div *ngIf="selected" class="day-popover" role="dialog" [attr.aria-label]="selectedTitle">
+      <div class="popover-heading"><strong>{{ selectedTitle }}</strong><button type="button" (click)="close()" [attr.aria-label]="'T_CALENDAR_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
+      <div *ngIf="loading" class="popover-empty">{{ 'T_CALENDAR_LOADING' | translate }}</div>
+      <div *ngIf="!loading && loadError" class="popover-empty">{{ 'T_CALENDAR_LOAD_ERROR' | translate }}</div>
+      <div *ngIf="!loading && !loadError && !selected.events.length" class="popover-empty">{{ 'T_CALENDAR_EMPTY_TITLE' | translate }}</div>
+      <div *ngIf="!loading && !loadError && selected.events.length" class="event-list">
+        <div *ngFor="let event of selected.events; trackBy: trackEvent" class="event-row"><span>{{ eventTime(event) }}</span><strong>{{ event.Title }}</strong></div>
+      </div>
+      <a routerLink="/calendar" [queryParams]="{ date: selected.key }">{{ 'T_HOME_CALENDAR_OPEN' | translate }} <span nz-icon nzType="arrow-right"></span></a>
+    </div>
+  </div>
+</section>

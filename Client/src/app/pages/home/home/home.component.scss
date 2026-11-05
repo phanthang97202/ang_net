@@ -1,3 +1,14 @@
+.home-featured--with-calendar {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.25fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+.home-featured--with-calendar > * { min-width: 0; }
+@media (max-width: 900px) {
+  .home-featured--with-calendar { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+}
+
 .home__container {
   display: flex;
   gap: 2.5rem;

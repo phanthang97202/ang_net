@@ -40,6 +40,16 @@
   gap: 1rem;
 }
 
+.featured--compact .featured-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 200px));
+}
+
+.featured--compact .featured-tile--main {
+  grid-column: 1 / -1;
+  grid-row: auto;
+}
+
 .featured-tile {
   position: relative;
   display: block;
@@ -174,6 +184,7 @@
 
 // A main story and a compact two-column grid on tablet and mobile.
 @media (max-width: 900px) {
+  .featured--compact .featured-grid { grid-template-rows: auto; grid-auto-rows: auto; }
   .featured {
     gap: 1rem;
     padding-bottom: 1.5rem;
