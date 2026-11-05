@@ -17,7 +17,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService, LoadingService, ShowErrorService } from '../../services';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Observable } from 'rxjs';
@@ -92,6 +92,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly loginAppearance = inject(LoginAppearanceService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly blogMode = inject(BlogMaintenanceService);
+  private readonly route = inject(ActivatedRoute);
 
   @ViewChild('googleButton', { static: true })
   private googleButton!: ElementRef<HTMLElement>;
@@ -233,6 +234,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (response?.Success) {
           this.message.create('success', 'Login successfully');
+          const returnUrl = safeLoginReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+          if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+            return;
+          }
           const home = canAccessDashboard ? '/dashboard' : '/';
           // Đăng nhập từ /login (cửa blog) khi bật ONLY_SHIFT_REPORT thì vào thẳng
           // báo cáo ca; /dashboard/login vẫn vào khu quản trị như cũ
@@ -264,5 +270,16 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingService.setLoading(false);
       },
     });
+  }
+}
+
+export function safeLoginReturnUrl(value: string | null): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(value)) return null;
+  try {
+    const path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, '') || '/';
+    if (path.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(path)) return null;
+    return ['/login', '/dashboard/login', '/forgot-password'].includes(path.toLowerCase()) ? null : value;
+  } catch {
+    return null;
   }
 }

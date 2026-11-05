@@ -168,7 +168,7 @@ export class ReelCommentsComponent
   }
 
   goLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 
   send(): void {

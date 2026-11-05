@@ -429,7 +429,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // ── Auth ─────────────────────────────────────────────
   handleNavigateLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 
   @HostListener('window:resize')

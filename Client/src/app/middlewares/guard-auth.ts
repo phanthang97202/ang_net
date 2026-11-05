@@ -2,26 +2,26 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services';
 
-export const canActive = () => {
+export const canActive: CanActivateFn = (_route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
   if (authService.isLoggedIn()) {
     return true;
   } else {
-    router.navigate(['/login']);
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 };
 
-export const canActiveForAdmin = () => {
+export const canActiveForAdmin: CanActivateFn = (_route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
   const bool = authService.isAdminPermission();
   if (bool) {
     return true;
   } else {
-    router.navigate(['/login']);
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 };
@@ -36,12 +36,12 @@ export const canActiveForAdmin = () => {
  * Đá về trang chủ chứ không về /login: người này ĐÃ đăng nhập, đẩy sang màn đăng
  * nhập chỉ khiến họ tưởng phiên hỏng rồi đăng nhập lại và vẫn vào không được.
  */
-export const canActiveDashboard = () => {
+export const canActiveDashboard: CanActivateFn = (_route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
   if (!authService.isLoggedIn()) {
-    router.navigate(['/dashboard/login']);
+    router.navigate(['/dashboard/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 
@@ -65,12 +65,12 @@ export const canActivePermission = (
   permission: string,
   deniedRedirect = '/dashboard'
 ): CanActivateFn => {
-  return () => {
+  return (_route, state) => {
     const router = inject(Router);
     const authService = inject(AuthService);
 
     if (!authService.isLoggedIn()) {
-      router.navigate(['/login']);
+      router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }
 
@@ -87,12 +87,12 @@ export const canActivePermission = (
 export const canActiveAnyPermission = (
   permissions: string[]
 ): CanActivateFn => {
-  return () => {
+  return (_route, state) => {
     const router = inject(Router);
     const authService = inject(AuthService);
 
     if (!authService.isLoggedIn()) {
-      router.navigate(['/login']);
+      router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }
 

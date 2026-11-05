@@ -37,10 +37,10 @@ describe('Report route guards', () => {
       const guard = route.canActivate![0] as CanActivateFn;
       const run = () =>
         TestBed.runInInjectionContext(() =>
-          guard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+          guard({} as ActivatedRouteSnapshot, { url: `/tools/${path}?tab=1` } as RouterStateSnapshot)
         );
       expect(run()).toBeFalse();
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: `/tools/${path}?tab=1` } });
       loggedIn = true;
       expect(run()).toBeFalse();
       expect(router.navigate).toHaveBeenCalledWith(['/']);

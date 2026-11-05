@@ -162,7 +162,7 @@ export class ReelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLikeToggled(reel: IReelDto): void {
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
 
