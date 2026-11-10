@@ -1,28 +1,23 @@
 <main class="calendar-page">
-  <header class="page-heading">
-    <div class="heading-copy">
-      <h1>{{ 'T_CALENDAR' | translate }}<span class="heading-period">.</span></h1>
-    </div>
-    <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_CALENDAR_CREATE_EVENT' | translate }}</button>
-  </header>
-
   <div class="calendar-layout">
     <section class="calendar-card" [attr.aria-label]="'T_CALENDAR_MONTH_VIEW' | translate">
-      <div class="calendar-toolbar">
-        <div><h2>{{ title }}</h2></div>
-        <div class="calendar-controls">
-          <button type="button" class="icon-button" [attr.aria-label]="'T_CALENDAR_RELOAD' | translate" [title]="'T_CALENDAR_RELOAD' | translate" [disabled]="loading" (click)="load()"><span nz-icon nzType="reload"></span></button>
-          <button type="button" class="today-button" (click)="goToday()">{{ 'T_CALENDAR_TODAY' | translate }}</button>
+      <div class="calendar-sticky">
+        <div class="calendar-toolbar">
           <div class="month-switch">
             <button type="button" [attr.aria-label]="'T_CALENDAR_PREV_MONTH' | translate" (click)="changeMonth(-1)"><span nz-icon nzType="left"></span></button>
+            <h2>{{ title }}</h2>
             <button type="button" [attr.aria-label]="'T_CALENDAR_NEXT_MONTH' | translate" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button>
           </div>
+          <div class="calendar-controls">
+            <button type="button" class="today-button" (click)="goToday()">{{ 'T_CALENDAR_TODAY' | translate }}</button>
+            <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_CALENDAR_CREATE_SHORT' | translate }}</button>
+          </div>
         </div>
-      </div>
-      <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">
-        <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts['all'] }}</span></button>
-        <button *ngFor="let status of statuses; trackBy: trackOption" type="button" [attr.data-status]="status.id" [style.--status-raw]="status.color" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="setStatusFilter(status.id)"><i aria-hidden="true"></i>{{ status.label }} <span class="status-count">{{ statusCounts[status.id] || 0 }}</span></button>
-        <a class="status-manage" routerLink="/userinfor" [queryParams]="manageStatusesLink" [attr.aria-label]="'T_CALENDAR_MANAGE_STATUSES' | translate" [title]="'T_CALENDAR_MANAGE_STATUSES' | translate"><span nz-icon nzType="setting"></span></a>
+        <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">
+          <button type="button" [class.is-active]="statusFilter === 'all'" [attr.aria-pressed]="statusFilter === 'all'" (click)="setStatusFilter('all')">{{ 'T_CALENDAR_STATUS_ALL' | translate }} <span class="status-count">{{ statusCounts['all'] }}</span></button>
+          <button *ngFor="let status of statuses; trackBy: trackOption" type="button" [attr.data-status]="status.id" [style.--status-raw]="status.color" [class.is-active]="statusFilter === status.id" [attr.aria-pressed]="statusFilter === status.id" (click)="setStatusFilter(status.id)"><i aria-hidden="true"></i>{{ status.label }} <span class="status-count">{{ statusCounts[status.id] || 0 }}</span></button>
+          <a class="status-manage" routerLink="/userinfor" [queryParams]="manageStatusesLink" [attr.aria-label]="'T_CALENDAR_MANAGE_STATUSES' | translate" [title]="'T_CALENDAR_MANAGE_STATUSES' | translate"><span nz-icon nzType="setting"></span></a>
+        </div>
       </div>
       <div class="calendar-grid" role="grid" [attr.aria-label]="title">
         <div class="weekday" *ngFor="let weekday of weekdays" role="columnheader">{{ weekday | translate }}</div>
@@ -89,7 +84,7 @@
 
   <dialog #editor class="event-dialog" aria-labelledby="event-dialog-title" (cancel)="saving && $event.preventDefault()">
     <form #eventForm="ngForm" (ngSubmit)="save(eventForm)">
-      <div class="dialog-heading"><div><span class="section-kicker">{{ 'T_CALENDAR_KICKER' | translate }}</span><h2 id="event-dialog-title">{{ (editing ? 'T_CALENDAR_EDIT_EVENT' : 'T_CALENDAR_CREATE_EVENT') | translate }}</h2></div><button type="button" class="icon-button" (click)="close()" [disabled]="saving" [attr.aria-label]="'T_CALENDAR_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
+      <div class="dialog-heading"><h2 id="event-dialog-title">{{ (editing ? 'T_CALENDAR_EDIT_EVENT' : 'T_CALENDAR_CREATE_EVENT') | translate }}</h2><button type="button" class="icon-button" (click)="close()" [disabled]="saving" [attr.aria-label]="'T_CALENDAR_CLOSE' | translate"><span nz-icon nzType="close"></span></button></div>
       <div class="dialog-scroll"><fieldset class="dialog-content" [disabled]="saving">
         <label class="field"><span>{{ 'T_CALENDAR_FIELD_TITLE' | translate }} <span class="required-mark" aria-hidden="true">*</span></span><input name="title" [(ngModel)]="draft.title" required maxlength="120" [placeholder]="'T_CALENDAR_TITLE_PLACEHOLDER' | translate" autocomplete="off" /></label>
         <div class="field-grid"><label class="field"><span>{{ (repeatWeekly ? 'T_CALENDAR_REPEAT_START' : 'T_CALENDAR_START_DATE') | translate }} <span class="required-mark" aria-hidden="true">*</span></span><input type="date" name="date" [ngModel]="draft.date" (ngModelChange)="changeStartDate($event)" required /></label><label *ngIf="!repeatWeekly" class="field"><span>{{ 'T_CALENDAR_END_DATE' | translate }} <span class="required-mark" aria-hidden="true">*</span></span><input type="date" name="endDate" [(ngModel)]="draft.endDate" required /></label></div>

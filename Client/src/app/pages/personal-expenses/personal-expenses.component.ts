@@ -9,7 +9,7 @@ import { enUS } from 'date-fns/locale';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ExpenseRequest, ExpenseTransaction, PersonalExpensesService } from '../../services/personal-expenses.service';
+import { ExpenseMonthlySummary, ExpenseRequest, ExpenseTransaction, PersonalExpensesService } from '../../services/personal-expenses.service';
 import { LookupItem, LookupListService } from '../../services/lookup-list.service';
 import { buildExpenseReportHtml } from './expense-report';
 
@@ -23,14 +23,19 @@ export class PersonalExpensesComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly lookups = inject(LookupListService);
   private request?: Subscription;
+  private comparisonRequest?: Subscription;
   readonly manageCategoriesLink = { tab: 'lookups', list: 'EXPENSE_CATEGORY' };
+  readonly comparisonMonths = 6;
   month = format(new Date(), 'yyyy-MM');
   transactions: ExpenseTransaction[] = [];
+  monthlyComparison: ExpenseMonthlySummary[] = [];
   /** Cả mục đã ẩn, để giao dịch cũ vẫn hiện đúng tên, màu */
   categoryItems: LookupItem[] = [];
   filter = '';
   loading = false;
+  comparisonLoading = false;
   loadError = '';
+  comparisonError = '';
   categoryError = '';
   formError = '';
   exportError = '';
@@ -70,6 +75,18 @@ export class PersonalExpensesComponent implements OnInit {
     const [year, month] = this.month.split('-');
     return this.translate.instant('T_EXPENSES_MONTH_TITLE', { month: Number(month), monthName: format(parseISO(`${this.month}-01`), 'LLLL', { locale: enUS }), year });
   }
+  get comparisonMax(): number {
+    return this.monthlyComparison.reduce((maximum, item) => Math.max(maximum, item.Income, item.Expense), 0);
+  }
+  get hasComparisonData(): boolean { return this.comparisonMax > 0; }
+  barHeight(value: number): number { return value > 0 && this.comparisonMax > 0 ? Math.max(3, value * 100 / this.comparisonMax) : 0; }
+  comparisonMonthLabel(month: string): string {
+    const [year, monthNumber] = month.split('-');
+    return `${monthNumber}/${year.slice(-2)}`;
+  }
+  comparisonPointLabel(item: ExpenseMonthlySummary): string {
+    return this.translate.instant('T_EXPENSES_COMPARISON_POINT', { month: this.comparisonMonthLabel(item.Month), income: this.money(item.Income), expense: this.money(item.Expense) });
+  }
   /** Tên danh mục theo ngôn ngữ đang chọn; không tìm thấy mã thì dùng tên đã chụp lúc lưu. */
   categoryLabel(item: Pick<ExpenseTransaction, 'CategoryCode' | 'Category'>): string {
     return this.lookups.name(this.categoryItems.find(x => x.Code === item.CategoryCode)) || item.Category || item.CategoryCode;
@@ -84,10 +101,18 @@ export class PersonalExpensesComponent implements OnInit {
   money(value: number | bigint): string { return `${new Intl.NumberFormat('vi-VN').format(value)} đ`; }
   changeMonth(delta: number): void { this.month = format(addMonths(parseISO(`${this.month}-01`), delta), 'yyyy-MM'); this.filter = ''; this.load(); }
   load(): void {
+    this.loadMonthlyComparison();
     this.request?.unsubscribe(); this.loading = true; this.loadError = ''; this.transactions = [];
     this.request = this.api.list(this.month).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: items => { this.transactions = items; this.loading = false; },
       error: () => { this.loading = false; this.loadError = 'T_EXPENSES_LOAD_ERROR'; },
+    });
+  }
+  loadMonthlyComparison(): void {
+    this.comparisonRequest?.unsubscribe(); this.comparisonLoading = true; this.comparisonError = ''; this.monthlyComparison = [];
+    this.comparisonRequest = this.api.monthlySummary(this.month, this.comparisonMonths).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: items => { this.monthlyComparison = items; this.comparisonLoading = false; },
+      error: () => { this.comparisonLoading = false; this.comparisonError = 'T_EXPENSES_COMPARISON_LOAD_ERROR'; },
     });
   }
   loadCategories(): void {

@@ -51,8 +51,17 @@ public class PersonalExpensesTests
         Assert.AreEqual(1, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10", default)).Value).GetArrayLength());
         Assert.AreEqual(0, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-11", default)).Value).GetArrayLength());
         Assert.IsInstanceOfType(await controller.List("2026-13", default), typeof(BadRequestObjectResult));
+        var summary = JsonSerializer.SerializeToElement(((OkObjectResult)await controller.MonthlySummary("2026-11", 3, default)).Value);
+        Assert.AreEqual(3, summary.GetArrayLength());
+        var october = summary.EnumerateArray().Single(x => x.GetProperty("Month").GetString() == "2026-10");
+        Assert.AreEqual(0L, october.GetProperty("Income").GetInt64());
+        Assert.AreEqual(50000L, october.GetProperty("Expense").GetInt64());
+        Assert.AreEqual(-50000L, october.GetProperty("Balance").GetInt64());
+        Assert.IsInstanceOfType(await controller.MonthlySummary("2026-11", 1, default), typeof(BadRequestObjectResult));
         User("bob");
         Assert.AreEqual(0, JsonSerializer.SerializeToElement(((OkObjectResult)await controller.List("2026-10", default)).Value).GetArrayLength());
+        Assert.IsTrue(JsonSerializer.SerializeToElement(((OkObjectResult)await controller.MonthlySummary("2026-10", 2, default)).Value)
+            .EnumerateArray().All(x => x.GetProperty("Expense").GetInt64() == 0));
         input.Version = 1;
         Assert.IsInstanceOfType(await controller.Delete(id, 1, default), typeof(NotFoundResult));
         // bob không dùng được mã danh mục của alice
@@ -105,13 +114,16 @@ public class PersonalExpensesTests
         await app.StartAsync();
         var client = app.GetTestClient();
         Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/PersonalExpenses?month=2026-10")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/PersonalExpenses/monthly-summary?through=2026-10&months=6")).StatusCode);
         client.DefaultRequestHeaders.Add("X-Test-User", "no-permission");
         Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/PersonalExpenses?month=2026-10")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.Forbidden, (await client.GetAsync("/api/PersonalExpenses/monthly-summary?through=2026-10&months=6")).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-User"); client.DefaultRequestHeaders.Add("X-Test-User", "alice");
         // "salary" có sẵn trong bộ mặc định, được chép cho alice ở lần đầu dùng
         var request = new PersonalExpenseRequest { Type = "income", Amount = 100000, Date = "2026-10-01", CategoryCode = "salary" };
         Assert.AreEqual(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/PersonalExpenses", request)).StatusCode);
         Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/api/PersonalExpenses?month=2026-10")).StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, (await client.GetAsync("/api/PersonalExpenses/monthly-summary?through=2026-10&months=6")).StatusCode);
     }
 
     private sealed class TestAuthentication(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)

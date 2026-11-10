@@ -39,6 +39,38 @@ public class PersonalExpensesController(AppDbContext db, TimeProvider clock, Loo
             .OrderByDescending(x => x.Date).ThenByDescending(x => x.CreatedAt).ThenBy(x => x.Id).ToListAsync(ct);
         return Ok(items.Select(Response));
     }
+    [HttpGet("monthly-summary"), ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> MonthlySummary(string? through, int months = 6, CancellationToken ct = default)
+    {
+        if (OwnerId is not { Length: > 0 } owner) return Unauthorized();
+        if (months is < 2 or > 12 ||
+            !DateOnly.TryParseExact(through + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastMonth))
+            return BadRequest(new { Code = "InvalidRange" });
+
+        var firstMonth = lastMonth.AddMonths(-(months - 1));
+        var lastDay = lastMonth.AddMonths(1).AddDays(-1);
+        var totals = await db.PersonalExpense.AsNoTracking()
+            .Where(x => x.OwnerId == owner && x.Date >= firstMonth && x.Date <= lastDay)
+            .GroupBy(x => new { x.Date.Year, x.Date.Month, x.Type })
+            .Select(group => new { group.Key.Year, group.Key.Month, group.Key.Type, Amount = group.Sum(x => x.Amount) })
+            .ToListAsync(ct);
+
+        var totalsByMonth = totals.ToDictionary(x => (x.Year, x.Month, x.Type), x => x.Amount);
+        var result = Enumerable.Range(0, months).Select(offset =>
+        {
+            var current = firstMonth.AddMonths(offset);
+            totalsByMonth.TryGetValue((current.Year, current.Month, "income"), out var income);
+            totalsByMonth.TryGetValue((current.Year, current.Month, "expense"), out var expense);
+            return new
+            {
+                Month = current.ToString("yyyy-MM", CultureInfo.InvariantCulture),
+                Income = income,
+                Expense = expense,
+                Balance = income - expense
+            };
+        });
+        return Ok(result);
+    }
     [HttpPost, RequestSizeLimit(4096)]
     public async Task<IActionResult> Create(PersonalExpenseRequest request, CancellationToken ct)
     {

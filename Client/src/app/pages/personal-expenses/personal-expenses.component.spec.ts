@@ -28,6 +28,8 @@ describe('Personal expenses', () => {
   afterEach(() => http.verify());
   const flushCategories = (items: unknown[] = CATEGORIES) =>
     http.expectOne(req => req.url.endsWith('/LookupList') && req.params.get('listCode') === 'EXPENSE_CATEGORY').flush(items);
+  const flushSummary = (items: unknown[] = []) =>
+    http.expectOne(req => req.url.endsWith('/PersonalExpenses/monthly-summary') && req.params.get('months') === '6').flush(items);
 
   it('shows monthly totals independent of the category filter', () => {
     const fixture = TestBed.createComponent(PersonalExpensesComponent);
@@ -37,6 +39,7 @@ describe('Personal expenses', () => {
       tx('2', 'expense', 200000, '2026-10-02', 'food'),
       tx('3', 'expense', 100000, '2026-10-03', 'transport'),
     ]);
+    flushSummary();
     flushCategories();
     const component = fixture.componentInstance;
     component.filter = 'food'; fixture.detectChanges();
@@ -51,6 +54,7 @@ describe('Personal expenses', () => {
     const fixture = TestBed.createComponent(PersonalExpensesComponent);
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalExpenses')).flush([]);
+    flushSummary();
     flushCategories();
     const component = fixture.componentInstance;
     component.openCreate();
@@ -77,6 +81,7 @@ describe('Personal expenses', () => {
     const fixture = TestBed.createComponent(PersonalExpensesComponent);
     fixture.componentInstance.month = '2026-10'; fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalExpenses')).flush([]);
+    flushSummary();
     flushCategories([...CATEGORIES, category('cold', 'Cà phê', '', 'expense', false)]);
     const component = fixture.componentInstance;
     expect(component.categoryLabel(tx('1', 'expense', 1, '2026-10-01', 'food'))).toBe('Food & drinks');
@@ -89,6 +94,7 @@ describe('Personal expenses', () => {
     const fixture = TestBed.createComponent(PersonalExpensesComponent);
     fixture.componentInstance.month = '2026-10'; fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalExpenses')).flush([]);
+    flushSummary();
     flushCategories();
     const component = fixture.componentInstance;
     component.filter = 'food'; component.openCreate();
@@ -98,12 +104,14 @@ describe('Personal expenses', () => {
     expect(component.month).toBe('2026-11');
     expect(component.filter).toBe('');
     http.expectOne(req => req.method === 'GET' && req.params.get('month') === '2026-11').flush([]);
+    flushSummary();
   });
 
   it('formats the amount while editing and sends an integer to the API', async () => {
     const fixture = TestBed.createComponent(PersonalExpensesComponent);
     fixture.detectChanges();
     http.expectOne(req => req.url.endsWith('/PersonalExpenses')).flush([]);
+    flushSummary();
     flushCategories();
     const component = fixture.componentInstance;
     component.openCreate(); fixture.detectChanges();
@@ -129,5 +137,25 @@ describe('Personal expenses', () => {
     component.openEdit(tx('1', 'expense', 1234567, '2026-10-01', 'food'));
     fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
     expect(input.value).toBe('1.234.567');
+  });
+
+  it('loads and renders six-month income and expense comparison ending at the selected month', () => {
+    const fixture = TestBed.createComponent(PersonalExpensesComponent);
+    fixture.componentInstance.month = '2026-10'; fixture.detectChanges();
+    http.expectOne(req => req.url.endsWith('/PersonalExpenses') && req.params.get('month') === '2026-10').flush([]);
+    const summaryRequest = http.expectOne(req => req.url.endsWith('/PersonalExpenses/monthly-summary'));
+    expect(summaryRequest.request.params.get('through')).toBe('2026-10');
+    expect(summaryRequest.request.params.get('months')).toBe('6');
+    summaryRequest.flush([
+      { Month: '2026-09', Income: 100000, Expense: 50000, Balance: 50000 },
+      { Month: '2026-10', Income: 200000, Expense: 400000, Balance: -200000 },
+    ]);
+    flushCategories();
+    const component = fixture.componentInstance;
+    expect(component.comparisonMax).toBe(400000);
+    expect(component.barHeight(200000)).toBe(50);
+    expect(component.comparisonMonthLabel('2026-10')).toBe('10/26');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.comparison-month').length).toBe(2);
   });
 });
