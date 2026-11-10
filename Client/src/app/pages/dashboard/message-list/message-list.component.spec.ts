@@ -21,7 +21,10 @@ describe('MessageListComponent', () => {
 
   beforeEach(() => {
     registerLocaleData(localeVi);
-    chat = jasmine.createSpyObj('ChatService', ['searchMessages']);
+    chat = jasmine.createSpyObj('ChatService', [
+      'searchMessages',
+      'getAdminImage',
+    ]);
     chat.searchMessages.and.returnValue(
       of({
         Success: true,
@@ -37,6 +40,7 @@ describe('MessageListComponent', () => {
               Message: 'Lịch trực khách sạn',
               Type: 'string',
               CreatedDTime: new Date('2026-11-05T10:00:00Z'),
+              IsDeleted: false,
             },
           ],
           ItemCount: 1,
@@ -82,6 +86,7 @@ describe('MessageListComponent', () => {
     component.searchForm.setValue({
       Keyword: 'hotel.sender',
       DateRange: [new Date(2026, 10, 5), new Date(2026, 10, 6)],
+      DeletionStatus: 'deleted',
     });
     component.handleSearch();
 
@@ -91,6 +96,7 @@ describe('MessageListComponent', () => {
       keyword: 'hotel.sender',
       sentFrom: new Date(2026, 10, 5).toISOString(),
       sentBefore: new Date(2026, 10, 7).toISOString(),
+      isDeleted: true,
     });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Nguyễn Gửi');
@@ -107,12 +113,14 @@ describe('MessageListComponent', () => {
     component.searchForm.setValue({
       Keyword: 'sender',
       DateRange: [new Date(2026, 10, 5), new Date(2026, 10, 6)],
+      DeletionStatus: 'active',
     });
     component.handleReset();
     expect(component.pageIndex).toBe(1);
     expect(component.searchForm.getRawValue()).toEqual({
       Keyword: '',
       DateRange: [],
+      DeletionStatus: 'all',
     });
     expect(chat.searchMessages.calls.mostRecent().args[0]).toEqual(
       jasmine.objectContaining({
@@ -120,8 +128,40 @@ describe('MessageListComponent', () => {
         keyword: '',
         sentFrom: undefined,
         sentBefore: undefined,
+        isDeleted: undefined,
       })
     );
+    fixture.destroy();
+  });
+
+  it('loads a stored image for the admin preview and releases its URL', async () => {
+    const fixture = TestBed.createComponent(MessageListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const image = {
+      MessageId: 'image-1',
+      Sequence: 2,
+      UserId: 'account:sender',
+      Message: '[Hình ảnh]',
+      Type: 'image',
+      CreatedDTime: new Date('2026-11-05T10:00:00Z'),
+      IsDeleted: true,
+    } as const;
+    chat.getAdminImage.and.returnValue(of(new Blob(['image'])));
+    const createUrl = spyOn(URL, 'createObjectURL').and.returnValue(
+      'blob:admin-preview'
+    );
+    const revokeUrl = spyOn(URL, 'revokeObjectURL');
+
+    await component.openImage(image);
+
+    expect(chat.getAdminImage).toHaveBeenCalledWith('image-1');
+    expect(createUrl).toHaveBeenCalled();
+    expect(component.previewVisible).toBeTrue();
+    expect(component.previewImage).toBe('blob:admin-preview');
+
+    component.closeImagePreview();
+    expect(revokeUrl).toHaveBeenCalledWith('blob:admin-preview');
     fixture.destroy();
   });
 });

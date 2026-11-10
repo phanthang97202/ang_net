@@ -52,8 +52,10 @@ public class ChatPermissionTests
         b.Configuration["Cloudinary:ApiSecret"] = "test-only-secret";
         b.Services.AddScoped<AccountSessionService>(); b.Services.AddSingleton<ChatConnections>();
         repo.Setup(x => x.GetMessage(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<long?>())).ReturnsAsync(new ApiResponse<ChatModel>());
-        repo.Setup(x => x.SearchMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>()))
+        repo.Setup(x => x.SearchMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<bool?>()))
             .ReturnsAsync(new ApiResponse<ChatModel>());
+        repo.Setup(x => x.GetImageForAdmin(It.IsAny<string>()))
+            .ReturnsAsync(new ChatImage { MessageId = "m1", ContentType = "image/png", Data = [1] });
         repo.Setup(x => x.SoftDelete(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string id, string actor) => new ApiResponse<ChatDeletedDto>(new ChatDeletedDto { MessageId = id, Sequence = 1 }));
         repo.Setup(x => x.Notifications(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
@@ -122,6 +124,15 @@ public class ChatPermissionTests
     [TestMethod] public async Task AdminSearch_RequiresViewAndManage()
     {
         const string path = "/api/chat/admin/search?PageIndex=0&PageSize=20&Keyword=hello";
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Request(path, null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.view"])));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.manage"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(permissions: ["chat.view", "chat.manage"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(admin: true)));
+    }
+    [TestMethod] public async Task AdminImage_RequiresViewAndManage()
+    {
+        const string path = "/api/chat/admin/m1/image";
         Assert.AreEqual(HttpStatusCode.Unauthorized, await Request(path, null));
         Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.view"])));
         Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.manage"])));
@@ -246,12 +257,20 @@ public class ChatPermissionTests
             new ChatModel { Sequence = 13, UserId = "account:sender", Message = "Đã xóa", Type = "string", IsDeleted = true, CreatedDTime = new DateTime(2026, 11, 5, 11, 0, 0, DateTimeKind.Utc) });
         await Db.SaveChangesAsync();
         var actual = new ChatRespository(Db);
-        var range = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 20, "hotel.sender",
+        var all = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 20, "hotel.sender",
             new DateTimeOffset(2026, 11, 4, 0, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 11, 6, 0, 0, 0, TimeSpan.Zero))).objResult;
+        Assert.AreEqual(3, all.ItemCount);
+        CollectionAssert.AreEqual(new long[] { 13, 11, 10 }, all.DataList.Select(x => x.Sequence).ToArray());
+        var range = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 20, "hotel.sender",
+            new DateTimeOffset(2026, 11, 4, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 11, 6, 0, 0, 0, TimeSpan.Zero), false)).objResult;
         Assert.AreEqual(2, range.ItemCount);
         CollectionAssert.AreEqual(new long[] { 11, 10 }, range.DataList.Select(x => x.Sequence).ToArray());
         Assert.IsTrue(range.DataList.All(x => x.SenderEmail == "sender@example.com" && x.SenderUsername == "hotel.sender"));
+        var deleted = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 20, "hotel.sender", isDeleted: true)).objResult;
+        Assert.AreEqual(1, deleted.ItemCount);
+        Assert.AreEqual(13L, deleted.DataList.Single().Sequence);
         var content = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 1, "khách sạn")).objResult;
         Assert.AreEqual(1, content.ItemCount);
         Assert.AreEqual(10L, content.DataList.Single().Sequence);
@@ -345,6 +364,13 @@ public class ChatPermissionTests
         using var deleted = await Delete(Token(permissions: ["chat.view", "chat.delete"]), message.MessageId);
         Assert.AreEqual(HttpStatusCode.OK, deleted.StatusCode);
         Assert.AreEqual(HttpStatusCode.NotFound, await Request(path, Token(permissions: ["chat.view"])));
+        var adminPath = $"/api/chat/admin/{message.MessageId}/image";
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(adminPath, Token(permissions: ["chat.view"])));
+        using var adminImageRequest = new HttpRequestMessage(HttpMethod.Get, adminPath);
+        adminImageRequest.Headers.Authorization = new("Bearer", Token(permissions: ["chat.view", "chat.manage"]));
+        using var deletedImage = await http.SendAsync(adminImageRequest);
+        Assert.AreEqual(HttpStatusCode.OK, deletedImage.StatusCode);
+        CollectionAssert.AreEqual(png, await deletedImage.Content.ReadAsByteArrayAsync());
         Assert.AreEqual(0, (await actual.Notifications("viewer", "account:viewer")).Data.UnreadCount);
         Assert.AreEqual(1, await Db.ChatImages.CountAsync(), "Soft deletion retains the stored image for audit");
         await Db.Users.Where(u => u.Id == "viewer").ExecuteUpdateAsync(s => s.SetProperty(u => u.SessionVersion, 1));

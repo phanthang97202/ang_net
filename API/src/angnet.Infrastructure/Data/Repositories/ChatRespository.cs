@@ -25,6 +25,11 @@ namespace angnet.Infrastructure.Data.Repositories
                 .Where(i => i.MessageId == messageId && _dbContext.Chat.Any(c => c.MessageId == i.MessageId && !c.IsDeleted))
                 .SingleOrDefaultAsync();
 
+        public Task<ChatImage?> GetImageForAdmin(string messageId)
+            => _dbContext.ChatImages.AsNoTracking()
+                .Where(i => i.MessageId == messageId && _dbContext.Chat.Any(c => c.MessageId == i.MessageId))
+                .SingleOrDefaultAsync();
+
         private async Task<ApiResponse<ChatModel>> SaveMessage(string userId, string message, string type, byte[]? imageData = null, string? contentType = null)
         {
             return await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
@@ -92,10 +97,13 @@ namespace angnet.Infrastructure.Data.Repositories
         }
 
         public async Task<ApiResponse<ChatModel>> SearchMessages(int pageIndex, int pageSize, string keyword,
-            DateTimeOffset? sentFrom = null, DateTimeOffset? sentBefore = null)
+            DateTimeOffset? sentFrom = null, DateTimeOffset? sentBefore = null, bool? isDeleted = null)
         {
             var normalizedKeyword = (keyword ?? string.Empty).Trim().ToLower();
-            var query = _dbContext.Chat.AsNoTracking().Where(c => !c.IsDeleted);
+            var query = _dbContext.Chat.AsNoTracking().AsQueryable();
+
+            if (isDeleted.HasValue)
+                query = query.Where(c => c.IsDeleted == isDeleted.Value);
 
             if (sentFrom.HasValue)
                 query = query.Where(c => c.CreatedDTime >= sentFrom.Value.UtcDateTime);

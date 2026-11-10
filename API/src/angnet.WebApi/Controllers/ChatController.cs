@@ -41,11 +41,22 @@ namespace angnet.WebApi.Controllers
         [Authorize(Policy = "chat.manage")]
         [HttpGet("admin/search")]
         public async Task<IActionResult> SearchMessages(int PageIndex = 0, int PageSize = 20, string Keyword = "",
-            DateTimeOffset? SentFrom = null, DateTimeOffset? SentBefore = null)
+            DateTimeOffset? SentFrom = null, DateTimeOffset? SentBefore = null, bool? IsDeleted = null)
         {
             if (PageIndex < 0 || PageSize is < 1 or > 100) return BadRequest();
             if (SentFrom.HasValue && SentBefore.HasValue && SentFrom >= SentBefore) return BadRequest();
-            return Ok(await _chatRepository.SearchMessages(PageIndex, PageSize, Keyword, SentFrom, SentBefore));
+            return Ok(await _chatRepository.SearchMessages(PageIndex, PageSize, Keyword, SentFrom, SentBefore, IsDeleted));
+        }
+
+        [Authorize(Policy = "chat.manage")]
+        [HttpGet("admin/{messageId}/image")]
+        public async Task<IActionResult> GetAdminImage(string messageId)
+        {
+            var image = await _chatRepository.GetImageForAdmin(messageId);
+            if (image is null) return NotFound();
+            Response.Headers.CacheControl = "no-store";
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return File(image.Data, image.ContentType);
         }
 
         [HttpGet("notifications")]

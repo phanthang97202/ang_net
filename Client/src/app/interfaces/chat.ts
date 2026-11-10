@@ -13,6 +13,9 @@ export interface IChat {
   Message: string;
   Type: TypeMessage;
   CreatedDTime: Date;
+  IsDeleted?: boolean;
+  DeletedAt?: Date;
+  DeletedBy?: string;
 }
 
 export interface IChatResponse extends IBaseResponse<IChat> {
@@ -33,4 +36,5 @@ export interface IChatSearchParams {
   keyword?: string;
   sentFrom?: string;
   sentBefore?: string;
+  isDeleted?: boolean;
 }

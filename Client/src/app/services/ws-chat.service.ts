@@ -243,9 +243,23 @@ export class ChatService {
       .set('Keyword', params.keyword?.trim() || '');
     if (params.sentFrom) query = query.set('SentFrom', params.sentFrom);
     if (params.sentBefore) query = query.set('SentBefore', params.sentBefore);
+    if (params.isDeleted !== undefined)
+      query = query.set('IsDeleted', params.isDeleted);
     return this.http.get<IChatResponse>(`${this.apiUrl}chat/admin/search`, {
       params: query,
     });
+  }
+  getAdminImage(messageId: string): Observable<Blob> {
+    if (!this.canView || !this.auth.hasPermission('chat.manage'))
+      return throwError(
+        () => new Error('Bạn không có quyền quản lý tin nhắn.')
+      );
+    this.bindAccount();
+    return this.http
+      .get(`${this.apiUrl}chat/admin/${encodeURIComponent(messageId)}/image`, {
+        responseType: 'blob',
+      })
+      .pipe(takeUntil(this.stopped$));
   }
   async deleteMessage(messageId: string): Promise<void> {
     if (!this.canDelete) throw new Error('Bạn không có quyền xóa tin nhắn.');

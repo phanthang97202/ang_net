@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NonNullableFormBuilder } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { IChat } from '../../../interfaces';
 import { AntdModule } from '../../../modules/antd.module';
 import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
@@ -17,7 +18,7 @@ import {
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.scss',
 })
-export class MessageListComponent implements OnInit {
+export class MessageListComponent implements OnInit, OnDestroy {
   private readonly chat = inject(ChatService);
   private readonly loading = inject(LoadingService);
   private readonly showError = inject(ShowErrorService);
@@ -28,14 +29,25 @@ export class MessageListComponent implements OnInit {
   pageSize = 20;
   total = 0;
   isLoading = false;
+  previewVisible = false;
+  previewLoading = false;
+  previewImage = '';
+  previewError = '';
+  private previewRequest = 0;
+  private previewOwnsUrl = false;
 
   readonly searchForm = this.fb.group({
     Keyword: this.fb.control(''),
     DateRange: this.fb.control<Date[]>([]),
+    DeletionStatus: this.fb.control<'all' | 'active' | 'deleted'>('all'),
   });
 
   ngOnInit(): void {
     this.fetchMessages();
+  }
+
+  ngOnDestroy(): void {
+    this.closeImagePreview();
   }
 
   handleSearch(): void {
@@ -44,7 +56,11 @@ export class MessageListComponent implements OnInit {
   }
 
   handleReset(): void {
-    this.searchForm.reset({ Keyword: '', DateRange: [] });
+    this.searchForm.reset({
+      Keyword: '',
+      DateRange: [],
+      DeletionStatus: 'all',
+    });
     this.pageIndex = 1;
     this.fetchMessages();
   }
@@ -70,12 +86,60 @@ export class MessageListComponent implements OnInit {
       : 'Văn bản';
   }
 
+  isImage(message: IChat): boolean {
+    return ['image', 'jpg', 'png'].includes((message.Type || '').toLowerCase());
+  }
+
+  async openImage(message: IChat): Promise<void> {
+    this.closeImagePreview();
+    const request = this.previewRequest;
+    this.previewVisible = true;
+    this.previewLoading = true;
+
+    if (message.Type !== 'image' && /^https:\/\//i.test(message.Message)) {
+      this.previewImage = message.Message;
+      this.previewLoading = false;
+      return;
+    }
+
+    try {
+      const blob = await firstValueFrom(
+        this.chat.getAdminImage(message.MessageId)
+      );
+      if (request !== this.previewRequest) return;
+      this.previewImage = URL.createObjectURL(blob);
+      this.previewOwnsUrl = true;
+    } catch {
+      if (request === this.previewRequest)
+        this.previewError = 'Không thể tải ảnh.';
+    } finally {
+      if (request === this.previewRequest) this.previewLoading = false;
+    }
+  }
+
+  closeImagePreview(): void {
+    ++this.previewRequest;
+    if (this.previewOwnsUrl && this.previewImage.startsWith('blob:'))
+      URL.revokeObjectURL(this.previewImage);
+    this.previewOwnsUrl = false;
+    this.previewVisible = false;
+    this.previewLoading = false;
+    this.previewImage = '';
+    this.previewError = '';
+  }
+
+  handlePreviewError(): void {
+    this.previewImage = '';
+    this.previewError = 'Không thể tải ảnh.';
+  }
+
   trackByMessage(_: number, message: IChat): string {
     return message.MessageId;
   }
 
   private fetchMessages(): void {
-    const { Keyword, DateRange } = this.searchForm.getRawValue();
+    const { Keyword, DateRange, DeletionStatus } =
+      this.searchForm.getRawValue();
     const dates = DateRange || [];
     const from = dates[0] ? new Date(dates[0]) : undefined;
     const before = dates[1] ? new Date(dates[1]) : undefined;
@@ -93,6 +157,8 @@ export class MessageListComponent implements OnInit {
         keyword: Keyword,
         sentFrom: from?.toISOString(),
         sentBefore: before?.toISOString(),
+        isDeleted:
+          DeletionStatus === 'all' ? undefined : DeletionStatus === 'deleted',
       })
       .subscribe({
         next: response => {

@@ -33,6 +33,18 @@
           </nz-form-control>
         </nz-form-item>
 
+        <nz-form-item class="message-page__status-field">
+          <nz-form-control>
+            <nz-select
+              formControlName="DeletionStatus"
+              aria-label="Trạng thái tin nhắn">
+              <nz-option nzValue="all" nzLabel="Tất cả trạng thái" />
+              <nz-option nzValue="active" nzLabel="Đang hiển thị" />
+              <nz-option nzValue="deleted" nzLabel="Đã xóa" />
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
         <nz-form-item>
           <button nz-button nzType="primary" type="submit">Tìm kiếm</button>
         </nz-form-item>
@@ -58,7 +70,7 @@
         [nzPageIndex]="pageIndex"
         [nzPageSize]="pageSize"
         [nzLoading]="isLoading"
-        [nzScroll]="{ x: '920px' }"
+        [nzScroll]="{ x: '1080px' }"
         [nzNoResult]="emptyState"
         (nzPageIndexChange)="handlePageIndexChange($event)"
         (nzPageSizeChange)="handlePageSizeChange($event)">
@@ -68,6 +80,7 @@
             <th nzWidth="250px">Người gửi</th>
             <th>Tin nhắn</th>
             <th nzWidth="110px">Loại</th>
+            <th nzWidth="150px">Trạng thái</th>
             <th nzWidth="170px">Thời gian</th>
           </tr>
         </thead>
@@ -77,7 +90,8 @@
               let message of messages;
               let i = index;
               trackBy: trackByMessage
-            ">
+            "
+            [class.message-page__row--deleted]="message.IsDeleted">
             <td class="message-page__index">
               {{ (pageIndex - 1) * pageSize + i + 1 }}
             </td>
@@ -90,18 +104,42 @@
               </div>
             </td>
             <td>
-              <div class="message-page__message" [title]="message.Message">
-                {{ message.Message }}
-              </div>
+              <button
+                *ngIf="isImage(message); else textMessage"
+                class="message-page__image-button"
+                nz-button
+                nzType="text"
+                type="button"
+                (click)="openImage(message)">
+                <span nz-icon nzType="picture" nzTheme="outline"></span>
+                Xem ảnh
+              </button>
+              <ng-template #textMessage>
+                <div class="message-page__message" [title]="message.Message">
+                  {{ message.Message }}
+                </div>
+              </ng-template>
             </td>
             <td>
               <span
                 class="message-page__type"
-                [class.message-page__type--image]="
-                  typeLabel(message.Type) === 'Hình ảnh'
-                ">
+                [class.message-page__type--image]="isImage(message)">
                 {{ typeLabel(message.Type) }}
               </span>
+            </td>
+            <td>
+              <div class="message-page__status">
+                <span
+                  class="message-page__status-badge"
+                  [class.message-page__status-badge--deleted]="
+                    message.IsDeleted
+                  ">
+                  {{ message.IsDeleted ? 'Đã xóa' : 'Đang hiển thị' }}
+                </span>
+                <small *ngIf="message.IsDeleted && message.DeletedAt">
+                  {{ message.DeletedAt | localeDTime }}
+                </small>
+              </div>
             </td>
             <td class="message-page__time">
               {{ message.CreatedDTime | localeDTime }}
@@ -119,3 +157,32 @@
     </section>
   </main>
 </div>
+
+<nz-modal
+  [nzVisible]="previewVisible"
+  nzTitle="Ảnh trong tin nhắn"
+  nzWidth="760px"
+  nzClassName="admin-modal message-preview-modal"
+  nzWrapClassName="admin-modal-wrap"
+  [nzFooter]="null"
+  (nzOnCancel)="closeImagePreview()">
+  <ng-container *nzModalContent>
+    <div class="message-preview">
+      <span
+        *ngIf="previewLoading"
+        class="message-preview__loading"
+        nz-icon
+        nzType="loading"
+        nzTheme="outline"
+        aria-label="Đang tải ảnh"></span>
+      <img
+        *ngIf="previewImage"
+        [src]="previewImage"
+        alt="Ảnh trong tin nhắn"
+        (error)="handlePreviewError()" />
+      <p *ngIf="previewError" class="message-preview__error" role="alert">
+        {{ previewError }}
+      </p>
+    </div>
+  </ng-container>
+</nz-modal>
