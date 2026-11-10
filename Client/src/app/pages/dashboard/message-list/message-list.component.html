@@ -1,0 +1,121 @@
+<div class="master__container message-page admin-fit-page">
+  <app-breadcrumb title="Quản lý tin nhắn" />
+
+  <main class="message-page__content">
+    <section
+      class="message-page__panel admin-fit-panel"
+      aria-label="Danh sách tin nhắn">
+      <form
+        class="message-page__toolbar"
+        nz-form
+        [formGroup]="searchForm"
+        [nzLayout]="'inline'"
+        (ngSubmit)="handleSearch()">
+        <nz-form-item class="message-page__search-field">
+          <nz-form-control>
+            <nz-input-group nzPrefixIcon="search">
+              <input
+                nz-input
+                formControlName="Keyword"
+                aria-label="Tìm kiếm tin nhắn"
+                placeholder="Nội dung, username, email..." />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="message-page__date-field">
+          <nz-form-control>
+            <nz-range-picker
+              formControlName="DateRange"
+              nzFormat="dd/MM/yyyy"
+              [nzPlaceHolder]="['Từ ngày', 'Đến ngày']"
+              aria-label="Khoảng thời gian gửi tin nhắn" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <button nz-button nzType="primary" type="submit">Tìm kiếm</button>
+        </nz-form-item>
+        <nz-form-item>
+          <button
+            class="message-page__reset"
+            nz-button
+            nzType="text"
+            type="button"
+            (click)="handleReset()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Đặt lại
+          </button>
+        </nz-form-item>
+      </form>
+
+      <nz-table
+        class="message-page__table admin-fit-table"
+        nzShowSizeChanger
+        [nzData]="messages"
+        [nzFrontPagination]="false"
+        [nzTotal]="total"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
+        [nzLoading]="isLoading"
+        [nzScroll]="{ x: '920px' }"
+        [nzNoResult]="emptyState"
+        (nzPageIndexChange)="handlePageIndexChange($event)"
+        (nzPageSizeChange)="handlePageSizeChange($event)">
+        <thead>
+          <tr>
+            <th nzWidth="64px">STT</th>
+            <th nzWidth="250px">Người gửi</th>
+            <th>Tin nhắn</th>
+            <th nzWidth="110px">Loại</th>
+            <th nzWidth="170px">Thời gian</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let message of messages;
+              let i = index;
+              trackBy: trackByMessage
+            ">
+            <td class="message-page__index">
+              {{ (pageIndex - 1) * pageSize + i + 1 }}
+            </td>
+            <td>
+              <div class="message-page__sender">
+                <strong>{{ message.SenderName || 'Người dùng' }}</strong>
+                <span [title]="senderIdentity(message)">{{
+                  senderIdentity(message)
+                }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="message-page__message" [title]="message.Message">
+                {{ message.Message }}
+              </div>
+            </td>
+            <td>
+              <span
+                class="message-page__type"
+                [class.message-page__type--image]="
+                  typeLabel(message.Type) === 'Hình ảnh'
+                ">
+                {{ typeLabel(message.Type) }}
+              </span>
+            </td>
+            <td class="message-page__time">
+              {{ message.CreatedDTime | localeDTime }}
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+
+      <ng-template #emptyState>
+        <div class="message-page__empty">
+          <span nz-icon nzType="message" nzTheme="outline"></span>
+          <strong>Không có tin nhắn nào</strong>
+        </div>
+      </ng-template>
+    </section>
+  </main>
+</div>

@@ -38,6 +38,16 @@ namespace angnet.WebApi.Controllers
             }
         }
 
+        [Authorize(Policy = "chat.manage")]
+        [HttpGet("admin/search")]
+        public async Task<IActionResult> SearchMessages(int PageIndex = 0, int PageSize = 20, string Keyword = "",
+            DateTimeOffset? SentFrom = null, DateTimeOffset? SentBefore = null)
+        {
+            if (PageIndex < 0 || PageSize is < 1 or > 100) return BadRequest();
+            if (SentFrom.HasValue && SentBefore.HasValue && SentFrom >= SentBefore) return BadRequest();
+            return Ok(await _chatRepository.SearchMessages(PageIndex, PageSize, Keyword, SentFrom, SentBefore));
+        }
+
         [HttpGet("notifications")]
         public async Task<IActionResult> Notifications() => Ok(await _chatRepository.Notifications(ChatIdentity.AccountId(User), ChatIdentity.Key(User)));
 

@@ -7,6 +7,8 @@ export interface IChat {
   Sequence: number;
   SenderName?: string;
   SenderAvatar?: string;
+  SenderEmail?: string;
+  SenderUsername?: string;
   UserId: string;
   Message: string;
   Type: TypeMessage;
@@ -23,4 +25,12 @@ export interface IChatNotifications {
 export interface IChatDeleted {
   MessageId: string;
   Sequence: number;
+}
+
+export interface IChatSearchParams {
+  pageIndex: number;
+  pageSize: number;
+  keyword?: string;
+  sentFrom?: string;
+  sentBefore?: string;
 }

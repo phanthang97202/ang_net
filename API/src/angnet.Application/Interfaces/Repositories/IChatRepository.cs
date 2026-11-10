@@ -9,6 +9,7 @@ namespace angnet.Application.Interfaces.Repositories
         public Task<ApiResponse<ChatModel>> SendImage(string userId, byte[] data, string contentType);
         public Task<ChatImage?> GetImage(string messageId);
         public Task<ApiResponse<ChatModel>> GetMessage(int pageIndex, int pageSize, long? beforeSequence = null);
+        public Task<ApiResponse<ChatModel>> SearchMessages(int pageIndex, int pageSize, string keyword, DateTimeOffset? sentFrom = null, DateTimeOffset? sentBefore = null);
         public Task<ApiResponse<ChatDeletedDto>> SoftDelete(string messageId, string actorId);
         public Task<ApiResponse<ChatNotificationDto>> Notifications(string accountId, string chatIdentity);
         public Task<ApiResponse<ChatNotificationDto>> MarkRead(string accountId, string chatIdentity, long sequence);

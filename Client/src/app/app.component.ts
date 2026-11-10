@@ -190,6 +190,11 @@ export class AppComponent implements OnInit {
           title: 'Người đăng ký',
           permission: 'subscriber.view',
         },
+        {
+          path: '/dashboard/messages',
+          title: 'Tin nhắn',
+          permission: 'chat.manage',
+        },
       ],
     },
     {

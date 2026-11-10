@@ -1,12 +1,13 @@
 ﻿import { Injectable, signal } from '@angular/core';
 import * as SignalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   IChat,
   IChatResponse,
   IChatNotifications,
   IChatDeleted,
+  IChatSearchParams,
   TypeMessage,
 } from '../interfaces';
 import {
@@ -234,6 +235,17 @@ export class ChatService {
     return this.http.get<IChatResponse>(
       `${this.apiUrl}chat/getmessage?PageIndex=${pageIndex}&PageSize=${pageSize}${cursor}`
     );
+  }
+  searchMessages(params: IChatSearchParams): Observable<IChatResponse> {
+    let query = new HttpParams()
+      .set('PageIndex', params.pageIndex)
+      .set('PageSize', params.pageSize)
+      .set('Keyword', params.keyword?.trim() || '');
+    if (params.sentFrom) query = query.set('SentFrom', params.sentFrom);
+    if (params.sentBefore) query = query.set('SentBefore', params.sentBefore);
+    return this.http.get<IChatResponse>(`${this.apiUrl}chat/admin/search`, {
+      params: query,
+    });
   }
   async deleteMessage(messageId: string): Promise<void> {
     if (!this.canDelete) throw new Error('Bạn không có quyền xóa tin nhắn.');

@@ -1,0 +1,229 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.message-page {
+  min-height: 100%;
+  background: var(--admin-bg);
+}
+
+.message-page__content {
+  width: min(100%, var(--admin-page-max));
+  margin: 0 auto;
+  padding: 22px 24px 32px;
+}
+
+.message-page__panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow-card);
+}
+
+.message-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.message-page__toolbar nz-form-item {
+  margin: 0;
+}
+
+.message-page__search-field {
+  width: min(100%, 360px);
+}
+
+.message-page__date-field {
+  width: min(100%, 300px);
+}
+
+.message-page__search-field nz-form-control,
+.message-page__search-field nz-input-group,
+.message-page__date-field nz-form-control,
+.message-page__date-field nz-range-picker {
+  width: 100%;
+}
+
+.message-page__toolbar button {
+  height: 36px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.message-page__reset,
+.message-page__index,
+.message-page__time {
+  color: var(--admin-text-secondary);
+}
+
+.message-page__index,
+.message-page__time {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.message-page__sender {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.message-page__sender strong,
+.message-page__sender span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-page__sender strong {
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.message-page__sender span {
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+}
+
+.message-page__message {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--admin-text);
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.message-page__type {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding-inline: 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-surface-subtle);
+  color: var(--admin-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.message-page__type--image {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.message-page__empty {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: var(--admin-text-secondary);
+}
+
+.message-page__empty > [nz-icon] {
+  color: var(--admin-text-tertiary);
+  font-size: 34px;
+}
+
+::ng-deep .message-page__toolbar {
+  .ant-input-affix-wrapper,
+  .ant-picker {
+    height: 36px;
+    border-color: var(--admin-border-strong);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .ant-input-affix-wrapper:hover,
+  .ant-input-affix-wrapper-focused,
+  .ant-picker:hover,
+  .ant-picker-focused {
+    border-color: var(--admin-primary);
+  }
+}
+
+::ng-deep .message-page__table {
+  .ant-table {
+    color: var(--admin-text);
+    font-size: 13px;
+  }
+
+  .ant-table-thead > tr > th {
+    height: 44px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-surface-subtle);
+    color: var(--admin-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .ant-table-tbody > tr > td {
+    height: 64px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    vertical-align: middle;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #f8fbff;
+  }
+
+  .ant-table-pagination.ant-pagination {
+    margin: 16px 20px;
+  }
+
+  .ant-pagination-item,
+  .ant-pagination-prev .ant-pagination-item-link,
+  .ant-pagination-next .ant-pagination-item-link,
+  .ant-select-selector {
+    border-radius: 7px;
+  }
+
+  .ant-table-placeholder .ant-table-cell {
+    padding: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .message-page__content {
+    padding: 16px 12px 24px;
+  }
+
+  .message-page__toolbar {
+    padding: 12px 16px;
+  }
+
+  .message-page__search-field,
+  .message-page__date-field {
+    width: 100%;
+  }
+
+  .message-page__toolbar nz-form-item:nth-last-child(-n + 2) {
+    flex: 1;
+  }
+
+  .message-page__toolbar button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  ::ng-deep .message-page__table .ant-table-pagination.ant-pagination {
+    margin: 14px 12px;
+  }
+}

@@ -91,6 +91,56 @@ namespace angnet.Infrastructure.Data.Repositories
             return apiResponse;
         }
 
+        public async Task<ApiResponse<ChatModel>> SearchMessages(int pageIndex, int pageSize, string keyword,
+            DateTimeOffset? sentFrom = null, DateTimeOffset? sentBefore = null)
+        {
+            var normalizedKeyword = (keyword ?? string.Empty).Trim().ToLower();
+            var query = _dbContext.Chat.AsNoTracking().Where(c => !c.IsDeleted);
+
+            if (sentFrom.HasValue)
+                query = query.Where(c => c.CreatedDTime >= sentFrom.Value.UtcDateTime);
+            if (sentBefore.HasValue)
+                query = query.Where(c => c.CreatedDTime < sentBefore.Value.UtcDateTime);
+
+            if (normalizedKeyword.Length > 0)
+            {
+                var matchingUsers = await _dbContext.Users.AsNoTracking()
+                    .Where(u => (u.Email != null && u.Email.ToLower().Contains(normalizedKeyword))
+                        || (u.UserName != null && u.UserName.ToLower().Contains(normalizedKeyword))
+                        || u.FullName.ToLower().Contains(normalizedKeyword))
+                    .Select(u => new { u.Id, u.Email })
+                    .ToListAsync();
+                var matchingIdentities = matchingUsers
+                    .SelectMany(u => new[] { "account:" + u.Id, u.Email ?? string.Empty })
+                    .Where(x => x.Length > 0)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                query = query.Where(c => c.Message.ToLower().Contains(normalizedKeyword)
+                    || c.UserId.ToLower().Contains(normalizedKeyword)
+                    || matchingIdentities.Contains(c.UserId));
+            }
+
+            var itemCount = await query.CountAsync();
+            var data = await query.OrderByDescending(c => c.Sequence)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            await AttachSenderProfiles(data);
+
+            return new ApiResponse<ChatModel>
+            {
+                objResult = new PageInfo<ChatModel>
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    PageCount = itemCount == 0 ? 0 : (itemCount + pageSize - 1) / pageSize,
+                    ItemCount = itemCount,
+                    DataList = data
+                }
+            };
+        }
+
         private async Task<ChatReadState> ReadState(string accountId)
         {
             var state = await _dbContext.ChatReadStates.AsNoTracking().SingleOrDefaultAsync(s => s.UserId == accountId);
@@ -127,13 +177,16 @@ namespace angnet.Infrastructure.Data.Repositories
             var profiles = users.SelectMany(u => new[] { u.Email, "account:" + u.Id }
                 .Where(key => !string.IsNullOrWhiteSpace(key))
                 .Select(key => new { Key = key!, Name = !string.IsNullOrWhiteSpace(u.FullName) ? u.FullName.Trim()
-                    : !string.IsNullOrWhiteSpace(u.UserName) && !u.UserName.Contains('@') ? u.UserName : "Người dùng", u.Avatar }))
+                    : !string.IsNullOrWhiteSpace(u.UserName) && !u.UserName.Contains('@') ? u.UserName : "Người dùng",
+                    u.Avatar, u.Email, u.UserName }))
                 .ToDictionary(u => u.Key, StringComparer.OrdinalIgnoreCase);
             foreach (var message in messages)
             {
                 profiles.TryGetValue(message.UserId, out var profile);
                 message.SenderName = profile?.Name ?? "Người dùng";
                 message.SenderAvatar = profile?.Avatar;
+                message.SenderEmail = profile?.Email ?? (message.UserId.Contains('@') ? message.UserId : null);
+                message.SenderUsername = profile?.UserName;
             }
         }
 

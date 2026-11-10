@@ -449,6 +449,18 @@ const appRoutes: Routes = [
           ),
         canActivate: [canActivePermission('sysparameter.view')],
       },
+      {
+        path: 'messages',
+        title: 'Quản lý tin nhắn',
+        loadComponent: () =>
+          import('./pages/dashboard/message-list/message-list.component').then(
+            p => p.MessageListComponent
+          ),
+        canActivate: [
+          canActivePermission('chat.view'),
+          canActivePermission('chat.manage'),
+        ],
+      },
     ],
   },
 

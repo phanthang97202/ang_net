@@ -13,6 +13,10 @@ namespace angnet.Domain.Models
         public string? SenderName { get; set; }
         [NotMapped]
         public string? SenderAvatar { get; set; }
+        [NotMapped]
+        public string? SenderEmail { get; set; }
+        [NotMapped]
+        public string? SenderUsername { get; set; }
         [ForeignKey("UserId")]
         [Required]
         public string UserId {  get; set; } = string.Empty;

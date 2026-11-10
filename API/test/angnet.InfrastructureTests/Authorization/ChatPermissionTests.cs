@@ -52,6 +52,8 @@ public class ChatPermissionTests
         b.Configuration["Cloudinary:ApiSecret"] = "test-only-secret";
         b.Services.AddScoped<AccountSessionService>(); b.Services.AddSingleton<ChatConnections>();
         repo.Setup(x => x.GetMessage(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<long?>())).ReturnsAsync(new ApiResponse<ChatModel>());
+        repo.Setup(x => x.SearchMessages(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>()))
+            .ReturnsAsync(new ApiResponse<ChatModel>());
         repo.Setup(x => x.SoftDelete(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string id, string actor) => new ApiResponse<ChatDeletedDto>(new ChatDeletedDto { MessageId = id, Sequence = 1 }));
         repo.Setup(x => x.Notifications(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new ApiResponse<ChatNotificationDto>(new ChatNotificationDto()));
@@ -116,6 +118,15 @@ public class ChatPermissionTests
         Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.send"]), post));
         Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(permissions: ["chat.view"]), post));
         Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(admin: true), post));
+    }
+    [TestMethod] public async Task AdminSearch_RequiresViewAndManage()
+    {
+        const string path = "/api/chat/admin/search?PageIndex=0&PageSize=20&Keyword=hello";
+        Assert.AreEqual(HttpStatusCode.Unauthorized, await Request(path, null));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.view"])));
+        Assert.AreEqual(HttpStatusCode.Forbidden, await Request(path, Token(permissions: ["chat.manage"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(permissions: ["chat.view", "chat.manage"])));
+        Assert.AreEqual(HttpStatusCode.OK, await Request(path, Token(admin: true)));
     }
     [TestMethod] public async Task HubConnection_RequiresView()
     {
@@ -221,6 +232,30 @@ public class ChatPermissionTests
         var latest = (await actual.Notifications("viewer", "account:viewer")).Data.LatestMessage!;
         Assert.AreEqual("Current name", latest.SenderName);
         Assert.AreEqual("https://example.com/current-avatar.jpg", latest.SenderAvatar);
+    }
+    [TestMethod] public async Task AdminSearch_FiltersContentSenderAndDate_WithServerPaging()
+    {
+        await Db.Users.Where(u => u.Id == "sender").ExecuteUpdateAsync(s => s
+            .SetProperty(u => u.Email, "sender@example.com")
+            .SetProperty(u => u.UserName, "hotel.sender")
+            .SetProperty(u => u.FullName, "Nguyễn Gửi"));
+        Db.Chat.AddRange(
+            new ChatModel { Sequence = 10, UserId = "account:sender", Message = "Lịch trực khách sạn", Type = "string", CreatedDTime = new DateTime(2026, 11, 4, 10, 0, 0, DateTimeKind.Utc) },
+            new ChatModel { Sequence = 11, UserId = "account:sender", Message = "Hình ca trực", Type = "image", CreatedDTime = new DateTime(2026, 11, 5, 10, 0, 0, DateTimeKind.Utc) },
+            new ChatModel { Sequence = 12, UserId = "account:viewer", Message = "Tin ngoài khoảng", Type = "string", CreatedDTime = new DateTime(2026, 11, 8, 10, 0, 0, DateTimeKind.Utc) },
+            new ChatModel { Sequence = 13, UserId = "account:sender", Message = "Đã xóa", Type = "string", IsDeleted = true, CreatedDTime = new DateTime(2026, 11, 5, 11, 0, 0, DateTimeKind.Utc) });
+        await Db.SaveChangesAsync();
+        var actual = new ChatRespository(Db);
+        var range = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 20, "hotel.sender",
+            new DateTimeOffset(2026, 11, 4, 0, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 11, 6, 0, 0, 0, TimeSpan.Zero))).objResult;
+        Assert.AreEqual(2, range.ItemCount);
+        CollectionAssert.AreEqual(new long[] { 11, 10 }, range.DataList.Select(x => x.Sequence).ToArray());
+        Assert.IsTrue(range.DataList.All(x => x.SenderEmail == "sender@example.com" && x.SenderUsername == "hotel.sender"));
+        var content = (PageInfo<ChatModel>)(await actual.SearchMessages(0, 1, "khách sạn")).objResult;
+        Assert.AreEqual(1, content.ItemCount);
+        Assert.AreEqual(10L, content.DataList.Single().Sequence);
+        Assert.AreEqual(1, content.PageCount);
     }
 
     private async Task<HttpResponseMessage> Upload(int size, string? token, string contentType = "image/png", bool validHeader = true)
