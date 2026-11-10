@@ -9,8 +9,8 @@
             <button type="button" [attr.aria-label]="'T_CALENDAR_NEXT_MONTH' | translate" (click)="changeMonth(1)"><span nz-icon nzType="right"></span></button>
           </div>
           <div class="calendar-controls">
-            <button type="button" class="today-button" (click)="goToday()">{{ 'T_CALENDAR_TODAY' | translate }}</button>
-            <button type="button" class="button button--primary create-button" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_CALENDAR_CREATE_SHORT' | translate }}</button>
+            <button type="button" class="toolbar-action today-button" (click)="goToday()">{{ 'T_CALENDAR_TODAY' | translate }}</button>
+            <button type="button" class="toolbar-action create-button is-primary" (click)="openCreate()"><span nz-icon nzType="plus"></span> {{ 'T_CALENDAR_CREATE_SHORT' | translate }}</button>
           </div>
         </div>
         <div class="status-filter" role="group" [attr.aria-label]="'T_CALENDAR_STATUS_FILTER' | translate">

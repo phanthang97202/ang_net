@@ -14,13 +14,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .calendar-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.5rem; }
 .calendar-toolbar h2, .agenda-top h2 { margin: 0; font-size: 1.18rem; font-weight: 800; letter-spacing: -.025em; }
 .calendar-controls, .month-switch { display: flex; align-items: center; gap: .4rem; }
-.today-button, .month-switch button, .icon-button { display: grid; min-height: 38px; place-items: center; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-bg-card); color: var(--color-text); }
-.calendar-controls .today-button, .calendar-controls .create-button { box-sizing: border-box; height: 38px; min-height: 38px; padding: 0 .85rem; border-radius: 10px; line-height: 1; }
-.calendar-controls .create-button { box-shadow: none; }
-.today-button { padding: 0 .85rem; font-size: .72rem; font-weight: 700; }
+.month-switch button, .icon-button { display: grid; min-height: 38px; place-items: center; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-bg-card); color: var(--color-text); }
+.calendar-controls .toolbar-action { display: inline-flex; box-sizing: border-box; height: 38px; min-height: 38px; align-items: center; justify-content: center; gap: .45rem; margin: 0; padding: 0 .85rem; border: 1px solid var(--color-border); border-radius: 10px; appearance: none; color: var(--color-text); background: var(--color-bg-card); font-size: .72rem; font-weight: 700; line-height: 1; }
+.calendar-controls .toolbar-action.is-primary { color: white; background: var(--color-accent); }
 .month-switch button, .icon-button { width: 38px; }
 .month-switch h2 { min-width: 125px; text-align: center; }
-.today-button:hover, .month-switch button:hover, .icon-button:hover { background: var(--color-accent-bg); color: var(--color-accent); }
+.toolbar-action:hover, .month-switch button:hover, .icon-button:hover { background: var(--color-accent-bg); color: var(--color-accent); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--color-border); }
 .weekday { padding: .8rem .35rem; color: var(--color-text-muted); font-size: .64rem; font-weight: 800; text-align: center; }
 .calendar-day { position: relative; display: flex; min-width: 0; min-height: 105px; flex-direction: column; align-items: flex-start; gap: .4rem; padding: .65rem; border: 0; border-top: 1px solid var(--color-border); border-right: 1px solid var(--color-border); background: transparent; color: var(--color-text); text-align: left; }
