@@ -3,9 +3,13 @@
 }
 .notification-bell {
   position: relative;
+  // Badge số và chấm lịch nằm sát hai góc của nút. Class dùng chung
+  // .navbar-icon-btn cắt overflow theo hình tròn nên chúng chỉ còn lộ một phần.
+  overflow: visible;
 }
 .notification-badge {
   position: absolute;
+  z-index: 1;
   top: 1px;
   right: -2px;
   min-width: 17px;

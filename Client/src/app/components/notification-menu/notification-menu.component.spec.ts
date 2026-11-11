@@ -96,6 +96,12 @@ describe('Notification menu', () => {
       'button'
     ) as HTMLButtonElement;
     expect(bell.getAttribute('aria-label')).toBe('Thông báo: 1');
+    expect(getComputedStyle(bell).overflow).toBe('visible');
+    expect(
+      fixture.nativeElement
+        .querySelector('.notification-badge')
+        .textContent.trim()
+    ).toBe('1');
     bell.click();
     fixture.detectChanges();
     tick(500);

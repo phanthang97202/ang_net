@@ -41,6 +41,48 @@ final result: blocked
 
 ---
 
+## Navbar notification badge clipping — 2026-11-11
+
+- Source visual truth path: user-provided cropped navbar screenshot in the current conversation.
+- Implementation screenshot path: unavailable; the in-app browser is unavailable and the Chrome connector could not navigate the local tab.
+- Viewport: compact navbar crop; exact browser viewport and density are unknown.
+- Source pixel dimensions: 67 × 57 px as supplied in the conversation.
+- Implementation pixel dimensions / CSS size / density normalization: unavailable because a browser screenshot could not be captured.
+- State: dark theme, authenticated navbar, notification/calendar indicators visible.
+
+### Full-view comparison evidence
+
+- Blocked: no controllable browser-rendered capture was available at the same state.
+- The source clearly shows the corner indicator clipped by the circular notification button.
+
+### Focused region comparison evidence
+
+- ChromeHeadless computed-style verification confirms `.notification-bell` now resolves to `overflow: visible` and `.notification-badge` renders the unread value `1`.
+- The fix is scoped to the notification bell; other `.navbar-icon-btn` controls retain circular overflow clipping.
+
+### Findings
+
+- [Fixed] The shared `.navbar-icon-btn { overflow: hidden; }` clipped the absolutely positioned unread badge and calendar indicator at the rounded button edge.
+- [Blocked] Exact visual placement in desktop/mobile light/dark themes could not be screenshot-compared because browser navigation failed.
+
+### Comparison history
+
+- Initial evidence: the supplied screenshot showed only a small purple corner fragment above the bell.
+- Fix: override the bell to `overflow: visible` and place the numeric badge above adjacent indicator layers with `z-index: 1`.
+- Post-fix evidence: 5 notification-menu tests pass, including a computed-style and unread-badge regression assertion; production build passes.
+
+### Required fidelity surfaces
+
+- Fonts and typography: unchanged.
+- Spacing and layout rhythm: button and indicator coordinates unchanged; only clipping behavior changed.
+- Colors and visual tokens: unchanged.
+- Image quality and asset fidelity: existing bell icon retained; no new assets introduced.
+- Copy and content: unchanged.
+
+final result: blocked
+
+---
+
 ## Profile tabs, badges, and primary action — 2026-11-11
 
 - Source visual truth path: three user-provided screenshots in the current conversation (`Bài viết của tôi`, `Reels của tôi`, `Danh mục của tôi`).
