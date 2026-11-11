@@ -1,5 +1,6 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -8,9 +9,11 @@ import { AuthService, ApiService, ShowErrorService } from '../../../services';
 import { NewsCardComponent } from '../../../components/news-card/news-card.component';
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
 import { MyFavoritesComponent } from '../my-favorites/my-favorites.component';
+import { catchError, forkJoin, of } from 'rxjs';
 
 type PostVisibilityTab =
-  Extract<TWhoCanSee, 'Public' | 'Private'> | 'Favorites';
+  | Extract<TWhoCanSee, 'Public' | 'Private'>
+  | 'Favorites';
 
 const PLACEHOLDER_COLORS = [
   '#5b4fe9',
@@ -42,6 +45,7 @@ export class MyPostsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
   readonly tabs: { value: PostVisibilityTab; labelKey: string }[] = [
     { value: 'Public', labelKey: 'T_PUBLICPOSTS' },
@@ -55,6 +59,11 @@ export class MyPostsComponent implements OnInit {
   pageSize = 6;
   itemCount = 0;
   isLoading = false;
+  tabCounts: Record<PostVisibilityTab, number | null> = {
+    Public: null,
+    Private: null,
+    Favorites: null,
+  };
 
   ngOnInit(): void {
     const visibility = this.route.snapshot.queryParamMap.get('visibility');
@@ -64,6 +73,7 @@ export class MyPostsComponent implements OnInit {
         : visibility === 'Private'
           ? 'Private'
           : 'Public';
+    this.loadTabCounts();
     if (this.activeTab !== 'Favorites') this.loadPosts(0);
   }
 
@@ -84,6 +94,11 @@ export class MyPostsComponent implements OnInit {
 
   placeholderColor(index: number): string {
     return PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
+  }
+
+  onFavoriteCountChanged(count: number): void {
+    this.itemCount = count;
+    this.tabCounts.Favorites = count;
   }
 
   private loadPosts(pageIndex: number): void {
@@ -113,9 +128,37 @@ export class MyPostsComponent implements OnInit {
           this.posts = response.objResult?.DataList || [];
           this.currentPage = response.objResult?.PageIndex || 0;
           this.itemCount = response.objResult?.ItemCount || 0;
+          this.tabCounts[this.activeTab] = this.itemCount;
         },
         error: error => this.showApiError(error?.message || 'Error'),
         complete: () => (this.isLoading = false),
+      });
+  }
+
+  private loadTabCounts(): void {
+    const userId = this.authService.getAccountInfo().nameid || '';
+    if (!userId) return;
+
+    const countPosts = (
+      visibility: Extract<PostVisibilityTab, 'Public' | 'Private'>
+    ) =>
+      this.api
+        .SearchNews(0, 1, '', userId, '', true, '', '', false, visibility)
+        .pipe(catchError(() => of(null)));
+
+    forkJoin({
+      publicPosts: countPosts('Public'),
+      privatePosts: countPosts('Private'),
+      favorites: this.api.MyFavorites(1, null).pipe(catchError(() => of(null))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ publicPosts, privatePosts, favorites }) => {
+        this.tabCounts.Public =
+          publicPosts?.objResult?.ItemCount ?? this.tabCounts.Public;
+        this.tabCounts.Private =
+          privatePosts?.objResult?.ItemCount ?? this.tabCounts.Private;
+        this.tabCounts.Favorites =
+          favorites?.objResult?.ItemCount ?? this.tabCounts.Favorites;
       });
   }
 
